@@ -11,7 +11,7 @@ This directory includes the following files:
 
 - ``input.toml``
 
-  The input file of py2dmat
+  The input file of odatse
 
 - ``plot_result_2d.py``
 
@@ -92,7 +92,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of 2DMAT.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
 
 .. code-block::
 
@@ -102,7 +102,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 Here, the calculation is performed using MPI parallel with 4 processes.
 If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribed`` option to the ``mpiexec`` command.

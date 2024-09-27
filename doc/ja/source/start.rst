@@ -1,4 +1,4 @@
-py2dmat のインストール
+ODAT-SE のインストール
 ================================
 
 実行環境・必要なパッケージ
@@ -19,37 +19,37 @@ py2dmat のインストール
 ダウンロード・インストール
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-下記に示す方法で、 ``py2dmat`` python パッケージと ``py2dmat`` コマンドがインストールできます。
+下記に示す方法で、 ``ODAT-SE`` python パッケージと ``odatse`` コマンドがインストールできます。
 
 - PyPI からのインストール(推奨)
 
-    - ``python3 -m pip install py2dmat``
+    - ``python3 -m pip install ODAT-SE``
 
         - ``--user`` オプションをつけるとローカル (``$HOME/.local``) にインストールできます
 
-        - ``py2dmat[all]`` とすると Optional なパッケージも同時にインストールします
+        - ``ODAT-SE[all]`` とすると Optional なパッケージも同時にインストールします
 
 - ソースコードからのインストール
 
-    1. ``git clone https://github.com/issp-center-dev/2DMAT``
-    2. ``python3 -m pip install ./2DMAT``
+    1. ``git clone https://github.com/issp-center-dev/ODAT-SE``
+    2. ``python3 -m pip install ./ODAT-SE``
 
         - ``pip`` のバージョンは 19 以上が必要です (``python3 -m pip install -U pip`` で更新可能)
 
 - サンプルファイルのダウンロード
 
     - サンプルファイルはソースコードに同梱されています。
-    - ``git clone https://github.com/issp-center-dev/2DMAT``
+    - ``git clone https://github.com/issp-center-dev/ODAT-SE``
 
 
 実行方法
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``py2dmat`` コマンドは定義済みの最適化アルゴリズム ``Algorithm`` と順問題ソルバー ``Solver`` の組み合わせで解析を行います。
+``odatse`` コマンドは定義済みの最適化アルゴリズム ``Algorithm`` と順問題ソルバー ``Solver`` の組み合わせで解析を行います。
 
 .. code-block:: bash
     
-    $ py2dmat input.toml
+    $ odatse input.toml
 
 定義済みの ``Algorithm`` については :doc:`algorithm/index` を、
 ``Solver`` については :doc:`solver/index` を参照してください。
@@ -58,28 +58,28 @@ py2dmat のインストール
 これらの解析を行う場合は別途パッケージと必要なソフトウェアをインストールしてください。
 現在は以下の順問題ソルバーが用意されています。
 
-- 全反射高速陽電子回折 (TRHEPD) -- 2DMAT-SIM-TRHEPD-RHEED パッケージ
+- 全反射高速陽電子回折 (TRHEPD) -- odatse-STR パッケージ
 
-- 表面X線回折 (SXRD) -- 2DMAT-SXRD パッケージ
+- 表面X線回折 (SXRD) -- odatse-SXRD パッケージ
 
-- 低速電子線回折 (LEED) -- 2DMAT-LEED パッケージ
+- 低速電子線回折 (LEED) -- odatse-LEED パッケージ
 
-``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``py2dmat`` パッケージを利用します。
+``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``ODAT-SE`` パッケージを利用します。
 詳しくは :doc:`customize/index` を参照してください。
 
-なお、 プログラムを改造する場合など、 ``py2dmat`` コマンドをインストールせずに直接実行することも可能です。
-``src/py2dmat_main.py`` を利用してください。
+なお、 プログラムを改造する場合など、 ``odatse`` コマンドをインストールせずに直接実行することも可能です。
+``src/odatse_main.py`` を利用してください。
 
 .. code-block::
 
-    $ py2dmat src/py2dmat_main.py input.toml
+    $ python3 src/odatse_main.py input.toml
 
 
 アンインストール
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2DMAT モジュールをアンインストールするには、以下のコマンドを実行します。
+ODAT-SE モジュールをアンインストールするには、以下のコマンドを実行します。
 
 .. code-block:: bash
 
-    $ python3 -m pip uninstall py2dmat
+    $ python3 -m pip uninstall ODAT-SE

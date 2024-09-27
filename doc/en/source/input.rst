@@ -6,7 +6,7 @@ The input file consists of the following four sections.
 
 - ``base``
 
-  - Specify the basic parameters about ``py2dmat`` . 
+  - Specify the basic parameters about ODAT-SE. 
 
 - ``solver``
 

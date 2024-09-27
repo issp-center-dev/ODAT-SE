@@ -1,13 +1,13 @@
 ``Algorithm`` の定義
 ================================
 
-``Algorithm`` クラスは ``py2dmat.algorithm.AlgorithmBase`` を継承したクラスとして定義します。
+``Algorithm`` クラスは ``odatse.algorithm.AlgorithmBase`` を継承したクラスとして定義します。
 
 .. code-block:: python
 
-    import py2dmat
+    import odatse
 
-    class Algorithm(py2dmat.algorithm.AlgorithmBase):
+    class Algorithm(odatse.algorithm.AlgorithmBase):
         pass
 
 
@@ -16,7 +16,7 @@
 
 ``AlgorithmBase`` クラスは次のメソッドを提供します。
 
-- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
     - ``info`` から ``Algorithm`` 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。
 
@@ -110,7 +110,7 @@
 
 ``Algorithm`` は少なくとも次のメソッドを定義しなければなりません。
 
-- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None, domain = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, domain = None)``
 
     - ``info`` および ``runner`` 引数はそのまま基底クラスのコンストラクタに転送してください
 
@@ -119,7 +119,7 @@
     - 入力パラメータである ``info`` から必要な設定を読み取り、保存してください
 
     - ``domain`` が指定されている場合は、探索領域を ``domain`` から取得します。
-      指定されていない場合は ``py2dmat.domain.Region(info)`` (探索領域が連続的な場合) または ``py2dmat.domain.MeshGrid(info)`` (離散的な場合) を用いて ``info`` から作成します。
+      指定されていない場合は ``odatse.domain.Region(info)`` (探索領域が連続的な場合) または ``odatse.domain.MeshGrid(info)`` (離散的な場合) を用いて ``info`` から作成します。
 
 - ``_prepare(self) -> None``
 

@@ -1,13 +1,13 @@
 ``Algorithm``
 ================================
 
-``Algorithm`` is defined as a subclass of ``py2dmat.algorithm.AlgorithmBase``:
+``Algorithm`` is defined as a subclass of ``odatse.algorithm.AlgorithmBase``:
 
 .. code-block:: python
 
-    import py2dmat
+    import odatse
 
-    class Algorithm(py2dmat.algorithm.AlgorithmBase):
+    class Algorithm(odatse.algorithm.AlgorithmBase):
         pass
 
 
@@ -16,7 +16,7 @@
 
 ``AlgorithmBase`` class offers the following methods.
 
-- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
   - Reads the common parameters from ``info`` and sets the following instance variables:
 
@@ -108,7 +108,7 @@
 ``Algorithm`` provides a concrete description of the algorithm.
 It is defined as a subclass of ``AlgorithmBase`` and should have the following methods.
 
-- ``__init__(self, info: py2dmat.Info, runner: py2dmat.Runner = None, domain = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, domain = None)``
 
     - The arguments ``info`` and ``runner`` should be transferred to the constructor of the base class:
 
@@ -117,7 +117,7 @@ It is defined as a subclass of ``AlgorithmBase`` and should have the following m
     - Reads ``info`` and sets information.
 
     - If ``domain`` is given, the search region should be taken from the ``domain`` parameter.
-      Otherwise, the search region should be created from ``info`` by ``py2dmat.domain.Region(info)`` (for continuous parameter space) or ``py2dmat.domain.MeshGrid(info)`` (for discrete parameter space).
+      Otherwise, the search region should be created from ``info`` by ``odatse.domain.Region(info)`` (for continuous parameter space) or ``odatse.domain.MeshGrid(info)`` (for discrete parameter space).
 
 - ``_prepare(self) -> None``
 

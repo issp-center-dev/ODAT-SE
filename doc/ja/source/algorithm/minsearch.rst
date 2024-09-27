@@ -9,7 +9,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 重要なハイパーパラメータとして、座標の初期値があります。
 局所最適解にトラップされるという問題があるので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
 
-2DMATは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
+ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
 詳しくは `公式ドキュメント <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ をご参照ください。
 
 

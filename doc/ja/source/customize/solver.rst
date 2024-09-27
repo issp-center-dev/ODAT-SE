@@ -3,13 +3,13 @@
 
 順問題を記述する ``Solver`` は、入力変数に対して目的関数の値を返す ``evaluate`` メソッドを持つクラスとして以下のように定義します。
 
-- ``Solver`` クラスは ``py2dmat.solver.SolverBase`` を継承するクラスとします。
+- ``Solver`` クラスは ``odatse.solver.SolverBase`` を継承するクラスとします。
 
   .. code-block:: python
 
-     import py2dmat
+     import odatse
 
-     class Solver(py2dmat.solver.SolverBase):
+     class Solver(odatse.solver.SolverBase):
          pass
 
 - コンストラクタ
@@ -18,14 +18,14 @@
 
   .. code-block:: python
 
-     def __init__(self, info: py2dmat.Info):
+     def __init__(self, info: odatse.Info):
          super().__init__(info)
 	 ...
 
   必ず ``info`` を引数として基底クラスのコンストラクタを呼び出してください。
   基底クラスのコンストラクタでは、次のインスタンス変数が設定されます。
 
-  - ``self.root_dir`` はルートディレクトリです。 ``info.base["root_dir"]`` から取得され、 ``py2dmat`` を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。
+  - ``self.root_dir`` はルートディレクトリです。 ``info.base["root_dir"]`` から取得され、 ``odatse`` を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。
 
   - ``self.output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
 

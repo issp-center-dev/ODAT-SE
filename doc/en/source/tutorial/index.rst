@@ -6,8 +6,8 @@
 Tutorials
 ==================================
 
-In these tutorials, how to perform inverse problem analyses using 2DMAT is explained by examples taken from minimization of analytical functions.
-In 2DMAT, the algorithms for solving the inverse problem can be selected from the following algorithms:
+In these tutorials, how to perform inverse problem analyses using ODAT-SE is explained by examples taken from minimization of analytical functions.
+In ODAT-SE, the algorithms for solving the inverse problem can be selected from the following algorithms:
 
 - ``minsearch``
 

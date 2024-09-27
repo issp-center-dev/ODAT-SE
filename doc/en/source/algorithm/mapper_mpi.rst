@@ -108,7 +108,7 @@ Restart
 ~~~~~~~~~~~~~~~~~~~~~~
 The execution mode is specified by the ``run_mode`` parameter to the constructor.
 The operation of each mode is described as follows.
-The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
 
 - ``"initial"`` (default)
 

@@ -4,7 +4,7 @@
 ベンチマーク関数ソルバー
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``py2dmat`` では探索アルゴリズムのテストに利用できる順問題ソルバーとして ``analytical`` ソルバーを用意しています。
+ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソルバーとして ``analytical`` ソルバーを用意しています。
 
 ``analytical`` ソルバーを使うには、入力ファイルの ``[solver]`` セクションの ``name`` を ``"analytical"`` に設定し、 ``function_name`` パラメータを用いてベンチマーク関数 :math:`f(x)` を選択します。
 たとえば、 Himmelblau 関数を用いる場合には
@@ -30,10 +30,10 @@
 
 を追加してみましょう。(最小値は :math:`f(1,3) = 0`)
 
-そのためには、 ``py2dmat`` のソースコードをダウンロードし、ファイルを編集する必要があります。
+そのためには、 ODAT-SEのソースコードをダウンロードし、ファイルを編集する必要があります。
 ダウンロード方法や、ソースコードからの実行方法などは、 :doc:`インストールページ <../start>` を参照してください。
 
-``analytical`` ソルバーは ``src/py2dmat/solver/analytical.py`` に定義されているので、これを編集します。
+``analytical`` ソルバーは ``src/odatse/solver/analytical.py`` に定義されているので、これを編集します。
 
 まず、 ``booth`` 関数を定義します。
 
@@ -80,11 +80,11 @@
     name = "analytical"
     function_name = "booth"
 
-``src/py2dmat_main.py`` に渡せば実行可能です。
+``src/odatse_main.py`` に渡せば実行可能です。
 
 .. code-block::
 
-    $ python3 src/py2dmat_main.py input.toml
+    $ python3 src/odatse_main.py input.toml
 
     ... skipped ...
 

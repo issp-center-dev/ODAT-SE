@@ -161,7 +161,7 @@ A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
-An utility tool, ``py2dmat_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
+An utility tool, ``odatse_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
 
 .. code-block::
 
@@ -243,7 +243,7 @@ Restart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The execution mode is specified by the ``run_mode`` parameter to the constructor.
 The operation of each mode is described as follows.
-The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
 
 - ``"initial"`` (default)
 
@@ -294,7 +294,7 @@ Practically, the stronger condition ("the detailed balance condition")
 is usually imposed.
 The detailed balance condition returns to the balance condition by taking the summation of :math:`\vec{x}`.
 
-2DMAT adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
+ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
 The MH method splits the transition process into the suggestion process and the acceptance process.
 
 1. Generate a candidate :math:`\vec{x}` with the suggestion probability :math:`P(\vec{x} | \vec{x}_t)`.

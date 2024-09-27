@@ -8,7 +8,7 @@ When ``minsearch`` is selcted, the optimization by the `Nelder-Mead method <http
 An important hyperparameter is the initial value of the coordinates.
 Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.
 
-In 2DMAT, the Scipy's function ``scipy.optimize.minimize(method="Nelder-Mead")`` is used.
+In ODAT-SE, the Scipy's function ``scipy.optimize.minimize(method="Nelder-Mead")`` is used.
 For details, see `the official document <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ .
 
 

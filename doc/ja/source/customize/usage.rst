@@ -6,13 +6,13 @@
 
 1. ユーザ定義クラスを作成する
 
-   - ``py2dmat`` で定義済みのクラスも利用可能です
+   - ODAT-SEで定義済みのクラスも利用可能です
 
-2. 入力パラメータ ``info: py2dmat.Info`` を作成する
+2. 入力パラメータ ``info: odatse.Info`` を作成する
 
    - ``Info`` クラスにはTOML形式の入力ファイルを読み込むクラスメソッドが用意されています。この他にも、dict形式でパラメータを用意して ``Info`` クラスのコンストラクタに渡して作成することができます。
 
-3. ``solver: Solver``, ``runner: py2dmat.Runner``, ``algorithm: Algorithm`` を作成する
+3. ``solver: Solver``, ``runner: odatse.Runner``, ``algorithm: Algorithm`` を作成する
 
 4. ``algorithm.main()`` を実行する
 
@@ -22,24 +22,24 @@
 .. code-block:: python
 
     import sys
-    import py2dmat
+    import odatse
 
     # (1)
-    class Solver:
+    class Solver(odatse.solver.SolverBase):
         # Define your solver
         pass
 
-    class Algorithm(py2dmat.algorithm.AlgorithmBase):
+    class Algorithm(odatse.algorithm.AlgorithmBase):
         # Define your algorithm
         pass
 
     # (2)
     input_file = sys.argv[1]
-    info = py2dmat.Info.from_file(input_file)
+    info = odatse.Info.from_file(input_file)
 
     # (3)
     solver = Solver(info)
-    runner = py2dmat.Runner(solver, info)
+    runner = odatse.Runner(solver, info)
     algorithm = Algorithm(info, runner)
 
     # (4)

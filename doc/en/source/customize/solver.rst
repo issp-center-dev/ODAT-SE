@@ -3,13 +3,13 @@
 
 ``Solver`` is a class that describes the direct problem, providing a method ``evaluate`` that returns the value of the objective function from the input parameters.
 
-- ``Solver`` is define as a derived class of ``py2dmat.solver.SolverBase``.
+- ``Solver`` is define as a derived class of ``odatse.solver.SolverBase``.
 
   .. code-block:: python
 
-     import py2dmat
+     import odatse
 
-     class Solver(py2dmat.solver.SolverBase):
+     class Solver(odatse.solver.SolverBase):
          pass
 
 - Constructor
@@ -18,7 +18,7 @@
 
   .. code-block:: python
 
-     def __init__(self, info: py2dmat.Info):
+     def __init__(self, info: odatse.Info):
          super().__init__(info)
 
   It is required to call the constructor of the base class with the info object.
@@ -26,7 +26,7 @@
 
   - ``self.root_dir: pathlib.Path`` : Root directory
 
-    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``py2dmat`` is executed. It can be referred as a root location when the external programs or data files are read.
+    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``odatse`` is executed. It can be referred as a root location when the external programs or data files are read.
 
   - ``self.output_dir: pathlib.Path`` : Output directory
 
