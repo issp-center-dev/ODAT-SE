@@ -7,11 +7,11 @@ time python3 ./makemesh.py > MeshData.txt
 
 echo
 echo generate neighborlist.txt
-time python3 ../../src/py2dmat_neighborlist.py -r 0.11 MeshData.txt
+time python3 ../../src/odatse_neighborlist.py -r 0.11 MeshData.txt
 
 echo
 echo perform exchange mc
-time python3 ../../src/py2dmat_main.py input.toml
+time python3 ../../src/odatse_main.py input.toml
 
 resfile=output/best_result.txt
 

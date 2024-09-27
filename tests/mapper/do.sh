@@ -2,7 +2,7 @@
 
 rm -rf output
 
-time mpiexec --oversubscribe -np 2 python3 ../../src/py2dmat_main.py input.toml
+time mpiexec --oversubscribe -np 2 python3 ../../src/odatse_main.py input.toml
 
 resfile=output/ColorMap.txt
 

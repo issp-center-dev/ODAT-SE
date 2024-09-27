@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CMD="python3 -u ../../src/py2dmat_main.py"
+CMD="python3 -u ../../src/odatse_main.py"
 
 rm -rf output1
 
