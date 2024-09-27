@@ -19,7 +19,7 @@ from typing import List, Dict, Union, Any
 from pathlib import Path
 import numpy as np
 
-import py2dmat
+import odatse
 from ._domain import DomainBase
 
 class Region(DomainBase):
@@ -28,7 +28,7 @@ class Region(DomainBase):
     unit_list: np.array
     initial_list: np.array
 
-    def __init__(self, info: py2dmat.Info = None,
+    def __init__(self, info: odatse.Info = None,
                  *,
                  param: Dict[str, Any] = None):
         super().__init__(info)
@@ -79,7 +79,7 @@ class Region(DomainBase):
 
     def initialize(self,
                    rng=np.random,
-                   limitation=py2dmat.util.limitation.Unlimited(),
+                   limitation=odatse.util.limitation.Unlimited(),
                    num_walkers: int = 1):
         if num_walkers > self.num_walkers:
             self.num_walkers = num_walkers
@@ -91,7 +91,7 @@ class Region(DomainBase):
 
     def _init_random(self,
                      rng=np.random,
-                     limitation=py2dmat.util.limitation.Unlimited(),
+                     limitation=odatse.util.limitation.Unlimited(),
                      max_count=100):
         initial_list = np.zeros((self.num_walkers, self.dimension), dtype=float)
         is_ok = np.full(self.num_walkers, False)
@@ -123,8 +123,8 @@ if __name__ == "__main__":
                          ],
     })
 
-    #lim = py2dmat.util.limitation.Unlimited()
-    lim = py2dmat.util.limitation.Inequality(a=np.array([[1,0,0],[-1,-1,-1]]),b=np.array([0,1]),is_limitary=True)
+    #lim = odatse.util.limitation.Unlimited()
+    lim = odatse.util.limitation.Inequality(a=np.array([[1,0,0],[-1,-1,-1]]),b=np.array([0,1]),is_limitary=True)
     
     reg.initialize(np.random, lim, 8)
     

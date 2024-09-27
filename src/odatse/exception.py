@@ -14,9 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-if __name__ == "__main__":
-    # sys.path[0] is this directory (2DMAT/src)
-    import py2dmat
-    import py2dmat.util.neighborlist
+class Error(Exception):
+    """Base class of exceptions in odatse"""
 
-    py2dmat.util.neighborlist.main()
+    pass
+
+
+class InputError(Error):
+    """Exception raised for errors in inputs
+
+    Attributes
+    ==========
+    message: str
+        explanation
+    """
+
+    def __init__(self, message: str) -> None:
+        self.message = message

@@ -23,15 +23,15 @@ import sys
 
 import numpy as np
 
-import py2dmat
-import py2dmat.exception
-import py2dmat.algorithm.montecarlo
-import py2dmat.util.separateT
-import py2dmat.util.resampling
-from py2dmat.algorithm.montecarlo import read_Ts
+import odatse
+import odatse.exception
+import odatse.algorithm.montecarlo
+import odatse.util.separateT
+import odatse.util.resampling
+from odatse.algorithm.montecarlo import read_Ts
 
 
-class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
+class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """Population annealing Monte Carlo
 
     Attributes
@@ -96,8 +96,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     Ferrs: np.ndarray
 
     def __init__(self,
-                 info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+                 info: odatse.Info,
+                 runner: odatse.Runner = None,
                  run_mode: str = "initial"
     ) -> None:
         time_sta = time.perf_counter()
@@ -158,7 +158,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
             msg += f"  numsteps = {numsteps}\n"
             msg += f"  numsteps_annealing = {numsteps_annealing}\n"
             msg += f"  Tnum = {numT}\n"
-            raise py2dmat.exception.InputError(msg)
+            raise odatse.exception.InputError(msg)
 
         if numsteps <= 0:
             self.numsteps_for_T = np.full(numT, numsteps_annealing)
@@ -482,7 +482,7 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
         self.nwalkers = np.sum(next_numbers)
 
     def _resample_fixed(self, weights: np.ndarray) -> None:
-        resampler = py2dmat.util.resampling.WalkerTable(weights)
+        resampler = odatse.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
 
         if self.iscontinuous:

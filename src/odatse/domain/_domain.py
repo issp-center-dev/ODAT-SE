@@ -19,10 +19,10 @@ from typing import List, Dict, Union, Any
 from pathlib import Path
 import numpy as np
 
-import py2dmat
+import odatse
 
 class DomainBase:
-    def __init__(self, info: py2dmat.Info = None):
+    def __init__(self, info: odatse.Info = None):
         if info:
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
@@ -30,6 +30,6 @@ class DomainBase:
             self.root_dir = Path(".")
             self.output_dir = Path(".")
 
-        self.mpisize = py2dmat.mpi.size()
-        self.mpirank = py2dmat.mpi.rank()
+        self.mpisize = odatse.mpi.size()
+        self.mpirank = odatse.mpi.rank()
             

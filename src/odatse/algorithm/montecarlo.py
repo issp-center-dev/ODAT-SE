@@ -22,13 +22,13 @@ from pathlib import Path
 
 import numpy as np
 
-import py2dmat
-from py2dmat.util.neighborlist import load_neighbor_list
-import py2dmat.util.graph
-import py2dmat.domain
+import odatse
+from odatse.util.neighborlist import load_neighbor_list
+import odatse.util.graph
+import odatse.domain
 
 
-class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
+class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """Base of Monte Carlo
 
     Attributes
@@ -92,8 +92,8 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
     ntrial: int
     naccepted: int
 
-    def __init__(self, info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+    def __init__(self, info: odatse.Info,
+                 runner: odatse.Runner = None,
                  domain = None,
                  nwalkers: int = 1,
                  run_mode: str = "initial"
@@ -103,9 +103,9 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
         self.nwalkers = nwalkers
 
         if domain:
-            if isinstance(domain, py2dmat.domain.MeshGrid):
+            if isinstance(domain, odatse.domain.MeshGrid):
                 self.iscontinuous = False
-            elif isinstance(domain, py2dmat.domain.Region):
+            elif isinstance(domain, odatse.domain.Region):
                 self.iscontinuous = True
             else:
                 raise ValueError("ERROR: unsupoorted domain type {}".format(type(domain)))
@@ -114,10 +114,10 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             info_param = info.algorithm["param"]
             if "mesh_path" in info_param:
                 self.iscontinuous = False
-                self.domain = py2dmat.domain.MeshGrid(info)
+                self.domain = odatse.domain.MeshGrid(info)
             else:
                 self.iscontinuous = True
-                self.domain = py2dmat.domain.Region(info)
+                self.domain = odatse.domain.Region(info)
 
         if self.iscontinuous:
             self.xmin = self.domain.min_list
@@ -167,12 +167,12 @@ class AlgorithmBase(py2dmat.algorithm.AlgorithmBase):
             self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
 
             # checks
-            if not py2dmat.util.graph.is_connected(self.neighbor_list):
+            if not odatse.util.graph.is_connected(self.neighbor_list):
                 raise RuntimeError(
                     "ERROR: The transition graph made from neighbor list is not connected."
                     "\nHINT: Increase neighborhood radius."
                 )
-            if not py2dmat.util.graph.is_bidirectional(self.neighbor_list):
+            if not odatse.util.graph.is_bidirectional(self.neighbor_list):
                 raise RuntimeError(
                     "ERROR: The transition graph made from neighbor list is not bidirectional."
                 )

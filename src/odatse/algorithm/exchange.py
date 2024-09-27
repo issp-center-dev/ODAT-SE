@@ -22,12 +22,12 @@ import sys
 
 import numpy as np
 
-import py2dmat
-import py2dmat.algorithm.montecarlo
-from py2dmat.algorithm.montecarlo import read_Ts
-from py2dmat.util.separateT import separateT
+import odatse
+import odatse.algorithm.montecarlo
+from odatse.algorithm.montecarlo import read_Ts
+from odatse.util.separateT import separateT
 
-class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
+class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """Replica Exchange Monte Carlo
 
     Attributes
@@ -77,8 +77,8 @@ class Algorithm(py2dmat.algorithm.montecarlo.AlgorithmBase):
     exchange_direction: bool
 
     def __init__(self,
-                 info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+                 info: odatse.Info,
+                 runner: odatse.Runner = None,
                  run_mode: str = "initial"
     ) -> None:
         time_sta = time.perf_counter()

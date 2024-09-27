@@ -23,7 +23,7 @@ import itertools
 
 import numpy as np
 
-from py2dmat import mpi
+from odatse import mpi
 
 try:
     from tqdm import tqdm

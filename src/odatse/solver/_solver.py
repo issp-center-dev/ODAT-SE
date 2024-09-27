@@ -21,8 +21,8 @@ from abc import ABCMeta, abstractmethod
 import subprocess
 import numpy as np
 
-import py2dmat
-import py2dmat.mpi
+import odatse
+import odatse.mpi
 
 # type hints
 from pathlib import Path
@@ -39,10 +39,10 @@ class SolverBase(object, metaclass=ABCMeta):
     timer: Dict[str, Dict]
 
     @abstractmethod
-    def __init__(self, info: py2dmat.Info) -> None:
+    def __init__(self, info: odatse.Info) -> None:
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(py2dmat.mpi.rank())
+        self.proc_dir = self.output_dir / str(odatse.mpi.rank())
         self.work_dir = self.proc_dir
         self._name = ""
         self.timer = {"prepare": {}, "run": {}, "post": {}}

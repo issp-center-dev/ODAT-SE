@@ -23,10 +23,10 @@ from pathlib import Path
 import physbo
 import numpy as np
 
-import py2dmat
-import py2dmat.domain
+import odatse
+import odatse.domain
 
-class Algorithm(py2dmat.algorithm.AlgorithmBase):
+class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # inputs
     mesh_list: np.ndarray
@@ -46,8 +46,8 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     fx_list: List[float]
     param_list: List[np.ndarray]
 
-    def __init__(self, info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+    def __init__(self, info: odatse.Info,
+                 runner: odatse.Runner = None,
                  domain = None,
                  run_mode: str = "initial"
     ) -> None:
@@ -76,10 +76,10 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
             print(f"num_rand_basis = {self.num_rand_basis}")
 
         #self.mesh_list, actions = self._meshgrid(info, split=False)
-        if domain and isinstance(domain, py2dmat.domain.MeshGrid):
+        if domain and isinstance(domain, odatse.domain.MeshGrid):
             self.domain = domain
         else:
-            self.domain = py2dmat.domain.MeshGrid(info)
+            self.domain = odatse.domain.MeshGrid(info)
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])

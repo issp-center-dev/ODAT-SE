@@ -22,23 +22,23 @@ import numpy as np
 import os
 import time
 
-import py2dmat
-import py2dmat.domain
+import odatse
+import odatse.domain
 
-class Algorithm(py2dmat.algorithm.AlgorithmBase):
+class Algorithm(odatse.algorithm.AlgorithmBase):
     mesh_list: List[Union[int, float]]
 
-    def __init__(self, info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+    def __init__(self, info: odatse.Info,
+                 runner: odatse.Runner = None,
                  domain = None,
                  run_mode: str = "initial"
     ) -> None:
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        if domain and isinstance(domain, py2dmat.domain.MeshGrid):
+        if domain and isinstance(domain, odatse.domain.MeshGrid):
             self.domain = domain
         else:
-            self.domain = py2dmat.domain.MeshGrid(info)
+            self.domain = odatse.domain.MeshGrid(info)
 
         self.domain.do_split()
         self.mesh_list = self.domain.grid_local

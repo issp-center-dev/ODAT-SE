@@ -14,20 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-class Error(Exception):
-    """Base class of exceptions in py2dmat"""
+if __name__ == "__main__":
+    # sys.path[0] is this directory (2DMAT/src)
+    import odatse
 
-    pass
-
-
-class InputError(Error):
-    """Exception raised for errors in inputs
-
-    Attributes
-    ==========
-    message: str
-        explanation
-    """
-
-    def __init__(self, message: str) -> None:
-        self.message = message
+    odatse.main()

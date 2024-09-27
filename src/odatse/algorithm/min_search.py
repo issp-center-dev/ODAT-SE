@@ -21,11 +21,11 @@ import numpy as np
 import scipy
 from scipy.optimize import minimize
 
-import py2dmat
-import py2dmat.domain
+import odatse
+import odatse.domain
 
 
-class Algorithm(py2dmat.algorithm.AlgorithmBase):
+class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # inputs
     label_list: np.ndarray
@@ -49,17 +49,17 @@ class Algorithm(py2dmat.algorithm.AlgorithmBase):
     iter_history: List[List[Union[int,float]]]
     fev_history: List[List[Union[int,float]]]
 
-    def __init__(self, info: py2dmat.Info,
-                 runner: py2dmat.Runner = None,
+    def __init__(self, info: odatse.Info,
+                 runner: odatse.Runner = None,
                  domain = None,
                  run_mode: str = "initial"
     ) -> None:
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        if domain and isinstance(domain, py2dmat.domain.Region):
+        if domain and isinstance(domain, odatse.domain.Region):
             self.domain = domain
         else:
-            self.domain = py2dmat.domain.Region(info)
+            self.domain = odatse.domain.Region(info)
 
         self.min_list = self.domain.min_list
         self.max_list = self.domain.max_list

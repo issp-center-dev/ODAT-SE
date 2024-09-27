@@ -16,8 +16,8 @@
 
 import numpy as np
 
-import py2dmat
-import py2dmat.solver.function
+import odatse
+import odatse.solver.function
 
 
 def quadratics(xs: np.ndarray) -> float:
@@ -99,13 +99,13 @@ def linear_regression_test(xs: np.ndarray) -> float:
     )
 
 
-class Solver(py2dmat.solver.function.Solver):
+class Solver(odatse.solver.function.Solver):
     """Function Solver with pre-defined benchmark functions"""
 
     x: np.ndarray
     fx: float
 
-    def __init__(self, info: py2dmat.Info) -> None:
+    def __init__(self, info: odatse.Info) -> None:
         """
         Initialize the solver.
 

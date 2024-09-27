@@ -28,9 +28,9 @@ import copy
 
 import numpy as np
 
-import py2dmat
-import py2dmat.util.limitation
-from py2dmat import exception, mpi
+import odatse
+import odatse.util.limitation
+from odatse import exception, mpi
 
 # for type hints
 from pathlib import Path
@@ -52,7 +52,7 @@ class AlgorithmBase(metaclass=ABCMeta):
     rng: np.random.RandomState
     dimension: int
     label_list: List[str]
-    runner: Optional[py2dmat.Runner]
+    runner: Optional[odatse.Runner]
 
     root_dir: Path
     output_dir: Path
@@ -66,8 +66,8 @@ class AlgorithmBase(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
             self,
-            info: py2dmat.Info,
-            runner: Optional[py2dmat.Runner] = None,
+            info: odatse.Info,
+            runner: Optional[odatse.Runner] = None,
             run_mode: str = "initial"
     ) -> None:
         self.mpicomm = mpi.comm()
@@ -118,7 +118,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         if runner is not None:
             self.set_runner(runner)
 
-    def __init_rng(self, info: py2dmat.Info) -> None:
+    def __init_rng(self, info: odatse.Info) -> None:
         seed = info.algorithm.get("seed", None)
         seed_delta = info.algorithm.get("seed_delta", 314159)
 
@@ -127,7 +127,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         else:
             self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
 
-    def set_runner(self, runner: py2dmat.Runner) -> None:
+    def set_runner(self, runner: odatse.Runner) -> None:
         self.runner = runner
 
     def prepare(self) -> None:
