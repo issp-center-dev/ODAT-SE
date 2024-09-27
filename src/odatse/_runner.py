@@ -20,12 +20,12 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-import py2dmat
-import py2dmat.util.read_matrix
-import py2dmat.util.mapping
-import py2dmat.util.limitation
-from py2dmat.util.logger import Logger
-from py2dmat.exception import InputError
+import odatse
+import odatse.util.read_matrix
+import odatse.util.mapping
+import odatse.util.limitation
+from odatse.util.logger import Logger
+from odatse.exception import InputError
 
 # type hints
 from pathlib import Path
@@ -55,19 +55,19 @@ class Run(metaclass=ABCMeta):
 
 
 class Runner(object):
-    #solver: "py2dmat.solver.SolverBase"
+    #solver: "odatse.solver.SolverBase"
     logger: Logger
 
     def __init__(self,
                  solver,
-                 info: Optional[py2dmat.Info] = None,
+                 info: Optional[odatse.Info] = None,
                  mapping = None,
                  limitation = None) -> None:
         """
 
         Parameters
         ----------
-        Solver: py2dmat.solver.SolverBase object
+        Solver: odatse.solver.SolverBase object
         """
         self.solver = solver
         self.solver_name = solver.name
@@ -78,18 +78,18 @@ class Runner(object):
         elif "mapping" in info.runner:
             info_mapping = info.runner["mapping"]
             # N.B.: only Affine mapping is supported at present
-            self.mapping = py2dmat.util.mapping.Affine.from_dict(info_mapping)
+            self.mapping = odatse.util.mapping.Affine.from_dict(info_mapping)
         else:
             # trivial mapping
-            self.mapping = py2dmat.util.mapping.TrivialMapping()
+            self.mapping = odatse.util.mapping.TrivialMapping()
         
         if limitation is not None:
             self.limitation = limitation
         elif "limitation" in info.runner:
             info_limitation = info.runner["limitation"]
-            self.limitation = py2dmat.util.limitation.Inequality.from_dict(info_limitation)
+            self.limitation = odatse.util.limitation.Inequality.from_dict(info_limitation)
         else:
-            self.limitation = py2dmat.util.limitation.Unlimited()
+            self.limitation = odatse.util.limitation.Unlimited()
 
     def prepare(self, proc_dir: Path):
         self.logger.prepare(proc_dir)

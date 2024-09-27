@@ -1,7 +1,7 @@
-Himmelblau function
-============================
+Minimization of an analytical function
+================================================================
 
-As an example of direct problem solver, the minimization of Himmelblau function among the Analytical solver included in 2DMAT will be discussed in these tutorials.
+As an example of direct problem solver, the minimization of Himmelblau function among the Analytical solver included in ODAT-SE will be discussed in these tutorials.
 The Himmelblau function is a two-variable function given as follows, having multiple number of minima. It is used as a benchmark for the evaluation of optimization algorithms.
 
 .. math::

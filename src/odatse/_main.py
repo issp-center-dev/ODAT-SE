@@ -16,9 +16,9 @@
 
 from sys import exit
 
-import py2dmat
-import py2dmat.mpi
-import py2dmat.util.toml
+import odatse
+import odatse.mpi
+import odatse.util.toml
 
 
 def main():
@@ -31,7 +31,7 @@ def main():
         )
     )
     parser.add_argument("inputfile", help="input file with TOML format")
-    parser.add_argument("--version", action="version", version=py2dmat.__version__)
+    parser.add_argument("--version", action="version", version=odatse.__version__)
 
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--init", action="store_true", help="initial start (default)")
@@ -44,12 +44,12 @@ def main():
 
     file_name = args.inputfile
     # inp = {}
-    # if py2dmat.mpi.rank() == 0:
-    #     inp = py2dmat.util.toml.load(file_name)
-    # if py2dmat.mpi.size() > 1:
-    #     inp = py2dmat.mpi.comm().bcast(inp, root=0)
-    # info = py2dmat.Info(inp)
-    info = py2dmat.Info.from_file(file_name)
+    # if odatse.mpi.rank() == 0:
+    #     inp = odatse.util.toml.load(file_name)
+    # if odatse.mpi.size() > 1:
+    #     inp = odatse.mpi.comm().bcast(inp, root=0)
+    # info = odatse.Info(inp)
+    info = odatse.Info.from_file(file_name)
 
     algname = info.algorithm["name"]
     if algname == "mapper":
@@ -68,7 +68,7 @@ def main():
 
     solvername = info.solver["name"]
     if solvername == "surface":
-        if py2dmat.mpi.rank() == 0:
+        if odatse.mpi.rank() == 0:
             print(
                 'WARNING: solver name "surface" is deprecated and will be unavailable in future.'
                 ' Use "sim-trhepd-rheed" instead.'
@@ -104,6 +104,6 @@ def main():
         run_mode = "initial"  # default
 
     solver = Solver(info)
-    runner = py2dmat.Runner(solver, info)
+    runner = odatse.Runner(solver, info)
     alg = Algorithm(info, runner, run_mode=run_mode)
     result = alg.main()

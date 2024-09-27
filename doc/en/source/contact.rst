@@ -3,11 +3,11 @@ Contact
 
 - Bug Reports
 
-  Please report all problems and bugs on the github `Issues <https://github.com/issp-center-dev/2DMAT/releases>`_ page.
+  Please report all problems and bugs on the github `Issues <https://github.com/issp-center-dev/ODAT-SE/issues>`_ page.
 
   To resolve bugs early, follow these guidelines when reporting:
 
-  1. Please specify the version of 2DMAT you are using.
+  1. Please specify the version of ODAT-SE you are using.
      
   2. If there are problems for installation, please inform us about your operating system and the compiler.
 

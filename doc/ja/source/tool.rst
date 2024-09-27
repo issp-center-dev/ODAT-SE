@@ -1,14 +1,14 @@
 関連ツール
 =====================
 
-``py2dmat_neighborlist``
+``odatse_neighborlist``
 *****************************
 
 離散空間をモンテカルロ探索する場合に使用する近傍リスト定義ファイルを
 メッシュ定義ファイルから生成するツールです。
 
-``pip`` でインストールした場合は ``py2dmat`` と同様に ``bin`` 以下に ``py2dmat_neighborlist`` という名前でインストールされます。
-もしくは、ディレクトリ中の ``src/py2dmat_neighborlist.py`` を直接実行することも可能です。
+``pip`` でインストールした場合は ``odatse`` と同様に ``bin`` 以下に ``odatse_neighborlist`` という名前でインストールされます。
+もしくは、ディレクトリ中の ``src/odatse_neighborlist.py`` を直接実行することも可能です。
 
 使い方
 ~~~~~~~~~~~~~~~~
@@ -18,7 +18,7 @@
 
 .. code-block:: bash
 
-    $ py2dmat_neighborlist -o neighborlist.txt MeshData.txt
+    $ odatse_neighborlist -o neighborlist.txt MeshData.txt
 
 
 次のオプションが利用できます。

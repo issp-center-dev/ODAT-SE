@@ -4,7 +4,7 @@ Adding a direct problem solver
 Solver for benchmarking, ``analytical``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``py2dmat`` provides the ``analytical`` solver as a direct problem solver that can be used to test search algorithms.
+ODAT-SE provides the ``analytical`` solver as a direct problem solver that can be used to test search algorithms.
 
 To use the ``analytical`` solver, the users may set the ``name`` parameter in the ``[solver]`` section to ``"analytical"``, and choose the benchmark function ``f(x)`` in the ``function_name`` parameter.
 For example, to use Himmelblau function, make an input file including the following lines:
@@ -30,9 +30,9 @@ As an example, we will explain the case of adding `the Booth function <https://e
 
 (The minimum point is :math:`f(1,3) = 0`.)
 
-To do so, we need to download the source code of ``py2dmat`` and edit the file of ``analytical`` solver.
-For instructions on how to download the source code and run ``py2dmat`` from the source code, see :doc:`how to install <../start>`.
-``analytical`` solver is defined in the ``src/py2dmat/solver/analytical.py``, so we will edit this.
+To do so, we need to download the source code of ODAT-SE and edit the file of ``analytical`` solver.
+For instructions on how to download the source code and run ``odatse`` from the source code, see :doc:`how to install <../start>`.
+``analytical`` solver is defined in the ``src/odatse/solver/analytical.py``, so we will edit this.
 
 First, define the booth function as follows:
 
@@ -79,11 +79,11 @@ For example, to optimize it by the Nelder-Mead method, pass the following input 
     name = "analytical"
     function_name = "booth"
 
-to ``src/py2dmat_main.py`` script as follows:
+to ``src/odatse_main.py`` script as follows:
 
 .. code-block:: bash
 
-    $ python3 src/py2dmat_main.py input.toml
+    $ python3 src/odatse_main.py input.toml
 
     ... skipped ...
 

@@ -6,8 +6,8 @@
 (For developers) User-defined algorithms and solvers
 ================================================================
 
-``py2dmat`` solves the inverse problems by the combination of ``Solver`` for the direct problems and ``Algorithm`` for the optimization methods.
-Instead of using ``Solver`` and ``Algorithm`` provided by ``py2dmat``, users can define and use their own components.
+ODAT-SE solves the inverse problems by the combination of ``Solver`` for the direct problems and ``Algorithm`` for the optimization methods.
+Instead of using ``Solver`` and ``Algorithm`` provided by ODAT-SE, users can define and use their own components.
 In this chapter, how to define ``Solver`` and ``Algorithm`` and to use them will be described.
 
 .. toctree::

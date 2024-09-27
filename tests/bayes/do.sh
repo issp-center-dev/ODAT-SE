@@ -2,7 +2,7 @@
 
 rm -rf output
 
-time python3 ../../src/py2dmat_main.py input.toml
+time python3 ../../src/odatse_main.py input.toml
 
 resfile=output/BayesData.txt
 

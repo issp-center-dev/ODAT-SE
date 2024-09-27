@@ -14,22 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from typing import List, Dict, Union, Any
+if __name__ == "__main__":
+    # sys.path[0] is this directory (2DMAT/src)
+    import odatse
 
-from pathlib import Path
-import numpy as np
-
-import py2dmat
-
-class DomainBase:
-    def __init__(self, info: py2dmat.Info = None):
-        if info:
-            self.root_dir = info.base["root_dir"]
-            self.output_dir = info.base["output_dir"]
-        else:
-            self.root_dir = Path(".")
-            self.output_dir = Path(".")
-
-        self.mpisize = py2dmat.mpi.size()
-        self.mpirank = py2dmat.mpi.rank()
-            
+    odatse.main()

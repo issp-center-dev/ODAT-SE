@@ -14,13 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-# Pay attention to the dependencies and the order of imports!
-# For example, Runner depends on solver.
+from typing import List, Dict, Union, Any
 
-from ._info import Info
-from . import solver
-from ._runner import Runner
-from . import algorithm
-from ._main import main
+from pathlib import Path
+import numpy as np
 
-__version__ = "2.3-dev"
+import odatse
+
+class DomainBase:
+    def __init__(self, info: odatse.Info = None):
+        if info:
+            self.root_dir = info.base["root_dir"]
+            self.output_dir = info.base["output_dir"]
+        else:
+            self.root_dir = Path(".")
+            self.output_dir = Path(".")
+
+        self.mpisize = odatse.mpi.size()
+        self.mpirank = odatse.mpi.rank()
+            

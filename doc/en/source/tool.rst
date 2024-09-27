@@ -1,13 +1,13 @@
 Related Tools
 ================================
 
-``py2dmat_neighborlist``
+``odatse_neighborlist``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This tool generates a neighborhood-list file from the mesh file.
 
-When you install py2dmat via ``pip`` command, ``py2dmat_neighborlist`` is also installed under the ``bin``.
-A python script ``src/py2dmat_neighborlist.py`` is also available.
+When you install ODAT-SE via ``pip`` command, ``odatse_neighborlist`` is also installed under the ``bin``.
+A python script ``src/odatse_neighborlist.py`` is also available.
 
 Usage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -17,11 +17,11 @@ The filename of the generated neighborhood-list file is specified by ``-o`` opti
 
 .. code-block:: bash
 
-  $ py2dmat_neighborlist -o neighborlist.txt MeshData.txt
+  $ odatse_neighborlist -o neighborlist.txt MeshData.txt
 
   Or
 
-  $ python3 src/py2dmat_neighborlist.py -o MeshData.txt
+  $ python3 src/odatse_neighborlist.py -o MeshData.txt
 
 
 The following command-line options are available.

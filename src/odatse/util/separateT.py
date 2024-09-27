@@ -21,7 +21,7 @@ from collections import namedtuple
 
 import numpy as np
 
-from py2dmat import mpi
+from odatse import mpi
 
 Entry = namedtuple("Entry", ["step", "walker", "fx", "xs"])
 

@@ -17,7 +17,7 @@
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
 import time
-import py2dmat
+import odatse
 import numpy as np
 
 # type hints
@@ -42,7 +42,7 @@ class Logger:
     to_write_result: bool
     to_write_input: bool
 
-    def __init__(self, info: Optional[py2dmat.Info] = None,
+    def __init__(self, info: Optional[odatse.Info] = None,
                  *,
                  buffer_size: int = 0,
                  filename: str = "runner.log",

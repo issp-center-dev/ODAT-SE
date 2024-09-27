@@ -2,7 +2,7 @@ Optimization by Bayesian Optimization
 ========================================
 
 This tutorial describes how to estimate the minimization problem of Himmelblau function by using Bayesian optimization (BO).
-2DMAT uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.
+ODAT-SE uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.
 PHYSBO package should be installed beforehand.
 
 Sample files
@@ -13,7 +13,7 @@ This directory includes the following files:
 
 - ``input.toml``
 
-  The input file of py2dmat
+  The input file of odatse
 
 - ``do.sh``
 
@@ -78,7 +78,7 @@ For details on other parameters that can be specified in the input file, see the
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of 2DMAT.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
 
 .. code-block::
 
@@ -88,7 +88,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 .. code-block::
 
-   $ python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 By executing the program, a directory with the name ``0`` is created under ``output`` directory, and the results are written in it.
 The following standard output will be shown:

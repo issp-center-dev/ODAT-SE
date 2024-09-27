@@ -4,7 +4,7 @@ Commons
 In this section, the components commonly used over the program are described.
 
 
-``py2dmat.Info``
+``odatse.Info``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This class treats the input parameters.
@@ -64,7 +64,7 @@ As items of ``base`` field, ``root_dir`` indicating the root dirctory of the cal
        base["work_dir"] = base["root_dir"] / p
 
 
-``py2dmat.Runner``
+``odatse.Runner``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Runner`` is a class that connects ``Algorithm`` and ``Solver``.
@@ -78,7 +78,7 @@ If the instance of ``Limitation`` is omitted, ``Unlimited`` is assumed that do n
 See :doc:`../input` for details how/which components of ``info`` ``Runner`` uses.
 
 
-``py2dmat.Mapping``
+``odatse.Mapping``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Mapping`` is a class that describes mappings from the search parameters of the inverse problem analysis algorithms to the variables of the direct problem solvers.
@@ -96,10 +96,10 @@ It is taken as a default to the argument of Runner class.
 
 ``Affine`` provides an affine mapping :math:`x \to y = A x + b`.
 The coefficients ``A`` and ``b`` should be given as constructor arguments, or passed as dictionary elements through the ``from_dict`` class method.
-In case when they are specified in the input file of ``py2dmat``, the format of the parameter may be referred to the input file section of the manual.
+In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.
 
 
-``py2dmat.Limitation``
+``odatse.Limitation``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Limitation`` is a class that describes constraints on the :math:`N` dimensional parameter space :math:`x` searched by the inverse problem analysis algorithms.
@@ -120,4 +120,4 @@ It is taken as a default to the argument of Runner class.
 ``Inequality`` is a class that expresses :math:`M` constraints imposed on :math:`N` dimensional search parameters :math:`x` in the form :math:`A x + b > 0` where :math:`A` is a :math:`M \times N` matrix and :math:`b` is a :math:`M` dimensional vector.
 
 The coefficients ``A`` and ``b`` should be given as constructor arguments, or passed as dictionary elements through the ``from_dict`` class method.
-In case when they are specified in the input file of ``py2dmat``, the format of the parameter may be referred to the input file section of the manual.
+In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.

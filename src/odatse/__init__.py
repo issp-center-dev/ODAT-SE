@@ -14,9 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-if __name__ == "__main__":
-    # sys.path[0] is this directory (2DMAT/src)
-    import py2dmat
-    import py2dmat.util.neighborlist
+# Pay attention to the dependencies and the order of imports!
+# For example, Runner depends on solver.
 
-    py2dmat.util.neighborlist.main()
+from ._info import Info
+from . import solver
+from ._runner import Runner
+from . import algorithm
+from ._main import main
+
+__version__ = "3.0-dev"

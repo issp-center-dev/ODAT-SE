@@ -16,7 +16,7 @@
 
 import os
 import numpy as np
-import py2dmat
+import odatse
 import time
 
 # type hints
@@ -24,12 +24,12 @@ from pathlib import Path
 from typing import Callable, Optional, Dict, Tuple
 
 
-class Solver(py2dmat.solver.SolverBase):
+class Solver(odatse.solver.SolverBase):
     x: np.ndarray
     fx: float
     _func: Optional[Callable[[np.ndarray], float]]
 
-    def __init__(self, info: py2dmat.Info) -> None:
+    def __init__(self, info: odatse.Info) -> None:
         """
         Initialize the solver.
 

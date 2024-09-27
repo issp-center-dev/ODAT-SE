@@ -81,7 +81,7 @@ The, run the main program. The computation time takes only a few seconds on a no
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 Here, the calculation using MPI parallel with 4 processes will be done.
 When executed, a folder for each rank will be created under ``output`` directory, and the calculation results of each rank will be written.

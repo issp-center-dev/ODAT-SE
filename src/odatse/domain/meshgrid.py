@@ -19,7 +19,7 @@ from typing import List, Dict, Union, Any
 from pathlib import Path
 import numpy as np
 
-import py2dmat
+import odatse
 from ._domain import DomainBase
 
 class MeshGrid(DomainBase):
@@ -27,7 +27,7 @@ class MeshGrid(DomainBase):
     grid_local: List[Union[int, float]] = []
     candicates: int
     
-    def __init__(self, info: py2dmat.Info = None,
+    def __init__(self, info: odatse.Info = None,
                  *,
                  param: Dict[str, Any] = None):
         super().__init__(info)
@@ -84,7 +84,7 @@ class MeshGrid(DomainBase):
             data = None
 
         if self.mpisize > 1:
-            data = py2dmat.mpi.comm().bcast(data, root=0)
+            data = odatse.mpi.comm().bcast(data, root=0)
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
 
@@ -146,8 +146,8 @@ if __name__ == "__main__":
     ms2 = MeshGrid.from_file("meshfile.dat")
     ms2.do_split()
 
-    if py2dmat.mpi.rank() == 0:
+    if odatse.mpi.rank() == 0:
         print(ms2.grid)
-    print(py2dmat.mpi.rank(), ms2.grid_local)
+    print(odatse.mpi.rank(), ms2.grid_local)
 
     ms2.store_file("meshfile2.dat", header="store again")

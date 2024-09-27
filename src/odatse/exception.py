@@ -15,7 +15,7 @@
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
 class Error(Exception):
-    """Base class of exceptions in py2dmat"""
+    """Base class of exceptions in odatse"""
 
     pass
 

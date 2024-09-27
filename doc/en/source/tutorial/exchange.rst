@@ -11,7 +11,7 @@ This directory includes the following files:
 
 - ``input.toml``
 
-  The input file of py2dmat
+  The input file of odatse
 
 - ``do.sh``
 
@@ -84,7 +84,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of 2DMAT.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
 
 .. code-block::
 
@@ -94,7 +94,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 
 Here, the calculation is performed using MPI parallel with 4 processes.
@@ -133,7 +133,7 @@ These files have the same format: the first two columns are time (step) and the 
     x2 = 1.999754886043102
 
 
-In 2DMAT, one replica holds samples at different temperatures because of the temperature exchanges. The ``result.txt`` in each rank folder records the data sampled by each replica.
+In ODAT-SE, one replica holds samples at different temperatures because of the temperature exchanges. The ``result.txt`` in each rank folder records the data sampled by each replica.
 The data reorganized for each temperature point is written to ``output/result_T%.txt``, where ``%`` is the index of the temperature point.
 The first column is the step, the second column is the rank, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
 Example:

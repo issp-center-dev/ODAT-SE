@@ -16,6 +16,7 @@
 
 if __name__ == "__main__":
     # sys.path[0] is this directory (2DMAT/src)
-    import py2dmat
+    import odatse
+    import odatse.util.neighborlist
 
-    py2dmat.main()
+    odatse.util.neighborlist.main()

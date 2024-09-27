@@ -141,7 +141,7 @@ Restart
 ~~~~~~~~~~~~~~~~~~~~~~
 The execution mode is specified by the ``run_mode`` parameter to the constructor.
 The operation of each mode is described as follows.
-The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``py2dmat`` command, respectively.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
 
 - ``"initial"`` (default)
 
@@ -189,7 +189,7 @@ but it is a place with little information and is considered to be beneficial for
 Selecting the former is called "exploition," while selecting the latter is called "exploration," and it is important to balance both.
 The definition of "score" defines how to choose between them.
 
-In 2DMAT, we use `PHYSBO`_ as a library for Bayesian optimization.
+In ODAT-SE, we use `PHYSBO`_ as a library for Bayesian optimization.
 PHYSBO, like ``mapper_mpi``, computes a "score" for a predetermined set of candidate points, and proposes an optimal solution.
 MPI parallel execution is possible by dividing the set of candidate points.
 In addition, we use a kernel that allows us to evaluate the model function and thus calculate the "score" with a linear amount of computation with respect to the number of training data points :math:`N`.

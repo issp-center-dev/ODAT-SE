@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mpiexec -np 10 --oversubscribe python3 ../../../src/py2dmat_main.py input.toml
+mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
 
 echo diff output/best_result.txt ref.txt
 res=0
