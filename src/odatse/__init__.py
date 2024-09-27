@@ -23,4 +23,4 @@ from ._runner import Runner
 from . import algorithm
 from ._main import main
 
-__version__ = "2.3-dev"
+__version__ = "3.0-dev"
