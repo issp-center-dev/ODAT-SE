@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mpiexec -np 4 python3 ../../../src/py2dmat_main.py input.toml
+mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml
 
 for i in `seq 0 79`
 do

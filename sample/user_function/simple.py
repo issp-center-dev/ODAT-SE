@@ -1,10 +1,10 @@
 import numpy as np
 
-import py2dmat
-import py2dmat.util.toml
-import py2dmat.algorithm.mapper_mpi as pm_alg
-#import py2dmat.algorithm.min_search as pm_alg
-import py2dmat.solver.function
+import odatse
+import odatse.util.toml
+import odatse.algorithm.mapper_mpi as pm_alg
+#import odatse.algorithm.min_search as pm_alg
+import odatse.solver.function
 
 
 def my_objective_fn(x: np.ndarray) -> float:
@@ -12,13 +12,13 @@ def my_objective_fn(x: np.ndarray) -> float:
 
 
 file_name = "input.toml"
-inp = py2dmat.util.toml.load(file_name)
-info = py2dmat.Info(inp)
+inp = odatse.util.toml.load(file_name)
+info = odatse.Info(inp)
 
-solver = py2dmat.solver.function.Solver(info)
+solver = odatse.solver.function.Solver(info)
 solver.set_function(my_objective_fn)
 
-runner = py2dmat.Runner(solver, info)
+runner = odatse.Runner(solver, info)
 
 alg = pm_alg.Algorithm(info, runner)
 retv = alg.main()
