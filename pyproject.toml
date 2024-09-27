@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "py2dmat"
-version = "2.3-dev"
-description = "Data-analysis software of quantum beam diffraction experiments for 2D material structure"
+name = "ODAT-SE"
+version = "3.0-dev"
+description = "Open Data Analysis Tool for Science and Engineering"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
 license = "GPL-3.0-or-later"
 
 readme = "README.md"
-repository = "https://github.com/issp-center-dev/2DMAT"
+repository = "https://github.com/issp-center-dev/ODAT-SE"
 
 packages = [
-  { include = "py2dmat", from = "src" }
+  { include = "odatse", from = "src" }
   ]
 
 [tool.poetry.dependencies]
@@ -18,7 +18,7 @@ numpy = "^1.14"
 tomli = ">=1.2"
 scipy = {version = "^1", optional = true}
 mpi4py = {version = "^3", optional = true}
-physbo = {version = ">= 1.0.0", optional = true}
+physbo = {version = ">= 2.0.0", optional = true}
 
 [tool.poetry.extras]
 min_search = ["scipy"]
@@ -31,8 +31,8 @@ black = "^22.3.0"
 pynvim = "^0.4.3"
 
 [tool.poetry.scripts]
-py2dmat = "py2dmat:main"
-py2dmat_neighborlist = "py2dmat.util.neighborlist:main"
+odatse = "odatse:main"
+odatse_neighborlist = "odatse.util.neighborlist:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
