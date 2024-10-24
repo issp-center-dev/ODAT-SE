@@ -14,12 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-from sys import exit
-
+import sys
 import odatse
 import odatse.mpi
-import odatse.util.toml
-
 
 def main():
     import argparse
@@ -43,12 +40,6 @@ def main():
     args = parser.parse_args()
 
     file_name = args.inputfile
-    # inp = {}
-    # if odatse.mpi.rank() == 0:
-    #     inp = odatse.util.toml.load(file_name)
-    # if odatse.mpi.size() > 1:
-    #     inp = odatse.mpi.comm().bcast(inp, root=0)
-    # info = odatse.Info(inp)
     info = odatse.Info.from_file(file_name)
 
     algname = info.algorithm["name"]
@@ -64,31 +55,15 @@ def main():
         from .algorithm.bayes import Algorithm
     else:
         print(f"ERROR: Unknown algorithm ({algname})")
-        exit(1)
+        sys.exit(1)
 
     solvername = info.solver["name"]
-    if solvername == "surface":
-        if odatse.mpi.rank() == 0:
-            print(
-                'WARNING: solver name "surface" is deprecated and will be unavailable in future.'
-                ' Use "sim-trhepd-rheed" instead.'
-            )
-        #from .solver.sim_trhepd_rheed import Solver
-        from sim_trhepd_rheed import Solver
-    elif solvername == "sim-trhepd-rheed":
-        #from .solver.sim_trhepd_rheed import Solver
-        from sim_trhepd_rheed import Solver
-    elif solvername == "sxrd":
-        #from .solver.sxrd import Solver
-        from sxrd import Solver
-    elif solvername == "leed":
-        #from .solver.leed import Solver
-        from leed import Solver
-    elif solvername == "analytical":
+    if solvername == "analytical":
         from .solver.analytical import Solver
     else:
-        print(f"ERROR: Unknown solver ({solvername})")
-        exit(1)
+        if odatse.mpi.rank() == 0:
+            print(f"ERROR: Unknown solver ({solvername})")
+        sys.exit(1)
 
     if args.init is True:
         run_mode = "initial"
