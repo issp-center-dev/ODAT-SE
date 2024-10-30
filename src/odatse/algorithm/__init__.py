@@ -27,6 +27,7 @@ def choose_algorithm(name):
         alg_module = importlib.import_module(alg_name)
     except ModuleNotFoundError as e:
         print("ERROR: {}".format(e))
+        import sys
         sys.exit(1)
 
     return alg_module
