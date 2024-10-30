@@ -4,13 +4,22 @@ on: [push]
 
 jobs:
   main:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
     strategy:
       matrix:
+        os: ['ubuntu-22.04', 'ubuntu-20.04']
         python-version: ['3.6', '3.9', '3.12']
         sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform]
+        exclude:
+          - os: 'ubuntu-22.04'
+            python-version: '3.6'
+          - os: 'ubuntu-20.04'
+            python-version: '3.9'
+          - os: 'ubuntu-20.04'
+            python-version: '3.12'
       fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
