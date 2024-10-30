@@ -22,5 +22,6 @@ from . import solver
 from ._runner import Runner
 from . import algorithm
 from ._main import main
+from ._initialize import initialize
 
 __version__ = "3.0-dev"
