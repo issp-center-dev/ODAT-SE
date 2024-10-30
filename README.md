@@ -24,7 +24,7 @@ It also offers a driver script to solve the problem with predefined optimization
 ### Prerequists
 
 - Required
-  - python >= 3.6.8
+  - python >= 3.9
   - numpy >= 1.14
   - tomli >= 1.2.0
 - Optional
