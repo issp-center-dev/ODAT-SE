@@ -26,10 +26,6 @@ bayes = ["physbo"]
 exchange = ["mpi4py"]
 all = ["scipy", "mpi4py", "physbo"]
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-pynvim = "^0.4.3"
-
 [tool.poetry.scripts]
 odatse = "odatse:main"
 odatse_neighborlist = "odatse.util.neighborlist:main"
