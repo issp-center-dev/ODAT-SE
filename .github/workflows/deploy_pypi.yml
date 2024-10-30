@@ -2,7 +2,8 @@ name: upload package to PyPI
 
 on:
   push:
-    tags: ['*']
+    # tags: ['*']
+    tags: ['disabled-because-odatse-is-not-ready-in-pypi']
 
 jobs:
   deploy:

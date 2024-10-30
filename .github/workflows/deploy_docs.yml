@@ -3,12 +3,12 @@ name: upload docs to gh-pages
 on:
   push:
     branches:
-      - master
-      - develop
-      - ghactions
-      - '*-autodoc'
+      # - main
+      # - develop
+      # - ghactions
+      # - '*-autodoc'
       - '!gh-pages'
-    tags: ['*']
+    # tags: ['*']
 
 jobs:
   deploy:
