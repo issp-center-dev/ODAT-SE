@@ -6,9 +6,11 @@ Replica exchange Monte Carlo ``exchange``
 Preparation
 ~~~~~~~~~~~~~~~~
 
-`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed. ::
+`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed if MPI parallelization is used.
 
-  python3 -m pip install mpi4py
+.. code-block::
+
+   $ python3 -m pip install mpi4py
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~
@@ -31,30 +33,31 @@ Otherwise, continuous space is used.
     Description: Initial value of parameters.
     If not defined, these will be initialize randomly.
 
-  - ``unit_list``
-
-    Format: List of float. Length should be equal to ``dimension``.
-
-    Description: Unit length of each parameter.
-    ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
-    If not defined, each component will be 1.0.
-
   - ``min_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Minimum value of each parameter.
-                 When a parameter falls below this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
+    Description:
+    Minimum value of each parameter.
+    When a parameter falls below this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
 
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Maximum value of each parameter.
-                 When a parameter exceeds this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
+    Description:
+    Maximum value of each parameter.
+    When a parameter exceeds this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
+
+  - ``step_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description:
+    The step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 - Discrete space
 
@@ -158,7 +161,7 @@ A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
-An utility tool, ``py2dmat_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
+An utility tool, ``odatse_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
 
 .. code-block::
 
@@ -236,11 +239,38 @@ The remaining columns are the coordinates.
     3 15 28.98676409223712 3.7442621319489637 -3.868754990884034
 
 
+Restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
+
+- ``"initial"`` (default)
+
+  The program is started from the initialized state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. the specified number of steps has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The program execution is continued from the previous run.
+  The value of ``numsteps`` should be increased. The step counter is taken over.
+
+  For example: in the first run, the calculation is carried out for 1000 steps with ``numsteps = 1000``. In the next run, the calculation is continued with ``numsteps = 2000``, where the calculations from 1001st step to 2000th step are carried out.
+
+
 Algorithm
-********************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Markov chain Monte Carlo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers :math:`\vec{x}` stochastically according to the weight function :math:`W(\vec{x})`.
 For the weight function, the Boltzmann factor :math:`W(\vec{x}) = e^{-f(\vec{x})/T}` is generally adopted, where :math:`T>0` is the "temperature."
@@ -264,7 +294,7 @@ Practically, the stronger condition ("the detailed balance condition")
 is usually imposed.
 The detailed balance condition returns to the balance condition by taking the summation of :math:`\vec{x}`.
 
-2DMAT adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
+ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
 The MH method splits the transition process into the suggestion process and the acceptance process.
 
 1. Generate a candidate :math:`\vec{x}` with the suggestion probability :math:`P(\vec{x} | \vec{x}_t)`.
@@ -306,7 +336,7 @@ The solution is given as the point giving the minimum value of :math:`f(\vec{x})
 The third process of the above procedure endures that walkers can climb over the hill with a height of :math:`\Delta f \sim T`, the MCMC sampling can escape from local minima.
 
 Replica exchange Monte Carlo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "temperature" :math:`T` is one of the most important hyper parameters in the MCMC sampling.
 The MCMC sampling can climb over the hill with a height of :math:`T` but cannot easily escape from the deeper valley than :math:`T`.

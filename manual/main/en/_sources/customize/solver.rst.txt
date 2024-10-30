@@ -1,58 +1,69 @@
 ``Solver``
-=========================
+================================
 
-``Solver`` is defined as a subclass of ``py2dmat.solver.SolverBase`` ::
+``Solver`` is a class that describes the direct problem, providing a method ``evaluate`` that returns the value of the objective function from the input parameters.
 
-    import py2dmat
+- ``Solver`` is define as a derived class of ``odatse.solver.SolverBase``.
 
-    class Solver(py2dmat.solver.SolverBase):
-        ...
+  .. code-block:: python
 
-The following methods should be defined.
+     import odatse
 
-- ``__init__(self, info: py2dmat.Info)``
+     class Solver(odatse.solver.SolverBase):
+         pass
 
-    - It is required to call the constructor of the base class.
+- Constructor
 
-        - ``super().__init__(info)``    
+  Solver class should have a constructor that takes an ``Info`` class object as an argument:
 
-    - The constructor of ``SolverBase`` defines the following instance variables.
+  .. code-block:: python
 
-        - ``self.root_dir: pathlib.Path`` : Root directory
+     def __init__(self, info: odatse.Info):
+         super().__init__(info)
 
-            - use ``info.base["root_dir"]``
+  It is required to call the constructor of the base class with the info object.
+  There the following instance variables are introduced:
 
-        - ``self.output_dir: pathlib.Path`` : Output directory
+  - ``self.root_dir: pathlib.Path`` : Root directory
 
-            - use ``info.base["output_dir"]``
+    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``odatse`` is executed. It can be referred as a root location when the external programs or data files are read.
 
-        - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process
+  - ``self.output_dir: pathlib.Path`` : Output directory
 
-            - as ``self.output_dir / str(mpirank)``
+    This parameter is taken from ``info.base["output_dir"]``, and used for the directory in which the result files are written. Usually, when the MPI parallelization is applied, the accumulated results are stored.
 
-        - ``self.work_dir: pathlib.Path`` : Directory where the solver is invoked
+  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(mpirank)``
 
-            - same to ``self.proc_dir``
+    The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
-    - Read the input parameter ``info`` and save as instance variables.
+  The parameters for the Solver class can be obtained from ``solver`` field of ``info`` object.
+  The required parameters should be taken and stored.
 
-- ``prepare(self, message: py2dmat.Message) -> None``
+- ``evaluate`` method
 
-    - This is called before the solver starts
-    - ``message`` includes an input parameter ``x``, convert it to something to be used by the solver
+  The form of ``evaluate`` method should be as follows:
 
-        - e.g., to generate an input file of the solver
+  .. code-block:: python
 
-- ``run(self, nprocs: int = 1, nthreads: int = 1) -> None``
+     def evaluate(self, x, args=(), nprocs=1, nthreads=1) -> float:
+         pass
 
-    - Run the solver
-    - Result should be saved to somewhere in order to be read by ``get_results`` later
+  This method evaluates the objective function at a given parameter value `x` and returns the result. It takes the following arguments:
 
-        - e.g., save f(x) as an instance variable
+  - ``x: np.ndarray``
 
-- ``get_results(self) -> float``
+    The parameter value in :math:`N` dimensional vector of numpy.ndarray type.
 
-    - This is called after the solver finishes
-    - Returns the result of the solver
+  - ``args: Tuple = ()``
 
-        - e.g., to retrieve the result from the output file of the solver
+    The additional arguments passed from the Algorithm in the form of a Tuple of two integers.
+    One is the step count that corresponds to the Monte Carlo steps for MC type algorithms, or the index of the grid point for grid search algorithm.
+    The other is the set number that represents :math:`n`-th iteration.
+
+  - ``nprocs: int = 1``
+
+  - ``nthreads: int = 1``
+
+    The number of processes and threads that specify how to run the solver in MPI/thread parallelisation. In the current version, ``nprocs=1`` and ``nthreads=1`` are accepted.
+  
+  The ``evaluate`` method returns the value of the objective function as a float number.

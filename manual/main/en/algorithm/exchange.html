@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Replica exchange Monte Carlo exchange &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Replica exchange Monte Carlo exchange &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -18,10 +18,10 @@
     <link rel="prev" title="Direct parallel search mapper" href="mapper_mpi.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Replica exchange Monte Carlo exchange</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
@@ -40,8 +40,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> explores the parameter space by using the replica exchange Monte Carlo (RXMC) method.</p>
 <section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
-<p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
+<p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed if MPI parallelization is used.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
@@ -61,27 +61,24 @@ Otherwise, continuous space is used.</p>
 <p>Description: Initial value of parameters.
 If not defined, these will be initialize randomly.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description: Unit length of each parameter.
-<code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> makes parameters dimensionless and normalized by dividing these by <code class="docutils literal notranslate"><span class="pre">unit_list</span></code>.
-If not defined, each component will be 1.0.</p>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Minimum value of each parameter.</dt><dd><p>When a parameter falls below this value during the Monte Carlo search,
+<p>Description:
+Minimum value of each parameter.
+When a parameter falls below this value during the Monte Carlo search,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Maximum value of each parameter.</dt><dd><p>When a parameter exceeds this value during the Monte Carlo search,
+<p>Description:
+Maximum value of each parameter.
+When a parameter exceeds this value during the Monte Carlo search,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
+<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+<p>Description:
+The step length in one Monte Carlo update (deviation of Gaussian distribution).</p>
 </li>
 </ul>
 </li>
@@ -167,7 +164,7 @@ we should define “neighborhoods” for each point <span class="math notranslat
 A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point <span class="math notranslate nohighlight">\(i\)</span> is specified by the first column,
 and the indices of final points <span class="math notranslate nohighlight">\(j\)</span> are specified by the second and successive columns.</p>
-<p>An utility tool, <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> is available for generating a neighborhood-list file from a mesh file. For details, please see <a class="reference internal" href="../tool.html"><span class="doc">Related Tools</span></a>.</p>
+<p>An utility tool, <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> is available for generating a neighborhood-list file from a mesh file. For details, please see <a class="reference internal" href="../tool.html"><span class="doc">Related Tools</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
 <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
 <span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
@@ -236,13 +233,37 @@ The remaining columns are the coordinates.</p>
 <span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
+<p>The program is started from the initialized state.
+If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:</p>
+<ol class="arabic simple">
+<li><p>the specified number of steps has been done, or the specified period of time has passed.</p></li>
+<li><p>at the end of the execution.</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>The program execution is resumed from the latest checkpoint.
+The conditions such as the number of MPI processes should be kept the same.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>The program execution is continued from the previous run.
+The value of <code class="docutils literal notranslate"><span class="pre">numsteps</span></code> should be increased. The step counter is taken over.</p>
+<p>For example: in the first run, the calculation is carried out for 1000 steps with <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">1000</span></code>. In the next run, the calculation is continued with <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">2000</span></code>, where the calculations from 1001st step to 2000th step are carried out.</p>
+</li>
+</ul>
+</section>
 <section id="algorithm">
-<h4>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h4>
-</section>
-</section>
-</section>
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h2>
 <section id="markov-chain-monte-carlo">
-<h2>Markov chain Monte Carlo<a class="headerlink" href="#markov-chain-monte-carlo" title="Link to this heading">¶</a></h2>
+<h3>Markov chain Monte Carlo<a class="headerlink" href="#markov-chain-monte-carlo" title="Link to this heading">¶</a></h3>
 <p>The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers <span class="math notranslate nohighlight">\(\vec{x}\)</span> stochastically according to the weight function <span class="math notranslate nohighlight">\(W(\vec{x})\)</span>.
 For the weight function, the Boltzmann factor <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> is generally adopted, where <span class="math notranslate nohighlight">\(T&gt;0\)</span> is the “temperature.”
 It is impossible in the many cases, unfortunately, to sample walkers according to <span class="math notranslate nohighlight">\(W\)</span> directly.
@@ -257,7 +278,7 @@ Practically, the stronger condition (“the detailed balance condition”)</p>
 \[p(\vec{x} | \vec{x}') W(\vec{x}') =  W(\vec{x})p(\vec{x}' | \vec{x})\]</div>
 <p>is usually imposed.
 The detailed balance condition returns to the balance condition by taking the summation of <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
-<p>2DMAT adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
+<p>ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
 The MH method splits the transition process into the suggestion process and the acceptance process.</p>
 <ol class="arabic simple">
 <li><p>Generate a candidate <span class="math notranslate nohighlight">\(\vec{x}\)</span> with the suggestion probability <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t)\)</span>.</p>
@@ -295,7 +316,7 @@ the procedure of MCMC with the MH algorithm is the following:</p>
 The third process of the above procedure endures that walkers can climb over the hill with a height of <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span>, the MCMC sampling can escape from local minima.</p>
 </section>
 <section id="replica-exchange-monte-carlo">
-<h2>Replica exchange Monte Carlo<a class="headerlink" href="#replica-exchange-monte-carlo" title="Link to this heading">¶</a></h2>
+<h3>Replica exchange Monte Carlo<a class="headerlink" href="#replica-exchange-monte-carlo" title="Link to this heading">¶</a></h3>
 <p>The “temperature” <span class="math notranslate nohighlight">\(T\)</span> is one of the most important hyper parameters in the MCMC sampling.
 The MCMC sampling can climb over the hill with a height of <span class="math notranslate nohighlight">\(T\)</span> but cannot easily escape from the deeper valley than <span class="math notranslate nohighlight">\(T\)</span>.
 It is why we should increase the temperature in order to avoid stuck to local minima.
@@ -323,10 +344,11 @@ This is why this algorithm suits for the massively parallel calculation.</p>
 </aside>
 </section>
 </section>
+</section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
@@ -340,7 +362,7 @@ This is why this algorithm suits for the massively parallel calculation.</p>
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

@@ -39,7 +39,7 @@ The output is only available when the ``runner.log.interval`` parameter is a pos
 The following is an example of the output.
 
 .. code-block::
-    
+
     # $1: num_calls
     # $2: elapsed_time_from_last_call
     # $3: elapsed_time_from_start
@@ -51,3 +51,9 @@ The following is an example of the output.
     5 4.965899999997969e-05 0.0014163379999999615
     6 8.666900000003919e-05 0.0015030070000000006
        ...
+
+``status.pickle``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If ``algorithm.checkpoint`` is set to true, the intermediate states are stored to ``status.pickle`` (or the filename specified by the ``algorithm.checkpoint_file`` parameter) for each MPI process in its subfolder.
+They are read when the execution is resumed.
+The content of the file depends on the algorithm.

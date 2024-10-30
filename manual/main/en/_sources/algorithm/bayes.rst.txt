@@ -1,4 +1,4 @@
-Bayse optimization ``bayes``
+Bayesian optimization ``bayes``
 *******************************
 
 .. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
@@ -8,9 +8,11 @@ The implementation is based on `PHYSBO`_.
 
 Preparation
 ~~~~~~~~~~~~
-You will need to install `PHYSBO`_ beforehand.::
+You will need to install `PHYSBO`_ beforehand.
 
-  python3 -m pip install physbo
+.. code-block:: bash
+
+   $ python3 -m pip install physbo
 
 If `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ is installed, MPI parallel computing is possible.
 
@@ -52,7 +54,8 @@ If ``mesh_path`` is not defined, ``min_list``, ``max_list``, and ``num_list`` ar
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description:  The number of grids the parametar can take at each dimension.
+  Description: The number of grids the parametar can take at each dimension.
+
 
 [``algorithm.bayes``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -77,7 +80,7 @@ The hyper parameters are defined.
 
   Description: Parameter to specify the score function.
   ``EI`` (expected improvement), ``PI`` (probability of improvement), and ``TS`` (Thompson sampling) can be chosen.
-  
+
 - ``interval``
 
   Format: Integer (default: 5)
@@ -122,9 +125,7 @@ Output files
 ``BayesData.txt`` 
 ^^^^^^^^^^^^^^^^^^^^^^
 
-At each step of the optimization process,
-the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far
-and the searched parameters at that step.
+At each step of the optimization process, the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far and the searched parameters at that step.
 
 .. code-block::
 
@@ -134,6 +135,39 @@ and the searched parameters at that step.
     2 5.5 4.25 0.04380131351780189 5.5 4.25 0.04380131351780189
     3 5.0 4.25 0.02312528177606794 5.0 4.25 0.02312528177606794
     ...
+
+
+Restart
+~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
+
+- ``"initial"`` (default)
+
+  The program is started from the initial state.
+  First, it performs the random sampling for the number of times specified by ``random_max_num_probes`` parameter.
+  Then, it performs the Bayes optimization for the number of times specified by ``bayes_max_num_probes``.
+
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. when the random sampling is finished.
+  #. during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+  It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
+
+- ``"continue"``
+
+  The program execution of the Bayes optimization is continued from the previous run.
+  The value of ``bayes_max_num_probes`` should be increased. The step counter is taken over.
+
+  For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with ``bayes_max_num_probes=100``. In the next run, the calculation is continued with ``bayes_max_num_probes=200``, where the calculations from 101st step to 200th step are carried out.
 
 
 Algorithm Description
@@ -155,7 +189,7 @@ but it is a place with little information and is considered to be beneficial for
 Selecting the former is called "exploition," while selecting the latter is called "exploration," and it is important to balance both.
 The definition of "score" defines how to choose between them.
 
-In 2DMAT, we use `PHYSBO`_ as a library for Bayesian optimization.
+In ODAT-SE, we use `PHYSBO`_ as a library for Bayesian optimization.
 PHYSBO, like ``mapper_mpi``, computes a "score" for a predetermined set of candidate points, and proposes an optimal solution.
 MPI parallel execution is possible by dividing the set of candidate points.
 In addition, we use a kernel that allows us to evaluate the model function and thus calculate the "score" with a linear amount of computation with respect to the number of training data points :math:`N`.

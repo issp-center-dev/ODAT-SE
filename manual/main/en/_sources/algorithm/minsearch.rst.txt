@@ -3,21 +3,23 @@ Nelder-Mead method ``minsearch``
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
 
-When ``minsearch`` is selcted, the optimization by the `Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, the dimension of the parameter space is :math:`D`, and the optimal solution is searched by systematically moving pairs of :math:`D+1` coordinate points according to the value of the objective function at each point.
+When ``minsearch`` is selcted, the optimization by the `Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, assuming the dimension of the parameter space is :math:`D`, the optimal solution is searched by systematically moving pairs of :math:`D+1` coordinate points according to the value of the objective function at each point.
 
 An important hyperparameter is the initial value of the coordinates.
 Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.
 
-In 2DMAT, the Scipy's function ``scipy.optimize.minimize(method="Nelder-Mead")`` is used.
+In ODAT-SE, the Scipy's function ``scipy.optimize.minimize(method="Nelder-Mead")`` is used.
 For details, see `the official document <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ .
 
 
 Preparation
 ~~~~~~~~~~~
 
-You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_ .::
+You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_ .
 
-  python3 -m pip install scipy
+.. code-block::
+
+   $ python3 -m pip install scipy
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,26 +41,28 @@ It has subsections ``param`` and ``minimize``.
 
   Format: List of float. The length should match the value of dimension.
 
-  Description: Units for each parameter.
-        In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
-        If not defined, the value is 1.0 for all dimensions.
+  Description:
+  Units for each parameter.
+  In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+  If not defined, the value is 1.0 for all dimensions.
 	
-  - ``min_list``
+- ``min_list``
 
-    Format: List of float. Length should be equal to ``dimension``.
+  Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Minimum value of each parameter.
-                 When a parameter falls below this value during the Nelson-Mead method,
-                 the solver is not evaluated and the value is considered infinite.
+  Description:
+  Minimum value of each parameter.
+  When a parameter falls below this value during the Nelson-Mead method,
+  the solver is not evaluated and the value is considered infinite.
 
+- ``max_list``
 
-  - ``max_list``
+  Format: List of float. Length should be equal to ``dimension``.
 
-    Format: List of float. Length should be equal to ``dimension``.
-
-    Description: Maximum value of each parameter.
-                 When a parameter exceeds this value during the Nelson-Mead method,
-                 the solver is not evaluated and the value is considered infinite.
+  Description:
+  Maximum value of each parameter.
+  When a parameter exceeds this value during the Nelson-Mead method,
+  the solver is not evaluated and the value is considered infinite.
 
 [``minimize``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -70,7 +74,8 @@ See the documentation of `scipy.optimize.minimize`_ for details.
 
   Format: List of float. The length should match the value of dimension. 
 
-  Description: The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
+  Description:
+  The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
   The ``initial_simplex`` is given by the sum of ``initial_list`` and the dimension of the ``initial_list`` plus one component of the ``initial_scale_list``.
   If not defined, scales at each dimension are set to 0.25.
 
@@ -136,3 +141,7 @@ The following is an example of the output.
     z1 = 5.230524973874179
     z2 = 4.370622919269477
     z3 = 3.5961444501081647
+
+Restart
+~~~~~~~~~~~
+The restarting is not supported for the optimization by the Nelder-Mead method.

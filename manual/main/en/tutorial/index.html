@@ -5,30 +5,30 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorials &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Tutorials &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="TRHEPD Direct Problem Solver" href="sim_trhepd_rheed.html" />
-    <link rel="prev" title="Install of py2dmat" href="../start.html" /> 
+    <link rel="next" title="Minimization of an analytical function" href="intro.html" />
+    <link rel="prev" title="Installation of ODAT-SE" href="../start.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Tutorials</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
-        «&#160;&#160;<a href="../start.html">Install of py2dmat</a>
+        «&#160;&#160;<a href="../start.html">Installation of ODAT-SE</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="sim_trhepd_rheed.html">TRHEPD Direct Problem Solver</a>&#160;&#160;»
+        <a href="intro.html">Minimization of an analytical function</a>&#160;&#160;»
         </p>
 
       </div>
@@ -37,70 +37,68 @@
         
   <section id="tutorials">
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">¶</a></h1>
-<p>The direct problem solver, <code class="docutils literal notranslate"><span class="pre">sim_trhepd_rheed</span></code>, is based on the Reflection-High-Energy Electron Diffraction (RHEED, TRHEPD) analysis software developed by Prof. Takashi Hanada at Tohoku University.
-In TRHEPD, when atomic coordinates are given, diffraction data is given as a simulation result.
-Therefore, we are dealing with the direct problem from atomic coordinates to diffraction data.
-On the other hand, in many cases, diffraction data is given experimentally, and the atomic coordinates are required to reproduce the experimental data. These are inverse problems to the above direct problems.</p>
-<p>In 2DMAT, the algorithms for solving the inverse problem can be selected as following algorithms:</p>
+<p>In these tutorials, how to perform inverse problem analyses using ODAT-SE is explained by examples taken from minimization of analytical functions.
+In ODAT-SE, the algorithms for solving the inverse problem can be selected from the following algorithms:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code></p>
 <blockquote>
-<div><p>Estimating plausible atomic coordinates using the Nealder-Mead method.</p>
+<div><p>Nealder-Mead method.</p>
 </div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code></p>
 <blockquote>
-<div><p>Estimate plausible atomic coordinates by searching the entire search grid for a given parameter.</p>
+<div><p>Entire search over a grid for a given parameter.</p>
 </div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code></p>
 <blockquote>
-<div><p>Estimate plausible atomic coordinates using Bayesian optimization.</p>
+<div><p>Bayesian optimization.</p>
 </div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p>
 <blockquote>
-<div><p>Sampling plausible atomic coordinates using a replica exchange Monte Carlo method.</p>
+<div><p>Sampling by the replica exchange Monte Carlo method.</p>
 </div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code></p>
 <blockquote>
-<div><p>Sampling plausible atomic coordinates using a population annealing Monte Carlo method.</p>
+<div><p>Sampling by the population annealing Monte Carlo method.</p>
 </div></blockquote>
 </li>
 </ul>
-<p>In this tutorial, we will first introduce how to run the sequential problem program, and then how to run <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> , <code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code>, <code class="docutils literal notranslate"><span class="pre">bayes</span></code>, <code class="docutils literal notranslate"><span class="pre">exchange</span></code>, and <code class="docutils literal notranslate"><span class="pre">pamc</span></code> .</p>
+<p>In the following sections, the procedures to run these algorithms are provided.
+In addition, the usage of <code class="docutils literal notranslate"><span class="pre">[runner.limitation]</span></code> to apply limitations to the search region will be described. In the end of the section, how to define a direct problem solver wil be explained by a simple example.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sim_trhepd_rheed.html">TRHEPD Direct Problem Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Minimization of an analytical function</a></li>
 <li class="toctree-l1"><a class="reference internal" href="minsearch.html">Optimization by Nelder-Mead method</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mpi.html">Grid search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapper.html">Grid search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bayes.html">Optimization by Bayesian Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exchange.html">Optimization by replica exchange Monte Carlo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="limitation.html">Replica Exchange Monte Carlo search with limitation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pamc.html">Optimization by population annealing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="solver_simple.html">Addition of a direct problem solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitation.html">Replica Exchange Monte Carlo search with limitation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="solver_simple.html">Adding a direct problem solver</a></li>
 </ul>
 </div>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
-        «&#160;&#160;<a href="../start.html">Install of py2dmat</a>
+        «&#160;&#160;<a href="../start.html">Installation of ODAT-SE</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="sim_trhepd_rheed.html">TRHEPD Direct Problem Solver</a>&#160;&#160;»
+        <a href="intro.html">Minimization of an analytical function</a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

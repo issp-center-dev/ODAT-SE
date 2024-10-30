@@ -5,26 +5,26 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Commons &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Commons &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Solver" href="solver.html" />
-    <link rel="prev" title="(For developers) User-defined algorithm and solver" href="index.html" /> 
+    <link rel="prev" title="(For developers) User-defined algorithms and solvers" href="index.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Commons</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
-        «&#160;&#160;<a href="index.html">(For developers) User-defined algorithm and solver</a>
+        «&#160;&#160;<a href="index.html">(For developers) User-defined algorithms and solvers</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -37,135 +37,124 @@
         
   <section id="commons">
 <h1>Commons<a class="headerlink" href="#commons" title="Link to this heading">¶</a></h1>
-<section id="py2dmat-info">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Info</span></code><a class="headerlink" href="#py2dmat-info" title="Link to this heading">¶</a></h2>
+<p>In this section, the components commonly used over the program are described.</p>
+<section id="odatse-info">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse.Info</span></code><a class="headerlink" href="#odatse-info" title="Link to this heading">¶</a></h2>
 <p>This class treats the input parameters.
-This has the following four instance variables.</p>
+It contains the following four instance variables.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> : <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">base</span> <span class="pre">:</span> <span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
-<blockquote>
-<div><ul class="simple">
 <li><p>Parameters for whole program such as the directory where the output will be written.</p></li>
 </ul>
-</div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">solver</span> <span class="pre">:</span> <span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
-<blockquote>
-<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">solver</span></code> : <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
+<ul>
 <li><p>Parameters for <code class="docutils literal notranslate"><span class="pre">Solver</span></code></p></li>
 </ul>
-</div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span> <span class="pre">:</span> <span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
-<blockquote>
-<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span></code> : <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
+<ul>
 <li><p>Parameters for <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></p></li>
 </ul>
-</div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">runner</span> <span class="pre">:</span> <span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
-<blockquote>
-<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code> : <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">Any]</span></code></p>
+<ul>
 <li><p>Parameters for <code class="docutils literal notranslate"><span class="pre">Runner</span></code></p></li>
 </ul>
-</div></blockquote>
 </li>
 </ul>
-<p>An instance of <code class="docutils literal notranslate"><span class="pre">Info</span></code> is initialized by passing a <code class="docutils literal notranslate"><span class="pre">dict</span></code> which has the following four sub dictionaries, <code class="docutils literal notranslate"><span class="pre">base</span></code>, <code class="docutils literal notranslate"><span class="pre">solver</span></code>, <code class="docutils literal notranslate"><span class="pre">algorithm</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;runner&quot;</span></code>.
-Each value will be set to the corresponding field of <code class="docutils literal notranslate"><span class="pre">Info</span></code>.</p>
+<p>An instance of <code class="docutils literal notranslate"><span class="pre">Info</span></code> is initialized by passing a <code class="docutils literal notranslate"><span class="pre">dict</span></code> which has the following four sub dictionaries, <code class="docutils literal notranslate"><span class="pre">base</span></code>, <code class="docutils literal notranslate"><span class="pre">solver</span></code>, <code class="docutils literal notranslate"><span class="pre">algorithm</span></code>, and <code class="docutils literal notranslate"><span class="pre">runner</span></code>. (Some of them can be omitted.)
+Each sub dictionary is set to the corresponding field of <code class="docutils literal notranslate"><span class="pre">Info</span></code>.
+Alternatively, it can be created by passing to the class method <code class="docutils literal notranslate"><span class="pre">from_file</span></code> a path to input file in TOML format.</p>
+<section id="base-items">
+<h3><code class="docutils literal notranslate"><span class="pre">base</span></code> items<a class="headerlink" href="#base-items" title="Link to this heading">¶</a></h3>
+<p>As items of <code class="docutils literal notranslate"><span class="pre">base</span></code> field, <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> indicating the root dirctory of the calculation, and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> for output results will be set automatically as follows.</p>
 <ul>
-<li><p>About <code class="docutils literal notranslate"><span class="pre">base</span></code></p>
-<blockquote>
-<div><ul>
 <li><p>Root directory <code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p>
-<blockquote>
-<div><ul>
+<ul>
 <li><p>The default value is <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> (the current directory).</p></li>
-<li><p>Value of <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> will be converted to an absolute path.</p></li>
+<li><p>The value of <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> will be converted to an absolute path.</p></li>
 <li><p>The leading <code class="docutils literal notranslate"><span class="pre">~</span></code> will be expanded to the user’s home directory.</p></li>
-<li><p>Specifically, the following code is executed</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
+<li><p>Specifically, the following code is executed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
 <span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
 </ul>
-</div></blockquote>
 </li>
 <li><p>Output directory <code class="docutils literal notranslate"><span class="pre">output_dir</span></code></p>
-<blockquote>
-<div><ul>
-<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code>, that is, the same to <code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p></li>
+<ul>
 <li><p>The leading <code class="docutils literal notranslate"><span class="pre">~</span></code> will be expanded to the user’s home directory.</p></li>
-<li><p>If a relative path is given, its origin is <code class="docutils literal notranslate"><span class="pre">root_dir</span></code>.</p></li>
-<li><p>Specifically, the following code is executed</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;work_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
+<li><p>If an absolute path is given, it is set as-is.</p></li>
+<li><p>If a relative path is given, it is regarded to be relative to <code class="docutils literal notranslate"><span class="pre">root_dir</span></code>.</p></li>
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code>, that is, the same to <code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p></li>
+<li><p>Specifically, the following code is executed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;work_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
 <span class="n">base</span><span class="p">[</span><span class="s2">&quot;work_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
 </pre></div>
 </div>
 </li>
 </ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
 </li>
 </ul>
 </section>
-<section id="py2dmat-message">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Message</span></code><a class="headerlink" href="#py2dmat-message" title="Link to this heading">¶</a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> tries to invoke <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, an instance of this class is passed from <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> to <code class="docutils literal notranslate"><span class="pre">Solver</span></code> via <code class="docutils literal notranslate"><span class="pre">Runner</span></code>.</p>
-<p>This has the following three instance variables.</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">x:</span> <span class="pre">np.ndarray</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Coordinates of a point <span class="math notranslate nohighlight">\(x\)</span> to calculate <span class="math notranslate nohighlight">\(f(x)\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">step:</span> <span class="pre">int</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The index of parameters</p></li>
-<li><p>For example, the index of steps in <code class="docutils literal notranslate"><span class="pre">exchange</span></code> and the ID of parameter in <code class="docutils literal notranslate"><span class="pre">mapper</span></code>.</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">set:</span> <span class="pre">int</span></code></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Which lap it is</p></li>
-<li><p>For example, <code class="docutils literal notranslate"><span class="pre">min_search</span></code> has two laps, the first one is optimization and the second one is recalculation the optimal values for each step.</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
 </section>
-<section id="py2dmat-runner">
-<h2><code class="docutils literal notranslate"><span class="pre">py2dmat.Runner</span></code><a class="headerlink" href="#py2dmat-runner" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Runner</span></code> connects <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
-The constructor of <code class="docutils literal notranslate"><span class="pre">Runner</span></code> takes <code class="docutils literal notranslate"><span class="pre">solver:</span> <span class="pre">Solver</span></code>, <code class="docutils literal notranslate"><span class="pre">info:</span> <span class="pre">Info</span></code>, and <code class="docutils literal notranslate"><span class="pre">mapping:</span> <span class="pre">Callable[[np.ndarray],</span> <span class="pre">np.ndarray]</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">submit(self,</span> <span class="pre">message:</span> <span class="pre">py2dmat.Message)</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> method invokes the solver and returns the result.
-To evaluate <code class="docutils literal notranslate"><span class="pre">fx</span> <span class="pre">=</span> <span class="pre">f(x)</span></code>, use the following code snippet:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Message</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
-<span class="n">fx</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">submit</span></code> internally uses <code class="docutils literal notranslate"><span class="pre">mapping</span></code> for generating a parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span>, from a parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, as <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">mapping(x)</span></code>.
-When <code class="docutils literal notranslate"><span class="pre">mapping</span></code> is omitted in the constructor (or <code class="docutils literal notranslate"><span class="pre">None</span></code> is passed), an affine mapping (<code class="docutils literal notranslate"><span class="pre">py2dmat.util.mapping.Affine(A,b)</span></code>) <span class="math notranslate nohighlight">\(y=Ax+b\)</span> is used as <code class="docutils literal notranslate"><span class="pre">mapping</span></code>.
-The elements of <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> are defined in <code class="docutils literal notranslate"><span class="pre">info</span></code>.
-See <a class="reference internal" href="../input.html"><span class="doc">Input file</span></a> for details how/which components of <code class="docutils literal notranslate"><span class="pre">info</span></code> <code class="docutils literal notranslate"><span class="pre">Runner</span></code> uses.</p>
+<section id="odatse-runner">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse.Runner</span></code><a class="headerlink" href="#odatse-runner" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Runner</span></code> is a class that connects <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
+The constructor of <code class="docutils literal notranslate"><span class="pre">Runner</span></code> takes instances of <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <code class="docutils literal notranslate"><span class="pre">Info</span></code>, <code class="docutils literal notranslate"><span class="pre">Mapping</span></code>, and <code class="docutils literal notranslate"><span class="pre">Limitation</span></code>.
+If the instance of <code class="docutils literal notranslate"><span class="pre">Mapping</span></code> is omitted, <code class="docutils literal notranslate"><span class="pre">TrivialMapping</span></code> is assumed that does no transformation.
+If the instance of <code class="docutils literal notranslate"><span class="pre">Limitation</span></code> is omitted, <code class="docutils literal notranslate"><span class="pre">Unlimited</span></code> is assumed that do not impose constraints.</p>
+<p><code class="docutils literal notranslate"><span class="pre">submit(self,</span> <span class="pre">x:</span> <span class="pre">np.ndarray,</span> <span class="pre">args:</span> <span class="pre">Tuple[int,int])</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> method invokes the solver and returns the value of objective function <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">submit</span></code> internally uses the instance of <code class="docutils literal notranslate"><span class="pre">Limitation</span></code> to check whether the search parameter <code class="docutils literal notranslate"><span class="pre">x</span></code> satisfies the constraints. Then, it applies the instance of <code class="docutils literal notranslate"><span class="pre">Mapping</span></code> to obtain from <code class="docutils literal notranslate"><span class="pre">x</span></code> the input <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">mapping(x)</span></code> that is actually used by the solver.</p>
+<p>See <a class="reference internal" href="../input.html"><span class="doc">Input file</span></a> for details how/which components of <code class="docutils literal notranslate"><span class="pre">info</span></code> <code class="docutils literal notranslate"><span class="pre">Runner</span></code> uses.</p>
+</section>
+<section id="odatse-mapping">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse.Mapping</span></code><a class="headerlink" href="#odatse-mapping" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Mapping</span></code> is a class that describes mappings from the search parameters of the inverse problem analysis algorithms to the variables of the direct problem solvers.
+It is defined as a function object class that has <code class="docutils literal notranslate"><span class="pre">__call__(self,</span> <span class="pre">x:</span> <span class="pre">np.ndarray)</span> <span class="pre">-&gt;</span> <span class="pre">np.ndarray</span></code> method.
+In the current version, a trivial transformation <code class="docutils literal notranslate"><span class="pre">TrivialMapping</span></code> and an affine mapping <code class="docutils literal notranslate"><span class="pre">Affine</span></code> are defined.</p>
+<section id="trivialmapping">
+<h3><code class="docutils literal notranslate"><span class="pre">TrivialMapping</span></code><a class="headerlink" href="#trivialmapping" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">TrivialMapping</span></code> provides a trivial transformation <span class="math notranslate nohighlight">\(x\to x\)</span>, that is, no transformation.
+It is taken as a default to the argument of Runner class.</p>
+</section>
+<section id="affine">
+<h3><code class="docutils literal notranslate"><span class="pre">Affine</span></code><a class="headerlink" href="#affine" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Affine</span></code> provides an affine mapping <span class="math notranslate nohighlight">\(x \to y = A x + b\)</span>.
+The coefficients <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> should be given as constructor arguments, or passed as dictionary elements through the <code class="docutils literal notranslate"><span class="pre">from_dict</span></code> class method.
+In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.</p>
+</section>
+</section>
+<section id="odatse-limitation">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse.Limitation</span></code><a class="headerlink" href="#odatse-limitation" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Limitation</span></code> is a class that describes constraints on the <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter space <span class="math notranslate nohighlight">\(x\)</span> searched by the inverse problem analysis algorithms.
+It is defined as a class that have the method <code class="docutils literal notranslate"><span class="pre">judge(self,</span> <span class="pre">x:</span> <span class="pre">np.ndarray)</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code>.
+In the current version, <code class="docutils literal notranslate"><span class="pre">Unlimited</span></code> class that imposes no constraint, and <code class="docutils literal notranslate"><span class="pre">Inequality</span></code> class that represents the linear inequality constraint.</p>
+<section id="unlimited">
+<h3><code class="docutils literal notranslate"><span class="pre">Unlimited</span></code><a class="headerlink" href="#unlimited" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Unlimited</span></code> represents that no constraint is imposed.
+<code class="docutils literal notranslate"><span class="pre">judge</span></code> method always returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+It is taken as a default to the argument of Runner class.</p>
+</section>
+<section id="inequality">
+<h3><code class="docutils literal notranslate"><span class="pre">Inequality</span></code><a class="headerlink" href="#inequality" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Inequality</span></code> is a class that expresses <span class="math notranslate nohighlight">\(M\)</span> constraints imposed on <span class="math notranslate nohighlight">\(N\)</span> dimensional search parameters <span class="math notranslate nohighlight">\(x\)</span> in the form <span class="math notranslate nohighlight">\(A x + b &gt; 0\)</span> where <span class="math notranslate nohighlight">\(A\)</span> is a <span class="math notranslate nohighlight">\(M \times N\)</span> matrix and <span class="math notranslate nohighlight">\(b\)</span> is a <span class="math notranslate nohighlight">\(M\)</span> dimensional vector.</p>
+<p>The coefficients <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> should be given as constructor arguments, or passed as dictionary elements through the <code class="docutils literal notranslate"><span class="pre">from_dict</span></code> class method.
+In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.</p>
+</section>
 </section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
-        «&#160;&#160;<a href="index.html">(For developers) User-defined algorithm and solver</a>
+        «&#160;&#160;<a href="index.html">(For developers) User-defined algorithms and solvers</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -176,7 +165,7 @@ See <a class="reference internal" href="../input.html"><span class="doc">Input f
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

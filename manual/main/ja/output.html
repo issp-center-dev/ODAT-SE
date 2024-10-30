@@ -5,23 +5,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>出力ファイル &#8212; 2DMAT 2.2.0 ドキュメント</title>
+    <title>出力ファイル &#8212; ODAT-SE 3.0-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=f63d8bfa" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=dfa0e015" />
-    <script src="_static/documentation_options.js?v=2b075faf"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=1bf24029"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/translations.js?v=4dbe4bdc"></script>
+    <script src="_static/translations.js?v=4755f45a"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="探索アルゴリズム" href="algorithm/index.html" />
     <link rel="prev" title="入力ファイル" href="input.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
-          <span>2DMAT 2.2.0 ドキュメント</span></a></h1>
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
         <h2 class="heading"><span>出力ファイル</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="input.html">入力ファイル</a>
@@ -82,12 +82,18 @@
 </pre></div>
 </div>
 </section>
+<section id="status-pickle">
+<h3><code class="docutils literal notranslate"><span class="pre">status.pickle</span></code><a class="headerlink" href="#status-pickle" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint</span></code> が true の場合、MPI のランクごとに実行中の状態を出力します。
+各ランクのサブフォルダ以下に出力されます。実行を再開する場合に読み込まれます。
+ファイルの内容はアルゴリズムに依ります。</p>
+</section>
 </section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="input.html">入力ファイル</a>
@@ -100,8 +106,8 @@
       </div>
 
     <div class="footer" role="contentinfo">
-    &#169; 著作権 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

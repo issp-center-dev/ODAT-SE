@@ -5,30 +5,30 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Replica Exchange Monte Carlo search with limitation &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Replica Exchange Monte Carlo search with limitation &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Optimization by population annealing" href="pamc.html" />
-    <link rel="prev" title="Optimization by replica exchange Monte Carlo" href="exchange.html" /> 
+    <link rel="next" title="Adding a direct problem solver" href="solver_simple.html" />
+    <link rel="prev" title="Optimization by population annealing" href="pamc.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Replica Exchange Monte Carlo search with limitation</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
-        «&#160;&#160;<a href="exchange.html">Optimization by replica exchange Monte Carlo</a>
+        «&#160;&#160;<a href="pamc.html">Optimization by population annealing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="pamc.html">Optimization by population annealing</a>&#160;&#160;»
+        <a href="solver_simple.html">Adding a direct problem solver</a>&#160;&#160;»
         </p>
 
       </div>
@@ -38,17 +38,17 @@
   <section id="replica-exchange-monte-carlo-search-with-limitation">
 <h1>Replica Exchange Monte Carlo search with limitation<a class="headerlink" href="#replica-exchange-monte-carlo-search-with-limitation" title="Link to this heading">¶</a></h1>
 <p>This tutorial describes the constraint expression function that can be set in the <code class="docutils literal notranslate"><span class="pre">[runner.limitation]</span></code> section.
-As an example, the replica exchange Monte Carlo method is applied to the calculation of Himmelblau with constraints.</p>
+As an example, the replica exchange Monte Carlo method is applied to the minimization problem of Himmelblau function with constraints.</p>
 <section id="sample-files-location">
 <h2>Sample files location<a class="headerlink" href="#sample-files-location" title="Link to this heading">¶</a></h2>
 <p>Sample files are available in the <code class="docutils literal notranslate"><span class="pre">sample/analytical/limitation</span></code> directory.
 This directory contains the following files.</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">ref.txt</span></code></p>
-<p>File to check if the calculation is executed correctly (answer to obtain by performing this tutorial).</p>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
 <p>Input file for the main program.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ref.txt</span></code></p>
+<p>File to check if the calculation is executed correctly (answer to obtain by performing this tutorial).</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
 <p>Script prepared to calculate this tutorial at once.</p>
@@ -59,42 +59,50 @@ This directory contains the following files.</p>
 <section id="input-files">
 <h2>Input files<a class="headerlink" href="#input-files" title="Link to this heading">¶</a></h2>
 <p>The following <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> is an input file for the main program.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
-<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span>
 
-<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;exchange&quot;</span>
-<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+<span class="k">[algorithm]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;exchange&quot;</span>
+<span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
-<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
-<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
-<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
-<span class="n">unit_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+<span class="k">[algorithm.param]</span>
+<span class="n">max_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">-6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">-6.0</span><span class="p">]</span>
+<span class="n">unit_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.3</span><span class="p">]</span>
 
-<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">exchange</span><span class="p">]</span>
-<span class="n">Tmin</span> <span class="o">=</span> <span class="mf">1.0</span>
-<span class="n">Tmax</span> <span class="o">=</span> <span class="mf">100000.0</span>
-<span class="n">numsteps</span> <span class="o">=</span> <span class="mi">10000</span>
-<span class="n">numsteps_exchange</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="k">[algorithm.exchange]</span>
+<span class="n">Tmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="n">Tmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100000.0</span>
+<span class="n">numsteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span>
+<span class="n">numsteps_exchange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
 
-<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+<span class="k">[solver]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;himmelblau&quot;</span>
 
-<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
-<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">limitation</span><span class="p">]</span>
-<span class="n">co_a</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
-<span class="n">co_b</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+<span class="k">[runner]</span>
+<span class="k">[runner.limitation]</span>
+<span class="n">co_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">-1</span><span class="p">]]</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code> section is the parameter of the main program.
-<code class="docutils literal notranslate"><span class="pre">dimension</span></code> is the number of variables to be optimized, and in this case, it is 2.</p>
-<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section is the section to set the search algorithm.
-<code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the search algorithm. In this case, specify <code class="docutils literal notranslate"><span class="pre">&quot;exchange&quot;</span></code> for the replica exchange Monte Carlo method.
-<code class="docutils literal notranslate"><span class="pre">seed</span></code> is the seed given to the pseudo-random number generator.</p>
-<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> sub-section specifies the range of parameters to be optimized.
-<code class="docutils literal notranslate"><span class="pre">min_list</span></code> indicates the minimum value, and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> indicates the maximum value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code> section is the parameter of the main program.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code> is the number of variables to be optimized, and in this case, it is 2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output</span></code> is the name of directory for the output files.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section is the section to set the search algorithm.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the search algorithm. In this case, specify <code class="docutils literal notranslate"><span class="pre">&quot;exchange&quot;</span></code> for the replica exchange Monte Carlo method.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> is the seed given to the pseudo-random number generator.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> sub-section specifies the range of parameters to be optimized.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> specifies the lower bound and upper bound of the parameter space, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code> is step length in one MC update (deviation of Gaussian distribution).</p></li>
+</ul>
 <p><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code> sub-section specifies the hyperparameters of the replica exchange Monte Carlo method.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">numstep</span></code> is the number of Monte Carlo updates.</p></li>
@@ -104,32 +112,32 @@ This directory contains the following files.</p>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section specifies the solver used internally in the main program.
 In this case, the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver is specified.
-The <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver sets the function using the <code class="docutils literal notranslate"><span class="pre">function_name</span></code> parameter, and in this case, the Himmelblau function is specified.</p>
+The <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver takes an extra parameter <code class="docutils literal notranslate"><span class="pre">function_name</span></code> that specifies the name of the function. In this case, the Himmelblau function is specified.</p>
 <p><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> section has a sub-section <code class="docutils literal notranslate"><span class="pre">[runner.limitation]</span></code>, and in this section, the constraint expression is set.
 In the current version, the constraint expression is defined as <span class="math notranslate nohighlight">\(Ax+b&gt;0\)</span> where <span class="math notranslate nohighlight">\(x\)</span> is <span class="math notranslate nohighlight">\(N\)</span> dimensional input parameter, <span class="math notranslate nohighlight">\(A\)</span> is a <span class="math notranslate nohighlight">\(M \times N\)</span> matrix, and <span class="math notranslate nohighlight">\(b\)</span> is a <span class="math notranslate nohighlight">\(M\)</span> dimensional vector.
 <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(b\)</span> are set by <code class="docutils literal notranslate"><span class="pre">co_a</span></code> and <code class="docutils literal notranslate"><span class="pre">co_b</span></code>, respectively.
 For details, see the <code class="docutils literal notranslate"><span class="pre">[limitation]</span></code> section in the input file in the manual.</p>
 <p>In this case, the following constraint is imposed:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}x_{1} − x_{2} &gt; 0\\
-x_{1} + x_{2} − 1 &gt; 0\end{split}\]</div>
+\[\begin{split}x_{1} - x_{2} &gt; 0 \\
+x_{1} + x_{2} - 1 &gt; 0\end{split}\]</div>
 </section>
 <section id="calculation">
 <h2>Calculation<a class="headerlink" href="#calculation" title="Link to this heading">¶</a></h2>
-<p>First, move to the folder where the sample file is located (assuming that you are directly under the directory where you downloaded this software).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sample</span><span class="o">/</span><span class="n">analytical</span><span class="o">/</span><span class="n">limitation</span>
+<p>First, move to the folder where the sample file is located. (It is assumed that you are directly under the directory where you downloaded this software.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/limitation
 </pre></div>
 </div>
-<p>Then, execute the main program as follows (the calculation time will end in about 20 seconds on a normal PC).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mpiexec</span> <span class="o">-</span><span class="n">np</span> <span class="mi">10</span> <span class="n">python3</span> <span class="o">../../../</span><span class="n">src</span><span class="o">/</span><span class="n">py2dmat_main</span><span class="o">.</span><span class="n">py</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">log</span><span class="o">.</span><span class="n">txt</span>
+<p>Then, execute the main program as follows. The calculation will end in about 20 seconds on a normal PC.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 </pre></div>
 </div>
 <p>In this case, a calculation with 10 MPI parallel processes is performed.
-(When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.)
-After executed, the <code class="docutils literal notranslate"><span class="pre">output</span></code> folder is generated, and in it, a subfolder for each rank is created.
-Each subfolder contains the results of the calculation.
-<code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> file, which contains the parameters and objective function values evaluated at each Monte Carlo step, and <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> file, which contains the parameters actually adopted, are created.
-Both files have the same format, with the first two columns being the step number and the walker number within the process, the next being the temperature, the third being the value of the objective function, and the fourth and subsequent being the parameters.
+When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.
+After executed, the <code class="docutils literal notranslate"><span class="pre">output</span></code> folder is generated, and there a subfolder for each MPI rank is created.</p>
+<p>Each subfolder contains the results of the calculation.
+<code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> file, which contains the parameters and objective function values evaluated at each Monte Carlo step, and <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> file, which contains the parameters actually adopted, are created.</p>
+<p>Both files have the same format, with the first two columns being the step number and the walker number within the process, the next being the temperature, the third being the value of the objective function, and the fourth and subsequent being the parameters.
 The following is the beginning of the <code class="docutils literal notranslate"><span class="pre">output/0/result.txt</span></code> file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx x1 x2</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">1.0</span> <span class="mf">187.94429125133564</span> <span class="mf">5.155393113805774</span> <span class="o">-</span><span class="mf">2.203493345018569</span>
@@ -150,19 +158,19 @@ The following is the beginning of the <code class="docutils literal notranslate"
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code> is available as a script to calculate all at once.
 Additionally, in <code class="docutils literal notranslate"><span class="pre">do.sh</span></code>, the difference between <code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">ref.txt</span></code> is also compared.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/bash
-mpiexec -np 10 --oversubscribe python3 ../../../src/py2dmat_main.py input.toml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+mpiexec<span class="w"> </span>-np<span class="w"> </span><span class="m">10</span><span class="w"> </span>--oversubscribe<span class="w"> </span>python3<span class="w"> </span>../../../src/odatse_main.py<span class="w"> </span>input.toml
 
-echo diff output/best_result.txt ref.txt
-res=0
-diff output/best_result.txt ref.txt || res=$?
-if [ $res -eq 0 ]; then
-  echo TEST PASS
-  true
-else
-  echo TEST FAILED: best_result.txt and ref.txt differ
-  false
-fi
+<span class="nb">echo</span><span class="w"> </span>diff<span class="w"> </span>output/best_result.txt<span class="w"> </span>ref.txt
+<span class="nv">res</span><span class="o">=</span><span class="m">0</span>
+diff<span class="w"> </span>output/best_result.txt<span class="w"> </span>ref.txt<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">res</span><span class="o">=</span><span class="nv">$?</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$res</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span>TEST<span class="w"> </span>PASS
+<span class="w">  </span><span class="nb">true</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span>TEST<span class="w"> </span>FAILED:<span class="w"> </span>best_result.txt<span class="w"> </span>and<span class="w"> </span>ref.txt<span class="w"> </span>differ
+<span class="w">  </span><span class="nb">false</span>
+<span class="k">fi</span>
 </pre></div>
 </div>
 </section>
@@ -172,37 +180,39 @@ fi
 <code class="docutils literal notranslate"><span class="pre">hist2d_limitation_sample.py</span></code> is prepared to visualize the 2D parameter space.
 This generates a histogram of the posterior probability distribution in the <code class="docutils literal notranslate"><span class="pre">&lt;execution</span> <span class="pre">date&gt;_histogram</span></code> folder.
 The histogram is generated using the data obtained by discarding the first 1000 steps of the search as a burn-in period.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">hist2d_limitation_sample</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">p</span> <span class="mi">10</span> <span class="o">-</span><span class="n">i</span> <span class="nb">input</span><span class="o">.</span><span class="n">toml</span> <span class="o">-</span><span class="n">b</span> <span class="mf">0.1</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1
 </pre></div>
 </div>
-<p>The figure shows the posterior probability distribution and the two lines <span class="math notranslate nohighlight">\(x_{1} − x_{2} = 0,  x_{1} + x_{2} − 1 = 0\)</span>,
-and it is confirmed that the search is only for the range where <span class="math notranslate nohighlight">\(x_{1} − x_{2} &gt; 0,  x_{1} + x_{2} − 1 &gt; 0\)</span>.</p>
+<p>The figure shows the posterior probability distribution and the two lines <span class="math notranslate nohighlight">\(x_{1} - x_{2} = 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 = 0\)</span>, and it is confirmed that the search is only for the range where <span class="math notranslate nohighlight">\(x_{1} - x_{2} &gt; 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 &gt; 0\)</span>.</p>
 <figure class="align-default">
 <img alt="../_images/limitation_beta_min.png" src="../_images/limitation_beta_min.png" />
 </figure>
-<figure class="align-default">
+<figure class="align-default" id="id1">
 <img alt="../_images/limitation_beta_max.png" src="../_images/limitation_beta_max.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Plots of sampled parameters and probability distribution. The horizontal and vertical axes denote <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code>, respectively.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
 </figure>
 </section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
-        «&#160;&#160;<a href="exchange.html">Optimization by replica exchange Monte Carlo</a>
+        «&#160;&#160;<a href="pamc.html">Optimization by population annealing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="pamc.html">Optimization by population annealing</a>&#160;&#160;»
+        <a href="solver_simple.html">Adding a direct problem solver</a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

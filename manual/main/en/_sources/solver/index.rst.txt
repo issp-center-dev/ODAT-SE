@@ -12,6 +12,8 @@ Direct problem solver ``Solver`` calculates the function to be optimized :math:`
    :maxdepth: 1
 
    analytical
+
+..
    sim-trhepd-rheed
    sxrd
    leed

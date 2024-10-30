@@ -5,27 +5,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>交換モンテカルロ法 exchange &#8212; 2DMAT 2.2.0 ドキュメント</title>
+    <title>交換モンテカルロ法 exchange &#8212; ODAT-SE 3.0-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=2b075faf"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/translations.js?v=4dbe4bdc"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="ポピュレーションアニーリングモンテカルロ法 pamc" href="pamc.html" />
-    <link rel="prev" title="自明並列探索 mapper" href="mapper_mpi.html" /> 
+    <link rel="prev" title="グリッド型探索 mapper" href="mapper_mpi.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 ドキュメント</span></a></h1>
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
         <h2 class="heading"><span>交換モンテカルロ法 exchange</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
-        «&#160;&#160;<a href="mapper_mpi.html">自明並列探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
+        «&#160;&#160;<a href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;
@@ -41,8 +41,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> はレプリカ交換モンテカルロ法を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
 <section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>あらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておく必要があります。:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
+<p>MPI並列を利用する場合は、あらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておきます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
@@ -60,15 +60,6 @@
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
-<dl class="simple">
-<dt>説明: 各パラメータの単位。</dt><dd><p>探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
-簡易的な無次元化・正規化を行います。
-定義しなかった場合にはすべての次元で 1.0 となります。</p>
-</dd>
-</dl>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
@@ -84,6 +75,10 @@
 ソルバーは評価されずに、値が無限大だとみなされます。</p>
 </dd>
 </dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: モンテカルロ更新の際の変化幅(ガウス分布の偏差)です。</p>
 </li>
 </ul>
 </li>
@@ -149,7 +144,7 @@
 <section id="id5">
 <h3>メッシュ定義ファイル<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <p>本ファイルで探索するグリッド空間を定義します。
-1列目にメッシュのインデックス（実際には使用されません）、
+1列目にメッシュのインデックス (実際には使用されません)、
 2列目以降は探索空間の座標を指定します。</p>
 <p>以下、サンプルを記載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
@@ -171,7 +166,7 @@
 そのために必要なのが近傍リスト定義ファイルです。</p>
 <p>1列目に始点の番号 <span class="math notranslate nohighlight">\(i\)</span> を記載し、
 2列目以降に <span class="math notranslate nohighlight">\(i\)</span> から移動できる終点 <span class="math notranslate nohighlight">\(j\)</span> を列挙します。</p>
-<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> が提供されています。
+<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> が提供されています。
 詳細は <a class="reference internal" href="../tool.html"><span class="doc">関連ツール</span></a> を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
 <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
@@ -234,42 +229,65 @@
 <span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
 </pre></div>
 </div>
+</section>
+</section>
 <section id="id8">
-<h4>アルゴリズム解説<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
-</section>
-</section>
+<h2>リスタート<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<p>コンストラクタの引数 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> に実行モードを指定します。
+以下はそれぞれ <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの引数の <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> に対応します。
+各モードの動作は次のとおりです。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (デフォルト)</p>
+<p>初期化して実行します。
+チェックポイント機能が有効な場合、以下のタイミングで実行時の状態をファイルに出力します。</p>
+<ol class="arabic simple">
+<li><p>指定したステップ数または実行時間が経過したとき</p></li>
+<li><p>実行の終了時</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>実行が中断した際に、最も新しいチェックポイントから実行を再開します。
+並列数などの計算条件は前と同じにする必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>終了時の状態からサンプリングの繰り返しを継続して実行するモードです。
+<code class="docutils literal notranslate"><span class="pre">numsteps</span></code> の値を増やしてプログラムを実行してください。
+繰り返しステップカウントはそのまま引き継がれます。</p>
+<p>例: 前の計算で <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">1000</span></code> として 1000ステップ計算した後、次の計算で <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">2000</span></code> として continue モードで実行すると、1001ステップ目から 2000ステップ目までの計算を行います。</p>
+</li>
+</ul>
 </section>
 <section id="id9">
-<h2>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
-<p>モンテカルロ法（モンテカルロサンプリング）では、パラメータ空間中を動き回る walker <span class="math notranslate nohighlight">\(\vec{x}\)</span> を重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に従って確率的に動かすことで目的関数の最適化を行います。
-重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> として、「温度」 <span class="math notranslate nohighlight">\(T &gt; 0\)</span> を導入して <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> とすることが一般的です（ボルツマン重み）。
+<h2>アルゴリズム解説<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h3>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<p>モンテカルロ法(モンテカルロサンプリング)では、パラメータ空間中を動き回る walker <span class="math notranslate nohighlight">\(\vec{x}\)</span> を重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に従って確率的に動かすことで目的関数の最適化を行います。
+重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> として、「温度」 <span class="math notranslate nohighlight">\(T &gt; 0\)</span> を導入して <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> とすることが一般的です(ボルツマン重み)。
 ほとんどの場合において、 <span class="math notranslate nohighlight">\(W\)</span> に基づいて直接サンプリングする (walker を生成する) のは不可能なので、 walker を確率的に少しずつ動かすことで、頻度分布が <span class="math notranslate nohighlight">\(W\)</span> に従うように時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> を生成します (マルコフ連鎖モンテカルロ法, MCMC)。
 <span class="math notranslate nohighlight">\(\vec{x}\)</span> から <span class="math notranslate nohighlight">\(\vec{x}'\)</span> へ遷移する確率を <span class="math notranslate nohighlight">\(p(\vec{x}' | \vec{x})\)</span> とすると、</p>
 <div class="math notranslate nohighlight">
 \[W(\vec{x}') = \sum_{\vec{x}} p(\vec{x}' | \vec{x}) W(\vec{x})\]</div>
-<p>となるように <span class="math notranslate nohighlight">\(p\)</span> を定めれば時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> の頻度分布が <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に収束することが示されます（釣り合い条件） <a class="footnote-reference brackets" href="#mcmc-condition" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> 。
+<p>となるように <span class="math notranslate nohighlight">\(p\)</span> を定めれば(釣り合い条件)、時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> の頻度分布が <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に収束することが示されます。 <a class="footnote-reference brackets" href="#mcmc-condition" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
 実際の計算では、より強い制約である詳細釣り合い条件</p>
 <div class="math notranslate nohighlight">
 \[p(\vec{x} | \vec{x}') W(\vec{x}') =  W(\vec{x})p(\vec{x}' | \vec{x})\]</div>
-<p>を課すことがほとんどです。 両辺で <span class="math notranslate nohighlight">\(vec{x}\)</span> についての和を取ると釣り合い条件に帰着します。</p>
-<p><span class="math notranslate nohighlight">\(p\)</span> を求めるアルゴリズムはいくつか提案されていますが、 2DMAT では Metropolis-Hasting 法 (MH法) を用います。
+<p>を課すことがほとんどです。 両辺で <span class="math notranslate nohighlight">\(\vec{x}\)</span> についての和を取ると釣り合い条件に帰着します。</p>
+<p><span class="math notranslate nohighlight">\(p\)</span> を求めるアルゴリズムはいくつか提案されていますが、 ODAT-SE では Metropolis-Hasting 法 (MH法) を用います。
 MH 法では、遷移プロセスを提案プロセスと採択プロセスとに分割します。</p>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>提案確率 <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t)\)</span> で候補点 <span class="math notranslate nohighlight">\(\vec{x}\)</span> を生成します</p>
-<ul class="simple">
-<li><p>提案確率 <span class="math notranslate nohighlight">\(P\)</span> としては <span class="math notranslate nohighlight">\(\vec{x}_t\)</span> を中心とした一様分布やガウス関数などの扱いやすいものを利用します</p></li>
-</ul>
+<p>提案確率 <span class="math notranslate nohighlight">\(P\)</span> としては <span class="math notranslate nohighlight">\(\vec{x}_t\)</span> を中心とした一様分布やガウス関数などの扱いやすいものを利用します</p>
 </li>
-<li><p>提案された候補点 <span class="math notranslate nohighlight">\(\vec{x}\)</span> を採択確率 <span class="math notranslate nohighlight">\(Q(\vec{x}, | \vec{x}_t)\)</span> で受け入れ、 <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}\)</span> とします
-- 受け入れなかった場合は <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}_t\)</span> とします</p></li>
+<li><p>提案された候補点 <span class="math notranslate nohighlight">\(\vec{x}\)</span> を採択確率 <span class="math notranslate nohighlight">\(Q(\vec{x}, | \vec{x}_t)\)</span> で受け入れ、 <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}\)</span> とします</p>
+<p>受け入れなかった場合は <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}_t\)</span> とします</p>
+</li>
 </ol>
 <p>採択確率 <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span> は</p>
 <div class="math notranslate nohighlight">
 \[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x} | \vec{x}_t)} \right]\]</div>
 <p>とします。
 この定義が詳細釣り合い条件を満たすことは、詳細釣り合いの式に代入することで簡単に確かめられます。
-特に、重みとしてボルツマン因子を、
-提案確率として対称なもの <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> を用いたときには、</p>
+特に、重みとしてボルツマン因子を、提案確率として対称なもの <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> を用いたときには、</p>
 <div class="math notranslate nohighlight">
 \[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})}{W(\vec{x}_t)} \right]
                        = \min\left[1, \exp\left(-\frac{f(\vec{x}) - f(\vec{x}_t)}{T}\right) \right]\]</div>
@@ -279,15 +297,15 @@ MH 法では、遷移プロセスを提案プロセスと採択プロセスと�
 MH 法によるMCMC は次のようになります。</p>
 <ol class="arabic simple">
 <li><p>現在地点の近くからランダムに次の座標の候補を選び、目的関数 <span class="math notranslate nohighlight">\(f\)</span> の値を調べる</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta f \le 0\)</span> ならば（山を下る方向ならば）移動する</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta f \le 0\)</span> ならば(山を下る方向ならば)移動する</p></li>
 <li><p><span class="math notranslate nohighlight">\(\Delta f &gt; 0\)</span> ならば採択確率 <span class="math notranslate nohighlight">\(Q = e^{-\Delta f / T}\)</span> で移動する</p></li>
 <li><p>1-3 を適当な回数繰り返す</p></li>
 </ol>
 <p>得られた時系列のうち、目的関数の値が一番小さいものを最適解とします。
 3 番のプロセスのおかげで、 <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span> ぐらいの山を乗り越えられるので、局所最適解にトラップされた場合にも脱出可能です。</p>
 </section>
-<section id="id11">
-<h2>レプリカ交換モンテカルロ法<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<section id="id12">
+<h3>レプリカ交換モンテカルロ法<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <p>モンテカルロ法による最適化では、温度 <span class="math notranslate nohighlight">\(T\)</span> は非常に重要なハイパーパラメータとなっています。
 モンテカルロ法では、温度 <span class="math notranslate nohighlight">\(T\)</span> 程度の山を乗り越えられますが、逆にそれ以上の深さの谷からは容易に脱出できません。
 そのため、局所解へのトラップを防ぐためには温度を上げる必要があります。
@@ -295,10 +313,10 @@ MH 法によるMCMC は次のようになります。</p>
 ここから、最適解を探すためには温度 <span class="math notranslate nohighlight">\(T\)</span> を注意深く決める必要があることがわかります。</p>
 <p>この問題を解決する方法として、温度 <span class="math notranslate nohighlight">\(T\)</span> を固定せずに更新していくというものがあります。
 たとえば、焼きなまし法 (simulated annealing) では、温度をステップごとに徐々に下げていきます。
-焼戻し法 (simulated tempering) は、温度をハイパーパラメータではなく、サンプリングすべきパラメータとして扱い、（詳細）釣り合い条件を満たすように更新することで、加熱と冷却を実現します。温度を下げることで谷の詳細を調べ、温度を上げることで谷から脱出します。
+焼戻し法 (simulated tempering) は、温度をハイパーパラメータではなく、サンプリングすべきパラメータとして扱い、(詳細)釣り合い条件を満たすように更新することで、加熱と冷却を実現します。温度を下げることで谷の詳細を調べ、温度を上げることで谷から脱出します。
 レプリカ交換モンテカルロ法 (replica exchange Monte Carlo) は焼戻し法を更に発展させた手法で、並列焼戻し法 (parallel tempering) とも呼ばれます。
 レプリカ交換モンテカルロ法では、レプリカと呼ばれる複数の系を、それぞれ異なる温度で並列にモンテカルロシミュレーションします。
-そして、ある一定間隔で、（詳細）釣り合い条件を満たすように他のレプリカと温度を交換します。
+そして、ある一定間隔で、(詳細)釣り合い条件を満たすように他のレプリカと温度を交換します。
 焼戻し法と同様に、温度を上下することで谷を調べたり脱出したりするのですが、各温度点について、かならずレプリカのどれかが対応しているため、全体として特定の温度に偏ることがなくなります。
 また、複数の MPI プロセスを用意してそれぞれレプリカを担当させることで簡単に並列化可能です。
 数多くのレプリカを用意することで温度間隔が狭まると、温度交換の採択率も上がるため、大規模並列計算に特に向いたアルゴリズムです。
@@ -306,19 +324,20 @@ MH 法によるMCMC は次のようになります。</p>
 <p class="rubric">脚注</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="mcmc-condition" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">1</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">1</a><span class="fn-bracket">]</span></span>
 <p>正確には、収束のためには非周期性とエルゴード性も必要です。</p>
 </aside>
 </aside>
 </section>
 </section>
+</section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
-        «&#160;&#160;<a href="mapper_mpi.html">自明並列探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
+        «&#160;&#160;<a href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;
@@ -328,8 +347,8 @@ MH 法によるMCMC は次のようになります。</p>
       </div>
 
     <div class="footer" role="contentinfo">
-    &#169; 著作権 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

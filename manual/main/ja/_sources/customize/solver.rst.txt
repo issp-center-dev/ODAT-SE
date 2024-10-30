@@ -1,59 +1,62 @@
 ``Solver`` の定義
-==================
+================================
 
-``Solver`` クラスは ``py2dmat.solver.SolverBase`` を継承したクラスとして定義します。::
+順問題を記述する ``Solver`` は、入力変数に対して目的関数の値を返す ``evaluate`` メソッドを持つクラスとして以下のように定義します。
 
-    import py2dmat
+- ``Solver`` クラスは ``odatse.solver.SolverBase`` を継承するクラスとします。
 
-    class Solver(py2dmat.solver.SolverBase):
-        pass
+  .. code-block:: python
 
-このクラスは少なくとも次のメソッドを定義しなければなりません。
+     import odatse
 
-- ``__init__(self, info: py2dmat.Info)``
+     class Solver(odatse.solver.SolverBase):
+         pass
 
-    - 必ず基底クラスのコンストラクタを呼び出してください
+- コンストラクタ
 
-        - ``super().__init__(info)``    
+  コンストラクタは ``Info`` クラスのメソッドを引数としてとります。
 
-    - 基底クラスのコンストラクタでは次のインスタンス変数が設定されます
+  .. code-block:: python
 
-        - ``self.root_dir: pathlib.Path`` : ルートディレクトリ
+     def __init__(self, info: odatse.Info):
+         super().__init__(info)
+	 ...
 
-            - ``info.base["root_dir"]``
+  必ず ``info`` を引数として基底クラスのコンストラクタを呼び出してください。
+  基底クラスのコンストラクタでは、次のインスタンス変数が設定されます。
 
-        - ``self.output_dir: pathlib.Path`` : 出力ファイルを書き出すディレクトリ
+  - ``self.root_dir`` はルートディレクトリです。 ``info.base["root_dir"]`` から取得され、 ``odatse`` を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。
 
-            - ``info.base["output_dir"]``
+  - ``self.output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
 
-        - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
+  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(self.mpirank)`` が設定されます。
+    ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
+    MPIを使用しない場合もランク番号を0として扱います。
 
-            - ``self.output_dir / str(self.mpirank)`` で初期化されます
+  Solver 固有のパラメータは ``info`` の ``solver`` フィールドから取得します。必要な設定を読み取って保存します。
 
-        - ``self.work_dir: pathlib.Path`` : ソルバーが実行されるディレクトリ
+    
+- ``evaluate`` メソッド  
 
-            - ``self.proc_dir`` で初期化されます
+  .. code-block:: python
 
-    - 入力パラメータである ``info`` から必要な設定を読み取り、保存してください
+         def evaluate(self, x, args=(), nprocs=1, nthreads=1) -> float:
+	     pass
 
-- ``prepare(self, message: py2dmat.Message) -> None``
+  入力変数に対して目的変数の値を返すメソッドです。以下の引数を取ります。
 
-    - ソルバーが実行される前によびだされます
-    - ``message`` には入力パラメータが含まれるので、ソルバーが利用できる形に変換してください
+  - ``x: np.ndarray``
 
-        - 例：ソルバーの入力ファイルを生成する
+    入力変数を numpy.ndarray 型の :math:`N` 次元ベクトルとして受け取ります。
 
-- ``run(self, nprocs: int = 1, nthreads: int = 1) -> None``
+  - ``args: Tuple = ()``
 
-    - ソルバーを実行します
-    - 後ほど ``get_results`` で目的関数の値を読み取れるようにしておいてください
+    Algorithm から渡される追加の引数で、step数と set番号からなる Tuple です。step数は Monte Carlo のステップ数や、グリッド探索のグリッド点のインデックスです。set番号は n巡目を表します。
 
-        - 例：出力結果をインスタンス変数に保存しておく
-        - 例：実行結果をファイルに保存しておく
+  - ``nprocs: int = 1``
 
-- ``get_results(self) -> float``
+  - ``nthreads: int = 1``
 
-    - ソルバーが実行されたあとに呼び出されます
-    - ソルバーの実行結果を返却してください
+    ソルバーを MPI並列・スレッド並列で実行する際のプロセス数・スレッド数を受け取ります。現在は ``procs=1``, ``nthreads=1`` のみ対応しています。
 
-        - 例：ソルバーの出力ファイルから実行結果を読み取る
+  ``evaluate`` メソッドは、Float 型の目的関数の値を返します。

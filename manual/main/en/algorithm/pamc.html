@@ -5,30 +5,30 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Population Annealing Monte Carlo pamc &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Population Annealing Monte Carlo pamc &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayse optimization bayes" href="bayes.html" />
+    <link rel="next" title="Bayesian optimization bayes" href="bayes.html" />
     <link rel="prev" title="Replica exchange Monte Carlo exchange" href="exchange.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Population Annealing Monte Carlo pamc</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="bayes.html">Bayse optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a>&#160;&#160;»
+        <a href="bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a>&#160;&#160;»
         </p>
 
       </div>
@@ -40,8 +40,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> explores the parameter space by using the Population Annealing Monte Carlo (PAMC) method.</p>
 <section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
-<p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed for the MPI parallelization</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
+<p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed for the MPI parallelization.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
@@ -58,30 +58,28 @@ Otherwise, continuous space is used.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description: Initial value of parameters.
+<p>Description:
+Initial value of parameters.
 If not defined, these will be initialize randomly.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description: Unit length of each parameter.
-<code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> makes parameters dimensionless and normalized by dividing these by <code class="docutils literal notranslate"><span class="pre">unit_list</span></code>.
-If not defined, each component will be 1.0.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Minimum value of each parameter.</dt><dd><p>When a parameter falls below this value during the Monte Carlo search,
+<p>Description:
+Minimum value of each parameter.
+When a parameter falls below this value during the Monte Carlo search,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Maximum value of each parameter.</dt><dd><p>When a parameter exceeds this value during the Monte Carlo search,
+<p>Description:
+Maximum value of each parameter.
+When a parameter exceeds this value during the Monte Carlo search,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
+<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+<p>Description:
+The step length in one Monte Carlo update (deviation of Gaussian distribution).</p>
 </li>
 </ul>
 </li>
@@ -110,7 +108,7 @@ the solver is not evaluated and the value is considered infinite.</p>
 <p>Format: Integer</p>
 <p>Description: The number of interval Monte Carlo steps between lowering “temperature”.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">numT</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tnum</span></code></p>
 <p>Format: Integer</p>
 <p>Description: The number of “temperature” points.</p>
 </li>
@@ -184,7 +182,7 @@ we should define “neighborhoods” for each point <span class="math notranslat
 A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point <span class="math notranslate nohighlight">\(i\)</span> is specified by the first column,
 and the indices of final points <span class="math notranslate nohighlight">\(j\)</span> are specified by the second and successive columns.</p>
-<p>An utility tool, <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> is available for generating a neighborhood-list file from a mesh file. For details, please see <a class="reference internal" href="../tool.html"><span class="doc">Related Tools</span></a>.</p>
+<p>An utility tool, <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> is available for generating a neighborhood-list file from a mesh file. For details, please see <a class="reference internal" href="../tool.html"><span class="doc">Related Tools</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
 <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
 <span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
@@ -278,6 +276,32 @@ The sixth column is the acceptance ratio of MC updates.</p>
 </pre></div>
 </div>
 </section>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
+<p>The program is started from the initialized state.
+If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:</p>
+<ol class="arabic simple">
+<li><p>at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.</p></li>
+<li><p>at the end of the execution.</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>The program execution is resumed from the latest checkpoint.
+The conditions such as the number of MPI processes should be kept the same.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>The program execution is continued from the previous run.
+The sequence of the temperature points should be specified so that it is continuous from that of the previous run.</p>
+<p>Assume that the temperature has been lowered from <code class="docutils literal notranslate"><span class="pre">Tmax=</span></code> <span class="math notranslate nohighlight">\(T^{(1)}\)</span> to <code class="docutils literal notranslate"><span class="pre">Tmin=</span></code> <span class="math notranslate nohighlight">\(T^{(2)}\)</span> in the previous run, the next values should be taken as <code class="docutils literal notranslate"><span class="pre">Tmax=</span></code> <span class="math notranslate nohighlight">\(T^{(2)}\)</span> and <code class="docutils literal notranslate"><span class="pre">Tmin=</span></code> <span class="math notranslate nohighlight">\(T^{(3)}\)</span>.
+In the new calculation, the temperature points are taken from <span class="math notranslate nohighlight">\(T^{(2)}\)</span> to <span class="math notranslate nohighlight">\(T^{(3)}\)</span> divided by <code class="docutils literal notranslate"><span class="pre">Tnum</span></code>, namely, <span class="math notranslate nohighlight">\(T_0 = T^{(2)}\)</span>, <span class="math notranslate nohighlight">\(T_1\)</span>,…, <span class="math notranslate nohighlight">\(T_{\text{Tnum}-1}=T^{(3)}\)</span>. (<code class="docutils literal notranslate"><span class="pre">Tnum</span></code> can be different from the previous run.)</p>
+</li>
+</ul>
 </section>
 <section id="algorithm">
 <h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h2>
@@ -402,28 +426,28 @@ In order to overcome this problem, the population annealing Monte Carlo (PAMC) m
 <h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
 <p>[1] R. M. Neal, Statistics and Computing <strong>11</strong>, 125-139 (2001).</p>
 <p>[2] K. Hukushima and Y. Iba, AIP Conf. Proc. <strong>690</strong>, 200 (2003).</p>
-<p>[3] J. Machta, PRE <strong>82</strong>, 026704 (2010).</p>
+<p>[3] J. Machta, Phys. Rev. E <strong>82</strong>, 026704 (2010).</p>
 </section>
 </section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="bayes.html">Bayse optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a>&#160;&#160;»
+        <a href="bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

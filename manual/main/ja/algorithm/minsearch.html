@@ -5,31 +5,31 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nelder-Mead 法 minsearch &#8212; 2DMAT 2.2.0 ドキュメント</title>
+    <title>Nelder-Mead 法 minsearch &#8212; ODAT-SE 3.0-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=2b075faf"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/translations.js?v=4dbe4bdc"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="自明並列探索 mapper" href="mapper_mpi.html" />
+    <link rel="next" title="グリッド型探索 mapper" href="mapper_mpi.html" />
     <link rel="prev" title="探索アルゴリズム" href="index.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 ドキュメント</span></a></h1>
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
         <h2 class="heading"><span>Nelder-Mead 法 minsearch</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="index.html">探索アルゴリズム</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;
-        <a href="mapper_mpi.html">自明並列探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
+        <a href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
         </p>
 
       </div>
@@ -42,7 +42,7 @@
 Nelder-Mead 法では、 パラメータ空間の次元を <span class="math notranslate nohighlight">\(D\)</span> として、 <span class="math notranslate nohighlight">\(D+1\)</span> 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。</p>
 <p>重要なハイパーパラメータとして、座標の初期値があります。
 局所最適解にトラップされるという問題があるので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。</p>
-<p>2DMATは、SciPy の <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> 関数を用いています。
+<p>ODAT-SEは、SciPy の <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> 関数を用いています。
 詳しくは <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize">公式ドキュメント</a> をご参照ください。</p>
 <section id="id2">
 <h2>前準備<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
@@ -123,7 +123,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 <section id="simplexdata-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Link to this heading">¶</a></h3>
 <p>最小値を求める途中経過に関する情報を出力します。
-1行目はヘッダー、2行目以降にstep, 入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
+1行目はヘッダー、2行目以降にstep、入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションにある
 <code class="docutils literal notranslate"><span class="pre">string_list</span></code> で定義された変数の値、最後に関数の値が出力されます。</p>
 <p>以下、出力例です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 z3 R-factor</span>
@@ -139,9 +139,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 <section id="res-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Link to this heading">¶</a></h3>
 <p>最終的に得られた目的関数の値とその時のパラメータの値を記載しています。
-最初に目的関数が、
-その後は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> セクションにある、
-<code class="docutils literal notranslate"><span class="pre">string_list</span></code> で定義された変数の値が順に記載されます。</p>
+最初に目的関数、その後は入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションにある <code class="docutils literal notranslate"><span class="pre">string_list</span></code> で定義された変数の値が順に記載されます。</p>
 <p>以下、出力例です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="mf">7.382680568652868e-06</span>
 <span class="n">z1</span> <span class="o">=</span> <span class="mf">5.230524973874179</span>
@@ -151,25 +149,29 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </div>
 </section>
 </section>
+<section id="id5">
+<h2>リスタート<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>Nelder-Mead法による最適値探索はリスタートに対応していません。</p>
+</section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="index.html">探索アルゴリズム</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">コンテンツ</a>
         &#160;&#160;::&#160;&#160;
-        <a href="mapper_mpi.html">自明並列探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
+        <a href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
-    &#169; 著作権 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

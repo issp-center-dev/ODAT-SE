@@ -7,9 +7,11 @@ In the case of MPI execution, the set of candidate points is divided into equal 
 Preparation
 ~~~~~~~~~~~~
 
-For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_.::
+For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_.
 
-  python3 -m pip install mpi4py
+.. code-block::
+
+   $ python3 -m pip install mpi4py
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +62,7 @@ Mesh definition file
 Define the grid space to be explored in this file.
 1 + ``dimension`` columns are required.
 The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
+The lines starting from ``#`` are ignored as comments.
 
 A sample file for two dimensions is shown below.
 
@@ -82,8 +85,8 @@ Output file
 ``ColorMap.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This file contains the candidate parameters for each mesh and the ``R-factor`` at that time.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the ``R-factor`` is listed last.
+This file contains the candidate parameters for each mesh and the function value at that time.
+The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
 
 Below, output example is shown.
 
@@ -100,3 +103,26 @@ Below, output example is shown.
     6.000000 4.000000 0.069351
     6.000000 3.750000 0.071868
     ...
+
+Restart
+~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
+
+- ``"initial"`` (default)
+
+  The program is started from the initial state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. the specified number of grid points has been evaluated, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The continue mode is not supported.

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Usage &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -17,10 +17,10 @@
     <link rel="prev" title="Algorithm" href="algorithm.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Usage</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
@@ -38,60 +38,53 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
 <p>The following flow solves the optimization problem.
 The number of flow corresponds the comment in the program example.</p>
-<ol class="arabic">
-<li><p>Define your <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and/or <code class="docutils literal notranslate"><span class="pre">Solver</span></code></p>
+<ol class="arabic simple">
+<li><p>Define your <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and/or <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.</p>
 <ul class="simple">
-<li><p>Of course, classes that <code class="docutils literal notranslate"><span class="pre">py2dmat</span></code> defines are available</p></li>
+<li><p>Classes that ODAT-SE provides are available, of course.</p></li>
 </ul>
 </li>
-<li><p>Prepare the input parameter, <code class="docutils literal notranslate"><span class="pre">info:</span> <span class="pre">py2dmat.Info</span></code></p>
-<ul>
-<li><p>Make a dictionary as your favorite way</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>The below example uses a TOML formatted input file for generating a dictionary</p></li>
-</ul>
-</div></blockquote>
-</li>
+<li><p>Prepare the input parameter, <code class="docutils literal notranslate"><span class="pre">info:</span> <span class="pre">odatse.Info</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Info</span></code> class has a class method to read input files in TOML format.
+It is also possible to prepare a set of parameters as a dict and to pass it to the constructor of <code class="docutils literal notranslate"><span class="pre">Info</span></code> class.</p></li>
 </ul>
 </li>
-<li><p>Instantiate <code class="docutils literal notranslate"><span class="pre">solver:</span> <span class="pre">Solver</span></code>, <code class="docutils literal notranslate"><span class="pre">runner:</span> <span class="pre">py2dmat.Runner</span></code>, and <code class="docutils literal notranslate"><span class="pre">algorithm:</span> <span class="pre">Algorithm</span></code></p></li>
-<li><p>Invoke <code class="docutils literal notranslate"><span class="pre">algorithm.main()</span></code></p></li>
+<li><p>Instantiate <code class="docutils literal notranslate"><span class="pre">solver:</span> <span class="pre">Solver</span></code>, <code class="docutils literal notranslate"><span class="pre">runner:</span> <span class="pre">odatse.Runner</span></code>, and <code class="docutils literal notranslate"><span class="pre">algorithm:</span> <span class="pre">Algorithm</span></code>.</p></li>
+<li><p>Invoke <code class="docutils literal notranslate"><span class="pre">algorithm.main()</span></code>.</p></li>
 </ol>
-<p>Example</p>
+<p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tomli</span>
-<span class="kn">import</span> <span class="nn">py2dmat</span>
+<span class="kn">import</span> <span class="nn">odatse</span>
 
 <span class="c1"># (1)</span>
-<span class="k">class</span> <span class="nc">Solver</span><span class="p">(</span><span class="n">py2dmat</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Solver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
     <span class="c1"># Define your solver</span>
     <span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">py2dmat</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
     <span class="c1"># Define your algorithm</span>
     <span class="o">...</span>
 
 
 <span class="c1"># (2)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">inp</span> <span class="o">=</span> <span class="n">tomli</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-<span class="n">info</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+<span class="n">input_file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
 
 <span class="c1"># (3)</span>
 <span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-<span class="n">runner</span> <span class="o">=</span> <span class="n">py2dmat</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+<span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
 <span class="n">algorithm</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">)</span>
 
 <span class="c1"># (4)</span>
-<span class="n">algorithm</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
@@ -105,7 +98,7 @@ The number of flow corresponds the comment in the program example.</p>
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

@@ -6,9 +6,11 @@ Population Annealing Monte Carlo ``pamc``
 Preparation
 ~~~~~~~~~~~~~~~~
 
-`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed for the MPI parallelization ::
+`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed for the MPI parallelization.
 
-  python3 -m pip install mpi4py
+.. code-block::
+
+   $ python3 -m pip install mpi4py
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~
@@ -28,33 +30,34 @@ Otherwise, continuous space is used.
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Initial value of parameters.
+    Description:
+    Initial value of parameters.
     If not defined, these will be initialize randomly.
-
-  - ``unit_list``
-
-    Format: List of float. Length should be equal to ``dimension``.
-
-    Description: Unit length of each parameter.
-    ``Algorithm`` makes parameters dimensionless and normalized by dividing these by ``unit_list``.
-    If not defined, each component will be 1.0.
 
   - ``min_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Minimum value of each parameter.
-                 When a parameter falls below this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
-
+    Description:
+    Minimum value of each parameter.
+    When a parameter falls below this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description: Maximum value of each parameter.
-                 When a parameter exceeds this value during the Monte Carlo search,
-                 the solver is not evaluated and the value is considered infinite.
+    Description:
+    Maximum value of each parameter.
+    When a parameter exceeds this value during the Monte Carlo search,
+    the solver is not evaluated and the value is considered infinite.
+
+  - ``step_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description:
+    The step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 - Discrete space
 
@@ -85,7 +88,7 @@ Otherwise, continuous space is used.
 
   Description: The number of interval Monte Carlo steps between lowering "temperature".
 
-- ``numT``
+- ``Tnum``
 
   Format: Integer
 
@@ -183,7 +186,7 @@ A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
-An utility tool, ``py2dmat_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
+An utility tool, ``odatse_neighborlist`` is available for generating a neighborhood-list file from a mesh file. For details, please see :doc:`../tool`.
 
 .. code-block::
 
@@ -288,6 +291,33 @@ The sixth column is the acceptance ratio of MC updates.
     0.1 4.518006242920819 0.9535301415484388 100 -1.2134775491597027 0.9058
     0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
     ...
+
+Restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The execution mode is specified by the ``run_mode`` parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
+
+- ``"initial"`` (default)
+
+  The program is started from the initialized state.
+  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+
+  #. at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.
+  #. at the end of the execution.
+
+- ``"resume"``
+
+  The program execution is resumed from the latest checkpoint.
+  The conditions such as the number of MPI processes should be kept the same.
+
+- ``"continue"``
+
+  The program execution is continued from the previous run.
+  The sequence of the temperature points should be specified so that it is continuous from that of the previous run.
+
+  Assume that the temperature has been lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
+  In the new calculation, the temperature points are taken from :math:`T^{(2)}` to :math:`T^{(3)}` divided by ``Tnum``, namely, :math:`T_0 = T^{(2)}`, :math:`T_1`,..., :math:`T_{\text{Tnum}-1}=T^{(3)}`. (``Tnum`` can be different from the previous run.)
 
 
 Algorithm
@@ -473,4 +503,4 @@ References
 
 [2] K. Hukushima and Y. Iba, AIP Conf. Proc. **690**, 200 (2003).
 
-[3] J. Machta, PRE **82**, 026704 (2010).
+[3] J. Machta, Phys. Rev. E **82**, 026704 (2010).

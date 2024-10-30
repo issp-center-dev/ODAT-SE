@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nelder-Mead method minsearch &#8212; 2DMAT 2.2.0 documentation</title>
+    <title>Nelder-Mead method minsearch &#8212; ODAT-SE 3.0-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=b21de401"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -18,10 +18,10 @@
     <link rel="prev" title="Search algorithms" href="index.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
         <h2 class="heading"><span>Nelder-Mead method minsearch</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="index.html">Search algorithms</a>
@@ -37,15 +37,15 @@
         
   <section id="nelder-mead-method-minsearch">
 <h1>Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#nelder-mead-method-minsearch" title="Link to this heading">¶</a></h1>
-<p>When <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> is selcted, the optimization by the <a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead method</a> (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, the dimension of the parameter space is <span class="math notranslate nohighlight">\(D\)</span>, and the optimal solution is searched by systematically moving pairs of <span class="math notranslate nohighlight">\(D+1\)</span> coordinate points according to the value of the objective function at each point.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> is selcted, the optimization by the <a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead method</a> (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, assuming the dimension of the parameter space is <span class="math notranslate nohighlight">\(D\)</span>, the optimal solution is searched by systematically moving pairs of <span class="math notranslate nohighlight">\(D+1\)</span> coordinate points according to the value of the objective function at each point.</p>
 <p>An important hyperparameter is the initial value of the coordinates.
 Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.</p>
-<p>In 2DMAT, the Scipy’s function <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> is used.
+<p>In ODAT-SE, the Scipy’s function <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> is used.
 For details, see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize">the official document</a> .</p>
 <section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
-<p>You will need to install <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a> .:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">scipy</span>
+<p>You will need to install <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a> .</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install scipy
 </pre></div>
 </div>
 </section>
@@ -61,29 +61,24 @@ For details, see <a class="reference external" href="https://docs.scipy.org/doc/
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
 <p>Format: List of float. The length should match the value of dimension.</p>
-<dl class="simple">
-<dt>Description: Units for each parameter.</dt><dd><p>In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+<p>Description:
+Units for each parameter.
+In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
 If not defined, the value is 1.0 for all dimensions.</p>
-</dd>
-</dl>
-<ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Minimum value of each parameter.</dt><dd><p>When a parameter falls below this value during the Nelson-Mead method,
+<p>Description:
+Minimum value of each parameter.
+When a parameter falls below this value during the Nelson-Mead method,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<dl class="simple">
-<dt>Description: Maximum value of each parameter.</dt><dd><p>When a parameter exceeds this value during the Nelson-Mead method,
+<p>Description:
+Maximum value of each parameter.
+When a parameter exceeds this value during the Nelson-Mead method,
 the solver is not evaluated and the value is considered infinite.</p>
-</dd>
-</dl>
-</li>
-</ul>
 </li>
 </ul>
 </section>
@@ -94,7 +89,8 @@ See the documentation of <a class="reference external" href="https://docs.scipy.
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code></p>
 <p>Format: List of float. The length should match the value of dimension.</p>
-<p>Description: The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
+<p>Description:
+The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
 The <code class="docutils literal notranslate"><span class="pre">initial_simplex</span></code> is given by the sum of <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> and the dimension of the <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> plus one component of the <code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code>.
 If not defined, scales at each dimension are set to 0.25.</p>
 </li>
@@ -149,11 +145,15 @@ The objective function is listed first, followed by the values of the variables 
 </div>
 </section>
 </section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<p>The restarting is not supported for the optimization by the Nelder-Mead method.</p>
+</section>
 </section>
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="index.html">Search algorithms</a>
@@ -167,7 +167,7 @@ The objective function is listed first, followed by the values of the variables 
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

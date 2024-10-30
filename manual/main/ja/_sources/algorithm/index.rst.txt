@@ -7,7 +7,7 @@
 ====================
 
 探索アルゴリズム ``Algorithm`` は ``Solver`` の結果 :math:`f(x)` を用いて
-パラメータ空間 :math:`\mathbf{X} \ni x` を探索します。
+パラメータ空間 :math:`\mathbf{X} \ni x` を探索し、 :math:`f(x)` の最小化問題を解きます。
 
 .. toctree::
    :maxdepth: 1

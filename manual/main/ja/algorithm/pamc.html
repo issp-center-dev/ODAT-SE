@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ポピュレーションアニーリングモンテカルロ法 pamc &#8212; 2DMAT 2.2.0 ドキュメント</title>
+    <title>ポピュレーションアニーリングモンテカルロ法 pamc &#8212; ODAT-SE 3.0-dev ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=dfa0e015" />
-    <script src="../_static/documentation_options.js?v=2b075faf"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/translations.js?v=4dbe4bdc"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
@@ -19,10 +19,10 @@
     <link rel="prev" title="交換モンテカルロ法 exchange" href="exchange.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>2DMAT 2.2.0 ドキュメント</span></a></h1>
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
         <h2 class="heading"><span>ポピュレーションアニーリングモンテカルロ法 pamc</span></h2>
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       
         <p>
         «&#160;&#160;<a href="exchange.html">交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
@@ -41,8 +41,8 @@
 <p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> はポピュレーションアニーリングモンテカルロ法を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
 <section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>MPI 並列をする場合にはあらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておく必要があります。:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">mpi4py</span>
+<p>MPI 並列をする場合にはあらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておく必要があります。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>mpi4py
 </pre></div>
 </div>
 </section>
@@ -60,15 +60,6 @@
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
-<dl class="simple">
-<dt>説明: 各パラメータの単位。</dt><dd><p>探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
-簡易的な無次元化・正規化を行います。
-定義しなかった場合にはすべての次元で 1.0 となります。</p>
-</dd>
-</dl>
-</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
@@ -84,6 +75,10 @@
 ソルバーは評価されずに、値が無限大だとみなされます。</p>
 </dd>
 </dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: モンテカルロ更新の際の変化幅(ガウス分布の偏差)です。</p>
 </li>
 </ul>
 </li>
@@ -112,7 +107,7 @@
 <p>形式: 整数値。</p>
 <p>説明: 「温度」を下げる頻度。この回数モンテカルロ更新を行った後に温度が下がります。</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">numT</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tnum</span></code></p>
 <p>形式: 整数値。</p>
 <p>説明: 「温度」点の数。</p>
 </li>
@@ -166,7 +161,7 @@
 <section id="id6">
 <h3>メッシュ定義ファイル<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>本ファイルで探索するグリッド空間を定義します。
-1列目にメッシュのインデックス（実際には使用されません）、
+1列目にメッシュのインデックス(実際には使用されません)、
 2列目以降は探索空間の座標を指定します。</p>
 <p>以下、サンプルを記載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
@@ -188,7 +183,7 @@
 そのために必要なのが近傍リスト定義ファイルです。</p>
 <p>1列目に始点の番号 <span class="math notranslate nohighlight">\(i\)</span> を記載し、
 2列目以降に <span class="math notranslate nohighlight">\(i\)</span> から移動できる終点 <span class="math notranslate nohighlight">\(j\)</span> を列挙します。</p>
-<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">py2dmat_neighborlist</span></code> が提供されています。
+<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> が提供されています。
 詳細は <a class="reference internal" href="../tool.html"><span class="doc">関連ツール</span></a> を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
 <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
@@ -207,7 +202,7 @@
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial_T#.txt</span></code><a class="headerlink" href="#rank-trial-t-txt" title="Link to this heading">¶</a></h3>
 <p>各温度点(<code class="docutils literal notranslate"><span class="pre">#</span></code>) ごと、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
 1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの逆温度、4列目に目的関数の値、5列目からパラメータが記載されます。
-最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先（計算開始時のレプリカ番号）です。</p>
+最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先(計算開始時のレプリカ番号)です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker beta fx x1 weight ancestor</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.0</span> <span class="mf">73.82799488298886</span> <span class="mf">8.592321856342956</span> <span class="mf">1.0</span> <span class="mi">0</span>
 <span class="mi">0</span> <span class="mi">1</span> <span class="mf">0.0</span> <span class="mf">13.487174782058675</span> <span class="o">-</span><span class="mf">3.672488908364282</span> <span class="mf">1.0</span> <span class="mi">1</span>
@@ -257,7 +252,7 @@
 <section id="fx-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Link to this heading">¶</a></h3>
 <p>各温度ごとに、全レプリカの情報をまとめたものです。
-1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子（分配関数）の比の対数</p>
+1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数</p>
 <div class="math notranslate nohighlight">
 \[\log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)}\]</div>
 <p>が、6列目にはモンテカルロ更新の採択率が出力されます。
@@ -277,11 +272,40 @@
 </section>
 </section>
 <section id="id9">
-<h2>アルゴリズム解説<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<h2>リスタート<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<p>コンストラクタの引数 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> に実行モードを指定します。
+以下はそれぞれ <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの引数の <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> に対応します。
+各モードの動作は次のとおりです。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (デフォルト)</p>
+<p>初期化して実行します。
+チェックポイント機能が有効な場合、以下のタイミングで実行時の状態をファイルに出力します。</p>
+<ol class="arabic simple">
+<li><p>各温度点の計算が終わった時点で、指定したステップ数または実行時間が経過したとき</p></li>
+<li><p>実行の終了時</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>実行が中断した際に、最も新しいチェックポイントから実行を再開します。
+並列数などの計算条件は前と同じにする必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>実行終了後の状態から継続して実行します。
+温度点のリストを、前の計算から連続するように指定する必要があります。</p>
+<p>前の計算で <code class="docutils literal notranslate"><span class="pre">Tmax=</span></code> <span class="math notranslate nohighlight">\(T^{(1)}\)</span> から <code class="docutils literal notranslate"><span class="pre">Tmin=</span></code> <span class="math notranslate nohighlight">\(T^{(2)}\)</span> に下げた場合、
+次の計算では <code class="docutils literal notranslate"><span class="pre">Tmax=</span></code> <span class="math notranslate nohighlight">\(T^{(2)}\)</span>, <code class="docutils literal notranslate"><span class="pre">Tmin=</span></code> <span class="math notranslate nohighlight">\(T^{(3)}\)</span> のように指定します。
+新たな計算では、 <span class="math notranslate nohighlight">\(T^{(2)}\)</span> から <span class="math notranslate nohighlight">\(T^{(3)}\)</span> までを <code class="docutils literal notranslate"><span class="pre">Tnum</span></code> に分割した温度点の列
+<span class="math notranslate nohighlight">\(T_0 = T^{(2)}\)</span>, <span class="math notranslate nohighlight">\(T_1\)</span>,..., <span class="math notranslate nohighlight">\(T_{\text{Tnum}-1}=T^{(3)}\)</span>
+について計算を行います。(Tnum は前の計算から変更して構いません。)</p>
+</li>
+</ul>
+</section>
 <section id="id10">
-<h3>問題と目的<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
+<h2>アルゴリズム解説<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<section id="id11">
+<h3>問題と目的<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
 <p>分布パラメータ <span class="math notranslate nohighlight">\(\beta_i\)</span> のもとでの配位 <span class="math notranslate nohighlight">\(x\)</span> の重みを
-<span class="math notranslate nohighlight">\(f_i(x)\)</span> と書くと（例えばボルツマン因子 <span class="math notranslate nohighlight">\(f_i(x) = \exp\left[-\beta_i E(x)\right]\)</span>）、
+<span class="math notranslate nohighlight">\(f_i(x)\)</span> と書くと(例えばボルツマン因子 <span class="math notranslate nohighlight">\(f_i(x) = \exp\left[-\beta_i E(x)\right]\)</span>)、
 <span class="math notranslate nohighlight">\(A\)</span> の期待値は</p>
 <div class="math notranslate nohighlight">
 \[\langle A\rangle_i
@@ -289,8 +313,8 @@
 = \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
 = \int \mathrm{d}xA(x)\tilde{f}_i(x)\]</div>
 <p>とかけます。
-ここで <span class="math notranslate nohighlight">\(Z = \int \mathrm{d} x f_i(x)\)</span> は規格化因子（分配関数）で、 <span class="math notranslate nohighlight">\(\tilde{f}(x) = f(x)/Z\)</span> は配位 <span class="math notranslate nohighlight">\(x\)</span> の確率密度です。</p>
-<p>目的は複数の分布パラメータについてこの期待値および規格化因子（の比）を数値的に求めることです。</p>
+ここで <span class="math notranslate nohighlight">\(Z = \int \mathrm{d} x f_i(x)\)</span> は規格化因子(分配関数)で、 <span class="math notranslate nohighlight">\(\tilde{f}(x) = f(x)/Z\)</span> は配位 <span class="math notranslate nohighlight">\(x\)</span> の確率密度です。</p>
+<p>目的は複数の分布パラメータについてこの期待値および規格化因子(の比)を数値的に求めることです。</p>
 </section>
 <section id="annealed-importance-sampling-ais-1">
 <h3>Annealed Importance Sampling (AIS) [1]<a class="headerlink" href="#annealed-importance-sampling-ais-1" title="Link to this heading">¶</a></h3>
@@ -304,7 +328,7 @@
 から <span class="math notranslate nohighlight">\(x'\)</span> への遷移確率で、釣り合い条件</p>
 <div class="math notranslate nohighlight">
 \[\int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x')\]</div>
-<p>を満たすようにとります（つまりは普通のMCMCにおける遷移確率行列）。</p>
+<p>を満たすようにとります(つまりは普通のMCMCにおける遷移確率行列)。</p>
 <div class="math notranslate nohighlight">
 \[\int \mathrm{d} x_{i-1} \tilde{T}_i(x_i, x_{i-1})
 = \int \mathrm{d} x_{i-1} \tilde{f}_i(x_{i-1}) T_i(x_{i-1}, x_i) / \tilde{f}_i(x_i)
@@ -406,8 +430,8 @@
 </div>
 <p>リサンプリング手法として、レプリカ数を固定する方法[2]と固定しない方法[3]の2通りがあります。</p>
 </section>
-<section id="id11">
-<h3>参考文献<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<section id="id12">
+<h3>参考文献<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <p>[1] R. M. Neal, Statistics and Computing <strong>11</strong>, 125-139 (2001).</p>
 <p>[2] K. Hukushima and Y. Iba, AIP Conf. Proc. <strong>690</strong>, 200 (2003).</p>
 <p>[3] J. Machta, PRE <strong>82</strong>, 026704 (2010).</p>
@@ -417,7 +441,7 @@
 
 
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       
         <p>
         «&#160;&#160;<a href="exchange.html">交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>
@@ -430,8 +454,8 @@
       </div>
 
     <div class="footer" role="contentinfo">
-    &#169; 著作権 2020-, 2DMAT developers.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>
