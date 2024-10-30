@@ -43,7 +43,7 @@ It also offers a driver script to solve the problem with predefined optimization
 - From Source (For developers)
   1. update `pip >= 19` by `python3 -m pip install -U pip`
   2. `python3 -m pip install ODAT_SE_ROOT_DIRECTORY` to install `odatse` package and `odat-se` command
-    - `ODAT_SE_ROOT_DIRECTORY` means the directory including this `README.md` file.
+      - `ODAT_SE_ROOT_DIRECTORY` means the directory including this `README.md` file.
 
 ### Simple Usage
 
@@ -63,8 +63,6 @@ It also offers a driver script to solve the problem with predefined optimization
   - source codes of documents (manuals)
 - `tests/`
   - for automatic test
-- `LICENSE`
-  - license terms (GNU GPL v3)
 - `README.md`
   - this file
 - `pyproject.toml`
@@ -72,7 +70,7 @@ It also offers a driver script to solve the problem with predefined optimization
 
 ## License
 
-This package is distributed under GNU General Public License version 3 (GPL v3) or later.
+This package is distributed under [Mozilla Public License v2.0 (MPL-2.0)][MPLv2].
 
 We hope that you cite the following references when you publish the results using 2DMAT / ODAT-SE:
 "Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures",
@@ -99,12 +97,13 @@ Bibtex:
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
 [source/main]: https://github.com/issp-center-dev/ODAT-SE/
-[source/develop]: https://github.com/issp-center-dev/ODAT-SE/tree/develop
+<!-- [source/develop]: https://github.com/issp-center-dev/ODAT-SE/tree/develop -->
 [ci/main/badge]: https://github.com/issp-center-dev/ODAT-SE/workflows/Test/badge.svg?branch=main
 [ci/main/uri]: https://github.com/issp-center-dev/ODAT-SE/actions?query=branch%3Amain
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
 [doc/main/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/main/en/index.html
 [doc/main/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/main/ja/index.html
-[doc/develop/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/en/index.html
-[doc/develop/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/ja/index.html
+<!-- [doc/develop/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/en/index.html -->
+<!-- [doc/develop/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/ja/index.html -->
+[MPLv2]: https://www.mozilla.org/en-US/MPL/2.0/

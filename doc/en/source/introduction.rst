@@ -38,7 +38,7 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 License
 --------------------------------
-|  This package is distributed under GNU General Public License version 3 (GPL v3).
+|  This package is distributed under `Mozilla Public License version 2.0 (MPL-2.0) <https://www.mozilla.org/en-US/MPL/2.0/>`_.
 
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 

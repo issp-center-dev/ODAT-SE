@@ -3,7 +3,7 @@ name = "ODAT-SE"
 version = "3.0-dev"
 description = "Open Data Analysis Tool for Science and Engineering"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 
 readme = "README.md"
 repository = "https://github.com/issp-center-dev/ODAT-SE"
