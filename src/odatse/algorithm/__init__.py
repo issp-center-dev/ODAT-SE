@@ -19,6 +19,7 @@ from ._algorithm import AlgorithmBase
 def choose_algorithm(name):
     alg_table = {
         "mapper": "mapper_mpi",
+        "minsearch": "min_search",
     }
 
     try:
