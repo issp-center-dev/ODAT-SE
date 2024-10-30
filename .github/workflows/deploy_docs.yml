@@ -12,26 +12,26 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v4.x
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: main
 
     - name: Checkout gh-pages
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: gh-pages
         path: gh-pages
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: 3.11
 
     - name: Prepare LaTeX env
       run: |
@@ -63,7 +63,7 @@ jobs:
 
     - name: Push
       env:
-        GIT_USER: "2DMAT Developers"
+        GIT_USER: "ODAT-SE Developers"
         GIT_EMAIL: "2dmat-dev@issp.u-tokyo.ac.jp"
         TARGET_NAME: ${{ env.GITHUB_REF_SLUG }}
       run: |
@@ -76,7 +76,7 @@ jobs:
             mkdir -p "gh-pages/manual/${TARGET_NAME}"
             cp -r "main/doc/${lang}/build/html" "gh-pages/manual/${TARGET_NAME}/${lang}"
             if [ $is_tag = "YES" ]; then
-              # cp "main/doc/${lang}/build/latex/userguid_2dmat_${lang}.pdf" "gh-pages/manual/${TARGET_NAME}/${lang}/2DMAT.pdf"
+              # cp "main/doc/${lang}/build/latex/userguid_odatse_${lang}.pdf" "gh-pages/manual/${TARGET_NAME}/${lang}/ODAT-SE.pdf"
               :
             fi
           done
