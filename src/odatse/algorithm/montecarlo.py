@@ -389,25 +389,25 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         extra_info_to_write : Union[List, Tuple], optional
             Additional information to write for each walker (default is None).
         """
-    for iwalker in range(self.nwalkers):
-        if isinstance(self.Tindex, int):
-            beta = self.betas[self.Tindex]
-        else:
-            beta = self.betas[self.Tindex[iwalker]]
-        fp.write(f"{self.istep}")
-        fp.write(f" {iwalker}")
-        if self.input_as_beta:
-            fp.write(f" {beta}")
-        else:
-            fp.write(f" {1.0/beta}")
-        fp.write(f" {self.fx[iwalker]}")
-        for x in self.x[iwalker, :]:
-            fp.write(f" {x}")
-        if extra_info_to_write is not None:
-            for ex in extra_info_to_write:
-                fp.write(f" {ex[iwalker]}")
-        fp.write("\n")
-    fp.flush()
+        for iwalker in range(self.nwalkers):
+            if isinstance(self.Tindex, int):
+                beta = self.betas[self.Tindex]
+            else:
+                beta = self.betas[self.Tindex[iwalker]]
+            fp.write(f"{self.istep}")
+            fp.write(f" {iwalker}")
+            if self.input_as_beta:
+                fp.write(f" {beta}")
+            else:
+                fp.write(f" {1.0/beta}")
+            fp.write(f" {self.fx[iwalker]}")
+            for x in self.x[iwalker, :]:
+                fp.write(f" {x}")
+            if extra_info_to_write is not None:
+                for ex in extra_info_to_write:
+                    fp.write(f" {ex[iwalker]}")
+            fp.write("\n")
+        fp.flush()
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
     Read temperature or inverse-temperature values from the provided info dictionary.
