@@ -41,11 +41,14 @@ if TYPE_CHECKING:
     from mpi4py import MPI
 
 class AlgorithmStatus(IntEnum):
+    """Enumeration for the status of the algorithm."""
     INIT = 1
     PREPARE = 2
     RUN = 3
 
 class AlgorithmBase(metaclass=ABCMeta):
+    """Base class for algorithms, providing common functionality and structure."""
+
     mpicomm: Optional["MPI.Comm"]
     mpisize: int
     mpirank: int
@@ -70,6 +73,13 @@ class AlgorithmBase(metaclass=ABCMeta):
             runner: Optional[odatse.Runner] = None,
             run_mode: str = "initial"
     ) -> None:
+        """
+        Initialize the algorithm with the given information and runner.
+
+        :param info: Information object containing algorithm and base parameters.
+        :param runner: Optional runner object to execute the algorithm.
+        :param run_mode: Mode in which the algorithm should run.
+        """
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
         self.mpirank = mpi.rank()
@@ -119,6 +129,11 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.set_runner(runner)
 
     def __init_rng(self, info: odatse.Info) -> None:
+        """
+        Initialize the random number generator.
+
+        :param info: Information object containing algorithm parameters.
+        """
         seed = info.algorithm.get("seed", None)
         seed_delta = info.algorithm.get("seed_delta", 314159)
 
@@ -128,9 +143,17 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
+        """
+        Set the runner for the algorithm.
+
+        :param runner: Runner object to execute the algorithm.
+        """
         self.runner = runner
 
     def prepare(self) -> None:
+        """
+        Prepare the algorithm for execution.
+        """
         if self.runner is None:
             msg = "Runner is not assigned"
             raise RuntimeError(msg)
@@ -139,9 +162,13 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     @abstractmethod
     def _prepare(self) -> None:
+        """Abstract method to be implemented by subclasses for preparation steps."""
         pass
 
     def run(self) -> None:
+        """
+        Run the algorithm.
+        """
         if self.status < AlgorithmStatus.PREPARE:
             msg = "algorithm has not prepared yet"
             raise RuntimeError(msg)
@@ -155,9 +182,15 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     @abstractmethod
     def _run(self) -> None:
+        """Abstract method to be implemented by subclasses for running steps."""
         pass
 
     def post(self) -> Dict:
+        """
+        Perform post-processing after the algorithm has run.
+
+        :return: Dictionary containing post-processing results.
+        """
         if self.status < AlgorithmStatus.RUN:
             msg = "algorithm has not run yet"
             raise RuntimeError(msg)
@@ -169,9 +202,13 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     @abstractmethod
     def _post(self) -> Dict:
+        """Abstract method to be implemented by subclasses for post-processing steps."""
         pass
 
     def main(self):
+        """
+        Main method to execute the algorithm.
+        """
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()
@@ -197,6 +234,11 @@ class AlgorithmBase(metaclass=ABCMeta):
         return result
 
     def write_timer(self, filename: Path):
+        """
+        Write the timing information to a file.
+
+        :param filename: Path to the file where timing information will be written.
+        """
         with open(filename, "w") as fw:
             fw.write("#in units of seconds\n")
 
@@ -214,6 +256,13 @@ class AlgorithmBase(metaclass=ABCMeta):
             output_file("post")
 
     def _save_data(self, data, filename="state.pickle", ngen=3) -> None:
+        """
+        Save data to a file with versioning.
+
+        :param data: Data to be saved.
+        :param filename: Name of the file to save the data.
+        :param ngen: Number of generations for versioning.
+        """
         try:
             fn = Path(filename + ".tmp")
             with open(fn, "wb") as f:
@@ -235,6 +284,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         print("save_state: write to {}".format(filename))
 
     def _load_data(self, filename="state.pickle") -> Dict:
+        """
+        Load data from a file.
+
+        :param filename: Name of the file to load the data from.
+        :return: Dictionary containing the loaded data.
+        """
         if Path(filename).exists():
             try:
                 fn = Path(filename)
@@ -250,12 +305,20 @@ class AlgorithmBase(metaclass=ABCMeta):
         return data
 
     def _show_parameters(self):
+        """
+        Show the parameters of the algorithm.
+        """
         if self.mpirank == 0:
             info = flatten_dict(self.info)
             for k, v in info.items():
                 print("{:16s}: {}".format(k, v))
 
     def _check_parameters(self, param=None):
+        """
+        Check the parameters of the algorithm against previous parameters.
+
+        :param param: Previous parameters to check against.
+        """
         info = flatten_dict(self.info)
         info_prev = flatten_dict(param)
 
@@ -269,6 +332,14 @@ class AlgorithmBase(metaclass=ABCMeta):
 
 # utility
 def flatten_dict(d, parent_key="", separator="."):
+    """
+    Flatten a nested dictionary.
+
+    :param d: Dictionary to flatten.
+    :param parent_key: Key for the parent dictionary.
+    :param separator: Separator to use between keys.
+    :return: Flattened dictionary.
+    """
     items = []
     if d:
         for key_, val in d.items():

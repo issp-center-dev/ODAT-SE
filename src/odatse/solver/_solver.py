@@ -30,6 +30,10 @@ from typing import Dict, List, Tuple
 
 
 class SolverBase(object, metaclass=ABCMeta):
+    """
+    Abstract base class for solvers in the 2DMAT software.
+    """
+
     root_dir: Path
     output_dir: Path
     proc_dir: Path
@@ -40,6 +44,12 @@ class SolverBase(object, metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, info: odatse.Info) -> None:
+        """
+        Initialize the solver with the given information.
+
+        Args:
+            info (odatse.Info): Information object containing configuration details.
+        """
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.rank())
@@ -53,8 +63,26 @@ class SolverBase(object, metaclass=ABCMeta):
 
     @property
     def name(self) -> str:
+        """
+        Get the name of the solver.
+
+        Returns:
+            str: The name of the solver.
+        """
         return self._name
 
     @abstractmethod
     def evaluate(self, x: np.ndarray, arg: Tuple = (), nprocs: int = 1, nthreads: int = 1) -> None:
+        """
+        Evaluate the solver with the given parameters.
+
+        Args:
+            x (np.ndarray): Input data array.
+            arg (Tuple, optional): Additional arguments for evaluation. Defaults to ().
+            nprocs (int, optional): Number of processes to use. Defaults to 1.
+            nthreads (int, optional): Number of threads to use. Defaults to 1.
+
+        Raises:
+            NotImplementedError: This method should be implemented by subclasses.
+        """
         raise NotImplementedError()

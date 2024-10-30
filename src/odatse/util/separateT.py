@@ -34,6 +34,20 @@ def separateT(
     use_beta: bool,
     buffer_size: int = 10000,
 ) -> None:
+    """
+    Separates and processes temperature data for quantum beam diffraction experiments.
+
+    Parameters:
+    Ts (np.ndarray): Array of temperature values.
+    nwalkers (int): Number of walkers.
+    output_dir (PathLike): Directory to store the output files.
+    comm (Optional[mpi.Comm]): MPI communicator for parallel processing.
+    use_beta (bool): Flag to determine if beta values are used instead of temperature.
+    buffer_size (int, optional): Size of the buffer for reading input data. Default is 10000.
+
+    Returns:
+    None
+    """
     if comm is None:
         mpisize = 1
         mpirank = 0

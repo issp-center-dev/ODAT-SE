@@ -23,13 +23,21 @@ import odatse
 from ._domain import DomainBase
 
 class MeshGrid(DomainBase):
+    """
+    MeshGrid class for handling grid data for quantum beam diffraction experiments.
+    """
+
     grid: List[Union[int, float]] = []
     grid_local: List[Union[int, float]] = []
     candicates: int
-    
-    def __init__(self, info: odatse.Info = None,
-                 *,
-                 param: Dict[str, Any] = None):
+
+    def __init__(self, info: odatse.Info = None, *, param: Dict[str, Any] = None):
+        """
+        Initialize the MeshGrid object.
+
+        :param info: Information object containing algorithm parameters.
+        :param param: Dictionary containing parameters for setting up the grid.
+        """
         super().__init__(info)
 
         if info:
@@ -42,26 +50,36 @@ class MeshGrid(DomainBase):
         else:
             pass
 
-
     def do_split(self):
+        """
+        Split the grid data among MPI processes.
+        """
         if self.mpisize > 1:
             index = [idx for idx, *v in self.grid]
             index_local = np.array_split(index, self.mpisize)[self.mpirank]
             self.grid_local = [[idx, *v] for idx, *v in self.grid if idx in index_local]
         else:
             self.grid_local = self.grid
-            
 
     def _setup(self, info_param):
+        """
+        Setup the grid based on provided parameters.
+
+        :param info_param: Dictionary containing parameters for setting up the grid.
+        """
         if "mesh_path" in info_param:
             self._setup_from_file(info_param)
         else:
             self._setup_grid(info_param)
 
         self.ncandicates = len(self.grid)
-            
 
     def _setup_from_file(self, info_param):
+        """
+        Setup the grid from a file.
+
+        :param info_param: Dictionary containing parameters for setting up the grid.
+        """
         if "mesh_path" not in info_param:
             raise ValueError("ERROR: mesh_path not defined")
         mesh_path = self.root_dir / Path(info_param["mesh_path"]).expanduser()
@@ -79,7 +97,7 @@ class MeshGrid(DomainBase):
                 data = data.reshape(1, -1)
 
             # old format: index x1 x2 ... -> omit index
-            data = data[:,1:]
+            data = data[:, 1:]
         else:
             data = None
 
@@ -88,8 +106,12 @@ class MeshGrid(DomainBase):
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
 
-
     def _setup_grid(self, info_param):
+        """
+        Setup the grid based on min, max, and num lists.
+
+        :param info_param: Dictionary containing parameters for setting up the grid.
+        """
         if "min_list" not in info_param:
             raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
         min_list = np.array(info_param["min_list"], dtype=float)
@@ -104,7 +126,7 @@ class MeshGrid(DomainBase):
 
         if len(min_list) != len(max_list) or len(min_list) != len(num_list):
             raise ValueError("ERROR: lengths of min_list, max_list, num_list do not match")
-        
+
         xs = [
             np.linspace(mn, mx, num=nm)
             for mn, mx, nm in zip(min_list, max_list, num_list)
@@ -118,21 +140,35 @@ class MeshGrid(DomainBase):
             )
         ]
 
-
     def store_file(self, store_path, *, header=""):
+        """
+        Store the grid data to a file.
+
+        :param store_path: Path to the file where the grid data will be stored.
+        :param header: Header to be included in the file.
+        """
         if self.mpirank == 0:
             np.savetxt(store_path, [[*v] for idx, *v in self.grid], header=header)
 
-
     @classmethod
     def from_file(cls, mesh_path):
-        return cls(param={"mesh_path": mesh_path})
+        """
+        Create a MeshGrid object from a file.
 
+        :param mesh_path: Path to the file containing the grid data.
+        :return: MeshGrid object.
+        """
+        return cls(param={"mesh_path": mesh_path})
 
     @classmethod
     def from_dict(cls, param):
-        return cls(param=param)
+        """
+        Create a MeshGrid object from a dictionary of parameters.
 
+        :param param: Dictionary containing parameters for setting up the grid.
+        :return: MeshGrid object.
+        """
+        return cls(param=param)
 
 
 if __name__ == "__main__":

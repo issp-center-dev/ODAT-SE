@@ -26,6 +26,10 @@ import odatse
 import odatse.domain
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
+    """
+    Algorithm class for data analysis of quantum beam diffraction experiments.
+    Inherits from odatse.algorithm.AlgorithmBase.
+    """
     mesh_list: List[Union[int, float]]
 
     def __init__(self, info: odatse.Info,
@@ -33,6 +37,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                  domain = None,
                  run_mode: str = "initial"
     ) -> None:
+        """
+        Initialize the Algorithm instance.
+
+        :param info: Information object containing algorithm parameters.
+        :param runner: Optional runner object for submitting tasks.
+        :param domain: Optional domain object, defaults to MeshGrid.
+        :param run_mode: Mode to run the algorithm, defaults to "initial".
+        """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         if domain and isinstance(domain, odatse.domain.MeshGrid):
@@ -47,21 +59,25 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.local_colormap_file = Path(self.colormap_file).name + ".tmp"
 
     def _initialize(self) -> None:
+        """
+        Initialize the algorithm parameters and timer.
+        """
         self.fx_list = []
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
     def _run(self) -> None:
+        """
+        Execute the main algorithm process.
+        """
         # Make ColorMap
 
         if self.mode is None:
             raise RuntimeError("mode unset")
 
         if self.mode.startswith("init"):
-            # print(">>> initialize")
             self._initialize()
         elif self.mode.startswith("resume"):
-            # print(">>> resume")
             self._load_state(self.checkpoint_file)
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
@@ -73,8 +89,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         iterations = len(self.mesh_list)
         istart = len(self.fx_list)
-
-        # print(">>> iterations={}, istart={}".format(iterations, istart))
 
         next_checkpoint_step = istart + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
@@ -111,8 +125,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             opt_id, opt_fx = self.fx_list[opt_index]
             opt_mesh = self.mesh_list[opt_index]
 
-            # assert opt_id == opt_mesh[0]
-
             self.opt_fx = opt_fx
             self.opt_mesh = opt_mesh
 
@@ -121,12 +133,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._output_results()
 
         if Path(self.local_colormap_file).exists():
-            # print(">>> remove local colormap file {}".format(self.local_colormap_file))
             os.remove(Path(self.local_colormap_file))
 
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
     def _output_results(self):
+        """
+        Output the results to the colormap file.
+        """
         print("Make ColorMap")
         time_sta = time.perf_counter()
 
@@ -151,10 +165,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.timer["run"]["file_CM"] = time_end - time_sta
 
     def _prepare(self) -> None:
-        # do nothing
+        """
+        Prepare the algorithm (no operation).
+        """
         pass
 
     def _post(self) -> Dict:
+        """
+        Post-process the results and gather data from all MPI ranks.
+
+        :return: Dictionary of results.
+        """
         if self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
@@ -163,7 +184,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         if self.mpirank == 0:
             with open(self.colormap_file, "w") as fp:
-                # fp.write("#" + " ".join(self.label_list) + " fval\n")
                 for x, (idx, fx) in zip(self.domain.grid, results):
                     assert x[0] == idx
                     fp.write(" ".join(
@@ -173,38 +193,41 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         return {}
 
     def _save_state(self, filename) -> None:
+        """
+        Save the current state of the algorithm to a file.
+
+        :param filename: The name of the file to save the state to.
+        """
         data = {
-            #-- _algorithm
             "mpisize": self.mpisize,
             "mpirank": self.mpirank,
-            #"rng": self.rng.get_state(),
             "timer": self.timer,
             "info": self.info,
-            #-- mapper
             "fx_list": self.fx_list,
             "mesh_size": len(self.mesh_list),
         }
         self._save_data(data, filename)
 
     def _load_state(self, filename, restore_rng=True):
+        """
+        Load the state of the algorithm from a file.
+
+        :param filename: The name of the file to load the state from.
+        :param restore_rng: Whether to restore the random number generator state.
+        """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        #-- _algorithm
         assert self.mpisize == data["mpisize"]
         assert self.mpirank == data["mpirank"]
 
-        # if restore_rng:
-        #     self.rng = np.random.RandomState()
-        #     self.rng.set_state(data["rng"])
         self.timer = data["timer"]
 
         info = data["info"]
         self._check_parameters(info)
 
-        #-- mapper
         self.fx_list = data["fx_list"]
 
         assert len(self.mesh_list) == data["mesh_size"]

@@ -23,14 +23,37 @@ import odatse
 from ._domain import DomainBase
 
 class Region(DomainBase):
+    """
+    A class to represent a region in the domain.
+
+    Attributes
+    ----------
+    min_list : np.array
+        Minimum values for each dimension.
+    max_list : np.array
+        Maximum values for each dimension.
+    unit_list : np.array
+        Unit values for each dimension.
+    initial_list : np.array
+        Initial values for each dimension.
+    """
+
     min_list: np.array
     max_list: np.array
     unit_list: np.array
     initial_list: np.array
 
-    def __init__(self, info: odatse.Info = None,
-                 *,
-                 param: Dict[str, Any] = None):
+    def __init__(self, info: odatse.Info = None, *, param: Dict[str, Any] = None):
+        """
+        Initialize the Region object.
+
+        Parameters
+        ----------
+        info : odatse.Info, optional
+            Information object containing algorithm parameters.
+        param : dict, optional
+            Dictionary containing algorithm parameters.
+        """
         super().__init__(info)
 
         if info:
@@ -42,9 +65,16 @@ class Region(DomainBase):
             self._setup(param)
         else:
             pass
-    
 
     def _setup(self, info_param):
+        """
+        Setup the region with the given parameters.
+
+        Parameters
+        ----------
+        info_param : dict
+            Dictionary containing the parameters for the region.
+        """
         if "min_list" not in info_param:
             raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
         min_list = np.array(info_param["min_list"])
@@ -57,7 +87,7 @@ class Region(DomainBase):
             raise ValueError("ERROR: lengths of min_list and max_list do not match")
 
         self.dimension = len(min_list)
-        
+
         unit_list = np.array(info_param.get("unit_list", [1.0] * self.dimension))
 
         self.min_list = min_list
@@ -77,10 +107,19 @@ class Region(DomainBase):
 
         self.initial_list = initial_list
 
-    def initialize(self,
-                   rng=np.random,
-                   limitation=odatse.util.limitation.Unlimited(),
-                   num_walkers: int = 1):
+    def initialize(self, rng=np.random, limitation=odatse.util.limitation.Unlimited(), num_walkers: int = 1):
+        """
+        Initialize the region with random values or predefined initial values.
+
+        Parameters
+        ----------
+        rng : numpy.random, optional
+            Random number generator.
+        limitation : odatse.util.limitation, optional
+            Limitation object to judge the validity of the values.
+        num_walkers : int, optional
+            Number of walkers to initialize.
+        """
         if num_walkers > self.num_walkers:
             self.num_walkers = num_walkers
 
@@ -89,10 +128,19 @@ class Region(DomainBase):
         else:
             self._init_random(rng=rng, limitation=limitation)
 
-    def _init_random(self,
-                     rng=np.random,
-                     limitation=odatse.util.limitation.Unlimited(),
-                     max_count=100):
+    def _init_random(self, rng=np.random, limitation=odatse.util.limitation.Unlimited(), max_count=100):
+        """
+        Initialize the region with random values within the specified limits.
+
+        Parameters
+        ----------
+        rng : numpy.random, optional
+            Random number generator.
+        limitation : odatse.util.limitation, optional
+            Limitation object to judge the validity of the values.
+        max_count : int, optional
+            Maximum number of trials to generate valid values.
+        """
         initial_list = np.zeros((self.num_walkers, self.dimension), dtype=float)
         is_ok = np.full(self.num_walkers, False)
 
@@ -109,7 +157,6 @@ class Region(DomainBase):
             if count >= max_count:
                 raise RuntimeError("ERROR: init_random: trial count exceeds {}".format(max_count))
         self.initial_list = initial_list
-
 
 if __name__ == "__main__":
     reg = Region(param={
