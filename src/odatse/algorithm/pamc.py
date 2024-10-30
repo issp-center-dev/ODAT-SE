@@ -587,8 +587,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         This method initializes the timers for the 'submit' and 'resampling' phases
         of the algorithm run.
         """
-    self.timer["run"]["submit"] = 0.0
-    self.timer["run"]["resampling"] = 0.0
+        self.timer["run"]["submit"] = 0.0
+        self.timer["run"]["resampling"] = 0.0
     def _post(self) -> None:
         """
         Post-processing after the algorithm execution.
