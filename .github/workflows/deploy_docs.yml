@@ -3,7 +3,7 @@ name: upload docs to gh-pages
 on:
   push:
     branches:
-      # - main
+      - main
       # - develop
       # - ghactions
       # - '*-autodoc'
