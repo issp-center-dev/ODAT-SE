@@ -4,20 +4,20 @@ on: [push]
 
 jobs:
   main:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [3.6, 3.9]
+        python-version: ['3.6', '3.9', '3.12']
         sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform]
       fail-fast: false
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -34,7 +34,7 @@ jobs:
           python -m pip install numpy scipy tomli mpi4py
           python -m pip install physbo
 
-      - name: ${{ matrix.algorithm }}
+      - name: ${{ matrix.sample }}
         run: |
           cd ${GITHUB_WORKSPACE}/tests/${{ matrix.sample }}
           sh ./do.sh

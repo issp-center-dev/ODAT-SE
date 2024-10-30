@@ -2,19 +2,20 @@ name: upload package to PyPI
 
 on:
   push:
-    tags: ['*']
+    # tags: ['*']
+    tags: ['disabled-because-odatse-is-not-yet-ready-in-pypi']
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: 3.11
 
     - name: Install python packages
       run: |
