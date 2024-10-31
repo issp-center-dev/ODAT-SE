@@ -76,9 +76,14 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Initialize the algorithm with the given information and runner.
 
-        :param info: Information object containing algorithm and base parameters.
-        :param runner: Optional runner object to execute the algorithm.
-        :param run_mode: Mode in which the algorithm should run.
+        Parameters
+        ----------
+        info : Info
+            Information object containing algorithm and base parameters.
+        runner : Runner (optional)
+            Optional runner object to execute the algorithm.
+        run_mode : str
+            Mode in which the algorithm should run.
         """
         self.mpicomm = mpi.comm()
         self.mpisize = mpi.size()
@@ -132,7 +137,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Initialize the random number generator.
 
-        :param info: Information object containing algorithm parameters.
+        Parameters
+        ----------
+        info : Info
+            Information object containing algorithm parameters.
         """
         seed = info.algorithm.get("seed", None)
         seed_delta = info.algorithm.get("seed_delta", 314159)
@@ -146,7 +154,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Set the runner for the algorithm.
 
-        :param runner: Runner object to execute the algorithm.
+        Parameters
+        ----------
+        runner : Runner
+            Runner object to execute the algorithm.
         """
         self.runner = runner
 
@@ -189,7 +200,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Perform post-processing after the algorithm has run.
 
-        :return: Dictionary containing post-processing results.
+        Returns
+        -------
+        Dict
+            Dictionary containing post-processing results.
         """
         if self.status < AlgorithmStatus.RUN:
             msg = "algorithm has not run yet"
@@ -237,7 +251,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Write the timing information to a file.
 
-        :param filename: Path to the file where timing information will be written.
+        Parameters
+        ----------
+        filename : Path
+            Path to the file where timing information will be written.
         """
         with open(filename, "w") as fw:
             fw.write("#in units of seconds\n")
@@ -259,9 +276,14 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Save data to a file with versioning.
 
-        :param data: Data to be saved.
-        :param filename: Name of the file to save the data.
-        :param ngen: Number of generations for versioning.
+        Parameters
+        ----------
+        data
+            Data to be saved.
+        filename
+            Name of the file to save the data.
+        ngen : int, default: 3
+            Number of generations for versioning.
         """
         try:
             fn = Path(filename + ".tmp")
@@ -287,8 +309,15 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Load data from a file.
 
-        :param filename: Name of the file to load the data from.
-        :return: Dictionary containing the loaded data.
+        Parameters
+        ----------
+        filename
+            Name of the file to load the data from.
+
+        Returns
+        -------
+        Dict
+            Dictionary containing the loaded data.
         """
         if Path(filename).exists():
             try:
@@ -317,7 +346,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Check the parameters of the algorithm against previous parameters.
 
-        :param param: Previous parameters to check against.
+        Parameters
+        ----------
+        param (optional)
+            Previous parameters to check against.
         """
         info = flatten_dict(self.info)
         info_prev = flatten_dict(param)
@@ -335,10 +367,19 @@ def flatten_dict(d, parent_key="", separator="."):
     """
     Flatten a nested dictionary.
 
-    :param d: Dictionary to flatten.
-    :param parent_key: Key for the parent dictionary.
-    :param separator: Separator to use between keys.
-    :return: Flattened dictionary.
+    Parameters
+    ----------
+    d
+        Dictionary to flatten.
+    parent_key : str, default : ""
+        Key for the parent dictionary.
+    separator : str, default : "."
+        Separator to use between keys.
+
+    Returns
+    -------
+    dict
+        Flattened dictionary.
     """
     items = []
     if d:

@@ -15,7 +15,10 @@ class LimitationBase(metaclass=ABCMeta):
         """
         Initialize the limitation.
 
-        :param is_limitary: Boolean indicating if the limitation is active.
+        Parameters
+        ----------
+        is_limitary : bool
+            Boolean indicating if the limitation is active.
         """
         self.is_limitary = is_limitary
 
@@ -24,8 +27,15 @@ class LimitationBase(metaclass=ABCMeta):
         """
         Abstract method to judge if the limitation is satisfied.
 
-        :param x: Input array to be judged.
-        :return: Boolean indicating if the limitation is satisfied.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Boolean indicating if the limitation is satisfied.
         """
         raise NotImplementedError
 
@@ -44,8 +54,15 @@ class Unlimited(LimitationBase):
         """
         Always returns True as there is no limitation.
 
-        :param x: Input array to be judged.
-        :return: Always True.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Always True.
         """
         return True
 
@@ -58,9 +75,14 @@ class Inequality(LimitationBase):
         """
         Initialize the inequality limitation.
 
-        :param a: Coefficient matrix.
-        :param b: Constant vector.
-        :param is_limitary: Boolean indicating if the limitation is active.
+        Parameters
+        ----------
+        a : np.ndarray
+            Coefficient matrix.
+        b : np.ndarray
+            Constant vector.
+        is_limitary : bool
+            Boolean indicating if the limitation is active.
         """
         super().__init__(is_limitary)
         if self.is_limitary:
@@ -74,8 +96,15 @@ class Inequality(LimitationBase):
         """
         Judge if the inequality limitation is satisfied.
 
-        :param x: Input array to be judged.
-        :return: Boolean indicating if the limitation is satisfied.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Boolean indicating if the limitation is satisfied.
         """
         if self.is_limitary:
             Ax_b = np.dot(self.a, x) + self.b
@@ -89,8 +118,15 @@ class Inequality(LimitationBase):
         """
         Create an Inequality instance from a dictionary.
 
-        :param d: Dictionary containing 'co_a' and 'co_b' keys.
-        :return: Inequality instance.
+        Parameters
+        ----------
+        d
+            Dictionary containing 'co_a' and 'co_b' keys.
+
+        Returns
+        -------
+        Inequality
+            an Inequality instance.
         """
         co_a: np.ndarray = read_matrix(d.get("co_a", []))
         co_b: np.ndarray = read_matrix(d.get("co_b", []))

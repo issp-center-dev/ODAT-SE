@@ -60,10 +60,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         Initialize the Algorithm class.
 
-        :param info: Information object containing algorithm settings.
-        :param runner: Runner object for submitting jobs.
-        :param domain: Domain object defining the search space.
-        :param run_mode: Mode of running the algorithm.
+        Parameters
+        ----------
+        info : Info
+            Information object containing algorithm settings.
+        runner : Runner
+            Runner object for submitting jobs.
+        domain :
+            Domain object defining the search space.
+        run_mode : str
+            Mode of running the algorithm.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
@@ -132,9 +138,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             """
             Calculate the objective function value.
 
-            :param x_list: List of variables.
-            :param iset: Set index.
-            :return: Objective function value.
+            Parameters
+            ----------
+            x_list : np.ndarray
+                List of variables.
+            iset :
+                Set index.
+
+            Returns
+            -------
+            float
+                Objective function value.
             """
             # check if within region -> boundary option in minimize
             # note: 'bounds' option supported in scipy >= 1.7.0

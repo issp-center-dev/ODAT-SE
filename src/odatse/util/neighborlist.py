@@ -50,10 +50,14 @@ class Cells:
         """
         Initialize the Cells object.
 
-        Parameters:
-        mins (np.ndarray): The minimum coordinates of the grid.
-        maxs (np.ndarray): The maximum coordinates of the grid.
-        cellsize (float): The size of each cell.
+        Parameters
+        ----------
+        mins : np.ndarray
+            The minimum coordinates of the grid.
+        maxs : np.ndarray
+            The maximum coordinates of the grid.
+        cellsize : float
+            The size of each cell.
         """
         self.dimension = len(mins)
         self.mins = mins
@@ -68,11 +72,15 @@ class Cells:
         """
         Convert coordinates to a cell index.
 
-        Parameters:
-        x (np.ndarray): The coordinates to convert.
+        Parameters
+        ----------
+        x : np.ndarray
+            The coordinates to convert.
 
-        Returns:
-        int: The index of the cell.
+        Returns
+        -------
+        int
+            The index of the cell.
         """
         return self.cellcoord2cellindex(self.coord2cellcoord(x))
 
@@ -80,11 +88,15 @@ class Cells:
         """
         Convert coordinates to cell coordinates.
 
-        Parameters:
-        x (np.ndarray): The coordinates to convert.
+        Parameters
+        ----------
+        x : np.ndarray
+            The coordinates to convert.
 
-        Returns:
-        np.ndarray: The cell coordinates.
+        Returns
+        -------
+        np.ndarray
+            The cell coordinates.
         """
         return np.floor((x - self.mins) / self.cellsize).astype(np.int64)
 
@@ -92,11 +104,15 @@ class Cells:
         """
         Convert cell coordinates to a cell index.
 
-        Parameters:
-        ns (np.ndarray): The cell coordinates to convert.
+        Parameters
+        ----------
+        ns : np.ndarray
+            The cell coordinates to convert.
 
-        Returns:
-        int: The index of the cell.
+        Returns
+        -------
+        int
+            The index of the cell.
         """
         index = 0
         oldN = 1
@@ -110,11 +126,15 @@ class Cells:
         """
         Convert a cell index to cell coordinates.
 
-        Parameters:
-        index (int): The index of the cell.
+        Parameters
+        ----------
+        index : int
+            The index of the cell.
 
-        Returns:
-        np.ndarray: The cell coordinates.
+        Returns
+        -------
+        np.ndarray
+            The cell coordinates.
         """
         ns = np.zeros(self.dimension, dtype=np.int64)
         for d in range(self.dimension):
@@ -128,11 +148,15 @@ class Cells:
         """
         Check if cell coordinates are out of bounds.
 
-        Parameters:
-        ns (np.ndarray): The cell coordinates to check.
+        Parameters
+        ----------
+        ns : np.ndarray
+            The cell coordinates to check.
 
-        Returns:
-        bool: True if out of bounds, False otherwise.
+        Returns
+        -------
+        bool
+            True if out of bounds, False otherwise.
         """
         if np.any(ns < 0):
             return True
@@ -144,11 +168,15 @@ class Cells:
         """
         Get the indices of neighboring cells.
 
-        Parameters:
-        index (int): The index of the cell.
+        Parameters
+        ----------
+        index : int
+            The index of the cell.
 
-        Returns:
-        List[int]: The indices of the neighboring cells.
+        Returns
+        -------
+        List[int]
+            The indices of the neighboring cells.
         """
         neighbors: List[int] = []
         center_coord = self.cellindex2cellcoord(index)
@@ -170,15 +198,23 @@ def make_neighbor_list_cell(
     """
     Create a neighbor list using cell-based spatial partitioning.
 
-    Parameters:
-    X (np.ndarray): The coordinates of the points.
-    radius (float): The radius within which neighbors are considered.
-    allow_selfloop (bool): Whether to allow self-loops in the neighbor list.
-    show_progress (bool): Whether to show a progress bar.
-    comm (mpi.Comm, optional): The MPI communicator.
+    Parameters
+    ----------
+    X : np.ndarray
+        The coordinates of the points.
+    radius : float
+        The radius within which neighbors are considered.
+    allow_selfloop : bool
+        Whether to allow self-loops in the neighbor list.
+    show_progress : bool
+        Whether to show a progress bar.
+    comm : mpi.Comm, optional
+        The MPI communicator.
 
-    Returns:
-    List[List[int]]: The neighbor list.
+    Returns
+    -------
+    List[List[int]]
+        The neighbor list.
     """
     if comm is None:
         mpisize = 1
@@ -234,15 +270,23 @@ def make_neighbor_list_naive(
     """
     Create a neighbor list using a naive all-pairs approach.
 
-    Parameters:
-    X (np.ndarray): The coordinates of the points.
-    radius (float): The radius within which neighbors are considered.
-    allow_selfloop (bool): Whether to allow self-loops in the neighbor list.
-    show_progress (bool): Whether to show a progress bar.
-    comm (mpi.Comm, optional): The MPI communicator.
+    Parameters
+    ----------
+    X : np.ndarray)
+        The coordinates of the points.
+    radius : float
+        The radius within which neighbors are considered.
+    allow_selfloop : bool
+        Whether to allow self-loops in the neighbor list.
+    show_progress : bool
+        Whether to show a progress bar.
+    comm : mpi.Comm, optional
+        The MPI communicator.
 
-    Returns:
-    List[List[int]]: The neighbor list.
+    Returns
+    -------
+    List[List[int]]
+        The neighbor list.
     """
     if comm is None:
         mpisize = 1
@@ -289,16 +333,25 @@ def make_neighbor_list(
     """
     Create a neighbor list for given points.
 
-    Parameters:
-    X (np.ndarray): The coordinates of the points.
-    radius (float): The radius within which neighbors are considered.
-    allow_selfloop (bool): Whether to allow self-loops in the neighbor list.
-    check_allpairs (bool): Whether to use the naive all-pairs approach.
-    show_progress (bool): Whether to show a progress bar.
-    comm (mpi.Comm, optional): The MPI communicator.
+    Parameters
+    ----------
+    X : np.ndarray
+        The coordinates of the points.
+    radius : float
+        The radius within which neighbors are considered.
+    allow_selfloop : bool
+        Whether to allow self-loops in the neighbor list.
+    check_allpairs : bool
+        Whether to use the naive all-pairs approach.
+    show_progress : bool
+        Whether to show a progress bar.
+    comm : mpi.Comm, optional
+        The MPI communicator.
 
-    Returns:
-    List[List[int]]: The neighbor list.
+    Returns
+    -------
+    List[List[int]]
+        The neighbor list.
     """
     if check_allpairs:
         return make_neighbor_list_naive(
@@ -322,12 +375,17 @@ def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]
     """
     Load a neighbor list from a file.
 
-    Parameters:
-    filename (PathLike): The path to the file containing the neighbor list.
-    nnodes (int, optional): The number of nodes. If None, it will be determined from the file.
+    Parameters
+    ----------
+    filename : PathLike
+        The path to the file containing the neighbor list.
+    nnodes : int, optional
+        The number of nodes. If None, it will be determined from the file.
 
-    Returns:
-    List[List[int]]: The neighbor list.
+    Returns
+    -------
+    List[List[int]]
+        The neighbor list.
     """
     if nnodes is None:
         nnodes = 0
@@ -360,11 +418,16 @@ def write_neighbor_list(
     """
     Write the neighbor list to a file.
 
-    Parameters:
-    filename (str): The path to the output file.
-    nnlist (List[List[int]]): The neighbor list to write.
-    radius (float, optional): The neighborhood radius. Defaults to None.
-    unit (np.ndarray, optional): The unit for each coordinate. Defaults to None.
+    Parameters
+    ----------
+    filename : str
+        The path to the output file.
+    nnlist : List[List[int]]
+        The neighbor list to write.
+    radius : float, optional
+        The neighborhood radius. Defaults to None.
+    unit : np.ndarray, optional
+        The unit for each coordinate. Defaults to None.
     """
     with open(filename, "w") as f:
         if radius is not None:

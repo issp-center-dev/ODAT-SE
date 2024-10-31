@@ -162,11 +162,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def _initialize(self):
         """
-            Initialize the algorithm state.
+        Initialize the algorithm state.
 
-            This method sets up the initial state of the algorithm, including the
-            positions and energies of the walkers, and resets the counters for
-            accepted and trial steps.
+        This method sets up the initial state of the algorithm, including the
+        positions and energies of the walkers, and resets the counters for
+        accepted and trial steps.
         """
         if self.iscontinuous:
             self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=self.nwalkers)
@@ -224,20 +224,20 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
         """
-            Evaluate the current "Energy"s.
+        Evaluate the current "Energy"s.
 
-            This method overwrites `self.fx` with the result.
+        This method overwrites `self.fx` with the result.
 
-            Parameters
-            ----------
-            in_range : np.ndarray, optional
-                Array indicating whether each walker is within the valid range (default is None).
+        Parameters
+        ----------
+        in_range : np.ndarray, optional
+            Array indicating whether each walker is within the valid range (default is None).
 
-            Returns
-            -------
-            np.ndarray
-                Array of evaluated energies for the current configurations.
-            """
+        Returns
+        -------
+        np.ndarray
+            Array of evaluated energies for the current configurations.
+        """
         # print(">>> _evaluate")
         for iwalker in range(self.nwalkers):
             x = self.x[iwalker, :]
@@ -254,18 +254,18 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def propose(self, current: np.ndarray) -> np.ndarray:
         """
-            Propose the next candidate positions for the walkers.
+        Propose the next candidate positions for the walkers.
 
-            Parameters
-            ----------
-            current : np.ndarray
-                Current positions of the walkers.
+        Parameters
+        ----------
+        current : np.ndarray
+            Current positions of the walkers.
 
-            Returns
-            -------
-            proposed : np.ndarray
-                Proposed new positions for the walkers.
-            """
+        Returns
+        -------
+        proposed : np.ndarray
+            Proposed new positions for the walkers.
+        """
         if self.iscontinuous:
             dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
             proposed = current + dx
@@ -281,10 +281,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
     ):
-        """one step of Monte Carlo
+        """
+        one step of Monte Carlo
 
         Parameters
-        ==========
+        ----------
         beta: np.ndarray
             inverse temperature for each walker
         file_trial: TextIO

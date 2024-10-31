@@ -35,8 +35,12 @@ class MeshGrid(DomainBase):
         """
         Initialize the MeshGrid object.
 
-        :param info: Information object containing algorithm parameters.
-        :param param: Dictionary containing parameters for setting up the grid.
+        Parameters
+        ----------
+        info : Info, optional
+            Information object containing algorithm parameters.
+        param : dict, optional
+            Dictionary containing parameters for setting up the grid.
         """
         super().__init__(info)
 
@@ -65,7 +69,10 @@ class MeshGrid(DomainBase):
         """
         Setup the grid based on provided parameters.
 
-        :param info_param: Dictionary containing parameters for setting up the grid.
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the grid.
         """
         if "mesh_path" in info_param:
             self._setup_from_file(info_param)
@@ -78,7 +85,10 @@ class MeshGrid(DomainBase):
         """
         Setup the grid from a file.
 
-        :param info_param: Dictionary containing parameters for setting up the grid.
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the grid.
         """
         if "mesh_path" not in info_param:
             raise ValueError("ERROR: mesh_path not defined")
@@ -110,7 +120,10 @@ class MeshGrid(DomainBase):
         """
         Setup the grid based on min, max, and num lists.
 
-        :param info_param: Dictionary containing parameters for setting up the grid.
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the grid.
         """
         if "min_list" not in info_param:
             raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
@@ -144,8 +157,12 @@ class MeshGrid(DomainBase):
         """
         Store the grid data to a file.
 
-        :param store_path: Path to the file where the grid data will be stored.
-        :param header: Header to be included in the file.
+        Parameters
+        ----------
+        store_path
+            Path to the file where the grid data will be stored.
+        header
+            Header to be included in the file.
         """
         if self.mpirank == 0:
             np.savetxt(store_path, [[*v] for idx, *v in self.grid], header=header)
@@ -155,8 +172,15 @@ class MeshGrid(DomainBase):
         """
         Create a MeshGrid object from a file.
 
-        :param mesh_path: Path to the file containing the grid data.
-        :return: MeshGrid object.
+        Parameters
+        ----------
+        mesh_path
+            Path to the file containing the grid data.
+
+        Returns
+        -------
+        MeshGrid
+            a MeshGrid object.
         """
         return cls(param={"mesh_path": mesh_path})
 
@@ -165,8 +189,15 @@ class MeshGrid(DomainBase):
         """
         Create a MeshGrid object from a dictionary of parameters.
 
-        :param param: Dictionary containing parameters for setting up the grid.
-        :return: MeshGrid object.
+        Parameters
+        ----------
+        param
+            Dictionary containing parameters for setting up the grid.
+
+        Returns
+        -------
+        MeshGrid
+            a MeshGrid object.
         """
         return cls(param=param)
 

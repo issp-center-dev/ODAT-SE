@@ -36,11 +36,15 @@ class MappingBase:
         """
         Apply the mapping to the input array.
 
-        Parameters:
-        x (np.ndarray): Input array.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array.
 
-        Returns:
-        np.ndarray: Mapped array.
+        Returns
+        -------
+        np.ndarray
+            Mapped array.
         """
         raise NotImplementedError
 
@@ -57,11 +61,15 @@ class TrivialMapping(MappingBase):
         """
         Return the input array unchanged.
 
-        Parameters:
-        x (np.ndarray): Input array.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array.
 
-        Returns:
-        np.ndarray: The same input array.
+        Returns
+        -------
+        np.ndarray
+            The same input array.
         """
         return x
 
@@ -78,9 +86,12 @@ class Affine(MappingBase):
         """
         Initialize the affine mapping.
 
-        Parameters:
-        A (Optional[np.ndarray]): Transformation matrix.
-        b (Optional[np.ndarray]): Translation vector.
+        Parameters
+        ----------
+        A : np.ndarray, optional
+            Transformation matrix.
+        b : np.ndarray, optional
+            Translation vector.
         """
         # copy arguments
         self.A = np.array(A) if A is not None else None
@@ -101,11 +112,15 @@ class Affine(MappingBase):
         """
         Apply the affine mapping to the input array.
 
-        Parameters:
-        x (np.ndarray): Input array.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array.
 
-        Returns:
-        np.ndarray: Mapped array.
+        Returns
+        -------
+        np.ndarray
+            Mapped array.
         """
         if self.A is None:
             ret = copy.copy(x)
@@ -121,11 +136,15 @@ class Affine(MappingBase):
         """
         Create an Affine instance from a dictionary.
 
-        Parameters:
-        d (dict): Dictionary containing 'A' and 'b' keys.
+        Parameters
+        ----------
+        d : dict
+            Dictionary containing 'A' and 'b' keys.
 
-        Returns:
-        Affine: An instance of the Affine class.
+        Returns
+        -------
+        Affine
+            An instance of the Affine class.
         """
         A: Optional[np.ndarray] = read_matrix(d.get("A", []))
         b: Optional[np.ndarray] = read_matrix(d.get("b", []))

@@ -24,11 +24,15 @@ def is_connected(nnlist: List[List[int]]) -> bool:
     """
     Check if the graph represented by the neighbor list is connected.
 
-    Parameters:
-    nnlist (List[List[int]]): A list of lists where each sublist represents the neighbors of a node.
+    Parameters
+    ----------
+    nnlist : List[List[int]]
+        A list of lists where each sublist represents the neighbors of a node.
 
-    Returns:
-    bool: True if the graph is connected, False otherwise.
+    Returns
+    -------
+    bool
+        True if the graph is connected, False otherwise.
     """
     nnodes = len(nnlist)
     visited = np.full(nnodes, False)
@@ -49,11 +53,15 @@ def is_bidirectional(nnlist: List[List[int]]) -> bool:
     """
     Check if the graph represented by the neighbor list is bidirectional.
 
-    Parameters:
-    nnlist (List[List[int]]): A list of lists where each sublist represents the neighbors of a node.
+    Parameters
+    ----------
+    nnlist : List[List[int]]
+        A list of lists where each sublist represents the neighbors of a node.
 
-    Returns:
-    bool: True if the graph is bidirectional, False otherwise.
+    Returns
+    -------
+    bool
+        True if the graph is bidirectional, False otherwise.
     """
     for i in range(len(nnlist)):
         for j in nnlist[i]:

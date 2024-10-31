@@ -45,7 +45,10 @@ class BinarySearch(Resampler):
         """
         Initialize the BinarySearch resampler with the given weights.
 
-        :param weights: An iterable of weights.
+        Parameters
+        ----------
+        weights : Iterable
+            An iterable of weights.
         """
         self.reset(weights)
 
@@ -53,7 +56,10 @@ class BinarySearch(Resampler):
         """
         Reset the resampler with new weights.
 
-        :param weights: An iterable of weights.
+        Parameters
+        ----------
+        weights : Iterable
+            An iterable of weights.
         """
         self.weights_accumulated = list(itertools.accumulate(weights))
         self.wmax = self.weights_accumulated[-1]
@@ -63,8 +69,15 @@ class BinarySearch(Resampler):
         """
         Sample a single index based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :return: A single sampled index.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+
+        Returns
+        -------
+        int
+            A single sampled index.
         """
         ...
 
@@ -73,9 +86,17 @@ class BinarySearch(Resampler):
         """
         Sample multiple indices based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :param size: The number of samples to generate.
-        :return: An array of sampled indices.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+        size :
+            The number of samples to generate.
+
+        Returns
+        -------
+        np.ndarray
+            An array of sampled indices.
         """
         ...
 
@@ -83,9 +104,17 @@ class BinarySearch(Resampler):
         """
         Sample indices based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :param size: The number of samples to generate. If None, a single sample is generated.
-        :return: A single sampled index or an array of sampled indices.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+        size :
+            The number of samples to generate. If None, a single sample is generated.
+
+        Returns
+        -------
+        int or np.ndarray
+            A single sampled index or an array of sampled indices.
         """
         if size is None:
             return self._sample(self.wmax * rs.rand())
@@ -96,8 +125,15 @@ class BinarySearch(Resampler):
         """
         Perform a binary search to find the index corresponding to the given random number.
 
-        :param r: A random number scaled by the maximum weight.
-        :return: The index corresponding to the random number.
+        Parameters
+        ----------
+        r : float
+            A random number scaled by the maximum weight.
+
+        Returns
+        -------
+        int
+            The index corresponding to the random number.
         """
         return typing.cast(int, np.searchsorted(self.weights_accumulated, r))
 
@@ -114,7 +150,10 @@ class WalkerTable(Resampler):
         """
         Initialize the WalkerTable resampler with the given weights.
 
-        :param weights: An iterable of weights.
+        Parameters
+        ----------
+        weights : Iterable
+            An iterable of weights.
         """
         self.reset(weights)
 
@@ -122,7 +161,10 @@ class WalkerTable(Resampler):
         """
         Reset the resampler with new weights.
 
-        :param weights: An iterable of weights.
+        Parameters
+        ----------
+        weights : Iterable
+            An iterable of weights.
         """
         self.ptable = np.array(weights).astype(np.float64).flatten()
         self.N = len(self.ptable)
@@ -148,8 +190,15 @@ class WalkerTable(Resampler):
         """
         Sample a single index based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :return: A single sampled index.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+
+        Returns
+        -------
+        int
+            A single sampled index.
         """
         ...
 
@@ -158,9 +207,17 @@ class WalkerTable(Resampler):
         """
         Sample multiple indices based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :param size: The number of samples to generate.
-        :return: An array of sampled indices.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+        size :
+            The number of samples to generate.
+
+        Returns
+        -------
+        np.ndarray
+            An array of sampled indices.
         """
         ...
 
@@ -168,9 +225,17 @@ class WalkerTable(Resampler):
         """
         Sample indices based on the weights.
 
-        :param rs: A random state for generating random numbers.
-        :param size: The number of samples to generate. If None, a single sample is generated.
-        :return: A single sampled index or an array of sampled indices.
+        Parameters
+        ----------
+        rs : np.random.RandomState
+            A random state for generating random numbers.
+        size :
+            The number of samples to generate. If None, a single sample is generated.
+
+        Returns
+        -------
+        int or np.ndarray
+            A single sampled index or an array of sampled indices.
         """
         if size is None:
             r = rs.rand() * self.N
@@ -186,8 +251,15 @@ class WalkerTable(Resampler):
         """
         Perform a sampling operation based on the given random number.
 
-        :param r: A random number scaled by the number of weights.
-        :return: The index corresponding to the random number.
+        Parameters
+        ----------
+        r : float
+            A random number scaled by the number of weights.
+
+        Returns
+        -------
+        int
+            The index corresponding to the random number.
         """
         i = int(np.floor(r))
         p = r - i

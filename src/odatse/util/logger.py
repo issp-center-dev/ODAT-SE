@@ -57,14 +57,22 @@ class Logger:
         """
         Initialize the Logger.
 
-        Parameters:
-        info (Optional[odatse.Info]): Information object containing logging parameters.
-        buffer_size (int): Size of the buffer before writing to the log file.
-        filename (str): Name of the log file.
-        write_input (bool): Flag to indicate if input should be logged.
-        write_result (bool): Flag to indicate if result should be logged.
-        params (Optional[Dict[str,Any]]): Additional parameters for logging.
-        **rest: Additional keyword arguments.
+        Parameters
+        ----------
+        info : Info, optional
+            Information object containing logging parameters.
+        buffer_size : int
+            Size of the buffer before writing to the log file.
+        filename : str
+            Name of the log file.
+        write_input : bool
+            Flag to indicate if input should be logged.
+        write_result : bool
+            Flag to indicate if result should be logged.
+        params : Dict[str,Any]], optional
+            Additional parameters for logging.
+        **rest
+            Additional keyword arguments.
         """
         if info is not None:
             info_log = info.runner.get("log", {})
@@ -85,8 +93,10 @@ class Logger:
         """
         Check if logging is active.
 
-        Returns:
-        bool: True if logging is active, False otherwise.
+        Returns
+        -------
+        bool
+            True if logging is active, False otherwise.
         """
         return self.buffer_size > 0
 
@@ -94,8 +104,10 @@ class Logger:
         """
         Prepare the log file for writing.
 
-        Parameters:
-        proc_dir (Path): Directory where the log file will be created.
+        Parameters
+        ----------
+        proc_dir : Path
+            Directory where the log file will be created.
         """
         if not self.is_active():
             return
@@ -118,10 +130,14 @@ class Logger:
         """
         Log a call with input and result data.
 
-        Parameters:
-        x (np.ndarray): Input data.
-        args: Additional arguments.
-        result (float): Result data.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input data.
+        args :
+            Additional arguments.
+        result : float
+            Result data.
         """
         if not self.is_active():
             return

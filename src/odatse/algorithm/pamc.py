@@ -350,15 +350,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
-        Arguments
-        ---------
+        Gather status information of each process
 
-        numT: int
+        Parameters
+        ---------
+        numT : int
             size of dataset
 
         Returns
         -------
-        res: Dict[str, np.ndarray]
+        res : Dict[str, np.ndarray]
             key-value corresponding is the following
 
             - fxs
@@ -468,11 +469,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _resample(self) -> None:
         """
-            Perform the resampling of walkers.
+        Perform the resampling of walkers.
 
-            This method gathers information, saves statistical data, and performs resampling
-            using either fixed or varied weights. The method ensures that the algorithm
-            maintains a balanced set of walkers across different temperature steps.
+        This method gathers information, saves statistical data, and performs resampling
+        using either fixed or varied weights. The method ensures that the algorithm
+        maintains a balanced set of walkers across different temperature steps.
         """
         res = self._gather_information()
         self._save_stats(res)

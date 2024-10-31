@@ -39,8 +39,10 @@ class Info:
         """
         Initialize the Info object.
 
-        Parameters:
-        d (Optional[MutableMapping]): A dictionary to initialize the Info object.
+        Parameters
+        ----------
+        d : MutableMapping (optional)
+            A dictionary to initialize the Info object.
         """
         if d is not None:
             self.from_dict(d)
@@ -51,11 +53,15 @@ class Info:
         """
         Initialize the Info object from a dictionary.
 
-        Parameters:
-        d (MutableMapping): A dictionary containing the information to initialize the Info object.
+        Parameters
+        ----------
+        d : MutableMapping
+            A dictionary containing the information to initialize the Info object.
 
-        Raises:
-        exception.InputError: If any required section is missing in the input dictionary.
+        Raises
+        ------
+        exception.InputError
+            If any required section is missing in the input dictionary.
         """
         for section in ["base", "algorithm", "solver"]:
             if section not in d:
@@ -92,16 +98,24 @@ class Info:
         """
         Create an Info object from a file.
 
-        Parameters:
-        file_name (str): The name of the file to load the information from.
-        fmt (str): The format of the file (default is "").
-        **kwargs: Additional keyword arguments.
+        Parameters
+        ----------
+        file_name : str
+            The name of the file to load the information from.
+        fmt : str
+            The format of the file (default is "").
+        **kwargs
+            Additional keyword arguments.
 
-        Returns:
-        Info: An Info object initialized with the data from the file.
+        Returns
+        -------
+        Info
+            An Info object initialized with the data from the file.
 
-        Raises:
-        ValueError: If the file format is unsupported.
+        Raises
+        ------
+        ValueError
+            If the file format is unsupported.
         """
         if fmt == "toml" or fnmatch(file_name.lower(), "*.toml"):
             inp = {}

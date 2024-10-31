@@ -47,8 +47,10 @@ class SolverBase(object, metaclass=ABCMeta):
         """
         Initialize the solver with the given information.
 
-        Args:
-            info (odatse.Info): Information object containing configuration details.
+        Parameters
+        ----------
+        info : Info
+            Information object containing configuration details.
         """
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
@@ -66,8 +68,10 @@ class SolverBase(object, metaclass=ABCMeta):
         """
         Get the name of the solver.
 
-        Returns:
-            str: The name of the solver.
+        Returns
+        -------
+        str
+            The name of the solver.
         """
         return self._name
 
@@ -76,13 +80,20 @@ class SolverBase(object, metaclass=ABCMeta):
         """
         Evaluate the solver with the given parameters.
 
-        Args:
-            x (np.ndarray): Input data array.
-            arg (Tuple, optional): Additional arguments for evaluation. Defaults to ().
-            nprocs (int, optional): Number of processes to use. Defaults to 1.
-            nthreads (int, optional): Number of threads to use. Defaults to 1.
+        Parameters
+        ----------
+        x : np.ndarray
+            Input data array.
+        arg : Tuple, optional
+            Additional arguments for evaluation. Defaults to ().
+        nprocs : nt, optional
+            Number of processes to use. Defaults to 1.
+        nthreads : int, optional
+            Number of threads to use. Defaults to 1.
 
-        Raises:
-            NotImplementedError: This method should be implemented by subclasses.
+        Raises
+        ------
+        NotImplementedError
+            This method should be implemented by subclasses.
         """
         raise NotImplementedError()

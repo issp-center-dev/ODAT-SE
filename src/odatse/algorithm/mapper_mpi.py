@@ -40,10 +40,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         Initialize the Algorithm instance.
 
-        :param info: Information object containing algorithm parameters.
-        :param runner: Optional runner object for submitting tasks.
-        :param domain: Optional domain object, defaults to MeshGrid.
-        :param run_mode: Mode to run the algorithm, defaults to "initial".
+        Parameters
+        ----------
+        info : Info
+            Information object containing algorithm parameters.
+        runner : Runner
+            Optional runner object for submitting tasks.
+        domain :
+            Optional domain object, defaults to MeshGrid.
+        run_mode : str
+            Mode to run the algorithm, defaults to "initial".
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
@@ -174,7 +180,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         Post-process the results and gather data from all MPI ranks.
 
-        :return: Dictionary of results.
+        Returns
+        -------
+        Dict
+            Dictionary of results.
         """
         if self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
@@ -196,7 +205,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         Save the current state of the algorithm to a file.
 
-        :param filename: The name of the file to save the state to.
+        Parameters
+        ----------
+        filename
+            The name of the file to save the state to.
         """
         data = {
             "mpisize": self.mpisize,
@@ -212,8 +224,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         Load the state of the algorithm from a file.
 
-        :param filename: The name of the file to load the state from.
-        :param restore_rng: Whether to restore the random number generator state.
+        Parameters
+        ----------
+        filename
+            The name of the file to load the state from.
+        restore_rng : bool
+            Whether to restore the random number generator state.
         """
         data = self._load_data(filename)
         if not data:
