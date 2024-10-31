@@ -21,11 +21,12 @@ class Error(Exception):
 
 
 class InputError(Error):
-    """Exception raised for errors in inputs
+    """
+    Exception raised for errors in inputs
 
-    Attributes
-    ==========
-    message: str
+    Parameters
+    ----------
+    message : str
         explanation
     """
 

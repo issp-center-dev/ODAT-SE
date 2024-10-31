@@ -6,22 +6,84 @@ from .read_matrix import read_matrix, read_vector
 
 
 class LimitationBase(metaclass=ABCMeta):
+    """
+    Abstract base class for limitations.
+    """
+
     @abstractmethod
     def __init__(self, is_limitary: bool):
+        """
+        Initialize the limitation.
+
+        Parameters
+        ----------
+        is_limitary : bool
+            Boolean indicating if the limitation is active.
+        """
         self.is_limitary = is_limitary
 
     @abstractmethod
     def judge(self, x: np.ndarray) -> bool:
+        """
+        Abstract method to judge if the limitation is satisfied.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Boolean indicating if the limitation is satisfied.
+        """
         raise NotImplementedError
 
 class Unlimited(LimitationBase):
+    """
+    Class representing an unlimited (no limitation) condition.
+    """
+
     def __init__(self):
+        """
+        Initialize the unlimited condition.
+        """
         super().__init__(False)
+
     def judge(self, x: np.ndarray) -> bool:
+        """
+        Always returns True as there is no limitation.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Always True.
+        """
         return True
 
 class Inequality(LimitationBase):
+    """
+    Class representing an inequality limitation.
+    """
+
     def __init__(self, a: np.ndarray, b: np.ndarray, is_limitary: bool):
+        """
+        Initialize the inequality limitation.
+
+        Parameters
+        ----------
+        a : np.ndarray
+            Coefficient matrix.
+        b : np.ndarray
+            Constant vector.
+        is_limitary : bool
+            Boolean indicating if the limitation is active.
+        """
         super().__init__(is_limitary)
         if self.is_limitary:
             self.a = np.array(a)
@@ -31,6 +93,19 @@ class Inequality(LimitationBase):
             self.ndim = a.shape[1]
 
     def judge(self, x: np.ndarray) -> bool:
+        """
+        Judge if the inequality limitation is satisfied.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array to be judged.
+
+        Returns
+        -------
+        bool
+            Boolean indicating if the limitation is satisfied.
+        """
         if self.is_limitary:
             Ax_b = np.dot(self.a, x) + self.b
             judge_result = np.all(Ax_b > 0)
@@ -40,11 +115,21 @@ class Inequality(LimitationBase):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Create an Inequality instance from a dictionary.
+
+        Parameters
+        ----------
+        d
+            Dictionary containing 'co_a' and 'co_b' keys.
+
+        Returns
+        -------
+        Inequality
+            an Inequality instance.
+        """
         co_a: np.ndarray = read_matrix(d.get("co_a", []))
         co_b: np.ndarray = read_matrix(d.get("co_b", []))
-
-        # is_set_co_a = (co_a.size > 0 and co_a.ndim == 2 and co_a.shape[1] == dimension)
-        # is_set_co_b = (co_b.size > 0 and co_b.ndim == 2 and co_b.shape == (co_a.shape[0], 1))
 
         if co_a.size == 0:
             is_set_co_a = False

@@ -22,7 +22,29 @@ import numpy as np
 import odatse
 
 class DomainBase:
+    """
+    Base class for domain management in the 2DMAT software.
+
+    Attributes
+    ----------
+    root_dir : Path
+        The root directory for the domain.
+    output_dir : Path
+        The output directory for the domain.
+    mpisize : int
+        The size of the MPI communicator.
+    mpirank : int
+        The rank of the MPI process.
+    """
     def __init__(self, info: odatse.Info = None):
+        """
+        Initializes the DomainBase instance.
+
+        Parameters
+        ----------
+        info : Info, optional
+            An instance of odatse.Info containing base directory information.
+        """
         if info:
             self.root_dir = info.base["root_dir"]
             self.output_dir = info.base["output_dir"]
@@ -32,4 +54,3 @@ class DomainBase:
 
         self.mpisize = odatse.mpi.size()
         self.mpirank = odatse.mpi.rank()
-            

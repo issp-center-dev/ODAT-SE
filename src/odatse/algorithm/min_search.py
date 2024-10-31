@@ -26,6 +26,9 @@ import odatse.domain
 
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
+    """
+    Algorithm class for performing minimization using the Nelder-Mead method.
+    """
 
     # inputs
     label_list: np.ndarray
@@ -54,6 +57,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                  domain = None,
                  run_mode: str = "initial"
     ) -> None:
+        """
+        Initialize the Algorithm class.
+
+        Parameters
+        ----------
+        info : Info
+            Information object containing algorithm settings.
+        runner : Runner
+            Runner object for submitting jobs.
+        domain :
+            Domain object defining the search space.
+        run_mode : str
+            Mode of running the algorithm.
+        """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         if domain and isinstance(domain, odatse.domain.Region):
@@ -80,6 +97,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._show_parameters()
 
     def _run(self) -> None:
+        """
+        Run the minimization algorithm.
+        """
         run = self.runner
 
         min_list = self.min_list
@@ -98,17 +118,38 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         if scipy_version[0] >= 1 and scipy_version[1] >= 11:
             def _cb(intermediate_result):
+                """
+                Callback function for scipy.optimize.minimize.
+                """
                 x = intermediate_result.x
                 fun = intermediate_result.fun
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
         else:
             def _cb(x):
+                """
+                Callback function for scipy.optimize.minimize.
+                """
                 fun = _f_calc(x, 1)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
+            """
+            Calculate the objective function value.
+
+            Parameters
+            ----------
+            x_list : np.ndarray
+                List of variables.
+            iset :
+                Set index.
+
+            Returns
+            -------
+            float
+                Objective function value.
+            """
             # check if within region -> boundary option in minimize
             # note: 'bounds' option supported in scipy >= 1.7.0
             in_range = np.all((min_list < x_list) & (x_list < max_list))
@@ -167,6 +208,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             self.mpicomm.barrier()
 
     def _prepare(self):
+        """
+        Prepare the initial simplex for the Nelder-Mead algorithm.
+        """
         # make initial simplex
         #   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]
         # where a = ( a_1 a_2 a_3 ... a_d ) and e_k is a unit vector along k-axis
@@ -175,6 +219,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.initial_simplex_list = np.vstack((v, v + np.diag(a)))
 
     def _output_results(self):
+        """
+        Output the results of the minimization to files.
+        """
         label_list = self.label_list
 
         with open("SimplexData.txt", "w") as fp:
@@ -195,6 +242,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             fp.write(f"function_evaluations = {self.funcalls}\n")
 
     def _post(self):
+        """
+        Post-process the results after minimization.
+        """
         result = {
             "x": self.xopt,
             "fx": self.fopt,

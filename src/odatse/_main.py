@@ -18,7 +18,14 @@ import sys
 import odatse
 
 def main():
+    """
+    Main function to run the data-analysis software for quantum beam diffraction experiments
+    on 2D material structures. It parses command-line arguments, loads the input file,
+    selects the appropriate algorithm and solver, and executes the analysis.
+    """
+
     info, run_mode = odatse.initialize()
+
     alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
 
     solvername = info.solver["name"]

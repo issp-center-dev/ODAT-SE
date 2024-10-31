@@ -13,8 +13,8 @@ In the future, we plan to add other direct problem solvers and search algorithms
 
 | Branch |                Build status                 |                                       Documentation                                       |
 | :----: | :-----------------------------------------: | :---------------------------------------------------------------------------------------: |
-| [master][source/master] (latest, stable) | [![master][ci/master/badge]][ci/master/uri] |        [![doc_en][doc/en/badge]][doc/master/en/uri] [![doc_ja][doc/ja/badge]][doc/master/ja/uri]        |
-| [develop][source/develop] (latest, unstable) |                     --                      | [![doc_en][doc/en/badge]][doc/develop/en/uri] [![doc_ja][doc/ja/badge]][doc/develop/ja/uri] |
+| [main][source/main] (latest, stable) | [![main][ci/main/badge]][ci/main/uri] |        [![doc_en][doc/en/badge]][doc/main/en/uri] [![doc_ja][doc/ja/badge]][doc/main/ja/uri]        |
+<!-- | [develop][source/develop] (latest, unstable) |                     --                      | [![doc_en][doc/en/badge]][doc/develop/en/uri] [![doc_ja][doc/ja/badge]][doc/develop/ja/uri] | -->
 
 ## odat-se
 
@@ -24,7 +24,7 @@ It also offers a driver script to solve the problem with predefined optimization
 ### Prerequists
 
 - Required
-  - python >= 3.6.8
+  - python >= 3.9
   - numpy >= 1.14
   - tomli >= 1.2.0
 - Optional
@@ -98,13 +98,13 @@ Bibtex:
 © *2020- The University of Tokyo. All rights reserved.*
 This software was developed with the support of "*Project for advancement of software usability in materials science*" of The Institute for Solid State Physics, The University of Tokyo.
 
-[source/master]: https://github.com/issp-center-dev/ODAT-SE/
+[source/main]: https://github.com/issp-center-dev/ODAT-SE/
 [source/develop]: https://github.com/issp-center-dev/ODAT-SE/tree/develop
-[ci/master/badge]: https://github.com/issp-center-dev/ODAT-SE/workflows/Test/badge.svg?branch=master
-[ci/master/uri]: https://github.com/issp-center-dev/ODAT-SE/actions?query=branch%3Amaster
+[ci/main/badge]: https://github.com/issp-center-dev/ODAT-SE/workflows/Test/badge.svg?branch=main
+[ci/main/uri]: https://github.com/issp-center-dev/ODAT-SE/actions?query=branch%3Amain
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
-[doc/master/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/master/en/index.html
-[doc/master/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/master/ja/index.html
+[doc/main/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/main/en/index.html
+[doc/main/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/main/ja/index.html
 [doc/develop/en/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/en/index.html
 [doc/develop/ja/uri]: https://issp-center-dev.github.io/ODAT-SE/manual/develop/ja/index.html

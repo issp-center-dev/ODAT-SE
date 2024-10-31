@@ -3,7 +3,7 @@ Installation of ODAT-SE
 
 Prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-- Python3 (>=3.6.8)
+- Python3 (>=3.9)
 
     - The following Python packages are required.
         - tomli >= 1.2
@@ -13,7 +13,7 @@ Prerequisites
 
         - mpi4py (required for grid search)
         - scipy (required for Nelder-Mead method)
-        - physbo (>=0.3, required for Baysian optimization)
+        - physbo (>=2.0, required for Baysian optimization)
 
 
 How to download and install
