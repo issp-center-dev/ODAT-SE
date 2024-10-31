@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - deploy_api_docs
       # - develop
       # - ghactions
       # - '*-autodoc'
@@ -36,6 +37,7 @@ jobs:
     - name: Prepare LaTeX env
       run: |
         sudo apt update
+          sudo apt install openmpi-bin libopenmpi-dev
         sudo apt install \
           texlive-latex-recommended texlive-latex-extra texlive-xetex \
           texlive-lang-japanese texlive-fonts-recommended texlive-fonts-extra latexmk
@@ -48,11 +50,10 @@ jobs:
 
     - name: Build
       run: |
-        for lang in ja en; do
-          cd ${GITHUB_WORKSPACE}/main/doc/${lang}
-          make html
-          make latexpdf
-        done
+        cd ${GITHUB_WORKSPACE}/main
+        python -m pip install '.[all]'
+        cd ${GITHUB_WORKSPACE}/main/doc
+        sh ./make.sh --latex
 
     - name: Deploy Configuration
       run: |
@@ -71,6 +72,8 @@ jobs:
           is_tag=NO
           TARGET_NAME="${TARGET_NAME%-autodoc}"
           test "_$(echo ${GITHUB_REF:-'//'} | cut -d/ -f2)" = "_tags" && is_tag=YES
+
+          # JA & EN manuals
           for lang in ja en; do
             rm -rf "gh-pages/manual/${TARGET_NAME}/${lang}"
             mkdir -p "gh-pages/manual/${TARGET_NAME}"
@@ -80,6 +83,12 @@ jobs:
               :
             fi
           done
+
+          # API manual
+          rm -rf "gh-pages/manual/${TARGET_NAME}/api"
+          mkdir -p "gh-pages/manual/${TARGET_NAME}"
+          cp -r "main/doc/api/build/html" "gh-pages/manual/${TARGET_NAME}/api"
+
           cd gh-pages
           git config --local user.name "${GIT_USER}"
           git config --local user.email "${GIT_EMAIL}"
