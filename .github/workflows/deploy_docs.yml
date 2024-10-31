@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-      - deploy_api_docs
       # - develop
       # - ghactions
       # - '*-autodoc'
       - '!gh-pages'
-    # tags: ['*']
+    tags: ['*']
 
 jobs:
   deploy:
