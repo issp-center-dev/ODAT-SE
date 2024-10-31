@@ -34,8 +34,168 @@
       <div class="content" role="main">
         
         
-  <section id="odatse-solver-analytical-module">
-<h1>odatse.solver.analytical module<a class="headerlink" href="#odatse-solver-analytical-module" title="Link to this heading">¶</a></h1>
+  <section id="module-odatse.solver.analytical">
+<span id="odatse-solver-analytical-module"></span><h1>odatse.solver.analytical module<a class="headerlink" href="#module-odatse.solver.analytical" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.solver.analytical.Solver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">Solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/solver/analytical.html#Solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.Solver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.solver.function.html#odatse.solver.function.Solver" title="odatse.solver.function.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></p>
+<p>Function Solver with pre-defined benchmark functions</p>
+<p>Initialize the solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info</strong> (<a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><em>Info</em></a>) – Information object containing solver configuration.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.solver.analytical.Solver.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#Solver.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.Solver.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info</strong> (<a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><em>Info</em></a>) – Information object containing solver configuration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.solver.analytical.Solver._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.solver.analytical.Solver._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.solver.analytical.Solver.fx">
+<span class="sig-name descname"><span class="pre">fx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#odatse.solver.analytical.Solver.fx" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.solver.analytical.Solver.x">
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.solver.analytical.Solver.x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.ackley">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">ackley</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#ackley"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.ackley" title="Link to this definition">¶</a></dt>
+<dd><p>Ackley’s function in arbitrary dimension</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated value of Ackley’s function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>It has one global minimum f(xs)=0 at xs=[0,0,…,0].
+It has many local minima.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.himmelblau">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">himmelblau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#himmelblau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.himmelblau" title="Link to this definition">¶</a></dt>
+<dd><p>Himmelblau’s function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array of shape (2,).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated value of Himmelblau’s function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>It has four global minima f(xs) = 0 at
+xs=[3,2], [-2.805118…, 3.131312…], [-3.779310…, -3.2831860], and [3.584428…, -1.848126…].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.linear_regression_test">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">linear_regression_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#linear_regression_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.linear_regression_test" title="Link to this definition">¶</a></dt>
+<dd><p>Negative log likelihood of linear regression with Gaussian noise N(0,sigma)</p>
+<p>y = ax + b</p>
+<p>trained by xdata = [1, 2, 3, 4, 5, 6] and ydata = [1, 3, 2, 4, 3, 5].</p>
+<p>Model parameters (a, b, sigma) are corresponding to xs as the following,
+a = xs[0], b = xs[1], log(sigma**2) = xs[2]</p>
+<p>It has a global minimum f(xs) = 1.005071.. at
+xs = [0.628571…, 0.8, -0.664976…].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array of model parameters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The negative log likelihood of the linear regression model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.quadratics">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">quadratics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#quadratics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.quadratics" title="Link to this definition">¶</a></dt>
+<dd><p>Quadratic (sphere) function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated value of the quadratic function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>It has one global minimum f(xs)=0 at xs = [0,0,…,0].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.quartics">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">quartics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#quartics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.quartics" title="Link to this definition">¶</a></dt>
+<dd><p>Quartic function with two global minima.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated value of the quartic function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>It has two global minima f(xs)=0 at xs = [1,1,…,1] and [0,0,…,0].
+It has one saddle point f(0,0,…,0) = 1.0.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.solver.analytical.rosenbrock">
+<span class="sig-prename descclassname"><span class="pre">odatse.solver.analytical.</span></span><span class="sig-name descname"><span class="pre">rosenbrock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/analytical.html#rosenbrock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.analytical.rosenbrock" title="Link to this definition">¶</a></dt>
+<dd><p>Rosenbrock’s function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xs</strong> (<em>np.ndarray</em>) – Input array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated value of Rosenbrock’s function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>It has one global minimum f(xs) = 0 at xs=[1,1,…,1].</p>
+</dd></dl>
+
 </section>
 
 
