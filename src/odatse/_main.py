@@ -14,6 +14,11 @@ import odatse.util.toml
 
 
 def main():
+    """
+    Main function to run the data-analysis software for quantum beam diffraction experiments
+    on 2D material structures. It parses command-line arguments, loads the input file,
+    selects the appropriate algorithm and solver, and executes the analysis.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

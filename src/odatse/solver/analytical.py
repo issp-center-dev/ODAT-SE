@@ -11,28 +11,64 @@ import numpy as np
 import odatse
 import odatse.solver.function
 
-
 def quadratics(xs: np.ndarray) -> float:
-    """quadratic (sphear) function
+    """
+    Quadratic (sphere) function.
 
-    It has one global miminum f(xs)=0 at xs = [0,0,...,0].
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array.
+
+    Returns
+    -------
+    float
+        The calculated value of the quadratic function.
+
+    Notes
+    -----
+    It has one global minimum f(xs)=0 at xs = [0,0,...,0].
     """
     return np.sum(xs * xs)
 
-
 def quartics(xs: np.ndarray) -> float:
-    """quartic function with two minimum
-
-    It has two global minimum f(xs)=0 at xs = [1,1,...,1] and [0,0,...,0].
-    It has one suddle point f(0,0,...,0) = 1.0.
     """
+    Quartic function with two global minima.
 
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array.
+
+    Returns
+    -------
+    float
+        The calculated value of the quartic function.
+
+    Notes
+    -----
+    It has two global minima f(xs)=0 at xs = [1,1,...,1] and [0,0,...,0].
+    It has one saddle point f(0,0,...,0) = 1.0.
+    """
     return np.mean((xs - 1.0) ** 2) * np.mean((xs + 1.0) ** 2)
 
 
 def ackley(xs: np.ndarray) -> float:
-    """Ackley's function in arbitrary dimension
+    """
+    Ackley's function in arbitrary dimension
 
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array.
+
+    Returns
+    -------
+    float
+        The calculated value of Ackley's function.
+
+    Notes
+    -----
     It has one global minimum f(xs)=0 at xs=[0,0,...,0].
     It has many local minima.
     """
@@ -42,18 +78,42 @@ def ackley(xs: np.ndarray) -> float:
     b = np.exp(0.5 * np.sum(b))
     return 20.0 + np.exp(1.0) - a - b
 
-
 def rosenbrock(xs: np.ndarray) -> float:
-    """Rosenbrock's function
+    """
+    Rosenbrock's function.
 
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array.
+
+    Returns
+    -------
+    float
+        The calculated value of Rosenbrock's function.
+
+    Notes
+    -----
     It has one global minimum f(xs) = 0 at xs=[1,1,...,1].
     """
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2)
 
-
 def himmelblau(xs: np.ndarray) -> float:
-    """Himmelblau's function
+    """
+    Himmelblau's function.
 
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array of shape (2,).
+
+    Returns
+    -------
+    float
+        The calculated value of Himmelblau's function.
+
+    Notes
+    -----
     It has four global minima f(xs) = 0 at
     xs=[3,2], [-2.805118..., 3.131312...], [-3.779310..., -3.2831860], and [3.584428..., -1.848126...].
     """
@@ -63,9 +123,9 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
-
 def linear_regression_test(xs: np.ndarray) -> float:
-    """ Negative log likelihood of linear regression with Gaussian noise N(0,sigma)
+    """
+    Negative log likelihood of linear regression with Gaussian noise N(0,sigma)
 
     y = ax + b
 
@@ -75,7 +135,17 @@ def linear_regression_test(xs: np.ndarray) -> float:
     a = xs[0], b = xs[1], log(sigma**2) = xs[2]
 
     It has a global minimum f(xs) = 1.005071.. at
-    xs = [0.628571..., 0.8, -0.664976...].    
+    xs = [0.628571..., 0.8, -0.664976...].
+
+    Parameters
+    ----------
+    xs : np.ndarray
+        Input array of model parameters.
+
+    Returns
+    -------
+    float
+        The negative log likelihood of the linear regression model.
     """
     if xs.shape[0] != 3:
         raise RuntimeError(
@@ -90,7 +160,6 @@ def linear_regression_test(xs: np.ndarray) -> float:
         n * xs[2] + np.sum((xs[0] * xdata + xs[1] - ydata) ** 2) / np.exp(xs[2])
     )
 
-
 class Solver(odatse.solver.function.Solver):
     """Function Solver with pre-defined benchmark functions"""
 
@@ -104,6 +173,7 @@ class Solver(odatse.solver.function.Solver):
         Parameters
         ----------
         info: Info
+            Information object containing solver configuration.
         """
         super().__init__(info)
         self._name = "analytical"

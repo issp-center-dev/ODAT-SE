@@ -73,6 +73,18 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                  runner: odatse.Runner = None,
                  run_mode: str = "initial"
     ) -> None:
+        """
+        Initialize the Algorithm class.
+
+        Parameters
+        ----------
+        info : odatse.Info
+            Information object containing algorithm parameters.
+        runner : odatse.Runner, optional
+            Runner object for executing the algorithm.
+        run_mode : str, optional
+            Mode to run the algorithm in, by default "initial".
+        """
         time_sta = time.perf_counter()
 
         info_exchange = info.algorithm["exchange"]
@@ -89,12 +101,18 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.timer["init"]["total"] = time_end - time_sta
 
     def _print_info(self) -> None:
+        """
+        Print information about the algorithm.
+        """
         if self.mpirank == 0:
             pass
         if self.mpisize > 1:
             self.mpicomm.barrier()
 
     def _initialize(self) -> None:
+        """
+        Initialize the algorithm parameters and state.
+        """
         super()._initialize()
 
         self.Tindex = np.arange(
@@ -109,6 +127,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._show_parameters()
 
     def _run(self) -> None:
+        """
+        Run the algorithm.
+        """
         # print(">>> _run")
 
         if self.mode is None:
@@ -188,13 +209,28 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._save_state(self.checkpoint_file)
 
     def _exchange(self, direction: bool) -> None:
-        """try to exchange temperatures"""
+        """
+        Try to exchange temperatures.
+
+        Parameters
+        ----------
+        direction : bool
+            Direction of the exchange.
+        """
         if self.nwalkers == 1:
             self.__exchange_single_walker(direction)
         else:
             self.__exchange_multi_walker(direction)
 
     def __exchange_single_walker(self, direction: bool) -> None:
+        """
+        Exchange temperatures for a single walker.
+
+        Parameters
+        ----------
+        direction : bool
+            Direction of the exchange.
+        """
         if self.mpisize > 1:
             self.mpicomm.Barrier()
         if direction:
@@ -248,6 +284,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.mpicomm.Bcast(self.T2rep, root=0)
 
     def __exchange_multi_walker(self, direction: bool) -> None:
+        """
+        Exchange temperatures for multiple walkers.
+
+        Parameters
+        ----------
+        direction : bool
+            Direction of the exchange.
+        """
         comm = self.mpicomm
         if self.mpisize > 1:
             fx_all = comm.allgather(self.fx)
@@ -292,10 +336,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         ]
 
     def _prepare(self) -> None:
+        """
+        Prepare the algorithm for execution.
+        """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
     def _post(self) -> None:
+        """
+        Post-process the results of the algorithm.
+        """
         Ts = self.betas if self.input_as_beta else 1.0 / self.betas
         if self.mpirank == 0:
             print(f"start separateT {self.mpirank}")
@@ -352,6 +402,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         }
 
     def _save_state(self, filename) -> None:
+        """
+        Save the current state of the algorithm.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to save the state to.
+        """
         data = {
             #-- _algorithm
             "mpisize": self.mpisize,
@@ -380,6 +438,18 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._save_data(data, filename)
 
     def _load_state(self, filename, mode="resume", restore_rng=True):
+        """
+        Load the state of the algorithm from a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to load the state from.
+        mode : str, optional
+            The mode to load the state in, by default "resume".
+        restore_rng : bool, optional
+            Whether to restore the random number generator state, by default True.
+        """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
@@ -419,4 +489,3 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.rep2T = data["rep2T"]
         self.T2rep = data["T2rep"]
         self.exchange_direction = data["exchange_direction"]
-

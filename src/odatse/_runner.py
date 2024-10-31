@@ -26,14 +26,16 @@ from . import mpi
 class Run(metaclass=ABCMeta):
     def __init__(self, nprocs=None, nthreads=None, comm=None):
         """
+        Initialize the Run class.
+
         Parameters
         ----------
         nprocs : int
-            Number of process which one solver uses
+            Number of processes which one solver uses.
         nthreads : int
-            Number of threads which one solver process uses
+            Number of threads which one solver process uses.
         comm : MPI.Comm
-            MPI Communicator
+            MPI Communicator.
         """
         self.nprocs = nprocs
         self.nthreads = nthreads
@@ -41,6 +43,14 @@ class Run(metaclass=ABCMeta):
 
     @abstractmethod
     def submit(self, solver):
+        """
+        Abstract method to submit a solver.
+
+        Parameters
+        ----------
+        solver : object
+            Solver object to be submitted.
+        """
         pass
 
 
@@ -54,10 +64,18 @@ class Runner(object):
                  mapping = None,
                  limitation = None) -> None:
         """
+        Initialize the Runner class.
 
         Parameters
         ----------
-        Solver: odatse.solver.SolverBase object
+        solver : odatse.solver.SolverBase
+            Solver object.
+        info : Optional[odatse.Info]
+            Information object.
+        mapping : object, optional
+            Mapping object.
+        limitation : object, optional
+            Limitation object.
         """
         self.solver = solver
         self.solver_name = solver.name
@@ -72,7 +90,7 @@ class Runner(object):
         else:
             # trivial mapping
             self.mapping = odatse.util.mapping.TrivialMapping()
-        
+
         if limitation is not None:
             self.limitation = limitation
         elif "limitation" in info.runner:
@@ -82,11 +100,38 @@ class Runner(object):
             self.limitation = odatse.util.limitation.Unlimited()
 
     def prepare(self, proc_dir: Path):
+        """
+        Prepare the logger with the given process directory.
+
+        Parameters
+        ----------
+        proc_dir : Path
+            Path to the process directory.
+        """
         self.logger.prepare(proc_dir)
 
     def submit(
             self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1
     ) -> float:
+        """
+        Submit the solver with the given parameters.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array.
+        args : tuple, optional
+            Additional arguments.
+        nprocs : int, optional
+            Number of processes.
+        nthreads : int, optional
+            Number of threads.
+
+        Returns
+        -------
+        float
+            Result of the solver evaluation.
+        """
         if self.limitation.judge(x):
             xp = self.mapping(x)
             result = self.solver.evaluate(xp, args)
@@ -96,4 +141,7 @@ class Runner(object):
         return result
 
     def post(self) -> None:
+        """
+        Write the logger data.
+        """
         self.logger.write()

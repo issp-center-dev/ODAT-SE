@@ -85,11 +85,26 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     naccepted: int
 
     def __init__(self, info: odatse.Info,
-                 runner: odatse.Runner = None,
-                 domain = None,
-                 nwalkers: int = 1,
-                 run_mode: str = "initial"
-    ) -> None:
+             runner: odatse.Runner = None,
+             domain = None,
+             nwalkers: int = 1,
+             run_mode: str = "initial") -> None:
+        """
+        Initialize the AlgorithmBase class.
+
+        Parameters
+        ----------
+        info : odatse.Info
+            Information object containing algorithm parameters.
+        runner : odatse.Runner, optional
+            Runner object for executing the algorithm (default is None).
+        domain : optional
+            Domain object defining the problem space (default is None).
+        nwalkers : int, optional
+            Number of walkers (default is 1).
+        run_mode : str, optional
+            Mode of the run, e.g., "initial" (default is "initial").
+        """
         time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
@@ -138,6 +153,13 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.input_as_beta = False
 
     def _initialize(self):
+        """
+        Initialize the algorithm state.
+
+        This method sets up the initial state of the algorithm, including the
+        positions and energies of the walkers, and resets the counters for
+        accepted and trial steps.
+        """
         if self.iscontinuous:
             self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=self.nwalkers)
             self.x = self.domain.initial_list
@@ -154,6 +176,21 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.ntrial = 0
 
     def _setup_neighbour(self, info_param):
+        """
+        Set up the neighbor list for the discrete problem.
+
+        Parameters
+        ----------
+        info_param : dict
+            Dictionary containing algorithm parameters, including the path to the neighbor list file.
+
+        Raises
+        ------
+        ValueError
+            If the neighbor list path is not specified in the parameters.
+        RuntimeError
+            If the transition graph made from the neighbor list is not connected or not bidirectional.
+        """
         if "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
             self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
@@ -176,16 +213,22 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             )
             # otherwise find neighbourlist
 
-    def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
-        """evaluate current "Energy"s
 
-        ``self.fx`` will be overwritten with the result
+    def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
+        """
+        Evaluate the current "Energy"s.
+
+        This method overwrites `self.fx` with the result.
 
         Parameters
-        ==========
-        run_info: dict
-            Parameter set.
-            Some parameters will be overwritten.
+        ----------
+        in_range : np.ndarray, optional
+            Array indicating whether each walker is within the valid range (default is None).
+
+        Returns
+        -------
+        np.ndarray
+            Array of evaluated energies for the current configurations.
         """
         # print(">>> _evaluate")
         for iwalker in range(self.nwalkers):
@@ -202,17 +245,18 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         return self.fx
 
     def propose(self, current: np.ndarray) -> np.ndarray:
-        """propose next candidate
+        """
+        Propose the next candidate positions for the walkers.
 
         Parameters
-        ==========
-        current: np.ndarray
-            current position
+        ----------
+        current : np.ndarray
+            Current positions of the walkers.
 
         Returns
-        =======
-        proposed: np.ndarray
-            proposal
+        -------
+        proposed : np.ndarray
+            Proposed new positions for the walkers.
         """
         if self.iscontinuous:
             dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
@@ -229,10 +273,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
     ):
-        """one step of Monte Carlo
+        """
+        one step of Monte Carlo
 
         Parameters
-        ==========
+        ----------
         beta: np.ndarray
             inverse temperature for each walker
         file_trial: TextIO
@@ -305,6 +350,16 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
     def _write_result_header(self, fp, extra_names=None) -> None:
+        """
+        Write the header for the result file.
+
+        Parameters
+        ----------
+        fp : TextIO
+            File pointer to the result file.
+        extra_names : list of str, optional
+            Additional column names to include in the header.
+        """
         if self.input_as_beta:
             fp.write("# step walker beta fx")
         else:
@@ -317,6 +372,16 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         fp.write("\n")
 
     def _write_result(self, fp, extra_info_to_write: Union[List, Tuple] = None) -> None:
+        """
+        Write the result of the current step to the file.
+
+        Parameters
+        ----------
+        fp : TextIO
+            File pointer to the result file.
+        extra_info_to_write : Union[List, Tuple], optional
+            Additional information to write for each walker (default is None).
+        """
         for iwalker in range(self.nwalkers):
             if isinstance(self.Tindex, int):
                 beta = self.betas[self.Tindex]
@@ -336,16 +401,31 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                     fp.write(f" {ex[iwalker]}")
             fp.write("\n")
         fp.flush()
-
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
+    Read temperature or inverse-temperature values from the provided info dictionary.
+
+    Parameters
+    ----------
+    info : dict
+        Dictionary containing temperature or inverse-temperature parameters.
+    numT : int, optional
+        Number of temperature or inverse-temperature values to generate (default is None).
 
     Returns
     -------
-    as_beta: bool
-        true when using inverse-temperature
-    betas: np.ndarray
-        sequence of inverse-temperature
+    as_beta : bool
+        True if using inverse-temperature, False if using temperature.
+    betas : np.ndarray
+        Sequence of inverse-temperature values.
+
+    Raises
+    ------
+    ValueError
+        If numT is not specified, or if both Tmin/Tmax and bmin/bmax are defined, or if neither are defined,
+        or if bmin/bmax or Tmin/Tmax values are invalid.
+    RuntimeError
+        If the mode is unknown (neither set_T nor set_b).
     """
     if numT is None:
         raise ValueError("read_Ts: numT is not specified")

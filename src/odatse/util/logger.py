@@ -23,6 +23,10 @@ from typing import List, Dict, Any, Optional
 #   write_result
 
 class Logger:
+    """
+    Logger class to handle logging of calls, elapsed time, and optionally input and result data.
+    """
+
     logfile: Path
     buffer_size: int
     buffer: List[str]
@@ -40,7 +44,26 @@ class Logger:
                  write_result: bool = False,
                  params: Optional[Dict[str,Any]] = None,
                  **rest) -> None:
+        """
+        Initialize the Logger.
 
+        Parameters
+        ----------
+        info : Info, optional
+            Information object containing logging parameters.
+        buffer_size : int
+            Size of the buffer before writing to the log file.
+        filename : str
+            Name of the log file.
+        write_input : bool
+            Flag to indicate if input should be logged.
+        write_result : bool
+            Flag to indicate if result should be logged.
+        params : Dict[str,Any]], optional
+            Additional parameters for logging.
+        **rest
+            Additional keyword arguments.
+        """
         if info is not None:
             info_log = info.runner.get("log", {})
         else:
@@ -57,9 +80,25 @@ class Logger:
         self.buffer = []
 
     def is_active(self) -> bool:
+        """
+        Check if logging is active.
+
+        Returns
+        -------
+        bool
+            True if logging is active, False otherwise.
+        """
         return self.buffer_size > 0
 
     def prepare(self, proc_dir: Path) -> None:
+        """
+        Prepare the log file for writing.
+
+        Parameters
+        ----------
+        proc_dir : Path
+            Directory where the log file will be created.
+        """
         if not self.is_active():
             return
 
@@ -78,6 +117,18 @@ class Logger:
             f.write("\n")
 
     def count(self, x: np.ndarray, args, result: float) -> None:
+        """
+        Log a call with input and result data.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input data.
+        args :
+            Additional arguments.
+        result : float
+            Result data.
+        """
         if not self.is_active():
             return
 
@@ -102,6 +153,9 @@ class Logger:
             self.write()
 
     def write(self) -> None:
+        """
+        Write the buffered log entries to the log file.
+        """
         if not self.is_active():
             return
         with open(self.logfile, "a") as f:

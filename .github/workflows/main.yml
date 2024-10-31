@@ -6,21 +6,14 @@ jobs:
   main:
     strategy:
       matrix:
-        # Python 3.6 is not supported on Ubuntu 22.04
-        os: ['ubuntu-22.04', 'ubuntu-20.04']
-        python-version: ['3.6', '3.9', '3.12']
+        # os: ['ubuntu-22.04']
+        python-version: ['3.9', '3.12']
         sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform]
-        exclude:
-          - os: 'ubuntu-22.04'
-            python-version: '3.6'
-          - os: 'ubuntu-20.04'
-            python-version: '3.9'
-          - os: 'ubuntu-20.04'
-            python-version: '3.12'
       fail-fast: false
 
     name: ${{ matrix.sample }} with Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-22.04'
+    # runs-on: ${{ matrix.os }}
     timeout-minutes: 10
 
     steps:

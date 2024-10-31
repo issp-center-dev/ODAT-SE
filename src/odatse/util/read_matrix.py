@@ -12,6 +12,24 @@ import numpy as np
 
 
 def read_vector(inp: Union[str, List[float]]) -> np.ndarray:
+    """
+    Converts an input string or list of floats into a numpy array vector.
+
+    Parameters
+    ----------
+    inp : Union[str, List[float]]
+        Input data, either as a space-separated string of numbers or a list of floats.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array representing the vector.
+
+    Raises
+    ------
+    RuntimeError
+        If the input is not a vector.
+    """
     if isinstance(inp, str):
         vlist = [float(w) for w in inp.split()]
     else:
@@ -22,8 +40,25 @@ def read_vector(inp: Union[str, List[float]]) -> np.ndarray:
         raise RuntimeError(msg)
     return v
 
-
 def read_matrix(inp: Union[str, List[List[float]]]) -> np.ndarray:
+    """
+    Converts an input string or list of lists of floats into a numpy array matrix.
+
+    Parameters
+    ----------
+    inp : Union[str, List[List[float]]]
+        Input data, either as a string with rows of space-separated numbers or a list of lists of floats.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array representing the matrix.
+
+    Raises
+    ------
+    RuntimeError
+        If the input is not a matrix.
+    """
     if isinstance(inp, str):
         Alist: List[List[float]] = []
         for line in inp.split("\n"):
