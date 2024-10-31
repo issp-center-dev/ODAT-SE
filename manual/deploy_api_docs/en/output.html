@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Output files &#8212; ODAT-SE 3.0-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Search algorithms" href="algorithm/index.html" />
+    <link rel="prev" title="Input file" href="input.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
+        <h2 class="heading"><span>Output files</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="input.html">Input file</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm/index.html">Search algorithms</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="output-files">
+<h1>Output files<a class="headerlink" href="#output-files" title="Link to this heading">¶</a></h1>
+<p>See <a class="reference internal" href="solver/index.html"><span class="doc">Direct Problem Solver</span></a> and <a class="reference internal" href="algorithm/index.html"><span class="doc">Search algorithms</span></a> for the output files of each <code class="docutils literal notranslate"><span class="pre">Solver</span></code> and <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>.</p>
+<section id="common-file">
+<h2>Common file<a class="headerlink" href="#common-file" title="Link to this heading">¶</a></h2>
+<section id="time-log">
+<h3><code class="docutils literal notranslate"><span class="pre">time.log</span></code><a class="headerlink" href="#time-log" title="Link to this heading">¶</a></h3>
+<p>The total time taken for the calculation for each MPI rank is outputted.
+These files will be output under the subfolders of each rank respectively.
+The time taken to pre-process the calculation, the time taken to compute, and the time taken to post-process the calculation are listed in the <code class="docutils literal notranslate"><span class="pre">prepare</span></code> , <code class="docutils literal notranslate"><span class="pre">run</span></code> , and <code class="docutils literal notranslate"><span class="pre">post</span></code> sections.</p>
+<p>The following is an example of the output.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#prepare</span>
+ <span class="n">total</span> <span class="o">=</span> <span class="mf">0.007259890999989693</span>
+<span class="c1">#run</span>
+ <span class="n">total</span> <span class="o">=</span> <span class="mf">1.3493346729999303</span>
+ <span class="o">-</span> <span class="n">file_CM</span> <span class="o">=</span> <span class="mf">0.0009563499997966574</span>
+ <span class="o">-</span> <span class="n">submit</span> <span class="o">=</span> <span class="mf">1.3224223930001244</span>
+<span class="c1">#post</span>
+ <span class="n">total</span> <span class="o">=</span> <span class="mf">0.000595873999941432</span>
+</pre></div>
+</div>
+</section>
+<section id="runner-log">
+<h3><code class="docutils literal notranslate"><span class="pre">runner.log</span></code><a class="headerlink" href="#runner-log" title="Link to this heading">¶</a></h3>
+<p>The log information about solver calls for each MPI rank is outputted.
+These files will be output under the subfolder of each rank.
+The output is only available when the <code class="docutils literal notranslate"><span class="pre">runner.log.interval</span></code> parameter is a positive integer in the input.</p>
+<ul class="simple">
+<li><p>The first column is the serial number of the solver call.</p></li>
+<li><p>The second column is the time elapsed since the last solver call.</p></li>
+<li><p>The third column is the time elapsed since the start of the calculation.</p></li>
+</ul>
+<p>The following is an example of the output.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: num_calls</span>
+<span class="c1"># $2: elapsed_time_from_last_call</span>
+<span class="c1"># $3: elapsed_time_from_start</span>
+
+<span class="mi">1</span> <span class="mf">0.0010826379999999691</span> <span class="mf">0.0010826379999999691</span>
+<span class="mi">2</span> <span class="mf">6.96760000000185e-05</span> <span class="mf">0.0011523139999999876</span>
+<span class="mi">3</span> <span class="mf">9.67080000000009e-05</span> <span class="mf">0.0012490219999999885</span>
+<span class="mi">4</span> <span class="mf">0.00011765699999999324</span> <span class="mf">0.0013666789999999818</span>
+<span class="mi">5</span> <span class="mf">4.965899999997969e-05</span> <span class="mf">0.0014163379999999615</span>
+<span class="mi">6</span> <span class="mf">8.666900000003919e-05</span> <span class="mf">0.0015030070000000006</span>
+   <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="status-pickle">
+<h3><code class="docutils literal notranslate"><span class="pre">status.pickle</span></code><a class="headerlink" href="#status-pickle" title="Link to this heading">¶</a></h3>
+<p>If <code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint</span></code> is set to true, the intermediate states are stored to <code class="docutils literal notranslate"><span class="pre">status.pickle</span></code> (or the filename specified by the <code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint_file</span></code> parameter) for each MPI process in its subfolder.
+They are read when the execution is resumed.
+The content of the file depends on the algorithm.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="input.html">Input file</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm/index.html">Search algorithms</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

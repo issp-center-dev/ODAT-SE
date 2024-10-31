@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Nelder-Mead法による最適化 &#8212; ODAT-SE 3.0-dev ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="グリッド型探索" href="mapper.html" />
+    <link rel="prev" title="解析関数の最小化問題" href="intro.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
+        <h2 class="heading"><span>Nelder-Mead法による最適化</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="intro.html">解析関数の最小化問題</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mapper.html">グリッド型探索</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="nelder-mead">
+<h1>Nelder-Mead法による最適化<a class="headerlink" href="#nelder-mead" title="Link to this heading">¶</a></h1>
+<p>ここでは、Nelder-Mead法を用いて Himmelblau関数の最小値を探索する方法について説明します。
+具体的な計算手順は以下の通りです。</p>
+<ol class="arabic">
+<li><p>入力ファイルを用意する</p>
+<p>入力パラメータをTOML形式で記述した入力ファイルを作成します。</p>
+</li>
+<li><p>メインプログラムを実行する</p>
+<p><code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> を用いて計算を実行し、最適化問題を解きます。</p>
+</li>
+</ol>
+<section id="id1">
+<h2>サンプルファイルの場所<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/analytical/minsearch</span></code> にあります。
+フォルダには以下のファイルが格納されています。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>メインプログラムの入力ファイル</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>本チュートリアルを一括計算するために準備されたスクリプト</p>
+</li>
+</ul>
+<p>また、計算結果を可視化するために <code class="docutils literal notranslate"><span class="pre">sample</span></code> フォルダ内の <code class="docutils literal notranslate"><span class="pre">plot_himmel.py</span></code> を利用します。</p>
+</section>
+<section id="id2">
+<h2>入力ファイルの説明<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> を作成します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
+<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;minsearch&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">initial_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code> セクションではプログラム全体で利用するパラメータを設定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code> は最適化したい変数の個数です。Himmelblau関数は 2変数関数ですので、今の場合は <code class="docutils literal notranslate"><span class="pre">2</span></code> を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> は出力先のディレクトリを指定します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションではメインプログラムの内部で使用するソルバーとその設定を指定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用するソルバーの名前です。このチュートリアルでは <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーに含まれる解析関数の解析を行います。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">function_name</span></code> は <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバー内の関数名を指定します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> セクションでは、逆問題解析アルゴリズムからソルバーの呼び出しに関する設定を行います。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[runner.log]</span></code> の <code class="docutils literal notranslate"><span class="pre">interval</span></code> は、ログ出力の頻度を指定します。 <code class="docutils literal notranslate"><span class="pre">interval</span></code> 回の繰り返し毎にログを出力します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションでは、使用するアルゴリスムとその設定をします。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用するアルゴリズムの名前です。このチュートリアルでは、Nelder-Mead法 を用いた解析を行うので、 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> は乱数の初期値を指定します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクションでは、探索するパラメータの範囲や初期値を指定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> と <code class="docutils literal notranslate"><span class="pre">max_list</span></code> はそれぞれ探索範囲の最小値と最大値を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code> は初期値を指定します。</p></li>
+</ul>
+<p>ここではデフォルト値を用いるため省略しましたが、その他のパラメータ、例えばNelder-Mead法で使用する収束判定などについては、<code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションで行うことが可能です。
+詳細については「入力ファイル」の章を参照してください。</p>
+</section>
+<section id="id3">
+<h2>計算の実行<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>最初にサンプルファイルが置いてあるフォルダへ移動します。(以下では、ODAT-SE パッケージをダウンロードしたディレクトリの直下にいることを仮定します。)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/minsearch
+</pre></div>
+</div>
+<p>メインプログラムを実行します。計算時間は通常のPCで数秒程度で終わります。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>実行すると、以下の様な出力がされます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Optimization</span> <span class="n">terminated</span> <span class="n">successfully</span><span class="o">.</span>
+         <span class="n">Current</span> <span class="n">function</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.000000</span>
+         <span class="n">Iterations</span><span class="p">:</span> <span class="mi">40</span>
+         <span class="n">Function</span> <span class="n">evaluations</span><span class="p">:</span> <span class="mi">79</span>
+<span class="n">iteration</span><span class="p">:</span> <span class="mi">40</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">allvecs</span><span class="p">):</span> <span class="mi">41</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.</span> <span class="mf">0.</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.375</span> <span class="mf">0.375</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.0625</span> <span class="mf">0.9375</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">3</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.65625</span> <span class="mf">1.46875</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">4</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.328125</span> <span class="mf">2.859375</span><span class="p">]</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> に各ステップでの候補パラメータと、その時の関数値が出力されます。
+最終的に推定されたパラメータは <code class="docutils literal notranslate"><span class="pre">output/res.dat</span></code> に出力されます。今の場合、</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="mf">4.2278370361994904e-08</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="mf">2.9999669562950175</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="mf">1.9999973389336225</span>
+</pre></div>
+</div>
+<p>が得られ、最小値を与える解の一つが求められたことが分かります。</p>
+</section>
+<section id="id4">
+<h2>計算結果の可視化<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>Nelder-Mead法による解の探索の経路は <code class="docutils literal notranslate"><span class="pre">output/SimplexData.txt</span></code> に出力されています。
+これをプロットするツールが <code class="docutils literal notranslate"><span class="pre">sample/plot_himmel.py</span></code> に用意されています。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/SimplexData.txt
+</pre></div>
+</div>
+<p>上記を実行すると <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> が出力されます。</p>
+<figure class="align-default" id="id5">
+<img alt="../_images/res_minsearch.png" src="../_images/res_minsearch.png" />
+<figcaption>
+<p><span class="caption-text">Nelder-Mead法を用いた Himmelblau 関数の最小値探索。黒線は Himmelblau関数の関数値を表す等高線、青色のシンボルは探索経路。</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Himmelblau関数の関数値を表す等高線の上に Nelder-Mead法による探索の経路がプロットされます。初期値 <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0)</span></code> からスタートして最小値を与える解の一つ <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">2)</span></code> に到達していることが分かります。</p>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="intro.html">解析関数の最小化問題</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mapper.html">グリッド型探索</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

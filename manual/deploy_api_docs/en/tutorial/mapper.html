@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Grid search &#8212; ODAT-SE 3.0-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Optimization by Bayesian Optimization" href="bayes.html" />
+    <link rel="prev" title="Optimization by Nelder-Mead method" href="minsearch.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
+        <h2 class="heading"><span>Grid search</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Optimization by Nelder-Mead method</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="bayes.html">Optimization by Bayesian Optimization</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="grid-search">
+<h1>Grid search<a class="headerlink" href="#grid-search" title="Link to this heading">¶</a></h1>
+<p>In this section, we will explain how to perform a grid-type search and analyze the minimization problem of Himmelblau function.
+The grid type search is compatible with MPI. The specific calculation procedure is the same as for <code class="docutils literal notranslate"><span class="pre">minsearch</span></code>.
+The search grid is generated within the program from the input parameters, instead of passing the predefined <code class="docutils literal notranslate"><span class="pre">MeshData.txt</span></code> to the program.</p>
+<section id="location-of-the-sample-files">
+<h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Link to this heading">¶</a></h2>
+<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/analytical/mapper</span></code>.
+The following files are stored in the folder</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>Input file of the main program.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_colormap_2d.py</span></code></p>
+<p>Program to visualize the calculation results.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>Script prepared for bulk calculation of this tutorial.</p>
+</li>
+</ul>
+</section>
+<section id="input-file">
+<h2>Input file<a class="headerlink" href="#input-file" title="Link to this heading">¶</a></h2>
+<p>This section describes the input file for the main program, <code class="docutils literal notranslate"><span class="pre">input.toml</span></code>.
+The details of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> can be found in the input file section of the manual.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
+<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mapper&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">num_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">31</span><span class="p">,</span> <span class="mi">31</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The contents of <code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code>, and <code class="docutils literal notranslate"><span class="pre">[runner]</span></code> sections are the same as those for the search by the Nelder-Mead method (<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section specifies the algorithm to use and its settings.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the algorithm you want to use. In this tutorial we will use <code class="docutils literal notranslate"><span class="pre">mapper</span></code> since we will be using grid-search method.</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section, the parameters for the search grid are specified.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> are the minimum and the maximum values of each parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code> specifies the number of grid points along each parameter.</p></li>
+</ul>
+<p>For details on other parameters that are assumed by the default values in this tutorial and can be specified in the input file, please see the Input File chapter.</p>
+</section>
+<section id="calculation-execution">
+<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Link to this heading">¶</a></h2>
+<p>First, move to the folder where the sample files are located. (We assume that you are directly under the directory where you downloaded this software.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/minsearch
+</pre></div>
+</div>
+<p>The, run the main program. The computation time takes only a few seconds on a normal PC.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>Here, the calculation using MPI parallel with 4 processes will be done.
+When executed, a folder for each rank will be created under <code class="docutils literal notranslate"><span class="pre">output</span></code> directory, and the calculation results of each rank will be written.
+The standard output will be seen like this.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Make</span> <span class="n">ColorMap</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">2</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">3</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">4</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">5</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">6</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">7</span><span class="o">/</span><span class="mi">240</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Finally, the function values calculated for all the points on the grid will be written to <code class="docutils literal notranslate"><span class="pre">output/ColorMap.txt</span></code>.
+In this case, the following results will be obtained.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="mf">6.000000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">890.000000</span>
+<span class="o">-</span><span class="mf">5.600000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">753.769600</span>
+<span class="o">-</span><span class="mf">5.200000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">667.241600</span>
+<span class="o">-</span><span class="mf">4.800000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">622.121600</span>
+<span class="o">-</span><span class="mf">4.400000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">610.729600</span>
+<span class="o">-</span><span class="mf">4.000000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">626.000000</span>
+<span class="o">-</span><span class="mf">3.600000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">661.481600</span>
+<span class="o">-</span><span class="mf">3.200000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">711.337600</span>
+<span class="o">-</span><span class="mf">2.800000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">770.345600</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The first and second columns contain the values of <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code>, and the third column contains the function value.</p>
+</section>
+<section id="visualization-of-calculation-results">
+<h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Link to this heading">¶</a></h2>
+<p>By plotting <code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code>, we can estimate the region where the small function values are located.
+A program <code class="docutils literal notranslate"><span class="pre">plot_colormap_2d.py</span></code> is prepared to generate such a plot of the two-dimensional space.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_colormap_2d.py
+</pre></div>
+</div>
+<p>By executing the above command, <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code> is generated in which the functional value evaluated at each grid point is shown as a color map on top of the contour of Himmelblau function.</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/res_mapper.png" src="../_images/res_mapper.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Color map of the function values in the two-dimensional parameter space.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Optimization by Nelder-Mead method</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="bayes.html">Optimization by Bayesian Optimization</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

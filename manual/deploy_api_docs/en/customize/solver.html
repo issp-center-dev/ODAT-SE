@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Solver &#8212; ODAT-SE 3.0-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Algorithm" href="algorithm.html" />
+    <link rel="prev" title="Commons" href="common.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
+        <h2 class="heading"><span>Solver</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="common.html">Commons</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="solver">
+<h1><code class="docutils literal notranslate"><span class="pre">Solver</span></code><a class="headerlink" href="#solver" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Solver</span></code> is a class that describes the direct problem, providing a method <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> that returns the value of the objective function from the input parameters.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Solver</span></code> is define as a derived class of <code class="docutils literal notranslate"><span class="pre">odatse.solver.SolverBase</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">odatse</span>
+
+<span class="k">class</span> <span class="nc">Solver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</li>
+<li><p>Constructor</p>
+<p>Solver class should have a constructor that takes an <code class="docutils literal notranslate"><span class="pre">Info</span></code> class object as an argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is required to call the constructor of the base class with the info object.
+There the following instance variables are introduced:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.root_dir:</span> <span class="pre">pathlib.Path</span></code> : Root directory</p>
+<p>This parameter is taken from <code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code>, and represents the directory in which <code class="docutils literal notranslate"><span class="pre">odatse</span></code> is executed. It can be referred as a root location when the external programs or data files are read.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir:</span> <span class="pre">pathlib.Path</span></code> : Output directory</p>
+<p>This parameter is taken from <code class="docutils literal notranslate"><span class="pre">info.base[&quot;output_dir&quot;]</span></code>, and used for the directory in which the result files are written. Usually, when the MPI parallelization is applied, the accumulated results are stored.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.proc_dir:</span> <span class="pre">pathlib.Path</span></code> : Working directory for each MPI process by the form <code class="docutils literal notranslate"><span class="pre">self.output_dir</span> <span class="pre">/</span> <span class="pre">str(mpirank)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method of Solver is called from Runner with the <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.</p>
+</li>
+</ul>
+<p>The parameters for the Solver class can be obtained from <code class="docutils literal notranslate"><span class="pre">solver</span></code> field of <code class="docutils literal notranslate"><span class="pre">info</span></code> object.
+The required parameters should be taken and stored.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method</p>
+<p>The form of <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method should be as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>This method evaluates the objective function at a given parameter value <cite>x</cite> and returns the result. It takes the following arguments:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">x:</span> <span class="pre">np.ndarray</span></code></p>
+<p>The parameter value in <span class="math notranslate nohighlight">\(N\)</span> dimensional vector of numpy.ndarray type.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">args:</span> <span class="pre">Tuple</span> <span class="pre">=</span> <span class="pre">()</span></code></p>
+<p>The additional arguments passed from the Algorithm in the form of a Tuple of two integers.
+One is the step count that corresponds to the Monte Carlo steps for MC type algorithms, or the index of the grid point for grid search algorithm.
+The other is the set number that represents <span class="math notranslate nohighlight">\(n\)</span>-th iteration.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nprocs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nthreads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<p>The number of processes and threads that specify how to run the solver in MPI/thread parallelisation. In the current version, <code class="docutils literal notranslate"><span class="pre">nprocs=1</span></code> and <code class="docutils literal notranslate"><span class="pre">nthreads=1</span></code> are accepted.</p>
+</li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method returns the value of the objective function as a float number.</p>
+</li>
+</ul>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="common.html">Commons</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

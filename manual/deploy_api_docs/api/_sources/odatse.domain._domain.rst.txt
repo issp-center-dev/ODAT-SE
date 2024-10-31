@@ -1,0 +1,8 @@
+odatse.domain.\_domain module
+=============================
+
+.. automodule:: odatse.domain._domain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

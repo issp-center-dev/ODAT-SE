@@ -1,0 +1,8 @@
+odatse.util.toml module
+=======================
+
+.. automodule:: odatse.util.toml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
