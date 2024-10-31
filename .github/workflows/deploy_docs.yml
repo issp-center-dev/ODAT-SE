@@ -49,6 +49,8 @@ jobs:
 
     - name: Build
       run: |
+        cd ${GITHUB_WORKSPACE}/main
+        python -m pip install '.[all]'
         cd ${GITHUB_WORKSPACE}/main/doc
         sh ./make.sh --latex
 
