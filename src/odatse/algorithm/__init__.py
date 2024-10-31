@@ -17,6 +17,20 @@
 from ._algorithm import AlgorithmBase
 
 def choose_algorithm(name):
+    """
+    Search for algorithm module by name
+
+    Parameters
+    ----------
+    name : str
+        name of the algorithm
+
+    Returns
+    -------
+    module
+        algorithm module
+    """
+
     alg_table = {
         "mapper": "mapper_mpi",
         "minsearch": "min_search",

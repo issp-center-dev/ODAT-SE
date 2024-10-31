@@ -1,6 +1,14 @@
 import odatse
 
 def initialize():
+    """
+    Initialize for main function by parsing commandline arguments and loading input files
+
+    Returns
+    -------
+    Tuple(Info, str)
+        an Info object having parameter values, and a run_mode string
+    """
     import argparse
 
     parser = argparse.ArgumentParser(
