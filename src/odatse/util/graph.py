@@ -21,6 +21,19 @@ import numpy as np
 
 
 def is_connected(nnlist: List[List[int]]) -> bool:
+    """
+    Check if the graph represented by the neighbor list is connected.
+
+    Parameters
+    ----------
+    nnlist : List[List[int]]
+        A list of lists where each sublist represents the neighbors of a node.
+
+    Returns
+    -------
+    bool
+        True if the graph is connected, False otherwise.
+    """
     nnodes = len(nnlist)
     visited = np.full(nnodes, False)
     nvisited = 1
@@ -37,12 +50,24 @@ def is_connected(nnlist: List[List[int]]) -> bool:
 
 
 def is_bidirectional(nnlist: List[List[int]]) -> bool:
+    """
+    Check if the graph represented by the neighbor list is bidirectional.
+
+    Parameters
+    ----------
+    nnlist : List[List[int]]
+        A list of lists where each sublist represents the neighbors of a node.
+
+    Returns
+    -------
+    bool
+        True if the graph is bidirectional, False otherwise.
+    """
     for i in range(len(nnlist)):
         for j in nnlist[i]:
             if i not in nnlist[j]:
                 return False
     return True
-
 
 if __name__ == "__main__":
     filename = "./neighborlist.txt"

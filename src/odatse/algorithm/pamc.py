@@ -100,6 +100,18 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                  runner: odatse.Runner = None,
                  run_mode: str = "initial"
     ) -> None:
+        """
+        Initialize the Algorithm class.
+
+        Parameters
+        ----------
+        info : odatse.Info
+            Information object containing algorithm parameters.
+        runner : odatse.Runner, optional
+            Runner object for executing the algorithm, by default None.
+        run_mode : str, optional
+            Mode in which to run the algorithm, by default "initial".
+        """
         time_sta = time.perf_counter()
 
         info_pamc = info.algorithm["pamc"]
@@ -147,6 +159,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._show_parameters()
 
     def _find_scheduling(self, info_pamc) -> int:
+        """
+        Determine the scheduling for the algorithm based on the provided parameters.
+
+        Parameters
+        ----------
+        info_pamc : dict
+            Dictionary containing the parameters for the PAMC algorithm.
+
+        Returns
+        -------
+        int
+            The number of temperature steps (numT) determined from the input parameters.
+        """
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
         numT = info_pamc.get("Tnum", 0)
@@ -325,15 +350,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
-        Arguments
-        ---------
+        Gather status information of each process
 
-        numT: int
+        Parameters
+        ---------
+        numT : int
             size of dataset
 
         Returns
         -------
-        res: Dict[str, np.ndarray]
+        res : Dict[str, np.ndarray]
             key-value corresponding is the following
 
             - fxs
@@ -381,6 +407,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         return res
 
     def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
+        """
+        Save statistical information from the algorithm run.
+
+        Parameters
+        ----------
+        info : Dict[str, np.ndarray]
+            Dictionary containing the following keys:
+            - fxs: Objective function of each walker over all processes.
+            - logweights: Logarithm of weights.
+            - ns: Number of walkers in each process.
+            - ancestors: Ancestor (origin) of each walker.
+            - acceptance ratio: Acceptance ratio for each temperature.
+        """
         fxs = info["fxs"]
         numT, nreplicas = fxs.shape
         endTindex = self.Tindex + 1
@@ -391,7 +430,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             logweights - logweights.max(axis=1).reshape(-1, 1)
         )  # to avoid overflow
 
-        # bias-corrected jackknife resampling method
+        # Bias-corrected jackknife resampling method
         fs = np.zeros((numT, nreplicas))
         fw_sum = (fxs * weights).sum(axis=1)
         w_sum = weights.sum(axis=1)
@@ -412,7 +451,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         logz = np.log(np.mean(weights, axis=1))
         self.logZs[startTindex:endTindex] = self.logZ + logz
         if endTindex < len(self.betas):
-            # calculate the next weight before reset and evalute dF
+            # Calculate the next weight before reset and evaluate dF
             bdiff = self.betas[endTindex] - self.betas[endTindex - 1]
             w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
             self.logZ = self.logZs[startTindex] + np.log(w.mean())
@@ -429,6 +468,13 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 ])))
 
     def _resample(self) -> None:
+        """
+        Perform the resampling of walkers.
+
+        This method gathers information, saves statistical data, and performs resampling
+        using either fixed or varied weights. The method ensures that the algorithm
+        maintains a balanced set of walkers across different temperature steps.
+        """
         res = self._gather_information()
         self._save_stats(res)
 
@@ -448,6 +494,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.logweights = np.zeros(self.nwalkers)
 
     def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
+        """
+        Perform resampling with varied weights.
+
+        This method resamples the walkers based on the provided weights and updates
+        the state of the algorithm accordingly.
+
+        Parameters
+        ----------
+        weights : np.ndarray
+            Array of weights for resampling.
+        offset : int
+            Offset for the weights array.
+        """
         weights_sum = np.sum(weights)
         expected_numbers = (self.nreplicas[0] / weights_sum) * weights[
             offset : offset + self.nwalkers
@@ -482,6 +541,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.nwalkers = np.sum(next_numbers)
 
     def _resample_fixed(self, weights: np.ndarray) -> None:
+        """
+        Perform resampling with fixed weights.
+
+        This method resamples the walkers based on the provided weights and updates
+        the state of the algorithm accordingly.
+
+        Parameters
+        ----------
+        weights : np.ndarray
+            Array of weights for resampling.
+        """
         resampler = odatse.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
 
@@ -512,10 +582,22 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
 
     def _prepare(self) -> None:
+        """
+        Prepare the algorithm for execution.
+
+        This method initializes the timers for the 'submit' and 'resampling' phases
+        of the algorithm run.
+        """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
-
     def _post(self) -> None:
+        """
+        Post-processing after the algorithm execution.
+
+        This method consolidates the results from different temperature steps
+        into single files for 'result' and 'trial'. It also gathers the best
+        results from all processes and writes them to 'best_result.txt'.
+        """
         for name in ("result", "trial"):
             with open(self.proc_dir / f"{name}.txt", "w") as fout:
                 self._write_result_header(fout, ["weight", "ancestor"])
@@ -581,6 +663,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         }
 
     def _save_state(self, filename) -> None:
+        """
+        Save the current state of the algorithm to a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file where the state will be saved.
+        """
         data = {
             #-- _algorithm
             "mpisize": self.mpisize,
@@ -622,6 +712,18 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._save_data(data, filename)
 
     def _load_state(self, filename, mode="resume", restore_rng=True):
+        """
+        Load the saved state of the algorithm from a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file from which the state will be loaded.
+        mode : str, optional
+            The mode in which to load the state. Can be "resume" or "continue", by default "resume".
+        restore_rng : bool, optional
+            Whether to restore the random number generator state, by default True.
+        """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")

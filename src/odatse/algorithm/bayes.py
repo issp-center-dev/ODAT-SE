@@ -27,30 +27,52 @@ import odatse
 import odatse.domain
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
+    """
+    A class to represent the Bayesian optimization algorithm.
 
-    # inputs
-    mesh_list: np.ndarray
-    label_list: List[str]
+    Attributes
+    ----------
+    mesh_list : np.ndarray
+        The mesh grid list.
+    label_list : List[str]
+        The list of labels.
+    random_max_num_probes : int
+        The maximum number of random probes.
+    bayes_max_num_probes : int
+        The maximum number of Bayesian probes.
+    score : str
+        The scoring method.
+    interval : int
+        The interval for Bayesian optimization.
+    num_rand_basis : int
+        The number of random basis.
+    xopt : np.ndarray
+        The optimal solution.
+    best_fx : List[float]
+        The list of best function values.
+    best_action : List[int]
+        The list of best actions.
+    fx_list : List[float]
+        The list of function values.
+    param_list : List[np.ndarray]
+        The list of parameters.
+    """
 
-    # hyperparameters of Bayesian optimization
-    random_max_num_probes: int
-    bayes_max_num_probes: int
-    score: str
-    interval: int
-    num_rand_basis: int
+    def __init__(self, info: odatse.Info, runner: odatse.Runner = None, domain = None, run_mode: str = "initial") -> None:
+        """
+        Constructs all the necessary attributes for the Algorithm object.
 
-    # results
-    xopt: np.ndarray
-    best_fx: List[float]
-    best_action: List[int]
-    fx_list: List[float]
-    param_list: List[np.ndarray]
-
-    def __init__(self, info: odatse.Info,
-                 runner: odatse.Runner = None,
-                 domain = None,
-                 run_mode: str = "initial"
-    ) -> None:
+        Parameters
+        ----------
+        info : odatse.Info
+            The information object.
+        runner : odatse.Runner, optional
+            The runner object (default is None).
+        domain : optional
+            The domain object (default is None).
+        run_mode : str, optional
+            The run mode (default is "initial").
+        """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         info_param = info.algorithm.get("param", {})
@@ -75,7 +97,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             print(f"interval = {self.interval}")
             print(f"num_rand_basis = {self.num_rand_basis}")
 
-        #self.mesh_list, actions = self._meshgrid(info, split=False)
         if domain and isinstance(domain, odatse.domain.MeshGrid):
             self.domain = domain
         else:
@@ -90,12 +111,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             seed = info.algorithm["seed"]
             self.policy.set_seed(seed)
 
-        # store state
         self.file_history = "history.npz"
         self.file_training = "training.npz"
         self.file_predictor = "predictor.dump"
 
     def _initialize(self):
+        """
+        Initializes the algorithm parameters and timers.
+        """
         self.istep = 0
         self.param_list = []
         self.fx_list = []
@@ -105,13 +128,27 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._show_parameters()
 
     def _run(self) -> None:
+        """
+        Runs the Bayesian optimization process.
+        """
         runner = self.runner
         mesh_list = self.mesh_list
-        # fx_list = []
-        # param_list = []
 
         class simulator:
             def __call__(self, action: np.ndarray) -> float:
+                """
+                Simulates the function evaluation for a given action.
+
+                Parameters
+                ----------
+                action : np.ndarray
+                    The action to be evaluated.
+
+                Returns
+                -------
+                float
+                    The negative function value.
+                """
                 a = int(action[0])
                 args = (a, 0)
                 x = mesh_list[a, 1:]
@@ -145,9 +182,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["random_search"] = time_end - time_sta
 
-            # store initial state
             if self.checkpoint:
-                # print(">>> store initial state")
                 self._save_state(self.checkpoint_file)
         else:
             if self.istep >= self.bayes_max_num_probes:
@@ -157,7 +192,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
         while self.istep < self.bayes_max_num_probes:
-            # print(">>> step {}".format(self.istep+1))
             intv = 0 if self.istep % self.interval == 0 else -1
 
             time_sta = time.perf_counter()
@@ -176,8 +210,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             if self.checkpoint:
                 time_now = time.time()
                 if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    # print(">>> checkpointing")
-
                     self.fx_list = fx_list
                     self.param_list = param_list
 
@@ -190,18 +222,19 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.fx_list = fx_list
         self.param_list = param_list
 
-        # physbo.search.utility.show_search_results(self.policy.history, 20)
-
-        # store final state for continuation
         if self.checkpoint:
-            # print(">>> store final state")
             self._save_state(self.checkpoint_file)
 
     def _prepare(self) -> None:
-        # do nothing
+        """
+        Prepares the algorithm for execution.
+        """
         pass
 
     def _post(self) -> None:
+        """
+        Finalizes the algorithm execution and writes the results to a file.
+        """
         label_list = self.label_list
         if self.mpirank == 0:
             with open("BayesData.txt", "w") as file_BD:
@@ -229,14 +262,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         return {"x": self.xopt, "fx": self.best_fx}
 
     def _save_state(self, filename):
+        """
+        Saves the current state of the algorithm to a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to save the state.
+        """
         data = {
-            #-- _algorithm
             "mpisize": self.mpisize,
             "mpirank": self.mpirank,
             "rng": self.rng.get_state(),
             "timer": self.timer,
             "info": self.info,
-            #-- bayes
             "istep": self.istep,
             "param_list": self.param_list,
             "fx_list": self.fx_list,
@@ -247,19 +286,28 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         }
         self._save_data(data, filename)
 
-        #-- bayes
         self.policy.save(file_history=Path(self.output_dir, self.file_history),
                          file_training=Path(self.output_dir, self.file_training),
                          file_predictor=Path(self.output_dir, self.file_predictor))
 
-
     def _load_state(self, filename, mode="resume", restore_rng=True):
+        """
+        Loads the state of the algorithm from a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to load the state from.
+        mode : str, optional
+            The mode to load the state (default is "resume").
+        restore_rng : bool, optional
+            Whether to restore the random number generator state (default is True).
+        """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        #-- _algorithm
         assert self.mpisize == data["mpisize"]
         assert self.mpirank == data["mpirank"]
 
@@ -272,7 +320,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         info = data["info"]
         self._check_parameters(info)
 
-        #-- bayes
         self.istep = data["istep"]
         self.param_list = data["param_list"]
         self.fx_list = data["fx_list"]
