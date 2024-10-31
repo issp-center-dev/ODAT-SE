@@ -40,7 +40,7 @@ Open Data Analysis Tool for Science and Engineering (ODAT-SE)は、順問題ソ�
 ライセンス
 ----------------------
 | 本ソフトウェアのプログラムパッケージおよびソースコード一式は
-  `Mozilla Public License version 2.0 (MPL-2.0)<https://www.mozilla.org/en-US/MPL/2.0/>`_ に準じて配布されています。
+  `Mozilla Public License version 2.0 (MPL-2.0) <https://www.mozilla.org/en-US/MPL/2.0/>`_ に準じて配布されています。
 
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 
