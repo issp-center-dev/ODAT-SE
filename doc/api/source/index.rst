@@ -10,7 +10,7 @@ Welcome to ODAT-SE API's documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   odatse
+   modules
 
 
 Indices and tables

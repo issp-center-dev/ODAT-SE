@@ -24,8 +24,10 @@ if [ $BUILD_LATEX = "ON" ]; then
   make latexpdf
 fi
 
+export SPHINX_APIDOC_OPTIONS=members,show-inheritance
+
 # api
 cd $DOCROOT
-sphinx-apidoc -P -f -e -o ./api/source ../src/odatse/
+sphinx-apidoc -M -P -f -e -d 1 -o ./api/source ../src/odatse/
 cd api
 make html
