@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>odatse.util.limitation module &#8212; ODAT-SE API  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.util.logger module" href="odatse.util.logger.html" />
+    <link rel="prev" title="odatse.util.graph module" href="odatse.util.graph.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE API  documentation</span></a></h1>
+        <h2 class="heading"><span>odatse.util.limitation module</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="odatse.util.graph.html">odatse.util.graph module</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="odatse.util.logger.html">odatse.util.logger module</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="module-odatse.util.limitation">
+<span id="odatse-util-limitation-module"></span><h1>odatse.util.limitation module<a class="headerlink" href="#module-odatse.util.limitation" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.util.limitation.Inequality">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.limitation.</span></span><span class="sig-name descname"><span class="pre">Inequality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_limitary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#Inequality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Inequality" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#odatse.util.limitation.LimitationBase" title="odatse.util.limitation.LimitationBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">LimitationBase</span></code></a></p>
+<p>Class representing an inequality limitation.</p>
+<p>Initialize the inequality limitation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>np.ndarray</em>) – Coefficient matrix.</p></li>
+<li><p><strong>b</strong> (<em>np.ndarray</em>) – Constant vector.</p></li>
+<li><p><strong>is_limitary</strong> (<em>bool</em>) – Boolean indicating if the limitation is active.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.Inequality.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_limitary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#Inequality.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Inequality.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the inequality limitation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>np.ndarray</em>) – Coefficient matrix.</p></li>
+<li><p><strong>b</strong> (<em>np.ndarray</em>) – Constant vector.</p></li>
+<li><p><strong>is_limitary</strong> (<em>bool</em>) – Boolean indicating if the limitation is active.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.limitation.Inequality._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.util.limitation.Inequality._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.Inequality.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#Inequality.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Inequality.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an Inequality instance from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>d</strong> – Dictionary containing ‘co_a’ and ‘co_b’ keys.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an Inequality instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#odatse.util.limitation.Inequality" title="odatse.util.limitation.Inequality">Inequality</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.Inequality.judge">
+<span class="sig-name descname"><span class="pre">judge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/odatse/util/limitation.html#Inequality.judge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Inequality.judge" title="Link to this definition">¶</a></dt>
+<dd><p>Judge if the inequality limitation is satisfied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Input array to be judged.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating if the limitation is satisfied.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.util.limitation.LimitationBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.limitation.</span></span><span class="sig-name descname"><span class="pre">LimitationBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_limitary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#LimitationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.LimitationBase" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for limitations.</p>
+<p>Initialize the limitation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>is_limitary</strong> (<em>bool</em>) – Boolean indicating if the limitation is active.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.LimitationBase.__init__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_limitary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#LimitationBase.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.LimitationBase.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the limitation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>is_limitary</strong> (<em>bool</em>) – Boolean indicating if the limitation is active.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.limitation.LimitationBase._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.util.limitation.LimitationBase._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.LimitationBase.judge">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">judge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/odatse/util/limitation.html#LimitationBase.judge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.LimitationBase.judge" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to judge if the limitation is satisfied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Input array to be judged.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating if the limitation is satisfied.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.util.limitation.Unlimited">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.limitation.</span></span><span class="sig-name descname"><span class="pre">Unlimited</span></span><a class="reference internal" href="_modules/odatse/util/limitation.html#Unlimited"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Unlimited" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#odatse.util.limitation.LimitationBase" title="odatse.util.limitation.LimitationBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">LimitationBase</span></code></a></p>
+<p>Class representing an unlimited (no limitation) condition.</p>
+<p>Initialize the unlimited condition.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.Unlimited.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/limitation.html#Unlimited.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Unlimited.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the unlimited condition.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.limitation.Unlimited._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.util.limitation.Unlimited._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.limitation.Unlimited.judge">
+<span class="sig-name descname"><span class="pre">judge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/odatse/util/limitation.html#Unlimited.judge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.limitation.Unlimited.judge" title="Link to this definition">¶</a></dt>
+<dd><p>Always returns True as there is no limitation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Input array to be judged.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Always True.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="odatse.util.graph.html">odatse.util.graph module</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="odatse.util.logger.html">odatse.util.logger module</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020-, ISSP, UTokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

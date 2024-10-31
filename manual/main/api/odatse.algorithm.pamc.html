@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>odatse.algorithm.pamc module &#8212; ODAT-SE API  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.domain package" href="odatse.domain.html" />
+    <link rel="prev" title="odatse.algorithm.montecarlo module" href="odatse.algorithm.montecarlo.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE API  documentation</span></a></h1>
+        <h2 class="heading"><span>odatse.algorithm.pamc module</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="odatse.algorithm.montecarlo.html">odatse.algorithm.montecarlo module</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="odatse.domain.html">odatse.domain package</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="module-odatse.algorithm.pamc">
+<span id="odatse-algorithm-pamc-module"></span><h1>odatse.algorithm.pamc module<a class="headerlink" href="#module-odatse.algorithm.pamc" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.pamc.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._runner.html#odatse._runner.Runner" title="odatse._runner.Runner"><span class="pre">Runner</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase" title="odatse.algorithm.montecarlo.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
+<p>Population annealing Monte Carlo</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.x" title="Link to this definition">¶</a></dt>
+<dd><p>current configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.fx">
+<span class="sig-name descname"><span class="pre">fx</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.fx" title="Link to this definition">¶</a></dt>
+<dd><p>current “Energy”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.logweights">
+<span class="sig-name descname"><span class="pre">logweights</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.logweights" title="Link to this definition">¶</a></dt>
+<dd><p>current logarithm of weights (Neal-Jarzynski factor)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.istep">
+<span class="sig-name descname"><span class="pre">istep</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.istep" title="Link to this definition">¶</a></dt>
+<dd><p>current step (or, the number of calculated energies)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.best_x">
+<span class="sig-name descname"><span class="pre">best_x</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.best_x" title="Link to this definition">¶</a></dt>
+<dd><p>best configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.best_fx">
+<span class="sig-name descname"><span class="pre">best_fx</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.best_fx" title="Link to this definition">¶</a></dt>
+<dd><p>best “Energy”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.best_istep">
+<span class="sig-name descname"><span class="pre">best_istep</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.best_istep" title="Link to this definition">¶</a></dt>
+<dd><p>index of best configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.comm">
+<span class="sig-name descname"><span class="pre">comm</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.comm" title="Link to this definition">¶</a></dt>
+<dd><p>MPI communicator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MPI.comm</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.nreplica">
+<span class="sig-name descname"><span class="pre">nreplica</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.nreplica" title="Link to this definition">¶</a></dt>
+<dd><p>The number of replicas (= the number of procs)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.rank">
+<span class="sig-name descname"><span class="pre">rank</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.rank" title="Link to this definition">¶</a></dt>
+<dd><p>MPI rank</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.betas">
+<span class="sig-name descname"><span class="pre">betas</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.betas" title="Link to this definition">¶</a></dt>
+<dd><p>List of inverse temperatures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.Tindex">
+<span class="sig-name descname"><span class="pre">Tindex</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.Tindex" title="Link to this definition">¶</a></dt>
+<dd><p>Temperature index</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Initialize the Algorithm class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm, by default None.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode in which to run the algorithm, by default “initial”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.Ferrs">
+<span class="sig-name descname"><span class="pre">Ferrs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.Ferrs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.Fmeans">
+<span class="sig-name descname"><span class="pre">Fmeans</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.Fmeans" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">Tindex</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._runner.html#odatse._runner.Runner" title="odatse._runner.Runner"><span class="pre">Runner</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the Algorithm class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm, by default None.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode in which to run the algorithm, by default “initial”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._find_scheduling">
+<span class="sig-name descname"><span class="pre">_find_scheduling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_pamc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._find_scheduling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._find_scheduling" title="Link to this definition">¶</a></dt>
+<dd><p>Determine the scheduling for the algorithm based on the provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info_pamc</strong> (<em>dict</em>) – Dictionary containing the parameters for the PAMC algorithm.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of temperature steps (numT) determined from the input parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._gather_information">
+<span class="sig-name descname"><span class="pre">_gather_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._gather_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._gather_information" title="Link to this definition">¶</a></dt>
+<dd><p>Gather status information of each process</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>numT</strong> (<em>int</em>) – size of dataset</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>res</strong> – key-value corresponding is the following</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>fxs</dt><dd><ul>
+<li><p>objective function of each walker over all processes</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>logweights</dt><dd><ul>
+<li><p>log of weights</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ns</dt><dd><ul>
+<li><p>number of walkers in each process</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ancestors</dt><dd><ul>
+<li><p>ancestor (origin) of each walker</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>acceptance ratio</dt><dd><ul>
+<li><p>acceptance_ratio for each temperature</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._initialize">
+<span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._initialize" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the algorithm state.</p>
+<p>This method sets up the initial state of the algorithm, including the
+positions and energies of the walkers, and resets the counters for
+accepted and trial steps.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._load_state">
+<span class="sig-name descname"><span class="pre">_load_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'resume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._load_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._load_state" title="Link to this definition">¶</a></dt>
+<dd><p>Load the saved state of the algorithm from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the file from which the state will be loaded.</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – The mode in which to load the state. Can be “resume” or “continue”, by default “resume”.</p></li>
+<li><p><strong>restore_rng</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to restore the random number generator state, by default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._post">
+<span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._post" title="Link to this definition">¶</a></dt>
+<dd><p>Post-processing after the algorithm execution.</p>
+<p>This method consolidates the results from different temperature steps
+into single files for ‘result’ and ‘trial’. It also gathers the best
+results from all processes and writes them to ‘best_result.txt’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._prepare">
+<span class="sig-name descname"><span class="pre">_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._prepare" title="Link to this definition">¶</a></dt>
+<dd><p>Prepare the algorithm for execution.</p>
+<p>This method initializes the timers for the ‘submit’ and ‘resampling’ phases
+of the algorithm run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._resample">
+<span class="sig-name descname"><span class="pre">_resample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._resample" title="Link to this definition">¶</a></dt>
+<dd><p>Perform the resampling of walkers.</p>
+<p>This method gathers information, saves statistical data, and performs resampling
+using either fixed or varied weights. The method ensures that the algorithm
+maintains a balanced set of walkers across different temperature steps.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._resample_fixed">
+<span class="sig-name descname"><span class="pre">_resample_fixed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._resample_fixed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._resample_fixed" title="Link to this definition">¶</a></dt>
+<dd><p>Perform resampling with fixed weights.</p>
+<p>This method resamples the walkers based on the provided weights and updates
+the state of the algorithm accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>weights</strong> (<em>np.ndarray</em>) – Array of weights for resampling.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._resample_varied">
+<span class="sig-name descname"><span class="pre">_resample_varied</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._resample_varied"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._resample_varied" title="Link to this definition">¶</a></dt>
+<dd><p>Perform resampling with varied weights.</p>
+<p>This method resamples the walkers based on the provided weights and updates
+the state of the algorithm accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> (<em>np.ndarray</em>) – Array of weights for resampling.</p></li>
+<li><p><strong>offset</strong> (<em>int</em>) – Offset for the weights array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._run">
+<span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._run" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract method to be implemented by subclasses for running steps.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._save_state">
+<span class="sig-name descname"><span class="pre">_save_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._save_state" title="Link to this definition">¶</a></dt>
+<dd><p>Save the current state of the algorithm to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The name of the file where the state will be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._save_stats">
+<span class="sig-name descname"><span class="pre">_save_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._save_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._save_stats" title="Link to this definition">¶</a></dt>
+<dd><p>Save statistical information from the algorithm run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>np.ndarray</em><em>]</em>) – Dictionary containing the following keys:
+- fxs: Objective function of each walker over all processes.
+- logweights: Logarithm of weights.
+- ns: Number of walkers in each process.
+- ancestors: Ancestor (origin) of each walker.
+- acceptance ratio: Acceptance ratio for each temperature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">betas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.family_hi">
+<span class="sig-name descname"><span class="pre">family_hi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.family_hi" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.family_lo">
+<span class="sig-name descname"><span class="pre">family_lo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.family_lo" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">fx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.fx_from_reset">
+<span class="sig-name descname"><span class="pre">fx_from_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.fx_from_reset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">istep</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">logweights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.naccepted_from_reset">
+<span class="sig-name descname"><span class="pre">naccepted_from_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.naccepted_from_reset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.nreplicas">
+<span class="sig-name descname"><span class="pre">nreplicas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.nreplicas" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.nset_bootstrap">
+<span class="sig-name descname"><span class="pre">nset_bootstrap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.nset_bootstrap" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.numsteps">
+<span class="sig-name descname"><span class="pre">numsteps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.numsteps" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.numsteps_annealing">
+<span class="sig-name descname"><span class="pre">numsteps_annealing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.numsteps_annealing" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.populations">
+<span class="sig-name descname"><span class="pre">populations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.populations" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.resampling_interval">
+<span class="sig-name descname"><span class="pre">resampling_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.resampling_interval" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.walker_ancestors">
+<span class="sig-name descname"><span class="pre">walker_ancestors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.walker_ancestors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#id5" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.xmax">
+<span class="sig-name descname"><span class="pre">xmax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.xmax" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.xmin">
+<span class="sig-name descname"><span class="pre">xmin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.xmin" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.xstep">
+<span class="sig-name descname"><span class="pre">xstep</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.xstep" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="odatse.algorithm.montecarlo.html">odatse.algorithm.montecarlo module</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="odatse.domain.html">odatse.domain package</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020-, ISSP, UTokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

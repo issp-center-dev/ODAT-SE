@@ -1,0 +1,8 @@
+odatse.exception module
+=======================
+
+.. automodule:: odatse.exception
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

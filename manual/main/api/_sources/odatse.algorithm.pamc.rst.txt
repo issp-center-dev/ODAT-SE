@@ -1,0 +1,8 @@
+odatse.algorithm.pamc module
+============================
+
+.. automodule:: odatse.algorithm.pamc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

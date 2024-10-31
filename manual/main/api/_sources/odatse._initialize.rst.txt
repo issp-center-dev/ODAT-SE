@@ -1,0 +1,8 @@
+odatse.\_initialize module
+==========================
+
+.. automodule:: odatse._initialize
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

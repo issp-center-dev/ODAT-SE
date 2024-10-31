@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>odatse._initialize &#8212; ODAT-SE API  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE API  documentation</span></a></h1>
+        <h2 class="heading"><span>odatse._initialize</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <h1>Source code for odatse._initialize</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">odatse</span>
+
+<div class="viewcode-block" id="initialize">
+<a class="viewcode-back" href="../../odatse._initialize.html#odatse._initialize.initialize">[docs]</a>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize for main function by parsing commandline arguments and loading input files</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple(Info, str)</span>
+<span class="sd">        an Info object having parameter values, and a run_mode string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Data-analysis software of quantum beam &quot;</span>
+            <span class="s2">&quot;diffraction experiments for 2D material structure&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;inputfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;input file with TOML format&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+
+    <span class="n">mode_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;initial start (default)&quot;</span><span class="p">)</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--resume&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;resume intterupted run&quot;</span><span class="p">)</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--cont&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;continue from previous run&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--reset_rand&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;new random number series in resume or continue mode&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">init</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reset_rand</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;resume-resetrand&quot;</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">cont</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;continue&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reset_rand</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;continue-resetrand&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>  <span class="c1"># default</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">inputfile</span><span class="p">)</span>
+    <span class="c1"># info.algorithm.update({&quot;run_mode&quot;: run_mode})</span>
+
+    <span class="k">return</span> <span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span></div>
+
+</pre></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020-, ISSP, UTokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>
