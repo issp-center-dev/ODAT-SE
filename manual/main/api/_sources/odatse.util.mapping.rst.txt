@@ -3,6 +3,5 @@ odatse.util.mapping module
 
 .. automodule:: odatse.util.mapping
    :members:
-   :undoc-members:
    :show-inheritance:
    :private-members:

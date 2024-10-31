@@ -3,6 +3,5 @@ odatse.solver.\_solver module
 
 .. automodule:: odatse.solver._solver
    :members:
-   :undoc-members:
    :show-inheritance:
    :private-members:

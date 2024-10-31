@@ -44,22 +44,20 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="odatse.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="odatse._info.html">odatse._info module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="odatse._initialize.html">odatse._initialize module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="odatse._main.html">odatse._main module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">odatse._runner module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#odatse._runner.Run"><code class="docutils literal notranslate"><span class="pre">Run</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#odatse._runner.Runner"><code class="docutils literal notranslate"><span class="pre">Runner</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="odatse.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="odatse._info.html">odatse._info module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse._initialize.html">odatse._initialize module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse._main.html">odatse._main module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">odatse._runner module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.exception.html">odatse.exception module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.mpi.html">odatse.mpi module</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="odatse.exception.html">odatse.exception module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="odatse.mpi.html">odatse.mpi module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="odatse.html#module-odatse">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +76,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
           <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
       <li class="breadcrumb-item active">odatse._runner module</li>
       <li class="wy-breadcrumbs-aside">
@@ -91,130 +90,6 @@
              
   <section id="module-odatse._runner">
 <span id="odatse-runner-module"></span><h1>odatse._runner module<a class="headerlink" href="#module-odatse._runner" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="odatse._runner.Run">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse._runner.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nprocs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nthreads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/_runner.html#Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Run" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initialize the Run class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>nprocs</strong> (<em>int</em>) – Number of processes which one solver uses.</p></li>
-<li><p><strong>nthreads</strong> (<em>int</em>) – Number of threads which one solver process uses.</p></li>
-<li><p><strong>comm</strong> (<em>MPI.Comm</em>) – MPI Communicator.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Run.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nprocs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nthreads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/_runner.html#Run.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Run.__init__" title="Link to this definition"></a></dt>
-<dd><p>Initialize the Run class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>nprocs</strong> (<em>int</em>) – Number of processes which one solver uses.</p></li>
-<li><p><strong>nthreads</strong> (<em>int</em>) – Number of threads which one solver process uses.</p></li>
-<li><p><strong>comm</strong> (<em>MPI.Comm</em>) – MPI Communicator.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse._runner.Run._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse._runner.Run._abc_impl" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Run.submit">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/_runner.html#Run.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Run.submit" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to submit a solver.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>solver</strong> (<em>object</em>) – Solver object to be submitted.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="odatse._runner.Runner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse._runner.</span></span><span class="sig-name descname"><span class="pre">Runner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limitation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/_runner.html#Runner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Runner" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Initialize the Runner class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>solver</strong> (<em>odatse.solver.SolverBase</em>) – Solver object.</p></li>
-<li><p><strong>info</strong> (<em>Optional</em><em>[</em><em>odatse.Info</em><em>]</em>) – Information object.</p></li>
-<li><p><strong>mapping</strong> (<em>object</em><em>, </em><em>optional</em>) – Mapping object.</p></li>
-<li><p><strong>limitation</strong> (<em>object</em><em>, </em><em>optional</em>) – Limitation object.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Runner.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limitation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/_runner.html#Runner.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Runner.__init__" title="Link to this definition"></a></dt>
-<dd><p>Initialize the Runner class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>solver</strong> (<em>odatse.solver.SolverBase</em>) – Solver object.</p></li>
-<li><p><strong>info</strong> (<em>Optional</em><em>[</em><em>odatse.Info</em><em>]</em>) – Information object.</p></li>
-<li><p><strong>mapping</strong> (<em>object</em><em>, </em><em>optional</em>) – Mapping object.</p></li>
-<li><p><strong>limitation</strong> (<em>object</em><em>, </em><em>optional</em>) – Limitation object.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse._runner.Runner.logger">
-<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="odatse.util.logger.html#odatse.util.logger.Logger" title="odatse.util.logger.Logger"><span class="pre">Logger</span></a></em><a class="headerlink" href="#odatse._runner.Runner.logger" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Runner.post">
-<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/_runner.html#Runner.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Runner.post" title="Link to this definition"></a></dt>
-<dd><p>Write the logger data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Runner.prepare">
-<span class="sig-name descname"><span class="pre">prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/_runner.html#Runner.prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Runner.prepare" title="Link to this definition"></a></dt>
-<dd><p>Prepare the logger with the given process directory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>proc_dir</strong> (<em>Path</em>) – Path to the process directory.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse._runner.Runner.submit">
-<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nprocs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nthreads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/_runner.html#Runner.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse._runner.Runner.submit" title="Link to this definition"></a></dt>
-<dd><p>Submit the solver with the given parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>np.ndarray</em>) – Input array.</p></li>
-<li><p><strong>args</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Additional arguments.</p></li>
-<li><p><strong>nprocs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processes.</p></li>
-<li><p><strong>nthreads</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of threads.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Result of the solver evaluation.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 

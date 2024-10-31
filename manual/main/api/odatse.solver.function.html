@@ -44,20 +44,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="odatse.solver.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="odatse.solver.html#module-odatse.solver">Module contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="odatse.html#module-odatse">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -76,6 +74,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
           <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
           <li class="breadcrumb-item"><a href="odatse.solver.html">odatse.solver package</a></li>
       <li class="breadcrumb-item active">odatse.solver.function module</li>
@@ -112,16 +111,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.solver.function.Solver._abc_impl">
-<span class="sig-name descname"><span class="pre">_abc_impl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#odatse.solver.function.Solver._abc_impl" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.solver.function.Solver._func">
-<span class="sig-name descname"><span class="pre">_func</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#odatse.solver.function.Solver._func" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.solver.function.Solver.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nprocs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nthreads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/odatse/solver/function.html#Solver.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.solver.function.Solver.evaluate" title="Link to this definition"></a></dt>
@@ -143,11 +132,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.solver.function.Solver.fx">
-<span class="sig-name descname"><span class="pre">fx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#odatse.solver.function.Solver.fx" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.solver.function.Solver.get_results">
@@ -204,11 +188,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.solver.function.Solver.x">
-<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#odatse.solver.function.Solver.x" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

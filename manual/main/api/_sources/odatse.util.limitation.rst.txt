@@ -3,6 +3,5 @@ odatse.util.limitation module
 
 .. automodule:: odatse.util.limitation
    :members:
-   :undoc-members:
    :show-inheritance:
    :private-members:

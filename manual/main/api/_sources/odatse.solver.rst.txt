@@ -1,21 +1,17 @@
 odatse.solver package
 =====================
 
+.. automodule:: odatse.solver
+   :members:
+   :show-inheritance:
+   :private-members:
+
 Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    odatse.solver._solver
    odatse.solver.analytical
    odatse.solver.function
-
-Module contents
----------------
-
-.. automodule:: odatse.solver
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

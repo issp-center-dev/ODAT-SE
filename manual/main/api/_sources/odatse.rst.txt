@@ -1,11 +1,16 @@
 odatse package
 ==============
 
+.. automodule:: odatse
+   :members:
+   :show-inheritance:
+   :private-members:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    odatse.algorithm
    odatse.domain
@@ -16,7 +21,7 @@ Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    odatse._info
    odatse._initialize
@@ -24,12 +29,3 @@ Submodules
    odatse._runner
    odatse.exception
    odatse.mpi
-
-Module contents
----------------
-
-.. automodule:: odatse
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

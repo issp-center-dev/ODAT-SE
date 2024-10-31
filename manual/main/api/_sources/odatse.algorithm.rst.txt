@@ -1,11 +1,16 @@
 odatse.algorithm package
 ========================
 
+.. automodule:: odatse.algorithm
+   :members:
+   :show-inheritance:
+   :private-members:
+
 Submodules
 ----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    odatse.algorithm._algorithm
    odatse.algorithm.bayes
@@ -14,12 +19,3 @@ Submodules
    odatse.algorithm.min_search
    odatse.algorithm.montecarlo
    odatse.algorithm.pamc
-
-Module contents
----------------
-
-.. automodule:: odatse.algorithm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

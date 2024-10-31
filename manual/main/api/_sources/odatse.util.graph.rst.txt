@@ -3,6 +3,5 @@ odatse.util.graph module
 
 .. automodule:: odatse.util.graph
    :members:
-   :undoc-members:
    :show-inheritance:
    :private-members:
