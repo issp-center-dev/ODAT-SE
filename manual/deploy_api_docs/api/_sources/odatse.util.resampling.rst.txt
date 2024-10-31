@@ -1,8 +1,0 @@
-odatse.util.resampling module
-=============================
-
-.. automodule:: odatse.util.resampling
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

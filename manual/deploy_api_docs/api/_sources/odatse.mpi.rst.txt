@@ -1,8 +1,0 @@
-odatse.mpi module
-=================
-
-.. automodule:: odatse.mpi
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

@@ -1,8 +1,0 @@
-odatse.\_main module
-====================
-
-.. automodule:: odatse._main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

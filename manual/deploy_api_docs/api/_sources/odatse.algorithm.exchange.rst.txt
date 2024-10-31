@@ -1,8 +1,0 @@
-odatse.algorithm.exchange module
-================================
-
-.. automodule:: odatse.algorithm.exchange
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

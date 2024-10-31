@@ -1,8 +1,0 @@
-odatse.util.read\_matrix module
-===============================
-
-.. automodule:: odatse.util.read_matrix
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

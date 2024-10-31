@@ -1,8 +1,0 @@
-odatse.domain.meshgrid module
-=============================
-
-.. automodule:: odatse.domain.meshgrid
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:
