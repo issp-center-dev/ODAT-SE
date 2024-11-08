@@ -113,7 +113,7 @@ For details, see the manual of <a class="reference internal" href="../algorithm/
 </pre></div>
 </div>
 <p>Here, the calculation is performed using MPI parallel with 4 processes.
-If you are using Open MPI and you request more processes than the number of cores, you need to add the <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.</p>
+If you are using Open MPI and you request more processes than the number of cores, you need to add the <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.</p>
 <p>When executed, a folder for each MPI rank will be created under <code class="docutils literal notranslate"><span class="pre">output</span></code> directory, and a <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> file containing the parameters evaluated in each Monte Carlo step and the value of the objective function, and a <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> file containing the parameters actually adopted will be created.</p>
 <p>These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx x1 x2</span>

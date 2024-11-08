@@ -133,7 +133,7 @@ x_{1} + x_{2} - 1 &gt; 0\end{split}\]</div>
 </pre></div>
 </div>
 <p>In this case, a calculation with 10 MPI parallel processes is performed.
-When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.
+When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.
 After executed, the <code class="docutils literal notranslate"><span class="pre">output</span></code> folder is generated, and there a subfolder for each MPI rank is created.</p>
 <p>Each subfolder contains the results of the calculation.
 <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> file, which contains the parameters and objective function values evaluated at each Monte Carlo step, and <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> file, which contains the parameters actually adopted, are created.</p>

@@ -121,7 +121,7 @@ For details, see the manual of <a class="reference internal" href="../algorithm/
 </pre></div>
 </div>
 <p>Here, the calculation is performed using MPI parallel with 4 processes.
-If you are using Open MPI and you request more processes than the number of cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.</p>
+If you are using Open MPI and you request more processes than the number of cores, add the <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> option to the <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> command.</p>
 <p>When executed, a folder for each MPI rank will be created under the directory <code class="docutils literal notranslate"><span class="pre">output</span></code>, and <code class="docutils literal notranslate"><span class="pre">trial_TXXX.txt</span></code> files containing the parameters evaluated in each Monte Carlo step and the value of the objective function at each temperature (<code class="docutils literal notranslate"><span class="pre">XXX</span></code> is the index of points), and <code class="docutils literal notranslate"><span class="pre">result_TXXX.txt</span></code> files containing the parameters actually adopted will be created.
 These files are concatnated into <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>.</p>
 <p>These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the (inversed) temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
@@ -177,7 +177,7 @@ The sixth column is the acceptance ratio of MC updates.</p>
 In this case, the figure <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> of the 2D parameter space is created by using the following command.
 The color of symbols of <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> mean <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> and <span class="math notranslate nohighlight">\(\beta\)</span>, respectively.</p>
 <p>By executing the following command, the figures of two-dimensional parameter space <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> will be generated where <code class="docutils literal notranslate"><span class="pre">%</span></code> stands for the indices of temperature. The symbol color corresponds to the function value.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2d.py -o res_T0.png result_T0.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2d.py -o res_T0.png output/0/result_T0.txt
 </pre></div>
 </div>
 <p>It is seen from the figures that the samples are concentrated near the minima of <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> where the objective function has a small value.</p>

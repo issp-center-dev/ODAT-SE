@@ -146,7 +146,7 @@ x_{1} + x_{2} - 1 &gt; 0\end{split}\]</div>
 </pre></div>
 </div>
 <p>ここではプロセス数10のMPI並列を用いた計算を行っています。
-Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> オプションを追加してください。</p>
+Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> オプションを追加してください。</p>
 <p>実行すると、 <code class="docutils literal notranslate"><span class="pre">output</span></code> フォルダが生成され、その中に各ランクのフォルダが作成されます。
 更にその中には、各モンテカルロステップで評価したパラメータおよび目的関数の値を記した <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> ファイルと、実際に採択されたパラメータを記した <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> ファイルが作成されます。
 ともに書式は同じで、最初の2列がステップ数とプロセス内のwalker 番号、次が温度、3列目が目的関数の値、4列目以降がパラメータです。

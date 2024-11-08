@@ -118,7 +118,7 @@
 </pre></div>
 </div>
 <p>ここではプロセス数4のMPI並列を用いた計算を行っています。
-OpenMPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--oversubscribed</span></code> オプションを追加してください。</p>
+OpenMPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> オプションを追加してください。</p>
 <p>実行すると、 <code class="docutils literal notranslate"><span class="pre">output</span></code> ディレクトリの下に各ランクのフォルダが作成され、温度ごとに、各モンテカルロステップで評価したパラメータおよび目的関数の値を記した <code class="docutils literal notranslate"><span class="pre">trial_TXXX.txt</span></code> ファイル(<code class="docutils literal notranslate"><span class="pre">XXX</span></code> は温度点の番号)と、実際に採択されたパラメータを記した <code class="docutils literal notranslate"><span class="pre">result_TXXX.txt</span></code> ファイル、さらにそれぞれを結合した <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> ファイルが生成されます。
 それぞれ書式は同じで、最初の2列がステップ数とプロセス内の walker (replica) 番号、次が(逆)温度、3列目が目的関数の値、4列目以降がパラメータです。
 最後の2 列は、 walker の重み (Neal-Jarzynski weight) と祖先(計算を開始したときのレプリカ)の番号です。</p>
@@ -167,9 +167,9 @@ OpenMPI を用いる場合で、使えるコア数よりも要求プロセス数
 <section id="id5">
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> を図示することで <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の小さいパラメータがどこにあるかを推定することができます。
-以下のコマンドを入力すると 2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> が作成されます。
+以下のコマンドを入力すると2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> が作成されます。
 シンボルの色は目的関数の値に対応します。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2d.py -o res_T0.png result_T0.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2d.py -o res_T0.png output/0/result_T0.txt
 </pre></div>
 </div>
 <p>作成された図を見ると、 <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の最小値を与える点の付近にサンプルが集中していることと、目的関数の値が小さいことがわかります。</p>
