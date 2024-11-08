@@ -86,7 +86,7 @@ def read_result():
         fx_min_list.append(min(fx[i]))
         i += 1
 
-    print("読み込み完了")
+    print("Read results completed.")
 
     return x1, x2, fx, T, step, max(fx_max_list), min(fx_min_list)
 
@@ -192,9 +192,9 @@ def soloplot():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--mpiprocess", help="MPI process")
-    parser.add_argument("-i", "--inputfile", help="input toml file")
-    parser.add_argument("-b", "--burn_in", help="burn-in ratio")
+    parser.add_argument("-p", "--mpiprocess", action="store", type=int, required=True, help="MPI process")
+    parser.add_argument("-i", "--inputfile", action="store", type=str, required=True, help="input toml file")
+    parser.add_argument("-b", "--burn_in", action="store", type=float, required=True, help="burn-in ratio")
     args = parser.parse_args()
 
     number_of_replica = int(args.mpiprocess)
