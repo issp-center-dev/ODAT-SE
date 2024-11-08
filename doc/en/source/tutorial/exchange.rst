@@ -98,7 +98,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 
 Here, the calculation is performed using MPI parallel with 4 processes.
-If you are using Open MPI and you request more processes than the number of cores, you need to add the ``--oversubscribed`` option to the ``mpiexec`` command.
+If you are using Open MPI and you request more processes than the number of cores, you need to add the ``--oversubscribe`` option to the ``mpiexec`` command.
 
 When executed, a folder for each MPI rank will be created under ``output`` directory, and a ``trial.txt`` file containing the parameters evaluated in each Monte Carlo step and the value of the objective function, and a ``result.txt`` file containing the parameters actually adopted will be created.
 

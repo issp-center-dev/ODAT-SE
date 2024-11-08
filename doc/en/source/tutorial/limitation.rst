@@ -120,7 +120,7 @@ Then, execute the main program as follows. The calculation will end in about 20 
    $ mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 In this case, a calculation with 10 MPI parallel processes is performed.
-When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the ``--oversubscribed`` option to the ``mpiexec`` command.
+When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.
 After executed, the ``output`` folder is generated, and there a subfolder for each MPI rank is created.
 
 Each subfolder contains the results of the calculation.

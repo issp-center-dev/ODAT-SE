@@ -105,7 +105,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
    $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
 
 Here, the calculation is performed using MPI parallel with 4 processes.
-If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribed`` option to the ``mpiexec`` command.
+If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.
 
 When executed, a folder for each MPI rank will be created under the directory ``output``, and ``trial_TXXX.txt`` files containing the parameters evaluated in each Monte Carlo step and the value of the objective function at each temperature (``XXX`` is the index of points), and ``result_TXXX.txt`` files containing the parameters actually adopted will be created.
 These files are concatnated into ``result.txt`` and ``trial.txt``.
@@ -176,7 +176,7 @@ By executing the following command, the figures of two-dimensional parameter spa
 
 .. code-block::
 
-    $ python3 plot_result_2d.py -o res_T0.png result_T0.txt
+    $ python3 plot_result_2d.py -o res_T0.png output/0/result_T0.txt
 
 It is seen from the figures that the samples are concentrated near the minima of ``f(x)`` where the objective function has a small value.
 

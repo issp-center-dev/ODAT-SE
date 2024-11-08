@@ -144,11 +144,11 @@ It is seen that one of the minima is obtained.
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The steps taken during the search by the Nelder-Mead method is written in ``output/SimplexData.txt``. A tool to plot the path is prepared as ``simplex/plot_himmel.py``.
+The steps taken during the search by the Nelder-Mead method is written in ``output/0/SimplexData.txt``. A tool to plot the path is prepared as ``simplex/plot_himmel.py``.
 
 .. code-block::
 
-    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/SimplexData.txt
+    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/0/SimplexData.txt
 
 By executing the above command, ``output/res.pdf`` will be generated.
 

@@ -142,12 +142,12 @@ Nelder-Mead法による最適化
 計算結果の可視化
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Nelder-Mead法による解の探索の経路は ``output/SimplexData.txt`` に出力されています。
+Nelder-Mead法による解の探索の経路は ``output/0/SimplexData.txt`` に出力されています。
 これをプロットするツールが ``sample/plot_himmel.py`` に用意されています。
 
 .. code-block::
 
-    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/SimplexData.txt
+    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/0/SimplexData.txt
 
 上記を実行すると ``output/res.pdf`` が出力されます。
 
