@@ -44,8 +44,8 @@ For details, see the input file section of the manual.
   step_list = [0.3, 0.3]
 
   [algorithm.exchange]
-  Tmin = 0.1
-  Tmax = 10.0
+  Tmin = 0.01
+  Tmax = 100.0
   numsteps = 10000
   numsteps_exchange = 100
   nreplica_per_proc = 20
@@ -162,13 +162,7 @@ By executing the following command, the figures of two-dimensional plot ``res_T%
 
 Looking at the resulting diagram, we can see that the samples are concentrated near the minima of ``f(x)``. By changing the index of the temperature, the sampling points scatters over the region at high temperature, while they tend to concentrate on the minima at low temperature.
 
-.. figure:: ../../../common/img/res_exchange_T70.*
-
-.. figure:: ../../../common/img/res_exchange_T50.*
-
-.. figure:: ../../../common/img/res_exchange_T30.*
-
-.. figure:: ../../../common/img/res_exchange_T0.*
+.. figure:: ../../../common/img/res_exchange.*
 
    Distribution of sampling points on two-dimensional parameter space at :math:`T=\{35.02, 3.40, 0.33, 0.01\}`.
 
