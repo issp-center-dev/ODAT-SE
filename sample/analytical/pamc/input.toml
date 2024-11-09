@@ -17,12 +17,12 @@ seed = 12345
 [algorithm.param]
 max_list = [6.0, 6.0]
 min_list = [-6.0, -6.0]
-step_list = [0.3, 0.3]
+step_list = [0.1, 0.1]
 
 [algorithm.pamc]
-bmin = 0.0
-bmax = 200.0
+Tmin = 1.0
+Tmax = 100.0
 Tnum = 21
-Tlogspace = false
+Tlogspace = true
 numsteps_annealing = 100
 nreplica_per_proc = 100
