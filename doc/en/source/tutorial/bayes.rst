@@ -158,8 +158,6 @@ You can see at what step the parameter gave the minimum score by looking at ``Ba
 
 By executing the above commands, ``output/actions.pdf`` and ``output/res.pdf`` will be created that plots the grid points evaluated during the Bayes optimization process, and the sequence of the points that yield the least scores, respectively, on top of the contour of Himmelblau function.
 
-.. figure:: ../../../common/img/res_bayes_actions.*
+.. figure:: ../../../common/img/res_bayes_plot.*
 
-.. figure:: ../../../common/img/res_bayes.*
-
-   The grid points evaluated during the Bayesian optimization and the history of points that yield the least scores.
+   The grid points evaluated during the Bayesian optimization (left) and the history of points that yield the least scores (right).

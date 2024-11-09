@@ -170,6 +170,7 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 .. code-block::
 
   #!/bin/bash
+
   mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
 
   echo diff output/best_result.txt ref.txt
@@ -198,8 +199,6 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 図を見ると :math:`x_{1} - x_{2} > 0`, :math:`x_{1} + x_{2} - 1 > 0` の範囲のみ探索をしていることが確認できます。
 以下に図の一部を掲載します。
 
-.. figure:: ../../../common/img/limitation_beta_min.*
-
-.. figure:: ../../../common/img/limitation_beta_max.*
+.. figure:: ../../../common/img/res_limitation.*
 
     サンプルされたパラメータと確率分布。横軸は ``x1`` , 縦軸は ``x2`` を表す。

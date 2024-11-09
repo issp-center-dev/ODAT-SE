@@ -159,8 +159,8 @@
 
 上記を実行すると ``output/actions.pdf`` と  ``output/res.pdf`` が作成され、Himmelblau関数の関数値を表す等高線の上に、ベイズ最適化で評価したグリッド点と最小スコアを与える点の履歴がプロットされます。
 
-.. figure:: ../../../common/img/res_bayes_actions.*
 
-.. figure:: ../../../common/img/res_bayes.*
+.. figure:: ../../../common/img/res_bayes_plot.*
+   :align: center
 
-    ベイズ最適化で評価したグリッド点と最小スコアを与える点の履歴
+   ベイズ最適化で評価したグリッド点(左図)と最小スコアを与える点の履歴(右図)

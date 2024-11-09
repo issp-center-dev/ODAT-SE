@@ -132,4 +132,4 @@ By executing the above command, ``ColorMapFig.png`` is generated in which the fu
 
 .. figure:: ../../../common/img/res_mapper.*
 
-   Color map of the function values in the two-dimensional parameter space.
+   Color map of the function values in the grid search of the two-dimensional parameter space.

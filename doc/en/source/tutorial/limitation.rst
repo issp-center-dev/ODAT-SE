@@ -155,6 +155,7 @@ Additionally, in ``do.sh``, the difference between ``best_result.txt`` and ``ref
 .. code-block:: bash
 
   #!/bin/bash
+
   mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
 
   echo diff output/best_result.txt ref.txt
@@ -182,8 +183,6 @@ The histogram is generated using the data obtained by discarding the first 1000 
 
 The figure shows the posterior probability distribution and the two lines :math:`x_{1} - x_{2} = 0`, :math:`x_{1} + x_{2} - 1 = 0`, and it is confirmed that the search is only for the range where :math:`x_{1} - x_{2} > 0`, :math:`x_{1} + x_{2} - 1 > 0`.
 
-.. figure:: ../../../common/img/limitation_beta_min.*
-
-.. figure:: ../../../common/img/limitation_beta_max.*
+.. figure:: ../../../common/img/res_limitation.*
 
    Plots of sampled parameters and probability distribution. The horizontal and vertical axes denote ``x1`` and ``x2``, respectively.
