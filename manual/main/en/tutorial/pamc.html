@@ -77,13 +77,13 @@ For details, see the input file section of the manual.</p>
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
 <span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
 <span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
-<span class="n">step_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+<span class="n">step_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">pamc</span><span class="p">]</span>
-<span class="n">bmin</span> <span class="o">=</span> <span class="mf">0.0</span>
-<span class="n">bmax</span> <span class="o">=</span> <span class="mf">200.0</span>
+<span class="n">Tmin</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">Tmax</span> <span class="o">=</span> <span class="mf">100.0</span>
 <span class="n">Tnum</span> <span class="o">=</span> <span class="mi">21</span>
-<span class="n">Tlogspace</span> <span class="o">=</span> <span class="n">false</span>
+<span class="n">Tlogspace</span> <span class="o">=</span> <span class="n">true</span>
 <span class="n">numsteps_annealing</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">nreplica_per_proc</span> <span class="o">=</span> <span class="mi">100</span>
 </pre></div>
@@ -126,29 +126,29 @@ If you are using Open MPI and you request more processes than the number of core
 These files are concatnated into <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>.</p>
 <p>These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the (inversed) temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
 The final two columns are the weight of walker (Neal-Jarzynski weight) and the index of the grand ancestor (the replica index at the beginning of the calculation).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker beta fx x1 x2 weight ancestor</span>
-<span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.0</span> <span class="mf">187.94429125133564</span> <span class="mf">5.155393113805774</span> <span class="o">-</span><span class="mf">2.203493345018569</span> <span class="mf">1.0</span> <span class="mi">0</span>
-<span class="mi">0</span> <span class="mi">1</span> <span class="mf">0.0</span> <span class="mf">3.179380982615041</span> <span class="o">-</span><span class="mf">3.7929742598748666</span> <span class="o">-</span><span class="mf">3.5452766573635235</span> <span class="mf">1.0</span> <span class="mi">1</span>
-<span class="mi">0</span> <span class="mi">2</span> <span class="mf">0.0</span> <span class="mf">108.25464277273859</span> <span class="mf">0.8127003489802398</span> <span class="mf">1.1465364357510186</span> <span class="mf">1.0</span> <span class="mi">2</span>
-<span class="mi">0</span> <span class="mi">3</span> <span class="mf">0.0</span> <span class="mf">483.84183395038843</span> <span class="mf">5.57417423682746</span> <span class="mf">1.8381251624588506</span> <span class="mf">1.0</span> <span class="mi">3</span>
-<span class="mi">0</span> <span class="mi">4</span> <span class="mf">0.0</span> <span class="mf">0.43633134370869153</span> <span class="mf">2.9868796504069426</span> <span class="mf">1.8428384502208246</span> <span class="mf">1.0</span> <span class="mi">4</span>
-<span class="mi">0</span> <span class="mi">5</span> <span class="mf">0.0</span> <span class="mf">719.7992581349758</span> <span class="mf">2.972577711255287</span> <span class="mf">5.535680832873856</span> <span class="mf">1.0</span> <span class="mi">5</span>
-<span class="mi">0</span> <span class="mi">6</span> <span class="mf">0.0</span> <span class="mf">452.4691017123836</span> <span class="o">-</span><span class="mf">5.899340424701358</span> <span class="o">-</span><span class="mf">4.722667479627368</span> <span class="mf">1.0</span> <span class="mi">6</span>
-<span class="mi">0</span> <span class="mi">7</span> <span class="mf">0.0</span> <span class="mf">45.5355817998709</span> <span class="o">-</span><span class="mf">2.4155554347674215</span> <span class="mf">1.8769341969872393</span> <span class="mf">1.0</span> <span class="mi">7</span>
-<span class="mi">0</span> <span class="mi">8</span> <span class="mf">0.0</span> <span class="mf">330.7972369561986</span> <span class="mf">3.717750630491217</span> <span class="mf">4.466110964691396</span> <span class="mf">1.0</span> <span class="mi">8</span>
-<span class="mi">0</span> <span class="mi">9</span> <span class="mf">0.0</span> <span class="mf">552.0479484091458</span> <span class="mf">5.575771168463163</span> <span class="mf">2.684224163039442</span> <span class="mf">1.0</span> <span class="mi">9</span>
-<span class="mi">0</span> <span class="mi">10</span> <span class="mf">0.0</span> <span class="mf">32.20027165958588</span> <span class="mf">1.7097039347500953</span> <span class="mf">2.609443449748964</span> <span class="mf">1.0</span> <span class="mi">10</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx x1 x2 weight ancestor</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">100.0</span> <span class="mf">187.94429125133564</span> <span class="mf">5.155393113805774</span> <span class="o">-</span><span class="mf">2.203493345018569</span> <span class="mf">1.0</span> <span class="mi">0</span>
+<span class="mi">0</span> <span class="mi">1</span> <span class="mf">100.0</span> <span class="mf">3.179380982615041</span> <span class="o">-</span><span class="mf">3.7929742598748666</span> <span class="o">-</span><span class="mf">3.5452766573635235</span> <span class="mf">1.0</span> <span class="mi">1</span>
+<span class="mi">0</span> <span class="mi">2</span> <span class="mf">100.0</span> <span class="mf">108.25464277273859</span> <span class="mf">0.8127003489802398</span> <span class="mf">1.1465364357510186</span> <span class="mf">1.0</span> <span class="mi">2</span>
+<span class="mi">0</span> <span class="mi">3</span> <span class="mf">100.0</span> <span class="mf">483.84183395038843</span> <span class="mf">5.57417423682746</span> <span class="mf">1.8381251624588506</span> <span class="mf">1.0</span> <span class="mi">3</span>
+<span class="mi">0</span> <span class="mi">4</span> <span class="mf">100.0</span> <span class="mf">0.43633134370869153</span> <span class="mf">2.9868796504069426</span> <span class="mf">1.8428384502208246</span> <span class="mf">1.0</span> <span class="mi">4</span>
+<span class="mi">0</span> <span class="mi">5</span> <span class="mf">100.0</span> <span class="mf">719.7992581349758</span> <span class="mf">2.972577711255287</span> <span class="mf">5.535680832873856</span> <span class="mf">1.0</span> <span class="mi">5</span>
+<span class="mi">0</span> <span class="mi">6</span> <span class="mf">100.0</span> <span class="mf">452.4691017123836</span> <span class="o">-</span><span class="mf">5.899340424701358</span> <span class="o">-</span><span class="mf">4.722667479627368</span> <span class="mf">1.0</span> <span class="mi">6</span>
+<span class="mi">0</span> <span class="mi">7</span> <span class="mf">100.0</span> <span class="mf">45.5355817998709</span> <span class="o">-</span><span class="mf">2.4155554347674215</span> <span class="mf">1.8769341969872393</span> <span class="mf">1.0</span> <span class="mi">7</span>
+<span class="mi">0</span> <span class="mi">8</span> <span class="mf">100.0</span> <span class="mf">330.7972369561986</span> <span class="mf">3.717750630491217</span> <span class="mf">4.466110964691396</span> <span class="mf">1.0</span> <span class="mi">8</span>
+<span class="mi">0</span> <span class="mi">9</span> <span class="mf">100.0</span> <span class="mf">552.0479484091458</span> <span class="mf">5.575771168463163</span> <span class="mf">2.684224163039442</span> <span class="mf">1.0</span> <span class="mi">9</span>
+<span class="mi">0</span> <span class="mi">10</span> <span class="mf">100.0</span> <span class="mf">32.20027165958588</span> <span class="mf">1.7097039347500953</span> <span class="mf">2.609443449748964</span> <span class="mf">1.0</span> <span class="mi">10</span>
 <span class="o">...</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">output/best_result.txt</span></code> is filled with information about the parameter with the optimal objective function, the rank from which it was obtained, and the Monte Carlo step.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">rank</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">step</span> <span class="o">=</span> <span class="mi">1416</span>
-<span class="n">walker</span> <span class="o">=</span> <span class="mi">76</span>
-<span class="n">fx</span> <span class="o">=</span> <span class="mf">1.2934852891645974e-05</span>
-<span class="n">x1</span> <span class="o">=</span> <span class="mf">3.5849122439454018</span>
-<span class="n">x2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.8479993173120015</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">step</span> <span class="o">=</span> <span class="mi">1806</span>
+<span class="n">walker</span> <span class="o">=</span> <span class="mi">74</span>
+<span class="n">fx</span> <span class="o">=</span> <span class="mf">4.748689609377718e-06</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.805353724219707</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="mf">3.131045687296453</span>
 </pre></div>
 </div>
 <p>Finally, <code class="docutils literal notranslate"><span class="pre">output/fx.txt</span></code> stores the statistics at each temperature point:</p>
@@ -158,11 +158,11 @@ The final two columns are the weight of walker (Neal-Jarzynski weight) and the i
 <span class="c1"># $4: number of replicas</span>
 <span class="c1"># $5: log(Z/Z0)</span>
 <span class="c1"># $6: acceptance ratio</span>
-<span class="mf">0.0</span> <span class="mf">300.30221072734275</span> <span class="mf">15.51347277317414</span> <span class="mi">400</span> <span class="mf">0.0</span> <span class="mf">0.95625</span>
-<span class="mf">10.0</span> <span class="mf">0.10242968777639305</span> <span class="mf">0.004707441824226148</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">6.288173357129039</span> <span class="mf">0.078525</span>
-<span class="mf">20.0</span> <span class="mf">0.057183322050182284</span> <span class="mf">0.002645707013463865</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">7.016157801630186</span> <span class="mf">0.023825</span>
-<span class="mf">30.0</span> <span class="mf">0.04113146664363754</span> <span class="mf">0.0019866335071532255</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">7.477440282564104</span> <span class="mf">0.015575</span>
-<span class="mf">40.0</span> <span class="mf">0.030213182090724544</span> <span class="mf">0.0014292149366135543</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">7.82499342385409</span> <span class="mf">0.01135</span>
+<span class="mf">0.01</span> <span class="mf">130.39908953806298</span> <span class="mf">6.023477428315198</span> <span class="mi">400</span> <span class="mf">0.0</span> <span class="mf">0.9378</span>
+<span class="mf">0.01258925411794167</span> <span class="mf">83.6274790817115</span> <span class="mf">3.83620542622489</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.2971072297035158</span> <span class="mf">0.930325</span>
+<span class="mf">0.015848931924611134</span> <span class="mf">60.25390522675298</span> <span class="mf">2.73578884504734</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.5426399088244793</span> <span class="mf">0.940375</span>
+<span class="mf">0.01995262314968879</span> <span class="mf">47.20146188151557</span> <span class="mf">2.3479083531465976</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.7680892360649545</span> <span class="mf">0.93715</span>
+<span class="mf">0.025118864315095794</span> <span class="mf">41.118822390166315</span> <span class="mf">1.8214854089575818</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.9862114670289625</span> <span class="mf">0.9153</span>
 <span class="o">...</span>
 </pre></div>
 </div>
@@ -177,17 +177,14 @@ The sixth column is the acceptance ratio of MC updates.</p>
 In this case, the figure <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> of the 2D parameter space is created by using the following command.
 The color of symbols of <code class="docutils literal notranslate"><span class="pre">result_fx.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">result_T.pdf</span></code> mean <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> and <span class="math notranslate nohighlight">\(\beta\)</span>, respectively.</p>
 <p>By executing the following command, the figures of two-dimensional parameter space <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> will be generated where <code class="docutils literal notranslate"><span class="pre">%</span></code> stands for the indices of temperature. The symbol color corresponds to the function value.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2d.py -o res_T0.png output/0/result_T0.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2dmap.py
 </pre></div>
 </div>
 <p>It is seen from the figures that the samples are concentrated near the minima of <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> where the objective function has a small value.</p>
-<figure class="align-default">
-<img alt="../_images/res_pamc_T0.png" src="../_images/res_pamc_T0.png" />
-</figure>
 <figure class="align-default" id="id1">
-<img alt="../_images/res_pamc_T1.png" src="../_images/res_pamc_T1.png" />
+<img alt="../_images/res_pamc.png" src="../_images/res_pamc.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Plot of sampled parameters. The horizontal axis denotes <code class="docutils literal notranslate"><span class="pre">x1</span></code>, the vertical axis denotes <code class="docutils literal notranslate"><span class="pre">x2</span></code>, and the color represents the value of <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Plot of sampled parameters. The horizontal axis denotes <code class="docutils literal notranslate"><span class="pre">x1</span></code>, the vertical axis denotes <code class="docutils literal notranslate"><span class="pre">x2</span></code>, and the color represents the value of <code class="docutils literal notranslate"><span class="pre">T</span></code> (left) and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (right), respectively.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </section>

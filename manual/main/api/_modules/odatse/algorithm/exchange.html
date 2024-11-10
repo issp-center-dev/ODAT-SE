@@ -236,7 +236,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
             <span class="c1"># first step</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="n">file_trial</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;trial.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_trial</span><span class="p">)</span>
@@ -245,6 +244,8 @@
             <span class="n">file_result</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;result.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_result</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">file_result</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="n">minidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>

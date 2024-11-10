@@ -159,6 +159,7 @@ The following is the beginning of the <code class="docutils literal notranslate"
 <p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code> is available as a script to calculate all at once.
 Additionally, in <code class="docutils literal notranslate"><span class="pre">do.sh</span></code>, the difference between <code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">ref.txt</span></code> is also compared.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
 mpiexec<span class="w"> </span>-np<span class="w"> </span><span class="m">10</span><span class="w"> </span>--oversubscribe<span class="w"> </span>python3<span class="w"> </span>../../../src/odatse_main.py<span class="w"> </span>input.toml
 
 <span class="nb">echo</span><span class="w"> </span>diff<span class="w"> </span>output/best_result.txt<span class="w"> </span>ref.txt
@@ -184,11 +185,8 @@ The histogram is generated using the data obtained by discarding the first 1000 
 </pre></div>
 </div>
 <p>The figure shows the posterior probability distribution and the two lines <span class="math notranslate nohighlight">\(x_{1} - x_{2} = 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 = 0\)</span>, and it is confirmed that the search is only for the range where <span class="math notranslate nohighlight">\(x_{1} - x_{2} &gt; 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 &gt; 0\)</span>.</p>
-<figure class="align-default">
-<img alt="../_images/limitation_beta_min.png" src="../_images/limitation_beta_min.png" />
-</figure>
 <figure class="align-default" id="id1">
-<img alt="../_images/limitation_beta_max.png" src="../_images/limitation_beta_max.png" />
+<img alt="../_images/res_limitation.png" src="../_images/res_limitation.png" />
 <figcaption>
 <p><span class="caption-number">Fig. 7 </span><span class="caption-text">Plots of sampled parameters and probability distribution. The horizontal and vertical axes denote <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code>, respectively.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>

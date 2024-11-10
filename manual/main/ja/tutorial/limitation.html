@@ -173,6 +173,7 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 <code class="docutils literal notranslate"><span class="pre">do.sh</span></code> では <code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code> と <code class="docutils literal notranslate"><span class="pre">ref.txt</span></code> の差分も比較しています。
 以下、説明は割愛しますが、その中身を掲載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/bash
+
 mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
 
 echo diff output/best_result.txt ref.txt
@@ -199,11 +200,8 @@ fi
 <p>作成された図には2本の直線 <span class="math notranslate nohighlight">\(x_{1} - x_{2} = 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 = 0\)</span> と探索結果(事後確率分布のヒストグラム)を図示しています。
 図を見ると <span class="math notranslate nohighlight">\(x_{1} - x_{2} &gt; 0\)</span>, <span class="math notranslate nohighlight">\(x_{1} + x_{2} - 1 &gt; 0\)</span> の範囲のみ探索をしていることが確認できます。
 以下に図の一部を掲載します。</p>
-<figure class="align-default">
-<img alt="../_images/limitation_beta_min.png" src="../_images/limitation_beta_min.png" />
-</figure>
 <figure class="align-default" id="id6">
-<img alt="../_images/limitation_beta_max.png" src="../_images/limitation_beta_max.png" />
+<img alt="../_images/res_limitation.png" src="../_images/res_limitation.png" />
 <figcaption>
 <p><span class="caption-text">サンプルされたパラメータと確率分布。横軸は <code class="docutils literal notranslate"><span class="pre">x1</span></code> , 縦軸は <code class="docutils literal notranslate"><span class="pre">x2</span></code> を表す。</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
 </figcaption>
