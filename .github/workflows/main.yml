@@ -8,10 +8,9 @@ jobs:
       matrix:
         # os: ['ubuntu-22.04']
         python-version: ['3.9', '3.12']
-        sample: [mapper, minsearch, exchange, exchange_mesh, pamc, bayes, transform]
       fail-fast: false
 
-    name: ${{ matrix.sample }} with Python ${{ matrix.python-version }}
+    name: Run tests with Python ${{ matrix.python-version }}
     runs-on: 'ubuntu-22.04'
     # runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -38,7 +37,7 @@ jobs:
           python -m pip install numpy scipy tomli mpi4py
           python -m pip install physbo
 
-      - name: ${{ matrix.sample }}
+      - name: run
         run: |
-          cd ${GITHUB_WORKSPACE}/tests/${{ matrix.sample }}
-          sh ./do.sh
+          mkdir build && cd build && cmake ..
+          ctest -V
