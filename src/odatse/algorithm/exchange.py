@@ -151,7 +151,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.mode.startswith("init"):
             # first step
             self._evaluate()
-            self.istep += 1
 
             file_trial = open("trial.txt", "w")
             self._write_result_header(file_trial)
@@ -160,6 +159,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             file_result = open("result.txt", "w")
             self._write_result_header(file_result)
             self._write_result(file_result)
+
+            self.istep += 1
 
             minidx = np.argmin(self.fx)
             self.best_x = copy.copy(self.x[minidx, :])
