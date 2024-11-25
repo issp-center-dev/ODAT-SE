@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimization by Nelder-Mead method &#8212; ODAT-SE 3.0-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=82e8fb87"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Grid search" href="mapper.html" />
+    <link rel="prev" title="Minimization of an analytical function" href="intro.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev documentation</span></a></h1>
+        <h2 class="heading"><span>Optimization by Nelder-Mead method</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="intro.html">Minimization of an analytical function</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mapper.html">Grid search</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="optimization-by-nelder-mead-method">
+<h1>Optimization by Nelder-Mead method<a class="headerlink" href="#optimization-by-nelder-mead-method" title="Link to this heading">¶</a></h1>
+<p>In this section, we will explain how to calculate the minimization problem of Himmelblau function using the Nelder-Mead method.
+The specific calculation procedure is as follows.</p>
+<ol class="arabic">
+<li><p>Preparation of an input file</p>
+<p>Prepare an input file that describes parameters in TOML format.</p>
+</li>
+<li><p>Run the main program</p>
+<p>Run the calculation using <code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> to solve the minimization problem.</p>
+</li>
+</ol>
+<section id="location-of-the-sample-files">
+<h2>Location of the sample files<a class="headerlink" href="#location-of-the-sample-files" title="Link to this heading">¶</a></h2>
+<p>The sample files are located in <code class="docutils literal notranslate"><span class="pre">sample/analytical/minsearch</span></code>.
+The following files are stored in the folder.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>Input file of the main program.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>Script prepared for doing all calculation of this tutorial</p>
+</li>
+</ul>
+<p>In addition, <code class="docutils literal notranslate"><span class="pre">plot_himmel.py</span></code> in the <code class="docutils literal notranslate"><span class="pre">sample</span></code> folder is used to visualize the result.</p>
+</section>
+<section id="input-file">
+<h2>Input file<a class="headerlink" href="#input-file" title="Link to this heading">¶</a></h2>
+<p>In this section, we will prepare the input file <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> for the main program.
+The details of <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> can be found in the <code class="docutils literal notranslate"><span class="pre">input</span> <span class="pre">file</span></code> section of the manual.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
+<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;minsearch&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">initial_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code> section describes parameters used in the whole program.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code> is the number of variables to be optimized, in this case <code class="docutils literal notranslate"><span class="pre">2</span></code> since Himmelblau function is a two-variable function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> is the name of directory for output.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section specifies the solver to be used inside the main program and its settings.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the solver you want to use. In this tutorial, we perform analyses of an analytical function in the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">function_name</span></code> is the name of the function in the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> section specifies settings on calling the direct problem solver from the inverse problem analysis algorithm.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code> in <code class="docutils literal notranslate"><span class="pre">[runner.log]</span></code> specifies the frequency of the log output. The logs are written in every <code class="docutils literal notranslate"><span class="pre">interval</span></code> steps.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section specifies the algorithm to use and its settings.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the algorithm you want to use. In this tutorial we will use <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> since we will be using the Nelder-Mead method.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> specifies the initial input of random number generator.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section specifies the range of parameters to search and their initial values.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> specify the minimum and maximum values of the search range, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code> specifies the initial values.</p></li>
+</ul>
+<p>Other parameters, such as convergence judgments used in the Nelder-Mead method, can be done in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section, although they are omitted here because the default values are used.
+See the input file chapter for details.</p>
+</section>
+<section id="calculation-execution">
+<h2>Calculation execution<a class="headerlink" href="#calculation-execution" title="Link to this heading">¶</a></h2>
+<p>First, move to the folder where the sample files are located. (We assume that you are directly under the directory where you downloaded this software.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/minsearch
+</pre></div>
+</div>
+<p>Then, run the main program. The computation time takes only a few seconds on a normal PC.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>The standard output will be seen as follows.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Optimization</span> <span class="n">terminated</span> <span class="n">successfully</span><span class="o">.</span>
+         <span class="n">Current</span> <span class="n">function</span> <span class="n">value</span><span class="p">:</span> <span class="mf">0.000000</span>
+         <span class="n">Iterations</span><span class="p">:</span> <span class="mi">40</span>
+         <span class="n">Function</span> <span class="n">evaluations</span><span class="p">:</span> <span class="mi">79</span>
+<span class="n">iteration</span><span class="p">:</span> <span class="mi">40</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">allvecs</span><span class="p">):</span> <span class="mi">41</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.</span> <span class="mf">0.</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.375</span> <span class="mf">0.375</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.0625</span> <span class="mf">0.9375</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">3</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.65625</span> <span class="mf">1.46875</span><span class="p">]</span>
+<span class="n">step</span><span class="p">:</span> <span class="mi">4</span>
+<span class="n">allvecs</span><span class="p">[</span><span class="n">step</span><span class="p">]:</span> <span class="p">[</span><span class="mf">0.328125</span> <span class="mf">2.859375</span><span class="p">]</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code> are the candidate parameters at each step and the function value at that point.
+The final estimated parameters is written to <code class="docutils literal notranslate"><span class="pre">output/res.dat</span></code>.
+In the current case, the following result will be obtained:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="mf">4.2278370361994904e-08</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="mf">2.9999669562950175</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="mf">1.9999973389336225</span>
+</pre></div>
+</div>
+<p>It is seen that one of the minima is obtained.</p>
+</section>
+<section id="visualization-of-calculation-results">
+<h2>Visualization of calculation results<a class="headerlink" href="#visualization-of-calculation-results" title="Link to this heading">¶</a></h2>
+<p>The steps taken during the search by the Nelder-Mead method is written in <code class="docutils literal notranslate"><span class="pre">output/0/SimplexData.txt</span></code>. A tool to plot the path is prepared as <code class="docutils literal notranslate"><span class="pre">simplex/plot_himmel.py</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=1 --ycol=2 --output=output/res.pdf output/0/SimplexData.txt
+</pre></div>
+</div>
+<p>By executing the above command, <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> will be generated.</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/res_minsearch.png" src="../_images/res_minsearch.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">The path taken during the minimum search by the Nelder-Mead method is drawn by the blue line. The black curves show contour of Himmelblau function.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The path of the minimum search by the Nelder-Mead method is drawn on top of the contour plot of Himmelblau function. Starting from the initial value at <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0)</span></code>, the path reaches to one of the minima, <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">2)</span></code>.</p>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="intro.html">Minimization of an analytical function</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="mapper.html">Grid search</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

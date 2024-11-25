@@ -1,0 +1,17 @@
+odatse.solver package
+=====================
+
+.. automodule:: odatse.solver
+   :members:
+   :show-inheritance:
+   :private-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   odatse.solver._solver
+   odatse.solver.analytical
+   odatse.solver.function

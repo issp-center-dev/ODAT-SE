@@ -1,0 +1,7 @@
+odatse.mpi module
+=================
+
+.. automodule:: odatse.mpi
+   :members:
+   :show-inheritance:
+   :private-members:

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>グリッド型探索 &#8212; ODAT-SE 3.0-dev ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="ベイズ最適化" href="bayes.html" />
+    <link rel="prev" title="Nelder-Mead法による最適化" href="minsearch.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
+        <h2 class="heading"><span>グリッド型探索</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Nelder-Mead法による最適化</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="bayes.html">ベイズ最適化</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>グリッド型探索<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<p>ここでは、グリッド型探索を行い Himmelblau関数の最小化問題を解析する方法について説明します。
+グリッド型探索はMPI並列化に対応しています。具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の場合と同様です。
+探索グリッドはパラメータを元にプログラム内部で生成します。</p>
+<section id="id2">
+<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/analytical/mapper</span></code> にあります。
+フォルダには以下のファイルが格納されています。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>メインプログラムの入力ファイル</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_colormap_2d.py</span></code></p>
+<p>計算結果を可視化するためのプログラム</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>本チュートリアルを一括計算するために準備されたスクリプト</p>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h2>入力ファイルの説明<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
+<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mapper&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">num_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">31</span><span class="p">,</span> <span class="mi">31</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code>, <code class="docutils literal notranslate"><span class="pre">[runner]</span></code> のセクションについては Nelder-Mead法による探索(<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>)の場合と同じです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションでは、使用するアルゴリスムとその設定を行います。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用するアルゴリズムの名前です。このチュートリアルでは、グリッド探索による解析を行うので、 <code class="docutils literal notranslate"><span class="pre">mapper</span></code> を指定します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクションで探索するパラメータのグリッドを指定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> と <code class="docutils literal notranslate"><span class="pre">max_list</span></code> はそれぞれ探索範囲の最小値と最大値を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code> はパラメータの各方向へのグリッド点の個数を指定します。</p></li>
+</ul>
+<p>ここではデフォルト値を用いるため省略しましたが、その他のパラメータについて詳細は「入力ファイル」の章を参照してください。</p>
+</section>
+<section id="id4">
+<h2>計算の実行<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>最初にサンプルファイルが置いてあるフォルダへ移動します。(以下、ODAT-SEパッケージをダウンロードしたディレクトリの直下にいることを仮定します。)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/mapper
+</pre></div>
+</div>
+<p>メインプログラムを実行します。計算時間は通常のPCで数秒程度で終わります。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>ここではプロセス数4のMPI並列を用いた計算を行っています。
+実行すると <code class="docutils literal notranslate"><span class="pre">output</span></code> ディレクトリとその下に各ランクのフォルダが作成され、ランクごとの計算結果が出力されます。
+同時に、以下の様な出力が標準出力に書き出されます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Make</span> <span class="n">ColorMap</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">2</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">3</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">4</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">5</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">6</span><span class="o">/</span><span class="mi">240</span>
+<span class="n">Iteration</span> <span class="p">:</span> <span class="mi">7</span><span class="o">/</span><span class="mi">240</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> に各メッシュでの候補パラメータと、その時の関数値が出力されます。
+最終的にグリッド上の全ての点で計算された関数値が <code class="docutils literal notranslate"><span class="pre">output/ColorMap.txt</span></code> に出力されます。
+今回の場合は、</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="mf">6.000000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">890.000000</span>
+<span class="o">-</span><span class="mf">5.600000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">753.769600</span>
+<span class="o">-</span><span class="mf">5.200000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">667.241600</span>
+<span class="o">-</span><span class="mf">4.800000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">622.121600</span>
+<span class="o">-</span><span class="mf">4.400000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">610.729600</span>
+<span class="o">-</span><span class="mf">4.000000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">626.000000</span>
+<span class="o">-</span><span class="mf">3.600000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">661.481600</span>
+<span class="o">-</span><span class="mf">3.200000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">711.337600</span>
+<span class="o">-</span><span class="mf">2.800000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">770.345600</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>のような結果が得られ、
+1列目、2列目に <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> の値、3列目に関数値が記載されます。</p>
+</section>
+<section id="id5">
+<h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code> を図示することで、関数の値が小さいパラメータがどこにあるかを推定することができます。そのような 2次元パラメータ空間のプロットを作成するプログラムが <code class="docutils literal notranslate"><span class="pre">plot_colormap_2d.py</span></code> に用意されています。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_colormap_2d.py
+</pre></div>
+</div>
+<p>上記を実行すると <code class="docutils literal notranslate"><span class="pre">ColorMapFig.png</span></code> が作成され、Himmelblau関数の関数値を表す等高線の上に、各グリッド点で評価した関数値がカラーマップとしてプロットされます。</p>
+<figure class="align-default" id="id6">
+<img alt="../_images/res_mapper.png" src="../_images/res_mapper.png" />
+<figcaption>
+<p><span class="caption-text">グリッド型探索における2次元パラメータ空間上での関数値のカラーマップ。</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Nelder-Mead法による最適化</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="bayes.html">ベイズ最適化</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

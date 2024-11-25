@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>関連ツール &#8212; ODAT-SE 3.0-dev ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=1bf24029"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="(開発者向け)ユーザー定義アルゴリズム・ソルバー" href="customize/index.html" />
+    <link rel="prev" title="analytical ソルバー" href="solver/analytical.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
+        <h2 class="heading"><span>関連ツール</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバー</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="customize/index.html">(開発者向け)ユーザー定義アルゴリズム・ソルバー</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>関連ツール<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="odatse-neighborlist">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code><a class="headerlink" href="#odatse-neighborlist" title="Link to this heading">¶</a></h2>
+<p>離散空間をモンテカルロ探索する場合に使用する近傍リスト定義ファイルを
+メッシュ定義ファイルから生成するツールです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span></code> でインストールした場合は <code class="docutils literal notranslate"><span class="pre">odatse</span></code> と同様に <code class="docutils literal notranslate"><span class="pre">bin</span></code> 以下に <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> という名前でインストールされます。
+もしくは、ディレクトリ中の <code class="docutils literal notranslate"><span class="pre">src/odatse_neighborlist.py</span></code> を直接実行することも可能です。</p>
+<section id="id2">
+<h3>使い方<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>引数としてメッシュ定義ファイルを渡します。
+生成される近傍リスト定義ファイルの名前は <code class="docutils literal notranslate"><span class="pre">-o</span></code> オプションで指定可能です。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_neighborlist<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
+</pre></div>
+</div>
+<p>次のオプションが利用できます。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">output</span></code> or <code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">output</span></code></p>
+<ul>
+<li><p>出力ファイル名 (default: <code class="docutils literal notranslate"><span class="pre">neighborlist.txt</span></code>)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">--unit</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2&quot;</span></code></p>
+<ul>
+<li><p>各次元の長さスケール (default: すべて 1.0)</p>
+<ul>
+<li><p>空間次元の数だけ値を空白区切りで並べ、全体を引用符でくくってください</p></li>
+</ul>
+</li>
+<li><p>各座標はあらかじめこれらの長さスケールで除算されます</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">radius</span></code> or <code class="docutils literal notranslate"><span class="pre">--radius</span> <span class="pre">radius</span></code></p>
+<ul>
+<li><p>近傍とみなされるユークリッド距離 (default: 1.0)</p></li>
+<li><p>距離は <code class="docutils literal notranslate"><span class="pre">-u</span></code> で除されたあとの座標に対して計算されます</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-q</span></code> or <code class="docutils literal notranslate"><span class="pre">--quiet</span></code></p>
+<ul>
+<li><p>進捗バーを表示しません</p></li>
+<li><p>なお、進捗バーの表示には <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> python パッケージが必要です</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--allow-selfloop</span></code></p>
+<ul>
+<li><p>自分自身を隣接リストに含めます（自己ループ）</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check-allpairs</span></code></p>
+<ul>
+<li><p>すべての点対に対して距離を計算します</p></li>
+<li><p>デバッグ用のオプションです</p></li>
+</ul>
+</li>
+</ul>
+<p>なお、 MPI を用いて計算を高速化できます。</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバー</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="customize/index.html">(開発者向け)ユーザー定義アルゴリズム・ソルバー</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

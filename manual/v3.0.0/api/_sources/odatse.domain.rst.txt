@@ -1,0 +1,17 @@
+odatse.domain package
+=====================
+
+.. automodule:: odatse.domain
+   :members:
+   :show-inheritance:
+   :private-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   odatse.domain._domain
+   odatse.domain.meshgrid
+   odatse.domain.region

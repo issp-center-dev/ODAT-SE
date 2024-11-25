@@ -1,0 +1,7 @@
+odatse.util.separateT module
+============================
+
+.. automodule:: odatse.util.separateT
+   :members:
+   :show-inheritance:
+   :private-members:

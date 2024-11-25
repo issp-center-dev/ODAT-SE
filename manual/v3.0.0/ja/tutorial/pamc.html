@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ポピュレーションアニーリングによる探索 &#8212; ODAT-SE 3.0-dev ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=f63d8bfa" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=1bf24029"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="制約式を適用したレプリカ交換モンテカルロ法による探索" href="limitation.html" />
+    <link rel="prev" title="レプリカ交換モンテカルロ法による探索" href="exchange.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0-dev ドキュメント</span></a></h1>
+        <h2 class="heading"><span>ポピュレーションアニーリングによる探索</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="exchange.html">レプリカ交換モンテカルロ法による探索</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="limitation.html">制約式を適用したレプリカ交換モンテカルロ法による探索</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>ポピュレーションアニーリングによる探索<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<p>ここでは、ポピュレーションアニーリングを用いて Himmelblau関数の最小化問題を解析する方法について説明します。
+具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。</p>
+<section id="id2">
+<h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/analytical/pamc</span></code> にあります。
+フォルダには以下のファイルが格納されています。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>メインプログラムの入力ファイル</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>本チュートリアルを一括計算するために準備されたスクリプト</p>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h2>入力ファイルの説明<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">runner</span><span class="p">]</span>
+<span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;pamc&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">step_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">pamc</span><span class="p">]</span>
+<span class="n">Tmin</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">Tmax</span> <span class="o">=</span> <span class="mf">100.0</span>
+<span class="n">Tnum</span> <span class="o">=</span> <span class="mi">21</span>
+<span class="n">Tlogspace</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">numsteps_annealing</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">nreplica_per_proc</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p>ここではこの入力ファイルを簡単に説明します。
+詳細は入力ファイルのレファレンスを参照してください。</p>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code>, <code class="docutils literal notranslate"><span class="pre">[runner]</span></code> のセクションについては Nelder-Mead法による探索(<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>)の場合と同じです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションでは、使用するアルゴリスムとその設定を行います。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> は使用するアルゴリズムの名前です。このチュートリアルでは、ポピュレーションアニーリング法による解析を行うので、 <code class="docutils literal notranslate"><span class="pre">pamc</span></code> を指定します。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクションでは、探索する連続なパラメータ空間の設定を行います。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> と <code class="docutils literal notranslate"><span class="pre">max_list</span></code> はそれぞれ探索範囲の最小値と最大値を指定します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code> はモンテカルロ更新の際の変化幅(ガウス分布の偏差)です。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.pamc]</span></code> セクションは、ポピュレーションアニーリングのハイパーパラメータを指定します。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numsteps_annealing</span></code> で指定した回数のモンテカルロ更新の後に、逆温度を増やします (温度を下げます)。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code> はそれぞれ逆温度の下限・上限です。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tnum</span></code> は計算する温度・逆温度の点数です。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> の場合、温度を対数空間で等分割します</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> はMPIプロセスひとつが受け持つ計算レプリカの数です。</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>計算の実行<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>最初にサンプルファイルが置いてあるフォルダへ移動します。(以下、本ソフトウェアをダウンロードしたディレクトリ直下にいることを仮定します。)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/pamc
+</pre></div>
+</div>
+<p>メインプログラムを実行します。計算時間は通常のPCで数秒程度で終わります。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>ここではプロセス数4のMPI並列を用いた計算を行っています。
+OpenMPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--oversubscribe</span></code> オプションを追加してください。</p>
+<p>実行すると、 <code class="docutils literal notranslate"><span class="pre">output</span></code> ディレクトリの下に各ランクのフォルダが作成され、温度ごとに、各モンテカルロステップで評価したパラメータおよび目的関数の値を記した <code class="docutils literal notranslate"><span class="pre">trial_TXXX.txt</span></code> ファイル(<code class="docutils literal notranslate"><span class="pre">XXX</span></code> は温度点の番号)と、実際に採択されたパラメータを記した <code class="docutils literal notranslate"><span class="pre">result_TXXX.txt</span></code> ファイル、さらにそれぞれを結合した <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> ファイルが生成されます。
+それぞれ書式は同じで、最初の2列がステップ数とプロセス内の walker (replica) 番号、次が(逆)温度、3列目が目的関数の値、4列目以降がパラメータです。
+最後の2 列は、 walker の重み (Neal-Jarzynski weight) と祖先(計算を開始したときのレプリカ)の番号です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx x1 x2 weight ancestor</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">100.0</span> <span class="mf">187.94429125133564</span> <span class="mf">5.155393113805774</span> <span class="o">-</span><span class="mf">2.203493345018569</span> <span class="mf">1.0</span> <span class="mi">0</span>
+<span class="mi">0</span> <span class="mi">1</span> <span class="mf">100.0</span> <span class="mf">3.179380982615041</span> <span class="o">-</span><span class="mf">3.7929742598748666</span> <span class="o">-</span><span class="mf">3.5452766573635235</span> <span class="mf">1.0</span> <span class="mi">1</span>
+<span class="mi">0</span> <span class="mi">2</span> <span class="mf">100.0</span> <span class="mf">108.25464277273859</span> <span class="mf">0.8127003489802398</span> <span class="mf">1.1465364357510186</span> <span class="mf">1.0</span> <span class="mi">2</span>
+<span class="mi">0</span> <span class="mi">3</span> <span class="mf">100.0</span> <span class="mf">483.84183395038843</span> <span class="mf">5.57417423682746</span> <span class="mf">1.8381251624588506</span> <span class="mf">1.0</span> <span class="mi">3</span>
+<span class="mi">0</span> <span class="mi">4</span> <span class="mf">100.0</span> <span class="mf">0.43633134370869153</span> <span class="mf">2.9868796504069426</span> <span class="mf">1.8428384502208246</span> <span class="mf">1.0</span> <span class="mi">4</span>
+<span class="mi">0</span> <span class="mi">5</span> <span class="mf">100.0</span> <span class="mf">719.7992581349758</span> <span class="mf">2.972577711255287</span> <span class="mf">5.535680832873856</span> <span class="mf">1.0</span> <span class="mi">5</span>
+<span class="mi">0</span> <span class="mi">6</span> <span class="mf">100.0</span> <span class="mf">452.4691017123836</span> <span class="o">-</span><span class="mf">5.899340424701358</span> <span class="o">-</span><span class="mf">4.722667479627368</span> <span class="mf">1.0</span> <span class="mi">6</span>
+<span class="mi">0</span> <span class="mi">7</span> <span class="mf">100.0</span> <span class="mf">45.5355817998709</span> <span class="o">-</span><span class="mf">2.4155554347674215</span> <span class="mf">1.8769341969872393</span> <span class="mf">1.0</span> <span class="mi">7</span>
+<span class="mi">0</span> <span class="mi">8</span> <span class="mf">100.0</span> <span class="mf">330.7972369561986</span> <span class="mf">3.717750630491217</span> <span class="mf">4.466110964691396</span> <span class="mf">1.0</span> <span class="mi">8</span>
+<span class="mi">0</span> <span class="mi">9</span> <span class="mf">100.0</span> <span class="mf">552.0479484091458</span> <span class="mf">5.575771168463163</span> <span class="mf">2.684224163039442</span> <span class="mf">1.0</span> <span class="mi">9</span>
+<span class="mi">0</span> <span class="mi">10</span> <span class="mf">100.0</span> <span class="mf">32.20027165958588</span> <span class="mf">1.7097039347500953</span> <span class="mf">2.609443449748964</span> <span class="mf">1.0</span> <span class="mi">10</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">output/best_result.txt</span></code> に、目的関数が最小となったパラメータとそれを得たランク、モンテカルロステップの情報が書き込まれます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">step</span> <span class="o">=</span> <span class="mi">1806</span>
+<span class="n">walker</span> <span class="o">=</span> <span class="mi">74</span>
+<span class="n">fx</span> <span class="o">=</span> <span class="mf">4.748689609377718e-06</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.805353724219707</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="mf">3.131045687296453</span>
+</pre></div>
+</div>
+<p>最後に、 <code class="docutils literal notranslate"><span class="pre">output/fx.txt</span></code> には、各温度ごとの統計情報が記録されます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: 1/T</span>
+<span class="c1"># $2: mean of f(x)</span>
+<span class="c1"># $3: standard error of f(x)</span>
+<span class="c1"># $4: number of replicas</span>
+<span class="c1"># $5: log(Z/Z0)</span>
+<span class="c1"># $6: acceptance ratio</span>
+<span class="mf">0.01</span> <span class="mf">130.39908953806298</span> <span class="mf">6.023477428315198</span> <span class="mi">400</span> <span class="mf">0.0</span> <span class="mf">0.9378</span>
+<span class="mf">0.01258925411794167</span> <span class="mf">83.6274790817115</span> <span class="mf">3.83620542622489</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.2971072297035158</span> <span class="mf">0.930325</span>
+<span class="mf">0.015848931924611134</span> <span class="mf">60.25390522675298</span> <span class="mf">2.73578884504734</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.5426399088244793</span> <span class="mf">0.940375</span>
+<span class="mf">0.01995262314968879</span> <span class="mf">47.20146188151557</span> <span class="mf">2.3479083531465976</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.7680892360649545</span> <span class="mf">0.93715</span>
+<span class="mf">0.025118864315095794</span> <span class="mf">41.118822390166315</span> <span class="mf">1.8214854089575818</span> <span class="mi">400</span> <span class="o">-</span><span class="mf">0.9862114670289625</span> <span class="mf">0.9153</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>1列目は温度・逆温度で、2・3列目は目的関数 <span class="math notranslate nohighlight">\(f(x)\)</span> の期待値と標準誤差、4列目はレプリカの個数、5列目は分配関数の比の対数 <span class="math notranslate nohighlight">\(\log(Z_n/Z_0)\)</span> (<span class="math notranslate nohighlight">\(Z_0\)</span> は最初の温度点における分配関数)、6列目はモンテカルロ更新の採択率です。</p>
+</section>
+<section id="id5">
+<h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> を図示することで <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の小さいパラメータがどこにあるかを推定することができます。
+以下のコマンドを入力すると2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> が作成されます。
+シンボルの色は目的関数の値に対応します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2dmap.py
+</pre></div>
+</div>
+<p>作成された図を見ると、 <code class="docutils literal notranslate"><span class="pre">T</span></code> を小さくするごとに <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の最小値を与える点の付近にサンプルが集中していることがわかります。</p>
+<figure class="align-default" id="id6">
+<img alt="../_images/res_pamc.png" src="../_images/res_pamc.png" />
+<figcaption>
+<p><span class="caption-text">サンプルされたパラメータ。横軸は <code class="docutils literal notranslate"><span class="pre">x1</span></code> , 縦軸は <code class="docutils literal notranslate"><span class="pre">x2</span></code> を、色は <code class="docutils literal notranslate"><span class="pre">T</span></code> (左図), <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (右図)を表す。</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="exchange.html">レプリカ交換モンテカルロ法による探索</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="limitation.html">制約式を適用したレプリカ交換モンテカルロ法による探索</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

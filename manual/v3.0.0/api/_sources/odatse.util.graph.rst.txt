@@ -1,0 +1,7 @@
+odatse.util.graph module
+========================
+
+.. automodule:: odatse.util.graph
+   :members:
+   :show-inheritance:
+   :private-members:

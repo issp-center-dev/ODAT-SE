@@ -1,0 +1,7 @@
+odatse.solver.function module
+=============================
+
+.. automodule:: odatse.solver.function
+   :members:
+   :show-inheritance:
+   :private-members:
