@@ -23,7 +23,7 @@ author = u'2DMAT Developer team'
 
 version = '3.0'
 # The full version, including alpha/beta/rc tags
-release = '3.0-dev'
+release = '3.0.0'
 
 # -- General configuration ---------------------------------------------------
 
