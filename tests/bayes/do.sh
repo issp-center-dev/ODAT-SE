@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+
 # Remove the output directory if it exists
 rm -rf output
 

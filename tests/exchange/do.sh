@@ -1,10 +1,13 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+export OMPI_MCA_rmaps_base_oversubscribe=1
+
 # Remove the output directory if it exists
 rm -rf output
 
 # Run the Python script using mpiexec with 4 processes and measure the time taken
-time mpiexec --oversubscribe -np 4 python3 ../../src/odatse_main.py input.toml
+time mpiexec -np 4 python3 ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/best_result.txt
