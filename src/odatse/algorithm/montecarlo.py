@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 import odatse
-from odatse.util.neighborlist import load_neighbor_list
+from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
 import odatse.util.graph
 import odatse.domain
 
@@ -194,24 +194,25 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         if "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
             self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
-
-            # checks
-            if not odatse.util.graph.is_connected(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not connected."
-                    "\nHINT: Increase neighborhood radius."
-                )
-            if not odatse.util.graph.is_bidirectional(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not bidirectional."
-                )
-
-            self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
         else:
-            raise ValueError(
-                "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+            if "radius" not in info_param:
+                raise KeyError("parameter \"algorithm.param.radius\" not specified")
+            radius = info_param["radius"]
+            print(f"DEBUG: create neighbor list, radius={radius}")
+            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=self.mpicomm)
+
+        # checks
+        if not odatse.util.graph.is_connected(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not connected."
+                "\nHINT: Increase neighborhood radius."
             )
-            # otherwise find neighbourlist
+        if not odatse.util.graph.is_bidirectional(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not bidirectional."
+            )
+
+        self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
