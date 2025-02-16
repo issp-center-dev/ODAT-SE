@@ -122,6 +122,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             if "mesh_path" in info_param:
                 self.iscontinuous = False
                 self.domain = odatse.domain.MeshGrid(info)
+            elif "use_grid" in info_param and info_param["use_grid"] == True:
+                self.iscontinuous = False
+                self.domain = odatse.domain.MeshGrid(info)
             else:
                 self.iscontinuous = True
                 self.domain = odatse.domain.Region(info)
@@ -191,9 +194,13 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
         """
-        if "neighborlist_path" in info_param:
+        if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
-            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
+            if self.mpirank == 0:
+                nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
+            else:
+                nnlist = None
+            self.neighbor_list = self.mpicomm.bcast(nnlist, root=0)
         else:
             if "radius" not in info_param:
                 raise KeyError("parameter \"algorithm.param.radius\" not specified")
