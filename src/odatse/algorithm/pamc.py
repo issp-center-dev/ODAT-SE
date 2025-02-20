@@ -20,7 +20,7 @@ import odatse.exception
 import odatse.algorithm.montecarlo
 import odatse.util.separateT
 import odatse.util.resampling
-from odatse.algorithm.montecarlo import read_Ts
+from odatse.util.read_ts import read_Ts
 
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
@@ -213,7 +213,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.istep = 0
 
             beta = self.betas[self.Tindex]
-            self._evaluate()
+            self.fx = self._evaluate(self.state)
 
             file_trial = open("trial_T0.txt", "w")
             self._write_result_header(file_trial, ["weight", "ancestor"])
@@ -228,7 +228,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.istep += 1
 
             minidx = np.argmin(self.fx)
-            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_x = copy.copy(self.state.x[minidx, :])
             self.best_fx = np.min(self.fx[minidx])
             self.best_istep = 0
             self.best_iwalker = 0
@@ -505,32 +505,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         ]
         next_numbers = self.rng.poisson(expected_numbers)
 
-        if self.iscontinuous:
-            new_x = []
-            new_fx = []
-            new_ancestors = []
-            for iwalker in range(self.nwalkers):
-                for _ in range(next_numbers[iwalker]):
-                    new_x.append(self.x[iwalker, :])
-                    new_fx.append(self.fx[iwalker])
-                    new_ancestors.append(self.walker_ancestors[iwalker])
-            self.x = np.array(new_x)
-            self.fx = np.array(new_fx)
-            self.walker_ancestors = np.array(new_ancestors)
-        else:
-            new_inodes = []
-            new_fx = []
-            new_ancestors = []
-            for iwalker in range(self.nwalkers):
-                for _ in range(next_numbers[iwalker]):
-                    new_inodes.append(self.inodes[iwalker])
-                    new_fx.append(self.fx[iwalker])
-                    new_ancestors.append(self.walker_ancestors[iwalker])
-            self.inode = np.array(new_inodes)
-            self.fx = np.array(new_fx)
-            self.walker_ancestors = np.array(new_ancestors)
-            self.x = self.node_coordinates[self.inode, :]
+        new_index = []
+        for iwalker, num in enumerate(next_numbers):
+            new_index.extend([iwalker] * num)
+
+        new_state = self.statespace.pick(self.state, new_index)
+        new_fx = self.fx[new_index]
+
+        self.state = new_state
+        self.fx = new_fx
+        self.walker_ancestors = np.array(new_index)
+
         self.nwalkers = np.sum(next_numbers)
+
 
     def _resample_fixed(self, weights: np.ndarray) -> None:
         """
@@ -547,31 +534,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         resampler = odatse.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
 
-        if self.iscontinuous:
-            if self.mpisize > 1:
-                xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
-                self.mpicomm.Allgather(self.x, xs)
-                xs = xs.reshape(self.nreplicas[self.Tindex], self.dimension)
-                ancestors = np.array(
-                    self.mpicomm.allgather(self.walker_ancestors)
-                ).flatten()
-            else:
-                xs = self.x
-                ancestors = self.walker_ancestors
-            self.x = xs[new_index, :]
-            self.walker_ancestors = ancestors[new_index]
-        else:
-            if self.mpisize > 1:
-                inodes = np.array(self.mpicomm.allgather(self.inode)).flatten()
-                ancestors = np.array(
-                    self.mpicomm.allgather(self.walker_ancestors)
-                ).flatten()
-            else:
-                inodes = self.inode
-                ancestors = self.walker_ancestors
-            self.inode = inodes[new_index]
-            self.walker_ancestors = ancestors[new_index]
-            self.x = self.node_coordinates[self.inode, :]
+        states = self.statespace.gather(self.state)
+        ancestors = self._gather(self.walker_ancestors)
+
+        self.state = self.statespace.pick(states, new_index)
+        self.walker_ancestors = ancestors[new_index]
+
+        fxs = self._gather(self.fx)
+        self.fx = fxs[new_index]
 
     def _prepare(self) -> None:
         """
@@ -582,6 +552,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
+
     def _post(self) -> None:
         """
         Post-processing after the algorithm execution.
@@ -671,9 +642,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "timer": self.timer,
             "info": self.info,
             #-- montecarlo
-            "x": self.x,
+            "x": self.state,
             "fx": self.fx,
-            "inode": self.inode,
+            #"inode": self.inode,
             "istep": self.istep,
             "best_x": self.best_x,
             "best_fx": self.best_fx,
@@ -734,9 +705,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._check_parameters(info)
 
         #-- montecarlo
-        self.x = data["x"]
+        self.state = data["x"]
         self.fx = data["fx"]
-        self.inode = data["inode"]
+        #self.inode = data["inode"]
 
         self.istep = data["istep"]
 
@@ -806,4 +777,5 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.naccepted_from_reset = data["naccepted_from_reset"]
         self.acceptance_ratio[0:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
 
-
+        #-- restore rng state in statespace
+        self.statespace.rng = self.rng
