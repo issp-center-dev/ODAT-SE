@@ -1,7 +1,10 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+export OMPI_MCA_rmaps_base_oversubscribe=1
+
 # Command to run the Python script with MPI
-CMD="mpiexec --oversubscribe -np 4 python3 -u ../../src/odatse_main.py"
+CMD="mpiexec -np 4 python3 ../../src/odatse_main.py"
 
 # Remove the output1 directory if it exists
 rm -rf output1

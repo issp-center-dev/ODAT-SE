@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+
 # Remove the existing ColorMap.txt file from the output_transform directory
 rm -f output_transform/ColorMap.txt
 
