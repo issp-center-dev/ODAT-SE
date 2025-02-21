@@ -555,23 +555,29 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 ancestors = np.array(
                     self.mpicomm.allgather(self.walker_ancestors)
                 ).flatten()
+                fxs = np.array(self.mpicomm.allgather(self.fx)).flatten()
             else:
                 xs = self.x
                 ancestors = self.walker_ancestors
+                fxs = self.fx
             self.x = xs[new_index, :]
             self.walker_ancestors = ancestors[new_index]
+            self.fx = fxs[new_index]
         else:
             if self.mpisize > 1:
                 inodes = np.array(self.mpicomm.allgather(self.inode)).flatten()
                 ancestors = np.array(
                     self.mpicomm.allgather(self.walker_ancestors)
                 ).flatten()
+                fxs = np.array(self.mpicomm.allgather(self.fx)).flatten()
             else:
                 inodes = self.inode
                 ancestors = self.walker_ancestors
+                fxs = self.fx
             self.inode = inodes[new_index]
             self.walker_ancestors = ancestors[new_index]
             self.x = self.node_coordinates[self.inode, :]
+            self.fx = fxs[new_index]
 
     def _prepare(self) -> None:
         """
