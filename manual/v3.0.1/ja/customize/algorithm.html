@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Algorithm の定義 &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=91a57042"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="実行方法" href="usage.html" />
+    <link rel="prev" title="Solver の定義" href="solver.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>Algorithm の定義</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="solver.html"><code class="docutils literal notranslate"><span class="pre">Solver</span></code> の定義</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="usage.html">実行方法</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="algorithm">
+<h1><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> の定義<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> クラスは <code class="docutils literal notranslate"><span class="pre">odatse.algorithm.AlgorithmBase</span></code> を継承したクラスとして定義します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<section id="algorithmbase">
+<h2><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code><a class="headerlink" href="#algorithmbase" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code> クラスは次のメソッドを提供します。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">info</span></code> から <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpicomm:</span> <span class="pre">Optional[MPI.Comm]</span></code> : <code class="docutils literal notranslate"><span class="pre">MPI.COMM_WORLD</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> の import に失敗した場合、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が設定されます</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpisize:</span> <span class="pre">int</span></code> : MPIプロセス数</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> の import に失敗した場合、 <code class="docutils literal notranslate"><span class="pre">1</span></code> が設定されます</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpirank:</span> <span class="pre">int</span></code> : MPIランク</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> の import に失敗した場合、 <code class="docutils literal notranslate"><span class="pre">0</span></code> が設定されます</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.rng:</span> <span class="pre">np.random.Generator</span></code> : 擬似乱数生成器</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>擬似乱数の種について、詳細は <a class="reference internal" href="../input.html#input-algorithm"><span class="std std-ref">入力パラメータの [algorithm] セクション</span></a> を参照してください</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.dimension:</span> <span class="pre">int</span></code> : 探索パラメータ空間の次元</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.label_list:</span> <span class="pre">List[str]</span></code> : 各パラメータの名前</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.root_dir:</span> <span class="pre">pathlib.Path</span></code> : ルートディレクトリ</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir:</span> <span class="pre">pathlib.Path</span></code> : 出力ファイルを書き出すディレクトリ</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.proc_dir:</span> <span class="pre">pathlib.Path</span></code> : プロセスごとの作業用ディレクトリ</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir</span> <span class="pre">/</span> <span class="pre">str(self.mpirank)</span></code></p></li>
+<li><p>ディレクトリが存在しない場合、自動的に作成されます</p></li>
+<li><p>各プロセスで最適化アルゴリズムはこのディレクトリで実行されます</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.timer:</span> <span class="pre">Dict[str,</span> <span class="pre">Dict]</span></code> : 実行時間を保存するための辞書</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>空の辞書が3つ、 <code class="docutils literal notranslate"><span class="pre">&quot;prepare&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;run&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;post&quot;</span></code> という名前で定義されます</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint</span></code> : チェックポイント機能を有効/無効にする</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_steps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_interval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_file</span></code></p>
+<p>チェックポイント機能に関するパラメータが設定されます</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>最適化アルゴリズムの前処理をします</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.run()</span></code> の前に実行する必要があります</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>最適化アルゴリズムを実行します</p></li>
+<li><p>以下の処理を行います</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.proc_dir</span></code> に移動する</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.runner.prepare()</span></code> を実行する</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self._run()</span></code> を実行する</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.runner.post()</span></code> を実行する</p></li>
+<li><p>元のディレクトリに戻る</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.prepare()</span></code> の後に実行する必要があります</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>最適化結果のファイル出力など、後処理を行います</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir</span></code> に移動し、 <code class="docutils literal notranslate"><span class="pre">self._post()</span></code> を実行した後、元のディレクトリに戻ります</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.run()</span></code> のあとに実行する必要があります</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">main(self,</span> <span class="pre">run_mode)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code> を順番に実行します</p></li>
+<li><p>それぞれの関数でかかった時間を計測し、結果をファイル出力します</p></li>
+<li><p>実行モードを文字列型の引数で受け取ります。デフォルト値は <code class="docutils literal notranslate"><span class="pre">initialize</span></code> です。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initialize&quot;</span></code>: 最初から実行</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code>: 中断した状態から再実行</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code>: 終了時の状態から継続実行</p></li>
+</ul>
+<p>乱数の初期化を指示する場合は、 <code class="docutils literal notranslate"><span class="pre">&quot;-resetrand&quot;</span></code> が追加されます。
+<code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code> の動作はアルゴリズムによって変わります。</p>
+</li>
+<li><p>探索の結果を辞書形式で返します</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="id1">
+<h2><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> は少なくとも次のメソッドを定義しなければなりません。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">domain</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">info</span></code> および <code class="docutils literal notranslate"><span class="pre">runner</span></code> 引数はそのまま基底クラスのコンストラクタに転送してください</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">super().__init__(info=info,</span> <span class="pre">runner=runner)</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>入力パラメータである <code class="docutils literal notranslate"><span class="pre">info</span></code> から必要な設定を読み取り、保存してください</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">domain</span></code> が指定されている場合は、探索領域を <code class="docutils literal notranslate"><span class="pre">domain</span></code> から取得します。
+指定されていない場合は <code class="docutils literal notranslate"><span class="pre">odatse.domain.Region(info)</span></code> (探索領域が連続的な場合) または <code class="docutils literal notranslate"><span class="pre">odatse.domain.MeshGrid(info)</span></code> (離散的な場合) を用いて <code class="docutils literal notranslate"><span class="pre">info</span></code> から作成します。</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_prepare(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>最適化アルゴリズムの前処理を記述します</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_run(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>最適化アルゴリズムを記述します</p></li>
+<li><p>探索パラメータ <code class="docutils literal notranslate"><span class="pre">x</span></code> から対応する目的関数の値 <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> を得るには、次のように Runner クラスのメソッドを呼び出します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
+<span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>最適化アルゴリズムの後処理を記述します</p></li>
+<li><p>探索の結果を辞書形式で返します</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="domain">
+<h2><code class="docutils literal notranslate"><span class="pre">Domain</span></code> の定義<a class="headerlink" href="#domain" title="Link to this heading">¶</a></h2>
+<p>探索領域を記述する 2種類のクラスが用意されています。</p>
+<section id="region">
+<h3><code class="docutils literal notranslate"><span class="pre">Region</span></code> クラス<a class="headerlink" href="#region" title="Link to this heading">¶</a></h3>
+<p>連続的なパラメータ空間を定義するためのヘルパークラスです。</p>
+<ul class="simple">
+<li><p>コンストラクタ引数は <code class="docutils literal notranslate"><span class="pre">Info</span></code> または <code class="docutils literal notranslate"><span class="pre">param=</span></code> にdict形式のパラメータを取ります。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Info</span></code> 型の引数の場合、 <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> から探索範囲の最小値・最大値・単位や初期値を取得します。</p></li>
+<li><p>dict 型の引数の場合は <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> 相当の内容を辞書形式で受け取ります。</p></li>
+<li><p>詳細は <a class="reference internal" href="../algorithm/minsearch.html#minsearch-input-param"><span class="std std-ref">min_search の入力ファイル</span></a> を参照してください。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initialize(self,</span> <span class="pre">rng,</span> <span class="pre">limitation,</span> <span class="pre">num_walkers)</span></code> を呼んで初期値の設定を行います。引数は乱数発生器 <code class="docutils literal notranslate"><span class="pre">rng</span></code>, 制約条件 <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, walker の数 <code class="docutils literal notranslate"><span class="pre">num_walkers</span></code> です。</p></li>
+</ul>
+</section>
+<section id="meshgrid">
+<h3><code class="docutils literal notranslate"><span class="pre">MeshGrid</span></code> クラス<a class="headerlink" href="#meshgrid" title="Link to this heading">¶</a></h3>
+<p>離散的的なパラメータ空間を定義するためのヘルパークラスです。</p>
+<ul class="simple">
+<li><p>コンストラクタ引数は <code class="docutils literal notranslate"><span class="pre">Info</span></code> または <code class="docutils literal notranslate"><span class="pre">param=</span></code> にdict形式のパラメータを取ります。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Info</span></code> 型の引数の場合、 <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> から探索範囲の最小値・最大値・単位や初期値を取得します。</p></li>
+<li><p>dict 型の引数の場合は <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> 相当の内容を辞書形式で受け取ります。</p></li>
+<li><p>詳細は <a class="reference internal" href="../algorithm/mapper_mpi.html#mapper-input-param"><span class="std std-ref">mapper の入力ファイル</span></a> を参照してください</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_split(self)</span></code> メソッドは、候補点の集合を分割して各MPIランクに配分します。</p></li>
+<li><p>入出力について</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">from_file(cls,</span> <span class="pre">path)</span></code> クラスメソッドは、 <code class="docutils literal notranslate"><span class="pre">path</span></code> からメッシュデータを読み込んで <code class="docutils literal notranslate"><span class="pre">MeshGrid</span></code> クラスのインスタンスを作成します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">store_file(self,</span> <span class="pre">path)</span></code> メソッドは、メッシュの情報を <code class="docutils literal notranslate"><span class="pre">path</span></code> のファイルに書き出します。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="solver.html"><code class="docutils literal notranslate"><span class="pre">Solver</span></code> の定義</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="usage.html">実行方法</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+    </div>
+  </body>
+</html>

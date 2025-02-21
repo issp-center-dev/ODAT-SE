@@ -1,0 +1,7 @@
+odatse.algorithm.mapper\_mpi module
+===================================
+
+.. automodule:: odatse.algorithm.mapper_mpi
+   :members:
+   :private-members:
+   :show-inheritance:

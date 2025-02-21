@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Solver の定義 &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=91a57042"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Algorithm の定義" href="algorithm.html" />
+    <link rel="prev" title="共通事項" href="common.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>Solver の定義</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="common.html">共通事項</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> の定義</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="solver">
+<h1><code class="docutils literal notranslate"><span class="pre">Solver</span></code> の定義<a class="headerlink" href="#solver" title="Link to this heading">¶</a></h1>
+<p>順問題を記述する <code class="docutils literal notranslate"><span class="pre">Solver</span></code> は、入力変数に対して目的関数の値を返す <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> メソッドを持つクラスとして以下のように定義します。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Solver</span></code> クラスは <code class="docutils literal notranslate"><span class="pre">odatse.solver.SolverBase</span></code> を継承するクラスとします。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Solver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</li>
+<li><p>コンストラクタ</p>
+<p>コンストラクタは <code class="docutils literal notranslate"><span class="pre">Info</span></code> クラスのメソッドを引数としてとります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>必ず <code class="docutils literal notranslate"><span class="pre">info</span></code> を引数として基底クラスのコンストラクタを呼び出してください。
+基底クラスのコンストラクタでは、次のインスタンス変数が設定されます。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.root_dir</span></code> はルートディレクトリです。 <code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code> から取得され、 <code class="docutils literal notranslate"><span class="pre">odatse</span></code> を実行するディレクトリになります。外部プログラムやデータファイルなどを参照する際に起点として利用できます。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir</span></code> は出力ファイルを書き出すディレクトリです。 <code class="docutils literal notranslate"><span class="pre">info.base[&quot;output_dir&quot;]</span></code> から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.proc_dir</span></code> はプロセスごとの作業用ディレクトリです。 <code class="docutils literal notranslate"><span class="pre">output_dir</span> <span class="pre">/</span> <span class="pre">str(self.mpirank)</span></code> が設定されます。
+ソルバーの <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> メソッドは <code class="docutils literal notranslate"><span class="pre">proc_dir</span></code> をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
+MPIを使用しない場合もランク番号を0として扱います。</p></li>
+</ul>
+<p>Solver 固有のパラメータは <code class="docutils literal notranslate"><span class="pre">info</span></code> の <code class="docutils literal notranslate"><span class="pre">solver</span></code> フィールドから取得します。必要な設定を読み取って保存します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluate</span></code> メソッド</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>入力変数に対して目的変数の値を返すメソッドです。以下の引数を取ります。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">x:</span> <span class="pre">np.ndarray</span></code></p>
+<p>入力変数を numpy.ndarray 型の <span class="math notranslate nohighlight">\(N\)</span> 次元ベクトルとして受け取ります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">args:</span> <span class="pre">Tuple</span> <span class="pre">=</span> <span class="pre">()</span></code></p>
+<p>Algorithm から渡される追加の引数で、step数と set番号からなる Tuple です。step数は Monte Carlo のステップ数や、グリッド探索のグリッド点のインデックスです。set番号は n巡目を表します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nprocs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nthreads:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></code></p>
+<p>ソルバーを MPI並列・スレッド並列で実行する際のプロセス数・スレッド数を受け取ります。現在は <code class="docutils literal notranslate"><span class="pre">procs=1</span></code>, <code class="docutils literal notranslate"><span class="pre">nthreads=1</span></code> のみ対応しています。</p>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">evaluate</span></code> メソッドは、Float 型の目的関数の値を返します。</p>
+</li>
+</ul>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="common.html">共通事項</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> の定義</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+    </div>
+  </body>
+</html>

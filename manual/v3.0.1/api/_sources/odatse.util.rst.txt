@@ -1,0 +1,23 @@
+odatse.util package
+===================
+
+.. automodule:: odatse.util
+   :members:
+   :private-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   odatse.util.graph
+   odatse.util.limitation
+   odatse.util.logger
+   odatse.util.mapping
+   odatse.util.neighborlist
+   odatse.util.read_matrix
+   odatse.util.resampling
+   odatse.util.separateT
+   odatse.util.toml

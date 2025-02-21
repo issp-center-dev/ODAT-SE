@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>入力ファイル &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=91a57042"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="出力ファイル" href="output.html" />
+    <link rel="prev" title="順問題ソルバーの追加" href="tutorial/solver_simple.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>入力ファイル</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">順問題ソルバーの追加</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="output.html">出力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>入力ファイル<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<p>ODAT-SE は入力ファイルの形式に <a class="reference external" href="https://toml.io/ja/">TOML</a> を採用しています。
+入力ファイルは次の4つのセクションから構成されます。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p>
+<ul>
+<li><p>ODAT-SE 全体のパラメータを指定します。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solver</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Solver</span></code> のパラメータを指定します。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> のパラメータを指定します。</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Runner</span></code> のパラメータを指定します。</p></li>
+</ul>
+</li>
+</ul>
+<section id="base">
+<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] セクション<a class="headerlink" href="#base" title="Link to this heading">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
+<p>形式: 整数型</p>
+<p>説明: 探索空間の次元(探索するパラメータの数)</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p>
+<p>形式: string型 (default: プログラム実行時のディレクトリ)</p>
+<dl class="simple">
+<dt>説明: プログラムを実行する一番上のディレクトリ。</dt><dd><p>入力ファイルなどのパスはすべて <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> を起点とします。</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></p>
+<p>形式: string型 (default: プログラム実行時のディレクトリ)</p>
+<p>説明: プログラムの実行結果を出力するディレクトリ名</p>
+</li>
+</ul>
+</section>
+<section id="solver">
+<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] セクション<a class="headerlink" href="#solver" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code> でソルバーの種類を決定します。各パラメータはソルバーごとに定義されています。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+<p>形式: string型</p>
+<p>説明: ソルバーの名前。以下のソルバーが用意されています。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> : 解析関数を与えるソルバー (主にテストに利用)</p></li>
+</ul>
+<p>以下は別モジュールとして配布される2次元物質構造解析向けソルバーです。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> : 反射高速(陽)電子回折(RHEED, TRHEPD)の強度計算をするためのソルバー</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> : 表面X線回折(SXRD)解析のためのソルバー</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">leed</span></code> : 低速電子線回折(LEED)解析のためのソルバー</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
+<p>形式: 整数型 (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
+<p>説明: ソルバーが受け取る入力パラメータの数。</p>
+</li>
+</ul>
+<p>各種ソルバーの詳細および入出力ファイルは <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
+</section>
+<section id="algorithm">
+<span id="input-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] セクション<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code> でアルゴリズムの種類を決定します。各パラメータはアルゴリズムごとに定義されています。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+<p>形式: string型</p>
+<p>説明: アルゴリズムの名前。以下のアルゴリズムが用意されています。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code>: Nelder-Mead法による最小値探索</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code>: グリッド探索</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code>:  レプリカ交換モンテカルロ法</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code>:  ポピュレーションアニーリングモンテカルロ法</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code>:  ベイズ最適化</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
+<p>形式: 整数値</p>
+<dl class="simple">
+<dt>説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。</dt><dd><p>各MPIプロセスに対して、 <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">mpi_rank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> の値が実際の種として用いられます。
+省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState">Numpy の規定の方法</a> で初期化されます。</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed_delta</span></code></p>
+<p>形式: 整数値 (default: 314159)</p>
+<dl class="simple">
+<dt>説明: 疑似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。</dt><dd><p>詳しくは <code class="docutils literal notranslate"><span class="pre">seed</span></code> を参照してください。</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint</span></code></p>
+<p>形式: bool値 (default: false)</p>
+<p>説明: 実行中および終了時の状態を定期的にファイルに出力します。実行が中断した場合に、チェックポイントから実行を再開できます。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code></p>
+<p>形式: 整数値 (default: 16,777,216)</p>
+<p>説明: 次のチェックポイントまでの繰り返し回数を指定します。繰り返し回数は、mapper の場合はグリッド点の数、bayes の場合は探索点の評価回数、モンテカルロ法(exchange, pamc) の場合は local update の回数です。
+デフォルト値は十分大きな数が設定されています。チェックポイント機能を有効にするには、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定する必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code></p>
+<p>形式: 実数値 (default: 31,104,000)</p>
+<p>説明: 次のチェックポイントまでの経過時間を指定します。単位は秒です。
+デフォルト値は十分大きな数(360日)が設定されています。チェックポイント機能を有効にするには、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定する必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_file</span></code></p>
+<p>形式: 文字列 (default: <code class="docutils literal notranslate"><span class="pre">&quot;status.pickle&quot;</span></code>)</p>
+<p>説明: 実行中の状態を書き出すファイル名を指定します。ファイルはプロセスごとの出力ディレクトリに書き出されます。過去3世代分のファイルが .1, .2, .3 の suffix を付けて保存されます。</p>
+</li>
+</ul>
+<p>各種アルゴリズムの詳細および入出力ファイルは <a class="reference internal" href="algorithm/index.html"><span class="doc">探索アルゴリズム</span></a> を参照してください。</p>
+</section>
+<section id="runner">
+<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
+サブセクションとして <code class="docutils literal notranslate"><span class="pre">mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
+<section id="runner-mapping">
+<h3>[<code class="docutils literal notranslate"><span class="pre">runner.mapping</span></code>] セクション<a class="headerlink" href="#runner-mapping" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索している <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使う <span class="math notranslate nohighlight">\(M\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
+<span class="math notranslate nohighlight">\(N \ne M\)</span> となる場合には、 <code class="docutils literal notranslate"><span class="pre">solver</span></code> セクションにも <code class="docutils literal notranslate"><span class="pre">dimension</span></code> パラメータを指定してください。</p>
+<p>現在はアフィン写像(線形写像+平行移動) <span class="math notranslate nohighlight">\(y = Ax+b\)</span> が利用可能です。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
+<p>形式: リストのリスト、あるいは文字列 (default: [])</p>
+<dl class="simple">
+<dt>説明: <span class="math notranslate nohighlight">\(N \times M\)</span> の変換行列 <span class="math notranslate nohighlight">\(A\)</span> 。空のリストを渡した場合、単位行列とみなされます。</dt><dd><p>文字列として与える場合はそのまま行列の要素を空白および改行で区切って並べてください。</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p>
+<p>形式: リスト、あるいは文字列 (default: [])</p>
+<dl class="simple">
+<dt>説明: <span class="math notranslate nohighlight">\(M\)</span> 次元の並進移動ベクトル <span class="math notranslate nohighlight">\(b\)</span> 。空のリストを渡した場合、ゼロベクトルとみなされます。</dt><dd><p>文字列として与える場合はそのままベクトルの要素を空白区切りで並べてください。</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>行列の指定方法について、例えば、</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>と</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">1 1</span>
+<span class="s2">0 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>はともに</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \left(
+\begin{matrix}
+1 &amp; 1 \\
+0 &amp; 1
+\end{matrix}
+\right)\end{split}\]</div>
+<p>を表します。</p>
+</section>
+<section id="runner-limitation">
+<h3>[<code class="docutils literal notranslate"><span class="pre">runner.limitation</span></code>] セクション<a class="headerlink" href="#runner-limitation" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索している <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> に、制約条件を課すことが出来ます。
+<code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> ごとに定義する探索範囲(例：<code class="docutils literal notranslate"><span class="pre">exchange</span></code> の <code class="docutils literal notranslate"><span class="pre">min_list</span></code> や <code class="docutils literal notranslate"><span class="pre">max_list</span></code> ) に加えて課すことが出来ます。
+現在は <span class="math notranslate nohighlight">\(M\)</span> 行 <span class="math notranslate nohighlight">\(N\)</span> 列の行列 <span class="math notranslate nohighlight">\(A\)</span> と <span class="math notranslate nohighlight">\(M\)</span> 次元の縦ベクトル <span class="math notranslate nohighlight">\(b\)</span> から定義される <span class="math notranslate nohighlight">\(Ax+b&gt;0\)</span> の制約式が利用可能です。具体的に</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{1,1} x_{1} + A_{1,2} x_{2} + &amp;... + A_{1,N} x_{N} + b_{1} &gt; 0\\
+A_{2,1} x_{1} + A_{2,2} x_{2} + &amp;... + A_{2,N} x_{N} + b_{2} &gt; 0\\
+&amp;...\\
+A_{M,1} x_{1} + A_{M,2} x_{2} + &amp;... + A_{M,N} x_{N} + b_{M} &gt; 0\end{split}\]</div>
+<p>という制約をかけることができます。
+ここで <span class="math notranslate nohighlight">\(M\)</span> は制約式の個数(任意)となります。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_a</span></code></p>
+<p>形式: リストのリスト、あるいは文字列 (default: [])</p>
+<p>説明: 制約式の行列 <span class="math notranslate nohighlight">\(A\)</span> を設定します。</p>
+<blockquote>
+<div><p>行数は制約式数 <span class="math notranslate nohighlight">\(M\)</span> 、列数は探索変数の数 <span class="math notranslate nohighlight">\(N\)</span> である必要があります。</p>
+<p><code class="docutils literal notranslate"><span class="pre">co_b</span></code> を同時に定義する必要があります。</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_b</span></code></p>
+<p>形式: リストのリスト、あるいは文字列 (default: [])</p>
+<p>説明: 制約式の縦ベクトル <span class="math notranslate nohighlight">\(b\)</span> を設定します。</p>
+<blockquote>
+<div><p>次元数が制約式数 <span class="math notranslate nohighlight">\(M\)</span> の縦ベクトルを設定する必要があります。</p>
+<p><code class="docutils literal notranslate"><span class="pre">co_a</span></code> を同時に定義する必要があります。</p>
+</div></blockquote>
+</li>
+</ul>
+<p>行列の指定方法について、[<code class="docutils literal notranslate"><span class="pre">mapping</span></code>] セクションと同様で、例えば、</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>と</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">1 1</span>
+<span class="s2">0 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>はともに</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \left(
+\begin{matrix}
+1 &amp; 1 \\
+0 &amp; 1
+\end{matrix}
+\right)\end{split}\]</div>
+<p>を表します。また、</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">-1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>と</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;0 -1&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>と</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">0</span>
+<span class="s2">-1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>はともに</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}b = \left(
+\begin{matrix}
+0 \\
+-1
+\end{matrix}
+\right)\end{split}\]</div>
+<p>を表します。
+<code class="docutils literal notranslate"><span class="pre">co_a</span></code> と <code class="docutils literal notranslate"><span class="pre">co_b</span></code> のどちらも定義しない場合、制約式を課さずに探索します。</p>
+</section>
+<section id="runner-log">
+<h3>[<code class="docutils literal notranslate"><span class="pre">runner.log</span></code>] セクション<a class="headerlink" href="#runner-log" title="Link to this heading">¶</a></h3>
+<p>solver 呼び出しのlogging に関する設定です。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
+<p>形式: 文字列 (default: &quot;runner.log&quot;)</p>
+<p>説明: ログファイルの名前。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
+<p>形式: 整数 (default: 0)</p>
+<p>説明: solver を interval 回呼ぶ毎にログが書き出されます。0以下の場合、ログ書き出しは行われません。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_result</span></code></p>
+<p>形式: 真偽値 (default: false)</p>
+<p>説明: solver からの出力を記録するかどうかを指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_input</span></code></p>
+<p>形式: 真偽値 (default: false)</p>
+<p>説明: solver への入力を記録するかどうかを指定します。</p>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">順問題ソルバーの追加</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="output.html">出力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+    </div>
+  </body>
+</html>

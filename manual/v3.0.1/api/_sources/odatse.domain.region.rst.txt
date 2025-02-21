@@ -1,0 +1,7 @@
+odatse.domain.region module
+===========================
+
+.. automodule:: odatse.domain.region
+   :members:
+   :private-members:
+   :show-inheritance:
