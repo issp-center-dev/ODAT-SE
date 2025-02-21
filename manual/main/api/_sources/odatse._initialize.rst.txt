@@ -3,5 +3,5 @@ odatse.\_initialize module
 
 .. automodule:: odatse._initialize
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

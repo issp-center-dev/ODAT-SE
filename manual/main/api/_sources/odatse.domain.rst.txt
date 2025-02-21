@@ -3,8 +3,8 @@ odatse.domain package
 
 .. automodule:: odatse.domain
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:
 
 Submodules
 ----------

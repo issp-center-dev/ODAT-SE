@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.util.mapping module &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -91,7 +91,7 @@
 <span id="odatse-util-mapping-module"></span><h1>odatse.util.mapping module<a class="headerlink" href="#module-odatse.util.mapping" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="odatse.util.mapping.Affine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">Affine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/mapping.html#Affine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.Affine" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">Affine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/mapping.html#Affine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.Affine" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#odatse.util.mapping.MappingBase" title="odatse.util.mapping.MappingBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappingBase</span></code></a></p>
 <p>An affine mapping defined by a matrix A and a vector b.</p>
 <p>Initialize the affine mapping.</p>
@@ -119,7 +119,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.util.mapping.Affine.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/mapping.html#Affine.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.Affine.from_dict" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/mapping.html#Affine.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.Affine.from_dict" title="Link to this definition"></a></dt>
 <dd><p>Create an Affine instance from a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -138,14 +138,14 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="odatse.util.mapping.MappingBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">MappingBase</span></span><a class="reference internal" href="_modules/odatse/util/mapping.html#MappingBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.MappingBase" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">MappingBase</span></span><a class="reference internal" href="_modules/odatse/util/mapping.html#MappingBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.MappingBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for mapping operations.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="odatse.util.mapping.TrivialMapping">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">TrivialMapping</span></span><a class="reference internal" href="_modules/odatse/util/mapping.html#TrivialMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.TrivialMapping" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.util.mapping.</span></span><span class="sig-name descname"><span class="pre">TrivialMapping</span></span><a class="reference internal" href="_modules/odatse/util/mapping.html#TrivialMapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.mapping.TrivialMapping" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#odatse.util.mapping.MappingBase" title="odatse.util.mapping.MappingBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappingBase</span></code></a></p>
 <p>A trivial mapping that returns the input array unchanged.</p>
 </dd></dl>

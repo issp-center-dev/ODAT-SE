@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.domain.region &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,17 +77,17 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">odatse</span>
-<span class="kn">from</span> <span class="nn">._domain</span> <span class="kn">import</span> <span class="n">DomainBase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">DomainBase</span>
 
 <div class="viewcode-block" id="Region">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region">[docs]</a>
-<span class="k">class</span> <span class="nc">Region</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Region</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to represent a region in the domain.</span>
 
@@ -110,7 +110,7 @@
 
 <div class="viewcode-block" id="Region.__init__">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the Region object.</span>
 
@@ -136,7 +136,7 @@
 
 <div class="viewcode-block" id="Region._setup">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region._setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the region with the given parameters.</span>
 
@@ -180,7 +180,7 @@
 
 <div class="viewcode-block" id="Region.initialize">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region.initialize">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">num_walkers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">num_walkers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the region with random values or predefined initial values.</span>
 
@@ -204,7 +204,7 @@
 
 <div class="viewcode-block" id="Region._init_random">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region._init_random">[docs]</a>
-    <span class="k">def</span> <span class="nf">_init_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the region with random values within the specified limits.</span>
 

@@ -3,8 +3,8 @@ odatse package
 
 .. automodule:: odatse
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:
 
 Subpackages
 -----------

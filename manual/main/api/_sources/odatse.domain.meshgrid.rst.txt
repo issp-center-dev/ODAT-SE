@@ -3,5 +3,5 @@ odatse.domain.meshgrid module
 
 .. automodule:: odatse.domain.meshgrid
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

@@ -3,8 +3,8 @@ odatse.algorithm package
 
 .. automodule:: odatse.algorithm
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:
 
 Submodules
 ----------

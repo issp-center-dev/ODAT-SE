@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.algorithm._algorithm &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -79,32 +79,32 @@
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">odatse</span>
-<span class="kn">import</span> <span class="nn">odatse.util.limitation</span>
-<span class="kn">from</span> <span class="nn">odatse</span> <span class="kn">import</span> <span class="n">exception</span><span class="p">,</span> <span class="n">mpi</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.limitation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse</span><span class="w"> </span><span class="kn">import</span> <span class="n">exception</span><span class="p">,</span> <span class="n">mpi</span>
 
 <span class="c1"># for type hints</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <div class="viewcode-block" id="AlgorithmStatus">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmStatus">[docs]</a>
-<span class="k">class</span> <span class="nc">AlgorithmStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlgorithmStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the status of the algorithm.&quot;&quot;&quot;</span>
     <span class="n">INIT</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">PREPARE</span> <span class="o">=</span> <span class="mi">2</span>
@@ -113,7 +113,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase">[docs]</a>
-<span class="k">class</span> <span class="nc">AlgorithmBase</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlgorithmBase</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for algorithms, providing common functionality and structure.&quot;&quot;&quot;</span>
 
     <span class="n">mpicomm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MPI.Comm&quot;</span><span class="p">]</span>
@@ -136,7 +136,7 @@
 <div class="viewcode-block" id="AlgorithmBase.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.__init__">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
             <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -203,7 +203,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_runner</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__init_rng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_rng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the random number generator.</span>
 
@@ -222,7 +222,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase.set_runner">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.set_runner">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the runner for the algorithm.</span>
 
@@ -236,7 +236,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase.prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the algorithm for execution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -250,14 +250,14 @@
 <div class="viewcode-block" id="AlgorithmBase._prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._prepare">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Abstract method to be implemented by subclasses for preparation steps.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.run">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the algorithm.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -276,14 +276,14 @@
 <div class="viewcode-block" id="AlgorithmBase._run">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._run">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Abstract method to be implemented by subclasses for running steps.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.post">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.post">[docs]</a>
-    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform post-processing after the algorithm has run.</span>
 
@@ -305,14 +305,14 @@
 <div class="viewcode-block" id="AlgorithmBase._post">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._post">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Abstract method to be implemented by subclasses for post-processing steps.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.main">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.main">[docs]</a>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Main method to execute the algorithm.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase.write_timer">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.write_timer">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the timing information to a file.</span>
 
@@ -355,7 +355,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fw</span><span class="p">:</span>
             <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#in units of seconds</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="k">def</span> <span class="nf">output_file</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">output_file</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span>
                 <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">{}</span><span class="se">\n</span><span class="s2"> total = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]))</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -371,7 +371,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase._save_data">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._save_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">,</span> <span class="n">ngen</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">,</span> <span class="n">ngen</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save data to a file with versioning.</span>
 
@@ -407,7 +407,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase._load_data">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._load_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load data from a file.</span>
 
@@ -438,7 +438,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase._show_parameters">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._show_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">_show_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_show_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Show the parameters of the algorithm.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -450,7 +450,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase._check_parameters">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._check_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">_check_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check the parameters of the algorithm against previous parameters.</span>
 
@@ -475,7 +475,7 @@
 <span class="c1"># utility</span>
 <div class="viewcode-block" id="flatten_dict">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.flatten_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">flatten_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Flatten a nested dictionary.</span>
 

@@ -3,5 +3,5 @@ odatse.domain.region module
 
 .. automodule:: odatse.domain.region
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

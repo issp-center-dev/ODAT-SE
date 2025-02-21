@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse._main &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,12 +77,12 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">odatse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../odatse._main.html#odatse._main.main">[docs]</a>
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main function to run the data-analysis software for quantum beam diffraction experiments</span>
 <span class="sd">    on 2D material structures. It parses command-line arguments, loads the input file,</span>
@@ -95,7 +95,7 @@
 
     <span class="n">solvername</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">solvername</span> <span class="o">==</span> <span class="s2">&quot;analytical&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">.solver.analytical</span> <span class="kn">import</span> <span class="n">Solver</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.solver.analytical</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solver</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: Unknown solver (</span><span class="si">{</span><span class="n">solvername</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>

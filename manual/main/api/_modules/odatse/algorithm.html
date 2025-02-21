@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.algorithm &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,11 +77,11 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span> <span class="nn">._algorithm</span> <span class="kn">import</span> <span class="n">AlgorithmBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmBase</span>
 
 <div class="viewcode-block" id="choose_algorithm">
 <a class="viewcode-back" href="../../odatse.algorithm.html#odatse.algorithm.choose_algorithm">[docs]</a>
-<span class="k">def</span> <span class="nf">choose_algorithm</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">choose_algorithm</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for algorithm module by name</span>
 
@@ -102,12 +102,12 @@
     <span class="p">}</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">importlib</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
         <span class="n">alg_name</span> <span class="o">=</span> <span class="s2">&quot;odatse.algorithm.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alg_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="n">alg_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">alg_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-        <span class="kn">import</span> <span class="nn">sys</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">alg_module</span></div>

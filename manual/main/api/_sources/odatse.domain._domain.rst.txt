@@ -3,5 +3,5 @@ odatse.domain.\_domain module
 
 .. automodule:: odatse.domain._domain
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

@@ -3,5 +3,5 @@ odatse.\_info module
 
 .. automodule:: odatse._info
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

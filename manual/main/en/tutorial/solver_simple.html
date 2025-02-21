@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Adding a direct problem solver &#8212; ODAT-SE 3.0.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
     <script src="../_static/documentation_options.js?v=acc74ff5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -60,7 +60,7 @@ As an example, we will explain the case of adding <a class="reference external" 
 For instructions on how to download the source code and run <code class="docutils literal notranslate"><span class="pre">odatse</span></code> from the source code, see <a class="reference internal" href="../start.html"><span class="doc">how to install</span></a>.
 <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver is defined in the <code class="docutils literal notranslate"><span class="pre">src/odatse/solver/analytical.py</span></code>, so we will edit this.</p>
 <p>First, define the booth function as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">booth</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">booth</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Booth function</span>
 
 <span class="sd">    it has one global minimum f(xs) = 0 at xs = [1,3].</span>
@@ -129,7 +129,7 @@ Solution:
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
     </div>
   </body>
 </html>

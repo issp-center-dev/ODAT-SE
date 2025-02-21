@@ -3,5 +3,5 @@ odatse.util.neighborlist module
 
 .. automodule:: odatse.util.neighborlist
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

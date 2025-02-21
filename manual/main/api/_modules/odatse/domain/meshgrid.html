@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.domain.meshgrid &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,17 +77,17 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">odatse</span>
-<span class="kn">from</span> <span class="nn">._domain</span> <span class="kn">import</span> <span class="n">DomainBase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">DomainBase</span>
 
 <div class="viewcode-block" id="MeshGrid">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid">[docs]</a>
-<span class="k">class</span> <span class="nc">MeshGrid</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MeshGrid</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MeshGrid class for handling grid data for quantum beam diffraction experiments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -98,7 +98,7 @@
 
 <div class="viewcode-block" id="MeshGrid.__init__">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the MeshGrid object.</span>
 
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="MeshGrid.do_split">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.do_split">[docs]</a>
-    <span class="k">def</span> <span class="nf">do_split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Split the grid data among MPI processes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -138,7 +138,7 @@
 
 <div class="viewcode-block" id="MeshGrid._setup">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the grid based on provided parameters.</span>
 
@@ -157,7 +157,7 @@
 
 <div class="viewcode-block" id="MeshGrid._setup_from_file">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup_from_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">_setup_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the grid from a file.</span>
 
@@ -195,7 +195,7 @@
 
 <div class="viewcode-block" id="MeshGrid._setup_grid">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">_setup_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the grid based on min, max, and num lists.</span>
 
@@ -235,7 +235,7 @@
 
 <div class="viewcode-block" id="MeshGrid.store_file">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.store_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Store the grid data to a file.</span>
 
@@ -253,7 +253,7 @@
 <div class="viewcode-block" id="MeshGrid.from_file">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.from_file">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mesh_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mesh_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a MeshGrid object from a file.</span>
 
@@ -273,7 +273,7 @@
 <div class="viewcode-block" id="MeshGrid.from_dict">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.from_dict">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a MeshGrid object from a dictionary of parameters.</span>
 

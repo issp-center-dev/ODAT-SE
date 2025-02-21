@@ -3,5 +3,5 @@ odatse.algorithm.min\_search module
 
 .. automodule:: odatse.algorithm.min_search
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

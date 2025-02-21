@@ -3,5 +3,5 @@ odatse.util.toml module
 
 .. automodule:: odatse.util.toml
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:

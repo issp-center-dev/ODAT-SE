@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>odatse.algorithm.pamc &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -78,26 +78,26 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">odatse</span>
-<span class="kn">import</span> <span class="nn">odatse.exception</span>
-<span class="kn">import</span> <span class="nn">odatse.algorithm.montecarlo</span>
-<span class="kn">import</span> <span class="nn">odatse.util.separateT</span>
-<span class="kn">import</span> <span class="nn">odatse.util.resampling</span>
-<span class="kn">from</span> <span class="nn">odatse.algorithm.montecarlo</span> <span class="kn">import</span> <span class="n">read_Ts</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.exception</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.algorithm.montecarlo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.separateT</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.resampling</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm.montecarlo</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_Ts</span>
 
 
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm">[docs]</a>
-<span class="k">class</span> <span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Population annealing Monte Carlo</span>
 
 <span class="sd">    Attributes</span>
@@ -163,7 +163,7 @@
 
 <div class="viewcode-block" id="Algorithm.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
                  <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>
@@ -205,7 +205,7 @@
 
 <div class="viewcode-block" id="Algorithm._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._initialize">[docs]</a>
-    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
 
         <span class="n">numT</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
@@ -232,7 +232,7 @@
 
 <div class="viewcode-block" id="Algorithm._find_scheduling">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._find_scheduling">[docs]</a>
-    <span class="k">def</span> <span class="nf">_find_scheduling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_pamc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_scheduling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_pamc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the scheduling for the algorithm based on the provided parameters.</span>
 
@@ -284,7 +284,7 @@
 
 <div class="viewcode-block" id="Algorithm._run">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._run">[docs]</a>
-    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;mode unset&quot;</span><span class="p">)</span>
@@ -428,7 +428,7 @@
 
 <div class="viewcode-block" id="Algorithm._gather_information">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._gather_information">[docs]</a>
-    <span class="k">def</span> <span class="nf">_gather_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gather_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gather status information of each process</span>
 
@@ -489,7 +489,7 @@
 
 <div class="viewcode-block" id="Algorithm._save_stats">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._save_stats">[docs]</a>
-    <span class="k">def</span> <span class="nf">_save_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save statistical information from the algorithm run.</span>
 
@@ -553,7 +553,7 @@
 
 <div class="viewcode-block" id="Algorithm._resample">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample">[docs]</a>
-    <span class="k">def</span> <span class="nf">_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform the resampling of walkers.</span>
 
@@ -582,7 +582,7 @@
 
 <div class="viewcode-block" id="Algorithm._resample_varied">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample_varied">[docs]</a>
-    <span class="k">def</span> <span class="nf">_resample_varied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resample_varied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform resampling with varied weights.</span>
 
@@ -632,7 +632,7 @@
 
 <div class="viewcode-block" id="Algorithm._resample_fixed">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample_fixed">[docs]</a>
-    <span class="k">def</span> <span class="nf">_resample_fixed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resample_fixed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform resampling with fixed weights.</span>
 
@@ -655,28 +655,34 @@
                 <span class="n">ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">fxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
                 <span class="n">ancestors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span>
+                <span class="n">fxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">new_index</span><span class="p">,</span> <span class="p">:]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">fxs</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">inodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                 <span class="n">ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">fxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">inodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inode</span>
                 <span class="n">ancestors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span>
+                <span class="n">fxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="n">inodes</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">fxs</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the algorithm for execution.</span>
 
@@ -688,7 +694,7 @@
 
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._post">[docs]</a>
-    <span class="k">def</span> <span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post-processing after the algorithm execution.</span>
 
@@ -763,7 +769,7 @@
 
 <div class="viewcode-block" id="Algorithm._save_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._save_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current state of the algorithm to a file.</span>
 
@@ -815,7 +821,7 @@
 
 <div class="viewcode-block" id="Algorithm._load_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._load_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load the saved state of the algorithm from a file.</span>
 

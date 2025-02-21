@@ -3,5 +3,5 @@ odatse.algorithm.bayes module
 
 .. automodule:: odatse.algorithm.bayes
    :members:
-   :show-inheritance:
    :private-members:
+   :show-inheritance:
