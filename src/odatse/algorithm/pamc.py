@@ -18,9 +18,10 @@ import numpy as np
 import odatse
 import odatse.exception
 import odatse.algorithm.montecarlo
-import odatse.util.separateT
 import odatse.util.resampling
 from odatse.algorithm.montecarlo import read_Ts
+from odatse.util.separateT import separateT
+from odatse.util.data_writer import DataWriter
 
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
@@ -123,6 +124,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.resampling_interval < 1:
             self.resampling_interval = numT + 1
 
+        self.export_combined_files = info_pamc.get("export_combined_files", False)
+        self.separate_T = info_pamc.get("separate_T", False)
+
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
@@ -205,33 +209,13 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             raise RuntimeError("mode unset")
 
         restore_rng = not self.mode.endswith("-resetrand")
+
         if self.mode.startswith("init"):
             self._initialize()
 
             self.Tindex = 0
             self.index_from_reset = 0
             self.istep = 0
-
-            beta = self.betas[self.Tindex]
-            self._evaluate()
-
-            file_trial = open("trial_T0.txt", "w")
-            self._write_result_header(file_trial, ["weight", "ancestor"])
-            self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
-            file_trial.close()
-
-            file_result = open("result_T0.txt", "w")
-            self._write_result_header(file_result, ["weight", "ancestor"])
-            self._write_result(file_result, [np.exp(self.logweights), self.walker_ancestors])
-            file_result.close()
-
-            self.istep += 1
-
-            minidx = np.argmin(self.fx)
-            self.best_x = copy.copy(self.x[minidx, :])
-            self.best_fx = np.min(self.fx[minidx])
-            self.best_istep = 0
-            self.best_iwalker = 0
 
         elif self.mode.startswith("resume"):
             self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
@@ -251,9 +235,38 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 self.index_from_reset = 0
 
             self.Tindex += 1
-
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
+
+        write_mode = "w" if self.mode.startswith("init") else "a"
+        item_list = [
+            "step",
+            "walker",
+            ("beta" if self.input_as_beta else "T"),
+            "fx",
+            *self.label_list,
+            "weight",
+            "ancestor",
+        ]
+        fp_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        fp_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        self._set_writer(fp_trial, fp_result)
+
+
+        if self.mode.startswith("init"):
+            beta = self.betas[self.Tindex]
+            self._evaluate()
+
+            self._write_result(fp_trial, [np.exp(self.logweights), self.walker_ancestors])
+            self._write_result(fp_result, [np.exp(self.logweights), self.walker_ancestors])
+
+            self.istep += 1
+
+            minidx = np.argmin(self.fx)
+            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_fx = np.min(self.fx[minidx])
+            self.best_istep = 0
+            self.best_iwalker = 0
 
         next_checkpoint_step = self.istep + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
@@ -267,21 +280,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Tindex = self.Tindex
             beta = self.betas[self.Tindex]
 
-            if Tindex == 0:
-                file_trial = open(f"trial_T{Tindex}.txt", "a")
-                file_result = open(f"result_T{Tindex}.txt", "a")
-            else:  # Tindex=1,2,...
-                file_trial = open(f"trial_T{Tindex}.txt", "w")
-                self._write_result_header(file_trial, ["weight", "ancestor"])
-                file_result = open(f"result_T{Tindex}.txt", "w")
-                self._write_result_header(file_result, ["weight", "ancestor"])
-
             if self.nwalkers != 0:
                 for _ in range(self.numsteps_for_T[Tindex]):
                     self.local_update(
                         beta,
-                        file_trial,
-                        file_result,
                         extra_info_to_write=[
                             np.exp(self.logweights),
                             self.walker_ancestors,
@@ -290,9 +292,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     self.istep += 1
             else : #self.nwalkers == 0
                 pass
-
-            file_trial.close()
-            file_result.close()
 
             # print(">>> istep={}".format(self.istep))
 
@@ -333,8 +332,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)
             self._save_stats(res)
-        file_result.close()
-        file_trial.close()
+
+        # must close explicitly
+        fp_trial.close()
+        fp_result.close()
+
+        if self.separate_T and not self.export_combined_files:
+            self._split_result_file("trial")
+            self._split_result_file("result")
 
         if self.mpisize > 1:
             self.mpicomm.barrier()
@@ -588,6 +593,32 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
+
+    def _split_result_file(self, tag):
+        current_beta = -1
+        header_str = ""
+        idx = 0
+        fwrite = None
+
+        with open(tag + ".txt", "r") as fread:
+            for line in fread:
+                if line.startswith("#"):
+                    header_str += line
+                else:
+                    data = line.split()
+                    beta = data[2]
+                    if beta != current_beta:
+                        if fwrite:
+                            fwrite.close()
+                            idx += 1
+                        fwrite = open(tag + f"_T{idx}.txt", "w")
+                        fwrite.write(header_str)
+                        current_beta = beta
+                    fwrite.write(line)
+            if fwrite:
+                fwrite.close()
+
+
     def _post(self) -> None:
         """
         Post-processing after the algorithm execution.
@@ -596,15 +627,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         into single files for 'result' and 'trial'. It also gathers the best
         results from all processes and writes them to 'best_result.txt'.
         """
-        for name in ("result", "trial"):
-            with open(self.proc_dir / f"{name}.txt", "w") as fout:
-                self._write_result_header(fout, ["weight", "ancestor"])
-                for Tindex in range(len(self.betas)):
-                    with open(self.proc_dir / f"{name}_T{Tindex}.txt") as fin:
-                        for line in fin:
-                            if line.startswith("#"):
-                                continue
-                            fout.write(line)
+
         if self.mpisize > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
