@@ -238,27 +238,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
 
-        write_mode = "w" if self.mode.startswith("init") else "a"
-        item_list = [
-            "step",
-            "walker",
-            ("beta" if self.input_as_beta else "T"),
-            "fx",
-            *self.label_list,
-            "weight",
-            "ancestor",
-        ]
-        fp_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
-        fp_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
-        self._set_writer(fp_trial, fp_result)
-
+        writer = self._setup_writer()
 
         if self.mode.startswith("init"):
             beta = self.betas[self.Tindex]
             self._evaluate()
 
-            self._write_result(fp_trial, [np.exp(self.logweights), self.walker_ancestors])
-            self._write_result(fp_result, [np.exp(self.logweights), self.walker_ancestors])
+            self._write_result(writer["trial"], [np.exp(self.logweights), self.walker_ancestors])
+            self._write_result(writer["result"], [np.exp(self.logweights), self.walker_ancestors])
 
             self.istep += 1
 
@@ -302,6 +289,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.ntrial = 0
             self.index_from_reset += 1
 
+            # write weights
+            if writer["weight"]:
+                for iwalker in range(self.nwalkers):
+                    writer["weight"].write(Tindex,
+                                           beta,
+                                           iwalker,
+                                           0,
+                                           self.fx[iwalker],
+                                           self.logweights[iwalker],
+                                           *self.x[iwalker,:])
+
             if Tindex == numT - 1:
                 break
 
@@ -334,8 +332,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._save_stats(res)
 
         # must close explicitly
-        fp_trial.close()
-        fp_result.close()
+        self._close_writer(writer)
 
         if self.separate_T and not self.export_combined_files:
             self._split_result_file("trial")
@@ -344,6 +341,41 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.mpisize > 1:
             self.mpicomm.barrier()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+
+    def _setup_writer(self):
+        write_mode = "w" if self.mode.startswith("init") else "a"
+
+        item_list = [
+            "step",
+            "walker",
+            ("beta" if self.input_as_beta else "T"),
+            "fx",
+            *self.label_list,
+            "weight",
+            "ancestor",
+        ]
+
+        file_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        file_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        self._set_writer(file_trial, file_result)
+
+        item_list_weight = [
+            "Tindex",
+            "beta",
+            "walker",
+            "idnum",
+            "fx",
+            "log_weight",
+            *self.label_list,
+        ]
+        file_weight = DataWriter("weight.txt", mode=write_mode, item_list=item_list_weight, combined=self.export_combined_files)
+
+        return { "trial": file_trial, "result": file_result, "weight": file_weight }
+
+    def _close_writer(self, writers):
+        for k, v in writers.items():
+            if v:
+                v.close()
 
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
