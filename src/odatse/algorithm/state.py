@@ -22,6 +22,8 @@ from odatse import mpi
 
 import abc
 
+use_buffered = False
+
 
 class ContinuousState:
     def __init__(self, x):
@@ -49,6 +51,38 @@ class StateSpace(abc.ABC):
     @abc.abstractmethod
     def pick(self, state, index):
         ...
+
+    def _gather_data(self, data):
+        if use_buffered:
+            return self._gather_data_buffer(data)
+        else:
+            return self._gather_data_object(data)
+
+    def _gather_data_object(self, data):
+        mpicomm = mpi.comm()
+        return np.concatenate(mpicomm.allgather(data), axis=0)
+
+    def _gather_data_buffer(self, data):
+        from mpi4py.util.dtlib import from_numpy_dtype
+
+        mpisize = mpi.size()
+        mpirank = mpi.rank()
+        mpicomm = mpi.comm()
+
+        sh = data.shape
+        nrep = np.array([sh[0]], dtype=np.int64)
+        nreps = np.zeros(mpisize, dtype=np.int64)
+        mpicomm.Allgather(nrep, nreps)
+
+        displ = np.cumsum(nreps) - nreps
+        nrep_total = np.sum(nreps)
+        ndim = np.prod(sh[1:], dtype=int)
+
+        buf = np.zeros((nrep_total, *sh[1:]), dtype=data.dtype)
+        dtype = from_numpy_dtype(data.dtype)
+        mpicomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
+
+        return buf
 
 
 class ContinuousStateSpace(StateSpace):
@@ -91,13 +125,9 @@ class ContinuousStateSpace(StateSpace):
 
     def gather(self, state):
         mpisize = mpi.size()
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
-
         if mpisize > 1:
-            buf = np.zeros((mpisize, *state.x.shape), dtype=state.x.dtype)
-            mpicomm.Allgather(state.x, buf)
-            return ContinuousState(buf.reshape(-1, state.x.shape[1]))
+            buf = self._gather_data(state.x)
+            return ContinuousState(buf)
         else:
             return ContinuousState(state.x)
 
@@ -121,9 +151,7 @@ class DiscreteStateSpace(StateSpace):
     def propose(self, state):
         nwalkers = state.inode.shape[0]
         proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in state.inode]
-        #print("choices: {}".format([self.neighbor_list[i] for i in state.inode]))
         proposed = np.array(proposed_list, dtype=np.int64)
-        #print("proposed: {}".format(proposed))
 
         x = self.node_coordinates[proposed, :]
         new_state = DiscreteState(proposed, x)
@@ -157,7 +185,6 @@ class DiscreteStateSpace(StateSpace):
         mpicomm = mpi.comm()
 
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
-            #nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
             nn_path = Path(info_param["neighborlist_path"]).expanduser()
             if mpirank == 0:
                 nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
@@ -186,13 +213,8 @@ class DiscreteStateSpace(StateSpace):
 
     def gather(self, state):
         mpisize = mpi.size()
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
-
         if mpisize > 1:
-            buf = np.zeros((mpisize, *state.inode.shape), dtype=state.inode.dtype)
-            mpicomm.Allgather(state.inode, buf)
-            inodes = buf.resize(-1)
+            inodes = self._gather_data(state.inode)
             return DiscreteState(inodes, self.node_coordinates[inodes, :])
         else:
             return DiscreteState(state.inode, state.x)
