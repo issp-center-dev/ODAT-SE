@@ -20,17 +20,22 @@ The following is an example of the output.
      total = 0.007259890999989693
     #run
      total = 1.3493346729999303
-     - file_CM = 0.0009563499997966574
-     - submit = 1.3224223930001244
+     - file_CM = 0.0009563499997966574  # Time spent on file I/O
+     - submit = 1.3224223930001244      # Time spent on calculation processing
     #post
      total = 0.000595873999941432
+
+The ``prepare`` section shows the time spent on initialization, ``run`` shows the main calculation processing time, and ``post`` shows the post-processing time.
+The items within the ``run`` section may vary depending on the execution environment and settings.
 
 
 ``runner.log``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The log information about solver calls for each MPI rank is outputted.
 These files will be output under the subfolder of each rank.
-The output is only available when the ``runner.log.interval`` parameter is a positive integer in the input.
+The output is only available when the ``runner.log.interval`` parameter is a positive integer in the input. This value specifies how frequently the log entries are recorded. For example, if ``runner.log.interval = 10``, logs will be recorded every 10 calls.
+
+Each column in the log represents the following information:
 
 - The first column is the serial number of the solver call.
 - The second column is the time elapsed since the last solver call.
@@ -57,3 +62,5 @@ The following is an example of the output.
 If ``algorithm.checkpoint`` is set to true, the intermediate states are stored to ``status.pickle`` (or the filename specified by the ``algorithm.checkpoint_file`` parameter) for each MPI process in its subfolder.
 They are read when the execution is resumed.
 The content of the file depends on the algorithm.
+
+The checkpoint feature allows you to resume calculations from the last saved state if a long calculation is interrupted. To resume, run the program with the same input file and set ``algorithm.checkpoint.restart = true``.
