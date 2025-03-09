@@ -8,69 +8,77 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import os
+import sys
+import argparse
+import glob
+try:
+    from tqdm import tqdm
+except:
+    tqdm = None
 
-from sys import argv
-from collections import namedtuple
-from typing import List, Dict
-from pathlib import Path
+def do_separate(filename):
+    with open(filename, "r") as fp:
+        header = []
+        buf = []
+        index = 0
+        current = None
 
-Entry = namedtuple("Entry", ["rank", "step", "fx", "xs"])
+        for line in fp:
+            if line.startswith("#"):
+                header.append(line)
+                continue
+
+            items = line.strip().split()
+
+            if current is None:
+                current = items[2]
+
+            if items[2] != current:
+                do_write(filename, index, buf, header)
+                current = items[2]
+                index += 1
+                buf = []
+
+            buf.append(line)
+        if buf:
+            do_write(filename, index, buf, header)
+
+def do_write(filename, index, buf, header):
+    file_base, file_ext = os.path.splitext(filename)
+    new_file = file_base + f"_T{index}" + file_ext
+    with open(new_file, "w") as fp:
+        fp.writelines(header)
+        fp.writelines(buf)
+
+def main():
+    parser = argparse.ArgumentParser(description="Separate MCMC data file ")
+    parser.add_argument("-d", "--data_dir", type=str, help="Directory of MCMC data")
+    parser.add_argument("-t", "--file_type", type=str, default="result.txt", help="File type of MCMC data")
+    parser.add_argument("--progress", action="store_true", default=False, help="Show progress bar.")
+    parser.add_argument("input_files", nargs="*", help="Files to extract in combined format.")
+
+    args = parser.parse_args()
+
+    if args.input_files:
+        input_files = args.input_files
+    elif args.data_dir:
+        file_pattern = os.path.join(args.data_dir, "*", args.file_type)
+        input_files = glob.glob(file_pattern)
+    else:
+        input_files = []
+
+    if tqdm and args.progress:
+        input_files = tqdm(input_files)
+
+    for input_file in input_files:
+        dir_name = os.path.dirname(input_file)
+
+        if not args.progress or not tqdm:
+            print("processing file {}...".format(input_file))
+
+        do_separate(input_file)
 
 
-def load_best(filename: Path) -> Dict[str, str]:
-    res = {}
-    with open(filename) as f:
-        for line in f:
-            words = line.split("=")
-            res[words[0].strip()] = words[1].strip()
-    return res
-
-
-output_dir = Path("." if len(argv) == 1 else argv[1])
-nprocs: int = int(load_best(output_dir / "best_result.txt")["nprocs"])
-
-Ts: List[float] = []
-labels: List[str] = []
-dim: int = 0
-results: Dict[float, List[Entry]] = {}
-
-for rank in range(nprocs):
-    with open(output_dir / str(rank) / "result.txt") as f:
-        line = f.readline()
-        labels = line.split()[4:]
-
-        line = f.readline()
-        words = line.split()
-        T = float(words[2])
-        Ts.append(T)
-        results[T] = []
-        dim = len(words) - 4
-
-for rank in range(nprocs):
-    with open(output_dir / str(rank) / "result.txt") as f:
-        f.readline()
-        for line in f:
-            words = line.split()
-            step = int(words[0])
-            T = float(words[2])
-            fx = float(words[3])
-            res = [float(words[i + 4]) for i in range(dim)]
-            results[T].append(Entry(rank=rank, step=step, fx=fx, xs=res))
-
-for T in Ts:
-    results[T].sort(key=lambda entry: entry.step)
-
-for i, T in enumerate(Ts):
-    with open(output_dir / f"result_T{i}.txt", "w") as f:
-        f.write(f"# T = {T}\n")
-        f.write("# step rank fx")
-        for label in labels:
-            f.write(f" {label}")
-        f.write("\n")
-        for entry in results[T]:
-            f.write(f"{entry.step} ")
-            f.write(f"{entry.rank} ")
-            f.write(f"{entry.fx} ")
-            for x in entry.xs:
-                f.write(f"{x} ")
-            f.write("\n")
+if __name__ == "__main__":
+    main()
