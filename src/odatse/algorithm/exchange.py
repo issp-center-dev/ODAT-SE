@@ -18,6 +18,8 @@ import odatse
 import odatse.algorithm.montecarlo
 from odatse.algorithm.montecarlo import read_Ts
 from odatse.util.separateT import separateT
+from odatse.util.data_writer import DataWriter
+
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """Replica Exchange Monte Carlo
@@ -97,17 +99,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
+
+        self.export_combined_files = info_exchange.get("export_combined_files", False)
+        self.separate_T = info_exchange.get("separate_T", True)
+
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
-
-    def _print_info(self) -> None:
-        """
-        Print information about the algorithm.
-        """
-        if self.mpirank == 0:
-            pass
-        if self.mpisize > 1:
-            self.mpicomm.barrier()
 
     def _initialize(self) -> None:
         """
@@ -148,17 +145,25 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         beta = self.betas[self.Tindex]
 
+        write_mode = "w" if self.mode.startswith("init") else "a"
+        item_list = [
+            "step",
+            "walker",
+            ("beta" if self.input_as_beta else "T"),
+            "fx",
+            *self.label_list,
+        ]
+        fp_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        fp_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        self._set_writer(fp_trial, fp_result)
+
+
         if self.mode.startswith("init"):
             # first step
             self._evaluate()
 
-            file_trial = open("trial.txt", "w")
-            self._write_result_header(file_trial)
-            self._write_result(file_trial)
-
-            file_result = open("result.txt", "w")
-            self._write_result_header(file_result)
-            self._write_result(file_result)
+            self._write_result(fp_trial)
+            self._write_result(fp_result)
 
             self.istep += 1
 
@@ -167,9 +172,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.best_fx = np.min(self.fx[minidx])
             self.best_istep = 0
             self.best_iwalker = 0
+
         else:
-            file_trial = open("trial.txt", "a")
-            file_result = open("result.txt", "a")
+            pass
 
         next_checkpoint_step = self.istep + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
@@ -190,7 +195,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 beta = self.betas[self.Tindex]
 
             # print(">>> call local_update")
-            self.local_update(beta, file_trial, file_result)
+            self.local_update(beta)
             self.istep += 1
 
             if self.checkpoint:
@@ -200,8 +205,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     next_checkpoint_step = self.istep + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        file_result.close()
-        file_trial.close()
+        # must close explicitly
+        fp_trial.close()
+        fp_result.close()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
         # store final state for continuation
@@ -347,18 +353,22 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Post-process the results of the algorithm.
         """
-        Ts = self.betas if self.input_as_beta else 1.0 / self.betas
-        if self.mpirank == 0:
-            print(f"start separateT {self.mpirank}")
-            sys.stdout.flush()
-        separateT(
-            Ts=Ts,
-            nwalkers=self.nwalkers,
-            output_dir=self.output_dir,
-            comm=self.mpicomm,
-            use_beta=self.input_as_beta,
-            buffer_size=10000,
-        )
+        if self.separate_T and not self.export_combined_files:
+            if self.mpirank == 0:
+                print(f"start separateT {self.mpirank}")
+                sys.stdout.flush()
+
+            Ts = self.betas if self.input_as_beta else 1.0 / self.betas
+
+            separateT(
+                Ts=Ts,
+                nwalkers=self.nwalkers,
+                output_dir=self.output_dir,
+                comm=self.mpicomm,
+                use_beta=self.input_as_beta,
+                buffer_size=10000,
+            )
+
         if self.mpisize > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.

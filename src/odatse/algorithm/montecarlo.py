@@ -18,7 +18,7 @@ import odatse
 from odatse.util.neighborlist import load_neighbor_list
 import odatse.util.graph
 import odatse.domain
-
+from odatse.util.data_writer import DataWriter
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """Base of Monte Carlo
@@ -152,6 +152,10 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.Tindex = 0
         self.input_as_beta = False
 
+        #-- writer
+        self.fp_trial = None
+        self.fp_result = None
+
     def _initialize(self):
         """
         Initialize the algorithm state.
@@ -269,8 +273,8 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     def local_update(
         self,
         beta: Union[float, np.ndarray],
-        file_trial: TextIO,
-        file_result: TextIO,
+        #file_trial: TextIO,
+        #file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
     ):
         """
@@ -301,7 +305,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                                                             )
 
             in_range = (in_range_xmin & in_range_xmax).all(axis=1) \
-                       &in_range_limitation 
+                       &in_range_limitation
         else:
             i_old = copy.copy(self.inode)
             self.inode = self.propose(self.inode)
@@ -311,7 +315,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         # evaluate "Energy"s
         fx_old = self.fx.copy()
         self._evaluate(in_range)
-        self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
+
+        if self.fp_trial:
+            self._write_result(self.fp_trial, extra_info_to_write)
 
         fdiff = self.fx - fx_old
 
@@ -347,60 +353,35 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
             self.best_iwalker = typing.cast(int, minidx)
-        self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
-    def _write_result_header(self, fp, extra_names=None) -> None:
-        """
-        Write the header for the result file.
+        if self.fp_result:
+            self._write_result(self.fp_result, extra_info_to_write)
 
-        Parameters
-        ----------
-        fp : TextIO
-            File pointer to the result file.
-        extra_names : list of str, optional
-            Additional column names to include in the header.
-        """
-        if self.input_as_beta:
-            fp.write("# step walker beta fx")
-        else:
-            fp.write("# step walker T fx")
-        for label in self.label_list:
-            fp.write(f" {label}")
-        if extra_names is not None:
-            for label in extra_names:
-                fp.write(f" {label}")
-        fp.write("\n")
 
-    def _write_result(self, fp, extra_info_to_write: Union[List, Tuple] = None) -> None:
-        """
-        Write the result of the current step to the file.
+    def _set_writer(self, fp_trial, fp_result):
+        self.fp_trial = fp_trial
+        self.fp_result = fp_result
 
-        Parameters
-        ----------
-        fp : TextIO
-            File pointer to the result file.
-        extra_info_to_write : Union[List, Tuple], optional
-            Additional information to write for each walker (default is None).
-        """
+    def _write_result(self, writer, extras = None):
         for iwalker in range(self.nwalkers):
             if isinstance(self.Tindex, int):
                 beta = self.betas[self.Tindex]
             else:
                 beta = self.betas[self.Tindex[iwalker]]
-            fp.write(f"{self.istep}")
-            fp.write(f" {iwalker}")
+
             if self.input_as_beta:
-                fp.write(f" {beta}")
+                tval = beta
             else:
-                fp.write(f" {1.0/beta}")
-            fp.write(f" {self.fx[iwalker]}")
-            for x in self.x[iwalker, :]:
-                fp.write(f" {x}")
-            if extra_info_to_write is not None:
-                for ex in extra_info_to_write:
-                    fp.write(f" {ex[iwalker]}")
-            fp.write("\n")
-        fp.flush()
+                tval = 1.0 / beta
+
+            data = [self.istep, iwalker, tval, self.fx[iwalker], *self.x[iwalker,:]]
+            if extras:
+                for extra in extras:
+                    data.append(extra[iwalker])
+
+            writer.write(*data)
+
+
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
     Read temperature or inverse-temperature values from the provided info dictionary.
