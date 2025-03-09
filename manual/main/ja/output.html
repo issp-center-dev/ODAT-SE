@@ -51,22 +51,25 @@
  <span class="n">total</span> <span class="o">=</span> <span class="mf">0.007259890999989693</span>
 <span class="c1">#run</span>
  <span class="n">total</span> <span class="o">=</span> <span class="mf">1.3493346729999303</span>
- <span class="o">-</span> <span class="n">file_CM</span> <span class="o">=</span> <span class="mf">0.0009563499997966574</span>
- <span class="o">-</span> <span class="n">submit</span> <span class="o">=</span> <span class="mf">1.3224223930001244</span>
+ <span class="o">-</span> <span class="n">file_CM</span> <span class="o">=</span> <span class="mf">0.0009563499997966574</span>  <span class="c1"># ファイル入出力に要した時間</span>
+ <span class="o">-</span> <span class="n">submit</span> <span class="o">=</span> <span class="mf">1.3224223930001244</span>      <span class="c1"># 計算処理に要した時間</span>
 <span class="c1">#post</span>
  <span class="n">total</span> <span class="o">=</span> <span class="mf">0.000595873999941432</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">prepare</span></code> は初期化処理、<code class="docutils literal notranslate"><span class="pre">run</span></code> は主計算処理、<code class="docutils literal notranslate"><span class="pre">post</span></code> は後処理にかかった時間を示します。
+<code class="docutils literal notranslate"><span class="pre">run</span></code> セクション内の項目は実行環境や設定によって異なる場合があります。</p>
 </section>
 <section id="runner-log">
 <h3><code class="docutils literal notranslate"><span class="pre">runner.log</span></code><a class="headerlink" href="#runner-log" title="Link to this heading">¶</a></h3>
 <p>MPI のランクごとに、ソルバー呼び出しに関するログ情報を出力します。
 各ランクのサブフォルダ以下に出力されます。
-入力で <code class="docutils literal notranslate"><span class="pre">runner.log.interval</span></code> パラメータが正の整数の時のみ出力されます。</p>
+入力で <code class="docutils literal notranslate"><span class="pre">runner.log.interval</span></code> パラメータが正の整数の時のみ出力されます。この値は何回の呼び出しごとにログを記録するかを指定します。例えば <code class="docutils literal notranslate"><span class="pre">runner.log.interval</span> <span class="pre">=</span> <span class="pre">10</span></code> の場合、10回ごとに記録されます。</p>
+<p>ログの各列は以下の情報を表しています：</p>
 <ul class="simple">
-<li><p>1列目がソルバー呼び出しの通し番号、</p></li>
-<li><p>2列目が前回呼び出しからの経過時間、</p></li>
-<li><p>3列目が計算開始からの経過時間</p></li>
+<li><p>1列目：ソルバー呼び出しの通し番号</p></li>
+<li><p>2列目：前回呼び出しからの経過時間（秒）</p></li>
+<li><p>3列目：計算開始からの経過時間（秒）</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: num_calls</span>
 <span class="c1"># $2: elapsed_time_from_last_call</span>
@@ -87,6 +90,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint</span></code> が true の場合、MPI のランクごとに実行中の状態を出力します。
 各ランクのサブフォルダ以下に出力されます。実行を再開する場合に読み込まれます。
 ファイルの内容はアルゴリズムに依ります。</p>
+<p>チェックポイント機能を使用すると、長時間の計算が途中で中断された場合でも、最後に保存された状態から計算を再開することができます。再開するには、同じ入力ファイルで <code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint.restart</span> <span class="pre">=</span> <span class="pre">true</span></code> を設定して実行します。</p>
 </section>
 </section>
 </section>
@@ -107,7 +111,7 @@
 
     <div class="footer" role="contentinfo">
     &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     </div>
   </body>
 </html>

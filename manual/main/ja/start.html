@@ -46,17 +46,17 @@
 <li><p>必要なpythonパッケージ</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>tomli (&gt;= 1.2)</p></li>
-<li><p>numpy (&gt;= 1.14)</p></li>
+<li><p>tomli (&gt;= 1.2) : TOML形式の設定ファイルを読み込むため</p></li>
+<li><p>numpy (&gt;= 1.14) : 数値計算のため</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>Optional なパッケージ</p>
+<li><p>Optional なパッケージ（特定の最適化手法を使用する場合に必要）</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>mpi4py (グリッド探索利用時)</p></li>
-<li><p>scipy (Nelder-Mead法利用時)</p></li>
-<li><p>physbo (ベイズ最適化利用時, ver. 2.0以上)</p></li>
+<li><p>mpi4py (グリッド探索利用時) : 並列計算による高速化のため</p></li>
+<li><p>scipy (Nelder-Mead法利用時) : Nelder-Mead法による最適化のため</p></li>
+<li><p>physbo (ベイズ最適化利用時, ver. 2.0以上) : ベイズ最適化のため</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -119,24 +119,36 @@
 これらの解析を行う場合は別途パッケージと必要なソフトウェアをインストールしてください。
 現在は以下の順問題ソルバーが用意されています。</p>
 <ul class="simple">
-<li><p>全反射高速陽電子回折 (TRHEPD) -- odatse-STR パッケージ</p></li>
-<li><p>表面X線回折 (SXRD) -- odatse-SXRD パッケージ</p></li>
-<li><p>低速電子線回折 (LEED) -- odatse-LEED パッケージ</p></li>
+<li><p>全反射高速陽電子回折 (TRHEPD) -- odatse-STR パッケージ
+表面構造解析のための高精度な手法です。</p></li>
+<li><p>表面X線回折 (SXRD) -- odatse-SXRD パッケージ
+表面や界面の原子配列を調べるためのX線回折手法です。</p></li>
+<li><p>低速電子線回折 (LEED) -- odatse-LEED パッケージ
+固体表面の結晶構造を調べるための電子回折手法です。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> や <code class="docutils literal notranslate"><span class="pre">Solver</span></code> をユーザーが準備する場合は、 <code class="docutils literal notranslate"><span class="pre">ODAT-SE</span></code> パッケージを利用します。
 詳しくは <a class="reference internal" href="customize/index.html"><span class="doc">(開発者向け)ユーザー定義アルゴリズム・ソルバー</span></a> を参照してください。</p>
 <p>なお、 プログラムを改造する場合など、 <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドをインストールせずに直接実行することも可能です。
 <code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> を利用してください。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 src/odatse_main.py input.toml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>src/odatse_main.py<span class="w"> </span>input.toml
 </pre></div>
 </div>
 </section>
 <section id="id4">
-<h2>アンインストール<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<h2>インストールの確認<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>インストールが正常に完了したかを確認するには、以下のコマンドを実行します：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse<span class="w"> </span>--version
+$<span class="w"> </span>odatse<span class="w"> </span>--help
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>アンインストール<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <p>ODAT-SE モジュールをアンインストールするには、以下のコマンドを実行します。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>ODAT-SE
 </pre></div>
 </div>
+<p>関連するオプションパッケージも個別にアンインストールする必要がある場合は、同様のコマンドで実行できます。</p>
 </section>
 </section>
 
@@ -156,7 +168,7 @@
 
     <div class="footer" role="contentinfo">
     &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     </div>
   </body>
 </html>

@@ -43,19 +43,19 @@
 <blockquote>
 <div><ul>
 <li><dl class="simple">
-<dt>The following Python packages are required.</dt><dd><ul class="simple">
-<li><p>tomli &gt;= 1.2</p></li>
-<li><p>numpy &gt;= 1.14</p></li>
+<dt>The following Python packages are required:</dt><dd><ul class="simple">
+<li><p>tomli &gt;= 1.2 : For reading configuration files in TOML format</p></li>
+<li><p>numpy &gt;= 1.14 : For numerical calculations</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><p>Optional packages</p>
+<li><p>Optional packages (required for specific optimization methods):</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>mpi4py (required for grid search)</p></li>
-<li><p>scipy (required for Nelder-Mead method)</p></li>
-<li><p>physbo (&gt;=2.0, required for Baysian optimization)</p></li>
+<li><p>mpi4py : For parallelization and speedup when using grid search</p></li>
+<li><p>scipy : For optimization using the Nelder-Mead method</p></li>
+<li><p>physbo (&gt;=2.0) : For Bayesian optimization</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -117,23 +117,35 @@
 To perform these analyses, you need to install the modules and the required software packages.
 At present, the following modules are provided:</p>
 <ul class="simple">
-<li><p>odatse-STR module for Total Refrection High-energy Positron Diffraction (TRHEPD)</p></li>
-<li><p>odatse-SXRD module for Surface X-ray Diffraction (SXRD)</p></li>
-<li><p>odatse-LEED module for Low-energy Electron Diffraction (LEED)</p></li>
+<li><p>Total Reflection High-energy Positron Diffraction (TRHEPD) – odatse-STR package
+A high-precision method for surface structure analysis.</p></li>
+<li><p>Surface X-ray Diffraction (SXRD) – odatse-SXRD package
+An X-ray diffraction method for investigating atomic arrangements at surfaces and interfaces.</p></li>
+<li><p>Low-energy Electron Diffraction (LEED) – odatse-LEED package
+An electron diffraction method for studying crystal structures of solid surfaces.</p></li>
 </ul>
 <p>If you want to prepare the <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> or <code class="docutils literal notranslate"><span class="pre">Solver</span></code> by yourself, use the ODAT-SE package.
 See <a class="reference internal" href="customize/index.html"><span class="doc">(For developers) User-defined algorithms and solvers</span></a> for details.</p>
 <p>The program can be executed without installing <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command; instead, run <code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> script directly as follows. It would be convenient when you are rewriting programs.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>src/odatse_main.py<span class="w"> </span>input
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>src/odatse_main.py<span class="w"> </span>input.toml
+</pre></div>
+</div>
+</section>
+<section id="verifying-the-installation">
+<h2>Verifying the installation<a class="headerlink" href="#verifying-the-installation" title="Link to this heading">¶</a></h2>
+<p>To verify that the installation was completed successfully, run the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse<span class="w"> </span>--version
+$<span class="w"> </span>odatse<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
 <section id="how-to-uninstall">
 <h2>How to uninstall<a class="headerlink" href="#how-to-uninstall" title="Link to this heading">¶</a></h2>
-<p>Please type the following command:</p>
+<p>To uninstall the ODAT-SE module, please run the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>ODAT-SE
 </pre></div>
 </div>
+<p>If you need to uninstall related optional packages individually, you can run similar commands for each package.</p>
 </section>
 </section>
 
@@ -153,7 +165,7 @@ See <a class="reference internal" href="customize/index.html"><span class="doc">
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     </div>
   </body>
 </html>

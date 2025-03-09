@@ -39,7 +39,7 @@
 <h1>Related Tools<a class="headerlink" href="#related-tools" title="Link to this heading">¶</a></h1>
 <section id="odatse-neighborlist">
 <h2><code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code><a class="headerlink" href="#odatse-neighborlist" title="Link to this heading">¶</a></h2>
-<p>This tool generates a neighborhood-list file from the mesh file.</p>
+<p>This tool generates a neighborhood-list file from the mesh file for Monte Carlo search in discrete spaces.</p>
 <p>When you install ODAT-SE via <code class="docutils literal notranslate"><span class="pre">pip</span></code> command, <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> is also installed under the <code class="docutils literal notranslate"><span class="pre">bin</span></code>.
 A python script <code class="docutils literal notranslate"><span class="pre">src/odatse_neighborlist.py</span></code> is also available.</p>
 <section id="usage">
@@ -50,7 +50,7 @@ The filename of the generated neighborhood-list file is specified by <code class
 
 Or
 
-$<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.py<span class="w"> </span>-o<span class="w"> </span>MeshData.txt
+$<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.py<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
 </pre></div>
 </div>
 <p>The following command-line options are available.</p>
@@ -64,11 +64,8 @@ $<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.
 <ul>
 <li><p>Length scale for each dimension of coordinate (default: 1.0 for all dims)</p>
 <ul>
-<li><p>Put values splitted by whitespaces and quote the whole</p>
-<ul>
-<li><p>e.g.) <code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;1.0</span> <span class="pre">0.5&quot;</span></code></p></li>
-</ul>
-</li>
+<li><p>Put values splitted by whitespaces and quote the whole</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;2.0</span> <span class="pre">1.0</span> <span class="pre">3.0&quot;</span></code> (For 3D space, apply scale 2.0 for x-axis, 1.0 for y-axis, and 3.0 for z-axis)</p></li>
 </ul>
 </li>
 <li><p>Each dimension of coordinate is divided by the corresponding <code class="docutils literal notranslate"><span class="pre">unit</span></code>.</p></li>
@@ -98,7 +95,16 @@ $<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.
 </ul>
 </li>
 </ul>
-<p>MPI parallelization is available.</p>
+</section>
+<section id="mpi-parallel-computation">
+<h3>MPI Parallel Computation<a class="headerlink" href="#mpi-parallel-computation" title="Link to this heading">¶</a></h3>
+<p>MPI parallelization is available to speed up calculations. For example, when using the <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">4</span><span class="w"> </span>odatse_neighborlist<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-np</span> <span class="pre">4</span></code> part specifies the number of processes to use. Adjust according to the number of cores available.</p>
+<p>Depending on your environment, you may need to use <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or other commands, or execute MPI programs through a job scheduler.
+In those cases, please modify the command to suit your environment.</p>
 </section>
 </section>
 </section>
@@ -119,7 +125,7 @@ $<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.
 
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     </div>
   </body>
 </html>
