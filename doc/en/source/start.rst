@@ -5,15 +5,15 @@ Prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Python3 (>=3.9)
 
-    - The following Python packages are required.
-        - tomli >= 1.2
-        - numpy >= 1.14
+    - The following Python packages are required:
+        - tomli >= 1.2 : For reading configuration files in TOML format
+        - numpy >= 1.14 : For numerical calculations
 
-    - Optional packages
+    - Optional packages (required for specific optimization methods):
 
-        - mpi4py (required for grid search)
-        - scipy (required for Nelder-Mead method)
-        - physbo (>=2.0, required for Baysian optimization)
+        - mpi4py : For parallelization and speedup when using grid search
+        - scipy : For optimization using the Nelder-Mead method
+        - physbo (>=2.0) : For Bayesian optimization
 
 
 How to download and install
@@ -57,11 +57,14 @@ The direct problem solvers for analyses of experimental data of two-dimensional 
 To perform these analyses, you need to install the modules and the required software packages.
 At present, the following modules are provided:
 
-- odatse-STR module for Total Refrection High-energy Positron Diffraction (TRHEPD)
+- Total Reflection High-energy Positron Diffraction (TRHEPD) -- odatse-STR package
+  A high-precision method for surface structure analysis.
 
-- odatse-SXRD module for Surface X-ray Diffraction (SXRD)
+- Surface X-ray Diffraction (SXRD) -- odatse-SXRD package
+  An X-ray diffraction method for investigating atomic arrangements at surfaces and interfaces.
 
-- odatse-LEED module for Low-energy Electron Diffraction (LEED)
+- Low-energy Electron Diffraction (LEED) -- odatse-LEED package
+  An electron diffraction method for studying crystal structures of solid surfaces.
   
 If you want to prepare the ``Algorithm`` or ``Solver`` by yourself, use the ODAT-SE package.
 See :doc:`customize/index` for details.
@@ -70,14 +73,27 @@ The program can be executed without installing ``odatse`` command; instead, run 
 
 .. code-block:: bash
 
-   $ python3 src/odatse_main.py input
+   $ python3 src/odatse_main.py input.toml
+
+
+Verifying the installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To verify that the installation was completed successfully, run the following commands:
+
+.. code-block:: bash
+
+    $ odatse --version
+    $ odatse --help
 
 
 How to uninstall
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please type the following command:
+To uninstall the ODAT-SE module, please run the following command:
 
 .. code-block:: bash
 
     $ python3 -m pip uninstall ODAT-SE
+
+If you need to uninstall related optional packages individually, you can run similar commands for each package.
