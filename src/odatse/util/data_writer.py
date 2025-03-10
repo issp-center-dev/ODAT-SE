@@ -12,6 +12,20 @@ def basicConfig(combined_filename=None, combined_mode=None):
     return BaseWriter.basicConfig(combined_filename, combined_mode)
 
 class BaseWriter:
+    """
+    Base class for file writing operations with support for combined output files.
+    
+    Class Attributes
+    ---------------
+    _fp : TextIO | None
+        Shared file pointer for combined output mode
+    _fp_count : int
+        Reference counter for combined file pointer
+    _combined_filename : str
+        Default filename for combined output
+    _combined_filemode : str
+        Default file mode for combined output
+    """
     _fp = None
     _fp_count = 0
     _logger = logging.getLogger("BaseWriter")
@@ -21,21 +35,33 @@ class BaseWriter:
 
     @classmethod
     def basicConfig(cls, combined_filename=None, combined_mode=None):
+        """Configure global settings for combined file output."""
         if combined_filename:
             cls._combined_filename = combined_filename
         if combined_mode:
             cls._combined_filemode = combined_mode
 
     def __init__(self, filename=None, mode="w", combined=False):
+        """
+        Initialize writer with file handling options.
+
+        Parameters
+        ----------
+        filename : str | None
+            Path to output file
+        mode : str
+            File open mode ('w' for write, 'a' for append)
+        combined : bool
+            If True, writes to a shared combined file instead of individual files
+        """
         self._logger = logging.getLogger(__class__.__name__)
         self.filename = filename
         self.mode = mode
         self.combined = combined
         self.fp = None
-        self.tag = ""
+        self.tag = ""  # Prefix for lines in combined mode
 
         self._logger.debug(f"initialize: file={self.filename}, mode=\"{self.mode}\", combined={self.combined}")
-
         self._open()
 
     def __del__(self):
@@ -46,13 +72,19 @@ class BaseWriter:
         self._close()
 
     def _write(self, *args):
-        #self._logger.debug(f"write: {args}")
+        """
+        Internal write method handling both combined and individual file modes.
+        
+        In combined mode, prefixes each line with the source filename tag.
+        """
         if self.fp:
             if self.combined:
+                # Add filename tag to each line in combined mode
                 for arg in args:
                     for s in arg.split("\n"):
                         self.fp.write(self.tag + s + "\n")
             else:
+                # Direct write in individual file mode
                 self.fp.write("\n".join(args) + "\n")
 
     def _open(self):
@@ -109,9 +141,33 @@ class TextWriter(BaseWriter):
 
 
 class DataWriter(BaseWriter):
-    def __init__(self, filename=None, mode="w", item_list=[], *, description=None, long_format=False, combined=False):
+    """
+    Specialized writer for structured data output with header support.
+    
+    Extends BaseWriter to handle formatted data output with column headers
+    and optional descriptions.
+    """
+    def __init__(self, filename=None, mode="w", item_list=[], *, 
+                 description=None, long_format=False, combined=False):
+        """
+        Initialize data writer with column specifications.
+
+        Parameters
+        ----------
+        filename : str | None
+            Output file path
+        mode : str
+            File open mode
+        item_list : list
+            List of column specifications (name, format, description)
+        description : str | None
+            Optional file header description
+        long_format : bool
+            If True, writes detailed column descriptions
+        combined : bool
+            If True, writes to shared combined file
+        """
         self._logger = logging.getLogger(__class__.__name__)
-        self._logger.debug(f"initialize: file={filename}, mode=\"{mode}\", item_list={item_list}, combined={combined}, description={description}, long_format={long_format}")
         super().__init__(filename=filename, mode=mode, combined=combined)
         self.header = self._find_item_list(item_list)
         if mode == "w":
@@ -121,24 +177,44 @@ class DataWriter(BaseWriter):
         self._write_items(args)
 
     def _write_header(self, description, long_format):
+        """
+        Write file header with column descriptions.
+        
+        Parameters
+        ----------
+        description : str | None
+            Optional file description
+        long_format : bool
+            If True, writes detailed per-column descriptions
+        """
         if description:
             for s in description.split("\n"):
                 self._write("# " + s)
+        
         if long_format:
+            # Write detailed column descriptions with indices
             for idx, (s,_,w) in enumerate(self.header, 1):
                 msg = f"# {idx}: " + (w if w else s)
                 self._write(msg)
         else:
+            # Write simple column names
             self._write("# " + " ".join([s for s,_,_ in self.header]))
-        self._logger.debug("write_header: written")
 
     def _write_items(self, items):
+        """
+        Write a row of data values with proper formatting.
+        
+        Parameters
+        ----------
+        items : sequence
+            Values to write, must match header length
+        """
         assert len(items) == len(self.header)
         msg = []
         for (_, fmt, _), v in zip(self.header, items):
+            # Apply format if specified, otherwise convert to string
             msg.append(fmt.format(v) if fmt else str(v))
         self._write(" ".join(msg))
-        #self._logger.debug(f"write_items: {items}")
         
     def _find_item_list(self, item_list):
         items = []
