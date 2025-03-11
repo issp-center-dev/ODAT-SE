@@ -6,6 +6,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from typing import Dict
+
 from io import open
 import copy
 import time
@@ -22,34 +24,42 @@ from odatse.util.data_writer import DataWriter
 
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
-    """Replica Exchange Monte Carlo
+    """
+    Replica Exchange Monte Carlo (REMC) Algorithm Implementation.
+    
+    This class implements the Replica Exchange Monte Carlo algorithm, also known as 
+    Parallel Tempering. The algorithm runs multiple replicas of the system at different
+    temperatures and periodically attempts to swap configurations between adjacent
+    temperature levels.
 
     Attributes
-    ==========
-    x: np.ndarray
-        current configuration
-    inode: np.ndarray
-        current configuration index (discrete parameter space)
-    fx: np.ndarray
-        current "Energy"
-    Tindex: np.ndarray
-        current "Temperature" index
-    istep: int
-        current step (or, the number of calculated energies)
-    best_x: np.ndarray
-        best configuration
-    best_fx: float
-        best "Energy"
-    best_istep: int
-        index of best configuration
-    nreplica: int
-        The number of replicas (= the number of procs)
-    T2rep: np.ndarray
-        Mapping from temperature index to replica index
-    rep2T: np.ndarray
-        Reverse mapping from replica index to temperature index
-    exchange_direction: bool
-        Parity of exchange direction
+    ----------
+    x : np.ndarray
+        Current configuration state for all walkers.
+    xmin : np.ndarray
+        Minimum allowed values for parameters.
+    xmax : np.ndarray
+        Maximum allowed values for parameters.
+    xstep : np.ndarray
+        Step sizes for parameter updates.
+    numsteps : int
+        Total number of Monte Carlo steps to perform.
+    numsteps_exchange : int
+        Number of steps between exchange attempts.
+    fx : np.ndarray
+        Current energy/objective function values.
+    istep : int
+        Current step number.
+    nreplica : int
+        Total number of replicas across all processes.
+    Tindex : np.ndarray
+        Temperature indices for current replicas.
+    rep2T : np.ndarray
+        Mapping from replica index to temperature index.
+    T2rep : np.ndarray
+        Mapping from temperature index to replica index.
+    exchange_direction : bool
+        Direction for attempting exchanges (alternates between True/False).
     """
 
     x: np.ndarray
@@ -110,14 +120,23 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Initialize the algorithm parameters and state.
         """
+        # Initialize base class first
         super()._initialize()
 
+        # Set up temperature indices for each walker
+        # Each process handles a contiguous block of temperature indices
+        # based on its rank and number of walkers
         self.Tindex = np.arange(
             self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
         )
-        self.rep2T = np.arange(self.nreplica)
-        self.T2rep = np.arange(self.nreplica)
+        
+        # Initialize mappings between replica and temperature indices
+        # Initially, replica i has temperature i
+        self.rep2T = np.arange(self.nreplica)  # Maps replica index -> temperature index
+        self.T2rep = np.arange(self.nreplica)  # Maps temperature index -> replica index
 
+        # Initialize exchange direction - alternates between True/False
+        # to ensure all adjacent pairs get chance to exchange
         self.exchange_direction = True
         self.istep = 0
 
@@ -127,13 +146,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Run the algorithm.
         """
-        # print(">>> _run")
-
+        # Validate run mode is set
         if self.mode is None:
             raise RuntimeError("mode unset")
 
+        # Determine whether to restore RNG state from checkpoint
         restore_rng = not self.mode.endswith("-resetrand")
 
+        # Initialize or restore simulation state based on mode
         if self.mode.startswith("init"):
             self._initialize()
         elif self.mode.startswith("resume"):
@@ -143,8 +163,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
 
+        # Get current beta (inverse temperature) values for each replica
         beta = self.betas[self.Tindex]
 
+        # Set up output file writers
         write_mode = "w" if self.mode.startswith("init") else "a"
         item_list = [
             "step",
@@ -153,51 +175,49 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "fx",
             *self.label_list,
         ]
+        # Create writers for both trial moves and accepted results
         fp_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
         fp_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
         self._set_writer(fp_trial, fp_result)
 
-
+        # For new runs, evaluate initial configuration
         if self.mode.startswith("init"):
-            # first step
             self._evaluate()
-
             self._write_result(fp_trial)
             self._write_result(fp_result)
-
             self.istep += 1
 
+            # Track best solution found
             minidx = np.argmin(self.fx)
             self.best_x = copy.copy(self.x[minidx, :])
             self.best_fx = np.min(self.fx[minidx])
             self.best_istep = 0
             self.best_iwalker = 0
 
-        else:
-            pass
-
+        # Set up checkpointing intervals
         next_checkpoint_step = self.istep + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
+        # Main simulation loop
         while self.istep < self.numsteps:
-            # print(">>> istep={}".format(self.istep))
-
-            # Exchange
+            # Attempt replica exchange periodically
             if self.istep % self.numsteps_exchange == 0:
-                # print(">>> do exchange")
                 time_sta = time.perf_counter()
                 if self.nreplica > 1:
                     self._exchange(self.exchange_direction)
+                # Alternate exchange direction for next attempt
                 if self.nreplica > 2:
                     self.exchange_direction = not self.exchange_direction
                 time_end = time.perf_counter()
                 self.timer["run"]["exchange"] += time_end - time_sta
+                # Update beta values after exchange
                 beta = self.betas[self.Tindex]
 
-            # print(">>> call local_update")
+            # Perform local Monte Carlo updates
             self.local_update(beta)
             self.istep += 1
 
+            # Handle checkpointing if enabled
             if self.checkpoint:
                 time_now = time.time()
                 if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
@@ -205,24 +225,28 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     next_checkpoint_step = self.istep + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        # must close explicitly
+        # Clean up file handles
         fp_trial.close()
         fp_result.close()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
-        # store final state for continuation
+        # Save final state for possible continuation
         if self.checkpoint:
-            # print(">>> store final state")
             self._save_state(self.checkpoint_file)
 
     def _exchange(self, direction: bool) -> None:
         """
-        Try to exchange temperatures.
+        Attempt temperature exchanges between replicas.
+
+        This method implements the core replica exchange logic, attempting to swap
+        temperatures between adjacent replicas based on the Metropolis criterion:
+        P(accept) = min(1, exp((β_j - β_i)(E_i - E_j)))
 
         Parameters
         ----------
         direction : bool
-            Direction of the exchange.
+            If True, attempt exchanges between even-odd pairs.
+            If False, attempt exchanges between odd-even pairs.
         """
         if self.nwalkers == 1:
             self.__exchange_single_walker(direction)
@@ -231,12 +255,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def __exchange_single_walker(self, direction: bool) -> None:
         """
-        Exchange temperatures for a single walker.
+        Handle temperature exchanges for single walker per process case.
+
+        This method implements the exchange logic when each process has only one walker,
+        requiring MPI communication to coordinate exchanges between processes.
 
         Parameters
         ----------
         direction : bool
-            Direction of the exchange.
+            If True, attempt exchanges between even-odd pairs.
+            If False, attempt exchanges between odd-even pairs.
         """
         if self.mpisize > 1:
             self.mpicomm.Barrier()
@@ -292,12 +320,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def __exchange_multi_walker(self, direction: bool) -> None:
         """
-        Exchange temperatures for multiple walkers.
+        Handle temperature exchanges for multiple walkers per process case.
+
+        This method implements the exchange logic when each process has multiple walkers,
+        requiring collective MPI operations to coordinate exchanges across all processes.
 
         Parameters
         ----------
         direction : bool
-            Direction of the exchange.
+            If True, attempt exchanges between even-odd pairs.
+            If False, attempt exchanges between odd-even pairs.
         """
         comm = self.mpicomm
         if self.mpisize > 1:
@@ -349,17 +381,20 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         """
         Post-process the results of the algorithm.
         """
+        # Separate results by temperature if requested
         if self.separate_T and not self.export_combined_files:
             if self.mpirank == 0:
                 print(f"start separateT {self.mpirank}")
                 sys.stdout.flush()
 
+            # Convert beta to temperature if needed
             Ts = self.betas if self.input_as_beta else 1.0 / self.betas
 
+            # Organize results by temperature
             separateT(
                 Ts=Ts,
                 nwalkers=self.nwalkers,
@@ -369,6 +404,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 buffer_size=10000,
             )
 
+        # Gather best results from all processes
         if self.mpisize > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
@@ -384,8 +420,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             best_istep = [self.best_istep]
             best_iwalker = [self.best_iwalker]
 
+        # Find process with best overall solution
         best_rank = np.argmin(best_fx)
 
+        # Write best result to file (rank 0 only)
         if self.mpirank == 0:
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.nreplica}\n")
@@ -395,6 +433,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 f.write(f"fx = {best_fx[best_rank]}\n")
                 for label, x in zip(self.label_list, best_x[best_rank]):
                     f.write(f"{label} = {x}\n")
+            # Print summary to stdout
             print("Best Result:")
             print(f"  rank = {best_rank}")
             print(f"  step = {best_istep[best_rank]}")
@@ -403,6 +442,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             for label, x in zip(self.label_list, best_x[best_rank]):
                 print(f"  {label} = {x}")
 
+        # Return best solution information
         return {
             "x": best_x[best_rank],
             "fx": best_fx[best_rank],
@@ -414,12 +454,20 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _save_state(self, filename) -> None:
         """
-        Save the current state of the algorithm.
+        Save the current algorithm state to a checkpoint file.
+
+        Saves all necessary data to resume the simulation later, including:
+        - MPI configuration
+        - Random number generator state
+        - Timer information
+        - Current configurations and energies
+        - Best solutions found
+        - Replica exchange state information
 
         Parameters
         ----------
         filename : str
-            The name of the file to save the state to.
+            Path to the checkpoint file to write.
         """
         data = {
             #-- _algorithm
@@ -450,16 +498,24 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _load_state(self, filename, mode="resume", restore_rng=True):
         """
-        Load the state of the algorithm from a file.
+        Load algorithm state from a checkpoint file.
+
+        Restores all necessary data to resume a previous simulation run.
 
         Parameters
         ----------
         filename : str
-            The name of the file to load the state from.
+            Path to the checkpoint file to read.
         mode : str, optional
-            The mode to load the state in, by default "resume".
+            Loading mode - either "resume" or "continue", by default "resume".
         restore_rng : bool, optional
             Whether to restore the random number generator state, by default True.
+            Set to False to use a fresh RNG state.
+
+        Raises
+        ------
+        AssertionError
+            If loaded state doesn't match current MPI configuration.
         """
         data = self._load_data(filename)
         if not data:
