@@ -375,7 +375,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         res["ns"] = gather_data(np.array([self.nwalkers]))
         res["fxs"] = gather_replica(self.fx_from_reset[0:numT,:], axis=1)
         res["ancestors"] = gather_replica(self.walker_ancestors)
-        nacc = gather_replica(self.naccepted_from_reset[0:numT,:], axis=1)
+        #nacc = gather_replica(self.naccepted_from_reset[0:numT,:], axis=1)
+        nacc = gather_data([self.naccepted_from_reset[0:numT,:]])
+        nacc = np.sum(nacc, axis=0)
         res["acceptance ratio"] = nacc[:,0] / nacc[:,1]
 
         fxs = res["fxs"]
