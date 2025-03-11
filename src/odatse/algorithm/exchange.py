@@ -6,6 +6,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from typing import Dict
+
 from io import open
 import copy
 import time
@@ -379,7 +381,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         """
         Post-process the results of the algorithm.
         """

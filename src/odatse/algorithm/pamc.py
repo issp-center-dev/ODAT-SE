@@ -713,7 +713,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 fwrite.close()
 
 
-    def _post(self) -> None:
+    def _post(self) -> Dict:
         """
         Post-processing after the algorithm execution.
 
