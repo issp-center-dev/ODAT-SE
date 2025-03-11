@@ -227,15 +227,13 @@ def make_neighbor_list_cell(
     points = np.array_split(range(npoints), mpisize)[mpirank]
     npoints_local = len(points)
     nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
-    if show_progress and mpirank == 0:
-        if has_tqdm:
-            desc = "rank 0" if mpisize > 1 else None
-            ns = tqdm(points, desc=desc)
-        else:
-            print("WARNING: cannot show progress because tqdm package is not available")
-            ns = points
+
+    if mpirank == 0 and show_progress and has_tqdm:
+        desc = "rank 0" if mpisize > 1 else None
+        ns = tqdm(points, desc=desc)
     else:
         ns = points
+
     for n in ns:
         xs = X[n, :]
         cellindex = cells.coord2cellindex(xs)
@@ -249,6 +247,8 @@ def make_neighbor_list_cell(
                     nnlist[n - points[0]].append(other)
     if mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
+
+    nnlist = [sorted(nn) for nn in nnlist]
     return nnlist
 
 
@@ -291,15 +291,13 @@ def make_neighbor_list_naive(
     points = np.array_split(range(npoints), mpisize)[mpirank]
     npoints_local = len(points)
     nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
-    if show_progress and mpirank == 0:
-        if has_tqdm:
-            desc = "rank 0" if mpisize > 1 else None
-            ns = tqdm(points, desc=desc)
-        else:
-            print("WARNING: cannot show progress because tqdm package is not available")
-            ns = points
+
+    if mpirank == 0 and show_progress and has_tqdm:
+        desc = "rank 0" if mpisize > 1 else None
+        ns = tqdm(points, desc=desc)
     else:
         ns = points
+
     for n in ns:
         xs = X[n, :]
         for m in range(npoints):
@@ -311,6 +309,8 @@ def make_neighbor_list_naive(
                 nnlist[n - points[0]].append(m)
     if mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
+
+    nnlist = [sorted(nn) for nn in nnlist]
     return nnlist
 
 
@@ -429,11 +429,8 @@ def write_neighbor_list(
             for u in unit:
                 f.write(f" {u}")
             f.write("\n")
-        for i, nn in enumerate(nnlist):
-            f.write(str(i))
-            for o in sorted(nn):
-                f.write(f" {o}")
-            f.write("\n")
+        for idx, nn in enumerate(nnlist):
+            f.write(" ".join(map(str, [idx, *nn])) + "\n")
 
 def main():
     import argparse
@@ -467,6 +464,9 @@ Note:
     parser.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
+    parser.add_argument(
+        "--progress", action="store_true", help="show progress bar"
+    )
     parser.add_argument("--allow-selfloop", action="store_true", help="allow self loop")
     parser.add_argument(
         "--check-allpairs",
@@ -479,6 +479,9 @@ Note:
     inputfile = args.input
     outputfile = args.output
     radius = args.radius
+
+    if (args.progress or not args.quiet) and not has_tqdm:
+        print("WARNING: cannot show progress because tqdm package is not available")
 
     X = np.zeros((0, 0))
 
@@ -507,7 +510,7 @@ Note:
         radius,
         allow_selfloop=args.allow_selfloop,
         check_allpairs=args.check_allpairs,
-        show_progress=(not args.quiet),
+        show_progress=(args.progress or not args.quiet),
         comm=mpi.comm(),
     )
 

@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 import odatse
-from odatse.util.neighborlist import load_neighbor_list
+from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
 import odatse.util.graph
 import odatse.domain
 from odatse.util.data_writer import DataWriter
@@ -128,6 +128,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             if "mesh_path" in info_param:
                 self.iscontinuous = False
                 self.domain = odatse.domain.MeshGrid(info)
+            elif "use_grid" in info_param and info_param["use_grid"] == True:
+                self.iscontinuous = False
+                self.domain = odatse.domain.MeshGrid(info)
             else:
                 self.iscontinuous = True
                 self.domain = odatse.domain.Region(info)
@@ -225,27 +228,32 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         RuntimeError
             If graph is not connected or not bidirectional
         """
-        if "neighborlist_path" in info_param:
+        if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
-            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
-
-            # checks
-            if not odatse.util.graph.is_connected(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not connected."
-                    "\nHINT: Increase neighborhood radius."
-                )
-            if not odatse.util.graph.is_bidirectional(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not bidirectional."
-                )
-
-            self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
+            if self.mpirank == 0:
+                nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
+            else:
+                nnlist = None
+            self.neighbor_list = self.mpicomm.bcast(nnlist, root=0)
         else:
-            raise ValueError(
-                "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+            if "radius" not in info_param:
+                raise KeyError("parameter \"algorithm.param.radius\" not specified")
+            radius = info_param["radius"]
+            print(f"DEBUG: create neighbor list, radius={radius}")
+            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=self.mpicomm)
+
+        # checks
+        if not odatse.util.graph.is_connected(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not connected."
+                "\nHINT: Increase neighborhood radius."
             )
-            # otherwise find neighbourlist
+        if not odatse.util.graph.is_bidirectional(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not bidirectional."
+            )
+
+        self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
