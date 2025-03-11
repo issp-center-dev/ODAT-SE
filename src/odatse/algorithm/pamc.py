@@ -18,40 +18,56 @@ import numpy as np
 import odatse
 import odatse.exception
 import odatse.algorithm.montecarlo
-import odatse.util.separateT
 import odatse.util.resampling
 from odatse.algorithm.montecarlo import read_Ts
+from odatse.util.separateT import separateT
+from odatse.util.data_writer import DataWriter
 
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
-    """Population annealing Monte Carlo
+    """
+    Population Annealing Monte Carlo (PAMC) Algorithm Implementation.
+    
+    PAMC is an advanced Monte Carlo method that combines features of simulated annealing
+    and population-based methods. It maintains a population of walkers that evolves
+    through a sequence of temperatures, using both Monte Carlo updates and resampling.
+
+    Key Features:
+    - Maintains a population of walkers that evolves through temperature steps
+    - Uses importance sampling with weight-based resampling
+    - Supports both fixed and variable population sizes
+    - Calculates free energy differences between temperature steps
+    - Provides error estimates through population statistics
+
+    Algorithm Flow:
+    1. Initialize walker population at highest temperature
+    2. For each temperature step:
+       a. Perform Monte Carlo updates at current temperature
+       b. Calculate weights for next temperature
+       c. Resample population based on weights
+       d. Update statistical estimates
+    3. Track best solutions and maintain system statistics
 
     Attributes
-    ==========
-    x: np.ndarray
-        current configuration
-    fx: np.ndarray
-        current "Energy"
-    logweights: np.ndarray
-        current logarithm of weights (Neal-Jarzynski factor)
-    istep: int
-        current step (or, the number of calculated energies)
-    best_x: np.ndarray
-        best configuration
-    best_fx: float
-        best "Energy"
-    best_istep: int
-        index of best configuration
-    comm: MPI.comm
-        MPI communicator
-    nreplica: int
-        The number of replicas (= the number of procs)
-    rank: int
-        MPI rank
-    betas: list
-        List of inverse temperatures
-    Tindex: int
-        Temperature index
+    ----------
+    x : np.ndarray
+        Current configurations for all walkers
+    logweights : np.ndarray
+        Log of importance weights for each walker
+    fx : np.ndarray
+        Current energy/objective values
+    nreplicas : np.ndarray
+        Number of replicas at each temperature
+    betas : np.ndarray
+        Inverse temperatures (β = 1/T)
+    Tindex : int
+        Current temperature index
+    Fmeans : np.ndarray
+        Mean free energy at each temperature
+    Ferrs : np.ndarray
+        Free energy error estimates
+    walker_ancestors : np.ndarray
+        Tracks genealogy of walkers for analysis
     """
 
     x: np.ndarray
@@ -123,6 +139,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.resampling_interval < 1:
             self.resampling_interval = numT + 1
 
+        self.export_combined_files = info_pamc.get("export_combined_files", False)
+        self.separate_T = info_pamc.get("separate_T", False)
+
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
 
@@ -152,17 +171,33 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _find_scheduling(self, info_pamc) -> int:
         """
-        Determine the scheduling for the algorithm based on the provided parameters.
+        Determine the temperature schedule and number of steps.
+
+        The schedule can be specified in three ways:
+        1. Total steps and steps per temperature
+        2. Total steps and number of temperatures
+        3. Steps per temperature and number of temperatures
+
+        The method ensures even distribution of computational effort across
+        temperature steps while respecting the specified constraints.
 
         Parameters
         ----------
         info_pamc : dict
-            Dictionary containing the parameters for the PAMC algorithm.
+            Configuration dictionary containing:
+            - numsteps: Total number of Monte Carlo steps
+            - numsteps_annealing: Steps per temperature
+            - Tnum: Number of temperature points
 
         Returns
         -------
         int
-            The number of temperature steps (numT) determined from the input parameters.
+            Number of temperature steps in the schedule
+
+        Raises
+        ------
+        odatse.exception.InputError
+            If the scheduling parameters are inconsistent
         """
         numsteps = info_pamc.get("numsteps", 0)
         numsteps_annealing = info_pamc.get("numsteps_annealing", 0)
@@ -205,33 +240,13 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             raise RuntimeError("mode unset")
 
         restore_rng = not self.mode.endswith("-resetrand")
+
         if self.mode.startswith("init"):
             self._initialize()
 
             self.Tindex = 0
             self.index_from_reset = 0
             self.istep = 0
-
-            beta = self.betas[self.Tindex]
-            self._evaluate()
-
-            file_trial = open("trial_T0.txt", "w")
-            self._write_result_header(file_trial, ["weight", "ancestor"])
-            self._write_result(file_trial, [np.exp(self.logweights), self.walker_ancestors])
-            file_trial.close()
-
-            file_result = open("result_T0.txt", "w")
-            self._write_result_header(file_result, ["weight", "ancestor"])
-            self._write_result(file_result, [np.exp(self.logweights), self.walker_ancestors])
-            file_result.close()
-
-            self.istep += 1
-
-            minidx = np.argmin(self.fx)
-            self.best_x = copy.copy(self.x[minidx, :])
-            self.best_fx = np.min(self.fx[minidx])
-            self.best_istep = 0
-            self.best_iwalker = 0
 
         elif self.mode.startswith("resume"):
             self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
@@ -251,9 +266,25 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 self.index_from_reset = 0
 
             self.Tindex += 1
-
         else:
             raise RuntimeError("unknown mode {}".format(self.mode))
+
+        writer = self._setup_writer()
+
+        if self.mode.startswith("init"):
+            beta = self.betas[self.Tindex]
+            self._evaluate()
+
+            self._write_result(writer["trial"], [np.exp(self.logweights), self.walker_ancestors])
+            self._write_result(writer["result"], [np.exp(self.logweights), self.walker_ancestors])
+
+            self.istep += 1
+
+            minidx = np.argmin(self.fx)
+            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_fx = np.min(self.fx[minidx])
+            self.best_istep = 0
+            self.best_iwalker = 0
 
         next_checkpoint_step = self.istep + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
@@ -267,21 +298,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Tindex = self.Tindex
             beta = self.betas[self.Tindex]
 
-            if Tindex == 0:
-                file_trial = open(f"trial_T{Tindex}.txt", "a")
-                file_result = open(f"result_T{Tindex}.txt", "a")
-            else:  # Tindex=1,2,...
-                file_trial = open(f"trial_T{Tindex}.txt", "w")
-                self._write_result_header(file_trial, ["weight", "ancestor"])
-                file_result = open(f"result_T{Tindex}.txt", "w")
-                self._write_result_header(file_result, ["weight", "ancestor"])
-
             if self.nwalkers != 0:
                 for _ in range(self.numsteps_for_T[Tindex]):
                     self.local_update(
                         beta,
-                        file_trial,
-                        file_result,
                         extra_info_to_write=[
                             np.exp(self.logweights),
                             self.walker_ancestors,
@@ -291,9 +311,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             else : #self.nwalkers == 0
                 pass
 
-            file_trial.close()
-            file_result.close()
-
             # print(">>> istep={}".format(self.istep))
 
             self.fx_from_reset[self.index_from_reset, :] = self.fx[:]
@@ -302,6 +319,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.naccepted = 0
             self.ntrial = 0
             self.index_from_reset += 1
+
+            # write weights
+            if writer["weight"]:
+                for iwalker in range(self.nwalkers):
+                    writer["weight"].write(Tindex,
+                                           beta,
+                                           iwalker,
+                                           0,
+                                           self.fx[iwalker],
+                                           self.logweights[iwalker],
+                                           *self.x[iwalker,:])
 
             if Tindex == numT - 1:
                 break
@@ -333,37 +361,77 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)
             self._save_stats(res)
-        file_result.close()
-        file_trial.close()
+
+        # must close explicitly
+        self._close_writer(writer)
+
+        if self.separate_T and not self.export_combined_files:
+            self._split_result_file("trial")
+            self._split_result_file("result")
 
         if self.mpisize > 1:
             self.mpicomm.barrier()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
+    def _setup_writer(self):
+        write_mode = "w" if self.mode.startswith("init") else "a"
+
+        item_list = [
+            "step",
+            "walker",
+            ("beta" if self.input_as_beta else "T"),
+            "fx",
+            *self.label_list,
+            "weight",
+            "ancestor",
+        ]
+
+        file_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        file_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
+        self._set_writer(file_trial, file_result)
+
+        item_list_weight = [
+            "Tindex",
+            "beta",
+            "walker",
+            "idnum",
+            "fx",
+            "log_weight",
+            *self.label_list,
+        ]
+        file_weight = DataWriter("weight.txt", mode=write_mode, item_list=item_list_weight, combined=self.export_combined_files)
+
+        return { "trial": file_trial, "result": file_result, "weight": file_weight }
+
+    def _close_writer(self, writers):
+        for k, v in writers.items():
+            if v:
+                v.close()
+
     def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
         """
-        Gather status information of each process
+        Collect and organize statistical information across all processes.
+
+        Gathers data needed for:
+        1. Free energy calculations
+        2. Error estimation
+        3. Population statistics
+        4. Acceptance rate monitoring
 
         Parameters
-        ---------
-        numT : int
-            size of dataset
+        ----------
+        numT : int, optional
+            Number of temperature steps to gather data for
 
         Returns
         -------
-        res : Dict[str, np.ndarray]
-            key-value corresponding is the following
-
-            - fxs
-                - objective function of each walker over all processes
-            - logweights
-                - log of weights
-            - ns
-                - number of walkers in each process
-            - ancestors
-                - ancestor (origin) of each walker
-            - acceptance ratio
-                - acceptance_ratio for each temperature
+        Dict[str, np.ndarray]
+            Contains:
+            - fxs: Energy values for all walkers
+            - logweights: Log of importance weights
+            - ns: Number of walkers per process
+            - ancestors: Genealogical tracking data
+            - acceptance ratio: MC acceptance rates
         """
 
         if numT is None:
@@ -400,7 +468,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
         """
-        Save statistical information from the algorithm run.
+        Calculate and save statistical measures from the simulation.
+
+        Performs:
+        1. Free energy calculations using weighted averages
+        2. Error estimation using jackknife resampling
+        3. Population size tracking
+        4. Acceptance rate monitoring
+        5. Partition function estimation
+
+        Uses bias-corrected jackknife for reliable error estimates
+        of weighted averages in the presence of correlations.
 
         Parameters
         ----------
@@ -461,11 +539,23 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _resample(self) -> None:
         """
-        Perform the resampling of walkers.
+        Perform population resampling between temperature steps.
 
-        This method gathers information, saves statistical data, and performs resampling
-        using either fixed or varied weights. The method ensures that the algorithm
-        maintains a balanced set of walkers across different temperature steps.
+        This is a key component of PAMC that:
+        1. Gathers current population statistics
+        2. Calculates importance weights for the temperature change
+        3. Resamples walkers based on their weights
+        4. Updates population statistics and free energy estimates
+
+        The resampling can be done in two modes:
+        - Fixed: Maintains constant population size
+        - Varied: Allows population size to fluctuate based on weights
+
+        Implementation Details:
+        - Uses log-weights to prevent numerical overflow
+        - Maintains walker genealogy for analysis
+        - Updates free energy estimates using resampling data
+        - Handles MPI communication for parallel execution
         """
         res = self._gather_information()
         self._save_stats(res)
@@ -485,64 +575,23 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
-    def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
-        """
-        Perform resampling with varied weights.
-
-        This method resamples the walkers based on the provided weights and updates
-        the state of the algorithm accordingly.
-
-        Parameters
-        ----------
-        weights : np.ndarray
-            Array of weights for resampling.
-        offset : int
-            Offset for the weights array.
-        """
-        weights_sum = np.sum(weights)
-        expected_numbers = (self.nreplicas[0] / weights_sum) * weights[
-            offset : offset + self.nwalkers
-        ]
-        next_numbers = self.rng.poisson(expected_numbers)
-
-        if self.iscontinuous:
-            new_x = []
-            new_fx = []
-            new_ancestors = []
-            for iwalker in range(self.nwalkers):
-                for _ in range(next_numbers[iwalker]):
-                    new_x.append(self.x[iwalker, :])
-                    new_fx.append(self.fx[iwalker])
-                    new_ancestors.append(self.walker_ancestors[iwalker])
-            self.x = np.array(new_x)
-            self.fx = np.array(new_fx)
-            self.walker_ancestors = np.array(new_ancestors)
-        else:
-            new_inodes = []
-            new_fx = []
-            new_ancestors = []
-            for iwalker in range(self.nwalkers):
-                for _ in range(next_numbers[iwalker]):
-                    new_inodes.append(self.inodes[iwalker])
-                    new_fx.append(self.fx[iwalker])
-                    new_ancestors.append(self.walker_ancestors[iwalker])
-            self.inode = np.array(new_inodes)
-            self.fx = np.array(new_fx)
-            self.walker_ancestors = np.array(new_ancestors)
-            self.x = self.node_coordinates[self.inode, :]
-        self.nwalkers = np.sum(next_numbers)
-
     def _resample_fixed(self, weights: np.ndarray) -> None:
         """
-        Perform resampling with fixed weights.
+        Resample population maintaining fixed size.
 
-        This method resamples the walkers based on the provided weights and updates
-        the state of the algorithm accordingly.
+        Uses Walker's alias method for efficient resampling:
+        1. Constructs probability table from weights
+        2. Samples new population with replacement
+        3. Updates walker positions and energies
+        4. Maintains ancestor tracking
+
+        Handles both continuous and discrete parameter spaces
+        while coordinating across MPI processes.
 
         Parameters
         ----------
         weights : np.ndarray
-            Array of weights for resampling.
+            Importance weights for resampling
         """
         resampler = odatse.util.resampling.WalkerTable(weights)
         new_index = resampler.sample(self.rng, self.nwalkers)
@@ -579,6 +628,56 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
             self.fx = fxs[new_index]
 
+    def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
+        """
+        Resample population allowing size variation.
+
+        Uses Poisson resampling:
+        1. Calculates expected number of copies from weights
+        2. Samples actual copies using Poisson distribution
+        3. Creates new population with variable size
+        4. Updates all walker properties
+
+        Parameters
+        ----------
+        weights : np.ndarray
+            Importance weights for resampling
+        offset : int
+            Process-specific offset in global population
+        """
+        weights_sum = np.sum(weights)
+        expected_numbers = (self.nreplicas[0] / weights_sum) * weights[
+            offset : offset + self.nwalkers
+        ]
+        next_numbers = self.rng.poisson(expected_numbers)
+
+        if self.iscontinuous:
+            new_x = []
+            new_fx = []
+            new_ancestors = []
+            for iwalker in range(self.nwalkers):
+                for _ in range(next_numbers[iwalker]):
+                    new_x.append(self.x[iwalker, :])
+                    new_fx.append(self.fx[iwalker])
+                    new_ancestors.append(self.walker_ancestors[iwalker])
+            self.x = np.array(new_x)
+            self.fx = np.array(new_fx)
+            self.walker_ancestors = np.array(new_ancestors)
+        else:
+            new_inodes = []
+            new_fx = []
+            new_ancestors = []
+            for iwalker in range(self.nwalkers):
+                for _ in range(next_numbers[iwalker]):
+                    new_inodes.append(self.inodes[iwalker])
+                    new_fx.append(self.fx[iwalker])
+                    new_ancestors.append(self.walker_ancestors[iwalker])
+            self.inode = np.array(new_inodes)
+            self.fx = np.array(new_fx)
+            self.walker_ancestors = np.array(new_ancestors)
+            self.x = self.node_coordinates[self.inode, :]
+        self.nwalkers = np.sum(next_numbers)
+
     def _prepare(self) -> None:
         """
         Prepare the algorithm for execution.
@@ -588,7 +687,33 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
-    def _post(self) -> None:
+
+    def _split_result_file(self, tag):
+        current_beta = -1
+        header_str = ""
+        idx = 0
+        fwrite = None
+
+        with open(tag + ".txt", "r") as fread:
+            for line in fread:
+                if line.startswith("#"):
+                    header_str += line
+                else:
+                    data = line.split()
+                    beta = data[2]
+                    if beta != current_beta:
+                        if fwrite:
+                            fwrite.close()
+                            idx += 1
+                        fwrite = open(tag + f"_T{idx}.txt", "w")
+                        fwrite.write(header_str)
+                        current_beta = beta
+                    fwrite.write(line)
+            if fwrite:
+                fwrite.close()
+
+
+    def _post(self) -> Dict:
         """
         Post-processing after the algorithm execution.
 
@@ -596,15 +721,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         into single files for 'result' and 'trial'. It also gathers the best
         results from all processes and writes them to 'best_result.txt'.
         """
-        for name in ("result", "trial"):
-            with open(self.proc_dir / f"{name}.txt", "w") as fout:
-                self._write_result_header(fout, ["weight", "ancestor"])
-                for Tindex in range(len(self.betas)):
-                    with open(self.proc_dir / f"{name}_T{Tindex}.txt") as fin:
-                        for line in fin:
-                            if line.startswith("#"):
-                                continue
-                            fout.write(line)
+
         if self.mpisize > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
