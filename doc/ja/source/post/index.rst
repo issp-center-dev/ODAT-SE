@@ -12,22 +12,22 @@ PAMC計算のポスト処理ツールと解析の流れを解説する。
 次節では例を用いて解析の流れを紹介する。
 個別のツールについて詳細はリファレンスの各項目を参照のこと。
 
-**extract_combined.py**
+:doc:`tools/extract_combined`
     combined 形式で出力されたログファイルから特定の項目を取り出す。
 
-**plt_1D_histogram.py**
+:doc:`tools/plt_1D_histogram`
     1次元周辺化ヒストグラムを作成する。
 
-**plt_2D_histogram.py**
+:doc:`tools/plt_2D_histogram`
     2次元周辺化ヒストグラムを作成する。
 
-**plt_model_evidence.py**
+:doc:`tools/plt_model_evidence`
     model evidence を計算する。
 
-**separateT.py**
+:doc:`tools/separateT`
     MCMCのログファイルを温度点ごとに分割する。
 
-**summarize_each_T.py**
+:doc:`tools/summarize_each_T`
     MCMCが出力するログファイルからannealing後のレプリカの情報を取り出し、温度点ごとに集約する。
 
 .. toctree::

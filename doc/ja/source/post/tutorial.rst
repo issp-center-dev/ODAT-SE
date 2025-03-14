@@ -1,5 +1,5 @@
-使い方
-------
+チュートリアル：ポスト処理ツールの使い方
+========================================
 
 1. PAMC計算を実行する
 
@@ -22,6 +22,13 @@
 
       を実行して result.txt を取り出す。その後、result.txt を温度点ごとに分割する。
 
+      extract_combined.py は特定のタグで始まる行を抽出するツールで、以下のオプションが使用可能：
+
+      * ``-d, --data_dir`` : データファイルが格納されているディレクトリ
+      * ``-t, --tag`` : 抽出対象のタグ（必須）
+
+      詳細は :doc:`./tools/extract_combined` を参照。
+
    .. note::
 
       separate_T が False の場合はログが result.txt に出力される。
@@ -32,6 +39,12 @@
 
       を実行して温度点ごとのファイル result_T{index}.txt に分割する。
       
+      separateT.py は MCMC のデータファイルを温度ごとに分割するツールで、以下のオプションが使用可能：
+
+      * ``-d, --data_dir`` : データファイルが格納されているディレクトリ
+      * ``-f, --file`` : 分割する特定のファイル名（指定がない場合はディレクトリ内の該当ファイルすべてを処理）
+      
+      詳細は :doc:`./tools/separateT` を参照。
 
 2. model evidence を計算する
 
@@ -51,6 +64,17 @@
 
    model evidence の値は model_evidence.txt に書き出される。また、beta についてプロットした図が model_evidence.png に出力される。
 
+   plt_model_evidence.py は以下のオプションを使用できる：
+
+   * ``-V, --volume`` : 探索空間の体積 V_Ω（必須）
+   * ``-n, --ndata`` : データ点の数（必須）
+   * ``-w, --weights`` : データ点の重み（カンマ区切りのリスト、デフォルトはすべて1.0）
+   * ``-o, --outname`` : 出力ファイル名のプレフィックス（デフォルト: "model_evidence"）
+   * ``-d, --var_diagonal`` : 対角成分のみの分散を使用するフラグ
+   * ``-f, --formats`` : 出力ファイル形式（カンマ区切りのリスト、デフォルト: "png"）
+
+   詳細は :doc:`./tools/plt_model_evidence` を参照。
+
    .. figure:: ../../../common/img/post/model_evidence.*
 
       model evidence をプロットした図。最大値を与える beta は beta= :math:`1.91\times 10^5` (Tstep=44)。
@@ -66,6 +90,17 @@
       
    summarized/ 以下に result_T{index}_summarized.txt として書き出される。
 
+   summarize_each_T.py は各温度点でのレプリカ配置データを抽出してまとめるツールで、以下のオプションが使用可能：
+
+   * ``-d, --data_dir`` : MCMC データファイルが格納されているディレクトリ
+   * ``-o, --output_dir`` : 出力先ディレクトリ
+   * ``-c, --config`` : 設定ファイル（TOML形式）のパス
+   * ``-r, --replica_per_proc`` : 1プロセスあたりのレプリカ数（設定ファイルを指定しない場合に使用）
+
+   TOML設定ファイルから自動的にレプリカ数などのパラメータを取得するため、計算時に使用した設定ファイルがある場合は ``-c`` オプションで指定すると便利。
+
+   詳細は :doc:`./tools/summarize_each_T` を参照。
+
 4. 1次元および2次元周辺化ヒストグラムを作成する
 
    replica配置のデータを用いて、重み付けされた事後確率分布 :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}` をプロットする。
@@ -77,6 +112,22 @@
       python3 plt_1D_histogram.py -d summarized -o 1dhist -r 3.0,6.0
 
    を実行する。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png というファイル名で書き出される。値の範囲は 3.0〜6.0 にとる。
+
+   plt_1D_histogram.py は以下の主要なオプションを使用できる：
+
+   * ``-d, --data_dir`` : データファイルが格納されているディレクトリ
+   * ``-o, --output_dir`` : 出力先ディレクトリ
+   * ``-r, --range`` : 変数の範囲を指定（カンマ区切りの「最小値,最大値」形式）
+   * ``-b, --bins`` : ヒストグラムのビン数（デフォルト: 60）
+   * ``-w, --weight_column`` : 重み用のカラムインデックス（デフォルト: -1、最後のカラム）
+   * ``-f, --format`` : 出力ファイル形式（カンマ区切りのリスト、デフォルト: "png"）
+   * ``--field_list`` : フィールド（パラメータ）の名前リスト（カンマ区切り、デフォルトは "x1,x2,..."）
+   * ``--config`` : 設定ファイル（TOML形式）のパス
+   * ``--params`` : 計算に使用したパラメータファイルのパス
+
+   設定ファイルを使用すると、より詳細な設定が可能になる。
+
+   詳細は :doc:`./tools/plt_1D_histogram` を参照。
 
    .. figure:: ../../../common/img/post/1Dhistogram_result_T22.*
 
@@ -90,6 +141,17 @@
       python3 plt_2D_histogram.py -d summarized -o 2dhist -r 3.0,6.0
 
    を実行する。z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元ヒストグラムが作成され、2dhist/ 以下に 2Dhistogram_result_T{index}_beta_{beta}_x1_vs_x2.png 等のファイル名で書き出される。(field_list を指定しない場合、軸の名称は x1, x2, ... になる。)
+
+   plt_2D_histogram.py は plt_1D_histogram.py と同様のオプションに加えて、以下の機能がある：
+
+   * 2変数の組み合わせごとにヒストグラムを生成
+   * 対数スケールでのカラーマッピングによる確率密度の可視化
+   * レプリカ配置の散布図の重ね表示（オプション）
+
+   出力ファイル名の命名規則は 2Dhistogram_[ファイル名]_[x軸パラメータ]_vs_[y軸パラメータ].[フォーマット] となる。
+   例: 2Dhistogram_result_T44_beta_1.91e+05_x1_vs_x2.png
+
+   詳細は :doc:`./tools/plt_2D_histogram` を参照。
 
    .. figure:: ../../../common/img/post/2Dhistogram_result_T22_x1_vs_x2.*
 
