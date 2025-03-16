@@ -40,7 +40,6 @@ def parse_options():
         "output_dir": ".",        # Directory for output files
         "format": ["png"],        # Output image format(s)
         "progress": False,        # Whether to show progress bar
-        "xlabel": None,           # Label for x-axis
         "field_list": [],         # List of field labels
         "input_files": [],        # List of input files
     }
@@ -56,7 +55,6 @@ def parse_options():
     parser.add_argument("-d", "--data_dir", type=str, help="Path to data directory")
     parser.add_argument("-o", "--output_dir", type=str, help="Path to output directory.")
     parser.add_argument("-f", "--format", type=str, help="File type of output images. default=png")
-    parser.add_argument("--xlabel", type=str, help="Label for x-axis.")
     parser.add_argument("--field_list", type=str, help="Field labels.")
     parser.add_argument("--progress", action="store_true", help="Show progress bar.")
     parser.add_argument("input_files", nargs="*", type=str, help="Path to data file(s).")
@@ -111,8 +109,6 @@ def parse_options():
         config["input_files"] = args.input_files
     if args.field_list:
         config["field_list"] = [s.strip() for s in args.field_list.split(",")]
-    if args.xlabel:
-        config["xlabel"] = args.xlabel
 
     return config
 
