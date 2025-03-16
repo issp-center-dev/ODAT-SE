@@ -27,8 +27,8 @@ except ImportError:
         tomli = None
         try:
             import toml
+            # print("toml is available")
             if rank() == 0:
-                # print("toml is available")
                 print("WARNING: use of toml package is left for compatibility.")
                 print("         please use tomli package instead.")
                 print("HINT: python3 -m pip install tomli")
