@@ -8,9 +8,8 @@
 
 import os
 import argparse
-import tomli  # TOML parser for configuration files
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 
 # Try to import tqdm for progress bar, set to None if not available
 try:
@@ -61,8 +60,7 @@ def parse_options():
 
     # Read input parameter file used for calculation
     if args.params:
-        with open(args.params, "rb") as f:
-            params = tomli.load(f)
+        params = read_toml(args.params)
         # Extract relevant parameters from the parameter file
         if "algorithm" in params:
             if "param" in params["algorithm"]:
@@ -78,8 +76,7 @@ def parse_options():
 
     # Read config file in TOML format if specified
     if args.config:
-        with open(args.config, "rb") as f:
-            config.update(tomli.load(f))
+        config.update(read_toml(args.config))
         # Convert format string to list if needed
         if isinstance(config["format"], str):
             config["format"] = config["format"].split(",")
@@ -141,6 +138,31 @@ def find_files(data_dir):
     """
     return sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) 
                   if f.startswith("result_T") and f.endswith("_summarized.txt")])
+
+def read_toml(input_filename):
+    """
+    Reads the TOML configuration file and extracts required parameters.
+
+    Parameters
+    ----------
+    input_filename : str
+        Path to the TOML configuration file.
+
+    Returns
+    -------
+    dict
+        Contents of configuration file.
+    """
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+        if tomllib.__version__ < "1.2.0":
+            raise ImportError("tomli 1.2.0 or later required")
+
+    with open(input_filename, "rb") as fp:
+        dict_toml = tomllib.load(fp)
+    return dict_toml
 
 def main():
     """
@@ -273,7 +295,7 @@ def main():
 
     # Print summary message
     if err == 0:
-        print(f"All histograms have been saved in {opt['output_dir']}.")
+        print(f"All histograms have been saved in {opt['output_dir']}")
     else:
         print("ERROR: Some histograms have not been created because of errors.")
 

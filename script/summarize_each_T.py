@@ -9,7 +9,6 @@
 import os
 import glob
 import numpy as np
-import tomli
 import argparse
 
 try:
@@ -31,9 +30,16 @@ def read_toml(input_filename):
     dict
         Contains 'replica_per_proc' and 'output_dir' extracted from the config.
     """
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+        if tomllib.__version__ < "1.2.0":
+            raise ImportError("tomli 1.2.0 or later required")
+
     with open(input_filename, "rb") as fp:
-        dict_toml = tomli.load(fp)
-    
+        dict_toml = tomllib.load(fp)
+
     replica_per_proc = dict_toml["algorithm"]["pamc"]["nreplica_per_proc"]
     output_dir = dict_toml["base"]["output_dir"]
 
@@ -99,7 +105,7 @@ def extract_columns(file_path, export_dir, replica_per_proc):
         if not file_exists:
             f.write("# beta fx z1 z2 z3 weight\n")
         f.writelines(new_lines)
-        
+
 
 def main():
     """
@@ -111,13 +117,13 @@ def main():
     parser.add_argument("-d", "--data_directory", type=str, help="Path to the data directory.")
     parser.add_argument("-o", "--export_directory", type=str, default="summarized", help="Path to the export directory.")
     parser.add_argument("--progress", action="store_true", help="Show progress bar.")
-    
+
     args = parser.parse_args()
 
     replica_per_proc = 0
     output_dir = "."
     export_dir = "."
-    
+
     # Read TOML configuration
     if args.input_file:
         toml_config = read_toml(args.input_file)
@@ -139,7 +145,7 @@ def main():
 
     if tqdm and args.progress:
         input_files = tqdm(input_files)
-    
+
     # Extract data from each file
     for file_path in input_files:
         try:
