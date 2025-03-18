@@ -37,41 +37,41 @@ The histogram range can be specified with the range option. In that case, the sa
 The following command line options are available.
 These options can also be provided collectively in a config file. The config file uses TOML format, with options specified in the format option_name = value.
 
-**-b BINS, --bins BINS**
+**-b BINS, \-\-bins BINS**
     Specifies the number of bins. Default value is 60.
     
-**-c COLUMNS, --columns COLUMNS**
+**-c COLUMNS, \-\-columns COLUMNS**
     Specifies the field names for creating histograms. Multiple field names can be specified as a comma-separated list. If omitted, all axes will be used.
 			
-**-d DATA_DIR, --data_dir DATA_DIR**
+**-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory to retrieve data files from (when ``file`` is not specified). If not specified, the current directory is used.
 			
-**-f FORMAT, --format FORMAT**
+**-f FORMAT, \-\-format FORMAT**
     Specifies the format of the output histogram files. Any format supported by matplotlib can be specified. Multiple formats can be specified as a comma-separated list. Default value is ``png``.
 
-**-o OUTPUT_DIR, --output_dir OUTPUT_DIR**
+**-o OUTPUT_DIR, \-\-output_dir OUTPUT_DIR**
     Specifies the directory to output histogram files. If not specified, files will be written to the current directory. If the directory does not exist, it will be created automatically.
 
-**-r RANGE, --range RANGE**
+**-r RANGE, \-\-range RANGE**
     Specifies the histogram range in the format xmin,xmax. When specified via the range command line option, it applies to all axes. To vary by axis, specify in the parameter file or config file. If not specified in any of these, ranges will be set automatically for each axis.
     
-**-w WEIGHT_COLUMN, --weight_column WEIGHT_COLUMN**
+**-w WEIGHT_COLUMN, \-\-weight_column WEIGHT_COLUMN**
     Specifies the column number (0-based) for the weight value. Default value is -1 (last column).
 
-**--config CONFIG**
+**\-\-config CONFIG**
     Specifies a config file. The config file is in TOML format and specifies options equivalent to command line options. Option priority is: parameter file < config file < command line options.
     
-**--params PARAMS**
+**\-\-params PARAMS**
     Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.
     
-**--field_list FIELD_LIST**
+**\-\-field_list FIELD_LIST**
     Specifies field names. If not specified, the standard format is assumed: beta, fx, x1, .. xN, weight (where N is the parameter dimension). When obtained from a parameter file, label_list values are used for x1 .. xN.
     Used for field name specification in columns.
     
-**--progress**
+**\-\-progress**
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, messages about the processing status of each file will be displayed instead.
     
-**-h, --help**
+**-h, \-\-help**
     Displays a help message and exits the program.
 
 USAGE

@@ -37,22 +37,22 @@ If an input parameter file used in PAMC calculations is specified as INPUT_FILE,
 
 The following command line options are available:
 
-**-i INPUT_FILE, --input_file INPUT_FILE**
+**-i INPUT_FILE, \-\-input_file INPUT_FILE**
     Specifies the TOML format input parameter file used for PAMC calculations. If specified, the number of replicas and output directory are read from this file.
 
-**-n NREPLICA, --nreplica NREPLICA**
+**-n NREPLICA, \-\-nreplica NREPLICA**
     Specifies the number of replicas per process. If not specified and no input file is specified, only data from the last step of each file is extracted.
 
-**-d DATA_DIRECTORY, --data_directory DATA_DIRECTORY**
+**-d DATA_DIRECTORY, \-\-data_directory DATA_DIRECTORY**
     Directory storing PAMC calculation data. This option takes precedence even if an input file is specified.
 
-**-o EXPORT_DIRECTORY, --export_directory EXPORT_DIRECTORY**
+**-o EXPORT_DIRECTORY, \-\-export_directory EXPORT_DIRECTORY**
     Directory to write extracted data. Default is "summarized".
 
-**--progress**
+**\-\-progress**
     Displays a progress bar during execution. The tqdm library is required for display.
 
-**-h, --help**
+**-h, \-\-help**
     Displays help message and exits the program.
 
 USAGE
@@ -140,8 +140,9 @@ This script processes data in the following steps:
 
 1. Parse command line arguments (or load from TOML configuration file)
 2. Create output directory (if it doesn't exist)
-3. Pattern matching of input files (DATA_DIRECTORY/*/result_T*.txt)
+3. Pattern matching of input files (DATA_DIRECTORY/\*/result_T*.txt)
 4. Process each file:
+   
    a. Read file line by line (excluding comment lines)
    b. Extract the last n lines if the number of replicas is specified
    c. Extract lines from the last step if the number of replicas is not specified
@@ -151,7 +152,7 @@ This script processes data in the following steps:
 Performance and Considerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* The `--progress` option can be used to visualize progress when processing many files at once.
+* The `\-\-progress` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
 * Since data is written to output files in append mode (`a`), results may be duplicated if the same process is executed multiple times. If re-executing, empty the output directory or specify a new directory.
 * If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.

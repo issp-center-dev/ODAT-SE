@@ -18,7 +18,7 @@ DESCRIPTION
 
 Extracts lines tagged with a specific tag from MCMC log files in combined format.
 
-In the combined format, multiple data types are stored with a tag at the beginning of each line in the format ``<tag> ``. This script extracts lines with a specific ``tag`` and outputs them to a file. The output file will be named ``tag`` and placed in the same directory as the input file.
+In the combined format, multiple data types are stored with a tag at the beginning of each line in the format ``<tag>``. This script extracts lines with a specific ``tag`` and outputs them to a file. The output file will be named ``tag`` and placed in the same directory as the input file.
 
 .. note::
    * Python 3.5 or higher is required (due to the use of type hints).
@@ -30,16 +30,16 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 **FILE**
     Specifies the MCMC log file(s) (combined.txt). Multiple files can be specified.
     
-**-t TAG, --tag TAG**
+**-t TAG, \-\-tag TAG**
     Specifies the tag to extract. This is a required parameter. The tag is a string.
     
-**-d DATA_DIR, --data_dir DATA_DIR**
+**-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory to get data files from (when ``FILE`` is not specified).
 			
-**--progress**
+**\-\-progress**
     Displays a progress bar during execution. Requires the tqdm library. If tqdm is not installed, the name of the file being processed will be displayed instead.
     
-**-h, --help**
+**-h, \-\-help**
     Displays help message and exits the program.
 
 USAGE
