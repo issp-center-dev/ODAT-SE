@@ -1,5 +1,5 @@
 separateT.py
-=============
+============
 
 NAME
 ----
@@ -52,7 +52,7 @@ USAGE
 
       python3 separateT.py output/0/result.txt
 
-   Creates output/0/result_T0.txt, output/0/result_T1.txt, ...
+   output/0/result_T0.txt, output/0/result_T1.txt, ... are created.
 
 2. Split files under a specified directory
 
@@ -60,7 +60,7 @@ USAGE
 
       python3 separateT.py -d output
 
-   Files output/0/result.txt, output/1/result.txt, ... will be processed.
+   output/0/result.txt, output/1/result.txt, ... will be processed.
 
 3. Split files other than result.txt under a specified directory
 
@@ -78,23 +78,26 @@ USAGE
 
    Each file is split by temperature points, and progress is displayed with a progress bar.
 
+NOTES
+-----
+
 File Format
---------------
+~~~~~~~~~~~
 
 The input file (MCMC log file) is expected to have the following format:
 
 .. code-block:: text
 
    # Comment line (optional)
-   data1 data2 temperature_value data4 ...
-   data1 data2 temperature_value data4 ...
+   step replica_id T fx x1 ... xN ...
+   step replica_id T fx x1 ... xN ...
    ...
 
-Each line contains space-separated data, with the third column (index 2) being the temperature value.
+Each line contains space-separated data, with the third column (index 2) being the temperature value T.
 Consecutive lines with the same temperature value are grouped into a single file.
 
 Processing Mechanism
----------------------
+~~~~~~~~~~~~~~~~~~~~
 
 This script processes data in the following steps:
 
@@ -105,7 +108,7 @@ This script processes data in the following steps:
 5. Data for each temperature value is saved to a file with the original filename plus "_T{index}"
 
 Output File Format
-------------------
+~~~~~~~~~~~~~~~~~~
 
 The output files have the following format:
 
@@ -113,7 +116,7 @@ The output files have the following format:
 * File content: Headers (comment lines) from the input file, followed by data lines with the same temperature value
 
 Performance
------------
+~~~~~~~~~~~~
 
 * Files are processed line by line, so memory usage is kept low even for very large files
 * Data for each temperature point is buffered in memory, so memory usage may increase if there is a large amount of data for a single temperature point
@@ -121,7 +124,7 @@ Performance
 * When processing multiple files, you can use the `--progress` option to monitor progress
 
 Error Handling
---------------
+~~~~~~~~~~~~~~
 
 * If the input file is not found: A file open error occurs and a message is displayed
 * If the output file cannot be written: A permission error or similar occurs and a message is displayed

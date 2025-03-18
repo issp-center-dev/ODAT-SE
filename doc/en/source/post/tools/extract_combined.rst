@@ -42,8 +42,8 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 **-h, --help**
     Displays help message and exits the program.
 
-Usage Examples
----------------
+USAGE
+-----
 
 Basic usage examples are shown below.
 
@@ -58,8 +58,11 @@ Basic usage examples are shown below.
    # Process multiple files with a progress bar
    python3 extract_combined.py -t energy --progress file1.txt file2.txt file3.txt
 
+NOTES
+-----
+
 Usage Notes
-------------
+~~~~~~~~~~~
 
 1. **Exact Tag Matching**: 
    Tags must match exactly. If you specify the "energy" tag, only lines starting with "``<energy>``" will be extracted.
@@ -80,7 +83,7 @@ Usage Notes
    If the input file is empty or if no lines with the specified tag are found, an empty file will be generated.
 
 Combined Format File Structure
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Files in combined format have the following structure:
 
@@ -95,25 +98,25 @@ Each line begins with a tag in the format ``<tag>``, and ``extract_combined.py``
 The tag portion is removed from the output file.
 
 General Workflow
------------------
+~~~~~~~~~~~~~~~~
 
 This script is used when analyzing MCMC simulation results:
 
-1. Run MCMC simulation to generate ``combined.txt`` files
-2. Use ``extract_combined.py`` to extract necessary data (energy values, acceptance rates, etc.)
-3. Analyze or plot the extracted data with other tools
+1. When MCMC simulation is run with the export_combined_files option enabled, ``combined.txt`` files are generated.
+2. Use ``extract_combined.py`` to extract necessary files.
+3. Analyze or plot the extracted data files with other tools.
 
 When processing multiple simulation results at once, combining the ``-d`` option with the ``--progress`` option is efficient.
 
 Examples of commonly used tags in MCMC simulations:
- * ``energy``: Energy values
- * ``acc``: Acceptance rates
- * ``param``: Parameter values
- * ``time``: Calculation times
+ * ``trial.txt``: Monte Carlo trial step logs
+ * ``result.txt``: Monte Carlo step logs
+ * ``weight.txt``: Weight values in PAMC calculations
+ * ``time.txt``: Calculation times
 
 
 Error Handling and Output
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * If the specified tag is not found: An empty file is generated
 * If the input file cannot be read: An error message is displayed on standard error output

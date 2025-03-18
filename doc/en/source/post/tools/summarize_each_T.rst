@@ -31,7 +31,7 @@ If an input parameter file used in PAMC calculations is specified as INPUT_FILE,
    * Python 3.6 or higher is required (due to the use of type hints and f-strings).
    * Inverse temperature (beta) is calculated as the reciprocal of temperature (T) (beta = 1/T). When T = 0, beta is set to 0.
    * By default, the last nreplica lines from each file are extracted. This number of lines corresponds to the number of replicas.
-   * If nreplica is not specified (or is 0), only data from the last step (MCMC step) is extracted.
+   * If nreplica is not specified, data from the last MCMC step is automatically determined and extracted.
    * The tqdm library is required for progress bar display. If not installed, processing will be executed without a progress bar.
    * If the output directory does not exist, it will be created automatically.
 
@@ -65,7 +65,7 @@ USAGE
       python3 summarize_each_T.py -d output -o summarized
 
    Processes result_T*.txt files from all process folders in the output directory and saves them to the summarized directory.
-   The number of replicas is automatically determined (only data from the last step of each file is extracted).
+   Data from the last MC step of each file is extracted.
 
 2. Using a TOML configuration file
 
@@ -91,32 +91,35 @@ USAGE
 
    Displays a progress bar during processing (requires the tqdm library).
 
+NOTES
+-----
+
 Data Conversion Details
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 This script performs the following data conversions:
 
 1. Input data format:
-   
+
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
 
 2. Output data format:
-   
+
    .. code-block:: text
 
       beta fx x1 ... xN weight
 
 Key conversion points:
+   * Extraction of data from the last MC step
    * Conversion from temperature (T) to inverse temperature (beta = 1/T)
    * Removal of unnecessary columns (step, walker_id, ancestor)
-   * Extraction of the last replica data
 
 When temperature (T) is 0, inverse temperature (beta) is also set to 0.
 
 TOML Configuration File Format
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The TOML configuration file is expected to have the following format:
 
@@ -131,7 +134,7 @@ The TOML configuration file is expected to have the following format:
 Errors may occur if the required sections and parameters are not in the configuration file.
 
 Processing Mechanism
----------------------
+~~~~~~~~~~~~~~~~~~~~
 
 This script processes data in the following steps:
 
@@ -146,15 +149,15 @@ This script processes data in the following steps:
    e. Write results to output file
 
 Performance and Considerations
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* The `--progress` option is recommended when processing a large number of files at once.
+* The `--progress` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
 * Since data is written to output files in append mode (`a`), results may be duplicated if the same process is executed multiple times. If re-executing, empty the output directory or specify a new directory.
 * If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.
 
 Error Handling
---------------
+~~~~~~~~~~~~~~
 
 * If an input file is not found: The file processing is skipped and an error message is displayed.
 * If there are no write permissions for the output directory: A permission error occurs.

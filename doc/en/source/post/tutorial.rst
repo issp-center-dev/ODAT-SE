@@ -24,8 +24,8 @@ Tutorial: How to Use Post-Processing Tools
 
       extract_combined.py is a tool for extracting lines starting with specific tags, with the following options:
 
-      * ``-d, --data_dir`` : Directory containing data files
       * ``-t, --tag`` : Target tag for extraction (required)
+      * ``-d, --data_dir`` : Directory containing data files
 
       For details, see :doc:`./tools/extract_combined`.
 
@@ -42,7 +42,7 @@ Tutorial: How to Use Post-Processing Tools
       separateT.py is a tool for splitting MCMC data files by temperature, with the following options:
 
       * ``-d, --data_dir`` : Directory containing data files
-      * ``-f, --file`` : Specific filename to split (processes all applicable files in directory if not specified)
+      * ``-t, --file_type`` : Specific filename to split (processes result.txt in each directory if not specified)
       
       For details, see :doc:`./tools/separateT`.
 
@@ -66,19 +66,15 @@ Tutorial: How to Use Post-Processing Tools
 
    plt_model_evidence.py accepts these options:
 
-   * ``-V, --volume`` : Search space volume V_Ω (required)
+   * ``-V, --Volume`` : Search space volume :math:`V_\Omega`
    * ``-n, --ndata`` : Number of data points (required)
-   * ``-w, --weights`` : Data point weights (comma-separated list, default: all 1.0)
-   * ``-o, --outname`` : Output filename prefix (default: "model_evidence")
-   * ``-d, --var_diagonal`` : Flag to use only diagonal variance components
-   * ``-f, --formats`` : Output file formats (comma-separated list, default: "png")
+   * ``-o, --output`` : Output plot filename. The output format is determined by the file extension.
 
    For details, see :doc:`./tools/plt_model_evidence`.
 
    .. figure:: ../../../common/img/post/model_evidence.*
 
       Plot of model evidence. Maximum value occurs at beta= :math:`1.91\times 10^5` (Tstep=44).
-   
       
 3. Summarizing Search Data by Temperature Points
   
@@ -92,12 +88,10 @@ Tutorial: How to Use Post-Processing Tools
 
    summarize_each_T.py extracts and combines replica configuration data for each temperature point, with these options:
 
-   * ``-d, --data_dir`` : Directory containing MCMC data files
-   * ``-o, --output_dir`` : Output directory
-   * ``-c, --config`` : Path to configuration file (TOML format)
-   * ``-r, --replica_per_proc`` : Number of replicas per process (used when config file not specified)
+   * ``-d, --data_directory`` : Directory containing MCMC data files
+   * ``-o, --export_directory`` : Output directory
 
-   Using the ``-c`` option with the calculation's configuration file is convenient as it automatically retrieves parameters like replica counts.
+   Using the ``-i, --input_file`` option with the TOML configuration file from the PAMC calculation automatically retrieves parameters such as the number of replicas.
 
    For details, see :doc:`./tools/summarize_each_T`.
 
@@ -119,20 +113,17 @@ Tutorial: How to Use Post-Processing Tools
    * ``-o, --output_dir`` : Output directory
    * ``-r, --range`` : Variable range ("min,max" format)
    * ``-b, --bins`` : Number of histogram bins (default: 60)
-   * ``-w, --weight_column`` : Column index for weights (default: -1, last column)
    * ``-f, --format`` : Output file formats (comma-separated list, default: "png")
-   * ``--field_list`` : Parameter name list (comma-separated, default: "x1,x2,...")
    * ``--config`` : Configuration file path (TOML format)
-   * ``--params`` : Path to parameter file used in calculation
+   * ``--params`` : Path to parameter file used in PAMC calculation
 
-   More detailed configuration is possible using a configuration file.
+   Using a configuration file allows setting multiple options together.
 
    For details, see :doc:`./tools/plt_1D_histogram`.
 
    .. figure:: ../../../common/img/post/1Dhistogram_result_T22.*
 
       Example 1D marginalized histogram output (Tstep=22, :math:`\beta=4.365\times 10^2`).
-
 
    To create 2D marginalized histograms:
 
@@ -146,9 +137,10 @@ Tutorial: How to Use Post-Processing Tools
 
    * Generates histograms for each pair of variables
    * Visualizes probability density using logarithmic color mapping
-   * Optional overlay of replica configuration scatter plots
 
-   Output filenames follow the pattern: 2Dhistogram_[filename]_[x-axis parameter]_vs_[y-axis parameter].[format]
+   Output filenames follow the pattern:
+   2Dhistogram_[filename]_[x-axis label]_vs_[y-axis label].[format]
+
    Example: 2Dhistogram_result_T44_beta_1.91e+05_x1_vs_x2.png
 
    For details, see :doc:`./tools/plt_2D_histogram`.

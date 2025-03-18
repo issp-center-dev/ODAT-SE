@@ -131,8 +131,11 @@ USAGE
 
    Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 1dhist/1Dhistogram_result_T*.png.
 
+NOTES
+-----
+
 Data File Format
-----------------------
+~~~~~~~~~~~~~~~~
 
 Data files must be in the following format:
 
@@ -151,7 +154,7 @@ Each line consists of numerical data separated by whitespace. In the standard fo
 * Last column: weight
 
 Histogram Creation Mechanism
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This script creates histograms using the following procedure:
 
@@ -162,18 +165,23 @@ This script creates histograms using the following procedure:
 
 Output file naming convention:
 
-* Normal files: ``1Dhistogram_{input_filename}.{format}``
-* Files containing _summarized.txt: ``1Dhistogram_{input_filename_with_summarized_replaced_by_beta_{beta_value}}.{format}``
+* Normal files:
+  
+  ``1Dhistogram_{input_filename}.{format}``
+
+* Files containing _summarized.txt (output from summarize_each_T.py):
+  
+  ``1Dhistogram_{input_filename_with_summarized_replaced_by_beta_{beta_value}}.{format}``
 
 Performance
-----------------------------
+~~~~~~~~~~~~
 
 * When processing large data files, the required memory is roughly proportional to the file size
 * Processing speed is relatively fast due to the use of NumPy
 * When processing many files, progress can be monitored with the ``--progress`` option
 
 Error Handling and Limitations
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * If a data file is not found: An error message is displayed
 * If the data format is invalid (non-numeric, mismatched column count): That file is skipped and an error message is displayed
