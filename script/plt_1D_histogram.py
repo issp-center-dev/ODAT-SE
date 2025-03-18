@@ -8,8 +8,8 @@
 
 import os
 import argparse
-#import numpy as np
-#import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Try to import tqdm for progress bar, set to None if not available
 try:
