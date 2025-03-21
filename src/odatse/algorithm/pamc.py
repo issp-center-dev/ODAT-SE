@@ -166,6 +166,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
         self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
         self.acceptance_ratio = np.zeros(numT)
+        self.pr_list = np.zeros(numT)
 
         self._show_parameters()
 
@@ -330,6 +331,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                                            self.fx[iwalker],
                                            self.logweights[iwalker],
                                            *self.x[iwalker,:])
+
+            # calculate participation ratio
+            pr = self._calc_participation_ratio()
+            self.pr_list[Tindex] = pr
+
 
             if Tindex == numT - 1:
                 break
@@ -678,6 +684,58 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
         self.nwalkers = np.sum(next_numbers)
 
+    def _calc_participation_ratio(self) -> float:
+        """
+        Calculate the participation ratio of the current walker population.
+        
+        The participation ratio is a measure of the effective sample size and
+        indicates how evenly distributed the weights are among walkers. It is
+        calculated as (sum(w))²/sum(w²), where w are the normalized weights.
+        
+        A value close to the total number of walkers indicates well-distributed weights,
+        while a small value indicates that only a few walkers dominate the population.
+        
+        To avoid numerical issues with large log-weights, we normalize by subtracting
+        the maximum log-weight before exponentiation.
+        
+        Parameters
+        ----------
+        None
+            Uses the current state of self.logweights
+            
+        Returns
+        -------
+        float
+            The participation ratio, a value between 1 and the total number of walkers
+            
+        Notes
+        -----
+        In parallel execution, this method aggregates weights across all processes
+        to calculate the global participation ratio.
+        """
+        if self.mpisize > 1:
+            from mpi4py import MPI
+            max_log_weight = self.mpicomm.allreduce(np.max(self.logweights), op=MPI.MAX)
+
+            buf = [
+                np.sum(np.exp(self.logweights - max_log_weight)),
+                np.sum(np.exp(self.logweights - max_log_weight)**2),
+            ]
+            buf_sum = self.mpicomm.allreduce(buf, op=MPI.SUM)
+
+            sum_weight = buf_sum[0]
+            sum_weight_sq = buf_sum[1]
+
+        else:
+            max_log_weight = np.max(self.logweights)
+
+            sum_weight = np.sum(np.exp(self.logweights - max_log_weight))
+            sum_weight_sq = np.sum(np.exp(self.logweights - max_log_weight)**2)
+
+        pr = sum_weight ** 2 / sum_weight_sq
+
+        return pr
+
     def _prepare(self) -> None:
         """
         Prepare the algorithm for execution.
@@ -768,6 +826,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     f.write(f" {self.logZs[i]}")
                     f.write(f" {self.acceptance_ratio[i]}")
                     f.write("\n")
+
+            with open("pr.txt", "w") as f:
+                f.write("# $1: Tindex\n")
+                f.write("# $2: 1/T\n")
+                f.write("# $3: participation ratio\n")
+                for i in range(len(self.betas)):
+                    f.write(f"{i}")
+                    f.write(f" {self.betas[i]}")
+                    f.write(f" {self.pr_list[i]}")
+                    f.write("\n")
+
         return {
             "x": best_x[best_rank],
             "fx": best_fx[best_rank],
@@ -823,6 +892,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "fx_from_reset": self.fx_from_reset,
             "naccepted_from_reset": self.naccepted_from_reset,
             "acceptance_ratio": self.acceptance_ratio,
+            "pr_list": self.pr_list,
         }
         self._save_data(data, filename)
 
@@ -912,6 +982,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.nreplicas = np.full(numT, nreplicas)
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
         self.acceptance_ratio = np.zeros(numT)
+        self.pr_list = np.zeros(numT)
 
         self.logZ = data["logZ"]
         self.logZs[0:len(data["logZs"])] = data["logZs"]
@@ -928,5 +999,4 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.walker_ancestors = data["walker_ancestors"]
         self.naccepted_from_reset = data["naccepted_from_reset"]
         self.acceptance_ratio[0:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
-
-
+        self.pr_list[0:len(data["pr_list"])] = data["pr_list"]
