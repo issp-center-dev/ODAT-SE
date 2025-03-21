@@ -684,7 +684,35 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.x = self.node_coordinates[self.inode, :]
         self.nwalkers = np.sum(next_numbers)
 
-    def _calc_participation_ratio(self):
+    def _calc_participation_ratio(self) -> float:
+        """
+        Calculate the participation ratio of the current walker population.
+        
+        The participation ratio is a measure of the effective sample size and
+        indicates how evenly distributed the weights are among walkers. It is
+        calculated as (sum(w))²/sum(w²), where w are the normalized weights.
+        
+        A value close to the total number of walkers indicates well-distributed weights,
+        while a small value indicates that only a few walkers dominate the population.
+        
+        To avoid numerical issues with large log-weights, we normalize by subtracting
+        the maximum log-weight before exponentiation.
+        
+        Parameters
+        ----------
+        None
+            Uses the current state of self.logweights
+            
+        Returns
+        -------
+        float
+            The participation ratio, a value between 1 and the total number of walkers
+            
+        Notes
+        -----
+        In parallel execution, this method aggregates weights across all processes
+        to calculate the global participation ratio.
+        """
         if self.mpisize > 1:
             from mpi4py import MPI
             max_log_weight = self.mpicomm.allreduce(np.max(self.logweights), op=MPI.MAX)
