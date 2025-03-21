@@ -21,35 +21,40 @@ import odatse.domain
 
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
-    """Base of Monte Carlo
-
+    """
+    Base class for Monte Carlo algorithms.
+    
+    This class provides the fundamental structure and methods for Monte Carlo
+    simulations, including walker management, energy evaluation, and state tracking.
+    
     Attributes
-    ==========
-    nwalkers: int
-        the number of walkers (per one process)
-    x: np.ndarray
-        current configurations
-        (NxD array, N is the number of walkers and D is the dimension)
-    fx: np.ndarray
-        current "Energy"s
-    istep: int
-        current step (or, the number of calculated energies)
-    best_x: np.ndarray
-        best configuration
-    best_fx: float
-        best "Energy"
-    best_istep: int
-        index of best configuration (step)
-    best_iwalker: int
-        index of best configuration (walker)
-    comm: MPI.comm
-        MPI communicator
-    rank: int
-        MPI rank
-    Ts: np.ndarray
-        List of temperatures
-    Tindex: np.ndarray
-        Temperature index
+    ----------
+    nwalkers : int
+        The number of walkers (per one process).
+    x : np.ndarray
+        Current configurations (NxD array, N is the number of walkers and D is the dimension).
+    fx : np.ndarray
+        Current "Energy"s for each walker.
+    istep : int
+        Current step (or, the number of calculated energies).
+    best_x : np.ndarray
+        Best configuration found so far.
+    best_fx : float
+        Best "Energy" value found so far.
+    best_istep : int
+        Index of step when best configuration was found.
+    best_iwalker : int
+        Index of walker that found the best configuration.
+    comm : MPI.comm
+        MPI communicator for parallel processing.
+    rank : int
+        MPI rank of the current process.
+    Ts : np.ndarray
+        List of temperatures used in the simulation.
+    Tindex : np.ndarray
+        Temperature indices for each walker.
+    iscontinuous : bool
+        Whether the problem is continuous (True) or discrete (False).
     """
 
     nwalkers: int
@@ -97,13 +102,24 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         info : odatse.Info
             Information object containing algorithm parameters.
         runner : odatse.Runner, optional
-            Runner object for executing the algorithm (default is None).
-        domain : optional
-            Domain object defining the problem space (default is None).
+            Runner object for executing the algorithm, by default None.
+        domain : odatse.domain.Domain, optional
+            Domain object defining the problem space, by default None.
         nwalkers : int, optional
-            Number of walkers (default is 1).
+            Number of walkers to use in the simulation, by default 1.
         run_mode : str, optional
-            Mode of the run, e.g., "initial" (default is "initial").
+            Mode of the run, e.g., "initial", by default "initial".
+            
+        Raises
+        ------
+        ValueError
+            If an unsupported domain type is provided or required parameters are missing.
+            
+        Examples
+        --------
+        >>> info = odatse.Info(config_file_path)
+        >>> runner = odatse.Runner()
+        >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
         time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner, run_mode=run_mode)
@@ -155,13 +171,22 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.Tindex = 0
         self.input_as_beta = False
 
-    def _initialize(self):
+    def _initialize(self) -> None:
         """
         Initialize the algorithm state.
 
         This method sets up the initial state of the algorithm, including the
         positions and energies of the walkers, and resets the counters for
         accepted and trial steps.
+        
+        Returns
+        -------
+        None
+            Updates the internal state of the algorithm.
+            
+        Examples
+        --------
+        >>> algorithm._initialize()
         """
         if self.iscontinuous:
             self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=self.nwalkers)
@@ -178,21 +203,31 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.naccepted = 0
         self.ntrial = 0
 
-    def _setup_neighbour(self, info_param):
+    def _setup_neighbour(self, info_param: dict) -> None:
         """
         Set up the neighbor list for the discrete problem.
 
         Parameters
         ----------
         info_param : dict
-            Dictionary containing algorithm parameters, including the path to the neighbor list file.
+            Dictionary containing algorithm parameters, including the path to 
+            the neighbor list file or radius for neighbor generation.
 
         Raises
         ------
         ValueError
-            If the neighbor list path is not specified in the parameters.
+            If the neighbor list path or radius is not specified in the parameters.
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
+            
+        Returns
+        -------
+        None
+            Updates the neighbor_list and ncandidates attributes.
+            
+        Examples
+        --------
+        >>> algorithm._setup_neighbour({"radius": 2.0})
         """
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
@@ -224,19 +259,26 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
         """
-        Evaluate the current "Energy"s.
+        Evaluate the current "Energy"s for all walkers.
 
-        This method overwrites `self.fx` with the result.
+        This method overwrites `self.fx` with the evaluation results.
 
         Parameters
         ----------
         in_range : np.ndarray, optional
-            Array indicating whether each walker is within the valid range (default is None).
+            Boolean array indicating whether each walker is within the valid range, by default None.
+            If None, all walkers are considered in range.
 
         Returns
         -------
         np.ndarray
             Array of evaluated energies for the current configurations.
+            
+        Examples
+        --------
+        >>> energies = algorithm._evaluate()
+        >>> in_range = np.ones(algorithm.nwalkers, dtype=bool)
+        >>> energies = algorithm._evaluate(in_range)
         """
         # print(">>> _evaluate")
         for iwalker in range(self.nwalkers):
@@ -263,8 +305,13 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
         Returns
         -------
-        proposed : np.ndarray
+        np.ndarray
             Proposed new positions for the walkers.
+            
+        Examples
+        --------
+        >>> current_positions = algorithm.x
+        >>> proposed_positions = algorithm.propose(current_positions)
         """
         if self.iscontinuous:
             dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
@@ -280,20 +327,34 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         file_trial: TextIO,
         file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
-    ):
+    ) -> None:
         """
-        one step of Monte Carlo
-
+        Perform one step of Monte Carlo update.
+        
+        This method proposes new configurations for all walkers, evaluates their energies,
+        and accepts or rejects the proposed moves according to the Metropolis criterion.
+        
         Parameters
         ----------
-        beta: np.ndarray
-            inverse temperature for each walker
-        file_trial: TextIO
-            log file for all trial points
-        file_result: TextIO
-            log file for all generated samples
-        extra_info_to_write: List of np.ndarray or tuple of np.ndarray
-            extra information to write
+        beta : Union[float, np.ndarray]
+            Inverse temperature for each walker.
+        file_trial : TextIO
+            Log file for all trial points.
+        file_result : TextIO
+            Log file for all generated samples.
+        extra_info_to_write : Union[List, Tuple], optional
+            Extra information to write to the log files, by default None.
+            
+        Returns
+        -------
+        None
+            This method updates the internal state and writes to log files.
+            
+        Examples
+        --------
+        >>> beta = 1.0
+        >>> with open('trial.log', 'w') as trial_file, open('result.log', 'w') as result_file:
+        >>>     algorithm.local_update(beta, trial_file, result_file)
         """
         # make candidate
         x_old = copy.copy(self.x)
@@ -357,7 +418,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             self.best_iwalker = typing.cast(int, minidx)
         self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
-    def _write_result_header(self, fp, extra_names=None) -> None:
+    def _write_result_header(self, fp: TextIO, extra_names: List[str] = None) -> None:
         """
         Write the header for the result file.
 
@@ -366,7 +427,17 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         fp : TextIO
             File pointer to the result file.
         extra_names : list of str, optional
-            Additional column names to include in the header.
+            Additional column names to include in the header, by default None.
+            
+        Returns
+        -------
+        None
+            Writes the header to the provided file pointer.
+            
+        Examples
+        --------
+        >>> with open('result.log', 'w') as fp:
+        >>>     algorithm._write_result_header(fp, ['acceptance_rate'])
         """
         if self.input_as_beta:
             fp.write("# step walker beta fx")
@@ -379,7 +450,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                 fp.write(f" {label}")
         fp.write("\n")
 
-    def _write_result(self, fp, extra_info_to_write: Union[List, Tuple] = None) -> None:
+    def _write_result(self, fp: TextIO, extra_info_to_write: Union[List, Tuple] = None) -> None:
         """
         Write the result of the current step to the file.
 
@@ -388,7 +459,17 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         fp : TextIO
             File pointer to the result file.
         extra_info_to_write : Union[List, Tuple], optional
-            Additional information to write for each walker (default is None).
+            Additional information to write for each walker, by default None.
+            
+        Returns
+        -------
+        None
+            Writes the current state to the provided file pointer.
+            
+        Examples
+        --------
+        >>> with open('result.log', 'a') as fp:
+        >>>     algorithm._write_result(fp, [acceptance_rates])
         """
         for iwalker in range(self.nwalkers):
             if isinstance(self.Tindex, int):
@@ -409,6 +490,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                     fp.write(f" {ex[iwalker]}")
             fp.write("\n")
         fp.flush()
+
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
     Read temperature or inverse-temperature values from the provided info dictionary.
@@ -418,7 +500,7 @@ def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     info : dict
         Dictionary containing temperature or inverse-temperature parameters.
     numT : int, optional
-        Number of temperature or inverse-temperature values to generate (default is None).
+        Number of temperature or inverse-temperature values to generate, by default None.
 
     Returns
     -------
@@ -434,6 +516,15 @@ def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
         or if bmin/bmax or Tmin/Tmax values are invalid.
     RuntimeError
         If the mode is unknown (neither set_T nor set_b).
+        
+    Examples
+    --------
+    >>> info = {"Tmin": 0.1, "Tmax": 10.0, "Tlogspace": True}
+    >>> as_beta, betas = read_Ts(info, numT=50)
+    >>> print(as_beta)
+    False
+    >>> print(betas[0], betas[-1])
+    10.0 0.1
     """
     if numT is None:
         raise ValueError("read_Ts: numT is not specified")
