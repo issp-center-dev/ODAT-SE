@@ -18,43 +18,44 @@ import odatse
 from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
 import odatse.util.graph
 import odatse.domain
-
+from odatse.util.data_writer import DataWriter
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """
-    Base class for Monte Carlo algorithms.
+    Base class for Monte Carlo algorithms implementing common functionality.
     
-    This class provides the fundamental structure and methods for Monte Carlo
-    simulations, including walker management, energy evaluation, and state tracking.
+    This class provides the foundation for various Monte Carlo methods, handling both
+    continuous and discrete parameter spaces. It supports parallel execution with
+    multiple walkers and temperature-based sampling methods.
+
+    Implementation Details
+    --------------------
+    The class handles two types of parameter spaces:
+    1. Continuous: Uses real-valued parameters within specified bounds
+    2. Discrete: Uses node-based parameters with defined neighbor relationships
+
+    For continuous problems:
+    - Parameters are bounded by xmin and xmax
+    - Steps are controlled by xstep for each dimension
     
-    Attributes
+    For discrete problems:
+    - Parameters are represented as nodes in a graph
+    - Transitions are only allowed between neighboring nodes
+    - Neighbor relationships must form a connected, bidirectional graph
+
+    The sampling process:
+    1. Initializes walkers in valid positions
+    2. Proposes moves based on the parameter space type
+    3. Evaluates the objective function ("Energy")
+    4. Accepts/rejects moves based on the Monte Carlo criterion
+    5. Tracks the best solution found
+
+    Key Methods
     ----------
-    nwalkers : int
-        The number of walkers (per one process).
-    x : np.ndarray
-        Current configurations (NxD array, N is the number of walkers and D is the dimension).
-    fx : np.ndarray
-        Current "Energy"s for each walker.
-    istep : int
-        Current step (or, the number of calculated energies).
-    best_x : np.ndarray
-        Best configuration found so far.
-    best_fx : float
-        Best "Energy" value found so far.
-    best_istep : int
-        Index of step when best configuration was found.
-    best_iwalker : int
-        Index of walker that found the best configuration.
-    comm : MPI.comm
-        MPI communicator for parallel processing.
-    rank : int
-        MPI rank of the current process.
-    Ts : np.ndarray
-        List of temperatures used in the simulation.
-    Tindex : np.ndarray
-        Temperature indices for each walker.
-    iscontinuous : bool
-        Whether the problem is continuous (True) or discrete (False).
+    _initialize() : Sets up initial walker positions and counters
+    propose() : Generates candidate moves for walkers
+    local_update() : Performs one Monte Carlo step
+    _evaluate() : Computes objective function values
     """
 
     nwalkers: int
@@ -171,22 +172,26 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.Tindex = 0
         self.input_as_beta = False
 
-    def _initialize(self) -> None:
-        """
-        Initialize the algorithm state.
+        #-- writer
+        self.fp_trial = None
+        self.fp_result = None
 
-        This method sets up the initial state of the algorithm, including the
-        positions and energies of the walkers, and resets the counters for
-        accepted and trial steps.
-        
-        Returns
-        -------
-        None
-            Updates the internal state of the algorithm.
-            
-        Examples
-        --------
-        >>> algorithm._initialize()
+    def _initialize(self):
+        """
+        Initialize the Monte Carlo simulation state.
+
+        For continuous problems:
+        - Uses domain.initialize to generate valid initial positions
+        - Respects any additional limitations from the runner
+
+        For discrete problems:
+        - Randomly assigns walkers to valid nodes
+        - Maps node indices to actual coordinate positions
+
+        Also initializes:
+        - Objective function values (fx) to zero
+        - Best solution tracking variables
+        - Acceptance counters for monitoring convergence
         """
         if self.iscontinuous:
             self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=self.nwalkers)
@@ -205,29 +210,34 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def _setup_neighbour(self, info_param: dict) -> None:
         """
-        Set up the neighbor list for the discrete problem.
+        Configure neighbor relationships for discrete parameter spaces.
+
+        Validation Steps:
+        1. Loads neighbor list from specified file
+        2. Verifies graph connectivity
+           - Ensures all nodes can be reached
+           - Prevents isolated subgraphs
+        3. Confirms bidirectional connections
+           - If A -> B exists, B -> A must exist
+           - Required for detailed balance
+
+        Graph Properties:
+        - Stored as adjacency lists
+        - Each node maintains list of valid neighbors
+        - Supports variable number of neighbors per node
+        - Preserves transition symmetry
 
         Parameters
         ----------
         info_param : dict
-            Dictionary containing algorithm parameters, including the path to 
-            the neighbor list file or radius for neighbor generation.
+            Configuration containing neighborlist_path
 
         Raises
         ------
         ValueError
-            If the neighbor list path or radius is not specified in the parameters.
+            If neighbor list file is not specified
         RuntimeError
-            If the transition graph made from the neighbor list is not connected or not bidirectional.
-            
-        Returns
-        -------
-        None
-            Updates the neighbor_list and ncandidates attributes.
-            
-        Examples
-        --------
-        >>> algorithm._setup_neighbour({"radius": 2.0})
+            If graph is not connected or not bidirectional
         """
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
@@ -259,26 +269,25 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
         """
-        Evaluate the current "Energy"s for all walkers.
+        Evaluate objective function for current walker positions.
 
-        This method overwrites `self.fx` with the evaluation results.
+        Optimization Features:
+        - Skips evaluation for out-of-bounds positions
+        - Tracks evaluation timing statistics
+        - Supports parallel evaluation across walkers
 
         Parameters
         ----------
         in_range : np.ndarray, optional
-            Boolean array indicating whether each walker is within the valid range, by default None.
-            If None, all walkers are considered in range.
+            Boolean mask indicating valid positions
+            True = position is valid and should be evaluated
+            False = position is invalid, will be assigned inf
 
         Returns
         -------
         np.ndarray
-            Array of evaluated energies for the current configurations.
-            
-        Examples
-        --------
-        >>> energies = algorithm._evaluate()
-        >>> in_range = np.ones(algorithm.nwalkers, dtype=bool)
-        >>> energies = algorithm._evaluate(in_range)
+            Array of objective function values
+            Invalid positions are assigned inf
         """
         # print(">>> _evaluate")
         for iwalker in range(self.nwalkers):
@@ -296,22 +305,27 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     def propose(self, current: np.ndarray) -> np.ndarray:
         """
-        Propose the next candidate positions for the walkers.
+        Generate proposed moves for all walkers.
+
+        For continuous problems:
+        - Uses Gaussian perturbations scaled by xstep
+        - Generates independent proposals for each dimension
+
+        For discrete problems:
+        - Randomly selects a neighbor from each node's neighbor list
+        - Ensures moves respect the graph connectivity
 
         Parameters
         ----------
         current : np.ndarray
-            Current positions of the walkers.
+            Current positions of all walkers
+            For continuous: Array of coordinates
+            For discrete: Array of node indices
 
         Returns
         -------
         np.ndarray
-            Proposed new positions for the walkers.
-            
-        Examples
-        --------
-        >>> current_positions = algorithm.x
-        >>> proposed_positions = algorithm.propose(current_positions)
+            Proposed new positions for all walkers
         """
         if self.iscontinuous:
             dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
@@ -324,37 +338,39 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     def local_update(
         self,
         beta: Union[float, np.ndarray],
-        file_trial: TextIO,
-        file_result: TextIO,
+        #file_trial: TextIO,
+        #file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
     ) -> None:
         """
-        Perform one step of Monte Carlo update.
-        
-        This method proposes new configurations for all walkers, evaluates their energies,
-        and accepts or rejects the proposed moves according to the Metropolis criterion.
-        
+        Perform one step of the Monte Carlo algorithm.
+
+        Algorithm Flow:
+        1. Generate proposed moves for all walkers
+        2. Check if proposals are within valid bounds
+        3. Evaluate objective function for valid proposals
+        4. Apply Metropolis acceptance criterion:
+           P(accept) = min(1, exp(-beta * (f_new - f_old)))
+        5. For discrete case, adjust acceptance probability by:
+           P *= (n_neighbors_old / n_neighbors_new)
+        6. Update positions and energies
+        7. Track best solution found
+        8. Log results if writers are configured
+
         Parameters
         ----------
         beta : Union[float, np.ndarray]
-            Inverse temperature for each walker.
-        file_trial : TextIO
-            Log file for all trial points.
-        file_result : TextIO
-            Log file for all generated samples.
+            Inverse temperature(s) controlling acceptance probability
+            Can be single value or array (one per walker)
         extra_info_to_write : Union[List, Tuple], optional
-            Extra information to write to the log files, by default None.
-            
-        Returns
-        -------
-        None
-            This method updates the internal state and writes to log files.
-            
-        Examples
-        --------
-        >>> beta = 1.0
-        >>> with open('trial.log', 'w') as trial_file, open('result.log', 'w') as result_file:
-        >>>     algorithm.local_update(beta, trial_file, result_file)
+            Additional data to log with results
+
+        Implementation Notes
+        ------------------
+        - Handles numerical overflow in exponential calculation
+        - Maintains detailed acceptance statistics
+        - Supports both single and multiple temperature values
+        - Preserves best solution across all steps
         """
         # make candidate
         x_old = copy.copy(self.x)
@@ -370,7 +386,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                                                             )
 
             in_range = (in_range_xmin & in_range_xmax).all(axis=1) \
-                       &in_range_limitation 
+                       &in_range_limitation
         else:
             i_old = copy.copy(self.inode)
             self.inode = self.propose(self.inode)
@@ -380,7 +396,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         # evaluate "Energy"s
         fx_old = self.fx.copy()
         self._evaluate(in_range)
-        self._write_result(file_trial, extra_info_to_write=extra_info_to_write)
+
+        if self.fp_trial:
+            self._write_result(self.fp_trial, extra_info_to_write)
 
         fdiff = self.fx - fx_old
 
@@ -416,80 +434,32 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
             self.best_iwalker = typing.cast(int, minidx)
-        self._write_result(file_result, extra_info_to_write=extra_info_to_write)
 
-    def _write_result_header(self, fp: TextIO, extra_names: List[str] = None) -> None:
-        """
-        Write the header for the result file.
+        if self.fp_result:
+            self._write_result(self.fp_result, extra_info_to_write)
 
-        Parameters
-        ----------
-        fp : TextIO
-            File pointer to the result file.
-        extra_names : list of str, optional
-            Additional column names to include in the header, by default None.
-            
-        Returns
-        -------
-        None
-            Writes the header to the provided file pointer.
-            
-        Examples
-        --------
-        >>> with open('result.log', 'w') as fp:
-        >>>     algorithm._write_result_header(fp, ['acceptance_rate'])
-        """
-        if self.input_as_beta:
-            fp.write("# step walker beta fx")
-        else:
-            fp.write("# step walker T fx")
-        for label in self.label_list:
-            fp.write(f" {label}")
-        if extra_names is not None:
-            for label in extra_names:
-                fp.write(f" {label}")
-        fp.write("\n")
+    def _set_writer(self, fp_trial, fp_result):
+        self.fp_trial = fp_trial
+        self.fp_result = fp_result
 
-    def _write_result(self, fp: TextIO, extra_info_to_write: Union[List, Tuple] = None) -> None:
-        """
-        Write the result of the current step to the file.
-
-        Parameters
-        ----------
-        fp : TextIO
-            File pointer to the result file.
-        extra_info_to_write : Union[List, Tuple], optional
-            Additional information to write for each walker, by default None.
-            
-        Returns
-        -------
-        None
-            Writes the current state to the provided file pointer.
-            
-        Examples
-        --------
-        >>> with open('result.log', 'a') as fp:
-        >>>     algorithm._write_result(fp, [acceptance_rates])
-        """
+    def _write_result(self, writer, extras = None):
         for iwalker in range(self.nwalkers):
             if isinstance(self.Tindex, int):
                 beta = self.betas[self.Tindex]
             else:
                 beta = self.betas[self.Tindex[iwalker]]
-            fp.write(f"{self.istep}")
-            fp.write(f" {iwalker}")
+
             if self.input_as_beta:
-                fp.write(f" {beta}")
+                tval = beta
             else:
-                fp.write(f" {1.0/beta}")
-            fp.write(f" {self.fx[iwalker]}")
-            for x in self.x[iwalker, :]:
-                fp.write(f" {x}")
-            if extra_info_to_write is not None:
-                for ex in extra_info_to_write:
-                    fp.write(f" {ex[iwalker]}")
-            fp.write("\n")
-        fp.flush()
+                tval = 1.0 / beta
+
+            data = [self.istep, iwalker, tval, self.fx[iwalker], *self.x[iwalker,:]]
+            if extras:
+                for extra in extras:
+                    data.append(extra[iwalker])
+
+            writer.write(*data)
 
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
