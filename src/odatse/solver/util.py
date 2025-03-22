@@ -42,7 +42,7 @@ def run_by_subprocess(command: List[str]) -> None:
 
     Raises
     ------
-    subprocess.CalledProcessError
+    RuntimeError
         If the command returns a non-zero exit status.
     IOError
         If the stdout file cannot be opened or written to.
@@ -53,13 +53,18 @@ def run_by_subprocess(command: List[str]) -> None:
     >>> run_by_subprocess(['python', 'script.py', '--arg', 'value'])
     """
     import subprocess
-    with open("stdout", "w") as fi:
-        subprocess.run(
-            command,
-            stdout=fi,
-            stderr=subprocess.STDOUT,
-            check=True,
-        )
+    try:
+        with open("stdout", "w") as fi:
+            subprocess.run(
+                command,
+                stdout=fi,
+                stderr=subprocess.STDOUT,
+                check=True,
+            )
+    except subprocess.CalledProcessError as err:
+        msg = "subprocess failed: {}".format(err)
+        print(msg)
+        raise RuntimeError(msg) from err
 
 
 def set_solver_path(solver_name: str, root_dir: Path = ".") -> Path:
@@ -138,12 +143,12 @@ class Workdir:
     >>> with Workdir('my_work_dir'):
     ...     # Do work in my_work_dir
     ...     pass
-    
+
     >>> # Using a temporary directory that gets cleaned up
     >>> with Workdir(use_tmpdir=True):
     ...     # Do work in temporary directory
     ...     pass
-    
+
     >>> # Using a directory that gets removed afterwards
     >>> with Workdir('temp_dir', remove=True):
     ...     # Do work in temp_dir
