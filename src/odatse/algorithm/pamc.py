@@ -485,6 +485,47 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
+    def _resample_fixed(self, weights: np.ndarray) -> None:
+        """
+        Perform resampling with fixed weights.
+
+        This method resamples the walkers based on the provided weights and updates
+        the state of the algorithm accordingly.
+
+        Parameters
+        ----------
+        weights : np.ndarray
+            Array of weights for resampling.
+        """
+        resampler = odatse.util.resampling.WalkerTable(weights)
+        new_index = resampler.sample(self.rng, self.nwalkers)
+
+        if self.iscontinuous:
+            if self.mpisize > 1:
+                xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
+                self.mpicomm.Allgather(self.x, xs)
+                xs = xs.reshape(self.nreplicas[self.Tindex], self.dimension)
+                ancestors = np.array(
+                    self.mpicomm.allgather(self.walker_ancestors)
+                ).flatten()
+            else:
+                xs = self.x
+                ancestors = self.walker_ancestors
+            self.x = xs[new_index, :]
+            self.walker_ancestors = ancestors[new_index]
+        else:
+            if self.mpisize > 1:
+                inodes = np.array(self.mpicomm.allgather(self.inode)).flatten()
+                ancestors = np.array(
+                    self.mpicomm.allgather(self.walker_ancestors)
+                ).flatten()
+            else:
+                inodes = self.inode
+                ancestors = self.walker_ancestors
+            self.inode = inodes[new_index]
+            self.walker_ancestors = ancestors[new_index]
+            self.x = self.node_coordinates[self.inode, :]
+
     def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
         """
         Perform resampling with varied weights.
@@ -531,47 +572,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.walker_ancestors = np.array(new_ancestors)
             self.x = self.node_coordinates[self.inode, :]
         self.nwalkers = np.sum(next_numbers)
-
-    def _resample_fixed(self, weights: np.ndarray) -> None:
-        """
-        Perform resampling with fixed weights.
-
-        This method resamples the walkers based on the provided weights and updates
-        the state of the algorithm accordingly.
-
-        Parameters
-        ----------
-        weights : np.ndarray
-            Array of weights for resampling.
-        """
-        resampler = odatse.util.resampling.WalkerTable(weights)
-        new_index = resampler.sample(self.rng, self.nwalkers)
-
-        if self.iscontinuous:
-            if self.mpisize > 1:
-                xs = np.zeros((self.mpisize, self.nwalkers, self.dimension))
-                self.mpicomm.Allgather(self.x, xs)
-                xs = xs.reshape(self.nreplicas[self.Tindex], self.dimension)
-                ancestors = np.array(
-                    self.mpicomm.allgather(self.walker_ancestors)
-                ).flatten()
-            else:
-                xs = self.x
-                ancestors = self.walker_ancestors
-            self.x = xs[new_index, :]
-            self.walker_ancestors = ancestors[new_index]
-        else:
-            if self.mpisize > 1:
-                inodes = np.array(self.mpicomm.allgather(self.inode)).flatten()
-                ancestors = np.array(
-                    self.mpicomm.allgather(self.walker_ancestors)
-                ).flatten()
-            else:
-                inodes = self.inode
-                ancestors = self.walker_ancestors
-            self.inode = inodes[new_index]
-            self.walker_ancestors = ancestors[new_index]
-            self.x = self.node_coordinates[self.inode, :]
 
     def _prepare(self) -> None:
         """
