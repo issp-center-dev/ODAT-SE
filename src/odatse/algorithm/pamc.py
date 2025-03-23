@@ -485,6 +485,30 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
+    def _resample_fixed(self, weights: np.ndarray) -> None:
+        """
+        Perform resampling with fixed weights.
+
+        This method resamples the walkers based on the provided weights and updates
+        the state of the algorithm accordingly.
+
+        Parameters
+        ----------
+        weights : np.ndarray
+            Array of weights for resampling.
+        """
+        resampler = odatse.util.resampling.WalkerTable(weights)
+        new_index = resampler.sample(self.rng, self.nwalkers)
+
+        states = self.statespace.gather(self.state)
+        ancestors = self._gather(self.walker_ancestors)
+
+        self.state = self.statespace.pick(states, new_index)
+        self.walker_ancestors = ancestors[new_index]
+
+        fxs = self._gather(self.fx)
+        self.fx = fxs[new_index]
+
     def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
         """
         Perform resampling with varied weights.
@@ -517,31 +541,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.walker_ancestors = np.array(new_index)
 
         self.nwalkers = np.sum(next_numbers)
-
-
-    def _resample_fixed(self, weights: np.ndarray) -> None:
-        """
-        Perform resampling with fixed weights.
-
-        This method resamples the walkers based on the provided weights and updates
-        the state of the algorithm accordingly.
-
-        Parameters
-        ----------
-        weights : np.ndarray
-            Array of weights for resampling.
-        """
-        resampler = odatse.util.resampling.WalkerTable(weights)
-        new_index = resampler.sample(self.rng, self.nwalkers)
-
-        states = self.statespace.gather(self.state)
-        ancestors = self._gather(self.walker_ancestors)
-
-        self.state = self.statespace.pick(states, new_index)
-        self.walker_ancestors = ancestors[new_index]
-
-        fxs = self._gather(self.fx)
-        self.fx = fxs[new_index]
 
     def _prepare(self) -> None:
         """
