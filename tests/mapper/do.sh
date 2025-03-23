@@ -1,10 +1,13 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+export OMPI_MCA_rmaps_base_oversubscribe=1
+
 # Remove the output directory if it exists
 rm -rf output
 
 # Run the Python script with MPI, using 2 processes
-time mpiexec --oversubscribe -np 2 python3 ../../src/odatse_main.py input.toml
+time mpiexec -np 2 python3 ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/ColorMap.txt

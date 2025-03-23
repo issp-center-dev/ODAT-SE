@@ -1,7 +1,9 @@
 #!/bin/sh
 
+export PYTHONUNBUFFERED=1
+
 # Command to run the main Python script
-CMD="python3 -u ../../src/odatse_main.py"
+CMD="python3 ../../src/odatse_main.py"
 
 # Remove the output1 directory if it exists
 rm -rf output1
