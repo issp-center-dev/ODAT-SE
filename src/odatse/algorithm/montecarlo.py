@@ -15,10 +15,11 @@ from pathlib import Path
 import numpy as np
 
 import odatse
-from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
-import odatse.util.graph
 import odatse.domain
+from odatse import mpi
+from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
 from odatse.util.data_writer import DataWriter
+
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """
@@ -62,18 +63,20 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     iscontinuous: bool
 
-    # continuous problem
-    x: np.ndarray
-    xmin: np.ndarray
-    xmax: np.ndarray
-    xstep: np.ndarray
+    # # continuous problem
+    # x: np.ndarray
+    # xmin: np.ndarray
+    # xmax: np.ndarray
+    # xstep: np.ndarray
 
-    # discrete problem
-    inode: np.ndarray
-    nnodes: int
-    node_coordinates: np.ndarray
-    neighbor_list: List[List[int]]
-    ncandidates: np.ndarray  # len(neighbor_list[i])-1
+    # # discrete problem
+    # inode: np.ndarray
+    # nnodes: int
+    # node_coordinates: np.ndarray
+    # neighbor_list: List[List[int]]
+    # ncandidates: np.ndarray  # len(neighbor_list[i])-1
+
+    # state: Union[ContinuousState, DiscreteState]
 
     numsteps: int
 
@@ -147,25 +150,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                 self.domain = odatse.domain.Region(info)
 
         if self.iscontinuous:
-            self.xmin = self.domain.min_list
-            self.xmax = self.domain.max_list
-
-            if "step_list" in info_param:
-                self.xstep = info_param.get("step_list")
-
-            elif "unit_list" in info_param:
-                # for compatibility, unit_list can also be accepted for step size.
-                if self.mpirank == 0:
-                    print("WARNING: unit_list is obsolete. use step_list instead")
-                self.xstep = info_param.get("unit_list")
-            else:
-                # neither step_list nor unit_list is specified, report error.
-                # default value not assumed.
-                raise ValueError("ERROR: algorithm.param.step_list not specified")
+            self.statespace = ContinuousStateSpace(self.domain, info_param, limitation=self.runner.limitation, rng=self.rng)
         else:
-            self.node_coordinates = np.array(self.domain.grid)[:, 1:]
-            self.nnodes = self.node_coordinates.shape[0]
-            self._setup_neighbour(info_param)
+            self.statespace = DiscreteStateSpace(self.domain, info_param, rng=self.rng)
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
@@ -193,81 +180,16 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         - Best solution tracking variables
         - Acceptance counters for monitoring convergence
         """
-        if self.iscontinuous:
-            self.domain.initialize(rng=self.rng, limitation=self.runner.limitation, num_walkers=self.nwalkers)
-            self.x = self.domain.initial_list
-            self.inode = None
-        else:
-            self.inode = self.rng.randint(self.nnodes, size=self.nwalkers)
-            self.x = self.node_coordinates[self.inode, :]
-
+        self.state = self.statespace.initialize(self.nwalkers)
         self.fx = np.zeros(self.nwalkers)
+
         self.best_fx = 0.0
         self.best_istep = 0
         self.best_iwalker = 0
         self.naccepted = 0
         self.ntrial = 0
 
-    def _setup_neighbour(self, info_param: dict) -> None:
-        """
-        Configure neighbor relationships for discrete parameter spaces.
-
-        Validation Steps:
-        1. Loads neighbor list from specified file
-        2. Verifies graph connectivity
-           - Ensures all nodes can be reached
-           - Prevents isolated subgraphs
-        3. Confirms bidirectional connections
-           - If A -> B exists, B -> A must exist
-           - Required for detailed balance
-
-        Graph Properties:
-        - Stored as adjacency lists
-        - Each node maintains list of valid neighbors
-        - Supports variable number of neighbors per node
-        - Preserves transition symmetry
-
-        Parameters
-        ----------
-        info_param : dict
-            Configuration containing neighborlist_path
-
-        Raises
-        ------
-        ValueError
-            If neighbor list file is not specified
-        RuntimeError
-            If graph is not connected or not bidirectional
-        """
-        if "mesh_path" in info_param and "neighborlist_path" in info_param:
-            nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
-            if self.mpirank == 0:
-                nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
-            else:
-                nnlist = None
-            self.neighbor_list = self.mpicomm.bcast(nnlist, root=0)
-        else:
-            if "radius" not in info_param:
-                raise KeyError("parameter \"algorithm.param.radius\" not specified")
-            radius = info_param["radius"]
-            print(f"DEBUG: create neighbor list, radius={radius}")
-            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=self.mpicomm)
-
-        # checks
-        if not odatse.util.graph.is_connected(self.neighbor_list):
-            raise RuntimeError(
-                "ERROR: The transition graph made from neighbor list is not connected."
-                "\nHINT: Increase neighborhood radius."
-            )
-        if not odatse.util.graph.is_bidirectional(self.neighbor_list):
-            raise RuntimeError(
-                "ERROR: The transition graph made from neighbor list is not bidirectional."
-            )
-
-        self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
-
-
-    def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
+    def _evaluate(self, state, in_range: np.ndarray = None) -> np.ndarray:
         """
         Evaluate objective function for current walker positions.
 
@@ -289,57 +211,23 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             Array of objective function values
             Invalid positions are assigned inf
         """
-        # print(">>> _evaluate")
+        fx = np.zeros(self.nwalkers, dtype=np.float64)
         for iwalker in range(self.nwalkers):
-            x = self.x[iwalker, :]
+            x = state.x[iwalker, :]
             if in_range is None or in_range[iwalker]:
                 args = (self.istep, iwalker)
 
                 time_sta = time.perf_counter()
-                self.fx[iwalker] = self.runner.submit(x, args)
+                fx[iwalker] = self.runner.submit(x, args)
                 time_end = time.perf_counter()
                 self.timer["run"]["submit"] += time_end - time_sta
             else:
-                self.fx[iwalker] = np.inf
-        return self.fx
-
-    def propose(self, current: np.ndarray) -> np.ndarray:
-        """
-        Generate proposed moves for all walkers.
-
-        For continuous problems:
-        - Uses Gaussian perturbations scaled by xstep
-        - Generates independent proposals for each dimension
-
-        For discrete problems:
-        - Randomly selects a neighbor from each node's neighbor list
-        - Ensures moves respect the graph connectivity
-
-        Parameters
-        ----------
-        current : np.ndarray
-            Current positions of all walkers
-            For continuous: Array of coordinates
-            For discrete: Array of node indices
-
-        Returns
-        -------
-        np.ndarray
-            Proposed new positions for all walkers
-        """
-        if self.iscontinuous:
-            dx = self.rng.normal(size=(self.nwalkers, self.dimension)) * self.xstep
-            proposed = current + dx
-        else:
-            proposed_list = [self.rng.choice(self.neighbor_list[i]) for i in current]
-            proposed = np.array(proposed_list, dtype=np.int64)
-        return proposed
+                fx[iwalker] = np.inf
+        return fx
 
     def local_update(
         self,
         beta: Union[float, np.ndarray],
-        #file_trial: TextIO,
-        #file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
     ) -> None:
         """
@@ -373,34 +261,21 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         - Preserves best solution across all steps
         """
         # make candidate
-        x_old = copy.copy(self.x)
-        if self.iscontinuous:
-            self.x = self.propose(x_old)
-            #judgement of "in_range"
-            in_range_xmin = self.xmin <= self.x
-            in_range_xmax = self.x <= self.xmax
-            in_range_limitation = np.full(self.nwalkers, False)
-            for index_walker in range(self.nwalkers):
-                in_range_limitation[index_walker] = self.runner.limitation.judge(
-                                                        self.x[index_walker]
-                                                            )
+        old_state = copy.deepcopy(self.state)
+        old_fx = copy.deepcopy(self.fx)
 
-            in_range = (in_range_xmin & in_range_xmax).all(axis=1) \
-                       &in_range_limitation
-        else:
-            i_old = copy.copy(self.inode)
-            self.inode = self.propose(self.inode)
-            self.x = self.node_coordinates[self.inode, :]
-            in_range = np.ones(self.nwalkers, dtype=bool)
+        new_state, in_range, weight = self.statespace.propose(old_state)
+        #self.state = new_state
 
         # evaluate "Energy"s
-        fx_old = self.fx.copy()
-        self._evaluate(in_range)
+        new_fx = self._evaluate(new_state, in_range)
+        #XXX
+        self.state = new_state
+        self.fx = new_fx
+        self._write_result(self.fp_trial, extras=extra_info_to_write)
 
-        if self.fp_trial:
-            self._write_result(self.fp_trial, extra_info_to_write)
-
-        fdiff = self.fx - fx_old
+        #print(old_fx, new_fx)
+        fdiff = new_fx - old_fx
 
         # Ignore an overflow warning in np.exp(x) for x >~ 710
         # and an invalid operation warning in exp(nan) (nan came from 0 * inf)
@@ -409,40 +284,36 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         old_setting = np.seterr(all="ignore")
         probs = np.exp(-beta * fdiff)
         #probs[np.isnan(probs)] = 0.0
+        if weight is not None:
+            probs *= weight
         np.seterr(**old_setting)
 
-        if not self.iscontinuous:
-            probs *= self.ncandidates[i_old] / self.ncandidates[self.inode]
         tocheck = in_range & (probs < 1.0)
         num_check = np.count_nonzero(tocheck)
 
         accepted = in_range.copy()
         accepted[tocheck] = self.rng.rand(num_check) < probs[tocheck]
-        rejected = ~accepted
+
         self.naccepted += accepted.sum()
         self.ntrial += accepted.size
 
-        # revert rejected steps
-        self.x[rejected, :] = x_old[rejected, :]
-        self.fx[rejected] = fx_old[rejected]
-        if not self.iscontinuous:
-            self.inode[rejected] = i_old[rejected]
+        # update
+        self.state = self.statespace.choose(accepted, new_state, old_state)
+        self.fx = np.where(accepted, new_fx, old_fx)
 
         minidx = np.argmin(self.fx)
         if self.fx[minidx] < self.best_fx:
-            np.copyto(self.best_x, self.x[minidx, :])
+            np.copyto(self.best_x, self.state.x[minidx, :])
             self.best_fx = self.fx[minidx]
             self.best_istep = self.istep
             self.best_iwalker = typing.cast(int, minidx)
-
-        if self.fp_result:
-            self._write_result(self.fp_result, extra_info_to_write)
+        self._write_result(self.fp_result, extras=extra_info_to_write)
 
     def _set_writer(self, fp_trial, fp_result):
         self.fp_trial = fp_trial
         self.fp_result = fp_result
 
-    def _write_result(self, writer, extras = None):
+    def _write_result(self, writer, extras=None):
         for iwalker in range(self.nwalkers):
             if isinstance(self.Tindex, int):
                 beta = self.betas[self.Tindex]
@@ -454,106 +325,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             else:
                 tval = 1.0 / beta
 
-            data = [self.istep, iwalker, tval, self.fx[iwalker], *self.x[iwalker,:]]
+            data = [self.istep, iwalker, tval, self.fx[iwalker], *self.state.x[iwalker,:]]
             if extras:
                 for extra in extras:
                     data.append(extra[iwalker])
 
             writer.write(*data)
-
-def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
-    """
-    Read temperature or inverse-temperature values from the provided info dictionary.
-
-    Parameters
-    ----------
-    info : dict
-        Dictionary containing temperature or inverse-temperature parameters.
-    numT : int, optional
-        Number of temperature or inverse-temperature values to generate, by default None.
-
-    Returns
-    -------
-    as_beta : bool
-        True if using inverse-temperature, False if using temperature.
-    betas : np.ndarray
-        Sequence of inverse-temperature values.
-
-    Raises
-    ------
-    ValueError
-        If numT is not specified, or if both Tmin/Tmax and bmin/bmax are defined, or if neither are defined,
-        or if bmin/bmax or Tmin/Tmax values are invalid.
-    RuntimeError
-        If the mode is unknown (neither set_T nor set_b).
-        
-    Examples
-    --------
-    >>> info = {"Tmin": 0.1, "Tmax": 10.0, "Tlogspace": True}
-    >>> as_beta, betas = read_Ts(info, numT=50)
-    >>> print(as_beta)
-    False
-    >>> print(betas[0], betas[-1])
-    10.0 0.1
-    """
-    if numT is None:
-        raise ValueError("read_Ts: numT is not specified")
-
-    Tmin = info.get("Tmin", None)
-    Tmax = info.get("Tmax", None)
-    bmin = info.get("bmin", None)
-    bmax = info.get("bmax", None)
-    logscale = info.get("Tlogspace", True)
-
-    if "Tinvspace" in info:
-        raise ValueError("Tinvspace is deprecated. Use bmax/bmin instead.")
-
-    set_b = (bmin is not None or bmax is not None)
-    set_T = (Tmin is not None or Tmax is not None)
-
-    if set_b and set_T:
-        raise ValueError("both Tmin/Tmax and bmin/bmax are defined")
-    if (not set_b) and (not set_T):
-        raise ValueError("neither Tmin/Tmax nor bmin/bmax are defined")
-
-    if set_b:
-        if bmin is None or bmax is None:
-            raise ValueError("bmin and bmax must be set")
-
-        input_as_beta = True
-        if not np.isreal(bmin) or bmin < 0.0:
-            raise ValueError("bmin must be zero or a positive real number")
-        if not np.isreal(bmax) or bmax < 0.0:
-            raise ValueError("bmin must be zero or a positive real number")
-        if bmin > bmax:
-            raise ValueError("bmin must be smaller than or equal to bmax")
-
-        if logscale:
-            if bmin == 0.0:
-                raise ValueError("bmin must be greater than 0.0 when Tlogspace is True")
-            betas = np.logspace(start=np.log10(bmin), stop=np.log10(bmax), num=numT)
-        else:
-            betas = np.linspace(start=bmin, stop=bmax, num=numT)
-
-    elif set_T:
-        if Tmin is None or Tmax is None:
-            raise ValueError("Tmin and Tmax must be set")
-
-        input_as_beta = False
-        if not np.isreal(Tmin) or Tmin <= 0.0:
-            raise ValueError("Tmin must be a positive real number")
-        if not np.isreal(Tmax) or Tmax <= 0.0:
-            raise ValueError("Tmax must be a positive real number")
-        if Tmin > Tmax:
-            raise ValueError("Tmin must be smaller than or equal to Tmax")
-
-        if logscale:
-            Ts = np.logspace(start=np.log10(Tmin), stop=np.log10(Tmax), num=numT)
-        else:
-            Ts = np.linspace(start=Tmin, stop=Tmax, num=numT)
-
-        betas = 1.0 / Ts
-    else:
-        raise RuntimeError("read_Ts: unknown mode: not set_T nor set_b")
-
-    return input_as_beta, betas

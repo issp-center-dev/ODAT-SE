@@ -18,7 +18,7 @@ import numpy as np
 
 import odatse
 import odatse.algorithm.montecarlo
-from odatse.algorithm.montecarlo import read_Ts
+from odatse.util.read_ts import read_Ts
 from odatse.util.separateT import separateT
 from odatse.util.data_writer import DataWriter
 
@@ -182,14 +182,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         # For new runs, evaluate initial configuration
         if self.mode.startswith("init"):
-            self._evaluate()
+            self.fx = self._evaluate(self.state)
             self._write_result(fp_trial)
             self._write_result(fp_result)
             self.istep += 1
 
             # Track best solution found
             minidx = np.argmin(self.fx)
-            self.best_x = copy.copy(self.x[minidx, :])
+            self.best_x = copy.copy(self.state.x[minidx, :])
             self.best_fx = np.min(self.fx[minidx])
             self.best_istep = 0
             self.best_iwalker = 0
@@ -477,9 +477,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "timer": self.timer,
             "info": self.info,
             #-- montecarlo
-            "x": self.x,
+            "x": self.state,
             "fx": self.fx,
-            "inode": self.inode,
+            #"inode": self.inode,
             "istep": self.istep,
             "best_x": self.best_x,
             "best_fx": self.best_fx,
@@ -535,9 +535,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self._check_parameters(info)
 
         #-- montecarlo
-        self.x = data["x"]
+        self.state = data["x"]
         self.fx = data["fx"]
-        self.inode = data["inode"]
+        #self.inode = data["inode"]
 
         self.istep = data["istep"]
 
@@ -556,3 +556,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.rep2T = data["rep2T"]
         self.T2rep = data["T2rep"]
         self.exchange_direction = data["exchange_direction"]
+
+        #-- restore rng state in statespace
+        self.statespace.rng = self.rng
