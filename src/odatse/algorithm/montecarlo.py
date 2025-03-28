@@ -331,12 +331,3 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
                     data.append(extra[iwalker])
 
             writer.write(*data)
-
-    def _gather(self, data):
-        ndata, *ndim = data.shape
-        if self.mpisize > 1:
-            buf = np.zeros((self.mpisize, ndata, *ndim), dtype=data.dtype)
-            self.mpicomm.Allgather(data, buf)
-            return buf.reshape(-1, *ndim)
-        else:
-            return np.copy(data)

@@ -588,12 +588,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         new_index = resampler.sample(self.rng, self.nwalkers)
 
         states = self.statespace.gather(self.state)
-        ancestors = self._gather(self.walker_ancestors)
+        ancestors = gather_replica(self.walker_ancestors)
 
         self.state = self.statespace.pick(states, new_index)
         self.walker_ancestors = ancestors[new_index]
 
-        fxs = self._gather(self.fx)
+        fxs = gather_replica(self.fx)
         self.fx = fxs[new_index]
 
     def _resample_varied(self, weights: np.ndarray, offset: int) -> None:
