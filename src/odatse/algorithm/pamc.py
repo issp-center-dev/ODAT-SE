@@ -18,9 +18,9 @@ import numpy as np
 import odatse
 import odatse.exception
 import odatse.algorithm.montecarlo
+from odatse.algorithm.gather import gather_replica, gather_data
 import odatse.util.resampling
 from odatse.algorithm.montecarlo import read_Ts
-from odatse.util.separateT import separateT
 from odatse.util.data_writer import DataWriter
 
 
@@ -442,34 +442,26 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         if numT is None:
             numT = self.resampling_interval
-        res = {}
-        if self.mpisize > 1:
-            fxs_list = self.mpicomm.allgather(self.fx_from_reset[0:numT, :])
-            fxs = np.block(fxs_list)
-            res["fxs"] = fxs
-            ns = np.array([fs.shape[1] for fs in fxs_list], dtype=int)
-            res["ns"] = ns
-            ancestors_list = self.mpicomm.allgather(self.walker_ancestors)
-            res["ancestors"] = np.block(ancestors_list)
 
-            naccepted = self.mpicomm.allreduce(self.naccepted_from_reset[0:numT, :])
-            res["acceptance ratio"] = naccepted[:, 0] / naccepted[:, 1]
-        else:
-            res["fxs"] = self.fx_from_reset[0:numT, :]
-            res["ns"] = np.array([self.nwalkers], dtype=int)
-            res["ancestors"] = self.walker_ancestors
-            res["acceptance ratio"] = (
-                self.naccepted_from_reset[:, 0] / self.naccepted_from_reset[:, 1]
-            )
+        res = {}
+
+        res["ns"] = gather_data(np.array([self.nwalkers]))
+        res["fxs"] = gather_replica(self.fx_from_reset[0:numT,:], axis=1)
+        res["ancestors"] = gather_replica(self.walker_ancestors)
+        nacc = gather_data([self.naccepted_from_reset[0:numT,:]])
+        nacc = np.sum(nacc, axis=0)
+        res["acceptance ratio"] = nacc[:,0] / nacc[:,1]
+
         fxs = res["fxs"]
-        numT, nreplicas = fxs.shape
-        endTindex = self.Tindex + 1
-        startTindex = endTindex - numT
-        logweights = np.zeros((numT, nreplicas))
-        for iT in range(1, numT):
-            dbeta = self.betas[startTindex + iT] - self.betas[startTindex + iT - 1]
-            logweights[iT, :] = logweights[iT - 1, :] - dbeta * fxs[iT - 1, :]
-        res["logweights"] = logweights
+        nreplicas = np.sum(res["ns"])
+
+        betas = self.betas[self.Tindex-numT+1 : self.Tindex+1]
+        lw = np.zeros((numT, nreplicas), dtype=np.float64)
+        for i in range(1, numT):
+            dbeta = betas[i] - betas[i-1]
+            lw[i, :] = lw[i-1, :] - dbeta * fxs[i-1, :]
+        res["logweights"] = lw
+
         return res
 
     def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
@@ -575,9 +567,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.logweights[:] = 0.0
         else:
             ns = res["ns"]
-            offsets = ns.cumsum()
-            offset = offsets[self.mpirank - 1] if self.mpirank > 0 else 0
-            self._resample_varied(weights, offset)
+            offsets = np.cumsum(ns) - ns
+            self._resample_varied(weights, offsets[self.mpirank])
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
@@ -779,21 +770,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         into single files for 'result' and 'trial'. It also gathers the best
         results from all processes and writes them to 'best_result.txt'.
         """
+        best_fx = gather_data(np.array([self.best_fx]))
+        best_x = gather_data(np.array([self.best_x]))
+        best_istep = gather_data(np.array([self.best_istep]))
+        best_iwalker = gather_data(np.array([self.best_iwalker]))
 
-        if self.mpisize > 1:
-            # NOTE:
-            # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
-            # ``Gather`` and ``allgather`` seem to work fine.
-            # Since the performance is not so important here, we use ``allgather`` for simplicity.
-            best_fx = self.mpicomm.allgather(self.best_fx)
-            best_x = self.mpicomm.allgather(self.best_x)
-            best_istep = self.mpicomm.allgather(self.best_istep)
-            best_iwalker = self.mpicomm.allgather(self.best_iwalker)
-        else:
-            best_fx = [self.best_fx]
-            best_x = [self.best_x]
-            best_istep = [self.best_istep]
-            best_iwalker = [self.best_iwalker]
         best_rank = np.argmin(best_fx)
         if self.mpirank == 0:
             with open("best_result.txt", "w") as f:
