@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 import odatse
-from odatse.util.neighborlist import load_neighbor_list
+from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
 import odatse.util.graph
 import odatse.domain
 from odatse.util.data_writer import DataWriter
@@ -103,13 +103,24 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         info : odatse.Info
             Information object containing algorithm parameters.
         runner : odatse.Runner, optional
-            Runner object for executing the algorithm (default is None).
-        domain : optional
-            Domain object defining the problem space (default is None).
+            Runner object for executing the algorithm, by default None.
+        domain : odatse.domain.Domain, optional
+            Domain object defining the problem space, by default None.
         nwalkers : int, optional
-            Number of walkers (default is 1).
+            Number of walkers to use in the simulation, by default 1.
         run_mode : str, optional
-            Mode of the run, e.g., "initial" (default is "initial").
+            Mode of the run, e.g., "initial", by default "initial".
+            
+        Raises
+        ------
+        ValueError
+            If an unsupported domain type is provided or required parameters are missing.
+            
+        Examples
+        --------
+        >>> info = odatse.Info(config_file_path)
+        >>> runner = odatse.Runner()
+        >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
         time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner, run_mode=run_mode)
@@ -126,6 +137,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         else:
             info_param = info.algorithm["param"]
             if "mesh_path" in info_param:
+                self.iscontinuous = False
+                self.domain = odatse.domain.MeshGrid(info)
+            elif "use_grid" in info_param and info_param["use_grid"] == True:
                 self.iscontinuous = False
                 self.domain = odatse.domain.MeshGrid(info)
             else:
@@ -194,7 +208,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.naccepted = 0
         self.ntrial = 0
 
-    def _setup_neighbour(self, info_param):
+    def _setup_neighbour(self, info_param: dict) -> None:
         """
         Configure neighbor relationships for discrete parameter spaces.
 
@@ -225,27 +239,32 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         RuntimeError
             If graph is not connected or not bidirectional
         """
-        if "neighborlist_path" in info_param:
+        if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = self.root_dir / Path(info_param["neighborlist_path"]).expanduser()
-            self.neighbor_list = load_neighbor_list(nn_path, nnodes=self.nnodes)
-
-            # checks
-            if not odatse.util.graph.is_connected(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not connected."
-                    "\nHINT: Increase neighborhood radius."
-                )
-            if not odatse.util.graph.is_bidirectional(self.neighbor_list):
-                raise RuntimeError(
-                    "ERROR: The transition graph made from neighbor list is not bidirectional."
-                )
-
-            self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
+            if self.mpirank == 0:
+                nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
+            else:
+                nnlist = None
+            self.neighbor_list = self.mpicomm.bcast(nnlist, root=0)
         else:
-            raise ValueError(
-                "ERROR: Parameter algorithm.param.neighborlist_path does not exist."
+            if "radius" not in info_param:
+                raise KeyError("parameter \"algorithm.param.radius\" not specified")
+            radius = info_param["radius"]
+            print(f"DEBUG: create neighbor list, radius={radius}")
+            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=self.mpicomm)
+
+        # checks
+        if not odatse.util.graph.is_connected(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not connected."
+                "\nHINT: Increase neighborhood radius."
             )
-            # otherwise find neighbourlist
+        if not odatse.util.graph.is_bidirectional(self.neighbor_list):
+            raise RuntimeError(
+                "ERROR: The transition graph made from neighbor list is not bidirectional."
+            )
+
+        self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
 
     def _evaluate(self, in_range: np.ndarray = None) -> np.ndarray:
@@ -322,7 +341,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         #file_trial: TextIO,
         #file_result: TextIO,
         extra_info_to_write: Union[List, Tuple] = None,
-    ):
+    ) -> None:
         """
         Perform one step of the Monte Carlo algorithm.
 
@@ -419,7 +438,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         if self.fp_result:
             self._write_result(self.fp_result, extra_info_to_write)
 
-
     def _set_writer(self, fp_trial, fp_result):
         self.fp_trial = fp_trial
         self.fp_result = fp_result
@@ -443,7 +461,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
             writer.write(*data)
 
-
 def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     """
     Read temperature or inverse-temperature values from the provided info dictionary.
@@ -453,7 +470,7 @@ def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
     info : dict
         Dictionary containing temperature or inverse-temperature parameters.
     numT : int, optional
-        Number of temperature or inverse-temperature values to generate (default is None).
+        Number of temperature or inverse-temperature values to generate, by default None.
 
     Returns
     -------
@@ -469,6 +486,15 @@ def read_Ts(info: dict, numT: int = None) -> Tuple[bool, np.ndarray]:
         or if bmin/bmax or Tmin/Tmax values are invalid.
     RuntimeError
         If the mode is unknown (neither set_T nor set_b).
+        
+    Examples
+    --------
+    >>> info = {"Tmin": 0.1, "Tmax": 10.0, "Tlogspace": True}
+    >>> as_beta, betas = read_Ts(info, numT=50)
+    >>> print(as_beta)
+    False
+    >>> print(betas[0], betas[-1])
+    10.0 0.1
     """
     if numT is None:
         raise ValueError("read_Ts: numT is not specified")
