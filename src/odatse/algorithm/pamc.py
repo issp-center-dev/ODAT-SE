@@ -661,24 +661,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         In parallel execution, this method aggregates weights across all processes
         to calculate the global participation ratio.
         """
-        if self.mpisize > 1:
-            from mpi4py import MPI
-            max_log_weight = self.mpicomm.allreduce(np.max(self.logweights), op=MPI.MAX)
+        log_weights = gather_replica(self.logweights)
+        max_log_weight = np.max(log_weights)
 
-            buf = [
-                np.sum(np.exp(self.logweights - max_log_weight)),
-                np.sum(np.exp(self.logweights - max_log_weight)**2),
-            ]
-            buf_sum = self.mpicomm.allreduce(buf, op=MPI.SUM)
-
-            sum_weight = buf_sum[0]
-            sum_weight_sq = buf_sum[1]
-
-        else:
-            max_log_weight = np.max(self.logweights)
-
-            sum_weight = np.sum(np.exp(self.logweights - max_log_weight))
-            sum_weight_sq = np.sum(np.exp(self.logweights - max_log_weight)**2)
+        sum_weight = np.sum(np.exp(log_weights - max_log_weight))
+        sum_weight_sq = np.sum(np.exp(log_weights - max_log_weight)**2)
 
         pr = sum_weight ** 2 / sum_weight_sq
 
