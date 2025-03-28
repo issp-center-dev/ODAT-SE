@@ -799,6 +799,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "ntrial": self.ntrial,
             #-- pamc
             "betas": self.betas,
+            "nwalkers": self.nwalkers,
             "input_as_beta": self.input_as_beta,
             "numsteps_for_T": self.numsteps_for_T,
             "Tindex": self.Tindex,
@@ -868,6 +869,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         #-- pamc
         self.Tindex = data["Tindex"]
         self.index_from_reset = data["index_from_reset"]
+        self.nwalkers = data["nwalkers"]
 
         if mode == "resume":
             # check if scheduling is as stored
@@ -904,7 +906,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
         self.nreplicas = np.full(numT, nreplicas)
-        self.populations = np.zeros((numT, self.nwalkers), dtype=int)
         self.acceptance_ratio = np.zeros(numT)
         self.pr_list = np.zeros(numT)
 
@@ -914,7 +915,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.Fmeans[0:len(data["Fmeans"])] = data["Fmeans"]
         self.Ferrs[0:len(data["Ferrs"])] = data["Ferrs"]
         self.nreplicas[0:len(data["nreplicas"])] = data["nreplicas"]
-        self.populations[0:len(data["populations"])] = data["populations"]
+        self.populations = data["populations"].copy()
 
         self.family_lo = data["family_lo"]
         self.family_hi = data["family_hi"]
