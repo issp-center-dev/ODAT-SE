@@ -154,6 +154,14 @@ See :doc:`algorithm/index` for details of the various algorithms and their input
 This section sets the configuration of ``Runner``, which bridges ``Algorithm`` and ``Solver``.
 It has three subsections, ``mapping``, ``limitation``, and ``log`` .
 
+- ``ignore_error``
+
+  Format: Boolean (default: false)
+
+  Description:
+  A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
+
+
 [``runner.mapping``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
