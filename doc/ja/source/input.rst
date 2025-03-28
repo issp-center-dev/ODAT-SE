@@ -147,6 +147,12 @@ ODAT-SE は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 ``Algorithm`` と ``Solver`` を橋渡しする要素である ``Runner`` の設定を記述します。
 サブセクションとして ``mapping``, ``limitation``, ``log`` を持ちます。
 
+- ``ignore_error``
+
+  形式: bool値 (default: false)
+
+  説明: 順問題ソルバーの実行時に RuntimeError が生じた場合に、値として NaN を返して計算を続行します。false の場合は RuntimeError を送出し、通常はプログラムを終了させます。RuntimeError 以外は捕捉しません。
+
 
 [``runner.mapping``] セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
