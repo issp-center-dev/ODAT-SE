@@ -132,6 +132,10 @@
 </li>
         <li><a href="odatse.solver.function.html#odatse.solver.function.Solver.__init__">(odatse.solver.function.Solver method)</a>
 </li>
+        <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter.__init__">(odatse.util.data_writer.BaseWriter method)</a>
+</li>
+        <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.DataWriter.__init__">(odatse.util.data_writer.DataWriter method)</a>
+</li>
         <li><a href="odatse.util.limitation.html#odatse.util.limitation.Inequality.__init__">(odatse.util.limitation.Inequality method)</a>
 </li>
         <li><a href="odatse.util.limitation.html#odatse.util.limitation.LimitationBase.__init__">(odatse.util.limitation.LimitationBase method)</a>
@@ -152,6 +156,8 @@
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.__init_rng">__init_rng() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
       <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry._asdict">_asdict() (odatse.util.separateT.Entry method)</a>
+</li>
+      <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._calc_participation_ratio">_calc_participation_ratio() (odatse.algorithm.pamc.Algorithm method)</a>
 </li>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._check_parameters">_check_parameters() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
@@ -229,8 +235,6 @@
         <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._prepare">(odatse.algorithm.pamc.Algorithm method)</a>
 </li>
       </ul></li>
-      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._print_info">_print_info() (odatse.algorithm.exchange.Algorithm method)</a>
-</li>
       <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry._replace">_replace() (odatse.util.separateT.Entry method)</a>
 </li>
       <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample">_resample() (odatse.algorithm.pamc.Algorithm method)</a>
@@ -283,13 +287,15 @@
 </li>
       <li><a href="odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup_grid">_setup_grid() (odatse.domain.meshgrid.MeshGrid method)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._setup_neighbour">_setup_neighbour() (odatse.algorithm.montecarlo.AlgorithmBase method)</a>
+      <li><a href="odatse.algorithm.state.html#odatse.algorithm.state.DiscreteStateSpace._setup_neighbour">_setup_neighbour() (odatse.algorithm.state.DiscreteStateSpace method)</a>
 </li>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._show_parameters">_show_parameters() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._write_result">_write_result() (odatse.algorithm.montecarlo.AlgorithmBase method)</a>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter._write">_write() (odatse.util.data_writer.BaseWriter method)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._write_result_header">_write_result_header() (odatse.algorithm.montecarlo.AlgorithmBase method)</a>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.DataWriter._write_header">_write_header() (odatse.util.data_writer.DataWriter method)</a>
+</li>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.DataWriter._write_items">_write_items() (odatse.util.data_writer.DataWriter method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -329,40 +335,18 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter">BaseWriter (class in odatse.util.data_writer)</a>
+</li>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter.basicConfig">basicConfig() (odatse.util.data_writer.BaseWriter class method)</a>
+</li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.bayes_max_num_probes">bayes_max_num_probes (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.best_action">best_action (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.best_fx">best_fx (odatse.algorithm.bayes.Algorithm attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.best_fx">(odatse.algorithm.exchange.Algorithm attribute)</a>
 </li>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.best_fx">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.best_fx">(odatse.algorithm.pamc.Algorithm attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.best_istep">best_istep (odatse.algorithm.exchange.Algorithm attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.best_istep">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.best_istep">(odatse.algorithm.pamc.Algorithm attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.best_iwalker">best_iwalker (odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
-      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.best_x">best_x (odatse.algorithm.exchange.Algorithm attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.best_x">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.best_x">(odatse.algorithm.pamc.Algorithm attribute)</a>
-</li>
-      </ul></li>
       <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.betas">betas (odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
       <li><a href="odatse.util.resampling.html#odatse.util.resampling.BinarySearch">BinarySearch (class in odatse.util.resampling)</a>
@@ -379,16 +363,16 @@
 </li>
       <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells">Cells (class in odatse.util.neighborlist)</a>
 </li>
-      <li><a href="odatse.algorithm.html#odatse.algorithm.choose_algorithm">choose_algorithm() (in module odatse.algorithm)</a>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.cells">cells (odatse.util.neighborlist.Cells attribute)</a>
+</li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.cellsize">cellsize (odatse.util.neighborlist.Cells attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.comm">comm (odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.comm">(odatse.algorithm.pamc.Algorithm attribute)</a>
+      <li><a href="odatse.algorithm.html#odatse.algorithm.choose_algorithm">choose_algorithm() (in module odatse.algorithm)</a>
 </li>
-      </ul></li>
+      <li><a href="odatse.algorithm.state.html#odatse.algorithm.state.ContinuousStateSpace">ContinuousStateSpace (class in odatse.algorithm.state)</a>
+</li>
       <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.coord2cellcoord">coord2cellcoord() (odatse.util.neighborlist.Cells method)</a>
 </li>
       <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.coord2cellindex">coord2cellindex() (odatse.util.neighborlist.Cells method)</a>
@@ -401,10 +385,16 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.do_split">do_split() (odatse.domain.meshgrid.MeshGrid method)</a>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.DataWriter">DataWriter (class in odatse.util.data_writer)</a>
+</li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.dimension">dimension (odatse.util.neighborlist.Cells attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.algorithm.state.html#odatse.algorithm.state.DiscreteStateSpace">DiscreteStateSpace (class in odatse.algorithm.state)</a>
+</li>
+      <li><a href="odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.do_split">do_split() (odatse.domain.meshgrid.MeshGrid method)</a>
+</li>
       <li><a href="odatse.domain._domain.html#odatse.domain._domain.DomainBase">DomainBase (class in odatse.domain._domain)</a>
 </li>
   </ul></td>
@@ -433,7 +423,11 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.Ferrs">Ferrs (odatse.algorithm.pamc.Algorithm attribute)</a>
+</li>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.flatten_dict">flatten_dict() (in module odatse.algorithm._algorithm)</a>
+</li>
+      <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.Fmeans">Fmeans (odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
       <li><a href="odatse._info.html#odatse._info.Info.from_dict">from_dict() (odatse._info.Info method)</a>
 
@@ -445,19 +439,17 @@
         <li><a href="odatse.util.mapping.html#odatse.util.mapping.Affine.from_dict">(odatse.util.mapping.Affine class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse._info.html#odatse._info.Info.from_file">from_file() (odatse._info.Info class method)</a>
 
       <ul>
         <li><a href="odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.from_file">(odatse.domain.meshgrid.MeshGrid class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.fx">fx (odatse.algorithm.exchange.Algorithm attribute)</a>
 
       <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.fx">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
         <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.fx">(odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
         <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry.fx">(odatse.util.separateT.Entry attribute)</a>
@@ -499,12 +491,10 @@
         <li><a href="odatse.domain.region.html#odatse.domain.region.Region.initialize">(odatse.domain.region.Region method)</a>
 </li>
       </ul></li>
-      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.inode">inode (odatse.algorithm.exchange.Algorithm attribute)</a>
-</li>
-      <li><a href="odatse.exception.html#odatse.exception.InputError">InputError</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.exception.html#odatse.exception.InputError">InputError</a>
+</li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.interval">interval (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
       <li><a href="odatse.util.logger.html#odatse.util.logger.Logger.is_active">is_active() (odatse.util.logger.Logger method)</a>
@@ -514,13 +504,7 @@
       <li><a href="odatse.util.graph.html#odatse.util.graph.is_connected">is_connected() (in module odatse.util.graph)</a>
 </li>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.istep">istep (odatse.algorithm.exchange.Algorithm attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.istep">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
 </li>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.istep">(odatse.algorithm.pamc.Algorithm attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -568,6 +552,8 @@
       <li><a href="odatse._main.html#odatse._main.main">main() (in module odatse._main)</a>
 
       <ul>
+        <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.main">(in module odatse.util.neighborlist)</a>
+</li>
         <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.main">(odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
       </ul></li>
@@ -581,11 +567,15 @@
 </li>
       <li><a href="odatse.domain.region.html#odatse.domain.region.Region.max_list">max_list (odatse.domain.region.Region attribute)</a>
 </li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.maxs">maxs (odatse.util.neighborlist.Cells attribute)</a>
+</li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.mesh_list">mesh_list (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
       <li><a href="odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid">MeshGrid (class in odatse.domain.meshgrid)</a>
 </li>
       <li><a href="odatse.domain.region.html#odatse.domain.region.Region.min_list">min_list (odatse.domain.region.Region attribute)</a>
+</li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.mins">mins (odatse.util.neighborlist.Cells attribute)</a>
 </li>
       <li>
     module
@@ -609,6 +599,8 @@
 </li>
         <li><a href="odatse.algorithm.exchange.html#module-odatse.algorithm.exchange">odatse.algorithm.exchange</a>
 </li>
+        <li><a href="odatse.algorithm.gather.html#module-odatse.algorithm.gather">odatse.algorithm.gather</a>
+</li>
         <li><a href="odatse.algorithm.mapper_mpi.html#module-odatse.algorithm.mapper_mpi">odatse.algorithm.mapper_mpi</a>
 </li>
         <li><a href="odatse.algorithm.min_search.html#module-odatse.algorithm.min_search">odatse.algorithm.min_search</a>
@@ -616,6 +608,8 @@
         <li><a href="odatse.algorithm.montecarlo.html#module-odatse.algorithm.montecarlo">odatse.algorithm.montecarlo</a>
 </li>
         <li><a href="odatse.algorithm.pamc.html#module-odatse.algorithm.pamc">odatse.algorithm.pamc</a>
+</li>
+        <li><a href="odatse.algorithm.state.html#module-odatse.algorithm.state">odatse.algorithm.state</a>
 </li>
         <li><a href="odatse.domain.html#module-odatse.domain">odatse.domain</a>
 </li>
@@ -639,6 +633,8 @@
 </li>
         <li><a href="odatse.util.html#module-odatse.util">odatse.util</a>
 </li>
+        <li><a href="odatse.util.data_writer.html#module-odatse.util.data_writer">odatse.util.data_writer</a>
+</li>
         <li><a href="odatse.util.graph.html#module-odatse.util.graph">odatse.util.graph</a>
 </li>
         <li><a href="odatse.util.limitation.html#module-odatse.util.limitation">odatse.util.limitation</a>
@@ -650,6 +646,8 @@
         <li><a href="odatse.util.neighborlist.html#module-odatse.util.neighborlist">odatse.util.neighborlist</a>
 </li>
         <li><a href="odatse.util.read_matrix.html#module-odatse.util.read_matrix">odatse.util.read_matrix</a>
+</li>
+        <li><a href="odatse.util.read_ts.html#module-odatse.util.read_ts">odatse.util.read_ts</a>
 </li>
         <li><a href="odatse.util.resampling.html#module-odatse.util.resampling">odatse.util.resampling</a>
 </li>
@@ -672,19 +670,23 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.solver._solver.html#odatse.solver._solver.SolverBase.name">name (odatse.solver._solver.SolverBase property)</a>
 </li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.ncell">ncell (odatse.util.neighborlist.Cells attribute)</a>
+</li>
       <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.neighborcells">neighborcells() (odatse.util.neighborlist.Cells method)</a>
 </li>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.nreplica">nreplica (odatse.algorithm.exchange.Algorithm attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.nreplica">(odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.nreplicas">nreplicas (odatse.algorithm.pamc.Algorithm attribute)</a>
+</li>
+      <li><a href="odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.Ns">Ns (odatse.util.neighborlist.Cells attribute)</a>
+</li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.num_rand_basis">num_rand_basis (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.nwalkers">nwalkers (odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
+      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.numsteps">numsteps (odatse.algorithm.exchange.Algorithm attribute)</a>
+</li>
+      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.numsteps_exchange">numsteps_exchange (odatse.algorithm.exchange.Algorithm attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -756,6 +758,13 @@
 </li>
       </ul></li>
       <li>
+    odatse.algorithm.gather
+
+      <ul>
+        <li><a href="odatse.algorithm.gather.html#module-odatse.algorithm.gather">module</a>
+</li>
+      </ul></li>
+      <li>
     odatse.algorithm.mapper_mpi
 
       <ul>
@@ -781,6 +790,13 @@
 
       <ul>
         <li><a href="odatse.algorithm.pamc.html#module-odatse.algorithm.pamc">module</a>
+</li>
+      </ul></li>
+      <li>
+    odatse.algorithm.state
+
+      <ul>
+        <li><a href="odatse.algorithm.state.html#module-odatse.algorithm.state">module</a>
 </li>
       </ul></li>
       <li>
@@ -863,6 +879,13 @@
 </li>
       </ul></li>
       <li>
+    odatse.util.data_writer
+
+      <ul>
+        <li><a href="odatse.util.data_writer.html#module-odatse.util.data_writer">module</a>
+</li>
+      </ul></li>
+      <li>
     odatse.util.graph
 
       <ul>
@@ -905,6 +928,13 @@
 </li>
       </ul></li>
       <li>
+    odatse.util.read_ts
+
+      <ul>
+        <li><a href="odatse.util.read_ts.html#module-odatse.util.read_ts">module</a>
+</li>
+      </ul></li>
+      <li>
     odatse.util.resampling
 
       <ul>
@@ -939,6 +969,8 @@
 </li>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.post">post() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.prepare">prepare() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 
       <ul>
@@ -947,10 +979,6 @@
         <li><a href="odatse.util.logger.html#odatse.util.logger.Logger.prepare">(odatse.util.logger.Logger method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.propose">propose() (odatse.algorithm.montecarlo.AlgorithmBase method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -971,24 +999,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.random_max_num_probes">random_max_num_probes (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.rank">rank (odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-
-      <ul>
-        <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.rank">(odatse.algorithm.pamc.Algorithm attribute)</a>
-</li>
-      </ul></li>
       <li><a href="odatse.util.read_matrix.html#odatse.util.read_matrix.read_matrix">read_matrix() (in module odatse.util.read_matrix)</a>
 </li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.read_Ts">read_Ts() (in module odatse.algorithm.montecarlo)</a>
+      <li><a href="odatse.util.read_ts.html#odatse.util.read_ts.read_Ts">read_Ts() (in module odatse.util.read_ts)</a>
 </li>
       <li><a href="odatse.util.read_matrix.html#odatse.util.read_matrix.read_vector">read_vector() (in module odatse.util.read_matrix)</a>
 </li>
       <li><a href="odatse.domain.region.html#odatse.domain.region.Region">Region (class in odatse.domain.region)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.rep2T">rep2T (odatse.algorithm.exchange.Algorithm attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.util.resampling.html#odatse.util.resampling.Resampler">Resampler (class in odatse.util.resampling)</a>
 </li>
       <li><a href="odatse.util.resampling.html#odatse.util.resampling.BinarySearch.reset">reset() (odatse.util.resampling.BinarySearch method)</a>
@@ -1025,10 +1047,10 @@
 </li>
       <li><a href="odatse.solver.function.html#odatse.solver.function.Solver.set_function">set_function() (odatse.solver.function.Solver method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.set_runner">set_runner() (odatse.algorithm._algorithm.AlgorithmBase method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.solver.analytical.html#odatse.solver.analytical.Solver">Solver (class in odatse.solver.analytical)</a>
 
       <ul>
@@ -1036,6 +1058,8 @@
 </li>
       </ul></li>
       <li><a href="odatse.solver._solver.html#odatse.solver._solver.SolverBase">SolverBase (class in odatse.solver._solver)</a>
+</li>
+      <li><a href="odatse.algorithm.state.html#odatse.algorithm.state.StateSpace">StateSpace (class in odatse.algorithm.state)</a>
 </li>
       <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry.step">step (odatse.util.separateT.Entry attribute)</a>
 </li>
@@ -1049,19 +1073,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.T2rep">T2rep (odatse.algorithm.exchange.Algorithm attribute)</a>
 </li>
+      <li><a href="odatse.util.data_writer.html#odatse.util.data_writer.TextWriter">TextWriter (class in odatse.util.data_writer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.Tindex">Tindex (odatse.algorithm.exchange.Algorithm attribute)</a>
 
       <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.Tindex">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
         <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.Tindex">(odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.util.mapping.html#odatse.util.mapping.TrivialMapping">TrivialMapping (class in odatse.util.mapping)</a>
-</li>
-      <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.Ts">Ts (odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1083,6 +1105,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry.walker">walker (odatse.util.separateT.Entry attribute)</a>
 </li>
+      <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.walker_ancestors">walker_ancestors (odatse.algorithm.pamc.Algorithm attribute)</a>
+</li>
       <li><a href="odatse.util.resampling.html#odatse.util.resampling.WalkerTable">WalkerTable (class in odatse.util.resampling)</a>
 </li>
   </ul></td>
@@ -1102,16 +1126,20 @@
       <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.x">x (odatse.algorithm.exchange.Algorithm attribute)</a>
 
       <ul>
-        <li><a href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.x">(odatse.algorithm.montecarlo.AlgorithmBase attribute)</a>
-</li>
         <li><a href="odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.x">(odatse.algorithm.pamc.Algorithm attribute)</a>
 </li>
       </ul></li>
+      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.xmax">xmax (odatse.algorithm.exchange.Algorithm attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.xmin">xmin (odatse.algorithm.exchange.Algorithm attribute)</a>
+</li>
       <li><a href="odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.xopt">xopt (odatse.algorithm.bayes.Algorithm attribute)</a>
 </li>
       <li><a href="odatse.util.separateT.html#odatse.util.separateT.Entry.xs">xs (odatse.util.separateT.Entry attribute)</a>
+</li>
+      <li><a href="odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.xstep">xstep (odatse.algorithm.exchange.Algorithm attribute)</a>
 </li>
   </ul></td>
 </tr></table>

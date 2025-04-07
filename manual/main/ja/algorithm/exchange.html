@@ -52,7 +52,7 @@
 <section id="param">
 <h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] セクション<a class="headerlink" href="#param" title="Link to this heading">¶</a></h3>
 <p>探索空間を定義します。
-<code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> キーが存在する場合は離散空間を、そうでない場合は連続空間を探索します。</p>
+<code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> キーが存在する場合、または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は離散空間を、そうでない場合は連続空間を探索します。</p>
 <ul>
 <li><p>連続空間</p>
 <ul>
@@ -86,11 +86,31 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: メッシュ定義ファイル。</p>
+<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: 近傍リスト定義ファイル。</p>
+<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p>
+<p>形式: 実数</p>
+<p>説明: 隣接点とみなす範囲。 <code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code> を省略した場合または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は必須です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_grid</span></code></p>
+<p>形式: boolean</p>
+<p>説明: true の場合、均質なメッシュを <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> パラメータから生成します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの下端を指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの上端を指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの各パラメータに沿った格子点数を指定します。</p>
 </li>
 </ul>
 </li>

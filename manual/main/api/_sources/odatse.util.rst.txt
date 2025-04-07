@@ -12,12 +12,14 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   odatse.util.data_writer
    odatse.util.graph
    odatse.util.limitation
    odatse.util.logger
    odatse.util.mapping
    odatse.util.neighborlist
    odatse.util.read_matrix
+   odatse.util.read_ts
    odatse.util.resampling
    odatse.util.separateT
    odatse.util.toml

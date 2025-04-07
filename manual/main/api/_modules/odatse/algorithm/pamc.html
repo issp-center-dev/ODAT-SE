@@ -90,49 +90,65 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse.exception</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse.algorithm.montecarlo</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.separateT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm.gather</span><span class="w"> </span><span class="kn">import</span> <span class="n">gather_replica</span><span class="p">,</span> <span class="n">gather_data</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.resampling</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm.montecarlo</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_Ts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.read_ts</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_Ts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.data_writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataWriter</span>
 
 
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Population annealing Monte Carlo</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Population Annealing Monte Carlo (PAMC) Algorithm Implementation.</span>
+<span class="sd">    </span>
+<span class="sd">    PAMC is an advanced Monte Carlo method that combines features of simulated annealing</span>
+<span class="sd">    and population-based methods. It maintains a population of walkers that evolves</span>
+<span class="sd">    through a sequence of temperatures, using both Monte Carlo updates and resampling.</span>
+
+<span class="sd">    Key Features:</span>
+<span class="sd">    - Maintains a population of walkers that evolves through temperature steps</span>
+<span class="sd">    - Uses importance sampling with weight-based resampling</span>
+<span class="sd">    - Supports both fixed and variable population sizes</span>
+<span class="sd">    - Calculates free energy differences between temperature steps</span>
+<span class="sd">    - Provides error estimates through population statistics</span>
+
+<span class="sd">    Algorithm Flow:</span>
+<span class="sd">    1. Initialize walker population at highest temperature</span>
+<span class="sd">    2. For each temperature step:</span>
+<span class="sd">       a. Perform Monte Carlo updates at current temperature</span>
+<span class="sd">       b. Calculate weights for next temperature</span>
+<span class="sd">       c. Resample population based on weights</span>
+<span class="sd">       d. Update statistical estimates</span>
+<span class="sd">    3. Track best solutions and maintain system statistics</span>
 
 <span class="sd">    Attributes</span>
-<span class="sd">    ==========</span>
-<span class="sd">    x: np.ndarray</span>
-<span class="sd">        current configuration</span>
-<span class="sd">    fx: np.ndarray</span>
-<span class="sd">        current &quot;Energy&quot;</span>
-<span class="sd">    logweights: np.ndarray</span>
-<span class="sd">        current logarithm of weights (Neal-Jarzynski factor)</span>
-<span class="sd">    istep: int</span>
-<span class="sd">        current step (or, the number of calculated energies)</span>
-<span class="sd">    best_x: np.ndarray</span>
-<span class="sd">        best configuration</span>
-<span class="sd">    best_fx: float</span>
-<span class="sd">        best &quot;Energy&quot;</span>
-<span class="sd">    best_istep: int</span>
-<span class="sd">        index of best configuration</span>
-<span class="sd">    comm: MPI.comm</span>
-<span class="sd">        MPI communicator</span>
-<span class="sd">    nreplica: int</span>
-<span class="sd">        The number of replicas (= the number of procs)</span>
-<span class="sd">    rank: int</span>
-<span class="sd">        MPI rank</span>
-<span class="sd">    betas: list</span>
-<span class="sd">        List of inverse temperatures</span>
-<span class="sd">    Tindex: int</span>
-<span class="sd">        Temperature index</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : np.ndarray</span>
+<span class="sd">        Current configurations for all walkers</span>
+<span class="sd">    logweights : np.ndarray</span>
+<span class="sd">        Log of importance weights for each walker</span>
+<span class="sd">    fx : np.ndarray</span>
+<span class="sd">        Current energy/objective values</span>
+<span class="sd">    nreplicas : np.ndarray</span>
+<span class="sd">        Number of replicas at each temperature</span>
+<span class="sd">    betas : np.ndarray</span>
+<span class="sd">        Inverse temperatures (β = 1/T)</span>
+<span class="sd">    Tindex : int</span>
+<span class="sd">        Current temperature index</span>
+<span class="sd">    Fmeans : np.ndarray</span>
+<span class="sd">        Mean free energy at each temperature</span>
+<span class="sd">    Ferrs : np.ndarray</span>
+<span class="sd">        Free energy error estimates</span>
+<span class="sd">    walker_ancestors : np.ndarray</span>
+<span class="sd">        Tracks genealogy of walkers for analysis</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">xmin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">xmax</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="c1">#xunit: np.ndarray</span>
-    <span class="n">xstep</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1"># x: np.ndarray</span>
+    <span class="c1"># xmin: np.ndarray</span>
+    <span class="c1"># xmax: np.ndarray</span>
+    <span class="c1"># #xunit: np.ndarray</span>
+    <span class="c1"># xstep: np.ndarray</span>
 
     <span class="n">numsteps</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">numsteps_annealing</span><span class="p">:</span> <span class="nb">int</span>
@@ -199,6 +215,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span> <span class="o">=</span> <span class="n">numT</span> <span class="o">+</span> <span class="mi">1</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_combined_files&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">separate_T</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;separate_T&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span></div>
 
@@ -226,6 +245,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_parameters</span><span class="p">()</span></div>
 
@@ -234,17 +254,33 @@
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._find_scheduling">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_scheduling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_pamc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine the scheduling for the algorithm based on the provided parameters.</span>
+<span class="sd">        Determine the temperature schedule and number of steps.</span>
+
+<span class="sd">        The schedule can be specified in three ways:</span>
+<span class="sd">        1. Total steps and steps per temperature</span>
+<span class="sd">        2. Total steps and number of temperatures</span>
+<span class="sd">        3. Steps per temperature and number of temperatures</span>
+
+<span class="sd">        The method ensures even distribution of computational effort across</span>
+<span class="sd">        temperature steps while respecting the specified constraints.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_pamc : dict</span>
-<span class="sd">            Dictionary containing the parameters for the PAMC algorithm.</span>
+<span class="sd">            Configuration dictionary containing:</span>
+<span class="sd">            - numsteps: Total number of Monte Carlo steps</span>
+<span class="sd">            - numsteps_annealing: Steps per temperature</span>
+<span class="sd">            - Tnum: Number of temperature points</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
-<span class="sd">            The number of temperature steps (numT) determined from the input parameters.</span>
+<span class="sd">            Number of temperature steps in the schedule</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        odatse.exception.InputError</span>
+<span class="sd">            If the scheduling parameters are inconsistent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">numsteps</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;numsteps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">numsteps_annealing</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;numsteps_annealing&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -290,33 +326,13 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;mode unset&quot;</span><span class="p">)</span>
 
         <span class="n">restore_rng</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-resetrand&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="mi">0</span>
-
-            <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">()</span>
-
-            <span class="n">file_trial</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;trial_T0.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_trial</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;ancestor&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">file_trial</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
-            <span class="n">file_trial</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-            <span class="n">file_result</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;result_T0.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_result</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;ancestor&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">file_result</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
-            <span class="n">file_result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
-
-            <span class="n">minidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">minidx</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;resume&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
@@ -336,9 +352,25 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+=</span> <span class="mi">1</span>
-
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unknown mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">))</span>
+
+        <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_writer</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">writer</span><span class="p">[</span><span class="s2">&quot;trial&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">writer</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">minidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">minidx</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">next_checkpoint_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span>
         <span class="n">next_checkpoint_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span>
@@ -352,21 +384,10 @@
             <span class="n">Tindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="n">Tindex</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">file_trial</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;trial_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
-                <span class="n">file_result</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;result_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Tindex=1,2,...</span>
-                <span class="n">file_trial</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;trial_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_trial</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;ancestor&quot;</span><span class="p">])</span>
-                <span class="n">file_result</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;result_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">file_result</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;ancestor&quot;</span><span class="p">])</span>
-
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">local_update</span><span class="p">(</span>
                         <span class="n">beta</span><span class="p">,</span>
-                        <span class="n">file_trial</span><span class="p">,</span>
-                        <span class="n">file_result</span><span class="p">,</span>
                         <span class="n">extra_info_to_write</span><span class="o">=</span><span class="p">[</span>
                             <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">,</span>
@@ -376,9 +397,6 @@
             <span class="k">else</span> <span class="p">:</span> <span class="c1">#self.nwalkers == 0</span>
                 <span class="k">pass</span>
 
-            <span class="n">file_trial</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="n">file_result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
             <span class="c1"># print(&quot;&gt;&gt;&gt; istep={}&quot;.format(self.istep))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[:]</span>
@@ -387,6 +405,22 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">naccepted</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># write weights</span>
+            <span class="k">if</span> <span class="n">writer</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">iwalker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
+                    <span class="n">writer</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Tindex</span><span class="p">,</span>
+                                           <span class="n">beta</span><span class="p">,</span>
+                                           <span class="n">iwalker</span><span class="p">,</span>
+                                           <span class="mi">0</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">],</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">[</span><span class="n">iwalker</span><span class="p">],</span>
+                                           <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,:])</span>
+
+            <span class="c1"># calculate participation ratio</span>
+            <span class="n">pr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_participation_ratio</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span> <span class="o">=</span> <span class="n">pr</span>
+
 
             <span class="k">if</span> <span class="n">Tindex</span> <span class="o">==</span> <span class="n">numT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">break</span>
@@ -418,72 +452,104 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_information</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_stats</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-        <span class="n">file_result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">file_trial</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># must close explicitly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_writer</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_T</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_split_result_file</span><span class="p">(</span><span class="s2">&quot;trial&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_split_result_file</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="p">))</span></div>
 
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">write_mode</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;a&quot;</span>
+
+        <span class="n">item_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;step&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;walker&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;beta&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="k">else</span> <span class="s2">&quot;T&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;fx&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ancestor&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">file_trial</span> <span class="o">=</span> <span class="n">DataWriter</span><span class="p">(</span><span class="s2">&quot;trial.txt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">write_mode</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="n">item_list</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">)</span>
+        <span class="n">file_result</span> <span class="o">=</span> <span class="n">DataWriter</span><span class="p">(</span><span class="s2">&quot;result.txt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">write_mode</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="n">item_list</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_writer</span><span class="p">(</span><span class="n">file_trial</span><span class="p">,</span> <span class="n">file_result</span><span class="p">)</span>
+
+        <span class="n">item_list_weight</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Tindex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;beta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;walker&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;idnum&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log_weight&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">file_weight</span> <span class="o">=</span> <span class="n">DataWriter</span><span class="p">(</span><span class="s2">&quot;weight.txt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">write_mode</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="n">item_list_weight</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;trial&quot;</span><span class="p">:</span> <span class="n">file_trial</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">file_result</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">file_weight</span> <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_close_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writers</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">writers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
 <div class="viewcode-block" id="Algorithm._gather_information">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._gather_information">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_gather_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Gather status information of each process</span>
+<span class="sd">        Collect and organize statistical information across all processes.</span>
+
+<span class="sd">        Gathers data needed for:</span>
+<span class="sd">        1. Free energy calculations</span>
+<span class="sd">        2. Error estimation</span>
+<span class="sd">        3. Population statistics</span>
+<span class="sd">        4. Acceptance rate monitoring</span>
 
 <span class="sd">        Parameters</span>
-<span class="sd">        ---------</span>
-<span class="sd">        numT : int</span>
-<span class="sd">            size of dataset</span>
+<span class="sd">        ----------</span>
+<span class="sd">        numT : int, optional</span>
+<span class="sd">            Number of temperature steps to gather data for</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        res : Dict[str, np.ndarray]</span>
-<span class="sd">            key-value corresponding is the following</span>
-
-<span class="sd">            - fxs</span>
-<span class="sd">                - objective function of each walker over all processes</span>
-<span class="sd">            - logweights</span>
-<span class="sd">                - log of weights</span>
-<span class="sd">            - ns</span>
-<span class="sd">                - number of walkers in each process</span>
-<span class="sd">            - ancestors</span>
-<span class="sd">                - ancestor (origin) of each walker</span>
-<span class="sd">            - acceptance ratio</span>
-<span class="sd">                - acceptance_ratio for each temperature</span>
+<span class="sd">        Dict[str, np.ndarray]</span>
+<span class="sd">            Contains:</span>
+<span class="sd">            - fxs: Energy values for all walkers</span>
+<span class="sd">            - logweights: Log of importance weights</span>
+<span class="sd">            - ns: Number of walkers per process</span>
+<span class="sd">            - ancestors: Genealogical tracking data</span>
+<span class="sd">            - acceptance ratio: MC acceptance rates</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">numT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">numT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">fxs_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,</span> <span class="p">:])</span>
-            <span class="n">fxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">fxs_list</span><span class="p">)</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fxs</span>
-            <span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">fs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">fxs_list</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ns</span>
-            <span class="n">ancestors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ancestors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">ancestors_list</span><span class="p">)</span>
 
-            <span class="n">naccepted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,</span> <span class="p">:])</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;acceptance ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">naccepted</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">naccepted</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ancestors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span>
-            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;acceptance ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">]))</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ancestors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
+        <span class="n">nacc</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,:]])</span>
+        <span class="n">nacc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nacc</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;acceptance ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nacc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">nacc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="n">fxs</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span>
-        <span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">fxs</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">endTindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">startTindex</span> <span class="o">=</span> <span class="n">endTindex</span> <span class="o">-</span> <span class="n">numT</span>
-        <span class="n">logweights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">iT</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">numT</span><span class="p">):</span>
-            <span class="n">dbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">startTindex</span> <span class="o">+</span> <span class="n">iT</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">startTindex</span> <span class="o">+</span> <span class="n">iT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">logweights</span><span class="p">[</span><span class="n">iT</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">logweights</span><span class="p">[</span><span class="n">iT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dbeta</span> <span class="o">*</span> <span class="n">fxs</span><span class="p">[</span><span class="n">iT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;logweights&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">logweights</span>
+        <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">])</span>
+
+        <span class="n">betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="o">-</span><span class="n">numT</span><span class="o">+</span><span class="mi">1</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">lw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">numT</span><span class="p">):</span>
+            <span class="n">dbeta</span> <span class="o">=</span> <span class="n">betas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">betas</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">lw</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">lw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dbeta</span> <span class="o">*</span> <span class="n">fxs</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;logweights&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lw</span>
+
         <span class="k">return</span> <span class="n">res</span></div>
 
 
@@ -491,7 +557,17 @@
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._save_stats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save statistical information from the algorithm run.</span>
+<span class="sd">        Calculate and save statistical measures from the simulation.</span>
+
+<span class="sd">        Performs:</span>
+<span class="sd">        1. Free energy calculations using weighted averages</span>
+<span class="sd">        2. Error estimation using jackknife resampling</span>
+<span class="sd">        3. Population size tracking</span>
+<span class="sd">        4. Acceptance rate monitoring</span>
+<span class="sd">        5. Partition function estimation</span>
+
+<span class="sd">        Uses bias-corrected jackknife for reliable error estimates</span>
+<span class="sd">        of weighted averages in the presence of correlations.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -555,11 +631,23 @@
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform the resampling of walkers.</span>
+<span class="sd">        Perform population resampling between temperature steps.</span>
 
-<span class="sd">        This method gathers information, saves statistical data, and performs resampling</span>
-<span class="sd">        using either fixed or varied weights. The method ensures that the algorithm</span>
-<span class="sd">        maintains a balanced set of walkers across different temperature steps.</span>
+<span class="sd">        This is a key component of PAMC that:</span>
+<span class="sd">        1. Gathers current population statistics</span>
+<span class="sd">        2. Calculates importance weights for the temperature change</span>
+<span class="sd">        3. Resamples walkers based on their weights</span>
+<span class="sd">        4. Updates population statistics and free energy estimates</span>
+
+<span class="sd">        The resampling can be done in two modes:</span>
+<span class="sd">        - Fixed: Maintains constant population size</span>
+<span class="sd">        - Varied: Allows population size to fluctuate based on weights</span>
+
+<span class="sd">        Implementation Details:</span>
+<span class="sd">        - Uses log-weights to prevent numerical overflow</span>
+<span class="sd">        - Maintains walker genealogy for analysis</span>
+<span class="sd">        - Updates free energy estimates using resampling data</span>
+<span class="sd">        - Handles MPI communication for parallel execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_information</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_stats</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
@@ -573,61 +661,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ns</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span>
-            <span class="n">offsets</span> <span class="o">=</span> <span class="n">ns</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
-            <span class="n">offset</span> <span class="o">=</span> <span class="n">offsets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_resample_varied</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">-</span> <span class="n">ns</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resample_varied</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">offsets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Algorithm._resample_varied">
-<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample_varied">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_resample_varied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform resampling with varied weights.</span>
-
-<span class="sd">        This method resamples the walkers based on the provided weights and updates</span>
-<span class="sd">        the state of the algorithm accordingly.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        weights : np.ndarray</span>
-<span class="sd">            Array of weights for resampling.</span>
-<span class="sd">        offset : int</span>
-<span class="sd">            Offset for the weights array.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">weights_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
-        <span class="n">expected_numbers</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">weights_sum</span><span class="p">)</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span>
-            <span class="n">offset</span> <span class="p">:</span> <span class="n">offset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
-        <span class="p">]</span>
-        <span class="n">next_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">expected_numbers</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="n">new_x</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">new_fx</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">new_ancestors</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">iwalker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]):</span>
-                    <span class="n">new_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,</span> <span class="p">:])</span>
-                    <span class="n">new_fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
-                    <span class="n">new_ancestors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_x</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_fx</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_ancestors</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">new_inodes</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">new_fx</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">new_ancestors</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">iwalker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]):</span>
-                    <span class="n">new_inodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inodes</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
-                    <span class="n">new_fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
-                    <span class="n">new_ancestors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_inodes</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_fx</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_ancestors</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._resample_fixed">
@@ -647,37 +684,95 @@
         <span class="n">resampler</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">resampling</span><span class="o">.</span><span class="n">WalkerTable</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
         <span class="n">new_index</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">Allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
-                <span class="n">xs</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)</span>
-                <span class="n">ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="n">fxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
-                <span class="n">ancestors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span>
-                <span class="n">fxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[</span><span class="n">new_index</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">fxs</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">inodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="n">ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="n">fxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">inodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inode</span>
-                <span class="n">ancestors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span>
-                <span class="n">fxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="n">inodes</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">fxs</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span></div>
+        <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">ancestors</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">new_index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
+
+        <span class="n">fxs</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">fxs</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._resample_varied">
+<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample_varied">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resample_varied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resample population allowing size variation.</span>
+
+<span class="sd">        Uses Poisson resampling:</span>
+<span class="sd">        1. Calculates expected number of copies from weights</span>
+<span class="sd">        2. Samples actual copies using Poisson distribution</span>
+<span class="sd">        3. Creates new population with variable size</span>
+<span class="sd">        4. Updates all walker properties</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        weights : np.ndarray</span>
+<span class="sd">            Importance weights for resampling</span>
+<span class="sd">        offset : int</span>
+<span class="sd">            Process-specific offset in global population</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weights_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">expected_numbers</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">weights_sum</span><span class="p">)</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span>
+            <span class="n">offset</span> <span class="p">:</span> <span class="n">offset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
+        <span class="p">]</span>
+        <span class="n">next_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">expected_numbers</span><span class="p">)</span>
+
+        <span class="n">new_index</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iwalker</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">):</span>
+            <span class="n">new_index</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">iwalker</span><span class="p">]</span> <span class="o">*</span> <span class="n">num</span><span class="p">)</span>
+
+        <span class="n">new_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">new_index</span><span class="p">)</span>
+        <span class="n">new_fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">new_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">new_fx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_index</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._calc_participation_ratio">
+<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._calc_participation_ratio">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calc_participation_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the participation ratio of the current walker population.</span>
+<span class="sd">        </span>
+<span class="sd">        The participation ratio is a measure of the effective sample size and</span>
+<span class="sd">        indicates how evenly distributed the weights are among walkers. It is</span>
+<span class="sd">        calculated as (sum(w))²/sum(w²), where w are the normalized weights.</span>
+<span class="sd">        </span>
+<span class="sd">        A value close to the total number of walkers indicates well-distributed weights,</span>
+<span class="sd">        while a small value indicates that only a few walkers dominate the population.</span>
+<span class="sd">        </span>
+<span class="sd">        To avoid numerical issues with large log-weights, we normalize by subtracting</span>
+<span class="sd">        the maximum log-weight before exponentiation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">            Uses the current state of self.logweights</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The participation ratio, a value between 1 and the total number of walkers</span>
+<span class="sd">            </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        In parallel execution, this method aggregates weights across all processes</span>
+<span class="sd">        to calculate the global participation ratio.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_weights</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">)</span>
+        <span class="n">max_log_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">log_weights</span><span class="p">)</span>
+
+        <span class="n">sum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">))</span>
+        <span class="n">sum_weight_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">pr</span> <span class="o">=</span> <span class="n">sum_weight</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">sum_weight_sq</span>
+
+        <span class="k">return</span> <span class="n">pr</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._prepare">
@@ -692,9 +787,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;resampling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_split_result_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+        <span class="n">current_beta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">header_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fwrite</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tag</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fread</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fread</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="n">header_str</span> <span class="o">+=</span> <span class="n">line</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">beta</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">beta</span> <span class="o">!=</span> <span class="n">current_beta</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">fwrite</span><span class="p">:</span>
+                            <span class="n">fwrite</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">fwrite</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">tag</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_T</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+                        <span class="n">fwrite</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header_str</span><span class="p">)</span>
+                        <span class="n">current_beta</span> <span class="o">=</span> <span class="n">beta</span>
+                    <span class="n">fwrite</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fwrite</span><span class="p">:</span>
+                <span class="n">fwrite</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._post">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post-processing after the algorithm execution.</span>
 
@@ -702,29 +822,11 @@
 <span class="sd">        into single files for &#39;result&#39; and &#39;trial&#39;. It also gathers the best</span>
 <span class="sd">        results from all processes and writes them to &#39;best_result.txt&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="s2">&quot;trial&quot;</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_write_result_header</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;ancestor&quot;</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">Tindex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)):</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
-                                <span class="k">continue</span>
-                            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># NOTE:</span>
-            <span class="c1"># ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.</span>
-            <span class="c1"># ``Gather`` and ``allgather`` seem to work fine.</span>
-            <span class="c1"># Since the performance is not so important here, we use ``allgather`` for simplicity.</span>
-            <span class="n">best_fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">)</span>
-            <span class="n">best_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">)</span>
-            <span class="n">best_istep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">)</span>
-            <span class="n">best_iwalker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">best_fx</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">]</span>
-            <span class="n">best_x</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">]</span>
-            <span class="n">best_istep</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">]</span>
-            <span class="n">best_iwalker</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">]</span>
+        <span class="n">best_fx</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">]))</span>
+        <span class="n">best_x</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">]))</span>
+        <span class="n">best_istep</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">]))</span>
+        <span class="n">best_iwalker</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">]))</span>
+
         <span class="n">best_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">best_fx</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;best_result.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -757,6 +859,17 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pr.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: Tindex</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $2: 1/T</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $3: participation ratio</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">best_x</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
             <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">best_fx</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
@@ -786,9 +899,9 @@
             <span class="s2">&quot;timer&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
             <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
             <span class="c1">#-- montecarlo</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
             <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
-            <span class="s2">&quot;inode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span>
+            <span class="c1">#&quot;inode&quot;: self.inode,</span>
             <span class="s2">&quot;istep&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span><span class="p">,</span>
             <span class="s2">&quot;best_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span>
             <span class="s2">&quot;best_fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">,</span>
@@ -798,6 +911,7 @@
             <span class="s2">&quot;ntrial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span><span class="p">,</span>
             <span class="c1">#-- pamc</span>
             <span class="s2">&quot;betas&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">,</span>
+            <span class="s2">&quot;nwalkers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span>
             <span class="s2">&quot;input_as_beta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">,</span>
             <span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">,</span>
             <span class="s2">&quot;Tindex&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">,</span>
@@ -815,6 +929,7 @@
             <span class="s2">&quot;fx_from_reset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">,</span>
             <span class="s2">&quot;naccepted_from_reset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">,</span>
             <span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">,</span>
+            <span class="s2">&quot;pr_list&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
 
@@ -852,9 +967,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="c1">#-- montecarlo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;fx&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;inode&quot;</span><span class="p">]</span>
+        <span class="c1">#self.inode = data[&quot;inode&quot;]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">]</span>
 
@@ -869,6 +984,7 @@
         <span class="c1">#-- pamc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Tindex&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;index_from_reset&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nwalkers&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;resume&quot;</span><span class="p">:</span>
             <span class="c1"># check if scheduling is as stored</span>
@@ -905,8 +1021,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">populations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZ&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">]</span>
@@ -914,7 +1030,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;populations&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;populations&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populations</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;populations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;family_lo&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;family_hi&quot;</span><span class="p">]</span>
@@ -922,10 +1038,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;fx_from_reset&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;walker_ancestors&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;naccepted_from_reset&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">]</span>
+
+        <span class="c1">#-- restore rng state in statespace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span></div>
 </div>
-
-
 
 </pre></div>
 

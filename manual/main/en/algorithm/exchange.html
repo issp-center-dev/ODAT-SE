@@ -51,7 +51,7 @@
 <section id="algorithm-param">
 <h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>]<a class="headerlink" href="#algorithm-param" title="Link to this heading">¶</a></h3>
 <p>This defines a space to be explored.
-When <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> key is defined the discrete space is used.
+When <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> key is defined or <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> key is set to true, the discrete space is used.
 Otherwise, continuous space is used.</p>
 <ul>
 <li><p>Continuous space</p>
@@ -86,11 +86,34 @@ The step length in one Monte Carlo update (deviation of Gaussian distribution).<
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>Format: string</p>
-<p>Description: Path to the mesh definition file.</p>
+<p>Description: Path to the mesh definition file. See <em>Reference file</em> below for the format.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
 <p>Format: string</p>
-<p>Description: Path to the neighborhood-list file.</p>
+<p>Description: Path to the neighborhood-list file. See <em>Reference file</em> below for the format. When it is omitted, the neighborhood list will be generated automatically assuming that the mesh points within <code class="docutils literal notranslate"><span class="pre">radius</span></code> are neighbors.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p>
+<p>Format: Float.</p>
+<p>Description: the points within the distance specified by <code class="docutils literal notranslate"><span class="pre">radius</span></code> are considered as neighbors. It is mandatory when <code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code> is omitted or <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> is set to true.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_grid</span></code></p>
+<p>Format: Boolean.</p>
+<p>Description: When it is set to true, a uniform mesh will be generated using the parameters <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, and <code class="docutils literal notranslate"><span class="pre">num_list</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+<p>Description:
+Lower end of each parameter of the mesh to be generated.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+<p>Description:
+Upper end of each parameter of the mesh to be generated.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>Format: List of integer. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+<p>Description:
+The number of mesh points along each parameter of the mesh to be generated.</p>
 </li>
 </ul>
 </li>

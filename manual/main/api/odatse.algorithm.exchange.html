@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="odatse.algorithm.mapper_mpi module" href="odatse.algorithm.mapper_mpi.html" />
+    <link rel="next" title="odatse.algorithm.gather module" href="odatse.algorithm.gather.html" />
     <link rel="prev" title="odatse.algorithm.bayes module" href="odatse.algorithm.bayes.html" /> 
 </head>
 
@@ -93,11 +93,15 @@
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.exchange.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase" title="odatse.algorithm.montecarlo.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
-<p>Replica Exchange Monte Carlo</p>
+<p>Replica Exchange Monte Carlo (REMC) Algorithm Implementation.</p>
+<p>This class implements the Replica Exchange Monte Carlo algorithm, also known as
+Parallel Tempering. The algorithm runs multiple replicas of the system at different
+temperatures and periodically attempts to swap configurations between adjacent
+temperature levels.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.x">
 <span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.x" title="Link to this definition"></a></dt>
-<dd><p>current configuration</p>
+<dd><p>Current configuration state for all walkers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -106,12 +110,56 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.inode">
-<span class="sig-name descname"><span class="pre">inode</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.inode" title="Link to this definition"></a></dt>
-<dd><p>current configuration index (discrete parameter space)</p>
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.xmin">
+<span class="sig-name descname"><span class="pre">xmin</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.xmin" title="Link to this definition"></a></dt>
+<dd><p>Minimum allowed values for parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.xmax">
+<span class="sig-name descname"><span class="pre">xmax</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.xmax" title="Link to this definition"></a></dt>
+<dd><p>Maximum allowed values for parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.xstep">
+<span class="sig-name descname"><span class="pre">xstep</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.xstep" title="Link to this definition"></a></dt>
+<dd><p>Step sizes for parameter updates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.numsteps">
+<span class="sig-name descname"><span class="pre">numsteps</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.numsteps" title="Link to this definition"></a></dt>
+<dd><p>Total number of Monte Carlo steps to perform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.numsteps_exchange">
+<span class="sig-name descname"><span class="pre">numsteps_exchange</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.numsteps_exchange" title="Link to this definition"></a></dt>
+<dd><p>Number of steps between exchange attempts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -119,18 +167,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.fx">
 <span class="sig-name descname"><span class="pre">fx</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.fx" title="Link to this definition"></a></dt>
-<dd><p>current “Energy”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.Tindex">
-<span class="sig-name descname"><span class="pre">Tindex</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.Tindex" title="Link to this definition"></a></dt>
-<dd><p>current “Temperature” index</p>
+<dd><p>Current energy/objective function values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -141,40 +178,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.istep">
 <span class="sig-name descname"><span class="pre">istep</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.istep" title="Link to this definition"></a></dt>
-<dd><p>current step (or, the number of calculated energies)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.best_x">
-<span class="sig-name descname"><span class="pre">best_x</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.best_x" title="Link to this definition"></a></dt>
-<dd><p>best configuration</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.best_fx">
-<span class="sig-name descname"><span class="pre">best_fx</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.best_fx" title="Link to this definition"></a></dt>
-<dd><p>best “Energy”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.best_istep">
-<span class="sig-name descname"><span class="pre">best_istep</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.best_istep" title="Link to this definition"></a></dt>
-<dd><p>index of best configuration</p>
+<dd><p>Current step number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -185,7 +189,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.nreplica">
 <span class="sig-name descname"><span class="pre">nreplica</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.nreplica" title="Link to this definition"></a></dt>
-<dd><p>The number of replicas (= the number of procs)</p>
+<dd><p>Total number of replicas across all processes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -194,9 +198,9 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.T2rep">
-<span class="sig-name descname"><span class="pre">T2rep</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.T2rep" title="Link to this definition"></a></dt>
-<dd><p>Mapping from temperature index to replica index</p>
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.Tindex">
+<span class="sig-name descname"><span class="pre">Tindex</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.Tindex" title="Link to this definition"></a></dt>
+<dd><p>Temperature indices for current replicas.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -207,7 +211,18 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.rep2T">
 <span class="sig-name descname"><span class="pre">rep2T</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.rep2T" title="Link to this definition"></a></dt>
-<dd><p>Reverse mapping from replica index to temperature index</p>
+<dd><p>Mapping from replica index to temperature index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.T2rep">
+<span class="sig-name descname"><span class="pre">T2rep</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.T2rep" title="Link to this definition"></a></dt>
+<dd><p>Mapping from temperature index to replica index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -218,7 +233,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.exchange_direction">
 <span class="sig-name descname"><span class="pre">exchange_direction</span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.exchange_direction" title="Link to this definition"></a></dt>
-<dd><p>Parity of exchange direction</p>
+<dd><p>Direction for attempting exchanges (alternates between True/False).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -239,10 +254,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.__exchange_multi_walker">
 <span class="sig-name descname"><span class="pre">__exchange_multi_walker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.__exchange_multi_walker" title="Link to this definition"></a></dt>
-<dd><p>Exchange temperatures for multiple walkers.</p>
+<dd><p>Handle temperature exchanges for multiple walkers per process case.</p>
+<p>This method implements the exchange logic when each process has multiple walkers,
+requiring collective MPI operations to coordinate exchanges across all processes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – Direction of the exchange.</p>
+<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – If True, attempt exchanges between even-odd pairs.
+If False, attempt exchanges between odd-even pairs.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -250,10 +268,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm.__exchange_single_walker">
 <span class="sig-name descname"><span class="pre">__exchange_single_walker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm.__exchange_single_walker" title="Link to this definition"></a></dt>
-<dd><p>Exchange temperatures for a single walker.</p>
+<dd><p>Handle temperature exchanges for single walker per process case.</p>
+<p>This method implements the exchange logic when each process has only one walker,
+requiring MPI communication to coordinate exchanges between processes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – Direction of the exchange.</p>
+<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – If True, attempt exchanges between even-odd pairs.
+If False, attempt exchanges between odd-even pairs.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -276,10 +297,14 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._exchange">
 <span class="sig-name descname"><span class="pre">_exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._exchange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._exchange" title="Link to this definition"></a></dt>
-<dd><p>Try to exchange temperatures.</p>
+<dd><p>Attempt temperature exchanges between replicas.</p>
+<p>This method implements the core replica exchange logic, attempting to swap
+temperatures between adjacent replicas based on the Metropolis criterion:
+P(accept) = min(1, exp((β_j - β_i)(E_i - E_j)))</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – Direction of the exchange.</p>
+<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>) – If True, attempt exchanges between even-odd pairs.
+If False, attempt exchanges between odd-even pairs.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -293,21 +318,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._load_state">
 <span class="sig-name descname"><span class="pre">_load_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'resume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._load_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._load_state" title="Link to this definition"></a></dt>
-<dd><p>Load the state of the algorithm from a file.</p>
+<dd><p>Load algorithm state from a checkpoint file.</p>
+<p>Restores all necessary data to resume a previous simulation run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The name of the file to load the state from.</p></li>
-<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – The mode to load the state in, by default “resume”.</p></li>
-<li><p><strong>restore_rng</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to restore the random number generator state, by default True.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Path to the checkpoint file to read.</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Loading mode - either “resume” or “continue”, by default “resume”.</p></li>
+<li><p><strong>restore_rng</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to restore the random number generator state, by default True.
+Set to False to use a fresh RNG state.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If loaded state doesn’t match current MPI configuration.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._post">
-<span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._post" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._post" title="Link to this definition"></a></dt>
 <dd><p>Post-process the results of the algorithm.</p>
 </dd></dl>
 
@@ -315,12 +345,6 @@
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._prepare">
 <span class="sig-name descname"><span class="pre">_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._prepare" title="Link to this definition"></a></dt>
 <dd><p>Prepare the algorithm for execution.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._print_info">
-<span class="sig-name descname"><span class="pre">_print_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._print_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._print_info" title="Link to this definition"></a></dt>
-<dd><p>Print information about the algorithm.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -332,10 +356,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._save_state">
 <span class="sig-name descname"><span class="pre">_save_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._save_state" title="Link to this definition"></a></dt>
-<dd><p>Save the current state of the algorithm.</p>
+<dd><p>Save the current algorithm state to a checkpoint file.</p>
+<p>Saves all necessary data to resume the simulation later, including:
+- MPI configuration
+- Random number generator state
+- Timer information
+- Current configurations and energies
+- Best solutions found
+- Replica exchange state information</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The name of the file to save the state to.</p>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to the checkpoint file to write.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -349,7 +380,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="odatse.algorithm.bayes.html" class="btn btn-neutral float-left" title="odatse.algorithm.bayes module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odatse.algorithm.mapper_mpi.html" class="btn btn-neutral float-right" title="odatse.algorithm.mapper_mpi module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="odatse.algorithm.gather.html" class="btn btn-neutral float-right" title="odatse.algorithm.gather module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

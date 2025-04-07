@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>odatse.util package &mdash; ODAT-SE API  documentation</title>
+  <title>odatse.algorithm.gather module &mdash; ODAT-SE API  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="odatse.util.data_writer module" href="odatse.util.data_writer.html" />
-    <link rel="prev" title="odatse.solver.function module" href="odatse.solver.function.html" /> 
+    <link rel="next" title="odatse.algorithm.mapper_mpi module" href="odatse.algorithm.mapper_mpi.html" />
+    <link rel="prev" title="odatse.algorithm.exchange module" href="odatse.algorithm.exchange.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,10 +47,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">odatse.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
@@ -76,9 +76,10 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
           <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
-      <li class="breadcrumb-item active">odatse.util package</li>
+          <li class="breadcrumb-item"><a href="odatse.algorithm.html">odatse.algorithm package</a></li>
+      <li class="breadcrumb-item active">odatse.algorithm.gather module</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/odatse.util.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/odatse.algorithm.gather.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -86,34 +87,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-odatse.util">
-<span id="odatse-util-package"></span><h1>odatse.util package<a class="headerlink" href="#module-odatse.util" title="Link to this heading"></a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.data_writer.html">odatse.util.data_writer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.graph.html">odatse.util.graph module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.limitation.html">odatse.util.limitation module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.logger.html">odatse.util.logger module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.mapping.html">odatse.util.mapping module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.neighborlist.html">odatse.util.neighborlist module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.read_matrix.html">odatse.util.read_matrix module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.read_ts.html">odatse.util.read_ts module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.resampling.html">odatse.util.resampling module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.separateT.html">odatse.util.separateT module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.toml.html">odatse.util.toml module</a></li>
-</ul>
-</div>
-</section>
+  <section id="module-odatse.algorithm.gather">
+<span id="odatse-algorithm-gather-module"></span><h1>odatse.algorithm.gather module<a class="headerlink" href="#module-odatse.algorithm.gather" title="Link to this heading"></a></h1>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="odatse.solver.function.html" class="btn btn-neutral float-left" title="odatse.solver.function module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odatse.util.data_writer.html" class="btn btn-neutral float-right" title="odatse.util.data_writer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="odatse.algorithm.exchange.html" class="btn btn-neutral float-left" title="odatse.algorithm.exchange module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="odatse.algorithm.mapper_mpi.html" class="btn btn-neutral float-right" title="odatse.algorithm.mapper_mpi module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

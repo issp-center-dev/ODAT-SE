@@ -87,61 +87,70 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.neighborlist</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_neighbor_list</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.util.graph</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse.domain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse</span><span class="w"> </span><span class="kn">import</span> <span class="n">mpi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuousStateSpace</span><span class="p">,</span> <span class="n">DiscreteStateSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.data_writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataWriter</span>
 
 
 <div class="viewcode-block" id="AlgorithmBase">
 <a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlgorithmBase</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base of Monte Carlo</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for Monte Carlo algorithms implementing common functionality.</span>
+<span class="sd">    </span>
+<span class="sd">    This class provides the foundation for various Monte Carlo methods, handling both</span>
+<span class="sd">    continuous and discrete parameter spaces. It supports parallel execution with</span>
+<span class="sd">    multiple walkers and temperature-based sampling methods.</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ==========</span>
-<span class="sd">    nwalkers: int</span>
-<span class="sd">        the number of walkers (per one process)</span>
-<span class="sd">    x: np.ndarray</span>
-<span class="sd">        current configurations</span>
-<span class="sd">        (NxD array, N is the number of walkers and D is the dimension)</span>
-<span class="sd">    fx: np.ndarray</span>
-<span class="sd">        current &quot;Energy&quot;s</span>
-<span class="sd">    istep: int</span>
-<span class="sd">        current step (or, the number of calculated energies)</span>
-<span class="sd">    best_x: np.ndarray</span>
-<span class="sd">        best configuration</span>
-<span class="sd">    best_fx: float</span>
-<span class="sd">        best &quot;Energy&quot;</span>
-<span class="sd">    best_istep: int</span>
-<span class="sd">        index of best configuration (step)</span>
-<span class="sd">    best_iwalker: int</span>
-<span class="sd">        index of best configuration (walker)</span>
-<span class="sd">    comm: MPI.comm</span>
-<span class="sd">        MPI communicator</span>
-<span class="sd">    rank: int</span>
-<span class="sd">        MPI rank</span>
-<span class="sd">    Ts: np.ndarray</span>
-<span class="sd">        List of temperatures</span>
-<span class="sd">    Tindex: np.ndarray</span>
-<span class="sd">        Temperature index</span>
+<span class="sd">    Implementation Details</span>
+<span class="sd">    --------------------</span>
+<span class="sd">    The class handles two types of parameter spaces:</span>
+<span class="sd">    1. Continuous: Uses real-valued parameters within specified bounds</span>
+<span class="sd">    2. Discrete: Uses node-based parameters with defined neighbor relationships</span>
+
+<span class="sd">    For continuous problems:</span>
+<span class="sd">    - Parameters are bounded by xmin and xmax</span>
+<span class="sd">    - Steps are controlled by xstep for each dimension</span>
+<span class="sd">    </span>
+<span class="sd">    For discrete problems:</span>
+<span class="sd">    - Parameters are represented as nodes in a graph</span>
+<span class="sd">    - Transitions are only allowed between neighboring nodes</span>
+<span class="sd">    - Neighbor relationships must form a connected, bidirectional graph</span>
+
+<span class="sd">    The sampling process:</span>
+<span class="sd">    1. Initializes walkers in valid positions</span>
+<span class="sd">    2. Proposes moves based on the parameter space type</span>
+<span class="sd">    3. Evaluates the objective function (&quot;Energy&quot;)</span>
+<span class="sd">    4. Accepts/rejects moves based on the Monte Carlo criterion</span>
+<span class="sd">    5. Tracks the best solution found</span>
+
+<span class="sd">    Key Methods</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _initialize() : Sets up initial walker positions and counters</span>
+<span class="sd">    propose() : Generates candidate moves for walkers</span>
+<span class="sd">    local_update() : Performs one Monte Carlo step</span>
+<span class="sd">    _evaluate() : Computes objective function values</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">nwalkers</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="n">iscontinuous</span><span class="p">:</span> <span class="nb">bool</span>
 
-    <span class="c1"># continuous problem</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">xmin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">xmax</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">xstep</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1"># # continuous problem</span>
+    <span class="c1"># x: np.ndarray</span>
+    <span class="c1"># xmin: np.ndarray</span>
+    <span class="c1"># xmax: np.ndarray</span>
+    <span class="c1"># xstep: np.ndarray</span>
 
-    <span class="c1"># discrete problem</span>
-    <span class="n">inode</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">node_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="n">neighbor_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
-    <span class="n">ncandidates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># len(neighbor_list[i])-1</span>
+    <span class="c1"># # discrete problem</span>
+    <span class="c1"># inode: np.ndarray</span>
+    <span class="c1"># nnodes: int</span>
+    <span class="c1"># node_coordinates: np.ndarray</span>
+    <span class="c1"># neighbor_list: List[List[int]]</span>
+    <span class="c1"># ncandidates: np.ndarray  # len(neighbor_list[i])-1</span>
+
+    <span class="c1"># state: Union[ContinuousState, DiscreteState]</span>
 
     <span class="n">numsteps</span><span class="p">:</span> <span class="nb">int</span>
 
@@ -173,13 +182,24 @@
 <span class="sd">        info : odatse.Info</span>
 <span class="sd">            Information object containing algorithm parameters.</span>
 <span class="sd">        runner : odatse.Runner, optional</span>
-<span class="sd">            Runner object for executing the algorithm (default is None).</span>
-<span class="sd">        domain : optional</span>
-<span class="sd">            Domain object defining the problem space (default is None).</span>
+<span class="sd">            Runner object for executing the algorithm, by default None.</span>
+<span class="sd">        domain : odatse.domain.Domain, optional</span>
+<span class="sd">            Domain object defining the problem space, by default None.</span>
 <span class="sd">        nwalkers : int, optional</span>
-<span class="sd">            Number of walkers (default is 1).</span>
+<span class="sd">            Number of walkers to use in the simulation, by default 1.</span>
 <span class="sd">        run_mode : str, optional</span>
-<span class="sd">            Mode of the run, e.g., &quot;initial&quot; (default is &quot;initial&quot;).</span>
+<span class="sd">            Mode of the run, e.g., &quot;initial&quot;, by default &quot;initial&quot;.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an unsupported domain type is provided or required parameters are missing.</span>
+<span class="sd">            </span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; info = odatse.Info(config_file_path)</span>
+<span class="sd">        &gt;&gt;&gt; runner = odatse.Runner()</span>
+<span class="sd">        &gt;&gt;&gt; algorithm = AlgorithmBase(info, runner, nwalkers=100)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
@@ -198,56 +218,50 @@
             <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">MeshGrid</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;use_grid&quot;</span> <span class="ow">in</span> <span class="n">info_param</span> <span class="ow">and</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;use_grid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">MeshGrid</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">Region</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">min_list</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">max_list</span>
-
-            <span class="k">if</span> <span class="s2">&quot;step_list&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_list&quot;</span><span class="p">)</span>
-
-            <span class="k">elif</span> <span class="s2">&quot;unit_list&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-                <span class="c1"># for compatibility, unit_list can also be accepted for step size.</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: unit_list is obsolete. use step_list instead&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit_list&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># neither step_list nor unit_list is specified, report error.</span>
-                <span class="c1"># default value not assumed.</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.step_list not specified&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span> <span class="o">=</span> <span class="n">ContinuousStateSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">info_param</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">limitation</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">grid</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_neighbour</span><span class="p">(</span><span class="n">info_param</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span> <span class="o">=</span> <span class="n">DiscreteStateSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">info_param</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">)</span>
 
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">#-- writer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp_trial</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp_result</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the algorithm state.</span>
+<span class="sd">        Initialize the Monte Carlo simulation state.</span>
 
-<span class="sd">        This method sets up the initial state of the algorithm, including the</span>
-<span class="sd">        positions and energies of the walkers, and resets the counters for</span>
-<span class="sd">        accepted and trial steps.</span>
+<span class="sd">        For continuous problems:</span>
+<span class="sd">        - Uses domain.initialize to generate valid initial positions</span>
+<span class="sd">        - Respects any additional limitations from the runner</span>
+
+<span class="sd">        For discrete problems:</span>
+<span class="sd">        - Randomly assigns walkers to valid nodes</span>
+<span class="sd">        - Maps node indices to actual coordinate positions</span>
+
+<span class="sd">        Also initializes:</span>
+<span class="sd">        - Objective function values (fx) to zero</span>
+<span class="sd">        - Best solution tracking variables</span>
+<span class="sd">        - Acceptance counters for monitoring convergence</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">limitation</span><span class="p">,</span> <span class="n">num_walkers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">initial_list</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nnodes</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="mi">0</span>
@@ -255,104 +269,43 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="AlgorithmBase._setup_neighbour">
-<a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._setup_neighbour">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set up the neighbor list for the discrete problem.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        info_param : dict</span>
-<span class="sd">            Dictionary containing algorithm parameters, including the path to the neighbor list file.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the neighbor list path is not specified in the parameters.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If the transition graph made from the neighbor list is not connected or not bidirectional.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;neighborlist_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="n">nn_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;neighborlist_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">load_neighbor_list</span><span class="p">(</span><span class="n">nn_path</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nnodes</span><span class="p">)</span>
-
-            <span class="c1"># checks</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;ERROR: The transition graph made from neighbor list is not connected.&quot;</span>
-                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">HINT: Increase neighborhood radius.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">is_bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;ERROR: The transition graph made from neighbor list is not bidirectional.&quot;</span>
-                <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">ncandidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;ERROR: Parameter algorithm.param.neighborlist_path does not exist.&quot;</span>
-            <span class="p">)</span></div>
-
-            <span class="c1"># otherwise find neighbourlist</span>
-
-
 <div class="viewcode-block" id="AlgorithmBase._evaluate">
 <a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._evaluate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_range</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">in_range</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate the current &quot;Energy&quot;s.</span>
+<span class="sd">        Evaluate objective function for current walker positions.</span>
 
-<span class="sd">        This method overwrites `self.fx` with the result.</span>
+<span class="sd">        Optimization Features:</span>
+<span class="sd">        - Skips evaluation for out-of-bounds positions</span>
+<span class="sd">        - Tracks evaluation timing statistics</span>
+<span class="sd">        - Supports parallel evaluation across walkers</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        in_range : np.ndarray, optional</span>
-<span class="sd">            Array indicating whether each walker is within the valid range (default is None).</span>
+<span class="sd">            Boolean mask indicating valid positions</span>
+<span class="sd">            True = position is valid and should be evaluated</span>
+<span class="sd">            False = position is invalid, will be assigned inf</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        np.ndarray</span>
-<span class="sd">            Array of evaluated energies for the current configurations.</span>
+<span class="sd">            Array of objective function values</span>
+<span class="sd">            Invalid positions are assigned inf</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># print(&quot;&gt;&gt;&gt; _evaluate&quot;)</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">iwalker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,</span> <span class="p">:]</span>
             <span class="k">if</span> <span class="n">in_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">in_range</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]:</span>
                 <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">istep</span><span class="p">,</span> <span class="n">iwalker</span><span class="p">)</span>
 
                 <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+                <span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
                 <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span></div>
-
-
-<div class="viewcode-block" id="AlgorithmBase.propose">
-<a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.propose">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">propose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Propose the next candidate positions for the walkers.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        current : np.ndarray</span>
-<span class="sd">            Current positions of the walkers.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        proposed : np.ndarray</span>
-<span class="sd">            Proposed new positions for the walkers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span>
-            <span class="n">proposed</span> <span class="o">=</span> <span class="n">current</span> <span class="o">+</span> <span class="n">dx</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">proposed_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">current</span><span class="p">]</span>
-            <span class="n">proposed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">proposed_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">proposed</span></div>
+                <span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">return</span> <span class="n">fx</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.local_update">
@@ -360,51 +313,54 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">local_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">beta</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-        <span class="n">file_trial</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span>
-        <span class="n">file_result</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">,</span>
         <span class="n">extra_info_to_write</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        one step of Monte Carlo</span>
+<span class="sd">        Perform one step of the Monte Carlo algorithm.</span>
+
+<span class="sd">        Algorithm Flow:</span>
+<span class="sd">        1. Generate proposed moves for all walkers</span>
+<span class="sd">        2. Check if proposals are within valid bounds</span>
+<span class="sd">        3. Evaluate objective function for valid proposals</span>
+<span class="sd">        4. Apply Metropolis acceptance criterion:</span>
+<span class="sd">           P(accept) = min(1, exp(-beta * (f_new - f_old)))</span>
+<span class="sd">        5. For discrete case, adjust acceptance probability by:</span>
+<span class="sd">           P *= (n_neighbors_old / n_neighbors_new)</span>
+<span class="sd">        6. Update positions and energies</span>
+<span class="sd">        7. Track best solution found</span>
+<span class="sd">        8. Log results if writers are configured</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        beta: np.ndarray</span>
-<span class="sd">            inverse temperature for each walker</span>
-<span class="sd">        file_trial: TextIO</span>
-<span class="sd">            log file for all trial points</span>
-<span class="sd">        file_result: TextIO</span>
-<span class="sd">            log file for all generated samples</span>
-<span class="sd">        extra_info_to_write: List of np.ndarray or tuple of np.ndarray</span>
-<span class="sd">            extra information to write</span>
+<span class="sd">        beta : Union[float, np.ndarray]</span>
+<span class="sd">            Inverse temperature(s) controlling acceptance probability</span>
+<span class="sd">            Can be single value or array (one per walker)</span>
+<span class="sd">        extra_info_to_write : Union[List, Tuple], optional</span>
+<span class="sd">            Additional data to log with results</span>
+
+<span class="sd">        Implementation Notes</span>
+<span class="sd">        ------------------</span>
+<span class="sd">        - Handles numerical overflow in exponential calculation</span>
+<span class="sd">        - Maintains detailed acceptance statistics</span>
+<span class="sd">        - Supports both single and multiple temperature values</span>
+<span class="sd">        - Preserves best solution across all steps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># make candidate</span>
-        <span class="n">x_old</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">x_old</span><span class="p">)</span>
-            <span class="c1">#judgement of &quot;in_range&quot;</span>
-            <span class="n">in_range_xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
-            <span class="n">in_range_xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span>
-            <span class="n">in_range_limitation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">index_walker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
-                <span class="n">in_range_limitation</span><span class="p">[</span><span class="n">index_walker</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span>
-                                                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">index_walker</span><span class="p">]</span>
-                                                            <span class="p">)</span>
+        <span class="n">old_state</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">old_fx</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
 
-            <span class="n">in_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">in_range_xmin</span> <span class="o">&amp;</span> <span class="n">in_range_xmax</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> \
-                       <span class="o">&amp;</span><span class="n">in_range_limitation</span> 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">i_old</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="p">:]</span>
-            <span class="n">in_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">new_state</span><span class="p">,</span> <span class="n">in_range</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">old_state</span><span class="p">)</span>
+        <span class="c1">#self.state = new_state</span>
 
         <span class="c1"># evaluate &quot;Energy&quot;s</span>
-        <span class="n">fx_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">in_range</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">file_trial</span><span class="p">,</span> <span class="n">extra_info_to_write</span><span class="o">=</span><span class="n">extra_info_to_write</span><span class="p">)</span>
+        <span class="n">new_fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">in_range</span><span class="p">)</span>
+        <span class="c1">#XXX</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">new_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">new_fx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_trial</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extra_info_to_write</span><span class="p">)</span>
 
-        <span class="n">fdiff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">-</span> <span class="n">fx_old</span>
+        <span class="c1">#print(old_fx, new_fx)</span>
+        <span class="n">fdiff</span> <span class="o">=</span> <span class="n">new_fx</span> <span class="o">-</span> <span class="n">old_fx</span>
 
         <span class="c1"># Ignore an overflow warning in np.exp(x) for x &gt;~ 710</span>
         <span class="c1"># and an invalid operation warning in exp(nan) (nan came from 0 * inf)</span>
@@ -413,182 +369,54 @@
         <span class="n">old_setting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span> <span class="o">*</span> <span class="n">fdiff</span><span class="p">)</span>
         <span class="c1">#probs[np.isnan(probs)] = 0.0</span>
+        <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">probs</span> <span class="o">*=</span> <span class="n">weight</span>
         <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="o">**</span><span class="n">old_setting</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="n">probs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncandidates</span><span class="p">[</span><span class="n">i_old</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncandidates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">]</span>
         <span class="n">tocheck</span> <span class="o">=</span> <span class="n">in_range</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">probs</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="n">num_check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">tocheck</span><span class="p">)</span>
 
         <span class="n">accepted</span> <span class="o">=</span> <span class="n">in_range</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">accepted</span><span class="p">[</span><span class="n">tocheck</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_check</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">probs</span><span class="p">[</span><span class="n">tocheck</span><span class="p">]</span>
-        <span class="n">rejected</span> <span class="o">=</span> <span class="o">~</span><span class="n">accepted</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted</span> <span class="o">+=</span> <span class="n">accepted</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span> <span class="o">+=</span> <span class="n">accepted</span><span class="o">.</span><span class="n">size</span>
 
-        <span class="c1"># revert rejected steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">rejected</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">x_old</span><span class="p">[</span><span class="n">rejected</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">rejected</span><span class="p">]</span> <span class="o">=</span> <span class="n">fx_old</span><span class="p">[</span><span class="n">rejected</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscontinuous</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">[</span><span class="n">rejected</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_old</span><span class="p">[</span><span class="n">rejected</span><span class="p">]</span>
+        <span class="c1"># update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">choose</span><span class="p">(</span><span class="n">accepted</span><span class="p">,</span> <span class="n">new_state</span><span class="p">,</span> <span class="n">old_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">accepted</span><span class="p">,</span> <span class="n">new_fx</span><span class="p">,</span> <span class="n">old_fx</span><span class="p">)</span>
 
         <span class="n">minidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">minidx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">:</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">minidx</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">minidx</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">file_result</span><span class="p">,</span> <span class="n">extra_info_to_write</span><span class="o">=</span><span class="n">extra_info_to_write</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_result</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extra_info_to_write</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AlgorithmBase._write_result_header">
-<a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._write_result_header">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_write_result_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">extra_names</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write the header for the result file.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp_trial</span><span class="p">,</span> <span class="n">fp_result</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp_trial</span> <span class="o">=</span> <span class="n">fp_trial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fp_result</span> <span class="o">=</span> <span class="n">fp_result</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        fp : TextIO</span>
-<span class="sd">            File pointer to the result file.</span>
-<span class="sd">        extra_names : list of str, optional</span>
-<span class="sd">            Additional column names to include in the header.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# step walker beta fx&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# step walker T fx&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">extra_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">extra_names</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="AlgorithmBase._write_result">
-<a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase._write_result">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_write_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">extra_info_to_write</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write the result of the current step to the file.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        fp : TextIO</span>
-<span class="sd">            File pointer to the result file.</span>
-<span class="sd">        extra_info_to_write : Union[List, Tuple], optional</span>
-<span class="sd">            Additional information to write for each walker (default is None).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">iwalker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                 <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]]</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">istep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">iwalker</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">beta</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">tval</span> <span class="o">=</span> <span class="n">beta</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="mf">1.0</span><span class="o">/</span><span class="n">beta</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,</span> <span class="p">:]:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">extra_info_to_write</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">extra_info_to_write</span><span class="p">:</span>
-                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">ex</span><span class="p">[</span><span class="n">iwalker</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
-</div>
+                <span class="n">tval</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">beta</span>
 
-<div class="viewcode-block" id="read_Ts">
-<a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.read_Ts">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_Ts</span><span class="p">(</span><span class="n">info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">numT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read temperature or inverse-temperature values from the provided info dictionary.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">istep</span><span class="p">,</span> <span class="n">iwalker</span><span class="p">,</span> <span class="n">tval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">iwalker</span><span class="p">],</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">iwalker</span><span class="p">,:]]</span>
+            <span class="k">if</span> <span class="n">extras</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">extra</span> <span class="ow">in</span> <span class="n">extras</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extra</span><span class="p">[</span><span class="n">iwalker</span><span class="p">])</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        Dictionary containing temperature or inverse-temperature parameters.</span>
-<span class="sd">    numT : int, optional</span>
-<span class="sd">        Number of temperature or inverse-temperature values to generate (default is None).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    as_beta : bool</span>
-<span class="sd">        True if using inverse-temperature, False if using temperature.</span>
-<span class="sd">    betas : np.ndarray</span>
-<span class="sd">        Sequence of inverse-temperature values.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If numT is not specified, or if both Tmin/Tmax and bmin/bmax are defined, or if neither are defined,</span>
-<span class="sd">        or if bmin/bmax or Tmin/Tmax values are invalid.</span>
-<span class="sd">    RuntimeError</span>
-<span class="sd">        If the mode is unknown (neither set_T nor set_b).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">numT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;read_Ts: numT is not specified&quot;</span><span class="p">)</span>
-
-    <span class="n">Tmin</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tmin&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">Tmax</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tmax&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">bmin</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bmin&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">bmax</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bmax&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">logscale</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tlogspace&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s2">&quot;Tinvspace&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tinvspace is deprecated. Use bmax/bmin instead.&quot;</span><span class="p">)</span>
-
-    <span class="n">set_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">bmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">bmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">set_T</span> <span class="o">=</span> <span class="p">(</span><span class="n">Tmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">Tmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">set_b</span> <span class="ow">and</span> <span class="n">set_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;both Tmin/Tmax and bmin/bmax are defined&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">set_b</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">set_T</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;neither Tmin/Tmax nor bmin/bmax are defined&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">set_b</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">bmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">bmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bmin and bmax must be set&quot;</span><span class="p">)</span>
-
-        <span class="n">input_as_beta</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isreal</span><span class="p">(</span><span class="n">bmin</span><span class="p">)</span> <span class="ow">or</span> <span class="n">bmin</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bmin must be zero or a positive real number&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isreal</span><span class="p">(</span><span class="n">bmax</span><span class="p">)</span> <span class="ow">or</span> <span class="n">bmax</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bmin must be zero or a positive real number&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">bmin</span> <span class="o">&gt;</span> <span class="n">bmax</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bmin must be smaller than or equal to bmax&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">bmin</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bmin must be greater than 0.0 when Tlogspace is True&quot;</span><span class="p">)</span>
-            <span class="n">betas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">bmin</span><span class="p">),</span> <span class="n">stop</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">bmax</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="n">numT</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">betas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">bmin</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">bmax</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">numT</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">set_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">Tmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">Tmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tmin and Tmax must be set&quot;</span><span class="p">)</span>
-
-        <span class="n">input_as_beta</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isreal</span><span class="p">(</span><span class="n">Tmin</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Tmin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tmin must be a positive real number&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isreal</span><span class="p">(</span><span class="n">Tmax</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Tmax</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tmax must be a positive real number&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">Tmin</span> <span class="o">&gt;</span> <span class="n">Tmax</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tmin must be smaller than or equal to Tmax&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
-            <span class="n">Ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Tmin</span><span class="p">),</span> <span class="n">stop</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Tmax</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="n">numT</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">Ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">Tmin</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">Tmax</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">numT</span><span class="p">)</span>
-
-        <span class="n">betas</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">Ts</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;read_Ts: unknown mode: not set_T nor set_b&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">input_as_beta</span><span class="p">,</span> <span class="n">betas</span></div>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span></div>
 
 </pre></div>
 

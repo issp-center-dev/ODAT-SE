@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>odatse.util package &mdash; ODAT-SE API  documentation</title>
+  <title>odatse.util.read_ts module &mdash; ODAT-SE API  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="odatse.util.data_writer module" href="odatse.util.data_writer.html" />
-    <link rel="prev" title="odatse.solver.function module" href="odatse.solver.function.html" /> 
+    <link rel="next" title="odatse.util.resampling module" href="odatse.util.resampling.html" />
+    <link rel="prev" title="odatse.util.read_matrix module" href="odatse.util.read_matrix.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
 <li class="toctree-l4"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">odatse.util package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
@@ -76,9 +76,10 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
           <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
-      <li class="breadcrumb-item active">odatse.util package</li>
+          <li class="breadcrumb-item"><a href="odatse.util.html">odatse.util package</a></li>
+      <li class="breadcrumb-item active">odatse.util.read_ts module</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/odatse.util.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/odatse.util.read_ts.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -86,34 +87,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-odatse.util">
-<span id="odatse-util-package"></span><h1>odatse.util package<a class="headerlink" href="#module-odatse.util" title="Link to this heading"></a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.data_writer.html">odatse.util.data_writer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.graph.html">odatse.util.graph module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.limitation.html">odatse.util.limitation module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.logger.html">odatse.util.logger module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.mapping.html">odatse.util.mapping module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.neighborlist.html">odatse.util.neighborlist module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.read_matrix.html">odatse.util.read_matrix module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.read_ts.html">odatse.util.read_ts module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.resampling.html">odatse.util.resampling module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.separateT.html">odatse.util.separateT module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="odatse.util.toml.html">odatse.util.toml module</a></li>
+  <section id="module-odatse.util.read_ts">
+<span id="odatse-util-read-ts-module"></span><h1>odatse.util.read_ts module<a class="headerlink" href="#module-odatse.util.read_ts" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.read_ts.read_Ts">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.read_ts.</span></span><span class="sig-name descname"><span class="pre">read_Ts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/read_ts.html#read_Ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.read_ts.read_Ts" title="Link to this definition"></a></dt>
+<dd><p>Read temperature or inverse-temperature values from the provided info dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>dict</em>) – Dictionary containing temperature or inverse-temperature parameters.</p></li>
+<li><p><strong>numT</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of temperature or inverse-temperature values to generate (default is None).</p></li>
 </ul>
-</div>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>as_beta</strong> (<em>bool</em>) – True if using inverse-temperature, False if using temperature.</p></li>
+<li><p><strong>betas</strong> (<em>np.ndarray</em>) – Sequence of inverse-temperature values.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If numT is not specified, or if both Tmin/Tmax and bmin/bmax are defined, or if neither are defined,
+    or if bmin/bmax or Tmin/Tmax values are invalid.</p></li>
+<li><p><strong>RuntimeError</strong> – If the mode is unknown (neither set_T nor set_b).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="odatse.solver.function.html" class="btn btn-neutral float-left" title="odatse.solver.function module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odatse.util.data_writer.html" class="btn btn-neutral float-right" title="odatse.util.data_writer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="odatse.util.read_matrix.html" class="btn btn-neutral float-left" title="odatse.util.read_matrix module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="odatse.util.resampling.html" class="btn btn-neutral float-right" title="odatse.util.resampling module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

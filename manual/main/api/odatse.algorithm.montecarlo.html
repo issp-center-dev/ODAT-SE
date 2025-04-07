@@ -93,152 +93,77 @@
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.montecarlo.</span></span><span class="sig-name descname"><span class="pre">AlgorithmBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase" title="odatse.algorithm._algorithm.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
-<p>Base of Monte Carlo</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.nwalkers">
-<span class="sig-name descname"><span class="pre">nwalkers</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.nwalkers" title="Link to this definition"></a></dt>
-<dd><p>the number of walkers (per one process)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.x">
-<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.x" title="Link to this definition"></a></dt>
-<dd><p>current configurations
-(NxD array, N is the number of walkers and D is the dimension)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.fx">
-<span class="sig-name descname"><span class="pre">fx</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.fx" title="Link to this definition"></a></dt>
-<dd><p>current “Energy”s</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.istep">
-<span class="sig-name descname"><span class="pre">istep</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.istep" title="Link to this definition"></a></dt>
-<dd><p>current step (or, the number of calculated energies)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.best_x">
-<span class="sig-name descname"><span class="pre">best_x</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.best_x" title="Link to this definition"></a></dt>
-<dd><p>best configuration</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.best_fx">
-<span class="sig-name descname"><span class="pre">best_fx</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.best_fx" title="Link to this definition"></a></dt>
-<dd><p>best “Energy”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.best_istep">
-<span class="sig-name descname"><span class="pre">best_istep</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.best_istep" title="Link to this definition"></a></dt>
-<dd><p>index of best configuration (step)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.best_iwalker">
-<span class="sig-name descname"><span class="pre">best_iwalker</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.best_iwalker" title="Link to this definition"></a></dt>
-<dd><p>index of best configuration (walker)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.comm">
-<span class="sig-name descname"><span class="pre">comm</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.comm" title="Link to this definition"></a></dt>
-<dd><p>MPI communicator</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>MPI.comm</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.rank">
-<span class="sig-name descname"><span class="pre">rank</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.rank" title="Link to this definition"></a></dt>
-<dd><p>MPI rank</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.Ts">
-<span class="sig-name descname"><span class="pre">Ts</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.Ts" title="Link to this definition"></a></dt>
-<dd><p>List of temperatures</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.Tindex">
-<span class="sig-name descname"><span class="pre">Tindex</span></span><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.Tindex" title="Link to this definition"></a></dt>
-<dd><p>Temperature index</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
+<p>Base class for Monte Carlo algorithms implementing common functionality.</p>
+<p>This class provides the foundation for various Monte Carlo methods, handling both
+continuous and discrete parameter spaces. It supports parallel execution with
+multiple walkers and temperature-based sampling methods.</p>
+<section id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
+<p>The class handles two types of parameter spaces:
+1. Continuous: Uses real-valued parameters within specified bounds
+2. Discrete: Uses node-based parameters with defined neighbor relationships</p>
+<p>For continuous problems:
+- Parameters are bounded by xmin and xmax
+- Steps are controlled by xstep for each dimension</p>
+<p>For discrete problems:
+- Parameters are represented as nodes in a graph
+- Transitions are only allowed between neighboring nodes
+- Neighbor relationships must form a connected, bidirectional graph</p>
+<p>The sampling process:
+1. Initializes walkers in valid positions
+2. Proposes moves based on the parameter space type
+3. Evaluates the objective function (“Energy”)
+4. Accepts/rejects moves based on the Monte Carlo criterion
+5. Tracks the best solution found</p>
+</section>
+<section id="key-methods">
+<h2>Key Methods<a class="headerlink" href="#key-methods" title="Link to this heading"></a></h2>
+<p>_initialize() : Sets up initial walker positions and counters
+propose() : Generates candidate moves for walkers
+local_update() : Performs one Monte Carlo step
+_evaluate() : Computes objective function values</p>
 <p>Initialize the AlgorithmBase class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
-<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm (default is None).</p></li>
-<li><p><strong>domain</strong> (<em>optional</em>) – Domain object defining the problem space (default is None).</p></li>
-<li><p><strong>nwalkers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of walkers (default is 1).</p></li>
-<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of the run, e.g., “initial” (default is “initial”).</p></li>
-</ul>
+<dt class="field-odd">param info<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Information object containing algorithm parameters.</p>
+</dd>
+<dt class="field-even">type info<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.Info</p>
+</dd>
+<dt class="field-odd">param runner<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Runner object for executing the algorithm, by default None.</p>
+</dd>
+<dt class="field-even">type runner<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.Runner, optional</p>
+</dd>
+<dt class="field-odd">param domain<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Domain object defining the problem space, by default None.</p>
+</dd>
+<dt class="field-even">type domain<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.domain.Domain, optional</p>
+</dd>
+<dt class="field-odd">param nwalkers<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of walkers to use in the simulation, by default 1.</p>
+</dd>
+<dt class="field-even">type nwalkers<span class="colon">:</span></dt>
+<dd class="field-even"><p>int, optional</p>
+</dd>
+<dt class="field-odd">param run_mode<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mode of the run, e.g., “initial”, by default “initial”.</p>
+</dd>
+<dt class="field-even">type run_mode<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If an unsupported domain type is provided or required parameters are missing.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmBase</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.__init__" title="Link to this definition"></a></dt>
@@ -247,26 +172,41 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
-<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm (default is None).</p></li>
-<li><p><strong>domain</strong> (<em>optional</em>) – Domain object defining the problem space (default is None).</p></li>
-<li><p><strong>nwalkers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of walkers (default is 1).</p></li>
-<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of the run, e.g., “initial” (default is “initial”).</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm, by default None.</p></li>
+<li><p><strong>domain</strong> (<em>odatse.domain.Domain</em><em>, </em><em>optional</em>) – Domain object defining the problem space, by default None.</p></li>
+<li><p><strong>nwalkers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of walkers to use in the simulation, by default 1.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of the run, e.g., “initial”, by default “initial”.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If an unsupported domain type is provided or required parameters are missing.</p>
+</dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmBase</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._evaluate">
-<span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._evaluate" title="Link to this definition"></a></dt>
-<dd><p>Evaluate the current “Energy”s.</p>
-<p>This method overwrites <cite>self.fx</cite> with the result.</p>
+<span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._evaluate" title="Link to this definition"></a></dt>
+<dd><p>Evaluate objective function for current walker positions.</p>
+<p>Optimization Features:
+- Skips evaluation for out-of-bounds positions
+- Tracks evaluation timing statistics
+- Supports parallel evaluation across walkers</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>in_range</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array indicating whether each walker is within the valid range (default is None).</p>
+<dd class="field-odd"><p><strong>in_range</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Boolean mask indicating valid positions
+True = position is valid and should be evaluated
+False = position is invalid, will be assigned inf</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of evaluated energies for the current configurations.</p>
+<dd class="field-even"><p>Array of objective function values
+Invalid positions are assigned inf</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -277,118 +217,56 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._initialize">
 <span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._initialize" title="Link to this definition"></a></dt>
-<dd><p>Initialize the algorithm state.</p>
-<p>This method sets up the initial state of the algorithm, including the
-positions and energies of the walkers, and resets the counters for
-accepted and trial steps.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._setup_neighbour">
-<span class="sig-name descname"><span class="pre">_setup_neighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._setup_neighbour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._setup_neighbour" title="Link to this definition"></a></dt>
-<dd><p>Set up the neighbor list for the discrete problem.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>info_param</strong> (<em>dict</em>) – Dictionary containing algorithm parameters, including the path to the neighbor list file.</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – If the neighbor list path is not specified in the parameters.</p></li>
-<li><p><strong>RuntimeError</strong> – If the transition graph made from the neighbor list is not connected or not bidirectional.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._write_result">
-<span class="sig-name descname"><span class="pre">_write_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_info_to_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._write_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._write_result" title="Link to this definition"></a></dt>
-<dd><p>Write the result of the current step to the file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fp</strong> (<em>TextIO</em>) – File pointer to the result file.</p></li>
-<li><p><strong>extra_info_to_write</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – Additional information to write for each walker (default is None).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._write_result_header">
-<span class="sig-name descname"><span class="pre">_write_result_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._write_result_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._write_result_header" title="Link to this definition"></a></dt>
-<dd><p>Write the header for the result file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fp</strong> (<em>TextIO</em>) – File pointer to the result file.</p></li>
-<li><p><strong>extra_names</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Additional column names to include in the header.</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Initialize the Monte Carlo simulation state.</p>
+<p>For continuous problems:
+- Uses domain.initialize to generate valid initial positions
+- Respects any additional limitations from the runner</p>
+<p>For discrete problems:
+- Randomly assigns walkers to valid nodes
+- Maps node indices to actual coordinate positions</p>
+<p>Also initializes:
+- Objective function values (fx) to zero
+- Best solution tracking variables
+- Acceptance counters for monitoring convergence</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.local_update">
-<span class="sig-name descname"><span class="pre">local_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_trial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_info_to_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.local_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.local_update" title="Link to this definition"></a></dt>
-<dd><p>one step of Monte Carlo</p>
+<span class="sig-name descname"><span class="pre">local_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_info_to_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.local_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.local_update" title="Link to this definition"></a></dt>
+<dd><p>Perform one step of the Monte Carlo algorithm.</p>
+<p>Algorithm Flow:
+1. Generate proposed moves for all walkers
+2. Check if proposals are within valid bounds
+3. Evaluate objective function for valid proposals
+4. Apply Metropolis acceptance criterion:</p>
+<blockquote>
+<div><p>P(accept) = min(1, exp(-beta * (f_new - f_old)))</p>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>For discrete case, adjust acceptance probability by:
+P <a href="#id1"><span class="problematic" id="id2">*</span></a>= (n_neighbors_old / n_neighbors_new)</p></li>
+<li><p>Update positions and energies</p></li>
+<li><p>Track best solution found</p></li>
+<li><p>Log results if writers are configured</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>beta</strong> (<em>np.ndarray</em>) – inverse temperature for each walker</p></li>
-<li><p><strong>file_trial</strong> (<em>TextIO</em>) – log file for all trial points</p></li>
-<li><p><strong>file_result</strong> (<em>TextIO</em>) – log file for all generated samples</p></li>
-<li><p><strong>extra_info_to_write</strong> (<em>List</em><em> of </em><em>np.ndarray</em><em> or </em><em>tuple</em><em> of </em><em>np.ndarray</em>) – extra information to write</p></li>
+<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – Inverse temperature(s) controlling acceptance probability
+Can be single value or array (one per walker)</p></li>
+<li><p><strong>extra_info_to_write</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – Additional data to log with results</p></li>
+<li><p><strong>Notes</strong> (<em>Implementation</em>)</p></li>
+<li><p><strong>------------------</strong></p></li>
+<li><p><strong>calculation</strong> (<em>- Handles numerical overflow in exponential</em>)</p></li>
+<li><p><strong>statistics</strong> (<em>- Maintains detailed acceptance</em>)</p></li>
+<li><p><strong>values</strong> (<em>- Supports both single and multiple temperature</em>)</p></li>
+<li><p><strong>steps</strong> (<em>- Preserves best solution across all</em>)</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.propose">
-<span class="sig-name descname"><span class="pre">propose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.propose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.propose" title="Link to this definition"></a></dt>
-<dd><p>Propose the next candidate positions for the walkers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>current</strong> (<em>np.ndarray</em>) – Current positions of the walkers.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>proposed</strong> – Proposed new positions for the walkers.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.read_Ts">
-<span class="sig-prename descclassname"><span class="pre">odatse.algorithm.montecarlo.</span></span><span class="sig-name descname"><span class="pre">read_Ts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#read_Ts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.read_Ts" title="Link to this definition"></a></dt>
-<dd><p>Read temperature or inverse-temperature values from the provided info dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>info</strong> (<em>dict</em>) – Dictionary containing temperature or inverse-temperature parameters.</p></li>
-<li><p><strong>numT</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of temperature or inverse-temperature values to generate (default is None).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>as_beta</strong> (<em>bool</em>) – True if using inverse-temperature, False if using temperature.</p></li>
-<li><p><strong>betas</strong> (<em>np.ndarray</em>) – Sequence of inverse-temperature values.</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ValueError</strong> – If numT is not specified, or if both Tmin/Tmax and bmin/bmax are defined, or if neither are defined,
-    or if bmin/bmax or Tmin/Tmax values are invalid.</p></li>
-<li><p><strong>RuntimeError</strong> – If the mode is unknown (neither set_T nor set_b).</p></li>
-</ul>
-</dd>
-</dl>
+</section>
 </dd></dl>
 
 </section>

@@ -167,6 +167,13 @@ The past three generations are kept with the suffixes .1, .2, and .3 .</p>
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Link to this heading">¶</a></h2>
 <p>This section sets the configuration of <code class="docutils literal notranslate"><span class="pre">Runner</span></code>, which bridges <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
 It has three subsections, <code class="docutils literal notranslate"><span class="pre">mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, and <code class="docutils literal notranslate"><span class="pre">log</span></code> .</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ignore_error</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description:
+A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.</p>
+</li>
+</ul>
 <section id="runner-mapping-section">
 <h3>[<code class="docutils literal notranslate"><span class="pre">runner.mapping</span></code>] section<a class="headerlink" href="#runner-mapping-section" title="Link to this heading">¶</a></h3>
 <p>This section defines the mapping from an <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, to an <span class="math notranslate nohighlight">\(M\)</span> dimensional parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span> .

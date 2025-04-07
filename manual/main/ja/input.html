@@ -165,6 +165,12 @@
 <h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] セクション<a class="headerlink" href="#runner" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と <code class="docutils literal notranslate"><span class="pre">Solver</span></code> を橋渡しする要素である <code class="docutils literal notranslate"><span class="pre">Runner</span></code> の設定を記述します。
 サブセクションとして <code class="docutils literal notranslate"><span class="pre">mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, <code class="docutils literal notranslate"><span class="pre">log</span></code> を持ちます。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ignore_error</span></code></p>
+<p>形式: bool値 (default: false)</p>
+<p>説明: 順問題ソルバーの実行時に RuntimeError が生じた場合に、値として NaN を返して計算を続行します。false の場合は RuntimeError を送出し、通常はプログラムを終了させます。RuntimeError 以外は捕捉しません。</p>
+</li>
+</ul>
 <section id="runner-mapping">
 <h3>[<code class="docutils literal notranslate"><span class="pre">runner.mapping</span></code>] セクション<a class="headerlink" href="#runner-mapping" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> で探索している <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> から <code class="docutils literal notranslate"><span class="pre">Solver</span></code> で使う <span class="math notranslate nohighlight">\(M\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(y\)</span> への写像を定義します。
