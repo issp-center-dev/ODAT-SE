@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>plt_model_evidence.py &#8212; ODAT-SE 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="summarize_each_T.py" href="summarize_each_T.html" />
+    <link rel="prev" title="Reference" href="index.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>plt_model_evidence.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Reference</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="summarize_each_T.html">summarize_each_T.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="plt-model-evidence-py">
+<h1>plt_model_evidence.py<a class="headerlink" href="#plt-model-evidence-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>Calculate model evidence</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span>-n<span class="w"> </span>NDATA<span class="w"> </span>FILEs
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>Extracts beta and partition function values from PAMC output files (FILE) and calculates the model evidence.
+Results are written to standard output and a plot of the results is saved to a file.</p>
+<p>When multiple FILEs are specified, the average and variance of their model evidence values are calculated and a plot with error bars is generated.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Python 3.6 or higher is required (due to the use of f-strings).</p></li>
+<li><p>All calculations are performed on a logarithmic scale for numerical stability.</p></li>
+<li><p>The x-axis (beta) in plots is always displayed on a logarithmic scale.</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt><strong>FILE</strong></dt><dd><p>PAMC output filename(s) (fx.txt). Multiple files can be specified.</p>
+</dd>
+<dt><strong>-n NDATA, --ndata NDATA</strong></dt><dd><p>Specifies the number of data points for each dataset as comma-separated integers. This is a required parameter. Examples: “100” (one dataset with 100 points), “50,100,75” (three datasets with 50, 100, and 75 points respectively)</p>
+</dd>
+<dt><strong>-w WEIGHT, --weight WEIGHT</strong></dt><dd><p>Specifies the relative weights between datasets as comma-separated values. Weights are automatically normalized to sum to 1.0. The number of weight values must match the number of data points.</p>
+</dd>
+<dt><strong>-V VOLUME, --Volume VOLUME</strong></dt><dd><p>Specifies the normalization of the prior probability distribution (volume of the domain <span class="math notranslate nohighlight">\(V_\Omega\)</span>). Default is 1.0.</p>
+</dd>
+<dt><strong>-f RESULT, --result RESULT</strong></dt><dd><p>Specifies the filename for outputting model evidence values. Default is model_evidence.txt.</p>
+</dd>
+<dt><strong>-o OUTPUT, --output OUTPUT</strong></dt><dd><p>Specifies the filename for the model evidence plot. The output format is determined by the file extension, and any format supported by matplotlib can be specified. Default is model_evidence.png.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Displays help message and exits the program.</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Basic usage (one data file and one dataset)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>fx.txt
+</pre></div>
+</div>
+<p>Calculates the model evidence for a dataset with 100 data points,
+and outputs model_evidence.txt and model_evidence.png.</p>
+</li>
+<li><p>When there are multiple datasets</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>,100,75<span class="w"> </span>-w<span class="w"> </span><span class="m">0</span>.2,0.5,0.3<span class="w"> </span>fx.txt
+</pre></div>
+</div>
+<p>Calculates the model evidence for three spots (with 50, 100, and 75 data points respectively,
+and relative weights of 0.2, 0.5, and 0.3).</p>
+</li>
+<li><p>When using multiple data files</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>-o<span class="w"> </span>evidence_plot.pdf<span class="w"> </span>-f<span class="w"> </span>evidence_data.txt<span class="w"> </span>fx_1.txt<span class="w"> </span>fx_2.txt<span class="w"> </span>fx_3.txt
+</pre></div>
+</div>
+<p>Calculates the model evidence from three data files and determines the mean and variance.
+Outputs the results to evidence_data.txt and generates a plot with error bars in evidence_plot.pdf.</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="calculation-of-model-evidence">
+<h3>Calculation of Model Evidence<a class="headerlink" href="#calculation-of-model-evidence" title="Link to this heading">¶</a></h3>
+<p>The R-factor is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[R(X;D)^2 = \sum_\mu w_\mu \sum_i \left( I_\mu(\theta_i) - I^{\text{(cal)}}_\mu(\theta_i;X) \right)^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(I_\mu(\theta_i)\)</span> represents the measured data points in dataset <span class="math notranslate nohighlight">\(\mu\)</span>, and <span class="math notranslate nohighlight">\(I^{\text{(cal)}}_\mu(\theta_i;X)\)</span> is the theoretical calculated value under parameter <span class="math notranslate nohighlight">\(X\)</span>.
+<span class="math notranslate nohighlight">\(w_\mu\)</span> is the relative weight of each dataset, normalized so that their sum equals 1.</p>
+<p>The model evidence <span class="math notranslate nohighlight">\(P(D|\beta)\)</span> is calculated using the following formula:</p>
+<div class="math notranslate nohighlight">
+\[\log P(D|\beta) = \log Z(D;\beta) - \log V_\Omega + \frac{n}{2} \log \beta + \sum_{\mu} \frac{n_{\mu}}{2} \log w_{\mu} - \frac{n}{2} \log \pi\]</div>
+<p>where <span class="math notranslate nohighlight">\(Z(D;\beta)\)</span> is the partition function:</p>
+<div class="math notranslate nohighlight">
+\[Z(D;\beta) = \int_\Omega \exp\left(-\beta\,R(X;D)^2\right) dX\]</div>
+<p>and:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(V_\Omega\)</span>: Normalization factor of the prior probability distribution</p></li>
+<li><p><span class="math notranslate nohighlight">\(n_\mu\)</span>: Number of data points in each dataset</p></li>
+<li><p><span class="math notranslate nohighlight">\(n\)</span>: Total number of data points (sum of all datasets)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta\)</span>: Inverse temperature</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="input-file-format">
+<h3>Input File Format<a class="headerlink" href="#input-file-format" title="Link to this heading">¶</a></h3>
+<p>The input file (PAMC output file) is expected to have the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Comment line (optional)
+beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
+...
+</pre></div>
+</div>
+<dl class="simple">
+<dt>The script reads the following values from each line:</dt><dd><ul class="simple">
+<li><p>Column 1 (index 0): beta value (inverse temperature)</p></li>
+<li><p>Column 5 (index 4): logz value (logarithm of the partition function)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="output-file-format">
+<h3>Output File Format<a class="headerlink" href="#output-file-format" title="Link to this heading">¶</a></h3>
+<p>The output file (model_evidence.txt) has the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># max log_P(D;beta) = {maximum_value} at Tstep = {index}, beta = {corresponding_beta_value}
+# $1: Tstep
+# $2: beta
+# $3: model_evidence
+0  beta0  model_evidence0
+1  beta1  model_evidence1
+...
+</pre></div>
+</div>
+<p>When processing multiple input files, a variance column is added:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># max log_P(D;beta) = {maximum_value} at Tstep = {index}, beta = {corresponding_beta_value}
+# $1: Tstep
+# $2: beta
+# $3: average model_evidence
+# $4: variance
+0  beta0  avg_model_evidence0  variance0
+1  beta1  avg_model_evidence1  variance1
+...
+</pre></div>
+</div>
+</section>
+<section id="processing-mechanism">
+<h3>Processing Mechanism<a class="headerlink" href="#processing-mechanism" title="Link to this heading">¶</a></h3>
+<p>This script processes data in the following steps:</p>
+<ol class="arabic simple">
+<li><p>Reads beta values and logz values from input files</p></li>
+<li><p>Obtains the number of data points and weights for each dataset</p></li>
+<li><p>Calculates the logarithm of the model evidence</p></li>
+<li><p>Calculates the mean and variance for multiple files</p></li>
+<li><p>Outputs the results to a file</p></li>
+<li><p>Plots the model evidence as a function of beta</p></li>
+</ol>
+</section>
+<section id="plot-characteristics">
+<h3>Plot Characteristics<a class="headerlink" href="#plot-characteristics" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>X-axis (beta) is always displayed on a logarithmic scale</p></li>
+<li><p>For a single file, only points are displayed; for multiple files, error bars are included</p></li>
+<li><p>Markers are displayed as red “x”</p></li>
+<li><p>Grid lines are displayed to make it easier to identify data positions</p></li>
+</ul>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>If the input file does not exist: A file open error occurs</p></li>
+<li><p>If the data format is invalid: An error occurs in numpy.loadtxt</p></li>
+<li><p>If the lengths of NDATA and WEIGHT do not match: An AssertionError occurs</p></li>
+</ul>
+<p>In particular, the number of data points list and their weights must always match.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Reference</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="summarize_each_T.html">summarize_each_T.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

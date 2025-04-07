@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial: How to Use Post-Processing Tools &#8212; ODAT-SE 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reference" href="tools/index.html" />
+    <link rel="prev" title="Post-Processing Tools" href="index.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Tutorial: How to Use Post-Processing Tools</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Post-Processing Tools</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tools/index.html">Reference</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="tutorial-how-to-use-post-processing-tools">
+<h1>Tutorial: How to Use Post-Processing Tools<a class="headerlink" href="#tutorial-how-to-use-post-processing-tools" title="Link to this heading">¶</a></h1>
+<ol class="arabic">
+<li><p>Running PAMC Calculations</p>
+<p>As an example, we’ll use a calculation from the TRHEPD forward problem solver (odatse-STR).
+The parameter space is 3-dimensional, with 51 temperature points logarithmically spaced from T=1.0 to 1.0e-6.
+Each annealing step consists of 20 MCMC steps.
+The number of replicas is set to 100 per process with 4 MPI processes.</p>
+<p>Results are output under the output directory.
+MCMC calculation logs for each MPI process are written to output/{rank}/result_T{index}.txt, split by temperature points.
+The expected values and variances of f(x), along with partition function values, are output to output/fx.txt.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If export_combined_files is set to True, logs are consolidated in combined.txt.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>Run this to extract result.txt. Then split result.txt by temperature points.</p>
+<p>extract_combined.py is a tool for extracting lines starting with specific tags, with the following options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--tag</span></code> : Target tag for extraction (required)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : Directory containing data files</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="tools/extract_combined.html"><span class="doc">extract_combined.py</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If separate_T is False, logs are output to result.txt.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>Run this to split into result_T{index}.txt files by temperature point.</p>
+<p>separateT.py is a tool for splitting MCMC data files by temperature, with the following options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : Directory containing data files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--file_type</span></code> : Specific filename to split (processes result.txt in each directory if not specified)</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="tools/separateT.html"><span class="doc">separateT.py</span></a>.</p>
+</div>
+</li>
+<li><p>Calculating Model Evidence</p>
+<p>The model evidence <span class="math notranslate nohighlight">\(\log P(D;\beta)\)</span> is expressed as:</p>
+<div class="math notranslate nohighlight">
+\[\log P(D;\beta) = \log\left(\dfrac{Z_\beta}{Z_{\beta_0}}\right) - \log V_\Omega + \sum_\mu \dfrac{n_\mu}{2}\log\left(\dfrac{\beta w_\mu}{\pi}\right)\]</div>
+<p>Calculate model evidence using the partition function values <span class="math notranslate nohighlight">\(\log Z/Z_0\)</span> from output/fx.txt. This requires specifying the search space volume <span class="math notranslate nohighlight">\(V_\Omega\)</span> (normalization factor for prior probability) and the number of data points <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<p>In this example, the search space spans [3.0, 6.0] for each of z1, z2, z3. The number of data points (rows in experiment.txt) is 70.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-V<span class="w"> </span><span class="m">27</span>.0<span class="w"> </span>-n<span class="w"> </span><span class="m">70</span><span class="w"> </span>output/fx.txt
+</pre></div>
+</div>
+<p>Model evidence values are written to model_evidence.txt, and a plot against beta is output to model_evidence.png.</p>
+<p>plt_model_evidence.py accepts these options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-V,</span> <span class="pre">--Volume</span></code> : Search space volume <span class="math notranslate nohighlight">\(V_\Omega\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--ndata</span></code> : Number of data points (required)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output</span></code> : Output plot filename. The output format is determined by the file extension.</p></li>
+</ul>
+<p>For details, see <a class="reference internal" href="tools/plt_model_evidence.html"><span class="doc">plt_model_evidence.py</span></a>.</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Plot of model evidence. Maximum value occurs at beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44).</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</li>
+<li><p>Summarizing Search Data by Temperature Points</p>
+<p>Extract and combine replica configurations at the end of annealing from MCMC step information in output/{rank}/result_T{index}.txt.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>Results are written to summarized/result_T{index}_summarized.txt.</p>
+<p>summarize_each_T.py extracts and combines replica configuration data for each temperature point, with these options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_directory</span></code> : Directory containing MCMC data files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--export_directory</span></code> : Output directory</p></li>
+</ul>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">-i,</span> <span class="pre">--input_file</span></code> option with the TOML configuration file from the PAMC calculation automatically retrieves parameters such as the number of replicas.</p>
+<p>For details, see <a class="reference internal" href="tools/summarize_each_T.html"><span class="doc">summarize_each_T.py</span></a>.</p>
+</li>
+<li><p>Creating 1D and 2D Marginalized Histograms</p>
+<p>Plot weighted posterior probability distributions <span class="math notranslate nohighlight">\(P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}\)</span> using replica configuration data.</p>
+<p>To create 1D histograms marginalized along each <span class="math notranslate nohighlight">\(z_i\)</span>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+</pre></div>
+</div>
+<p>This creates histograms for each data file in summarized/, outputting to 1dhist/ as 1Dhistogram_result_T{index}_beta_{beta}.png. Value range is set to 3.0-6.0.</p>
+<p>plt_1D_histogram.py accepts these main options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : Directory containing data files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output_dir</span></code> : Output directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r,</span> <span class="pre">--range</span></code> : Variable range (“min,max” format)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-b,</span> <span class="pre">--bins</span></code> : Number of histogram bins (default: 60)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-f,</span> <span class="pre">--format</span></code> : Output file formats (comma-separated list, default: “png”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code> : Configuration file path (TOML format)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--params</span></code> : Path to parameter file used in PAMC calculation</p></li>
+</ul>
+<p>Using a configuration file allows setting multiple options together.</p>
+<p>For details, see <a class="reference internal" href="tools/plt_1D_histogram.html"><span class="doc">plt_1D_histogram.py</span></a>.</p>
+<figure class="align-default" id="id2">
+<img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">Example 1D marginalized histogram output (Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span>).</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>To create 2D marginalized histograms:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+</pre></div>
+</div>
+<p>This creates 2D histograms for combinations (z1,z2), (z1,z3), (z2,z3), outputting to 2dhist/ as 2Dhistogram_result_T{index}_beta_{beta}_x1_vs_x2.png etc. (Axis labels are x1, x2, … if field_list not specified.)</p>
+<p>plt_2D_histogram.py has the same options as plt_1D_histogram.py plus these features:</p>
+<ul class="simple">
+<li><p>Generates histograms for each pair of variables</p></li>
+<li><p>Visualizes probability density using logarithmic color mapping</p></li>
+</ul>
+<p>Output filenames follow the pattern:
+2Dhistogram_[filename]_[x-axis label]_vs_[y-axis label].[format]</p>
+<p>Example: 2Dhistogram_result_T44_beta_1.91e+05_x1_vs_x2.png</p>
+<p>For details, see <a class="reference internal" href="tools/plt_2D_histogram.html"><span class="doc">plt_2D_histogram.py</span></a>.</p>
+<figure class="align-default" id="id3">
+<img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Example 2D marginalized histogram output (Tstep=22, z1-z2 axis plot).</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</li>
+</ol>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Post-Processing Tools</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tools/index.html">Reference</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

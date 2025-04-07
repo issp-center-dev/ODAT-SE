@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>extract_combined.py &#8212; ODAT-SE 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="separateT.py" href="separateT.html" />
+    <link rel="prev" title="plt_2D_histogram.py" href="plt_2D_histogram.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>extract_combined.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="plt_2D_histogram.html">plt_2D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="separateT.html">separateT.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="extract-combined-py">
+<h1>extract_combined.py<a class="headerlink" href="#extract-combined-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>Extract specific items from log files in combined format</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>extract_combined.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span>-t<span class="w"> </span>tag<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>Extracts lines tagged with a specific tag from MCMC log files in combined format.</p>
+<p>In the combined format, multiple data types are stored with a tag at the beginning of each line in the format <code class="docutils literal notranslate"><span class="pre">&lt;tag&gt;</span></code>. This script extracts lines with a specific <code class="docutils literal notranslate"><span class="pre">tag</span></code> and outputs them to a file. The output file will be named <code class="docutils literal notranslate"><span class="pre">tag</span></code> and placed in the same directory as the input file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Python 3.5 or higher is required (due to the use of type hints).</p></li>
+<li><p>The tag format must be <code class="docutils literal notranslate"><span class="pre">&lt;tag&gt;</span></code> followed by a space.</p></li>
+</ul>
+</div>
+<p>The following command line options are available.
+If FILE is specified, that file will be processed. If no file is explicitly specified, DATA_DIR/*/combined.txt will be processed.</p>
+<dl class="simple">
+<dt><strong>FILE</strong></dt><dd><p>Specifies the MCMC log file(s) (combined.txt). Multiple files can be specified.</p>
+</dd>
+<dt><strong>-t TAG, --tag TAG</strong></dt><dd><p>Specifies the tag to extract. This is a required parameter. The tag is a string.</p>
+</dd>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>Specifies the directory to get data files from (when <code class="docutils literal notranslate"><span class="pre">FILE</span></code> is not specified).</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>Displays a progress bar during execution. Requires the tqdm library. If tqdm is not installed, the name of the file being processed will be displayed instead.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Displays help message and exits the program.</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>Basic usage examples are shown below.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract lines with the &quot;energy&quot; tag from a specific file</span>
+python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>energy<span class="w"> </span>path/to/combined.txt
+
+<span class="c1"># Extract lines with the &quot;acc&quot; tag from all combined.txt files in a specific directory</span>
+python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>acc<span class="w"> </span>-d<span class="w"> </span>./mcmc_results/
+
+<span class="c1"># Process multiple files with a progress bar</span>
+python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>energy<span class="w"> </span>--progress<span class="w"> </span>file1.txt<span class="w"> </span>file2.txt<span class="w"> </span>file3.txt
+</pre></div>
+</div>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="usage-notes">
+<h3>Usage Notes<a class="headerlink" href="#usage-notes" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Exact Tag Matching</strong>:
+Tags must match exactly. If you specify the “energy” tag, only lines starting with “<code class="docutils literal notranslate"><span class="pre">&lt;energy&gt;</span></code>” will be extracted.
+Lines with “<code class="docutils literal notranslate"><span class="pre">&lt;Energy&gt;</span></code>” or “<code class="docutils literal notranslate"><span class="pre">&lt;energy_value&gt;</span></code>” will not be matched. A space must follow the tag.</p></li>
+<li><p><strong>Output File Overwriting</strong>:
+If a file with the same name already exists, it will be overwritten without warning. It is recommended to back up important files beforehand.</p></li>
+<li><p><strong>Processing Large Files</strong>:
+The script processes files line by line, so memory consumption is kept low even for very large files.
+When processing large files, you can use the <code class="docutils literal notranslate"><span class="pre">--progress</span></code> option to monitor progress.</p></li>
+<li><p><strong>Handling Filenames and Paths</strong>:
+The output filename is simply <code class="docutils literal notranslate"><span class="pre">tag</span></code>. If the tag contains invalid characters (characters that cannot be used in filenames),
+an error may occur when creating the file.</p></li>
+<li><p><strong>Empty File Processing</strong>:
+If the input file is empty or if no lines with the specified tag are found, an empty file will be generated.</p></li>
+</ol>
+</section>
+<section id="combined-format-file-structure">
+<h3>Combined Format File Structure<a class="headerlink" href="#combined-format-file-structure" title="Link to this heading">¶</a></h3>
+<p>Files in combined format have the following structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;tag1&gt; value1 value2 ...
+&lt;tag2&gt; value3 value4 ...
+&lt;tag1&gt; value5 value6 ...
+...
+</pre></div>
+</div>
+<p>Each line begins with a tag in the format <code class="docutils literal notranslate"><span class="pre">&lt;tag&gt;</span></code>, and <code class="docutils literal notranslate"><span class="pre">extract_combined.py</span></code> searches for and extracts lines with matching tags.
+The tag portion is removed from the output file.</p>
+</section>
+<section id="general-workflow">
+<h3>General Workflow<a class="headerlink" href="#general-workflow" title="Link to this heading">¶</a></h3>
+<p>This script is used when analyzing MCMC simulation results:</p>
+<ol class="arabic simple">
+<li><p>When MCMC simulation is run with the export_combined_files option enabled, <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code> files are generated.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">extract_combined.py</span></code> to extract necessary files.</p></li>
+<li><p>Analyze or plot the extracted data files with other tools.</p></li>
+</ol>
+<p>When processing multiple simulation results at once, combining the <code class="docutils literal notranslate"><span class="pre">-d</span></code> option with the <code class="docutils literal notranslate"><span class="pre">--progress</span></code> option is efficient.</p>
+<dl class="simple">
+<dt>Examples of commonly used tags in MCMC simulations:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>: Monte Carlo trial step logs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result.txt</span></code>: Monte Carlo step logs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weight.txt</span></code>: Weight values in PAMC calculations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time.txt</span></code>: Calculation times</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="error-handling-and-output">
+<h3>Error Handling and Output<a class="headerlink" href="#error-handling-and-output" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>If the specified tag is not found: An empty file is generated</p></li>
+<li><p>If the input file cannot be read: An error message is displayed on standard error output</p></li>
+<li><p>If the output file cannot be written: A permission error is displayed on standard error output</p></li>
+</ul>
+<p>The script displays progress information on standard output. If the <code class="docutils literal notranslate"><span class="pre">--progress</span></code> option is specified and the tqdm library is installed, a progress bar will be displayed. Otherwise, the name of the file being processed will be displayed.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="plt_2D_histogram.html">plt_2D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="separateT.html">separateT.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

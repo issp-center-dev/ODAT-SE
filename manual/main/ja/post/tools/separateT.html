@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>separateT.py &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=91a57042"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="(開発者向け)ユーザー定義アルゴリズム・ソルバー" href="../../customize/index.html" />
+    <link rel="prev" title="extract_combined.py" href="extract_combined.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>separateT.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="extract_combined.html">extract_combined.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../customize/index.html">(開発者向け)ユーザー定義アルゴリズム・ソルバー</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="separatet-py">
+<h1>separateT.py<a class="headerlink" href="#separatet-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>MCMCのログファイルを温度点ごとに分割する</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>MCMC のログファイル (result.txt, trial.txt) を温度点ごとに個別のファイルに分割する。
+ファイルは入力と同じディレクトリ内に作成され、ファイル名は元のファイルに <code class="docutils literal notranslate"><span class="pre">_T{index}</span></code> を付けた形式になる。<code class="docutils literal notranslate"><span class="pre">{index}</span></code> は異なる温度点のインデックスで、ログファイル内の出現順に 0 から付与される。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<ul class="simple">
+<li><p>Python 3.6以上が必要です(タイプヒントとf文字列を使用しているため)。</p></li>
+<li><p>MCMCログファイルは温度値が3番目のカラム(インデックス2)にあることを前提としています。</p></li>
+<li><p>入力ファイル内のコメント行(#で始まる行)はすべての出力ファイルに保持されます。</p></li>
+<li><p>プログレスバー表示には tqdm ライブラリが必要です。未インストールの場合は通常のメッセージが表示されます。</p></li>
+</ul>
+</div>
+<p>指定可能なコマンドラインオプションを以下に示す。
+FILE を指定した場合はそのファイルが対象となる。明示的にファイルを指定しない場合、DATA_DIR/*/FILE_TYPE が対象となる。</p>
+<dl class="simple">
+<dt><strong>FILE</strong></dt><dd><p>MCMCのログファイルを指定する。複数のファイルを指定可能。</p>
+</dd>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>データファイルをディレクトリから取得する場合(<code class="docutils literal notranslate"><span class="pre">FILE</span></code> を指定しない場合)に、ディレクトリを指定する。</p>
+</dd>
+<dt><strong>-t FILE_TYPE, --file_type FILE_TYPE</strong></dt><dd><p>ディレクトリを指定して実行する場合に、対象となるファイル名を指定する。デフォルトは result.txt 。</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。tqdmがインストールされていない場合は、代わりに処理中のファイル名がメッセージとして表示される。</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>ファイル名を指定して実行する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>output/0/result.txt
+</pre></div>
+</div>
+<p>output/0/result_T0.txt, output/0/result_T1.txt, ... が作成される。</p>
+</li>
+<li><p>指定したディレクトリ以下のファイルを分割する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>output/0/result.txt, output/1/result.txt, ... が分割の対象となる。</p>
+</li>
+<li><p>指定したディレクトリ以下の result.txt 以外のファイルを分割する。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-t<span class="w"> </span>trial.txt<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>output/0/trial.txt, output/1/trial.txt, ... を分割する。</p>
+</li>
+<li><p>複数のファイルを一度に処理し、進捗状況を表示する。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>--progress<span class="w"> </span>file1.txt<span class="w"> </span>file2.txt<span class="w"> </span>file3.txt
+</pre></div>
+</div>
+<p>各ファイルが温度点ごとに分割され、処理の進捗状況がプログレスバーで表示される。</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>ファイル形式<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>入力ファイル(MCMCログファイル)は以下のような形式を想定しています:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
+step replica_id T fx x1 ... xN ...
+step replica_id T fx x1 ... xN ...
+...
+</pre></div>
+</div>
+<p>各行は空白文字で区切られたデータで、3番目のカラム(インデックス2)が温度値Tです。
+同じ温度値を持つ連続した行が1つのファイルにまとめられます。</p>
+</section>
+<section id="id2">
+<h3>処理の仕組み<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>このスクリプトは以下の手順で処理を行います:</p>
+<ol class="arabic simple">
+<li><p>入力ファイルを1行ずつ読み込む</p></li>
+<li><p>コメント行(#で始まる行)をヘッダーとして記録</p></li>
+<li><p>各データ行の3番目のカラム(インデックス2)から温度値を取得</p></li>
+<li><p>温度値が変わるたびに、それまでのデータを別ファイルに書き出す</p></li>
+<li><p>各温度値のデータは、元のファイル名に「_T{インデックス}」を付けたファイルに保存</p></li>
+</ol>
+</section>
+<section id="id3">
+<h3>出力ファイルの形式<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>出力ファイルは以下の形式になります:</p>
+<ul class="simple">
+<li><p>ファイル名: 元のファイル名に「_T{インデックス}」を追加(例: result.txt → result_T0.txt, result_T1.txt, ...)</p></li>
+<li><p>ファイル内容: 入力ファイルのヘッダー(コメント行)に続いて、同じ温度値を持つデータ行</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>パフォーマンス<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>ファイルを1行ずつ処理するため、非常に大きなファイルでもメモリ使用量は抑えられます</p></li>
+<li><p>各温度点のデータはメモリ上にバッファリングされるため、1つの温度点に非常に多くのデータがある場合はメモリ使用量が増加する可能性があります</p></li>
+<li><p>処理時間は入力ファイルのサイズとともに増加しますが、行単位の処理のため比較的高速です</p></li>
+<li><p>複数のファイルを処理する場合、<cite>--progress</cite> オプションを使用することで進捗状況を確認できます</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>エラー処理<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>入力ファイルが見つからない場合: ファイルオープンエラーが発生し、その旨のメッセージが表示されます</p></li>
+<li><p>出力ファイルが書き込めない場合: 権限エラーなどが発生し、その旨のメッセージが表示されます</p></li>
+<li><p>データ行の列数が足りない場合: インデックスエラーが発生する可能性があります(3番目のカラムが存在しない場合)</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="extract_combined.html">extract_combined.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../customize/index.html">(開発者向け)ユーザー定義アルゴリズム・ソルバー</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

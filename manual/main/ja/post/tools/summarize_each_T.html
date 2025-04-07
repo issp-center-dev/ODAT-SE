@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>summarize_each_T.py &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=91a57042"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="plt_1D_histogram.py" href="plt_1D_histogram.html" />
+    <link rel="prev" title="plt_model_evidence.py" href="plt_model_evidence.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>summarize_each_T.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="plt_model_evidence.html">plt_model_evidence.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plt_1D_histogram.html">plt_1D_histogram.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="summarize-each-t-py">
+<h1>summarize_each_T.py<a class="headerlink" href="#summarize-each-t-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>PAMCの出力ファイルから各温度点での annealing 後のデータを抽出する</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>PAMCの計算において、プロセスごとの各温度点での MCMC の出力ファイル result_T*.txt から、annealing が完了した時点のレプリカのデータを抽出する。データは指定したディレクトリ内に温度点ごとのファイルとして格納する。</p>
+<p>PAMCの計算データは DATA_DIRECTORY/[プロセス番号]/result_T[温度インデックス].txt の形式で配置されているものとする。
+各ファイルの書式はスペース区切りの数値データで、MCMCステップ数(step)、レプリカ番号(walker)、温度(T)、fx、座標値(x1 .. xN, Nは次元数)、weight、ancestor とする。</p>
+<p>出力データは EXPORT_DIRECTORY/result_T[温度インデックス]_summarized.txt の形式で配置される。
+各ファイルの書式は、逆温度(beta)、fx、座標値(x1 .. xN)、weight となる。</p>
+<p>PAMCの計算に用いた入力パラメータファイルを INPUT_FILE として指定した場合、レプリカ数(nreplica)と計算データを格納するディレクトリ(data_directory)を入力ファイルから取得する。ただし、コマンドライン引数が優先される。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<ul class="simple">
+<li><p>Python 3.6以上が必要です(タイプヒントとf文字列を使用しているため)。</p></li>
+<li><p>逆温度(beta)は温度(T)の逆数として計算されます(beta = 1/T)。T = 0 の場合は beta = 0 とされます。</p></li>
+<li><p>デフォルトでは、各ファイルの最後の nreplica 行を抽出します。この行数はレプリカ数に相当します。</p></li>
+<li><p>nreplica が指定されていない場合、最後のMCMCステップを自動で判別してデータを抽出します。</p></li>
+<li><p>プログレスバー表示には tqdm ライブラリが必要です。未インストールの場合はプログレスバーなしで処理が実行されます。</p></li>
+<li><p>出力ディレクトリが存在しない場合は自動的に作成されます。</p></li>
+</ul>
+</div>
+<p>指定可能なコマンドラインオプションを以下に示す。</p>
+<dl class="simple">
+<dt><strong>-i INPUT_FILE, --input_file INPUT_FILE</strong></dt><dd><p>PAMCの計算に用いたTOML形式の入力パラメータファイルを指定する。指定すると、そのファイルからレプリカ数と出力ディレクトリを読み取る。</p>
+</dd>
+<dt><strong>-n NREPLICA, --nreplica NREPLICA</strong></dt><dd><p>プロセスあたりのレプリカ数を指定する。指定しない場合で、入力ファイルも指定されていない場合は、各ファイルの最後のステップのデータのみを抽出する。</p>
+</dd>
+<dt><strong>-d DATA_DIRECTORY, --data_directory DATA_DIRECTORY</strong></dt><dd><p>PAMCの計算データが格納されたディレクトリ。入力ファイルが指定されている場合でも、このオプションが優先される。</p>
+</dd>
+<dt><strong>-o EXPORT_DIRECTORY, --export_directory EXPORT_DIRECTORY</strong></dt><dd><p>抽出したデータを書き出すディレクトリ。デフォルトは &quot;summarized&quot;。</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>基本的な使用方法</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>output ディレクトリ内のすべてのプロセスフォルダから result_T*.txt ファイルを処理し、summarized ディレクトリに保存します。
+各ファイルの最後のMCステップのデータが抽出されます。</p>
+</li>
+<li><p>TOML 設定ファイルを使用する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-i<span class="w"> </span>input.toml<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>input.toml から設定を読み込み(レプリカ数、データディレクトリ)、データを処理して summarized ディレクトリに保存します。</p>
+</li>
+<li><p>レプリカ数を明示的に指定する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-n<span class="w"> </span><span class="m">16</span><span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>各ファイルの最後の16行を抽出します(16レプリカの場合)。</p>
+</li>
+<li><p>プログレスバーを表示する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized<span class="w"> </span>--progress
+</pre></div>
+</div>
+<p>処理中にプログレスバーを表示します(tqdmライブラリが必要)。</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>データ変換の詳細<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>このスクリプトは以下のデータ変換を行います：</p>
+<ol class="arabic">
+<li><p>入力データの形式:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id T fx x1 ... xN weight ancestor
+</pre></div>
+</div>
+</li>
+<li><p>出力データの形式:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>beta fx x1 ... xN weight
+</pre></div>
+</div>
+</li>
+</ol>
+<dl class="simple">
+<dt>主な変換ポイント:</dt><dd><ul class="simple">
+<li><p>最後のMCステップのデータの抽出</p></li>
+<li><p>温度(T)から逆温度(beta = 1/T)への変換</p></li>
+<li><p>不要なカラム(step、walker_id、ancestor)の削除</p></li>
+</ul>
+</dd>
+</dl>
+<p>温度(T)が 0 の場合は、逆温度(beta)も 0 として設定されます。</p>
+</section>
+<section id="toml">
+<h3>TOML設定ファイルの形式<a class="headerlink" href="#toml" title="Link to this heading">¶</a></h3>
+<p>指定するTOML設定ファイルは以下の形式が想定されています:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span><span class="w">  </span><span class="c1"># データディレクトリ</span>
+
+<span class="k">[algorithm.pamc]</span>
+<span class="n">nreplica_per_proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="w">  </span><span class="c1"># プロセスあたりのレプリカ数</span>
+</pre></div>
+</div>
+<p>必要なセクションとパラメータが設定ファイルにない場合、エラーが発生する可能性があります。</p>
+</section>
+<section id="id2">
+<h3>処理の仕組み<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>このスクリプトは以下の手順で処理を行います:</p>
+<ol class="arabic simple">
+<li><p>コマンドライン引数の解析(または TOML 設定ファイルからの読み込み)</p></li>
+<li><p>出力ディレクトリの作成(存在しない場合)</p></li>
+<li><p>入力ファイルのパターンマッチング(DATA_DIRECTORY/*/result_T*.txt)</p></li>
+<li><p>各ファイルの処理:</p>
+<ol class="loweralpha simple">
+<li><p>ファイルを行単位で読み込み(コメント行を除外)</p></li>
+<li><p>レプリカ数が指定されている場合は最後の n 行を抽出</p></li>
+<li><p>レプリカ数が指定されていない場合は最後のステップの行を抽出</p></li>
+<li><p>データ変換処理(温度→逆温度、不要なカラムの削除)</p></li>
+<li><p>結果を出力ファイルに書き込み</p></li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="id3">
+<h3>パフォーマンスと注意点<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>一度に多数のファイルを処理する場合に <cite>--progress</cite> オプションを使用して処理の進行状況を可視化できます。</p></li>
+<li><p>非常に大きなファイルを処理する場合、メモリ使用量に注意が必要です。</p></li>
+<li><p>出力ファイルに追記モード (<cite>a</cite>) で書き込むため、同じ処理を複数回実行すると結果が重複する可能性があります。再実行する場合は、出力ディレクトリを空にするか新しいディレクトリを指定してください。</p></li>
+<li><p>TOMLファイルから設定を読み込む場合、Python 3.11未満では追加のライブラリ(tomli)が必要です。</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>エラー処理<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>入力ファイルが見つからない場合: ファイルの処理はスキップされ、エラーメッセージが表示されます。</p></li>
+<li><p>出力ディレクトリに書き込み権限がない場合: 権限エラーが発生します。</p></li>
+<li><p>データ行のフォーマットが想定と異なる場合(カラム数不足など): 該当行の処理中にエラーが発生する可能性があります。</p></li>
+<li><p>TOML設定ファイルのフォーマットが正しくない場合: パース時にエラーが発生します。</p></li>
+</ul>
+<p>スクリプトは各ファイルを try-except ブロックで処理するため、一つのファイルでエラーが発生しても他のファイルの処理は継続されます。</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="plt_model_evidence.html">plt_model_evidence.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plt_1D_histogram.html">plt_1D_histogram.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

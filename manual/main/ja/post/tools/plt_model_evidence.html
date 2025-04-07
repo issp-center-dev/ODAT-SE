@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>plt_model_evidence.py &#8212; ODAT-SE 3.0.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=91a57042"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="summarize_each_T.py" href="summarize_each_T.html" />
+    <link rel="prev" title="リファレンス" href="index.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>plt_model_evidence.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">リファレンス</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="summarize_each_T.html">summarize_each_T.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="plt-model-evidence-py">
+<h1>plt_model_evidence.py<a class="headerlink" href="#plt-model-evidence-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>model evidence を計算する</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span>-n<span class="w"> </span>NDATA<span class="w"> </span>FILEs
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>PAMC の出力ファイル FILE から beta および分配関数の値を取り出し、model evidence を計算する。
+結果は標準出力に書き出される。また、結果をプロットした図をファイルに出力する。</p>
+<p>複数の FILE を指定した場合は、それらの model evidence の平均と分散を出力し、エラーバー付きのプロットを生成する。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<ul class="simple">
+<li><p>Python 3.6以上が必要です(f文字列を使用しているため)。</p></li>
+<li><p>計算はすべて対数スケールで行われるため、数値的に安定しています。</p></li>
+<li><p>プロットのx軸(beta)は常に対数スケールで表示されます。</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt><strong>FILE</strong></dt><dd><p>PAMCの出力ファイル名 (fx.txt)。複数のファイルを指定可能。</p>
+</dd>
+<dt><strong>-n NDATA, --ndata NDATA</strong></dt><dd><p>各データセットに含まれるデータ点の数をカンマ区切りの整数値で指定する。必須パラメータ。例：「100」(1つのデータセットに100点)、「50,100,75」(3つのデータセットにそれぞれ50点、100点、75点)</p>
+</dd>
+<dt><strong>-w WEIGHT, --weight WEIGHT</strong></dt><dd><p>データセット間の相対重みをカンマ区切りの数値で指定する。重みは和が 1.0 になるように自動で規格化される。重みの数値の個数とデータ点の個数は一致させる必要がある。</p>
+</dd>
+<dt><strong>-V VOLUME, --Volume VOLUME</strong></dt><dd><p>事前確率分布の normalization (定義域の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span>) を指定する。デフォルトは 1.0。</p>
+</dd>
+<dt><strong>-f RESULT, --result RESULT</strong></dt><dd><p>model evidence の値を出力するファイル名。デフォルトは model_evidence.txt 。</p>
+</dd>
+<dt><strong>-o OUTPUT, --output OUTPUT</strong></dt><dd><p>model evidence のプロットを出力するファイル名。出力形式は拡張子を元に設定され、matplotlib がサポートする形式を指定可能。デフォルトは model_evidence.png 。</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>基本的な使用方法(1つのデータファイルと1つのデータセット)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>fx.txt
+</pre></div>
+</div>
+<p>データ点数100のデータセットについて model evidence を計算し、
+model_evidence.txt と model_evidence.png を出力する。</p>
+</li>
+<li><p>複数のデータセットがある場合</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>,100,75<span class="w"> </span>-w<span class="w"> </span><span class="m">0</span>.2,0.5,0.3<span class="w"> </span>fx.txt
+</pre></div>
+</div>
+<p>3つのスポット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
+model evidence を計算する。</p>
+</li>
+<li><p>複数のデータファイルを使用する場合</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>-o<span class="w"> </span>evidence_plot.pdf<span class="w"> </span>-f<span class="w"> </span>evidence_data.txt<span class="w"> </span>fx_1.txt<span class="w"> </span>fx_2.txt<span class="w"> </span>fx_3.txt
+</pre></div>
+</div>
+<p>3つのデータファイルから model evidence を計算し、それらの平均と分散を求める。
+結果を evidence_data.txt に出力し、evidence_plot.pdf にエラーバー付きのプロットを生成する。</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="model-evidence">
+<h3>model evidence の計算<a class="headerlink" href="#model-evidence" title="Link to this heading">¶</a></h3>
+<p>R-factor を以下のように定義する:</p>
+<div class="math notranslate nohighlight">
+\[R(X;D)^2 = \sum_\mu w_\mu \sum_i \left( I_\mu(\theta_i) - I^{\text{(cal)}}_\mu(\theta_i;X) \right)^2\]</div>
+<p><span class="math notranslate nohighlight">\(I_\mu(\theta_i)\)</span> はデータセット <span class="math notranslate nohighlight">\(\mu\)</span> に含まれる計測データ点、 <span class="math notranslate nohighlight">\(I^{\text{(cal)}}_\mu(\theta_i;X)\)</span> はパラメータ <span class="math notranslate nohighlight">\(X\)</span> のもとでの理論計算値とする。
+<span class="math notranslate nohighlight">\(w_\mu\)</span> はデータセットの相対重みで、合計が1になるよう正規化されている。</p>
+<p>model evidence <span class="math notranslate nohighlight">\(P(D|\beta)\)</span> は以下の式で計算される:</p>
+<div class="math notranslate nohighlight">
+\[\log P(D|\beta) = \log Z(D;\beta) - \log V_\Omega + \frac{n}{2} \log \beta + \sum_{\mu} \frac{n_{\mu}}{2} \log w_{\mu} - \frac{n}{2} \log \pi\]</div>
+<p>ここで、 <span class="math notranslate nohighlight">\(Z(D;\beta)\)</span> は分配関数</p>
+<div class="math notranslate nohighlight">
+\[Z(D;\beta) = \int_\Omega \exp\left(-\beta\,R(X;D)^2\right) dX\]</div>
+<p>また、</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(V_\Omega\)</span>: 事前確率分布の正規化因子</p></li>
+<li><p><span class="math notranslate nohighlight">\(n_\mu\)</span>: 各データセットのデータ点数</p></li>
+<li><p><span class="math notranslate nohighlight">\(n\)</span>: 全データ点数(すべてのデータセットの合計)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta\)</span>: 逆温度</p></li>
+</ul>
+</div></blockquote>
+<p>とする。</p>
+</section>
+<section id="id1">
+<h3>入力ファイルの形式<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>入力ファイル(PAMCの出力ファイル)は以下の形式を想定しています:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
+beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
+...
+</pre></div>
+</div>
+<dl class="simple">
+<dt>スクリプトは各行から以下の値を読み取ります:</dt><dd><ul class="simple">
+<li><p>第1列(インデックス0): beta値(逆温度)</p></li>
+<li><p>第5列(インデックス4): logz値(対数分配関数)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>出力ファイルの形式<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>出力ファイル(model_evidence.txt)の形式は以下の通りです:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># max log_P(D;beta) = {最大値} at Tstep = {インデックス}, beta = {対応するbeta値}
+# $1: Tstep
+# $2: beta
+# $3: model_evidence
+0  beta0  model_evidence0
+1  beta1  model_evidence1
+...
+</pre></div>
+</div>
+<p>複数の入力ファイルを処理した場合は、分散の列が追加されます:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># max log_P(D;beta) = {最大値} at Tstep = {インデックス}, beta = {対応するbeta値}
+# $1: Tstep
+# $2: beta
+# $3: average model_evidence
+# $4: variance
+0  beta0  avg_model_evidence0  variance0
+1  beta1  avg_model_evidence1  variance1
+...
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>処理の仕組み<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>このスクリプトは以下の手順で処理を行います:</p>
+<ol class="arabic simple">
+<li><p>入力ファイルからbeta値とlogz値を読み込む</p></li>
+<li><p>各データセットのデータ点数と重みを取得</p></li>
+<li><p>model evidenceの対数値を計算</p></li>
+<li><p>複数ファイルの場合は平均と分散を計算</p></li>
+<li><p>結果をファイルに出力</p></li>
+<li><p>model evidenceをbetaの関数としてプロット</p></li>
+</ol>
+</section>
+<section id="id4">
+<h3>プロットの特性<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>X軸(beta)は常に対数スケールで表示</p></li>
+<li><p>単一ファイルの場合は点のみ、複数ファイルの場合はエラーバー付きで表示</p></li>
+<li><p>マーカーは赤色の「x」で表示</p></li>
+<li><p>グリッド線を表示し、データの位置を把握しやすくする</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>エラー処理<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>入力ファイルが存在しない場合: ファイルオープンエラーが発生</p></li>
+<li><p>データ形式が不正: numpy.loadtxtでエラーが発生</p></li>
+<li><p>NDATAとWEIGHTの長さが一致しない場合: AssertionErrorが発生</p></li>
+</ul>
+<p>特に、データ点数のリストとそれらの重みの数は必ず一致させる必要があります。</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">リファレンス</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="summarize_each_T.html">summarize_each_T.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

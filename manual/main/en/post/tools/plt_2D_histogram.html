@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>plt_2D_histogram.py &#8212; ODAT-SE 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="extract_combined.py" href="extract_combined.html" />
+    <link rel="prev" title="plt_1D_histogram.py" href="plt_1D_histogram.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>plt_2D_histogram.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="plt_1D_histogram.html">plt_1D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extract_combined.html">extract_combined.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="plt-2d-histogram-py">
+<h1>plt_2D_histogram.py<a class="headerlink" href="#plt-2d-histogram-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>Create 2D Marginalized Histograms</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>Creates 2D marginalized histograms from data files specified in FILE.</p>
+<p>Data files should be in text format containing numerical data in multiple columns.
+In the standard format, values are space-separated with columns for beta, fx, x1, …, xN, weight.
+Beta is the inverse temperature, x1, … xN are parameter values (N is the dimension of parameters), fx is the function value at that point, and weight is the weight value.
+Field names can be specified with the field_list option, or you can use parameters (label_list) from the input file used in PAMC calculations.</p>
+<p>If FILE is not specified, files named result_*_summarized.txt in the directory specified by the data_dir option will be used as data files.</p>
+<p>The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, …, xN will be used. Specify field names as a comma-separated list. For example, <code class="docutils literal notranslate"><span class="pre">--column</span> <span class="pre">x1,x2,x3</span></code> will create histograms marginalized to the <code class="docutils literal notranslate"><span class="pre">x1</span> <span class="pre">vs</span> <span class="pre">x2</span></code> axis, <code class="docutils literal notranslate"><span class="pre">x1</span> <span class="pre">vs</span> <span class="pre">x3</span></code> axis, and <code class="docutils literal notranslate"><span class="pre">x2</span> <span class="pre">vs</span> <span class="pre">x3</span></code> axis.</p>
+<p>The histogram range can be specified with the range option. In that case, the same range will be used for all axes being displayed. To specify ranges for each axis individually, provide a list of <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax]</span></code> pairs in the config file, or use the <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> from the input parameter file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Python 3.6 or higher is required (due to the use of f-strings).</p></li>
+<li><p>The tqdm library is required for progress bar display. If not installed, regular messages will be displayed.</p></li>
+<li><p>Be mindful of memory usage when processing large datasets.</p></li>
+<li><p>2D histograms are displayed on a logarithmic scale (LogNorm), allowing visualization of low-density regions.</p></li>
+</ul>
+</div>
+<p>The following command line options are available.
+These options can also be provided collectively in a config file. The config file uses TOML format, with options specified in the format option_name = value.</p>
+<dl class="simple">
+<dt><strong>-b BINS, --bins BINS</strong></dt><dd><p>Specifies the number of bins. Default value is 60.</p>
+</dd>
+<dt><strong>-c COLUMNS, --columns COLUMNS</strong></dt><dd><p>Specifies the field names for creating histograms. Multiple field names can be specified as a comma-separated list. If omitted, all axes will be used.</p>
+</dd>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>Specifies the directory to retrieve data files from (when <code class="docutils literal notranslate"><span class="pre">file</span></code> is not specified). If not specified, the current directory is used.</p>
+</dd>
+<dt><strong>-f FORMAT, --format FORMAT</strong></dt><dd><p>Specifies the format of the output histogram files. Any format supported by matplotlib can be specified. Multiple formats can be specified as a comma-separated list. Default value is <code class="docutils literal notranslate"><span class="pre">png</span></code>.</p>
+</dd>
+<dt><strong>-o OUTPUT_DIR, --output_dir OUTPUT_DIR</strong></dt><dd><p>Specifies the directory to output histogram files. If not specified, files will be written to the current directory. If the directory does not exist, it will be created automatically.</p>
+</dd>
+<dt><strong>-r RANGE, --range RANGE</strong></dt><dd><p>Specifies the histogram range in the format xmin,xmax. When specified via the range command line option, it applies to all axes. To vary by axis, specify in the parameter file or config file. If not specified in any of these, ranges will be set automatically for each axis.</p>
+</dd>
+<dt><strong>-w WEIGHT_COLUMN, --weight_column WEIGHT_COLUMN</strong></dt><dd><p>Specifies the column number (0-based) for the weight value. Default value is -1 (last column).</p>
+</dd>
+<dt><strong>--config CONFIG</strong></dt><dd><p>Specifies a config file. The config file is in TOML format and specifies options equivalent to command line options. Option priority is: parameter file &lt; config file &lt; command line options.</p>
+</dd>
+<dt><strong>--params PARAMS</strong></dt><dd><p>Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.</p>
+</dd>
+<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>Specifies field names. If not specified, the standard format is assumed: beta, fx, x1, .. xN, weight (where N is the parameter dimension). When obtained from a parameter file, label_list values are used for x1 .. xN.
+Used for field name specification in columns.</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, messages about the processing status of each file will be displayed instead.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Displays a help message and exits the program.</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Run with a specified input data file file.txt. Output to the 2dhist directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>file.txt
+</pre></div>
+</div>
+<p>2dhist/2Dhistogram_file_x1_vs_x2.png,
+2dhist/2Dhistogram_file_x1_vs_x3.png,
+2dhist/2Dhistogram_file_x2_vs_x3.png are output.</p>
+</li>
+<li><p>When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 2dhist directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-d<span class="w"> </span>data<span class="w"> </span>-o<span class="w"> </span>2dhist
+</pre></div>
+</div>
+<p>2Dhistogram_result_T0_beta_{beta}_x1_vs_x2.png to 2Dhistogram_result_T10_beta_{beta}_x2_vs_x3.png are output to the 2dhist directory. In the filename, <code class="docutils literal notranslate"><span class="pre">summarized</span></code> is replaced with <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code>.</p>
+</li>
+<li><p>Create a 2D histogram for the x1 and x3 fields from the input data file.txt, and output in png and pdf formats.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-c<span class="w"> </span>x1,x3<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-f<span class="w"> </span>png,pdf<span class="w"> </span>file.txt
+</pre></div>
+</div>
+<p>2dhist/2Dhistogram_file_x1_vs_x3.png and 2dhist/2Dhistogram_file_x1_vs_x3.pdf are output.</p>
+</li>
+<li><p>Set the value range to 3.0-6.0. The same range is set for all axes.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>file.txt
+</pre></div>
+</div>
+</li>
+<li><p>Use a config file to describe the options. Prepare conf.toml as follows:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">field_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+<span class="n">columns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">]</span>
+<span class="n">bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span>
+<span class="n">range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">-3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">]]</span>
+<span class="n">data_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./summarized&quot;</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2dhist&quot;</span>
+</pre></div>
+</div>
+<p>The axis labels are z1, z2, z3, with value ranges of 3.0-6.0, -3.0-3.0, and 0.0-3.0 respectively.
+Among these, histograms will be drawn for z1 vs z2.</p>
+<p>Run with the config file specified.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>--config<span class="w"> </span>conf.toml
+</pre></div>
+</div>
+<p>Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*.png.</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="data-file-format">
+<h3>Data File Format<a class="headerlink" href="#data-file-format" title="Link to this heading">¶</a></h3>
+<p>Data files must be in the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Comment line (optional)
+beta_value fx_value x1_value x2_value ... xN_value weight_value
+beta_value fx_value x1_value x2_value ... xN_value weight_value
+...
+</pre></div>
+</div>
+<p>Each line contains numerical data separated by whitespace. In the standard format, each column has the following meaning:</p>
+<ul class="simple">
+<li><p>Column 1: beta value (inverse temperature)</p></li>
+<li><p>Column 2: fx value (function value)</p></li>
+<li><p>Columns 3 to (N+2): Parameter values x1, x2, …, xN</p></li>
+<li><p>Last column: weight</p></li>
+</ul>
+</section>
+<section id="d-histogram-display-characteristics">
+<h3>2D Histogram Display Characteristics<a class="headerlink" href="#d-histogram-display-characteristics" title="Link to this heading">¶</a></h3>
+<p>2D histograms generated by this script have the following features:</p>
+<ul class="simple">
+<li><p>Uses the “Reds” color scale (density represented by shades of red)</p></li>
+<li><p>Color mapping is on a logarithmic scale (LogNorm), allowing visualization of low-density regions</p></li>
+<li><p>Color bar is displayed as “Normalized Density (Log Scale)”</p></li>
+<li><p>Grid lines are displayed in light gray, making it easier to grasp data positions</p></li>
+<li><p>Zero-density regions are replaced with a very small value (1e-10) to enable display on a logarithmic scale</p></li>
+</ul>
+</section>
+<section id="histogram-creation-mechanism">
+<h3>Histogram Creation Mechanism<a class="headerlink" href="#histogram-creation-mechanism" title="Link to this heading">¶</a></h3>
+<p>This script creates histograms through the following steps:</p>
+<ol class="arabic simple">
+<li><p>Load data from input files</p></li>
+<li><p>Normalize weights (so they sum to 1)</p></li>
+<li><p>Generate all combinations (pairs) of specified variables (columns)</p></li>
+<li><p>Create a 2D histogram for each pair</p></li>
+<li><p>Save each histogram in the specified format</p></li>
+</ol>
+<p>Output file naming convention:</p>
+<ul>
+<li><p>Normal files:</p>
+<p><code class="docutils literal notranslate"><span class="pre">2Dhistogram_{input_filename}_{parameter1}_vs_{parameter2}.{format}</span></code></p>
+</li>
+<li><p>Files containing _summarized.txt (output from summarize_each_T.py):</p>
+<p><code class="docutils literal notranslate"><span class="pre">2Dhistogram_{filename_with_summarized_replaced_by_beta_{beta_value}}_{parameter1}_vs_{parameter2}.{format}</span></code></p>
+</li>
+</ul>
+</section>
+<section id="performance">
+<h3>Performance<a class="headerlink" href="#performance" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Memory requirements increase with data volume</p></li>
+<li><p>2D histograms require more computation and memory than 1D histograms</p></li>
+<li><p>With many variables, the number of combinations increases rapidly (N*(N-1)/2 histograms for N variables)</p></li>
+<li><p>For processing many files or combinations, use the <code class="docutils literal notranslate"><span class="pre">--progress</span></code> option to monitor progress</p></li>
+</ul>
+</section>
+<section id="error-handling-and-limitations">
+<h3>Error Handling and Limitations<a class="headerlink" href="#error-handling-and-limitations" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>If data files are not found: Error message is displayed</p></li>
+<li><p>If data format is invalid (non-numeric, mismatched columns): That file is skipped and an error message is displayed</p></li>
+<li><p>If field names don’t exist: A key error occurs</p></li>
+<li><p>If unable to write to the output directory: Permission error is displayed</p></li>
+<li><p>Memory shortage: May occur especially with large datasets</p></li>
+</ul>
+<p>If an error occurs during processing, the creation of that file or that specific histogram is skipped and processing continues.
+A summary of successes and failures is displayed at the end.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="plt_1D_histogram.html">plt_1D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extract_combined.html">extract_combined.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

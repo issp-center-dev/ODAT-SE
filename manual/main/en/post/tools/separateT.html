@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>separateT.py &#8212; ODAT-SE 3.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=08bfcbec"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="(For developers) User-defined algorithms and solvers" href="../../customize/index.html" />
+    <link rel="prev" title="extract_combined.py" href="extract_combined.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>separateT.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="extract_combined.html">extract_combined.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../customize/index.html">(For developers) User-defined algorithms and solvers</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="separatet-py">
+<h1>separateT.py<a class="headerlink" href="#separatet-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>Separate MCMC log files by temperature points</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>Separates MCMC log files (result.txt, trial.txt) into individual files for each temperature point.
+Files are created in the same directory as the input, and filenames follow the format of the original filename with <code class="docutils literal notranslate"><span class="pre">_T{index}</span></code> appended. <code class="docutils literal notranslate"><span class="pre">{index}</span></code> is the index of different temperature points, assigned from 0 in the order they appear in the log file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Python 3.6 or higher is required (due to the use of type hints and f-strings).</p></li>
+<li><p>MCMC log files are expected to have temperature values in the third column (index 2).</p></li>
+<li><p>Comment lines (lines starting with #) in the input file are preserved in all output files.</p></li>
+<li><p>The tqdm library is required for progress bar display. If not installed, regular messages will be displayed.</p></li>
+</ul>
+</div>
+<p>The following command line options are available.
+If FILE is specified, that file will be processed. If no file is explicitly specified, <code class="docutils literal notranslate"><span class="pre">DATA_DIR/*/FILE_TYPE</span></code> will be processed.</p>
+<dl class="simple">
+<dt><strong>FILE</strong></dt><dd><p>Specifies the MCMC log file. Multiple files can be specified.</p>
+</dd>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>Specifies the directory from which to retrieve data files (when <code class="docutils literal notranslate"><span class="pre">FILE</span></code> is not specified).</p>
+</dd>
+<dt><strong>-t FILE_TYPE, --file_type FILE_TYPE</strong></dt><dd><p>Specifies the target filename when running with a directory specified. Default is result.txt.</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, the name of the file being processed will be displayed as a message instead.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Displays help message and exits the program.</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Run with a specified filename</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>output/0/result.txt
+</pre></div>
+</div>
+<p>output/0/result_T0.txt, output/0/result_T1.txt, … are created.</p>
+</li>
+<li><p>Split files under a specified directory</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>output/0/result.txt, output/1/result.txt, … will be processed.</p>
+</li>
+<li><p>Split files other than result.txt under a specified directory</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-t<span class="w"> </span>trial.txt<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>Splits output/0/trial.txt, output/1/trial.txt, …</p>
+</li>
+<li><p>Process multiple files at once and display progress</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>--progress<span class="w"> </span>file1.txt<span class="w"> </span>file2.txt<span class="w"> </span>file3.txt
+</pre></div>
+</div>
+<p>Each file is split by temperature points, and progress is displayed with a progress bar.</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="file-format">
+<h3>File Format<a class="headerlink" href="#file-format" title="Link to this heading">¶</a></h3>
+<p>The input file (MCMC log file) is expected to have the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Comment line (optional)
+step replica_id T fx x1 ... xN ...
+step replica_id T fx x1 ... xN ...
+...
+</pre></div>
+</div>
+<p>Each line contains space-separated data, with the third column (index 2) being the temperature value T.
+Consecutive lines with the same temperature value are grouped into a single file.</p>
+</section>
+<section id="processing-mechanism">
+<h3>Processing Mechanism<a class="headerlink" href="#processing-mechanism" title="Link to this heading">¶</a></h3>
+<p>This script processes data in the following steps:</p>
+<ol class="arabic simple">
+<li><p>Reads the input file line by line</p></li>
+<li><p>Records comment lines (lines starting with #) as headers</p></li>
+<li><p>Obtains the temperature value from the third column (index 2) of each data line</p></li>
+<li><p>Whenever the temperature value changes, writes the accumulated data to a separate file</p></li>
+<li><p>Data for each temperature value is saved to a file with the original filename plus “_T{index}”</p></li>
+</ol>
+</section>
+<section id="output-file-format">
+<h3>Output File Format<a class="headerlink" href="#output-file-format" title="Link to this heading">¶</a></h3>
+<p>The output files have the following format:</p>
+<ul class="simple">
+<li><p>Filename: Original filename with “_T{index}” added (e.g., result.txt → result_T0.txt, result_T1.txt, …)</p></li>
+<li><p>File content: Headers (comment lines) from the input file, followed by data lines with the same temperature value</p></li>
+</ul>
+</section>
+<section id="performance">
+<h3>Performance<a class="headerlink" href="#performance" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Files are processed line by line, so memory usage is kept low even for very large files</p></li>
+<li><p>Data for each temperature point is buffered in memory, so memory usage may increase if there is a large amount of data for a single temperature point</p></li>
+<li><p>Processing time increases with the size of the input file, but is relatively fast due to line-by-line processing</p></li>
+<li><p>When processing multiple files, you can use the <cite>--progress</cite> option to monitor progress</p></li>
+</ul>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>If the input file is not found: A file open error occurs and a message is displayed</p></li>
+<li><p>If the output file cannot be written: A permission error or similar occurs and a message is displayed</p></li>
+<li><p>If the data line has insufficient columns: An index error may occur (if the third column does not exist)</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="extract_combined.html">extract_combined.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../customize/index.html">(For developers) User-defined algorithms and solvers</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>
