@@ -8,98 +8,146 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Import necessary libraries
-from sys import argv  # For command line arguments
-from collections import namedtuple  # For creating named tuples
-from typing import List, Dict  # For type hints
-from pathlib import Path  # For easier file path manipulation
+"""
+This script separates MCMC data files into multiple files based on temperature values.
+It reads MCMC result files and splits them into separate files for each temperature.
+"""
 
-# Named tuple to represent a result entry
-# - rank: Process rank
-# - step: Simulation step
-# - fx: Objective function value
-# - xs: List of parameter values
-Entry = namedtuple("Entry", ["rank", "step", "fx", "xs"])
+import os
+import sys
+import argparse
+import glob
+try:
+    from tqdm import tqdm  # Import tqdm for progress bar if available
+except:
+    tqdm = None  # Set tqdm to None if not available
 
-
-def load_best(filename: Path) -> Dict[str, str]:
+def do_separate(filename: str) -> None:
     """
-    Load results in "key=value" format from the specified file
+    Separate a single MCMC data file into multiple files based on temperature values.
     
     Parameters
     ----------
-    filename : Path
-        Path to the file to read
-        
+    filename : str
+        Path to the MCMC data file to be separated.
+    
     Returns
     -------
-    Dict[str, str]
-        Dictionary containing key-value pairs
+    None
+        Files are written to disk with naming pattern: original_filename_T{index}.ext
     """
-    res = {}
-    with open(filename) as f:
-        for line in f:
-            words = line.split("=")
-            res[words[0].strip()] = words[1].strip()
-    return res
+    with open(filename, "r") as fp:
+        header = []  # Store header lines (comments starting with #)
+        buf = []     # Buffer to store lines for current temperature
+        index = 0    # Index to track temperature number
+        current = None  # Current temperature value
+        
+        # Process the file line by line
+        for line in fp:
+            # Preserve header lines (comments)
+            if line.startswith("#"):
+                header.append(line)
+                continue
+            
+            # Split line into columns
+            items = line.strip().split()
+            
+            # Initialize current temperature if this is the first data line
+            if current is None:
+                current = items[2]  # Temperature is in the 3rd column (index 2)
+            
+            # If temperature changes, write the buffered data and reset
+            if items[2] != current:
+                do_write(filename, index, buf, header)
+                current = items[2]  # Update to new temperature
+                index += 1          # Increment temperature index
+                buf = []            # Clear buffer for new temperature
+            
+            # Add current line to buffer
+            buf.append(line)
+            
+        # Write the last temperature data if buffer is not empty
+        if buf:
+            do_write(filename, index, buf, header)
+
+def do_write(filename: str, index: int, buf: list, header: list) -> None:
+    """
+    Write a separated temperature file.
+    
+    Parameters
+    ----------
+    filename : str
+        Original filename used to create the new filename.
+    index : int
+        Temperature index used in the new filename.
+    buf : list
+        List of data lines to write to the file.
+    header : list
+        List of header lines to include at the top of the file.
+    
+    Returns
+    -------
+    None
+        File is written to disk.
+    """
+    # Create new filename with temperature index
+    file_base, file_ext = os.path.splitext(filename)
+    new_file = file_base + f"_T{index}" + file_ext
+    
+    # Write header and data to the new file
+    with open(new_file, "w") as fp:
+        fp.writelines(header)
+        fp.writelines(buf)
+
+def main() -> None:
+    """
+    Main function to parse arguments and process MCMC data files.
+    
+    Command line arguments:
+    -d/--data_dir: Directory containing MCMC data
+    -t/--file_type: File type of MCMC data (default: result.txt)
+    --progress: Show progress bar
+    input_files: Optional list of specific files to process
+    
+    Returns
+    -------
+    None
+    """
+    # Set up command line argument parser
+    parser = argparse.ArgumentParser(description="Separate MCMC data file by temperature values")
+    parser.add_argument("-d", "--data_dir", type=str, help="Directory of MCMC data")
+    parser.add_argument("-t", "--file_type", type=str, default="result.txt", help="File type of MCMC data")
+    parser.add_argument("--progress", action="store_true", default=False, help="Show progress bar.")
+    parser.add_argument("input_files", nargs="*", help="Files to extract in combined format.")
+
+    args = parser.parse_args()
+
+    # Determine input files from arguments
+    if args.input_files:
+        # Use explicitly provided files
+        input_files = args.input_files
+    elif args.data_dir:
+        # Find files matching pattern in data directory
+        file_pattern = os.path.join(args.data_dir, "*", args.file_type)
+        input_files = glob.glob(file_pattern)
+    else:
+        input_files = []
+
+    # Add progress bar if requested and tqdm is available
+    if tqdm and args.progress:
+        input_files = tqdm(input_files)
+
+    # Process each input file
+    for input_file in input_files:
+        dir_name = os.path.dirname(input_file)
+
+        # Print progress message if not using progress bar
+        if not args.progress or not tqdm:
+            print("processing file {}...".format(input_file))
+
+        # Separate the file by temperature
+        do_separate(input_file)
 
 
-# Set output directory: use command line argument or default to current directory
-output_dir = Path("." if len(argv) == 1 else argv[1])
-# Load number of processes from best_result.txt
-nprocs: int = int(load_best(output_dir / "best_result.txt")["nprocs"])
-
-# Prepare data structures
-Ts: List[float] = []  # List of temperature values
-labels: List[str] = []  # List of parameter labels
-dim: int = 0  # Dimension of parameters
-results: Dict[float, List[Entry]] = {}  # Results entries organized by temperature
-
-# Collect temperature (T) values from each process's result file
-for rank in range(nprocs):
-    with open(output_dir / str(rank) / "result.txt") as f:
-        # Extract label information from the first line
-        line = f.readline()
-        labels = line.split()[4:]  # Skip the first 4 items
-
-        # Extract temperature information from the second line
-        line = f.readline()
-        words = line.split()
-        T = float(words[2])  # Temperature is in the 3rd column
-        Ts.append(T)
-        results[T] = []  # Initialize result list for this temperature
-        dim = len(words) - 4  # Calculate parameter dimension
-
-# Read data from each process's result file and organize by temperature
-for rank in range(nprocs):
-    with open(output_dir / str(rank) / "result.txt") as f:
-        f.readline()  # Skip header line
-        for line in f:
-            words = line.split()
-            step = int(words[0])  # Step number
-            T = float(words[2])   # Temperature value
-            fx = float(words[3])  # Objective function value
-            res = [float(words[i + 4]) for i in range(dim)]  # Parameter values
-            results[T].append(Entry(rank=rank, step=step, fx=fx, xs=res))
-
-# Sort by step number for each temperature
-for T in Ts:
-    results[T].sort(key=lambda entry: entry.step)
-
-# Output results to separate files for each temperature
-for i, T in enumerate(Ts):
-    with open(output_dir / f"result_T{i}.txt", "w") as f:
-        # Write header information
-        f.write(f"# T = {T}\n")
-        f.write("# step rank fx")
-        for label in labels:
-            f.write(f" {label}")
-        f.write("\n")
-        # Write data for each entry
-        for entry in results[T]:
-            f.write(f"{entry.step} ")
-            f.write(f"{entry.rank} ")
-            f.write(f"{entry.fx} ")
-            for x in entry.xs:
-                f.write(f"{x} ")
-            f.write("\n")
+if __name__ == "__main__":
+    main()

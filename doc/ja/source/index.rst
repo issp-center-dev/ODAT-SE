@@ -18,6 +18,7 @@ Welcome to ODAT-SE documentation!
    algorithm/index
    solver/index
    tool
+   post/index
    customize/index
    acknowledgement
    contact
