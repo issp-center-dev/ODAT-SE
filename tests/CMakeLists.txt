@@ -35,6 +35,12 @@ add_test(
   )
 
 add_test(
+  NAME pamc_varied
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_varied
+  )
+
+add_test(
   NAME transform
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/transform
@@ -62,4 +68,10 @@ add_test(
   NAME pamc_continue
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_continue
+  )
+
+add_test(
+  NAME pamc_varied_continue
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_varied_continue
   )

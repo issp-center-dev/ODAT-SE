@@ -80,6 +80,7 @@ class Runner(object):
         self.solver = solver
         self.solver_name = solver.name
         self.logger = Logger(info)
+        self.ignore_error = info.runner.get("ignore_error", False)
 
         if mapping is not None:
             self.mapping = mapping
@@ -134,7 +135,13 @@ class Runner(object):
         """
         if self.limitation.judge(x):
             xp = self.mapping(x)
-            result = self.solver.evaluate(xp, args)
+            try:
+                result = self.solver.evaluate(xp, args)
+            except RuntimeError as err:
+                if self.ignore_error:
+                    result = np.nan
+                else:
+                    raise
         else:
             result = np.inf
         self.logger.count(x, args, result)

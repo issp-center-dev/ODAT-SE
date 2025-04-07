@@ -21,7 +21,7 @@ This has two subsections ``algorithm.param`` and ``algorithm.pamc`` .
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
-When ``mesh_path`` key is defined the discrete space is used.
+When ``mesh_path`` key is defined or ``use_grid`` key is set to true, the discrete space is used.
 Otherwise, continuous space is used.
 
 - Continuous space
@@ -65,13 +65,47 @@ Otherwise, continuous space is used.
 
     Format: string
 
-    Description: Path to the mesh definition file.
+    Description: Path to the mesh definition file. See *Reference file* below for the format.
 
   - ``neighborlist_path``
 
     Format: string
 
-    Description: Path to the neighborhood-list file.
+    Description: Path to the neighborhood-list file. See *Reference file* below for the format. When it is omitted, the neighborhood list will be generated automatically assuming that the mesh points within ``radius`` are neighbors.
+
+  - ``radius``
+
+    Format: Float.
+
+    Description: the points within the distance specified by ``radius`` are considered as neighbors. It is mandatory when ``neighborlist_path`` is omitted or ``use_grid`` is set to true.
+
+  - ``use_grid``
+
+    Format: Boolean.
+
+    Description: When it is set to true, a uniform mesh will be generated using the parameters ``min_list``, ``max_list``, and ``num_list``.
+
+  - ``min_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description:
+    Lower end of each parameter of the mesh to be generated.
+
+  - ``max_list``
+
+    Format: List of float. Length should be equal to ``dimension``.
+
+    Description:
+    Upper end of each parameter of the mesh to be generated.
+
+  - ``num_list``
+
+    Format: List of integer. Length should be equal to ``dimension``.
+
+    Description:
+    The number of mesh points along each parameter of the mesh to be generated.
+
 
 [``algorithm.pamc``]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

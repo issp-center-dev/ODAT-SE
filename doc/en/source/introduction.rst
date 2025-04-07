@@ -7,8 +7,9 @@ What is ODAT-SE ?
 Open Data Analysis Tool for Science and Engineering (ODAT-SE) is a framework for applying a search algorithm to a direct problem solver to find the optimal solution.
 It has been developed by the name 2DMAT, and since version 3, it is organized as an open platform for data analysis by modularizing direct problem solvers and search algorithms.
 
-As the standard direct problem solver, the experimental data analysis software for two-dimensional material structure analysis is prepared. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm. For further use, the original direct problem solver or the search algorithm can be defined by users.
-In the current version, for solving a direct problem, ODAT-SE offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment[1, 2], sxrd[3], and leed[4].
+Users can define their own direct problem solvers. 
+As the standard direct problem solver, the experimental data analysis software for two-dimensional material structure analysis is prepared. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm. 
+In the current version, for solving a direct problem, ODAT-SE offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment[1, 2], surface X-ray diffraction (sxrd)[3], and low-energy electron diffraction (leed)[4].
 As algorithms, it offers the Nelder-Mead method[5], the grid search method[6], the Bayesian optimization method[7], the replica exchange Monte Carlo method[8], and the population annealing Monte Carlo method[9-11].
 
 In the future, we plan to add other direct problem solvers and search algorithms in ODAT-SE.
@@ -42,7 +43,7 @@ License
 
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
 
-This software was developed with the support of "Project for advancement of software usability in materials science" of The Institute for Solid State Physics, The University of Tokyo.
+This software was developed with the support of "Project for advancement of software usability in materials science" of The Institute for Solid State Physics, The University of Tokyo in 2020, 2021, and 2024.
 We hope that you cite the following reference when you publish the results using 2DMAT / ODAT-SE:
 
 `"Data-analysis software framework 2DMAT and its application to experimental measurements for two-dimensional material structures", Y. Motoyama, K. Yoshimi, I. Mochizuki, H. Iwamoto, H. Ichinose, and T. Hoshi, Computer Physics Communications 280, 108465 (2022) <https://doi.org/10.1016/j.cpc.2022.108465>`_.
