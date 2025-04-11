@@ -104,33 +104,37 @@
 <span class="sd">    multiple walkers and temperature-based sampling methods.</span>
 
 <span class="sd">    Implementation Details</span>
-<span class="sd">    --------------------</span>
+<span class="sd">    ----------------------</span>
 <span class="sd">    The class handles two types of parameter spaces:</span>
-<span class="sd">    1. Continuous: Uses real-valued parameters within specified bounds</span>
-<span class="sd">    2. Discrete: Uses node-based parameters with defined neighbor relationships</span>
+<span class="sd">      1. Continuous: Uses real-valued parameters within specified bounds</span>
+<span class="sd">      2. Discrete: Uses node-based parameters with defined neighbor relationships</span>
 
 <span class="sd">    For continuous problems:</span>
-<span class="sd">    - Parameters are bounded by xmin and xmax</span>
-<span class="sd">    - Steps are controlled by xstep for each dimension</span>
+<span class="sd">      - Parameters are bounded by xmin and xmax</span>
+<span class="sd">      - Steps are controlled by xstep for each dimension</span>
 <span class="sd">    </span>
 <span class="sd">    For discrete problems:</span>
-<span class="sd">    - Parameters are represented as nodes in a graph</span>
-<span class="sd">    - Transitions are only allowed between neighboring nodes</span>
-<span class="sd">    - Neighbor relationships must form a connected, bidirectional graph</span>
+<span class="sd">      - Parameters are represented as nodes in a graph</span>
+<span class="sd">      - Transitions are only allowed between neighboring nodes</span>
+<span class="sd">      - Neighbor relationships must form a connected, bidirectional graph</span>
 
 <span class="sd">    The sampling process:</span>
-<span class="sd">    1. Initializes walkers in valid positions</span>
-<span class="sd">    2. Proposes moves based on the parameter space type</span>
-<span class="sd">    3. Evaluates the objective function (&quot;Energy&quot;)</span>
-<span class="sd">    4. Accepts/rejects moves based on the Monte Carlo criterion</span>
-<span class="sd">    5. Tracks the best solution found</span>
+<span class="sd">      1. Initializes walkers in valid positions</span>
+<span class="sd">      2. Proposes moves based on the parameter space type</span>
+<span class="sd">      3. Evaluates the objective function (&quot;Energy&quot;)</span>
+<span class="sd">      4. Accepts/rejects moves based on the Monte Carlo criterion</span>
+<span class="sd">      5. Tracks the best solution found</span>
 
 <span class="sd">    Key Methods</span>
-<span class="sd">    ----------</span>
-<span class="sd">    _initialize() : Sets up initial walker positions and counters</span>
-<span class="sd">    propose() : Generates candidate moves for walkers</span>
-<span class="sd">    local_update() : Performs one Monte Carlo step</span>
-<span class="sd">    _evaluate() : Computes objective function values</span>
+<span class="sd">    -----------</span>
+<span class="sd">      _initialize() :</span>
+<span class="sd">         Sets up initial walker positions and counters</span>
+<span class="sd">      propose() :</span>
+<span class="sd">         Generates candidate moves for walkers</span>
+<span class="sd">      local_update() :</span>
+<span class="sd">         Performs one Monte Carlo step</span>
+<span class="sd">      _evaluate() :</span>
+<span class="sd">         Computes objective function values</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">nwalkers</span><span class="p">:</span> <span class="nb">int</span>
@@ -247,17 +251,17 @@
 <span class="sd">        Initialize the Monte Carlo simulation state.</span>
 
 <span class="sd">        For continuous problems:</span>
-<span class="sd">        - Uses domain.initialize to generate valid initial positions</span>
-<span class="sd">        - Respects any additional limitations from the runner</span>
+<span class="sd">          - Uses domain.initialize to generate valid initial positions</span>
+<span class="sd">          - Respects any additional limitations from the runner</span>
 
 <span class="sd">        For discrete problems:</span>
-<span class="sd">        - Randomly assigns walkers to valid nodes</span>
-<span class="sd">        - Maps node indices to actual coordinate positions</span>
+<span class="sd">          - Randomly assigns walkers to valid nodes</span>
+<span class="sd">          - Maps node indices to actual coordinate positions</span>
 
 <span class="sd">        Also initializes:</span>
-<span class="sd">        - Objective function values (fx) to zero</span>
-<span class="sd">        - Best solution tracking variables</span>
-<span class="sd">        - Acceptance counters for monitoring convergence</span>
+<span class="sd">          - Objective function values (fx) to zero</span>
+<span class="sd">          - Best solution tracking variables</span>
+<span class="sd">          - Acceptance counters for monitoring convergence</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span>
@@ -276,9 +280,9 @@
 <span class="sd">        Evaluate objective function for current walker positions.</span>
 
 <span class="sd">        Optimization Features:</span>
-<span class="sd">        - Skips evaluation for out-of-bounds positions</span>
-<span class="sd">        - Tracks evaluation timing statistics</span>
-<span class="sd">        - Supports parallel evaluation across walkers</span>
+<span class="sd">          - Skips evaluation for out-of-bounds positions</span>
+<span class="sd">          - Tracks evaluation timing statistics</span>
+<span class="sd">          - Supports parallel evaluation across walkers</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -319,16 +323,16 @@
 <span class="sd">        Perform one step of the Monte Carlo algorithm.</span>
 
 <span class="sd">        Algorithm Flow:</span>
-<span class="sd">        1. Generate proposed moves for all walkers</span>
-<span class="sd">        2. Check if proposals are within valid bounds</span>
-<span class="sd">        3. Evaluate objective function for valid proposals</span>
-<span class="sd">        4. Apply Metropolis acceptance criterion:</span>
-<span class="sd">           P(accept) = min(1, exp(-beta * (f_new - f_old)))</span>
-<span class="sd">        5. For discrete case, adjust acceptance probability by:</span>
-<span class="sd">           P *= (n_neighbors_old / n_neighbors_new)</span>
-<span class="sd">        6. Update positions and energies</span>
-<span class="sd">        7. Track best solution found</span>
-<span class="sd">        8. Log results if writers are configured</span>
+<span class="sd">          1. Generate proposed moves for all walkers</span>
+<span class="sd">          2. Check if proposals are within valid bounds</span>
+<span class="sd">          3. Evaluate objective function for valid proposals</span>
+<span class="sd">          4. Apply Metropolis acceptance criterion:</span>
+<span class="sd">             ``P(accept) = min(1, exp(-beta * (f_new - f_old)))``</span>
+<span class="sd">          5. For discrete case, adjust acceptance probability by:</span>
+<span class="sd">             ``P *= (n_neighbors_old / n_neighbors_new)``</span>
+<span class="sd">          6. Update positions and energies</span>
+<span class="sd">          7. Track best solution found</span>
+<span class="sd">          8. Log results if writers are configured</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -338,12 +342,12 @@
 <span class="sd">        extra_info_to_write : Union[List, Tuple], optional</span>
 <span class="sd">            Additional data to log with results</span>
 
-<span class="sd">        Implementation Notes</span>
-<span class="sd">        ------------------</span>
-<span class="sd">        - Handles numerical overflow in exponential calculation</span>
-<span class="sd">        - Maintains detailed acceptance statistics</span>
-<span class="sd">        - Supports both single and multiple temperature values</span>
-<span class="sd">        - Preserves best solution across all steps</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          - Handles numerical overflow in exponential calculation</span>
+<span class="sd">          - Maintains detailed acceptance statistics</span>
+<span class="sd">          - Supports both single and multiple temperature values</span>
+<span class="sd">          - Preserves best solution across all steps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># make candidate</span>
         <span class="n">old_state</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>

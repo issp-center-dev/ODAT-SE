@@ -357,13 +357,17 @@ Set to False to use a fresh RNG state.</p></li>
 <dt class="sig sig-object py" id="odatse.algorithm.exchange.Algorithm._save_state">
 <span class="sig-name descname"><span class="pre">_save_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/exchange.html#Algorithm._save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.exchange.Algorithm._save_state" title="Link to this definition"></a></dt>
 <dd><p>Save the current algorithm state to a checkpoint file.</p>
-<p>Saves all necessary data to resume the simulation later, including:
-- MPI configuration
-- Random number generator state
-- Timer information
-- Current configurations and energies
-- Best solutions found
-- Replica exchange state information</p>
+<dl class="simple">
+<dt>Saves all necessary data to resume the simulation later, including:</dt><dd><ul class="simple">
+<li><p>MPI configuration</p></li>
+<li><p>Random number generator state</p></li>
+<li><p>Timer information</p></li>
+<li><p>Current configurations and energies</p></li>
+<li><p>Best solutions found</p></li>
+<li><p>Replica exchange state information</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to the checkpoint file to write.</p>

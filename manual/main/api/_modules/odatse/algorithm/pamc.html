@@ -107,20 +107,20 @@
 <span class="sd">    through a sequence of temperatures, using both Monte Carlo updates and resampling.</span>
 
 <span class="sd">    Key Features:</span>
-<span class="sd">    - Maintains a population of walkers that evolves through temperature steps</span>
-<span class="sd">    - Uses importance sampling with weight-based resampling</span>
-<span class="sd">    - Supports both fixed and variable population sizes</span>
-<span class="sd">    - Calculates free energy differences between temperature steps</span>
-<span class="sd">    - Provides error estimates through population statistics</span>
+<span class="sd">      - Maintains a population of walkers that evolves through temperature steps</span>
+<span class="sd">      - Uses importance sampling with weight-based resampling</span>
+<span class="sd">      - Supports both fixed and variable population sizes</span>
+<span class="sd">      - Calculates free energy differences between temperature steps</span>
+<span class="sd">      - Provides error estimates through population statistics</span>
 
 <span class="sd">    Algorithm Flow:</span>
-<span class="sd">    1. Initialize walker population at highest temperature</span>
-<span class="sd">    2. For each temperature step:</span>
-<span class="sd">       a. Perform Monte Carlo updates at current temperature</span>
-<span class="sd">       b. Calculate weights for next temperature</span>
-<span class="sd">       c. Resample population based on weights</span>
-<span class="sd">       d. Update statistical estimates</span>
-<span class="sd">    3. Track best solutions and maintain system statistics</span>
+<span class="sd">      1. Initialize walker population at highest temperature</span>
+<span class="sd">      2. For each temperature step:</span>
+<span class="sd">        a. Perform Monte Carlo updates at current temperature</span>
+<span class="sd">        b. Calculate weights for next temperature</span>
+<span class="sd">        c. Resample population based on weights</span>
+<span class="sd">        d. Update statistical estimates</span>
+<span class="sd">      3. Track best solutions and maintain system statistics</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -257,9 +257,9 @@
 <span class="sd">        Determine the temperature schedule and number of steps.</span>
 
 <span class="sd">        The schedule can be specified in three ways:</span>
-<span class="sd">        1. Total steps and steps per temperature</span>
-<span class="sd">        2. Total steps and number of temperatures</span>
-<span class="sd">        3. Steps per temperature and number of temperatures</span>
+<span class="sd">          1. Total steps and steps per temperature</span>
+<span class="sd">          2. Total steps and number of temperatures</span>
+<span class="sd">          3. Steps per temperature and number of temperatures</span>
 
 <span class="sd">        The method ensures even distribution of computational effort across</span>
 <span class="sd">        temperature steps while respecting the specified constraints.</span>
@@ -268,9 +268,9 @@
 <span class="sd">        ----------</span>
 <span class="sd">        info_pamc : dict</span>
 <span class="sd">            Configuration dictionary containing:</span>
-<span class="sd">            - numsteps: Total number of Monte Carlo steps</span>
-<span class="sd">            - numsteps_annealing: Steps per temperature</span>
-<span class="sd">            - Tnum: Number of temperature points</span>
+<span class="sd">              - numsteps: Total number of Monte Carlo steps</span>
+<span class="sd">              - numsteps_annealing: Steps per temperature</span>
+<span class="sd">              - Tnum: Number of temperature points</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -507,10 +507,10 @@
 <span class="sd">        Collect and organize statistical information across all processes.</span>
 
 <span class="sd">        Gathers data needed for:</span>
-<span class="sd">        1. Free energy calculations</span>
-<span class="sd">        2. Error estimation</span>
-<span class="sd">        3. Population statistics</span>
-<span class="sd">        4. Acceptance rate monitoring</span>
+<span class="sd">          1. Free energy calculations</span>
+<span class="sd">          2. Error estimation</span>
+<span class="sd">          3. Population statistics</span>
+<span class="sd">          4. Acceptance rate monitoring</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -521,11 +521,11 @@
 <span class="sd">        -------</span>
 <span class="sd">        Dict[str, np.ndarray]</span>
 <span class="sd">            Contains:</span>
-<span class="sd">            - fxs: Energy values for all walkers</span>
-<span class="sd">            - logweights: Log of importance weights</span>
-<span class="sd">            - ns: Number of walkers per process</span>
-<span class="sd">            - ancestors: Genealogical tracking data</span>
-<span class="sd">            - acceptance ratio: MC acceptance rates</span>
+<span class="sd">              - fxs: Energy values for all walkers</span>
+<span class="sd">              - logweights: Log of importance weights</span>
+<span class="sd">              - ns: Number of walkers per process</span>
+<span class="sd">              - ancestors: Genealogical tracking data</span>
+<span class="sd">              - acceptance ratio: MC acceptance rates</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">numT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -560,11 +560,11 @@
 <span class="sd">        Calculate and save statistical measures from the simulation.</span>
 
 <span class="sd">        Performs:</span>
-<span class="sd">        1. Free energy calculations using weighted averages</span>
-<span class="sd">        2. Error estimation using jackknife resampling</span>
-<span class="sd">        3. Population size tracking</span>
-<span class="sd">        4. Acceptance rate monitoring</span>
-<span class="sd">        5. Partition function estimation</span>
+<span class="sd">          1. Free energy calculations using weighted averages</span>
+<span class="sd">          2. Error estimation using jackknife resampling</span>
+<span class="sd">          3. Population size tracking</span>
+<span class="sd">          4. Acceptance rate monitoring</span>
+<span class="sd">          5. Partition function estimation</span>
 
 <span class="sd">        Uses bias-corrected jackknife for reliable error estimates</span>
 <span class="sd">        of weighted averages in the presence of correlations.</span>
@@ -573,11 +573,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        info : Dict[str, np.ndarray]</span>
 <span class="sd">            Dictionary containing the following keys:</span>
-<span class="sd">            - fxs: Objective function of each walker over all processes.</span>
-<span class="sd">            - logweights: Logarithm of weights.</span>
-<span class="sd">            - ns: Number of walkers in each process.</span>
-<span class="sd">            - ancestors: Ancestor (origin) of each walker.</span>
-<span class="sd">            - acceptance ratio: Acceptance ratio for each temperature.</span>
+<span class="sd">              - fxs: Objective function of each walker over all processes.</span>
+<span class="sd">              - logweights: Logarithm of weights.</span>
+<span class="sd">              - ns: Number of walkers in each process.</span>
+<span class="sd">              - ancestors: Ancestor (origin) of each walker.</span>
+<span class="sd">              - acceptance ratio: Acceptance ratio for each temperature.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fxs</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span>
         <span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">fxs</span><span class="o">.</span><span class="n">shape</span>
@@ -634,20 +634,20 @@
 <span class="sd">        Perform population resampling between temperature steps.</span>
 
 <span class="sd">        This is a key component of PAMC that:</span>
-<span class="sd">        1. Gathers current population statistics</span>
-<span class="sd">        2. Calculates importance weights for the temperature change</span>
-<span class="sd">        3. Resamples walkers based on their weights</span>
-<span class="sd">        4. Updates population statistics and free energy estimates</span>
+<span class="sd">          1. Gathers current population statistics</span>
+<span class="sd">          2. Calculates importance weights for the temperature change</span>
+<span class="sd">          3. Resamples walkers based on their weights</span>
+<span class="sd">          4. Updates population statistics and free energy estimates</span>
 
 <span class="sd">        The resampling can be done in two modes:</span>
-<span class="sd">        - Fixed: Maintains constant population size</span>
-<span class="sd">        - Varied: Allows population size to fluctuate based on weights</span>
+<span class="sd">          - Fixed: Maintains constant population size</span>
+<span class="sd">          - Varied: Allows population size to fluctuate based on weights</span>
 
 <span class="sd">        Implementation Details:</span>
-<span class="sd">        - Uses log-weights to prevent numerical overflow</span>
-<span class="sd">        - Maintains walker genealogy for analysis</span>
-<span class="sd">        - Updates free energy estimates using resampling data</span>
-<span class="sd">        - Handles MPI communication for parallel execution</span>
+<span class="sd">          - Uses log-weights to prevent numerical overflow</span>
+<span class="sd">          - Maintains walker genealogy for analysis</span>
+<span class="sd">          - Updates free energy estimates using resampling data</span>
+<span class="sd">          - Handles MPI communication for parallel execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_information</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_stats</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
@@ -701,10 +701,10 @@
 <span class="sd">        Resample population allowing size variation.</span>
 
 <span class="sd">        Uses Poisson resampling:</span>
-<span class="sd">        1. Calculates expected number of copies from weights</span>
-<span class="sd">        2. Samples actual copies using Poisson distribution</span>
-<span class="sd">        3. Creates new population with variable size</span>
-<span class="sd">        4. Updates all walker properties</span>
+<span class="sd">          1. Calculates expected number of copies from weights</span>
+<span class="sd">          2. Samples actual copies using Poisson distribution</span>
+<span class="sd">          3. Creates new population with variable size</span>
+<span class="sd">          4. Updates all walker properties</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

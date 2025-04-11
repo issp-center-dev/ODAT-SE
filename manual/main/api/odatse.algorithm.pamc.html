@@ -97,15 +97,19 @@
 <p>PAMC is an advanced Monte Carlo method that combines features of simulated annealing
 and population-based methods. It maintains a population of walkers that evolves
 through a sequence of temperatures, using both Monte Carlo updates and resampling.</p>
-<p>Key Features:
-- Maintains a population of walkers that evolves through temperature steps
-- Uses importance sampling with weight-based resampling
-- Supports both fixed and variable population sizes
-- Calculates free energy differences between temperature steps
-- Provides error estimates through population statistics</p>
-<p>Algorithm Flow:
-1. Initialize walker population at highest temperature
-2. For each temperature step:</p>
+<dl>
+<dt>Key Features:</dt><dd><ul class="simple">
+<li><p>Maintains a population of walkers that evolves through temperature steps</p></li>
+<li><p>Uses importance sampling with weight-based resampling</p></li>
+<li><p>Supports both fixed and variable population sizes</p></li>
+<li><p>Calculates free energy differences between temperature steps</p></li>
+<li><p>Provides error estimates through population statistics</p></li>
+</ul>
+</dd>
+<dt>Algorithm Flow:</dt><dd><ol class="arabic simple">
+<li><p>Initialize walker population at highest temperature</p></li>
+<li><p>For each temperature step:</p></li>
+</ol>
 <blockquote>
 <div><ol class="loweralpha simple">
 <li><p>Perform Monte Carlo updates at current temperature</p></li>
@@ -117,6 +121,8 @@ through a sequence of temperatures, using both Monte Carlo updates and resamplin
 <ol class="arabic simple" start="3">
 <li><p>Track best solutions and maintain system statistics</p></li>
 </ol>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm.x">
 <span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm.x" title="Link to this definition"></a></dt>
@@ -272,18 +278,27 @@ to calculate the global participation ratio.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._find_scheduling">
 <span class="sig-name descname"><span class="pre">_find_scheduling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_pamc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._find_scheduling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._find_scheduling" title="Link to this definition"></a></dt>
 <dd><p>Determine the temperature schedule and number of steps.</p>
-<p>The schedule can be specified in three ways:
-1. Total steps and steps per temperature
-2. Total steps and number of temperatures
-3. Steps per temperature and number of temperatures</p>
+<dl class="simple">
+<dt>The schedule can be specified in three ways:</dt><dd><ol class="arabic simple">
+<li><p>Total steps and steps per temperature</p></li>
+<li><p>Total steps and number of temperatures</p></li>
+<li><p>Steps per temperature and number of temperatures</p></li>
+</ol>
+</dd>
+</dl>
 <p>The method ensures even distribution of computational effort across
 temperature steps while respecting the specified constraints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>info_pamc</strong> (<em>dict</em>) – Configuration dictionary containing:
-- numsteps: Total number of Monte Carlo steps
-- numsteps_annealing: Steps per temperature
-- Tnum: Number of temperature points</p>
+<dd class="field-odd"><p><strong>info_pamc</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Configuration dictionary containing:</dt><dd><ul class="simple">
+<li><p>numsteps: Total number of Monte Carlo steps</p></li>
+<li><p>numsteps_annealing: Steps per temperature</p></li>
+<li><p>Tnum: Number of temperature points</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Number of temperature steps in the schedule</p>
@@ -301,22 +316,31 @@ temperature steps while respecting the specified constraints.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._gather_information">
 <span class="sig-name descname"><span class="pre">_gather_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._gather_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._gather_information" title="Link to this definition"></a></dt>
 <dd><p>Collect and organize statistical information across all processes.</p>
-<p>Gathers data needed for:
-1. Free energy calculations
-2. Error estimation
-3. Population statistics
-4. Acceptance rate monitoring</p>
+<dl class="simple">
+<dt>Gathers data needed for:</dt><dd><ol class="arabic simple">
+<li><p>Free energy calculations</p></li>
+<li><p>Error estimation</p></li>
+<li><p>Population statistics</p></li>
+<li><p>Acceptance rate monitoring</p></li>
+</ol>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>numT</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of temperature steps to gather data for</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Contains:
-- fxs: Energy values for all walkers
-- logweights: Log of importance weights
-- ns: Number of walkers per process
-- ancestors: Genealogical tracking data
-- acceptance ratio: MC acceptance rates</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Contains:</dt><dd><ul class="simple">
+<li><p>fxs: Energy values for all walkers</p></li>
+<li><p>logweights: Log of importance weights</p></li>
+<li><p>ns: Number of walkers per process</p></li>
+<li><p>ancestors: Genealogical tracking data</p></li>
+<li><p>acceptance ratio: MC acceptance rates</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dict[str, np.ndarray]</p>
@@ -328,16 +352,24 @@ temperature steps while respecting the specified constraints.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._initialize">
 <span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._initialize" title="Link to this definition"></a></dt>
 <dd><p>Initialize the Monte Carlo simulation state.</p>
-<p>For continuous problems:
-- Uses domain.initialize to generate valid initial positions
-- Respects any additional limitations from the runner</p>
-<p>For discrete problems:
-- Randomly assigns walkers to valid nodes
-- Maps node indices to actual coordinate positions</p>
-<p>Also initializes:
-- Objective function values (fx) to zero
-- Best solution tracking variables
-- Acceptance counters for monitoring convergence</p>
+<dl class="simple">
+<dt>For continuous problems:</dt><dd><ul class="simple">
+<li><p>Uses domain.initialize to generate valid initial positions</p></li>
+<li><p>Respects any additional limitations from the runner</p></li>
+</ul>
+</dd>
+<dt>For discrete problems:</dt><dd><ul class="simple">
+<li><p>Randomly assigns walkers to valid nodes</p></li>
+<li><p>Maps node indices to actual coordinate positions</p></li>
+</ul>
+</dd>
+<dt>Also initializes:</dt><dd><ul class="simple">
+<li><p>Objective function values (fx) to zero</p></li>
+<li><p>Best solution tracking variables</p></li>
+<li><p>Acceptance counters for monitoring convergence</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -376,19 +408,27 @@ of the algorithm run.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._resample">
 <span class="sig-name descname"><span class="pre">_resample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._resample" title="Link to this definition"></a></dt>
 <dd><p>Perform population resampling between temperature steps.</p>
-<p>This is a key component of PAMC that:
-1. Gathers current population statistics
-2. Calculates importance weights for the temperature change
-3. Resamples walkers based on their weights
-4. Updates population statistics and free energy estimates</p>
-<p>The resampling can be done in two modes:
-- Fixed: Maintains constant population size
-- Varied: Allows population size to fluctuate based on weights</p>
-<p>Implementation Details:
-- Uses log-weights to prevent numerical overflow
-- Maintains walker genealogy for analysis
-- Updates free energy estimates using resampling data
-- Handles MPI communication for parallel execution</p>
+<dl class="simple">
+<dt>This is a key component of PAMC that:</dt><dd><ol class="arabic simple">
+<li><p>Gathers current population statistics</p></li>
+<li><p>Calculates importance weights for the temperature change</p></li>
+<li><p>Resamples walkers based on their weights</p></li>
+<li><p>Updates population statistics and free energy estimates</p></li>
+</ol>
+</dd>
+<dt>The resampling can be done in two modes:</dt><dd><ul class="simple">
+<li><p>Fixed: Maintains constant population size</p></li>
+<li><p>Varied: Allows population size to fluctuate based on weights</p></li>
+</ul>
+</dd>
+<dt>Implementation Details:</dt><dd><ul class="simple">
+<li><p>Uses log-weights to prevent numerical overflow</p></li>
+<li><p>Maintains walker genealogy for analysis</p></li>
+<li><p>Updates free energy estimates using resampling data</p></li>
+<li><p>Handles MPI communication for parallel execution</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -408,11 +448,15 @@ the state of the algorithm accordingly.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._resample_varied">
 <span class="sig-name descname"><span class="pre">_resample_varied</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._resample_varied"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._resample_varied" title="Link to this definition"></a></dt>
 <dd><p>Resample population allowing size variation.</p>
-<p>Uses Poisson resampling:
-1. Calculates expected number of copies from weights
-2. Samples actual copies using Poisson distribution
-3. Creates new population with variable size
-4. Updates all walker properties</p>
+<dl class="simple">
+<dt>Uses Poisson resampling:</dt><dd><ol class="arabic simple">
+<li><p>Calculates expected number of copies from weights</p></li>
+<li><p>Samples actual copies using Poisson distribution</p></li>
+<li><p>Creates new population with variable size</p></li>
+<li><p>Updates all walker properties</p></li>
+</ol>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -444,22 +488,31 @@ the state of the algorithm accordingly.</p>
 <dt class="sig sig-object py" id="odatse.algorithm.pamc.Algorithm._save_stats">
 <span class="sig-name descname"><span class="pre">_save_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/pamc.html#Algorithm._save_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.pamc.Algorithm._save_stats" title="Link to this definition"></a></dt>
 <dd><p>Calculate and save statistical measures from the simulation.</p>
-<p>Performs:
-1. Free energy calculations using weighted averages
-2. Error estimation using jackknife resampling
-3. Population size tracking
-4. Acceptance rate monitoring
-5. Partition function estimation</p>
+<dl class="simple">
+<dt>Performs:</dt><dd><ol class="arabic simple">
+<li><p>Free energy calculations using weighted averages</p></li>
+<li><p>Error estimation using jackknife resampling</p></li>
+<li><p>Population size tracking</p></li>
+<li><p>Acceptance rate monitoring</p></li>
+<li><p>Partition function estimation</p></li>
+</ol>
+</dd>
+</dl>
 <p>Uses bias-corrected jackknife for reliable error estimates
 of weighted averages in the presence of correlations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>info</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>np.ndarray</em><em>]</em>) – Dictionary containing the following keys:
-- fxs: Objective function of each walker over all processes.
-- logweights: Logarithm of weights.
-- ns: Number of walkers in each process.
-- ancestors: Ancestor (origin) of each walker.
-- acceptance ratio: Acceptance ratio for each temperature.</p>
+<dd class="field-odd"><p><strong>info</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>np.ndarray</em><em>]</em>) – <dl class="simple">
+<dt>Dictionary containing the following keys:</dt><dd><ul class="simple">
+<li><p>fxs: Objective function of each walker over all processes.</p></li>
+<li><p>logweights: Logarithm of weights.</p></li>
+<li><p>ns: Number of walkers in each process.</p></li>
+<li><p>ancestors: Ancestor (origin) of each walker.</p></li>
+<li><p>acceptance ratio: Acceptance ratio for each temperature.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 </dl>
 </dd></dl>

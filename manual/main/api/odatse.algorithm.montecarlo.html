@@ -99,29 +99,47 @@ continuous and discrete parameter spaces. It supports parallel execution with
 multiple walkers and temperature-based sampling methods.</p>
 <section id="implementation-details">
 <h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
-<p>The class handles two types of parameter spaces:
-1. Continuous: Uses real-valued parameters within specified bounds
-2. Discrete: Uses node-based parameters with defined neighbor relationships</p>
-<p>For continuous problems:
-- Parameters are bounded by xmin and xmax
-- Steps are controlled by xstep for each dimension</p>
-<p>For discrete problems:
-- Parameters are represented as nodes in a graph
-- Transitions are only allowed between neighboring nodes
-- Neighbor relationships must form a connected, bidirectional graph</p>
-<p>The sampling process:
-1. Initializes walkers in valid positions
-2. Proposes moves based on the parameter space type
-3. Evaluates the objective function (“Energy”)
-4. Accepts/rejects moves based on the Monte Carlo criterion
-5. Tracks the best solution found</p>
+<dl class="simple">
+<dt>The class handles two types of parameter spaces:</dt><dd><ol class="arabic simple">
+<li><p>Continuous: Uses real-valued parameters within specified bounds</p></li>
+<li><p>Discrete: Uses node-based parameters with defined neighbor relationships</p></li>
+</ol>
+</dd>
+<dt>For continuous problems:</dt><dd><ul class="simple">
+<li><p>Parameters are bounded by xmin and xmax</p></li>
+<li><p>Steps are controlled by xstep for each dimension</p></li>
+</ul>
+</dd>
+<dt>For discrete problems:</dt><dd><ul class="simple">
+<li><p>Parameters are represented as nodes in a graph</p></li>
+<li><p>Transitions are only allowed between neighboring nodes</p></li>
+<li><p>Neighbor relationships must form a connected, bidirectional graph</p></li>
+</ul>
+</dd>
+<dt>The sampling process:</dt><dd><ol class="arabic simple">
+<li><p>Initializes walkers in valid positions</p></li>
+<li><p>Proposes moves based on the parameter space type</p></li>
+<li><p>Evaluates the objective function (“Energy”)</p></li>
+<li><p>Accepts/rejects moves based on the Monte Carlo criterion</p></li>
+<li><p>Tracks the best solution found</p></li>
+</ol>
+</dd>
+</dl>
 </section>
 <section id="key-methods">
 <h2>Key Methods<a class="headerlink" href="#key-methods" title="Link to this heading"></a></h2>
-<p>_initialize() : Sets up initial walker positions and counters
-propose() : Generates candidate moves for walkers
-local_update() : Performs one Monte Carlo step
-_evaluate() : Computes objective function values</p>
+<blockquote>
+<div><dl class="simple">
+<dt>_initialize() :</dt><dd><p>Sets up initial walker positions and counters</p>
+</dd>
+<dt>propose() :</dt><dd><p>Generates candidate moves for walkers</p>
+</dd>
+<dt>local_update() :</dt><dd><p>Performs one Monte Carlo step</p>
+</dd>
+<dt>_evaluate() :</dt><dd><p>Computes objective function values</p>
+</dd>
+</dl>
+</div></blockquote>
 <p>Initialize the AlgorithmBase class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">param info<span class="colon">:</span></dt>
@@ -194,10 +212,14 @@ _evaluate() : Computes objective function values</p>
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._evaluate" title="Link to this definition"></a></dt>
 <dd><p>Evaluate objective function for current walker positions.</p>
-<p>Optimization Features:
-- Skips evaluation for out-of-bounds positions
-- Tracks evaluation timing statistics
-- Supports parallel evaluation across walkers</p>
+<dl class="simple">
+<dt>Optimization Features:</dt><dd><ul class="simple">
+<li><p>Skips evaluation for out-of-bounds positions</p></li>
+<li><p>Tracks evaluation timing statistics</p></li>
+<li><p>Supports parallel evaluation across walkers</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>in_range</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Boolean mask indicating valid positions
@@ -218,52 +240,61 @@ Invalid positions are assigned inf</p>
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._initialize">
 <span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._initialize" title="Link to this definition"></a></dt>
 <dd><p>Initialize the Monte Carlo simulation state.</p>
-<p>For continuous problems:
-- Uses domain.initialize to generate valid initial positions
-- Respects any additional limitations from the runner</p>
-<p>For discrete problems:
-- Randomly assigns walkers to valid nodes
-- Maps node indices to actual coordinate positions</p>
-<p>Also initializes:
-- Objective function values (fx) to zero
-- Best solution tracking variables
-- Acceptance counters for monitoring convergence</p>
+<dl class="simple">
+<dt>For continuous problems:</dt><dd><ul class="simple">
+<li><p>Uses domain.initialize to generate valid initial positions</p></li>
+<li><p>Respects any additional limitations from the runner</p></li>
+</ul>
+</dd>
+<dt>For discrete problems:</dt><dd><ul class="simple">
+<li><p>Randomly assigns walkers to valid nodes</p></li>
+<li><p>Maps node indices to actual coordinate positions</p></li>
+</ul>
+</dd>
+<dt>Also initializes:</dt><dd><ul class="simple">
+<li><p>Objective function values (fx) to zero</p></li>
+<li><p>Best solution tracking variables</p></li>
+<li><p>Acceptance counters for monitoring convergence</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.local_update">
 <span class="sig-name descname"><span class="pre">local_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_info_to_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.local_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.local_update" title="Link to this definition"></a></dt>
 <dd><p>Perform one step of the Monte Carlo algorithm.</p>
-<p>Algorithm Flow:
-1. Generate proposed moves for all walkers
-2. Check if proposals are within valid bounds
-3. Evaluate objective function for valid proposals
-4. Apply Metropolis acceptance criterion:</p>
-<blockquote>
-<div><p>P(accept) = min(1, exp(-beta * (f_new - f_old)))</p>
-</div></blockquote>
-<ol class="arabic simple" start="5">
+<dl class="simple">
+<dt>Algorithm Flow:</dt><dd><ol class="arabic simple">
+<li><p>Generate proposed moves for all walkers</p></li>
+<li><p>Check if proposals are within valid bounds</p></li>
+<li><p>Evaluate objective function for valid proposals</p></li>
+<li><p>Apply Metropolis acceptance criterion:
+<code class="docutils literal notranslate"><span class="pre">P(accept)</span> <span class="pre">=</span> <span class="pre">min(1,</span> <span class="pre">exp(-beta</span> <span class="pre">*</span> <span class="pre">(f_new</span> <span class="pre">-</span> <span class="pre">f_old)))</span></code></p></li>
 <li><p>For discrete case, adjust acceptance probability by:
-P <a href="#id1"><span class="problematic" id="id2">*</span></a>= (n_neighbors_old / n_neighbors_new)</p></li>
+<code class="docutils literal notranslate"><span class="pre">P</span> <span class="pre">*=</span> <span class="pre">(n_neighbors_old</span> <span class="pre">/</span> <span class="pre">n_neighbors_new)</span></code></p></li>
 <li><p>Update positions and energies</p></li>
 <li><p>Track best solution found</p></li>
 <li><p>Log results if writers are configured</p></li>
 </ol>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – Inverse temperature(s) controlling acceptance probability
 Can be single value or array (one per walker)</p></li>
 <li><p><strong>extra_info_to_write</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – Additional data to log with results</p></li>
-<li><p><strong>Notes</strong> (<em>Implementation</em>)</p></li>
-<li><p><strong>------------------</strong></p></li>
-<li><p><strong>calculation</strong> (<em>- Handles numerical overflow in exponential</em>)</p></li>
-<li><p><strong>statistics</strong> (<em>- Maintains detailed acceptance</em>)</p></li>
-<li><p><strong>values</strong> (<em>- Supports both single and multiple temperature</em>)</p></li>
-<li><p><strong>steps</strong> (<em>- Preserves best solution across all</em>)</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Handles numerical overflow in exponential calculation</p></li>
+<li><p>Maintains detailed acceptance statistics</p></li>
+<li><p>Supports both single and multiple temperature values</p></li>
+<li><p>Preserves best solution across all steps</p></li>
+</ul>
 </dd></dl>
 
 </section>
