@@ -1,0 +1,7 @@
+odatse.util.data\_writer module
+===============================
+
+.. automodule:: odatse.util.data_writer
+   :members:
+   :private-members:
+   :show-inheritance:

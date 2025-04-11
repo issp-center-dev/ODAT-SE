@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>チュートリアル：ポスト処理ツールの使い方 &#8212; ODAT-SE 3.1.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=4408be02"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="リファレンス" href="tools/index.html" />
+    <link rel="prev" title="ポスト処理ツール" href="index.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.1.0 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>チュートリアル：ポスト処理ツールの使い方</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">ポスト処理ツール</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tools/index.html">リファレンス</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>チュートリアル：ポスト処理ツールの使い方<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<ol class="arabic">
+<li><p>PAMC計算を実行する</p>
+<p>例として TRHEPD 順問題ソルバー (odatse-STR) の計算例を取り上げます。
+パラメータの次元は 3 で、温度点は T=1.0 から 1.0e-6 まで対数スケールで 51点とっています。
+各 annealing の MCMC ステップ数は 20。
+レプリカ数はプロセスあたり 100 x 4 MPIプロセスとします。</p>
+<p>計算結果は output 以下に出力されます。
+MPIプロセスごとの MCMC の計算ログは output/{rank}/result_T{index}.txt に温度点ごとに分割されて書き出されます。また、f(x)の期待値と分散、分配関数の値が output/fx.txt に出力されます。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>export_combined_files を True にしている場合はログが combined.txt に集約されている。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>を実行して result.txt を取り出す。その後、result.txt を温度点ごとに分割する。</p>
+<p>extract_combined.py は特定のタグで始まる行を抽出するツールで、以下のオプションが使用可能：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--tag</span></code> : 抽出対象のタグ(必須)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
+</ul>
+<p>詳細は <a class="reference internal" href="tools/extract_combined.html"><span class="doc">extract_combined.py</span></a> を参照。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>separate_T が False の場合はログが result.txt に出力される。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
+<p>を実行して温度点ごとのファイル result_T{index}.txt に分割する。</p>
+<p>separateT.py は MCMC のデータファイルを温度ごとに分割するツールで、以下のオプションが使用可能：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--file_type</span></code> : 分割する対象のファイル名 (指定がない場合は各ディレクトリ内の result.txt を処理)</p></li>
+</ul>
+<p>詳細は <a class="reference internal" href="tools/separateT.html"><span class="doc">separateT.py</span></a> を参照。</p>
+</div>
+</li>
+<li><p>model evidence を計算する</p>
+<p>model evidence <span class="math notranslate nohighlight">\(\log P(D;\beta)\)</span> は次の式で表されます。</p>
+<div class="math notranslate nohighlight">
+\[\log P(D;\beta) = \log\left(\dfrac{Z_\beta}{Z_{\beta_0}}\right) - \log V_\Omega + \sum_\mu \dfrac{n_\mu}{2}\log\left(\dfrac{\beta w_\mu}{\pi}\right)\]</div>
+<p>output/fx.txt に出力された分配関数 <span class="math notranslate nohighlight">\(\log Z/Z_0\)</span> の値を用いて model evidence を計算します。その際に、事前確率の規格化因子である探索空間の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span> とデータ点の数 <span class="math notranslate nohighlight">\(n\)</span> を指定します。</p>
+<p>今の例では探索空間は z1, z2, z3 についてそれぞれ [3.0, 6.0] の領域をとっています。データ点の数 (experiment.txt の行数) は 70 です。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-V<span class="w"> </span><span class="m">27</span>.0<span class="w"> </span>-n<span class="w"> </span><span class="m">70</span><span class="w"> </span>output/fx.txt
+</pre></div>
+</div>
+<p>model evidence の値は model_evidence.txt に書き出されます。また、beta についてプロットした図が model_evidence.png に出力されます。</p>
+<p>plt_model_evidence.py は以下のオプションを使用できます:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-V,</span> <span class="pre">--Volume</span></code> : 探索空間の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--ndata</span></code> : データ点の数(必須)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output</span></code> : プロットを出力するファイル名。出力形式は拡張子を元に判断します。</p></li>
+</ul>
+<p>詳細は <a class="reference internal" href="tools/plt_model_evidence.html"><span class="doc">plt_model_evidence.py</span></a> を参照。</p>
+<figure class="align-default" id="id2">
+<img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
+<figcaption>
+<p><span class="caption-text">model evidence をプロットした図。最大値を与える beta は beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44)。</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</li>
+<li><p>温度点ごとに探索データをまとめる</p>
+<p>output/{rank}/result_T{index}.txt に出力されている MCMC ステップの情報から、annealing が終了した時点の replica の配置を取り出し、温度点ごとのファイルにまとめます。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>summarized/ 以下に result_T{index}_summarized.txt として書き出される。</p>
+<p>summarize_each_T.py は各温度点でのレプリカ配置データを抽出してまとめるツールで、以下のオプションが使用可能：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_directory</span></code> : MCMC データファイルが格納されているディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--export_directory</span></code> : 出力先ディレクトリ</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">-i,</span> <span class="pre">--input_file</span></code> オプションを利用すると、PAMC計算に用いたTOML設定ファイルからレプリカ数などのパラメータを自動的に取得できます。</p>
+<p>詳細は <a class="reference internal" href="tools/summarize_each_T.html"><span class="doc">summarize_each_T.py</span></a> を参照。</p>
+</li>
+<li><p>1次元および2次元周辺化ヒストグラムを作成する</p>
+<p>replica配置のデータを用いて、重み付けされた事後確率分布 <span class="math notranslate nohighlight">\(P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}\)</span> をプロットします。</p>
+<p>各 <span class="math notranslate nohighlight">\(z_i\)</span> に沿って周辺化した1次元ヒストグラムを作成するには</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+</pre></div>
+</div>
+<p>を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。</p>
+<p>plt_1D_histogram.py は以下の主要なオプションを使用できます:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output_dir</span></code> : 出力先ディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r,</span> <span class="pre">--range</span></code> : 変数の範囲を指定(カンマ区切りの「最小値,最大値」形式)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-b,</span> <span class="pre">--bins</span></code> : ヒストグラムのビン数(デフォルト: 60)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-f,</span> <span class="pre">--format</span></code> : 出力ファイル形式(カンマ区切りのリスト、デフォルト: &quot;png&quot;)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code> : 設定ファイル(TOML形式)のパス</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--params</span></code> : PAMC計算に使用したパラメータファイルのパス</p></li>
+</ul>
+<p>設定ファイルを使用すると、オプションをまとめて設定が可能になります。</p>
+<p>詳細は <a class="reference internal" href="tools/plt_1D_histogram.html"><span class="doc">plt_1D_histogram.py</span></a> を参照。</p>
+<figure class="align-default" id="id3">
+<img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
+<figcaption>
+<p><span class="caption-text">1次元周辺化ヒストグラムの出力例。(Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span> の場合)</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>2次元に周辺化したヒストグラムを作成するには</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+</pre></div>
+</div>
+<p>を実行します。z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元ヒストグラムが作成され、2dhist/ 以下に 2Dhistogram_result_T{index}_beta_{beta}_x1_vs_x2.png 等のファイル名で書き出されます。(field_list を指定しない場合、軸の名称は x1, x2, ... になります。)</p>
+<p>plt_2D_histogram.py は plt_1D_histogram.py と同様のオプションに加えて、以下の機能があります。</p>
+<ul class="simple">
+<li><p>2変数の組み合わせごとにヒストグラムを生成</p></li>
+<li><p>対数スケールでのカラーマッピングによる確率密度の可視化</p></li>
+</ul>
+<p>出力ファイル名の命名規則は
+2Dhistogram_[ファイル名]_[x軸ラベル]_vs_[y軸ラベル].[フォーマット]
+となります。</p>
+<p>例: 2Dhistogram_result_T44_beta_1.91e+05_x1_vs_x2.png</p>
+<p>詳細は <a class="reference internal" href="tools/plt_2D_histogram.html"><span class="doc">plt_2D_histogram.py</span></a> を参照。</p>
+<figure class="align-default" id="id4">
+<img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
+<figcaption>
+<p><span class="caption-text">2次元周辺化ヒストグラムの出力例。(Tstep=22, z1-z2 軸についてのプロット)</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</li>
+</ol>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">ポスト処理ツール</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tools/index.html">リファレンス</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

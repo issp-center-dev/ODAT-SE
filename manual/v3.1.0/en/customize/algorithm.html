@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Algorithm &#8212; ODAT-SE 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Solver" href="solver.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Algorithm</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="solver.html"><code class="docutils literal notranslate"><span class="pre">Solver</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="usage.html">Usage</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="algorithm">
+<h1><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code><a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> is defined as a subclass of <code class="docutils literal notranslate"><span class="pre">odatse.algorithm.AlgorithmBase</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<section id="algorithmbase">
+<h2><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code><a class="headerlink" href="#algorithmbase" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code> class offers the following methods.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<ul>
+<li><p>Reads the common parameters from <code class="docutils literal notranslate"><span class="pre">info</span></code> and sets the following instance variables:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpicomm:</span> <span class="pre">Optional[MPI.Comm]</span></code> : <code class="docutils literal notranslate"><span class="pre">MPI.COMM_WORLD</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpisize:</span> <span class="pre">int</span></code> : the number of MPI processes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpirank:</span> <span class="pre">int</span></code> : the rank of this process</p>
+<ul class="simple">
+<li><p>When <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">mpi4py</span></code> fails, <code class="docutils literal notranslate"><span class="pre">self.mpicomm</span></code> is set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">self.mpisize</span></code> is set to 1, and <code class="docutils literal notranslate"><span class="pre">self.mpirank</span></code> is set to 0.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.rng:</span> <span class="pre">np.random.Generator</span></code> : pseudo random number generator</p>
+<ul class="simple">
+<li><p>For details of the seed, see <a class="reference internal" href="../input.html#input-parameter-algorithm"><span class="std std-ref">the [algorithm] section of the input parameter</span></a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.dimension:</span> <span class="pre">int</span></code> : the dimension of the parameter space</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.label_list:</span> <span class="pre">List[str]</span></code> : the name of each axes of the parameter space</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.root_dir:</span> <span class="pre">pathlib.Path</span></code> : root directory</p>
+<ul class="simple">
+<li><p>It is taken from <code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.output_dir:</span> <span class="pre">pathlib.Path</span></code> : output directory</p>
+<ul class="simple">
+<li><p>It is taken from <code class="docutils literal notranslate"><span class="pre">info.base[&quot;output_dir&quot;]</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.proc_dir:</span> <span class="pre">pathlib.Path</span></code> : working directory of each process</p>
+<ul class="simple">
+<li><p>It is set to <code class="docutils literal notranslate"><span class="pre">self.output_dir</span> <span class="pre">/</span> <span class="pre">str(self.mpirank)</span></code>.</p></li>
+<li><p>The directory will be made automatically.</p></li>
+<li><p>Each process performs an optimization algorithm in this directory.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.timer:</span> <span class="pre">dict[str,</span> <span class="pre">dict]</span></code> : dictionary storing elapsed time</p>
+<ul class="simple">
+<li><p>Three empty dictinaries, <code class="docutils literal notranslate"><span class="pre">&quot;prepare&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;run&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;post&quot;</span></code>, will be defined.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint:</span> <span class="pre">bool</span></code> : enable/disable checkpointing</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_steps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_interval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.checkpoint_file</span></code></p>
+<p>The parameters concerning the checkpointing feature are stored.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Prepares the algorithm.</p></li>
+<li><p>It should be called before <code class="docutils literal notranslate"><span class="pre">self.run()</span></code> is called.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Performs the algorithm</p></li>
+<li><p>The following steps are executed:</p>
+<ol class="arabic simple">
+<li><p>Enter into the directory <code class="docutils literal notranslate"><span class="pre">self.proc_dir</span></code>.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">self.runner.prepare()</span></code>.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">self._run()</span></code>.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">self.runner.post()</span></code>.</p></li>
+<li><p>Move to the original directory.</p></li>
+</ol>
+</li>
+<li><p>It should be called after <code class="docutils literal notranslate"><span class="pre">self.prepare()</span></code> is called.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Runs a post process of the algorithm, for example, writing the results into files.</p></li>
+<li><p>Enters into <code class="docutils literal notranslate"><span class="pre">self.output_dir</span></code>, calls <code class="docutils literal notranslate"><span class="pre">self._post()</span></code>, and returns to the original directory.</p></li>
+<li><p>It should be called after <code class="docutils literal notranslate"><span class="pre">self.run()</span></code> is called.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">main(self,</span> <span class="pre">run_mode)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>Calls <code class="docutils literal notranslate"><span class="pre">prepare</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code>, and <code class="docutils literal notranslate"><span class="pre">post</span></code>.</p></li>
+<li><p>Measures the elapsed times for calling functions, and writes them into a file</p></li>
+<li><p>Takes an argument for the execution mode as a string. The default value is <code class="docutils literal notranslate"><span class="pre">initialize</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initialize&quot;</span></code>: start from the initial state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code>: resume from the interrupted run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code>: continue from the finished run.</p></li>
+</ul>
+<p>The argument contains <code class="docutils literal notranslate"><span class="pre">&quot;-resetrand&quot;</span></code> when the random number generator should be initialized.
+The behavior of “continue” depends on the algorithm.</p>
+</li>
+<li><p>Returns the result of the optimization in the form of dictionary.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="id1">
+<h2><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> provides a concrete description of the algorithm.
+It is defined as a subclass of <code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code> and should have the following methods.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">domain</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>The arguments <code class="docutils literal notranslate"><span class="pre">info</span></code> and <code class="docutils literal notranslate"><span class="pre">runner</span></code> should be transferred to the constructor of the base class:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">super().__init__(info=info,</span> <span class="pre">runner=runner)</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Reads <code class="docutils literal notranslate"><span class="pre">info</span></code> and sets information.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">domain</span></code> is given, the search region should be taken from the <code class="docutils literal notranslate"><span class="pre">domain</span></code> parameter.
+Otherwise, the search region should be created from <code class="docutils literal notranslate"><span class="pre">info</span></code> by <code class="docutils literal notranslate"><span class="pre">odatse.domain.Region(info)</span></code> (for continuous parameter space) or <code class="docutils literal notranslate"><span class="pre">odatse.domain.MeshGrid(info)</span></code> (for discrete parameter space).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_prepare(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Describes pre-processes of the algorithm.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_run(self)</span> <span class="pre">-&gt;</span> <span class="pre">None</span></code></p>
+<blockquote>
+<div><ul>
+<li><p>Describes the algorithm body.</p></li>
+<li><p>In order to obtain the value of the objective function <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> for the search parameter <code class="docutils literal notranslate"><span class="pre">x</span></code>, the method of Runner class should be called in the following manner:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
+<span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Describes post-process of the algorithm.</p></li>
+<li><p>Returns the result of the optimization in the form of dictionary.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="definition-of-domain">
+<h2>Definition of <code class="docutils literal notranslate"><span class="pre">Domain</span></code><a class="headerlink" href="#definition-of-domain" title="Link to this heading">¶</a></h2>
+<p>Two classes are preprared to specify the search region.</p>
+<section id="region-class">
+<h3><code class="docutils literal notranslate"><span class="pre">Region</span></code> class<a class="headerlink" href="#region-class" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Region</span></code> is a helper class to define a continuous parameter space.</p>
+<ul class="simple">
+<li><p>The constructor takes an <code class="docutils literal notranslate"><span class="pre">Info</span></code> object, or a dictionary in <code class="docutils literal notranslate"><span class="pre">param=</span></code> form.</p>
+<ul>
+<li><p>When the <code class="docutils literal notranslate"><span class="pre">Info</span></code> object is given, the lower and upper bounds of the region, the units, and the initial values are obtained from <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> field.</p></li>
+<li><p>When the dictionary is given, the corresponding data are taken from the dictionary data.</p></li>
+<li><p>For details, see <a class="reference internal" href="../algorithm/minsearch.html#minsearch-input-param"><span class="std std-ref">[algorithm.param] subsection for minsearch</span></a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Initialize(self,</span> <span class="pre">rnd,</span> <span class="pre">limitation,</span> <span class="pre">num_walkers)</span></code> should be called to set the initial values.
+The arguments are the random number generator <code class="docutils literal notranslate"><span class="pre">rng</span></code>, the constraint object <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, and the number of walkers <code class="docutils literal notranslate"><span class="pre">num_walkers</span></code>.</p></li>
+</ul>
+</section>
+<section id="meshgrid-class">
+<h3><code class="docutils literal notranslate"><span class="pre">MeshGrid</span></code> class<a class="headerlink" href="#meshgrid-class" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">MeshGrid</span></code> is a helper class to define a discrete parameter space.</p>
+<ul class="simple">
+<li><p>The constructor takes an <code class="docutils literal notranslate"><span class="pre">Info</span></code> object, or a dictionary in <code class="docutils literal notranslate"><span class="pre">param=</span></code> form.</p>
+<ul>
+<li><p>When the <code class="docutils literal notranslate"><span class="pre">Info</span></code> object is given, the lower and upper bounds of the region, the units, and the initial values are obtained from <code class="docutils literal notranslate"><span class="pre">Info.algorithm.param</span></code> field.</p></li>
+<li><p>When the dictionary is given, the corresponding data are taken from the dictionary data.</p></li>
+<li><p>For details, see <a class="reference internal" href="../algorithm/mapper_mpi.html#mapper-input-param"><span class="std std-ref">[algorithm.param] subsection for mapper</span></a></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_split(self)</span></code> should be called to divide the grid points and distribute them to MPI ranks.</p></li>
+<li><p>For input and output, the following methods are provided.</p>
+<ul>
+<li><p>A class method <code class="docutils literal notranslate"><span class="pre">from_file(cls,</span> <span class="pre">path)</span></code> is prepared that reads mesh data from <code class="docutils literal notranslate"><span class="pre">path</span></code> and creates an instance of <code class="docutils literal notranslate"><span class="pre">MeshGrid</span></code> class.</p></li>
+<li><p>A method <code class="docutils literal notranslate"><span class="pre">store_file(self,</span> <span class="pre">path)</span></code> is prepared that writes the grid information to the file specified by <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="solver.html"><code class="docutils literal notranslate"><span class="pre">Solver</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="usage.html">Usage</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

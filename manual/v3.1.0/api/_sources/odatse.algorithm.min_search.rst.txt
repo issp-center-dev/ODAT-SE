@@ -1,0 +1,7 @@
+odatse.algorithm.min\_search module
+===================================
+
+.. automodule:: odatse.algorithm.min_search
+   :members:
+   :private-members:
+   :show-inheritance:

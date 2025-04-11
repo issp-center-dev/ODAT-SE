@@ -1,0 +1,7 @@
+odatse.util.neighborlist module
+===============================
+
+.. automodule:: odatse.util.neighborlist
+   :members:
+   :private-members:
+   :show-inheritance:

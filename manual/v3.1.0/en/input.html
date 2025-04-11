@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Input file &#8212; ODAT-SE 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Output files" href="output.html" />
+    <link rel="prev" title="Adding a direct problem solver" href="tutorial/solver_simple.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Input file</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">Adding a direct problem solver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="output.html">Output files</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="input-file">
+<h1>Input file<a class="headerlink" href="#input-file" title="Link to this heading">¶</a></h1>
+<p>As the input file format, <a class="reference external" href="https://toml.io/ja/">TOML</a> format is used.
+The input file consists of the following four sections.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p>
+<ul>
+<li><p>Specify the basic parameters about ODAT-SE.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solver</span></code></p>
+<ul>
+<li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Solver</span></code> .</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span></code></p>
+<ul>
+<li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> .</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runner</span></code></p>
+<ul>
+<li><p>Specify the parameters about <code class="docutils literal notranslate"><span class="pre">Runner</span></code> .</p></li>
+</ul>
+</li>
+</ul>
+<section id="base-section">
+<h2>[<code class="docutils literal notranslate"><span class="pre">base</span></code>] section<a class="headerlink" href="#base-section" title="Link to this heading">¶</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
+<p>Format: Integer</p>
+<p>Description: Dimension of the search space (number of parameters to search)</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p>
+<p>Format: string (default: The directory where the program was executed)</p>
+<p>Description: Name of the root directory. The origin of the relative paths to input files.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></p>
+<p>Format: string (default: The directory where the program was executed)</p>
+<p>Description: Name of the directory to output the results.</p>
+</li>
+</ul>
+</section>
+<section id="solver-section">
+<h2>[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] section<a class="headerlink" href="#solver-section" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of solver. Each parameter is defined for each solver.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+<p>Format: String</p>
+<p>Description: Name of the solver. The following solvers are available.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> : Solver to provide analytical solutions (mainly used for testing).</p></li>
+</ul>
+<p>The following are solvers for 2D material structure analysis distributed as separate modules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sim-trhepd-rheed</span></code> :
+Solver to calculate Total-reflection high energy positron diffraction (TRHEPD) or Reflection High Energy Electron Diffraction (RHEED) intensities.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sxrd</span></code> : Solver for Surface X-ray Diffraction (SXRD)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">leed</span></code> : Solver for Low-energy Electron Diffraction (LEED)</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
+<p>Format: Integer (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
+<p>Description:
+Number of input parameters for Solvers</p>
+</li>
+</ul>
+<p>See <a class="reference internal" href="solver/index.html"><span class="doc">Direct Problem Solver</span></a> for details of the various solvers and their input/output files.</p>
+</section>
+<section id="algorithm-section">
+<span id="input-parameter-algorithm"></span><h2>[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] section<a class="headerlink" href="#algorithm-section" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> determines the type of algorithm. Each parameter is defined for each algorithm.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+<p>Format: String</p>
+<p>Description: Algorithm name. The following algorithms are available.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code> : Minimum value search using Nelder-Mead method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code> : Grid search</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> :  Replica Exchange Monte Carlo method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> :  Population Annealing Monte Carlo method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code> :  Bayesian optimization</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
+<p>Format: Integer</p>
+<p>Description:
+A parameter to specify seeds of the pseudo-random number generator used for random generation of initial values, Monte Carlo updates, etc.
+For each MPI process, the value of <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">mpi_rank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> is given as seeds.
+If omitted, the initialization is done by  <a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng">the Numpy’s prescribed method</a>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed_delta</span></code></p>
+<p>Format: Integer (default: 314159)</p>
+<p>Description:
+A parameter to calculate the seed of the pseudo-random number generator for each MPI process.
+For details, see the description of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description:
+A parameter to specify whether the intermediate states are periodically stored to files. The final state is also saved. In case when the execution is terminated, it will be resumed from the latest checkpoint.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code></p>
+<p>Format: Integer (default: 16,777,216)</p>
+<p>Description:
+A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in  the Monte Carlo (exchange and PAMC) algorithms.
+The default value is a sufficiently large number of steps. To enable checkpointing, at least either of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> or <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> should be specified.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code></p>
+<p>Format: Floating point number (default: 31,104,000)</p>
+<p>Description:
+A parameter to specify the execution time between the previous and next checkpoints in unit of seconds.
+The default value is a sufficiently long period (360 days). To enable checkpointing, at least either of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> or <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> should be specified.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_file</span></code></p>
+<p>Format: String (default: <code class="docutils literal notranslate"><span class="pre">&quot;status.pickle&quot;</span></code>)</p>
+<p>Description:
+A parameter to specify the name of output file to which the intermediate state is written.
+The files are generated in the output directory of each process.
+The past three generations are kept with the suffixes .1, .2, and .3 .</p>
+</li>
+</ul>
+<p>See <a class="reference internal" href="algorithm/index.html"><span class="doc">Search algorithms</span></a> for details of the various algorithms and their input/output files.</p>
+</section>
+<section id="runner-section">
+<h2>[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section<a class="headerlink" href="#runner-section" title="Link to this heading">¶</a></h2>
+<p>This section sets the configuration of <code class="docutils literal notranslate"><span class="pre">Runner</span></code>, which bridges <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">Solver</span></code>.
+It has three subsections, <code class="docutils literal notranslate"><span class="pre">mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">limitation</span></code>, and <code class="docutils literal notranslate"><span class="pre">log</span></code> .</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ignore_error</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description:
+A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.</p>
+</li>
+</ul>
+<section id="runner-mapping-section">
+<h3>[<code class="docutils literal notranslate"><span class="pre">runner.mapping</span></code>] section<a class="headerlink" href="#runner-mapping-section" title="Link to this heading">¶</a></h3>
+<p>This section defines the mapping from an <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, to an <span class="math notranslate nohighlight">\(M\)</span> dimensional parameter used in <code class="docutils literal notranslate"><span class="pre">Solver</span></code>, <span class="math notranslate nohighlight">\(y\)</span> .
+In the case of <span class="math notranslate nohighlight">\(N \ne M\)</span>, the parameter <code class="docutils literal notranslate"><span class="pre">dimension</span></code> in <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section should be specified.</p>
+<p>In the current version, the affine mapping (linear mapping + translation) <span class="math notranslate nohighlight">\(y = Ax+b\)</span> is available.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
+<p>Format: List of list of float, or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>
+<p>Description:
+<span class="math notranslate nohighlight">\(N \times M\)</span> matrix <span class="math notranslate nohighlight">\(A\)</span>. An empty list <code class="docutils literal notranslate"><span class="pre">[]</span></code> is a shorthand of an identity matrix.
+If you want to set it by a string, arrange the elements of the matrix separated with spaces and newlines (see the example).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p>
+<p>Format: List of float, or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>
+<p>Description:
+<span class="math notranslate nohighlight">\(M\)</span> dimensional vector <span class="math notranslate nohighlight">\(b\)</span>. An empty list <code class="docutils literal notranslate"><span class="pre">[]</span></code> is a shorthand of a zero vector.
+If you want to set it by a string, arrange the elements of the vector separated with spaces.</p>
+</li>
+</ul>
+<p>For example, both</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">1 1</span>
+<span class="s2">0 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>mean</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \left(
+\begin{matrix}
+1 &amp; 1 \\
+0 &amp; 1
+\end{matrix}
+\right).\end{split}\]</div>
+</section>
+<section id="limitation-section">
+<h3>[<code class="docutils literal notranslate"><span class="pre">limitation</span></code>] section<a class="headerlink" href="#limitation-section" title="Link to this heading">¶</a></h3>
+<p>This section defines the limitation (constraint) in an <span class="math notranslate nohighlight">\(N\)</span> dimensional parameter searched by <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code>, <span class="math notranslate nohighlight">\(x\)</span>, in addition of <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code>.</p>
+<p>In the current version, a linear inequation with the form <span class="math notranslate nohighlight">\(Ax+b&gt;0\)</span> is available. Specifically, you can apply constraints as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{1,1} x_{1} + A_{1,2} x_{2} + &amp;... + A_{1,N} x_{N} + b_{1} &gt; 0\\
+A_{2,1} x_{1} + A_{2,2} x_{2} + &amp;... + A_{2,N} x_{N} + b_{2} &gt; 0\\
+&amp;...\\
+A_{M,1} x_{1} + A_{M,2} x_{2} + &amp;... + A_{M,N} x_{N} + b_{M} &gt; 0\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(M\)</span> is the number of constraint equations (arbitrary).</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_a</span></code></p>
+<p>Format: List of list of float, or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>
+<p>Description:
+<span class="math notranslate nohighlight">\(M \times N\)</span> matrix <span class="math notranslate nohighlight">\(A\)</span> for the constraint equations.
+The number of rows should be the number of constraints <span class="math notranslate nohighlight">\(M\)</span>, and the number of columns should be the number of search variables <span class="math notranslate nohighlight">\(N\)</span>.
+You must define <code class="docutils literal notranslate"><span class="pre">co_b</span></code> together with this parameter.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">co_b</span></code></p>
+<p>Format: List of float, or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>
+<p>Description:
+<span class="math notranslate nohighlight">\(M\)</span> dimensional vector <span class="math notranslate nohighlight">\(b\)</span> for the constraint equations.
+You need to set a column vector with the dimension equal to the number of constraints <span class="math notranslate nohighlight">\(M\)</span>.
+You must define <code class="docutils literal notranslate"><span class="pre">co_a</span></code> together with this parameter.</p>
+</li>
+</ul>
+<p>For example, both</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">1 1</span>
+<span class="s2">0 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>mean</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A = \left(
+\begin{matrix}
+1 &amp; 1 \\
+0 &amp; 1
+\end{matrix}
+\right).\end{split}\]</div>
+<p>Also, the following examples:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">-1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;0 -1&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">co_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">0</span>
+<span class="s2">-1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>all represent:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}b = \left(
+\begin{matrix}
+0 \\
+-1
+\end{matrix}
+\right)\end{split}\]</div>
+<p>If neither <code class="docutils literal notranslate"><span class="pre">co_a</span></code> nor <code class="docutils literal notranslate"><span class="pre">co_b</span></code> is defined, no constraint equation will be applied to the search.</p>
+</section>
+<section id="log-section">
+<h3>[<code class="docutils literal notranslate"><span class="pre">log</span></code>] section<a class="headerlink" href="#log-section" title="Link to this heading">¶</a></h3>
+<p>Setting parametrs related to logging of solver calls.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code></p>
+<p>Format: String (default: “runner.log”)</p>
+<p>Description: Name of log file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
+<p>Format: Integer (default: 0)</p>
+<p>Description:
+The log will be written out every time solver is called <code class="docutils literal notranslate"><span class="pre">interval</span></code> times.
+If the value is less than or equal to 0, no log will be written.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_result</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description: Whether to record the output from solver.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_input</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description: Whether to record the input to solver.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="mpi-parallel-computation">
+<h2>MPI Parallel Computation<a class="headerlink" href="#mpi-parallel-computation" title="Link to this heading">¶</a></h2>
+<p>ODAT-SE supports parallel computation using MPI. Using MPI, you can speed up calculations by utilizing multiple processes.</p>
+<ul class="simple">
+<li><p>Algorithms such as <code class="docutils literal notranslate"><span class="pre">exchange</span></code>, <code class="docutils literal notranslate"><span class="pre">pamc</span></code>, and <code class="docutils literal notranslate"><span class="pre">mapper</span></code> can benefit from MPI parallelization</p></li>
+<li><p>During parallel execution, each process has its own random number sequence (see <code class="docutils literal notranslate"><span class="pre">seed</span></code> and <code class="docutils literal notranslate"><span class="pre">seed_delta</span></code> parameters)</p></li>
+<li><p>Checkpoint files are created for each process</p></li>
+</ul>
+<p>Execution example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">4</span><span class="w"> </span>odatse<span class="w"> </span>input.toml
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-np</span> <span class="pre">4</span></code> part specifies the number of processes to use. Adjust according to the number of cores available.</p>
+<p>Depending on your environment, you may need to use <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or other commands, or execute MPI programs through a job scheduler. Large-scale computing centers in particular may have system-specific execution methods. Please refer to the manual for your environment for details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Parallelization efficiency varies by algorithm. For example, with <code class="docutils literal notranslate"><span class="pre">exchange</span></code>, it is efficient to use the same number of processes as replicas or fewer.</p>
+</div>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="tutorial/solver_simple.html">Adding a direct problem solver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="output.html">Output files</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

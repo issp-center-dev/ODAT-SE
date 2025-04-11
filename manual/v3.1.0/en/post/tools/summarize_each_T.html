@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>summarize_each_T.py &#8212; ODAT-SE 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="plt_1D_histogram.py" href="plt_1D_histogram.html" />
+    <link rel="prev" title="plt_model_evidence.py" href="plt_model_evidence.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>summarize_each_T.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="plt_model_evidence.html">plt_model_evidence.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plt_1D_histogram.html">plt_1D_histogram.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="summarize-each-t-py">
+<h1>summarize_each_T.py<a class="headerlink" href="#summarize-each-t-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>Extract annealed data from each temperature point in PAMC output files</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>Extracts replica data at the point where annealing is completed from MCMC output files (result_T*.txt) at each temperature point for each process in PAMC calculations. The data is stored as files for each temperature point in the specified directory.</p>
+<p>PAMC calculation data is assumed to be arranged in the format DATA_DIRECTORY/[process_number]/result_T[temperature_index].txt.
+Each file format consists of space-separated numerical data: MCMC step number (step), replica number (walker), temperature (T), fx, coordinate values (x1 .. xN, where N is the dimension), weight, and ancestor.</p>
+<p>Output data is arranged in the format EXPORT_DIRECTORY/result_T[temperature_index]_summarized.txt.
+Each file format consists of: inverse temperature (beta), fx, coordinate values (x1 .. xN), and weight.</p>
+<p>If an input parameter file used in PAMC calculations is specified as INPUT_FILE, the number of replicas (nreplica) and the directory storing calculation data (data_directory) are obtained from the input file. However, command line arguments take precedence.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Python 3.6 or higher is required (due to the use of type hints and f-strings).</p></li>
+<li><p>Inverse temperature (beta) is calculated as the reciprocal of temperature (T) (beta = 1/T). When T = 0, beta is set to 0.</p></li>
+<li><p>By default, the last nreplica lines from each file are extracted. This number of lines corresponds to the number of replicas.</p></li>
+<li><p>If nreplica is not specified, data from the last MCMC step is automatically determined and extracted.</p></li>
+<li><p>The tqdm library is required for progress bar display. If not installed, processing will be executed without a progress bar.</p></li>
+<li><p>If the output directory does not exist, it will be created automatically.</p></li>
+</ul>
+</div>
+<p>The following command line options are available:</p>
+<dl class="simple">
+<dt><strong>-i INPUT_FILE, --input_file INPUT_FILE</strong></dt><dd><p>Specifies the TOML format input parameter file used for PAMC calculations. If specified, the number of replicas and output directory are read from this file.</p>
+</dd>
+<dt><strong>-n NREPLICA, --nreplica NREPLICA</strong></dt><dd><p>Specifies the number of replicas per process. If not specified and no input file is specified, only data from the last step of each file is extracted.</p>
+</dd>
+<dt><strong>-d DATA_DIRECTORY, --data_directory DATA_DIRECTORY</strong></dt><dd><p>Directory storing PAMC calculation data. This option takes precedence even if an input file is specified.</p>
+</dd>
+<dt><strong>-o EXPORT_DIRECTORY, --export_directory EXPORT_DIRECTORY</strong></dt><dd><p>Directory to write extracted data. Default is “summarized”.</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>Displays a progress bar during execution. The tqdm library is required for display.</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>Displays help message and exits the program.</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Basic usage</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>Processes result_T*.txt files from all process folders in the output directory and saves them to the summarized directory.
+Data from the last MC step of each file is extracted.</p>
+</li>
+<li><p>Using a TOML configuration file</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-i<span class="w"> </span>input.toml<span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>Loads settings from input.toml (number of replicas, data directory), processes the data, and saves it to the summarized directory.</p>
+</li>
+<li><p>Explicitly specifying the number of replicas</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-n<span class="w"> </span><span class="m">16</span><span class="w"> </span>-o<span class="w"> </span>summarized
+</pre></div>
+</div>
+<p>Extracts the last 16 lines from each file (for 16 replicas).</p>
+</li>
+<li><p>Displaying a progress bar</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized<span class="w"> </span>--progress
+</pre></div>
+</div>
+<p>Displays a progress bar during processing (requires the tqdm library).</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="data-conversion-details">
+<h3>Data Conversion Details<a class="headerlink" href="#data-conversion-details" title="Link to this heading">¶</a></h3>
+<p>This script performs the following data conversions:</p>
+<ol class="arabic">
+<li><p>Input data format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id T fx x1 ... xN weight ancestor
+</pre></div>
+</div>
+</li>
+<li><p>Output data format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>beta fx x1 ... xN weight
+</pre></div>
+</div>
+</li>
+</ol>
+<dl class="simple">
+<dt>Key conversion points:</dt><dd><ul class="simple">
+<li><p>Extraction of data from the last MC step</p></li>
+<li><p>Conversion from temperature (T) to inverse temperature (beta = 1/T)</p></li>
+<li><p>Removal of unnecessary columns (step, walker_id, ancestor)</p></li>
+</ul>
+</dd>
+</dl>
+<p>When temperature (T) is 0, inverse temperature (beta) is also set to 0.</p>
+</section>
+<section id="toml-configuration-file-format">
+<h3>TOML Configuration File Format<a class="headerlink" href="#toml-configuration-file-format" title="Link to this heading">¶</a></h3>
+<p>The TOML configuration file is expected to have the following format:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span><span class="w">  </span><span class="c1"># Data directory</span>
+
+<span class="k">[algorithm.pamc]</span>
+<span class="n">nreplica_per_proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="w">  </span><span class="c1"># Number of replicas per process</span>
+</pre></div>
+</div>
+<p>Errors may occur if the required sections and parameters are not in the configuration file.</p>
+</section>
+<section id="processing-mechanism">
+<h3>Processing Mechanism<a class="headerlink" href="#processing-mechanism" title="Link to this heading">¶</a></h3>
+<p>This script processes data in the following steps:</p>
+<ol class="arabic simple">
+<li><p>Parse command line arguments (or load from TOML configuration file)</p></li>
+<li><p>Create output directory (if it doesn’t exist)</p></li>
+<li><p>Pattern matching of input files (DATA_DIRECTORY/*/result_T*.txt)</p></li>
+<li><p>Process each file:</p>
+<ol class="loweralpha simple">
+<li><p>Read file line by line (excluding comment lines)</p></li>
+<li><p>Extract the last n lines if the number of replicas is specified</p></li>
+<li><p>Extract lines from the last step if the number of replicas is not specified</p></li>
+<li><p>Process data conversion (temperature → inverse temperature, remove unnecessary columns)</p></li>
+<li><p>Write results to output file</p></li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="performance-and-considerations">
+<h3>Performance and Considerations<a class="headerlink" href="#performance-and-considerations" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The <cite>--progress</cite> option can be used to visualize progress when processing many files at once.</p></li>
+<li><p>Be mindful of memory usage when processing very large files.</p></li>
+<li><p>Since data is written to output files in append mode (<cite>a</cite>), results may be duplicated if the same process is executed multiple times. If re-executing, empty the output directory or specify a new directory.</p></li>
+<li><p>If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.</p></li>
+</ul>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>If an input file is not found: The file processing is skipped and an error message is displayed.</p></li>
+<li><p>If there are no write permissions for the output directory: A permission error occurs.</p></li>
+<li><p>If the data line format differs from expected (e.g., insufficient columns): Errors may occur during processing of the relevant line.</p></li>
+<li><p>If the TOML configuration file format is incorrect: Errors occur during parsing.</p></li>
+</ul>
+<p>The script processes each file in a try-except block, so even if an error occurs in one file, processing of other files continues.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="plt_model_evidence.html">plt_model_evidence.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="plt_1D_histogram.html">plt_1D_histogram.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimization by Bayesian Optimization &#8212; ODAT-SE 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=dd1205ac"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Optimization by replica exchange Monte Carlo" href="exchange.html" />
+    <link rel="prev" title="Grid search" href="mapper.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.1.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Optimization by Bayesian Optimization</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="mapper.html">Grid search</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="exchange.html">Optimization by replica exchange Monte Carlo</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="optimization-by-bayesian-optimization">
+<h1>Optimization by Bayesian Optimization<a class="headerlink" href="#optimization-by-bayesian-optimization" title="Link to this heading">¶</a></h1>
+<p>This tutorial describes how to estimate the minimization problem of Himmelblau function by using Bayesian optimization (BO).
+ODAT-SE uses <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> for BO.
+PHYSBO package should be installed beforehand.</p>
+<section id="sample-files">
+<h2>Sample files<a class="headerlink" href="#sample-files" title="Link to this heading">¶</a></h2>
+<p>Sample files are available from <code class="docutils literal notranslate"><span class="pre">sample/analytical/bayes</span></code> .
+This directory includes the following files:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code></p>
+<p>The input file of odatse</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do.sh</span></code></p>
+<p>Script files for running this tutorial</p>
+</li>
+</ul>
+<p>In addition, <code class="docutils literal notranslate"><span class="pre">plot_himmel.py</span></code> in <code class="docutils literal notranslate"><span class="pre">sample</span></code> directory is used to visualize the result.</p>
+</section>
+<section id="input-files">
+<h2>Input files<a class="headerlink" href="#input-files" title="Link to this heading">¶</a></h2>
+<p>This subsection describes the input file.
+For details, see <a class="reference internal" href="../algorithm/bayes.html#bayes-input"><span class="std std-ref">the manual of bayes</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;bayes&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">num_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">61</span><span class="p">,</span> <span class="mi">61</span><span class="p">]</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">bayes</span><span class="p">]</span>
+<span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">40</span>
+</pre></div>
+</div>
+<p>The contents of <code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code>, and <code class="docutils literal notranslate"><span class="pre">[runner]</span></code> sections are the same as those for the search by the Nelder-Mead method (<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section specifies the algorithm to use and its settings.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the algorithm you want to use, and in this tutorial we will do a Bayesian optimization analysis, so specify <code class="docutils literal notranslate"><span class="pre">bayes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> specifies the initial input of random number generator.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section specifies the range of parameters to search and their initial values.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> specify the minimum and maximum values of the search grid, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code> specifies the number of grid points along each parameter.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">[algorithm.bayes]</span></code> section sets the parameters for Bayesian optimization.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code> specifies the number of random searches before Bayesian optimization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code> specifies the number of Bayesian searches.</p></li>
+</ul>
+<p>For details on other parameters that can be specified in the input file, see the chapter on input files of <code class="docutils literal notranslate"><span class="pre">bayes</span></code>.</p>
+</section>
+<section id="calculation">
+<h2>Calculation<a class="headerlink" href="#calculation" title="Link to this heading">¶</a></h2>
+<p>First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd sample/analytical/bayes
+</pre></div>
+</div>
+<p>Then, run the main program. It will take a few secondes on a normal PC.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+</pre></div>
+</div>
+<p>By executing the program, a directory with the name <code class="docutils literal notranslate"><span class="pre">0</span></code> is created under <code class="docutils literal notranslate"><span class="pre">output</span></code> directory, and the results are written in it.
+The following standard output will be shown:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameter</span>
+<span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">TS</span>
+<span class="n">interval</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">num_rand_basis</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">value_01</span> <span class="o">=</span>  <span class="mf">5.10000</span>
+<span class="n">value_02</span> <span class="o">=</span>  <span class="mf">4.90000</span>
+<span class="n">R</span><span class="o">-</span><span class="n">factor</span> <span class="o">=</span> <span class="mf">0.037237314010261195</span>
+<span class="mi">0001</span><span class="o">-</span><span class="n">th</span> <span class="n">step</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.037237</span> <span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+   <span class="n">current</span> <span class="n">best</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.037237</span> <span class="p">(</span><span class="n">best</span> <span class="n">action</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+
+<span class="n">value_01</span> <span class="o">=</span>  <span class="mf">4.30000</span>
+<span class="n">value_02</span> <span class="o">=</span>  <span class="mf">3.50000</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>A list of hyperparameters, followed by candidate parameters at each step and the corresponding function values are shown first.
+It also outputs the grid index (<code class="docutils literal notranslate"><span class="pre">action</span></code>) and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> of the best value at that time.
+The final estimated parameters are output to <code class="docutils literal notranslate"><span class="pre">output/BayesData.txt</span></code>.</p>
+<p>In this case, <code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code> can be seen as the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="c1">#step x1 x2 fx x1_action x2_action fx_action</span>
+ <span class="mi">0</span> <span class="o">-</span><span class="mf">2.4</span> <span class="o">-</span><span class="mf">0.7999999999999998</span> <span class="mf">113.2192</span> <span class="o">-</span><span class="mf">2.4</span> <span class="o">-</span><span class="mf">0.7999999999999998</span> <span class="mf">113.2192</span>
+ <span class="mi">1</span> <span class="o">-</span><span class="mf">2.4</span> <span class="o">-</span><span class="mf">0.7999999999999998</span> <span class="mf">113.2192</span> <span class="mf">1.6000000000000005</span> <span class="mf">4.600000000000001</span> <span class="mf">263.12320000000045</span>
+ <span class="mi">2</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span>
+ <span class="mi">3</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span> <span class="mf">4.800000000000001</span> <span class="mf">5.800000000000001</span> <span class="mf">1306.739200000001</span>
+ <span class="mi">4</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span> <span class="o">-</span><span class="mf">1.3999999999999995</span> <span class="mf">2.5999999999999996</span> <span class="mf">44.16320000000003</span>
+ <span class="mi">5</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span> <span class="mf">2.200000000000001</span> <span class="o">-</span><span class="mf">5.2</span> <span class="mf">623.6672</span>
+
+ <span class="mi">6</span> <span class="mf">2.8000000000000007</span> <span class="o">-</span><span class="mf">0.39999999999999947</span> <span class="mf">28.995199999999958</span> <span class="o">-</span><span class="mf">1.1999999999999993</span> <span class="mf">2.200000000000001</span> <span class="mf">65.45919999999997</span>
+ <span class="mi">7</span> <span class="mf">4.200000000000001</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">23.619200000000067</span> <span class="mf">4.200000000000001</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">23.619200000000067</span>
+ <span class="mi">8</span> <span class="mf">4.200000000000001</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">23.619200000000067</span> <span class="o">-</span><span class="mf">2.5999999999999996</span> <span class="o">-</span><span class="mf">0.1999999999999993</span> <span class="mf">111.10720000000002</span>
+ <span class="mi">9</span> <span class="mf">4.200000000000001</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">23.619200000000067</span> <span class="mf">0.6000000000000005</span> <span class="mf">0.8000000000000007</span> <span class="mf">130.00319999999994</span>
+ <span class="mi">10</span> <span class="mf">4.200000000000001</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">23.619200000000067</span> <span class="o">-</span><span class="mf">0.5999999999999996</span> <span class="o">-</span><span class="mf">0.5999999999999996</span> <span class="mf">178.7552</span>
+ <span class="o">...</span>
+ <span class="mi">38</span> <span class="mf">3.200000000000001</span> <span class="mf">1.8000000000000007</span> <span class="mf">1.3952000000000133</span> <span class="mf">3.200000000000001</span> <span class="o">-</span><span class="mf">1.3999999999999995</span> <span class="mf">8.051199999999973</span>
+ <span class="mi">39</span> <span class="mf">3.200000000000001</span> <span class="mf">1.8000000000000007</span> <span class="mf">1.3952000000000133</span> <span class="o">-</span><span class="mf">3.8</span> <span class="o">-</span><span class="mf">3.0</span> <span class="mf">3.433599999999999</span>
+ <span class="mi">40</span> <span class="mf">3.200000000000001</span> <span class="mf">1.8000000000000007</span> <span class="mf">1.3952000000000133</span> <span class="o">-</span><span class="mf">3.0</span> <span class="o">-</span><span class="mf">2.8</span> <span class="mf">27.705600000000004</span>
+ <span class="mi">41</span> <span class="mf">3.6000000000000014</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">0.051200000000003215</span> <span class="mf">3.6000000000000014</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">0.051200000000003215</span>
+ <span class="mi">42</span> <span class="mf">3.6000000000000014</span> <span class="o">-</span><span class="mf">1.7999999999999998</span> <span class="mf">0.051200000000003215</span> <span class="mf">2.0</span> <span class="mf">2.5999999999999996</span> <span class="mf">22.457599999999996</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The first column contains the number of steps, and the second, third, and fourth columns contain <code class="docutils literal notranslate"><span class="pre">x2</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, which give the highest score at that time.
+This is followed by the candidate <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> for that step.
+In this case, you can see that the correct solution is obtained at the 41st step.</p>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">¶</a></h2>
+<p>You can see at what step the parameter gave the minimum score by looking at <code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=1 --ycol=2 --format=&quot;-o&quot; --output=output/res.pdf output/BayesData.txt
+$ python3 ../plot_himmel.py --xcol=4 --ycol=5 --format=&quot;o&quot; --output=output/actions.pdf output/BayesData.txt
+</pre></div>
+</div>
+<p>By executing the above commands, <code class="docutils literal notranslate"><span class="pre">output/actions.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> will be created that plots the grid points evaluated during the Bayes optimization process, and the sequence of the points that yield the least scores, respectively, on top of the contour of Himmelblau function.</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/res_bayes_plot.png" src="../_images/res_bayes_plot.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">The grid points evaluated during the Bayesian optimization (left) and the history of points that yield the least scores (right).</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="mapper.html">Grid search</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="exchange.html">Optimization by replica exchange Monte Carlo</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

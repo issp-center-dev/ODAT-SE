@@ -1,0 +1,7 @@
+odatse.algorithm.gather module
+==============================
+
+.. automodule:: odatse.algorithm.gather
+   :members:
+   :private-members:
+   :show-inheritance:

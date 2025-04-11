@@ -1,0 +1,7 @@
+odatse.util.logger module
+=========================
+
+.. automodule:: odatse.util.logger
+   :members:
+   :private-members:
+   :show-inheritance:
