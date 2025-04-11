@@ -457,12 +457,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Save the current algorithm state to a checkpoint file.
 
         Saves all necessary data to resume the simulation later, including:
-        - MPI configuration
-        - Random number generator state
-        - Timer information
-        - Current configurations and energies
-        - Best solutions found
-        - Replica exchange state information
+          - MPI configuration
+          - Random number generator state
+          - Timer information
+          - Current configurations and energies
+          - Best solutions found
+          - Replica exchange state information
 
         Parameters
         ----------

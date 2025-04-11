@@ -16,7 +16,7 @@ class BaseWriter:
     Base class for file writing operations with support for combined output files.
     
     Class Attributes
-    ---------------
+    ----------------
     _fp : TextIO | None
         Shared file pointer for combined output mode
     _fp_count : int

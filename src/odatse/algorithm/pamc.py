@@ -33,20 +33,20 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     through a sequence of temperatures, using both Monte Carlo updates and resampling.
 
     Key Features:
-    - Maintains a population of walkers that evolves through temperature steps
-    - Uses importance sampling with weight-based resampling
-    - Supports both fixed and variable population sizes
-    - Calculates free energy differences between temperature steps
-    - Provides error estimates through population statistics
+      - Maintains a population of walkers that evolves through temperature steps
+      - Uses importance sampling with weight-based resampling
+      - Supports both fixed and variable population sizes
+      - Calculates free energy differences between temperature steps
+      - Provides error estimates through population statistics
 
     Algorithm Flow:
-    1. Initialize walker population at highest temperature
-    2. For each temperature step:
-       a. Perform Monte Carlo updates at current temperature
-       b. Calculate weights for next temperature
-       c. Resample population based on weights
-       d. Update statistical estimates
-    3. Track best solutions and maintain system statistics
+      1. Initialize walker population at highest temperature
+      2. For each temperature step:
+        a. Perform Monte Carlo updates at current temperature
+        b. Calculate weights for next temperature
+        c. Resample population based on weights
+        d. Update statistical estimates
+      3. Track best solutions and maintain system statistics
 
     Attributes
     ----------
@@ -175,9 +175,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Determine the temperature schedule and number of steps.
 
         The schedule can be specified in three ways:
-        1. Total steps and steps per temperature
-        2. Total steps and number of temperatures
-        3. Steps per temperature and number of temperatures
+          1. Total steps and steps per temperature
+          2. Total steps and number of temperatures
+          3. Steps per temperature and number of temperatures
 
         The method ensures even distribution of computational effort across
         temperature steps while respecting the specified constraints.
@@ -186,9 +186,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         ----------
         info_pamc : dict
             Configuration dictionary containing:
-            - numsteps: Total number of Monte Carlo steps
-            - numsteps_annealing: Steps per temperature
-            - Tnum: Number of temperature points
+              - numsteps: Total number of Monte Carlo steps
+              - numsteps_annealing: Steps per temperature
+              - Tnum: Number of temperature points
 
         Returns
         -------
@@ -419,10 +419,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Collect and organize statistical information across all processes.
 
         Gathers data needed for:
-        1. Free energy calculations
-        2. Error estimation
-        3. Population statistics
-        4. Acceptance rate monitoring
+          1. Free energy calculations
+          2. Error estimation
+          3. Population statistics
+          4. Acceptance rate monitoring
 
         Parameters
         ----------
@@ -433,11 +433,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         -------
         Dict[str, np.ndarray]
             Contains:
-            - fxs: Energy values for all walkers
-            - logweights: Log of importance weights
-            - ns: Number of walkers per process
-            - ancestors: Genealogical tracking data
-            - acceptance ratio: MC acceptance rates
+              - fxs: Energy values for all walkers
+              - logweights: Log of importance weights
+              - ns: Number of walkers per process
+              - ancestors: Genealogical tracking data
+              - acceptance ratio: MC acceptance rates
         """
 
         if numT is None:
@@ -469,11 +469,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Calculate and save statistical measures from the simulation.
 
         Performs:
-        1. Free energy calculations using weighted averages
-        2. Error estimation using jackknife resampling
-        3. Population size tracking
-        4. Acceptance rate monitoring
-        5. Partition function estimation
+          1. Free energy calculations using weighted averages
+          2. Error estimation using jackknife resampling
+          3. Population size tracking
+          4. Acceptance rate monitoring
+          5. Partition function estimation
 
         Uses bias-corrected jackknife for reliable error estimates
         of weighted averages in the presence of correlations.
@@ -482,11 +482,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         ----------
         info : Dict[str, np.ndarray]
             Dictionary containing the following keys:
-            - fxs: Objective function of each walker over all processes.
-            - logweights: Logarithm of weights.
-            - ns: Number of walkers in each process.
-            - ancestors: Ancestor (origin) of each walker.
-            - acceptance ratio: Acceptance ratio for each temperature.
+              - fxs: Objective function of each walker over all processes.
+              - logweights: Logarithm of weights.
+              - ns: Number of walkers in each process.
+              - ancestors: Ancestor (origin) of each walker.
+              - acceptance ratio: Acceptance ratio for each temperature.
         """
         fxs = info["fxs"]
         numT, nreplicas = fxs.shape
@@ -540,20 +540,20 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Perform population resampling between temperature steps.
 
         This is a key component of PAMC that:
-        1. Gathers current population statistics
-        2. Calculates importance weights for the temperature change
-        3. Resamples walkers based on their weights
-        4. Updates population statistics and free energy estimates
+          1. Gathers current population statistics
+          2. Calculates importance weights for the temperature change
+          3. Resamples walkers based on their weights
+          4. Updates population statistics and free energy estimates
 
         The resampling can be done in two modes:
-        - Fixed: Maintains constant population size
-        - Varied: Allows population size to fluctuate based on weights
+          - Fixed: Maintains constant population size
+          - Varied: Allows population size to fluctuate based on weights
 
         Implementation Details:
-        - Uses log-weights to prevent numerical overflow
-        - Maintains walker genealogy for analysis
-        - Updates free energy estimates using resampling data
-        - Handles MPI communication for parallel execution
+          - Uses log-weights to prevent numerical overflow
+          - Maintains walker genealogy for analysis
+          - Updates free energy estimates using resampling data
+          - Handles MPI communication for parallel execution
         """
         res = self._gather_information()
         self._save_stats(res)
@@ -601,10 +601,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Resample population allowing size variation.
 
         Uses Poisson resampling:
-        1. Calculates expected number of copies from weights
-        2. Samples actual copies using Poisson distribution
-        3. Creates new population with variable size
-        4. Updates all walker properties
+          1. Calculates expected number of copies from weights
+          2. Samples actual copies using Poisson distribution
+          3. Creates new population with variable size
+          4. Updates all walker properties
 
         Parameters
         ----------

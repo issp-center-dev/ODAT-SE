@@ -30,33 +30,37 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     multiple walkers and temperature-based sampling methods.
 
     Implementation Details
-    --------------------
+    ----------------------
     The class handles two types of parameter spaces:
-    1. Continuous: Uses real-valued parameters within specified bounds
-    2. Discrete: Uses node-based parameters with defined neighbor relationships
+      1. Continuous: Uses real-valued parameters within specified bounds
+      2. Discrete: Uses node-based parameters with defined neighbor relationships
 
     For continuous problems:
-    - Parameters are bounded by xmin and xmax
-    - Steps are controlled by xstep for each dimension
+      - Parameters are bounded by xmin and xmax
+      - Steps are controlled by xstep for each dimension
     
     For discrete problems:
-    - Parameters are represented as nodes in a graph
-    - Transitions are only allowed between neighboring nodes
-    - Neighbor relationships must form a connected, bidirectional graph
+      - Parameters are represented as nodes in a graph
+      - Transitions are only allowed between neighboring nodes
+      - Neighbor relationships must form a connected, bidirectional graph
 
     The sampling process:
-    1. Initializes walkers in valid positions
-    2. Proposes moves based on the parameter space type
-    3. Evaluates the objective function ("Energy")
-    4. Accepts/rejects moves based on the Monte Carlo criterion
-    5. Tracks the best solution found
+      1. Initializes walkers in valid positions
+      2. Proposes moves based on the parameter space type
+      3. Evaluates the objective function ("Energy")
+      4. Accepts/rejects moves based on the Monte Carlo criterion
+      5. Tracks the best solution found
 
     Key Methods
-    ----------
-    _initialize() : Sets up initial walker positions and counters
-    propose() : Generates candidate moves for walkers
-    local_update() : Performs one Monte Carlo step
-    _evaluate() : Computes objective function values
+    -----------
+      _initialize() :
+         Sets up initial walker positions and counters
+      propose() :
+         Generates candidate moves for walkers
+      local_update() :
+         Performs one Monte Carlo step
+      _evaluate() :
+         Computes objective function values
     """
 
     nwalkers: int
@@ -168,17 +172,17 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         Initialize the Monte Carlo simulation state.
 
         For continuous problems:
-        - Uses domain.initialize to generate valid initial positions
-        - Respects any additional limitations from the runner
+          - Uses domain.initialize to generate valid initial positions
+          - Respects any additional limitations from the runner
 
         For discrete problems:
-        - Randomly assigns walkers to valid nodes
-        - Maps node indices to actual coordinate positions
+          - Randomly assigns walkers to valid nodes
+          - Maps node indices to actual coordinate positions
 
         Also initializes:
-        - Objective function values (fx) to zero
-        - Best solution tracking variables
-        - Acceptance counters for monitoring convergence
+          - Objective function values (fx) to zero
+          - Best solution tracking variables
+          - Acceptance counters for monitoring convergence
         """
         self.state = self.statespace.initialize(self.nwalkers)
         self.fx = np.zeros(self.nwalkers)
@@ -194,9 +198,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         Evaluate objective function for current walker positions.
 
         Optimization Features:
-        - Skips evaluation for out-of-bounds positions
-        - Tracks evaluation timing statistics
-        - Supports parallel evaluation across walkers
+          - Skips evaluation for out-of-bounds positions
+          - Tracks evaluation timing statistics
+          - Supports parallel evaluation across walkers
 
         Parameters
         ----------
@@ -234,16 +238,16 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         Perform one step of the Monte Carlo algorithm.
 
         Algorithm Flow:
-        1. Generate proposed moves for all walkers
-        2. Check if proposals are within valid bounds
-        3. Evaluate objective function for valid proposals
-        4. Apply Metropolis acceptance criterion:
-           P(accept) = min(1, exp(-beta * (f_new - f_old)))
-        5. For discrete case, adjust acceptance probability by:
-           P *= (n_neighbors_old / n_neighbors_new)
-        6. Update positions and energies
-        7. Track best solution found
-        8. Log results if writers are configured
+          1. Generate proposed moves for all walkers
+          2. Check if proposals are within valid bounds
+          3. Evaluate objective function for valid proposals
+          4. Apply Metropolis acceptance criterion:
+             ``P(accept) = min(1, exp(-beta * (f_new - f_old)))``
+          5. For discrete case, adjust acceptance probability by:
+             ``P *= (n_neighbors_old / n_neighbors_new)``
+          6. Update positions and energies
+          7. Track best solution found
+          8. Log results if writers are configured
 
         Parameters
         ----------
@@ -253,12 +257,12 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         extra_info_to_write : Union[List, Tuple], optional
             Additional data to log with results
 
-        Implementation Notes
-        ------------------
-        - Handles numerical overflow in exponential calculation
-        - Maintains detailed acceptance statistics
-        - Supports both single and multiple temperature values
-        - Preserves best solution across all steps
+        Notes
+        -----
+          - Handles numerical overflow in exponential calculation
+          - Maintains detailed acceptance statistics
+          - Supports both single and multiple temperature values
+          - Preserves best solution across all steps
         """
         # make candidate
         old_state = copy.deepcopy(self.state)
