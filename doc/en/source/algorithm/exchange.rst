@@ -122,6 +122,12 @@ Otherwise, continuous space is used.
 
   Description: The number of interval Monte Carlo steps between replica exchange.
 
+- ``numsteps_thermalization``
+
+  Format: Integer
+
+  Description: The number of Monte Carlo steps to discard for thermalization. The default is 10% of ``numsteps``.
+
 - ``Tmin``
 
   Format: Float
@@ -271,6 +277,38 @@ The remaining columns are the coordinates.
     1 15 28.70157662892569 3.3139009347685118 -4.20946994566609
     2 15 28.70157662892569 3.3139009347685118 -4.20946994566609
     3 15 28.98676409223712 3.7442621319489637 -3.868754990884034
+
+
+``fx.txt``
+^^^^^^^^^^^^^^
+
+This file stores statistical metrics over the all replicas for each temperature.
+The first column is inverse temperature.
+The second and third column are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
+The fourth column is the number of replicas.
+The fifth column is the logarithmic of the ratio between the normalization factors (partition functions)
+
+.. math::
+
+   \log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)},
+
+where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation.
+The sixth column is the acceptance ratio of MC updates.
+
+.. code-block::
+
+  # $1: 1/T
+  # $2: mean of f(x)
+  # $3: standard error of f(x)
+  # $4: number of replicas [Not used for exchange MC]
+  # $5: log(Z/Z0)
+  # $6: acceptance ratio
+  0.01 71.1757607526179 0.7074887893238192 80 0.0 0.906
+  0.011236548001387516 71.64077624599895 0.6352374919714137 80 -0.08478181677306895 0.9014444444444445
+  0.012626001098748564 65.8095785630431 0.6095581760655332 80 -0.18096066826346802 0.8936666666666667
+  0.014187266741165962 60.51980595731712 0.5843304334378878 80 -0.2798580927722558 0.8766666666666667
+    ...
+
 
 
 Restart

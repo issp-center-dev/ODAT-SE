@@ -494,9 +494,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         startTindex = endTindex - numT
 
         logweights = info["logweights"]
-        weights = np.exp(
-            logweights - logweights.max(axis=1).reshape(-1, 1)
-        )  # to avoid overflow
+        logweights_max = logweights.max(axis=1).reshape(-1, 1)
+        weights = np.exp(logweights - logweights_max)  # to avoid overflow
 
         # Bias-corrected jackknife resampling method
         fs = np.zeros((numT, nreplicas))
@@ -515,8 +514,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.nreplicas[startTindex:endTindex] = nreplicas
         self.acceptance_ratio[startTindex:endTindex] = info["acceptance ratio"][0:numT]
 
-        weights = np.exp(logweights)
         logz = np.log(np.mean(weights, axis=1))
+        logz += logweights_max.flatten()
         self.logZs[startTindex:endTindex] = self.logZ + logz
         if endTindex < len(self.betas):
             # Calculate the next weight before reset and evaluate dF
