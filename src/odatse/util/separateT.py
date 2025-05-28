@@ -159,7 +159,7 @@ def calculate_statistics_from_separated_files(
     output_dir = pathlib.Path(output_dir)
 
     numT = len(Ts)
-    T_is_ascending = Ts[0] < Ts[1]
+    T_is_ascending = Ts[0] < Ts[1] if numT > 1 else True
     local_Tindices = np.array_split(np.arange(numT), mpisize)[mpirank]
 
     fx_means = np.zeros(numT)
