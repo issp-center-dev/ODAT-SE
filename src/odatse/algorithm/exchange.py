@@ -19,7 +19,7 @@ import numpy as np
 import odatse
 import odatse.algorithm.montecarlo
 from odatse.util.read_ts import read_Ts
-from odatse.util.separateT import separateT
+from odatse.util.separateT import separateT, calculate_statistics_from_separated_files
 from odatse.util.data_writer import DataWriter
 
 
@@ -46,6 +46,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Total number of Monte Carlo steps to perform.
     numsteps_exchange : int
         Number of steps between exchange attempts.
+    numsteps_thermalization : int
+        Number of steps to discard for thermalization.
     fx : np.ndarray
         Current energy/objective function values.
     istep : int
@@ -109,6 +111,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.numsteps = info_exchange["numsteps"]
         self.numsteps_exchange = info_exchange["numsteps_exchange"]
+        self.numsteps_thermalization = info_exchange.get("numsteps_thermalization", int(0.1*self.numsteps))
 
         self.export_combined_files = info_exchange.get("export_combined_files", False)
         self.separate_T = info_exchange.get("separate_T", True)
@@ -402,6 +405,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 comm=self.mpicomm,
                 use_beta=self.input_as_beta,
                 buffer_size=10000,
+            )
+            calculate_statistics_from_separated_files(
+                Ts=Ts,
+                output_dir=self.output_dir,
+                thermalization_steps=self.numsteps_thermalization,
+                comm=self.mpicomm,
             )
 
         # Gather best results from all processes
