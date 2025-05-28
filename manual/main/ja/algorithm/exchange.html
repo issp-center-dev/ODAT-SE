@@ -127,6 +127,10 @@
 <p>形式: 整数値。</p>
 <p>説明: 「温度」のレプリカ交換を行う頻度。この回数だけモンテカルロ更新を行ったらレプリカ交換を実行します。</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numsteps_thermalization</span></code></p>
+<p>形式: 整数値。</p>
+<p>説明: モンテカルロ平均を計算する際に、初期緩和として無視するモンテカルロ更新の数。 デフォルトは <code class="docutils literal notranslate"><span class="pre">numsteps</span></code> の10%です。</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
 <p>形式: 実数値。</p>
 <p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最小値。</p>
@@ -247,6 +251,28 @@
 <span class="mi">1</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
 <span class="mi">2</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
 <span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
+</pre></div>
+</div>
+</section>
+<section id="fx-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Link to this heading">¶</a></h3>
+<p>各温度ごとに、全レプリカの情報をまとめたものです。
+1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数</p>
+<div class="math notranslate nohighlight">
+\[\log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)}\]</div>
+<p>が、6列目にはモンテカルロ更新の採択率が出力されます。
+ここで <span class="math notranslate nohighlight">\(\beta_0\)</span> は計算している <span class="math notranslate nohighlight">\(\beta\)</span> の最小値です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: 1/T</span>
+<span class="c1"># $2: mean of f(x)</span>
+<span class="c1"># $3: standard error of f(x)</span>
+<span class="c1"># $4: number of replicas [Not used for exchange MC]</span>
+<span class="c1"># $5: log(Z/Z0)</span>
+<span class="c1"># $6: acceptance ratio</span>
+<span class="mf">0.01</span> <span class="mf">71.1757607526179</span> <span class="mf">0.7074887893238192</span> <span class="mi">80</span> <span class="mf">0.0</span> <span class="mf">0.906</span>
+<span class="mf">0.011236548001387516</span> <span class="mf">71.64077624599895</span> <span class="mf">0.6352374919714137</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.08478181677306895</span> <span class="mf">0.9014444444444445</span>
+<span class="mf">0.012626001098748564</span> <span class="mf">65.8095785630431</span> <span class="mf">0.6095581760655332</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.18096066826346802</span> <span class="mf">0.8936666666666667</span>
+<span class="mf">0.014187266741165962</span> <span class="mf">60.51980595731712</span> <span class="mf">0.5843304334378878</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.2798580927722558</span> <span class="mf">0.8766666666666667</span>
+  <span class="o">...</span>
 </pre></div>
 </div>
 </section>
