@@ -140,7 +140,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.resampling_interval = numT + 1
 
         self.export_combined_files = info_pamc.get("export_combined_files", False)
-        self.separate_T = info_pamc.get("separate_T", False)
+        self.separate_T = info_pamc.get("separate_T", True)
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
