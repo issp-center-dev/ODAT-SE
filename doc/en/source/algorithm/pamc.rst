@@ -178,6 +178,12 @@ Otherwise, continuous space is used.
 
   Description: Whether to fix the number of replicas or not on resampling.
 
+- ``separate_T``
+
+  Format: Boolean (default: true)
+
+  Description: Whether to write log files of Monte Carlo steps separately for each temperature.
+
 
 About the number of steps
 ********************************
