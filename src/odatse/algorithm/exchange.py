@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Dict
+from typing import Dict, Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -22,6 +22,9 @@ from odatse.util.read_ts import read_Ts
 from odatse.util.separateT import separateT, calculate_statistics_from_separated_files
 from odatse.util.data_writer import DataWriter
 
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """
@@ -67,7 +70,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     x: np.ndarray
     xmin: np.ndarray
     xmax: np.ndarray
-    #xunit: np.ndarray
+    # xunit: np.ndarray
     xstep: np.ndarray
 
     numsteps: int
@@ -82,10 +85,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     exchange_direction: bool
 
-    def __init__(self,
-                 info: odatse.Info,
-                 runner: odatse.Runner = None,
-                 run_mode: str = "initial"
+    def __init__(
+        self,
+        info: odatse.Info,
+        runner: odatse.Runner = None,
+        run_mode: str = "initial",
+        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -98,13 +103,22 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Runner object for executing the algorithm.
         run_mode : str, optional
             Mode to run the algorithm in, by default "initial".
+        mpicomm : MPI.Comm
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         time_sta = time.perf_counter()
 
         info_exchange = info.algorithm["exchange"]
         nwalkers = info_exchange.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
+        super().__init__(
+            info=info,
+            runner=runner,
+            nwalkers=nwalkers,
+            run_mode=run_mode,
+            mpicomm=mpicomm,
+        )
 
         self.nreplica = self.mpisize * self.nwalkers
         self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)
@@ -132,7 +146,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.Tindex = np.arange(
             self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
         )
-        
+
         # Initialize mappings between replica and temperature indices
         # Initially, replica i has temperature i
         self.rep2T = np.arange(self.nreplica)  # Maps replica index -> temperature index
@@ -531,7 +545,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        #-- _algorithm
+        # -- _algorithm
         assert self.mpisize == data["mpisize"]
         assert self.mpirank == data["mpirank"]
 
@@ -543,10 +557,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         info = data["info"]
         self._check_parameters(info)
 
-        #-- montecarlo
+        # -- montecarlo
         self.state = data["x"]
         self.fx = data["fx"]
-        #self.inode = data["inode"]
+        # self.inode = data["inode"]
 
         self.istep = data["istep"]
 
@@ -558,7 +572,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.naccepted = data["naccepted"]
         self.ntrial = data["ntrial"]
 
-        #-- exchange
+        # -- exchange
         assert self.nreplica == data["nreplica"]
 
         self.Tindex = data["Tindex"]
@@ -566,5 +580,5 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.T2rep = data["T2rep"]
         self.exchange_direction = data["exchange_direction"]
 
-        #-- restore rng state in statespace
+        # -- restore rng state in statespace
         self.statespace.rng = self.rng

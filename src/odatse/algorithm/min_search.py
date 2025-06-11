@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union
+from typing import List, Union, Optional, TYPE_CHECKING
 import time
 
 import numpy as np
@@ -15,6 +15,9 @@ from scipy.optimize import minimize
 
 import odatse
 import odatse.domain
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
@@ -44,10 +47,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     iter_history: List[List[Union[int,float]]]
     fev_history: List[List[Union[int,float]]]
 
-    def __init__(self, info: odatse.Info,
-                 runner: odatse.Runner = None,
-                 domain = None,
-                 run_mode: str = "initial"
+    def __init__(
+        self,
+        info: odatse.Info,
+        runner: odatse.Runner = None,
+        domain=None,
+        run_mode: str = "initial",
+        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -62,8 +68,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             Domain object defining the search space.
         run_mode : str
             Mode of running the algorithm.
+        mpicomm : MPI.Comm
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
         if domain and isinstance(domain, odatse.domain.Region):
             self.domain = domain

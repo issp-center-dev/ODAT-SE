@@ -16,13 +16,17 @@
 
 ``AlgorithmBase`` クラスは次のメソッドを提供します。
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
 
     - ``info`` から ``Algorithm`` 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。
 
-        - ``self.mpicomm: Optional[MPI.Comm]`` : ``MPI.COMM_WORLD``
+        - ``self.mpicomm: Optional[MPI.Comm]`` : MPI通信を行うための ``mpi4py.MPI.Comm`` オブジェクト
 
-            - ``mpi4py`` の import に失敗した場合、 ``None`` が設定されます
+            - ``mpicomm`` が指定されている場合は、その値を使用します。
+            - ``mpicomm`` が指定されていない場合
+
+                - ``mpi4py`` が import できた場合は ``mpi4py.MPI.COMM_WORLD`` を使用します。
+                - ``mpi4py`` が import できなかった場合は、 ``None`` が設定され、 シリアル実行されます。
 
         - ``self.mpisize: int`` : MPIプロセス数
 
@@ -64,7 +68,6 @@
 
 	      チェックポイント機能に関するパラメータが設定されます
 
-	      
 - ``prepare(self) -> None``
 
     - 最適化アルゴリズムの前処理をします

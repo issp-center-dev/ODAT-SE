@@ -7,7 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import typing
-from typing import TextIO, Union, List, Tuple
+from typing import TextIO, Union, List, Tuple, Optional, TYPE_CHECKING
 import copy
 import time
 from pathlib import Path
@@ -19,6 +19,9 @@ import odatse.domain
 from odatse import mpi
 from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
 from odatse.util.data_writer import DataWriter
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
@@ -97,11 +100,15 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     ntrial: int
     naccepted: int
 
-    def __init__(self, info: odatse.Info,
-             runner: odatse.Runner = None,
-             domain = None,
-             nwalkers: int = 1,
-             run_mode: str = "initial") -> None:
+    def __init__(
+        self,
+        info: odatse.Info,
+        runner: odatse.Runner = None,
+        domain=None,
+        nwalkers: int = 1,
+        run_mode: str = "initial",
+        mpicomm: Optional["MPI.Comm"] = None,
+    ) -> None:
         """
         Initialize the AlgorithmBase class.
 
@@ -117,12 +124,15 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             Number of walkers to use in the simulation, by default 1.
         run_mode : str, optional
             Mode of the run, e.g., "initial", by default "initial".
-            
+        mpicomm : MPI.Comm
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
+
         Raises
         ------
         ValueError
             If an unsupported domain type is provided or required parameters are missing.
-            
+
         Examples
         --------
         >>> info = odatse.Info(config_file_path)
@@ -130,7 +140,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
         time_sta = time.perf_counter()
-        super().__init__(info=info, runner=runner, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
         self.nwalkers = nwalkers
 
         if domain:
@@ -163,7 +173,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.Tindex = 0
         self.input_as_beta = False
 
-        #-- writer
+        # -- writer
         self.fp_trial = None
         self.fp_result = None
 
@@ -269,16 +279,16 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         old_fx = copy.deepcopy(self.fx)
 
         new_state, in_range, weight = self.statespace.propose(old_state)
-        #self.state = new_state
+        # self.state = new_state
 
         # evaluate "Energy"s
         new_fx = self._evaluate(new_state, in_range)
-        #XXX
+        # XXX
         self.state = new_state
         self.fx = new_fx
         self._write_result(self.fp_trial, extras=extra_info_to_write)
 
-        #print(old_fx, new_fx)
+        # print(old_fx, new_fx)
         fdiff = new_fx - old_fx
 
         # Ignore an overflow warning in np.exp(x) for x >~ 710
@@ -287,7 +297,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         # old_setting = np.seterr(over="ignore")
         old_setting = np.seterr(all="ignore")
         probs = np.exp(-beta * fdiff)
-        #probs[np.isnan(probs)] = 0.0
+        # probs[np.isnan(probs)] = 0.0
         if weight is not None:
             probs *= weight
         np.seterr(**old_setting)
