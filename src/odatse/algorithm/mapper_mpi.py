@@ -48,7 +48,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if domain and isinstance(domain, odatse.domain.MeshGrid):
             self.domain = domain
         else:
-            self.domain = odatse.domain.MeshGrid(info)
+            self.domain = odatse.domain.MeshGrid(info, rng=self.rng)
 
         self.domain.do_split()
         self.mesh_list = self.domain.grid_local
