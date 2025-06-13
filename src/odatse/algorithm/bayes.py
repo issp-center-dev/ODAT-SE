@@ -92,7 +92,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if domain and isinstance(domain, odatse.domain.MeshGrid):
             self.domain = domain
         else:
-            self.domain = odatse.domain.MeshGrid(info)
+            self.domain = odatse.domain.MeshGrid(info, rng=self.rng)
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
