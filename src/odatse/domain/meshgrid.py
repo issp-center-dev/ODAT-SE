@@ -23,7 +23,14 @@ class MeshGrid(DomainBase):
     grid_local: List[List[Union[int, float]]] = []
     candicates: int
 
-    def __init__(self, info: odatse.Info = None, *, param: Dict[str, Any] = None, rng: np.random.RandomState = None):
+    def __init__(
+        self,
+        info: odatse.Info = None,
+        *,
+        param: Dict[str, Any] = None,
+        mesh: bool = True,
+        rng: np.random.RandomState = None,
+    ):
         """
         Initialize the MeshGrid object.
 
@@ -33,16 +40,20 @@ class MeshGrid(DomainBase):
             Information object containing algorithm parameters.
         param : dict, optional
             Dictionary containing parameters for setting up the grid.
+        mesh : bool, optional
+            Whether to use mesh grid or points.
+        rng : np.random.RandomState, optional
+            Random number generator.
         """
         super().__init__(info)
 
         if info:
             if "param" in info.algorithm:
-                self._setup(info.algorithm["param"], rng)
+                self._setup(info.algorithm["param"], rng, mesh=mesh)
             else:
                 raise ValueError("ERROR: algorithm.param not defined")
         elif param:
-            self._setup(param, rng)
+            self._setup(param, rng, mesh=mesh)
         else:
             pass
 
@@ -57,7 +68,7 @@ class MeshGrid(DomainBase):
         else:
             self.grid_local = self.grid
 
-    def _setup(self, info_param, rng: np.random.RandomState):
+    def _setup(self, info_param, rng: np.random.RandomState, mesh: bool = True):
         """
         Setup the grid based on provided parameters.
 
@@ -65,19 +76,17 @@ class MeshGrid(DomainBase):
         ----------
         info_param
             Dictionary containing parameters for setting up the grid.
+        rng : np.random.RandomState, optional
+            Random number generator.
+        mesh : bool, optional
+            Whether to use mesh grid or points.
         """
         if "mesh_path" in info_param:
             self._setup_from_file(info_param)
-        elif "num_points" in info_param:
-            if "num_list" in info_param:
-                raise ValueError("ERROR: algorithm.param.num_list and algorithm.param.num_points are both defined in the input")
-            if rng is None:
-                raise ValueError("ERROR: rng is not defined")
-            self._setup_random(info_param, rng)
-        elif "num_list" in info_param:
+        elif mesh:
             self._setup_grid(info_param)
         else:
-            raise ValueError("ERROR: Neither algorithm.param.num_list nor algorithm.param.num_points is defined in the input")
+            self._setup_random(info_param, rng)
 
         self.ncandicates = len(self.grid)
 
