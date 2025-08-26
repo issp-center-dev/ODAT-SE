@@ -101,9 +101,19 @@ This script performs the following data conversions:
 
 1. Input data format:
 
+   If the input parameter has been given by the temperature Tmin and Tmax, 
+   
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
+
+   If the input parameter has been given by the inverse temperature bmin and bmax, 
+   
+   .. code-block:: text
+
+      step walker_id beta fx x1 ... xN weight ancestor
+
+   The item types of columns are shown in the header part as comments.
 
 2. Output data format:
 
@@ -116,6 +126,8 @@ Key conversion points:
    * Conversion from temperature (T) to inverse temperature (beta = 1/T)
    * Removal of unnecessary columns (step, walker_id, ancestor)
 
+Whether the data file contains T or beta is identified from the header of the file.
+If it is not identified, T is assumed and a warning message wiill be shown.
 When temperature (T) is 0, inverse temperature (beta) is also set to 0.
 
 TOML Configuration File Format
@@ -143,11 +155,12 @@ This script processes data in the following steps:
 3. Pattern matching of input files (DATA_DIRECTORY/\*/result_T*.txt)
 4. Process each file:
    
-   a. Read file line by line (excluding comment lines)
-   b. Extract the last n lines if the number of replicas is specified
-   c. Extract lines from the last step if the number of replicas is not specified
-   d. Process data conversion (temperature → inverse temperature, remove unnecessary columns)
-   e. Write results to output file
+   a. Read file line by line
+   b. Identify T or beta from the comment lines
+   c. Extract the last n lines if the number of replicas is specified
+   d. Extract lines from the last step if the number of replicas is not specified
+   e. Process data conversion (temperature → inverse temperature, remove unnecessary columns)
+   f. Write results to output file
 
 Performance and Considerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
