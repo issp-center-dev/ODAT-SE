@@ -69,7 +69,7 @@ def extract_columns(file_path, export_dir, replica_per_proc):
     Note
     ----
     format of input data file:
-        step walker_id T fx x1 ... xN weight ancestor
+        step walker_id T(or beta) fx x1 ... xN weight ancestor
     format of output file:
         beta fx x1 ... xN weight
     """
@@ -81,8 +81,23 @@ def extract_columns(file_path, export_dir, replica_per_proc):
     # Check if file exists to determine if header is needed
     file_exists = os.path.isfile(output_file_path)
 
+    # Read input data file
     with open(file_path, "r") as f:
-        lines = [line.strip() for line in f.readlines() if not line.startswith("#")]
+        lines_all = f.readlines()
+        headers = [line.strip() for line in lines_all if line.startswith("#")]
+        lines = [line.strip() for line in lines_all if not line.startswith("#")]
+
+    input_as_beta = None
+    for line in headers:
+        if "beta" in line:
+            input_as_beta = True
+            break
+        if "T" in line:
+            input_as_beta = False
+            break
+    if input_as_beta is None:
+        print("Warning: assume input as T")
+        input_as_beta = False
 
     if replica_per_proc > 0:
         extracted_data = lines[-replica_per_proc:]
@@ -91,16 +106,23 @@ def extract_columns(file_path, export_dir, replica_per_proc):
         last_step = np.sort(list(steps))[-1]
         extracted_data = [line for line in lines if int(line.split()[0]) == last_step]
 
+    # Process data
     new_lines = []
     for line in extracted_data:
         parts = line.split()
         try:
-            T = float(parts[2])
-            beta = 1.0 / T if T != 0.0 else 0.0
+            val = float(parts[2])
+            if input_as_beta:
+                beta = val
+            elif val != 0.0:
+                beta = 1.0 / val
+            else:
+                beta = 0.0
         except ValueError:
             beta = 0.0
         new_lines.append(" ".join(["{:.6f}".format(beta)] + parts[3:-1]) + "\n")
 
+    # Write data
     with open(output_file_path, "a") as f:
         if not file_exists:
             f.write("# beta fx z1 z2 z3 weight\n")
