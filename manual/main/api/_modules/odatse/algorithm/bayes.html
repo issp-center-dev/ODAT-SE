@@ -78,9 +78,7 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -173,7 +171,10 @@
 
         <span class="n">X_normalized</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">centering</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_list</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span>
         <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">policy</span><span class="p">(</span><span class="n">test_X</span><span class="o">=</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">physbo</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">policy</span><span class="p">(</span><span class="n">test_X</span><span class="o">=</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">Policy</span><span class="p">(</span><span class="n">test_X</span><span class="o">=</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;seed&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span>
