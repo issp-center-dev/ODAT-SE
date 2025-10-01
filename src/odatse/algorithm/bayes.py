@@ -6,9 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List
 import time
-import shutil
 import copy
 from pathlib import Path
 
@@ -97,7 +95,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
-        self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        if physbo.__version__ < "3":
+            self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        else:
+            self.policy = physbo.search.discrete.Policy(test_X=X_normalized, comm=comm)
 
         if "seed" in info.algorithm:
             seed = info.algorithm["seed"]
