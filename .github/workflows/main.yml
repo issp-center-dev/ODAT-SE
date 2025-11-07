@@ -40,6 +40,7 @@ jobs:
           python -m pip install Cython
           python -m pip install numpy scipy tomli mpi4py
           python -m pip install physbo
+          python -m pip install physbo-core-cython
 
       - name: run
         run: |

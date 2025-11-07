@@ -8,7 +8,6 @@
 
 from typing import List, Optional, TYPE_CHECKING
 import time
-import shutil
 import copy
 from pathlib import Path
 import sys
@@ -111,7 +110,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
-        self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        if physbo.__version__ < "3":
+            self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        else:
+            self.policy = physbo.search.discrete.Policy(test_X=X_normalized, comm=comm)
 
         if "seed" in info.algorithm:
             seed = info.algorithm["seed"]

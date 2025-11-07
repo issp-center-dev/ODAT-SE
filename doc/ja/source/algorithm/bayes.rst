@@ -2,6 +2,7 @@
 *******************************
 
 .. _PHYSBO: https://pasums.issp.u-tokyo.ac.jp/physbo
+.. _PHYSBO-Core-cython: https://github.com/issp-center-dev/PHYSBO-Core-cython
 
 ``bayes`` はベイズ最適化を用いてパラメータ探索を行う ``Algorithm`` です。
 実装には `PHYSBO`_ を用いています。
@@ -13,6 +14,12 @@
 .. code-block:: bash
 
     $ python3 -m pip install physbo
+
+PHYSBO のバージョンが 3 以上の場合、より良いパフォーマンスを得るために `PHYSBO-Core-cython`_ もインストールすることをお勧めします。
+
+.. code-block:: bash
+
+    $ python3 -m pip install physbo-core-cython
 
 `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ がインストールされている場合、MPI 並列計算が可能です。
 
