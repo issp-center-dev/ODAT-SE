@@ -18,8 +18,8 @@ DESCRIPTION
 Creates 2D marginalized histograms from data files specified in FILE.
 
 Data files should be in text format containing numerical data in multiple columns.
-In the standard format, values are space-separated with columns for beta, fx, x1, ..., xN, weight.
-Beta is the inverse temperature, x1, ... xN are parameter values (N is the dimension of parameters), fx is the function value at that point, and weight is the weight value.
+In the standard format, values are space-separated with columns for T (or beta), fx, x1, ..., xN, weight.
+T is the temperature (beta=1/T is the inverse temperature), x1, ... xN are parameter values (N is the dimension of parameters), fx is the function value at that point, and weight is the weight value.
 Field names can be specified with the field_list option, or you can use parameters (label_list) from the input file used in PAMC calculations.
 
 If FILE is not specified, files named result_*_summarized.txt in the directory specified by the data_dir option will be used as data files.
@@ -65,7 +65,7 @@ These options can also be provided collectively in a config file. The config fil
     Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.
     
 **\-\-field_list FIELD_LIST**
-    Specifies field names. If not specified, the standard format is assumed: beta, fx, x1, .. xN, weight (where N is the parameter dimension). When obtained from a parameter file, label_list values are used for x1 .. xN.
+    Specifies field names. If not specified, the standard format is assumed: T (or beta), fx, x1, .. xN, weight (where N is the parameter dimension). When obtained from a parameter file, label_list values are used for x1 .. xN.
     Used for field name specification in columns.
     
 **\-\-progress**
@@ -93,7 +93,7 @@ USAGE
 
       $ python3 plt_2D_histogram.py -d data -o 2dhist
 
-   2Dhistogram_result_T0_beta_{beta}_x1_vs_x2.png to 2Dhistogram_result_T10_beta_{beta}_x2_vs_x3.png are output to the 2dhist directory. In the filename, ``summarized`` is replaced with ``beta_{beta}``.
+   2Dhistogram_result_T0_NNNN_x1_vs_x2.png to 2Dhistogram_result_T10_MMMM_x2_vs_x3.png are output to the 2dhist directory. In the filename, ``summarized`` is replaced with ``T_{T}`` or ``beta_{beta}``.
 
 3. Create a 2D histogram for the x1 and x3 fields from the input data file.txt, and output in png and pdf formats.
 
@@ -142,13 +142,13 @@ Data files must be in the following format:
 .. code-block:: text
 
    # Comment line (optional)
-   beta_value fx_value x1_value x2_value ... xN_value weight_value
-   beta_value fx_value x1_value x2_value ... xN_value weight_value
+   T (or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+   T (or beta)_value fx_value x1_value x2_value ... xN_value weight_value
    ...
 
 Each line contains numerical data separated by whitespace. In the standard format, each column has the following meaning:
 
-* Column 1: beta value (inverse temperature)
+* Column 1: T value (temperature), or beta value (inverse temperature)
 * Column 2: fx value (function value)
 * Columns 3 to (N+2): Parameter values x1, x2, ..., xN
 * Last column: weight
@@ -183,7 +183,7 @@ Output file naming convention:
 
 * Files containing _summarized.txt (output from summarize_each_T.py):
 
-  ``2Dhistogram_{filename_with_summarized_replaced_by_beta_{beta_value}}_{parameter1}_vs_{parameter2}.{format}``
+  ``2Dhistogram_{filename_with_summarized_replaced_by_T_or_beta}_{parameter1}_vs_{parameter2}.{format}``
 
 Performance
 ~~~~~~~~~~~~

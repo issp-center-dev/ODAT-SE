@@ -105,7 +105,7 @@
 
       python3 plt_1D_histogram.py -d summarized -o 1dhist -r 3.0,6.0
 
-   を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。
+   を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png (温度の範囲を bmin, bmax で指定してPAMC計算を実行した場合) または  1Dhistogram_result_T{index}_T_{T}.png (温度の範囲を Tmin, Tmax で指定してPAMC計算を実行した場合) というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。
 
    plt_1D_histogram.py は以下の主要なオプションを使用できます:
 
