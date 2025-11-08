@@ -37,7 +37,10 @@ If ``mesh_path`` is defined, it will be read from a mesh file.
 In a mesh file, one line gives one point in the parameter space,
 the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.
 
-If ``mesh_path`` is not defined, ``min_list``, ``max_list``, and ``num_list`` are used to create an evenly spaced grid for each parameter.
+If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list`` and ``max_list``.
+If ``num_list`` is defined, ``num_list`` points are sampled evenly for each parameter.
+If ``num_points`` is defined, ``num_points`` points are randomly sampled from the search space.
+``num_list`` and ``num_points`` cannot be defined at the same time.
 
 - ``mesh_path``
 
@@ -62,6 +65,12 @@ If ``mesh_path`` is not defined, ``min_list``, ``max_list``, and ``num_list`` ar
   Format: List of integer. The length should match the value of dimension.
 
   Description: The number of grids the parametar can take at each dimension.
+
+- ``num_points``
+
+  Format: Integer.
+
+  Description: The number of points to be randomly sampled.
 
 
 [``algorithm.bayes``] section

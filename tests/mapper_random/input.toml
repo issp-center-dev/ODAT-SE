@@ -1,0 +1,17 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+
+[algorithm]
+name = "random_search"
+label_list = ["z1", "z2"]
+seed = 1
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+num_points = 100

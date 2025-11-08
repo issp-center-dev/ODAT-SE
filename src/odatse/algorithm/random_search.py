@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union, Dict, Optional, TYPE_CHECKING
+from typing import List, Union, Dict, Optional
 
 from pathlib import Path
 from io import open
@@ -16,22 +16,20 @@ import time
 
 import odatse
 import odatse.domain
+
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
 
 class Algorithm(MapperMPIAlgorithm):
     """
     Algorithm class for data analysis of quantum beam diffraction experiments.
-    Inherits from odatse.algorithm.AlgorithmBase.
+    Inherits from odatse.algorithm.mapper_mpi.Algorithm.
     """
     mesh_list: List[Union[int, float]]
 
-    def __init__(
-        self,
-        info: odatse.Info,
-        runner: odatse.Runner = None,
-        domain=None,
-        run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
+    def __init__(self, info: odatse.Info,
+                 runner: Optional[odatse.Runner] = None,
+                 domain = None,
+                 run_mode: str = "initial"
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -46,8 +44,6 @@ class Algorithm(MapperMPIAlgorithm):
             Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, domain=domain, run_mode=run_mode, meshgrid=True)
+
+        super().__init__(info=info, runner=runner, domain=domain, run_mode=run_mode, meshgrid=False)
