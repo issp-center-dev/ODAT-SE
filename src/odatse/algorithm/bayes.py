@@ -6,17 +6,20 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 import time
-import shutil
 import copy
 from pathlib import Path
+import sys
 
 import physbo
 import numpy as np
 
 import odatse
 import odatse.domain
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
     """
@@ -50,7 +53,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         The list of parameters.
     """
 
-    def __init__(self, info: odatse.Info, runner: odatse.Runner = None, domain = None, run_mode: str = "initial") -> None:
+    def __init__(
+        self,
+        info: odatse.Info,
+        runner: odatse.Runner = None,
+        domain=None,
+        run_mode: str = "initial",
+        mpicomm: Optional["MPI.Comm"] = None,
+    ) -> None:
         """
         Constructs all the necessary attributes for the Algorithm object.
 
@@ -64,8 +74,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             The domain object (default is None).
         run_mode : str, optional
             The run mode (default is "initial").
+        mpicomm : MPI.Comm
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
         info_param = info.algorithm.get("param", {})
         info_bayes = info.algorithm.get("bayes", {})
@@ -97,7 +110,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
         comm = self.mpicomm if self.mpisize > 1 else None
-        self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        if physbo.__version__ < "3":
+            self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
+        else:
+            self.policy = physbo.search.discrete.Policy(test_X=X_normalized, comm=comm)
 
         if "seed" in info.algorithm:
             seed = info.algorithm["seed"]
