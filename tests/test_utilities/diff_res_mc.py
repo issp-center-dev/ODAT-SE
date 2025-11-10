@@ -9,16 +9,22 @@ reffile = sys.argv[2]
 
 def load_result(filename):
     res = {}
-    with open(filename) as f:
-        for line in f:
-            line = line.strip()
-            if line.startswith("#"):
-                continue
-            words = line.split()
-            if len(words) != 3:
-                print(f"Invalid line: {line}")
-                sys.exit(1)
-            res[words[0]] = float(words[2]) # words[1] is '='
+    try:
+        with open(filename) as f:
+            for line in f:
+                line = line.strip()
+                if line == "":
+                    continue
+                if line.startswith("#"):
+                    continue
+                words = line.split()
+                if len(words) != 3:
+                    print(f"Invalid line: {line}")
+                    sys.exit(1)
+                res[words[0]] = float(words[2]) # words[1] is '='
+    except Exception as e:
+        print(f"Error loading result file {filename}: {e}")
+        sys.exit(1)
     return res
 
 res = load_result(resfile)

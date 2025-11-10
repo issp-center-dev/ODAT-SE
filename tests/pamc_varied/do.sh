@@ -15,7 +15,7 @@ resfile=output/best_result.txt
 # Compare the result file with the reference file
 echo python3 diff.py $resfile ref.txt
 res=0
-python3 diff.py $resfile ref.txt || res=$?
+python3 ../test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
 
 # Check the result of the diff command
 if [ $res -eq 0 ]; then
