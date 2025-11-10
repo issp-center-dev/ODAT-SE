@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 
 if len(sys.argv) != 3:
     print("Usage: python diff.py <resfile> <reffile>")
@@ -10,12 +9,16 @@ reffile = sys.argv[2]
 
 def load_result(filename):
     res = {}
-    for line in open(filename):
-        line = line.strip()
-        if line.startswith("#"):
-            continue
-        words = line.split()
-        res[words[0]] = float(words[2]) # words[1] is '='
+    with open(filename) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("#"):
+                continue
+            words = line.split()
+            if len(words) != 3:
+                print(f"Invalid line: {line}")
+                sys.exit(1)
+            res[words[0]] = float(words[2]) # words[1] is '='
     return res
 
 res = load_result(resfile)
@@ -28,8 +31,6 @@ if len(res) != len(ref):
 for key in res:
     if key not in ref:
         print(f"Key {key} not found in reference file")
-        print(f"res: {res[key]}")
-        print(f"ref: {ref[key]}")
         sys.exit(1)
     if abs(res[key] - ref[key]) > 1e-6:
         print(f"Key {key} differs: {res[key]} != {ref[key]}")
