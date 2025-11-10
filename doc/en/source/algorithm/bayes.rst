@@ -2,7 +2,6 @@ Bayesian optimization ``bayes``
 *******************************
 
 .. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
-.. _PHYSBO-Core-cython: https://github.com/issp-center-dev/PHYSBO-Core-cython
 
 ``bayes`` is an ``Algorithm`` that uses Bayesian optimization to perform parameter search.
 The implementation is based on `PHYSBO`_.
@@ -14,12 +13,6 @@ You will need to install `PHYSBO`_ beforehand.
 .. code-block:: bash
 
    $ python3 -m pip install physbo
-
-If PHYSBO version is 3 or higher, we recommend you to install `PHYSBO-Core-cython`_ too for better performance.
-
-.. code-block:: bash
-
-   $ python3 -m pip install physbo-core-cython
 
 If `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ is installed, MPI parallel computing is possible.
 
