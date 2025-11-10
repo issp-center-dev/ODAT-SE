@@ -13,6 +13,9 @@ jobs:
         # os: ['ubuntu-22.04']
         python-version: ['3.9', '3.12']
         numpy-version: ['1.21.6', 'latest']
+        exclude:
+          - python-version: '3.12'
+            numpy-version: '1.21.6'
       fail-fast: false
 
     name: Run tests with Python ${{ matrix.python-version }} and NumPy ${{ matrix.numpy-version }}
