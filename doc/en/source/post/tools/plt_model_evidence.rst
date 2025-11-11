@@ -44,6 +44,12 @@ When multiple FILEs are specified, the average and variance of their model evide
 **-o OUTPUT, \-\-output OUTPUT**
     Specifies the filename for the model evidence plot. The output format is determined by the file extension, and any format supported by matplotlib can be specified. Default is model_evidence.png.
     
+**--auto-focus**
+    Sets a flag that applies a method for determining a suitable plot window for the model evidence data based on the maximum value of of the model evidence. The tightness of the focused window is controlled by the ``--focus-factor`` option argument.
+    
+**--focus-factor**
+    Sets the tightness for the ``--auto-focus`` option. It should be a float between 0 and 1 (lower is tighter), and when ``--auto-focus`` is not set, this argument does nothing. The default value is 0.5.
+    
 **-h, \-\-help**
     Displays help message and exits the program.
 
