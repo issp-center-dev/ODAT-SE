@@ -10,7 +10,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def load_data(filename: str) -> tuple:
     """
     Load beta and log evidence values from a data file.
@@ -114,8 +113,132 @@ def print_log_pdb(filename: str, *data) -> None:
         for idx, v in enumerate(zip(*data)):
             fp.write("  ".join(map(str, [idx, *v]))+"\n")
 
+def auto_range(beta, log_pdb, focus_factor=0.5):
+    """
+    Automatically calculate plot range focusing on the maximum model evidence region
+    
+    Parameters
+    ----------
+    beta : np.ndarray
+        Array of inverse temperature values
+    log_pdb : np.ndarray
+        Array of log model evidence values
+    focus_factor : float
+        Focus tightness factor (0 to 1). Smaller values result in tighter focus
+        
+    Returns
+    -------
+    tuple
+        Tuple containing (beta_min, beta_max, y_min, y_max)
+    """
+    # Filter out NaN and Inf values
+    valid_mask = np.isfinite(log_pdb) & np.isfinite(beta) & (beta > 0)
+    if not np.any(valid_mask):
+        print("Warning: No valid data points for auto-focus")
+        return np.min(beta), np.max(beta), np.min(log_pdb), np.max(log_pdb)
+    valid_beta = beta[valid_mask]
+    valid_log_pdb = log_pdb[valid_mask]
+    max_idx = np.argmax(valid_log_pdb)
+    beta_opt = valid_beta[max_idx]
+    log_pdb_max = valid_log_pdb[max_idx]
+    
+    # Method 1: Find points within a certain drop from maximum (e.g., 3 units for log scale)
+    drop_threshold = 3.0  # Adjust this value to control how much to include around peak
+    near_max_mask = (valid_log_pdb > log_pdb_max - drop_threshold)
+    
+    # Method 2: Use gradient to find where the curve starts dropping sharply
+    gradient = np.gradient(valid_log_pdb)
+    
+    # Find the region around maximum where gradient is relatively small
+    gradient_threshold = np.percentile(np.abs(gradient), 75)
+    gentle_slope_mask = np.abs(gradient) < gradient_threshold
+    
+    # Combine both methods: points near max OR with gentle slope
+    significant_mask = near_max_mask | gentle_slope_mask
+    
+    # Find continuous region around maximum
+    left_idx = max_idx
+    right_idx = max_idx
+    
+    # Expand left
+    while left_idx > 0 and (significant_mask[left_idx-1] or 
+                            valid_log_pdb[left_idx-1] > log_pdb_max - drop_threshold * 2):
+        left_idx -= 1
+    
+    # Expand right
+    while right_idx < len(valid_log_pdb) - 1 and (significant_mask[right_idx+1] or
+                                                   valid_log_pdb[right_idx+1] > log_pdb_max - drop_threshold * 2):
+        right_idx += 1
+    
+    # Add some padding
+    padding = max(5, int(len(valid_log_pdb) * 0.05))
+    left_idx = max(0, left_idx - padding)
+    right_idx = min(len(valid_log_pdb) - 1, right_idx + padding)
+    
+    # Get beta range for x-axis
+    beta_min_focus = valid_beta[left_idx]
+    beta_max_focus = valid_beta[right_idx]
+    
+    # Expand range based on focus_factor
+    if beta_min_focus > 0 and beta_max_focus > 0:
+        beta_log_center = np.log10(beta_opt)
+        beta_log_half_range = max(0.5, (np.log10(beta_max_focus) - np.log10(beta_min_focus)) / 2)
+        
+        # Apply focus factor (0 = tight focus, 1 = loose focus)
+        expansion = 1 + focus_factor * 2
+        beta_min = 10 ** (beta_log_center - beta_log_half_range * expansion)
+        beta_max = 10 ** (beta_log_center + beta_log_half_range * expansion)
+        
+        # Ensure we don't go beyond data bounds
+        beta_min = max(beta_min, valid_beta[0] * 0.8)
+        beta_max = min(beta_max, valid_beta[-1] * 1.2)
+    else:
+        beta_min = beta_min_focus
+        beta_max = beta_max_focus
+    
+    # Calculate y-axis range based on the focused x range
+    in_range_mask = (valid_beta >= beta_min) & (valid_beta <= beta_max)
+    if np.any(in_range_mask):
+        y_data_in_range = valid_log_pdb[in_range_mask]
+        
+        # Remove outliers for y-range calculation using IQR method
+        q1 = np.percentile(y_data_in_range, 25)
+        q3 = np.percentile(y_data_in_range, 75)
+        iqr = q3 - q1
+        
+        # Define outliers as points beyond 1.5*IQR from quartiles
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        
+        # Filter outliers
+        y_filtered = y_data_in_range[(y_data_in_range >= lower_bound) & 
+                                     (y_data_in_range <= upper_bound)]
+        
+        if len(y_filtered) > 0:
+            y_min = np.min(y_filtered)
+            y_max = np.max(y_filtered)
+        else:
+            y_min = np.min(y_data_in_range)
+            y_max = np.max(y_data_in_range)
+        
+        # Add margin
+        y_range = y_max - y_min
+        y_margin = max(y_range * 0.1, 0.5)
+        y_min = y_min - y_margin
+        y_max = y_max + y_margin
+        
+        # Make sure we include the maximum point
+        y_max = max(y_max, log_pdb_max + y_margin)
+    else:
+        # Fallback
+        y_min = log_pdb_max - 10
+        y_max = log_pdb_max + 2
+    
+    print(f"Auto-focus: beta range [{beta_min:.2e}, {beta_max:.2e}], y range [{y_min:.2f}, {y_max:.2f}]")
+    
+    return beta_min, beta_max, y_min, y_max
 
-def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.ndarray = None) -> None:
+def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.ndarray = None, auto_focus = False, focus_factor = 0.5) -> None:
     """
     Plot the model evidence as a function of beta.
     
@@ -129,6 +252,10 @@ def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.n
         Array of log model evidence values.
     var : np.ndarray, optional
         Array of variance values for log model evidence. If provided, error bars are shown.
+    auto_focus : bool
+        Whether to use automatic focus feature
+    focus_factor : float
+        Auto-focus tightness (0 to 1)
         
     Returns
     -------
@@ -139,7 +266,6 @@ def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.n
     plt.grid()
     plt.xscale('log')  # Use logarithmic scale for x-axis (beta)
 
-    # Set axis labels
     ax.set_xlabel('beta')
     ax.set_ylabel('model evidence')
 
@@ -150,6 +276,29 @@ def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.n
         ax.errorbar(beta, log_pdb, yerr=var, marker='x', markersize=8, 
                    linestyle="none", c='red', label='data')
 
+    # Highlight maximum point
+    valid_mask = np.isfinite(log_pdb) & np.isfinite(beta)
+    if not np.any(valid_mask):
+        raise ValueError("No valid data points")
+    valid_log_pdb = log_pdb[valid_mask]
+    valid_beta = beta[valid_mask]
+    max_idx = np.argmax(valid_log_pdb)
+    beta_opt = valid_beta[max_idx]
+    log_pdb_max = valid_log_pdb[max_idx]
+    
+    ax.scatter(beta_opt, log_pdb_max, s=200, marker='o', 
+              facecolors='none', edgecolors='blue', linewidth=2, 
+              label=f'Max at $\\beta={beta_opt:.2e}$')
+    
+    # Set axis properties
+    if auto_focus:
+        beta_min, beta_max, y_min_auto, y_max_auto = auto_range(beta, log_pdb, focus_factor)
+        ax.set_xlim([beta_min, beta_max])
+        ax.set_ylim([y_min_auto, y_max_auto])
+    ax.set_xlabel('$\\beta$ (inverse temperature)', fontsize=12)
+    ax.set_ylabel('$\\log P(D|\\beta)$ (model evidence)', fontsize=12)
+    ax.legend(loc='best')
+    ax.set_title(f'Model Evidence vs Beta (Max: {log_pdb_max:.4f} at $\\beta={beta_opt:.2e}$)', fontsize=14)
     # Save or display the plot
     if filename:
         fig.savefig(filename)
@@ -184,6 +333,10 @@ def main():
                         help="Number of data points of spots.")
     parser.add_argument("data_files", nargs="+", type=str, 
                         help="Path to data files.")
+    parser.add_argument('--auto-focus', action='store_true',
+                       help='Auto-focus on maximum model evidence region')
+    parser.add_argument('--focus-factor', type=float, default=0.5,
+                       help='Auto-focus tightness (0-1, smaller is tighter, default: 0.5)')
     args = parser.parse_args()
 
     # Initialize default values
