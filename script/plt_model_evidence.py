@@ -351,6 +351,12 @@ def main():
         n = [int(s) for s in args.ndata.split(",")]
     if args.weight:
         w_mu = [float(s) for s in args.weight.split(",")]
+    
+    # Check for invalid arguments
+    if args.Volume<=0:
+        sys.exit("Error: normalization factor must be greater than 0.")
+    if args.focus_factor<0 or args.focus_factor>1:
+        sys.exit("Error: focus factor must be between 0 and 1.")
 
     # Get input and output file paths
     data_files = args.data_files
