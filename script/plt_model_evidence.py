@@ -36,7 +36,7 @@ def load_data(filename: str) -> tuple:
 def calc_log_pdb(beta: np.ndarray, logz: np.ndarray, n_mu: np.ndarray, 
                 w_mu: np.ndarray, V: float) -> np.ndarray:
     """
-    Calculate the logarithm of the model evidence P(D|β).
+    Calculate the logarithm of the model evidence P(D;\beta).
     
     Parameters
     ----------
@@ -65,7 +65,7 @@ def calc_log_pdb(beta: np.ndarray, logz: np.ndarray, n_mu: np.ndarray,
     w_mu /= np.sum(w_mu)
     
     # Calculate log model evidence using the formula:
-    # log P(D|β) = log Z - log V + (n/2) log β + sum((n_μ/2) log w_μ) - (n/2) log π
+    # log P(D;\beta) = log Z - log V + (n/2) log \beta + sum((n_\mu/2) log w_\mu) - (n/2) log \pi
     log_pdb = logz - np.log(V) + (n / 2) * np.log(beta) + np.sum((n_mu / 2) * np.log(w_mu)) - (n / 2) * np.log(np.pi)
     
     return log_pdb
