@@ -1,0 +1,27 @@
+[base]
+dimension = 1
+output_dir = "./output_data"
+
+[solver]
+name = "user"
+
+[solver.reference]
+path = "./data.txt"
+
+[algorithm]
+name = "pamc"
+seed = 12345
+label_list = ["a"]
+
+[algorithm.param]
+min_list = [-20.0]
+max_list = [20.0]
+step_list = [0.05]
+
+[algorithm.pamc]
+Tnum = 100
+bmin = 1e-5
+bmax = 1e2
+Tlogspace = true
+numsteps_annealing = 100
+nreplica_per_proc = 10
