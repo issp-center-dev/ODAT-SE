@@ -12,15 +12,15 @@ Theoretical Foundation
 Bayesian Framework for Parameter Estimation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We consider experimental measurement data :math:`D \equiv \{(x_{\mu,i},y_{\mu,i})\}_{\mu,i}` obtained from experiments, where:
+We consider experimental measurement data :math:`D \equiv \{(x_{\mu,i},y_{\mu,i})\}_{\mu,i}`, where:
 
--  :math:`i` indexes each of the :math:`n` data points for a given dataset (such that :math:`i` runs from 1 to :math:`n`),
--  :math:`\mu` indexes each of the :math:`N` datasets (such that :math:`\mu` runs from 1 to :math:`N`), and that the datasets are explained by the same model (e.g. data from different trials, data from different XRD spots, etc.),
--  :math:`(x_{\mu,i},y_{\mu,i})` represents the :math:`i` th measurement in the :math:`\mu` th dataset.
+- :math:`i` indexes each of the :math:`n` data points for a given dataset (such that :math:`i` runs from 1 to :math:`n`),
+- :math:`\mu` indexes each of the :math:`N` datasets (such that :math:`\mu` runs from 1 to :math:`N`), and that the datasets are explained by the same model (e.g. data from different trials, data from different XRD spots, etc.),
+- :math:`(x_{\mu,i},y_{\mu,i})` represents the :math:`i` -th measurement in the :math:`\mu` -th dataset.
 
 Our goal is to estimate:
 
-1. the parameters :math:`\theta` in the function :math:`f(x; \theta)` mapping state quantities :math:`x` to observations :math:`y`, and 
+1. the parameters :math:`\theta` in some model that maps state quantities :math:`x` to observations :math:`y`, and 
 2. the noise level :math:`\sigma` in the experimental data.
 
 In this tutorial, we perform a linear regression on the observed data to obtain a linear model for the former, and use maximum likelihood estimation on the model evidence to determine the latter.
@@ -57,9 +57,7 @@ We assume a uniform prior distribution over the parameter space :math:`\Omega`:
 
 	P(\theta) = \frac{1}{V_\Omega}
 
-where :math:`V_\Omega = \int_\Omega dx` is the normalization volume.
-
-The model evidence (which corresponds to the marginal likelihood) is obtained by marginalizing over all possible parameter values:
+where :math:`V_\Omega = \int_\Omega dx` is the normalization volume. The model evidence (which corresponds to the marginal likelihood) is obtained by marginalizing over all possible parameter values:
 
 .. math::
 
@@ -106,8 +104,8 @@ Then, by completing the square, we can rewrite the objective as:
 
 We can identify the following quantities:
 
--  :math:`a^* = \frac{B}{A}` is the least-squares solution, and
--  :math:`f^* = C - \frac{B^2}{A}` is the minimum sum of squared residuals.
+- :math:`a^* = \frac{B}{A}` is the best-fitting parameter, and
+- :math:`f^* = C - \frac{B^2}{A}` is the minimum value of the cost function :math:`f` at :math:`f(a^*; D)`.
 
 Calculating the Model Evidence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,7 +134,7 @@ Thus, the model evidence can be written out:
 
 	P(D; \beta) = \frac{1}{L} \left(\frac{\beta}{\pi}\right)^{(n-1)/2} \frac{e^{-\beta f^*}}{2\sqrt{A}} \left[\text{erf}\left(\sqrt{\beta A}\left(\frac{L}{2} - a^*\right)\right) - \text{erf}\left(\sqrt{\beta A}\left(-\frac{L}{2} - a^*\right)\right)\right]
 
-The error function approaches 1 and -1 as its argument tends to :math:`\infty` and :math:`-\infty` respectively. When :math:`L` is taken to be large, we obtain the following result for the model evidence:
+The error function approaches 1 and -1 as its argument tends to :math:`\infty` and :math:`-\infty` respectively. When :math:`L` is taken to be sufficiently large, we obtain the following result for the model evidence:
 
 .. math::
 
@@ -167,10 +165,10 @@ Code Implementation
 
 For this tutorial, files can be located in ``sample/linreg_with_noise`` relative to the root of the repository. The main script is named ``linreg_with_noise.py``.
 
-User-defined target function for linear regression
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+User-defined Target Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ODAT-SE framework allows users to define custom solvers by inheriting from the ``SolverBase`` class. Here we demonstrate how to create a linear regression solver.
+The ODAT-SE framework allows users to define custom solvers by inheriting from the ``SolverBase`` class. Here, we demonstrate how to create a linear regression solver.
 
 .. code:: python
 
@@ -392,12 +390,12 @@ Create a data file ``data.txt`` with two columns (x and y values):
 
 .. code:: text
 
-   1.0  1.1
-   2.0  1.9
-   3.0  3.1
-   4.0  4.2
-   5.0  4.8
-   6.0  6.1
+	1.0 1.1
+	2.0 1.9
+	3.0 3.1
+	4.0 4.2
+	5.0 4.8
+	6.0 6.1
 
 Step 2: Create the ODAT-SE Input File
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -441,13 +439,13 @@ Execute the script, passing ``input.toml`` as the input argument:
 
 .. code:: bash
 
-   python linreg_with_noise.py input.toml
+	python linreg_with_noise.py input.toml
 
 To use the auto-focus feature that determines a suitable plot window that includes the maximum of the model evidence plot according to a focus factor from 0 to 1, we can supply the optional ``--auto-focus`` and ``--focus-factor`` (default: 0.5) parameters:
 
 .. code:: bash
 
-   python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
+	python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
 
 Theoretical Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -473,9 +471,9 @@ Numerical Results
 
 The PAMC algorithm yields:
 
--  :math:`a^* = 1.0066` (numerical)
--  :math:`\beta_{\text{opt}} = 23.101` (numerical)
--  :math:`\sigma_{\text{opt}} = 0.14712` (from :math:`\beta_{\text{opt}}`)
+- :math:`a^* = 1.0066` (numerical)
+- :math:`\beta_{\text{opt}} = 23.101` (numerical)
+- :math:`\sigma_{\text{opt}} = 0.14712` (from :math:`\beta_{\text{opt}}`)
 
 Factors that cause the slight difference in :math:`\beta` values include the use of a discretized temperature range in the annealing schedule and statistical fluctuations in the partition function estimation due to finite sampling in the Monte Carlo method.
 
@@ -548,13 +546,13 @@ As in the previous example, we then run the script for each of the three dataset
 
 .. code:: bash
 
-   python linreg_with_noise.py input.toml
+	python linreg_with_noise.py input.toml
 
 With the auto-focus feature, the invocation could look like:
 
 .. code:: bash
 
-   python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
+	python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
 
 Numerical Results
 ^^^^^^^^^^^^^^^^^
