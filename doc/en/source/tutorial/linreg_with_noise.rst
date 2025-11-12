@@ -1,5 +1,5 @@
-Linear Regression and Noise Estimation with ODAT-SE
-===================================================
+Example: Linear regression and noise estimation
+===============================================
 
 Introduction
 ------------
