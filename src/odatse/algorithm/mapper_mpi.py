@@ -17,7 +17,7 @@ import time
 import odatse
 import odatse.domain
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
-from ._iterator import MeshIterator, ListIterator, RandomIterator
+from ._iterator import MeshIterator, ListIterator, DistributedListIterator
 
 
 class Algorithm(MapperMPIAlgorithm):
@@ -54,12 +54,14 @@ class Algorithm(MapperMPIAlgorithm):
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
-        info_param = info.algorithm.get("param", {})
-
-        if "mesh_path" in info_param:
-            iter = self._read_mesh_file(info_param, mpicomm)
+        if domain:
+            iter = DistributedListIterator(domain.grid_local, mpicomm)
         else:
-            iter = self._find_mesh_info(info_param, mpicomm)
+            info_param = info.algorithm.get("param", {})
+            if "mesh_path" in info_param:
+                iter = self._read_mesh_file(info_param, mpicomm)
+            else:
+                iter = self._find_mesh_info(info_param, mpicomm)
 
         # delayed setup
         self._iter = iter
@@ -119,6 +121,4 @@ class Algorithm(MapperMPIAlgorithm):
         if len(min_list) != len(max_list) or len(min_list) != len(num_list):
             raise ValueError("ERROR: lengths of min_list, max_list, num_list do not match")
 
-        #return MeshIterator(min_list, max_list, num_list, mpicomm)
-        rng = np.random.default_rng()
-        return RandomIterator(min_list, max_list, 100, rng, mpicomm)
+        return MeshIterator(min_list, max_list, num_list, mpicomm)
