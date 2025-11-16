@@ -51,18 +51,21 @@ class Algorithm(MapperMPIAlgorithm):
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
+        info_mode = info.algorithm.get("mode", None)
+        if info_mode is None:
+            mode = "random"
+        else:
+            mode = info_mode.get("mode", "random")
+
         info_param = info.algorithm.get("param", {})
 
-        mode = info.algorithm.get("mode", "random")
-
         if mode == "random":
-            #seed = info.algorithm.get("seed", 1)
-            #rng = np.random.default_rng(seed)
-            rng = self.rng
-            iter = self._random_iterator(info_param, rng, mpicomm)
+            iter = self._random_iterator(info_param, self.rng, mpicomm)
         elif mode == "quasi-random":
-            seq = info.algorithm.get("sequence", "sobol")
+            seq = info_mode.get("sequence", "sobol")
             iter = self._quasi_random_iterator(info_param, seq, mpicomm)
+        else:
+            raise ValueError("ERROR: algorithm.mode.mode = {} is not supported".format(mode))
 
         # delayed setup
         self._iter = iter
