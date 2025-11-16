@@ -20,16 +20,15 @@ DESCRIPTION
 Extracts replica data at the point where annealing is completed from MCMC output files (result_T*.txt) at each temperature point for each process in PAMC calculations. The data is stored as files for each temperature point in the specified directory.
 
 PAMC calculation data is assumed to be arranged in the format DATA_DIRECTORY/[process_number]/result_T[temperature_index].txt.
-Each file format consists of space-separated numerical data: MCMC step number (step), replica number (walker), temperature (T), fx, coordinate values (x1 .. xN, where N is the dimension), weight, and ancestor.
+Each file format consists of space-separated numerical data: MCMC step number (step), replica number (walker), temperature (T) or inverse temperature (beta), fx, coordinate values (x1 .. xN, where N is the dimension), weight, and ancestor.
 
 Output data is arranged in the format EXPORT_DIRECTORY/result_T[temperature_index]_summarized.txt.
-Each file format consists of: inverse temperature (beta), fx, coordinate values (x1 .. xN), and weight.
+Each file format consists of: temperature (T) or inverse temperature (beta), fx, coordinate values (x1 .. xN), and weight.
 
 If an input parameter file used in PAMC calculations is specified as INPUT_FILE, the number of replicas (nreplica) and the directory storing calculation data (data_directory) are obtained from the input file. However, command line arguments take precedence.
 
 .. note::
    * Python 3.6 or higher is required (due to the use of type hints and f-strings).
-   * Inverse temperature (beta) is calculated as the reciprocal of temperature (T) (beta = 1/T). When T = 0, beta is set to 0.
    * By default, the last nreplica lines from each file are extracted. This number of lines corresponds to the number of replicas.
    * If nreplica is not specified, data from the last MCMC step is automatically determined and extracted.
    * The tqdm library is required for progress bar display. If not installed, processing will be executed without a progress bar.
@@ -101,11 +100,27 @@ This script performs the following data conversions:
 
 1. Input data format:
 
+   If the input parameter has been given by the temperature Tmin and Tmax, 
+   
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
 
+   If the input parameter has been given by the inverse temperature bmin and bmax, 
+   
+   .. code-block:: text
+
+      step walker_id beta fx x1 ... xN weight ancestor
+
+   The item types of columns are shown in the header part as comments.
+
 2. Output data format:
+
+   .. code-block:: text
+
+      T fx x1 ... xN weight
+
+   or when the input data is given in beta:
 
    .. code-block:: text
 
@@ -113,10 +128,7 @@ This script performs the following data conversions:
 
 Key conversion points:
    * Extraction of data from the last MC step
-   * Conversion from temperature (T) to inverse temperature (beta = 1/T)
    * Removal of unnecessary columns (step, walker_id, ancestor)
-
-When temperature (T) is 0, inverse temperature (beta) is also set to 0.
 
 TOML Configuration File Format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,11 +155,11 @@ This script processes data in the following steps:
 3. Pattern matching of input files (DATA_DIRECTORY/\*/result_T*.txt)
 4. Process each file:
    
-   a. Read file line by line (excluding comment lines)
+   a. Read file line by line
    b. Extract the last n lines if the number of replicas is specified
    c. Extract lines from the last step if the number of replicas is not specified
-   d. Process data conversion (temperature → inverse temperature, remove unnecessary columns)
-   e. Write results to output file
+   d. Process data conversion (remove unnecessary columns)
+   e. Write (append) results to output file
 
 Performance and Considerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

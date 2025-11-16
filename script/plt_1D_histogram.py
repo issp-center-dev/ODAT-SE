@@ -209,12 +209,26 @@ def main():
     err = 0
     for file_path in file_list:
         try:
-            # Load the file using np.loadtxt
-            data = np.loadtxt(file_path, delimiter=None)
+            # Load the data file
+            is_beta = None
+            data = []
+
+            with open(file_path, "r") as f:
+                for line in f:
+                    if line.startswith("#") and is_beta is None:
+                        if " beta" in line:
+                            is_beta = True
+                        elif " T" in line:
+                            is_beta = False
+                    else:
+                        items = [float(s) for s in line.split()]
+                        data.append(items)
+
+            data = np.array(data)
             ndata, ncols = data.shape
 
-            # Extract beta value in scientific notation (e.g., 1.01e-5)
-            beta_value = f"{data[0, 0]:.3e}"
+            # Extract beta value in float (0.00101) or scientific notation (e.g., 1.01e-3)
+            beta_value = f"{data[0,0]:#.6g}"
 
             # Get weights from the specified column
             weights = data[:, weight_column]
@@ -276,7 +290,8 @@ def main():
 
             # Replace "_summarized" with beta value in filename
             if "_summarized" in file_base:
-                file_base = file_base.replace("_summarized", f"_beta_{beta_value}")
+                beta_tag = f"_beta_{beta_value}" if is_beta else f"_T_{beta_value}"
+                file_base = file_base.replace("_summarized", beta_tag)
                 
             # Save plot in each requested format
             for suf in opt["format"]:
