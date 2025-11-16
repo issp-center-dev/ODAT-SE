@@ -17,6 +17,8 @@ import time
 import odatse
 import odatse.domain
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
+from ._iterator import MeshIterator, ListIterator, RandomIterator
+
 
 class Algorithm(MapperMPIAlgorithm):
     """
@@ -50,4 +52,73 @@ class Algorithm(MapperMPIAlgorithm):
             MPI communicator to use for parallelization.
             If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, domain=domain, run_mode=run_mode, meshgrid=True)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+
+        info_param = info.algorithm.get("param", {})
+
+        if "mesh_path" in info_param:
+            iter = self._read_mesh_file(info_param, mpicomm)
+        else:
+            iter = self._find_mesh_info(info_param, mpicomm)
+
+        # delayed setup
+        self._iter = iter
+
+    def _read_mesh_file(self, info_param, mpicomm=None):
+        """
+        Setup the grid from a file.
+
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the grid.
+        """
+        if "mesh_path" not in info_param:
+            raise ValueError("ERROR: mesh_path not defined")
+        mesh_path = self.root_dir / Path(info_param["mesh_path"]).expanduser()
+
+        if not mesh_path.exists():
+            raise FileNotFoundError("mesh_path not found: {}".format(mesh_path))
+
+        comments = info_param.get("comments", "#")
+        delimiter = info_param.get("delimiter", None)
+        skiprows = info_param.get("skiprows", 0)
+
+        if self.mpirank == 0:
+            # mesh data format: index x1 x2 ...
+            _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
+            if _data.ndim == 1:
+                _data = _data.reshape(1, -1)
+            data = [[int(v[0]), *v[1:]] for v in _data]
+        else:
+            data = None
+
+        return ListIterator(data, mpicomm)
+
+    def _find_mesh_info(self, info_param, mpicomm=None):
+        """
+        Setup the grid based on min, max, and num lists.
+
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the grid.
+        """
+        if "min_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
+        min_list = info_param["min_list"]
+
+        if "max_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.max_list is not defined in the input")
+        max_list = info_param["max_list"]
+
+        if "num_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.num_list is not defined in the input")
+        num_list = info_param["num_list"]
+
+        if len(min_list) != len(max_list) or len(min_list) != len(num_list):
+            raise ValueError("ERROR: lengths of min_list, max_list, num_list do not match")
+
+        #return MeshIterator(min_list, max_list, num_list, mpicomm)
+        rng = np.random.default_rng()
+        return RandomIterator(min_list, max_list, 100, rng, mpicomm)

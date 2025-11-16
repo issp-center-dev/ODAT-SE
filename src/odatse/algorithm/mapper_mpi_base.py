@@ -18,18 +18,21 @@ import odatse
 import odatse.domain
 from ._algorithm import AlgorithmBase
 
+
+
 class Algorithm(AlgorithmBase):
     """
     Algorithm class for data analysis of quantum beam diffraction experiments.
     Inherits from odatse.algorithm.AlgorithmBase.
     """
-    mesh_list: List[Union[int, float]]
+    #mesh_list: List[Union[int, float]]
 
-    def __init__(self, info: odatse.Info,
+    def __init__(self,
+                 info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
-                 domain = None,
                  run_mode: str = "initial",
-                 meshgrid: bool = True,
+                 mpicomm: Optional["MPI.Comm"] = None,
+                 iterator = None,
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -47,15 +50,9 @@ class Algorithm(AlgorithmBase):
         meshgrid : bool
             Whether to use mesh grid or points.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
-        if domain and isinstance(domain, odatse.domain.MeshGrid):
-            self.domain = domain
-        else:
-            self.domain = odatse.domain.MeshGrid(info, rng=self.rng, mesh=meshgrid)
-
-        self.domain.do_split()
-        self.mesh_list = self.domain.grid_local
+        self._iter = iterator
 
         self.colormap_file = info.algorithm.get("colormap", "ColorMap.txt")
         self.local_colormap_file = Path(self.colormap_file).name + ".tmp"
@@ -64,7 +61,12 @@ class Algorithm(AlgorithmBase):
         """
         Initialize the algorithm parameters and timer.
         """
-        self.fx_list = []
+        #self.fx_list = []
+        self.results = []
+
+        self.opt_fx = np.inf
+        self.opt_mesh = None
+
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
@@ -89,32 +91,39 @@ class Algorithm(AlgorithmBase):
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-        iterations = len(self.mesh_list)
-        istart = len(self.fx_list)
+        #iterations = len(self.mesh_list)
+        #istart = len(self.fx_list)
+        istart = 0
 
         next_checkpoint_step = istart + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
-        for icount in range(istart, iterations):
-            print("Iteration : {}/{}".format(icount+1, iterations))
-            mesh = self.mesh_list[icount]
+        for icount, (idx, coord) in enumerate(self._iter):
 
-            # update information
-            args = (int(mesh[0]), 0)
-            x = np.array(mesh[1:])
+            print("Iteration : {}/{}".format(icount+1, self._iter.size()))
+            args = (idx, 0)
+            x = np.array(coord)
 
             time_sta = time.perf_counter()
             fx = self.runner.submit(x, args)
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            self.fx_list.append([mesh[0], fx])
+            #self.fx_list.append([mesh[0], fx])
+            #self.fx_list.append([idx, fx])
+            self.results.append([idx, coord, fx])
 
             # write to local colormap file
             fp.write(" ".join(
                 map(lambda v: "{:8f}".format(v), (*x, fx))
             ) + "\n")
 
+            # update optimal value
+            if fx < self.opt_fx:
+                self.opt_fx = fx
+                self.opt_mesh = (idx, coord)
+
+            # checkpointing
             if self.checkpoint:
                 time_now = time.time()
                 if icount+1 >= next_checkpoint_step or time_now >= next_checkpoint_time:
@@ -122,20 +131,13 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if iterations > 0:
-            opt_index = np.argsort(self.fx_list, axis=0)[0][1]
-            opt_id, opt_fx = self.fx_list[opt_index]
-            opt_mesh = self.mesh_list[opt_index]
-
-            self.opt_fx = opt_fx
-            self.opt_mesh = opt_mesh
-
-            print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
+        if self.opt_fx is not None:
+            print(f"[{self.mpirank}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
         self._output_results()
 
-        if Path(self.local_colormap_file).exists():
-            os.remove(Path(self.local_colormap_file))
+        # if Path(self.local_colormap_file).exists():
+        #     os.remove(Path(self.local_colormap_file))
 
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 
@@ -148,15 +150,14 @@ class Algorithm(AlgorithmBase):
 
         with open(self.colormap_file, "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
-
-            for x, (idx, fx) in zip(self.mesh_list, self.fx_list):
+            for idx, coord, fx in self.results:
                 fp.write(" ".join(
-                    map(lambda v: "{:8f}".format(v), (*x[1:], fx))
-                    ) + "\n")
+                    map(lambda v: "{:8f}".format(v), (*coord, fx))
+                ) + "\n")
 
-            if len(self.mesh_list) > 0:
+            if self.opt_fx is not None:
                 fp.write("#Minimum point : " + " ".join(
-                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1:])
+                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1])
                 ) + "\n")
                 fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
                 fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
@@ -182,17 +183,16 @@ class Algorithm(AlgorithmBase):
             Dictionary of results.
         """
         if self.mpisize > 1:
-            fx_lists = self.mpicomm.allgather(self.fx_list)
-            results = [v for vs in fx_lists for v in vs]
+            _data = self.mpicomm.allgather(self.results)
+            results = [v for vs in _data for v in vs]
         else:
-            results = self.fx_list
+            results = self.results
 
         if self.mpirank == 0:
             with open(self.colormap_file, "w") as fp:
-                for x, (idx, fx) in zip(self.domain.grid, results):
-                    assert x[0] == idx
+                for idx, coord, fx in results:
                     fp.write(" ".join(
-                        map(lambda v: "{:8f}".format(v), (*x[1:], fx))
+                        map(lambda v: "{:8f}".format(v), (*coord, fx))
                     ) + "\n")
 
         return {}
@@ -211,8 +211,8 @@ class Algorithm(AlgorithmBase):
             "mpirank": self.mpirank,
             "timer": self.timer,
             "info": self.info,
-            "fx_list": self.fx_list,
-            "mesh_size": len(self.mesh_list),
+            #"fx_list": self.fx_list,
+            #"mesh_size": len(self.mesh_list),
         }
         self._save_data(data, filename)
 
@@ -240,6 +240,6 @@ class Algorithm(AlgorithmBase):
         info = data["info"]
         self._check_parameters(info)
 
-        self.fx_list = data["fx_list"]
+        #self.fx_list = data["fx_list"]
 
-        assert len(self.mesh_list) == data["mesh_size"]
+        #assert len(self.mesh_list) == data["mesh_size"]
