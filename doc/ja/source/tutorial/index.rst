@@ -33,14 +33,15 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の6
 最後に、自分で順問題ソルバーを定義する簡単な例について説明します。
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
 
-  intro
-  minsearch
-  mapper
-  random_search
-  bayes
-  exchange
-  pamc
-  limitation
-  solver_simple
+   intro
+   minsearch
+   mapper
+   random_search
+   bayes
+   exchange
+   pamc
+   limitation
+   solver_simple
+   linreg_with_noise
