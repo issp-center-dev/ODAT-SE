@@ -211,9 +211,11 @@ class Algorithm(AlgorithmBase):
             "mpirank": self.mpirank,
             "timer": self.timer,
             "info": self.info,
-            #"fx_list": self.fx_list,
-            #"mesh_size": len(self.mesh_list),
+            "results": self.results,
+            "opt_fx": self.opt_fx,
+            "opt_mesh": self.opt_mesh,
         }
+        data.update(self._iter._save_state())
         self._save_data(data, filename)
 
     def _load_state(self, filename, restore_rng=True):
@@ -240,6 +242,7 @@ class Algorithm(AlgorithmBase):
         info = data["info"]
         self._check_parameters(info)
 
-        #self.fx_list = data["fx_list"]
-
-        #assert len(self.mesh_list) == data["mesh_size"]
+        self.results = data["results"]
+        self.opt_fx = data["opt_fx"]
+        self.opt_mesh = data["opt_mesh"]
+        self._iter._restore_state(data)

@@ -68,6 +68,14 @@ class MeshIterator(IteratorBase):
         self._i += 1
         return tag, coord
 
+    def _save_state(self):
+        return {
+            "index": self._i,
+        }
+
+    def _restore_state(self, d):
+        self._i = d["index"]
+
 
 class ListIterator(IteratorBase):
     def __init__(self, data, mpicomm=None):
@@ -101,6 +109,44 @@ class ListIterator(IteratorBase):
             data = self.mpicomm.scatter(data_block, root=0)
         return data
 
+    def _save_state(self):
+        return {
+            "index": self._i,
+            "data": self._data,
+        }
+
+    def _restore_state(self, d):
+        self._i = d["index"]
+        self._data = d["data"]
+
+class DistributedListIterator(IteratorBase):
+    def __init__(self, data, mpicomm=None):
+        # all ranks have their own chunk of data
+        super().__init__(mpicomm)
+
+        self._data = data
+
+        self._index_start = 0
+        self._index_end = len(self._data)
+        self._i = self._index_start
+
+    def __next__(self):
+        if self._i == self._index_end:
+            raise StopIteration()
+        data = self._data[self._i]
+        self._i += 1
+        return data[0], data[1:]
+
+    def _save_state(self):
+        return {
+            "index": self._i,
+            "data": self._data,
+        }
+
+    def _restore_state(self, d):
+        self._i = d["index"]
+        self._data = d["data"]
+
 class RandomIterator(IteratorBase):
     def __init__(self, xmin, xmax, count, rng, mpicomm=None):
         super().__init__(mpicomm)
@@ -120,3 +166,14 @@ class RandomIterator(IteratorBase):
         tag = self._i
         self._i += 1
         return tag, coord
+
+    def _save_state(self):
+        return {
+            "index": self._i,
+            "rng_state": self._rng.get_state(),
+        }
+
+    def _restore_state(self, d):
+        self._i = d["index"]
+        self._rng = np.random.RandomState()
+        self._rng.set_state(data["rng_state"])
