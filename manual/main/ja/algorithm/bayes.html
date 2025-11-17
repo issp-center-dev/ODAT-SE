@@ -57,7 +57,9 @@
 メッシュファイルは1行がパラメータ空間中の1点を意味しており、
 1列目がデータ番号で、2列目以降が各次元の座標です。</p>
 <p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> が定義されていない場合は、 <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> を用いて、
-各パラメータについて等間隔なグリッドを作成します。</p>
+各パラメータについて等間隔なグリッドを作成します。
+<code class="docutils literal notranslate"><span class="pre">num_points</span></code> が定義されている場合は、 <code class="docutils literal notranslate"><span class="pre">num_points</span></code> 個の点を一様ランダムサンプリングします。
+<code class="docutils literal notranslate"><span class="pre">num_list</span></code> と <code class="docutils literal notranslate"><span class="pre">num_points</span></code> とは、どちらか片方だけ定義してください。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>形式: string型</p>
@@ -73,7 +75,11 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
 <p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
-<p>説明: パラメータが取りうる数。</p>
+<p>説明: それぞれのパラメータについて等間隔にサンプリングする点の数。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
+<p>形式: 整数型。</p>
+<p>説明: ランダムサンプリングする点の数。</p>
 </li>
 </ul>
 </section>

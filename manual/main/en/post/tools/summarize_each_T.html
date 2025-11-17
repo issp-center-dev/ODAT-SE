@@ -50,15 +50,14 @@
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>Extracts replica data at the point where annealing is completed from MCMC output files (result_T*.txt) at each temperature point for each process in PAMC calculations. The data is stored as files for each temperature point in the specified directory.</p>
 <p>PAMC calculation data is assumed to be arranged in the format DATA_DIRECTORY/[process_number]/result_T[temperature_index].txt.
-Each file format consists of space-separated numerical data: MCMC step number (step), replica number (walker), temperature (T), fx, coordinate values (x1 .. xN, where N is the dimension), weight, and ancestor.</p>
+Each file format consists of space-separated numerical data: MCMC step number (step), replica number (walker), temperature (T) or inverse temperature (beta), fx, coordinate values (x1 .. xN, where N is the dimension), weight, and ancestor.</p>
 <p>Output data is arranged in the format EXPORT_DIRECTORY/result_T[temperature_index]_summarized.txt.
-Each file format consists of: inverse temperature (beta), fx, coordinate values (x1 .. xN), and weight.</p>
+Each file format consists of: temperature (T) or inverse temperature (beta), fx, coordinate values (x1 .. xN), and weight.</p>
 <p>If an input parameter file used in PAMC calculations is specified as INPUT_FILE, the number of replicas (nreplica) and the directory storing calculation data (data_directory) are obtained from the input file. However, command line arguments take precedence.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>Python 3.6 or higher is required (due to the use of type hints and f-strings).</p></li>
-<li><p>Inverse temperature (beta) is calculated as the reciprocal of temperature (T) (beta = 1/T). When T = 0, beta is set to 0.</p></li>
 <li><p>By default, the last nreplica lines from each file are extracted. This number of lines corresponds to the number of replicas.</p></li>
 <li><p>If nreplica is not specified, data from the last MCMC step is automatically determined and extracted.</p></li>
 <li><p>The tqdm library is required for progress bar display. If not installed, processing will be executed without a progress bar.</p></li>
@@ -118,11 +117,21 @@ Data from the last MC step of each file is extracted.</p>
 <p>This script performs the following data conversions:</p>
 <ol class="arabic">
 <li><p>Input data format:</p>
+<p>If the input parameter has been given by the temperature Tmin and Tmax,</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id T fx x1 ... xN weight ancestor
 </pre></div>
 </div>
+<p>If the input parameter has been given by the inverse temperature bmin and bmax,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id beta fx x1 ... xN weight ancestor
+</pre></div>
+</div>
+<p>The item types of columns are shown in the header part as comments.</p>
 </li>
 <li><p>Output data format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>T fx x1 ... xN weight
+</pre></div>
+</div>
+<p>or when the input data is given in beta:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>beta fx x1 ... xN weight
 </pre></div>
 </div>
@@ -131,12 +140,10 @@ Data from the last MC step of each file is extracted.</p>
 <dl class="simple">
 <dt>Key conversion points:</dt><dd><ul class="simple">
 <li><p>Extraction of data from the last MC step</p></li>
-<li><p>Conversion from temperature (T) to inverse temperature (beta = 1/T)</p></li>
 <li><p>Removal of unnecessary columns (step, walker_id, ancestor)</p></li>
 </ul>
 </dd>
 </dl>
-<p>When temperature (T) is 0, inverse temperature (beta) is also set to 0.</p>
 </section>
 <section id="toml-configuration-file-format">
 <h3>TOML Configuration File Format<a class="headerlink" href="#toml-configuration-file-format" title="Link to this heading">¶</a></h3>
@@ -159,11 +166,11 @@ Data from the last MC step of each file is extracted.</p>
 <li><p>Pattern matching of input files (DATA_DIRECTORY/*/result_T*.txt)</p></li>
 <li><p>Process each file:</p>
 <ol class="loweralpha simple">
-<li><p>Read file line by line (excluding comment lines)</p></li>
+<li><p>Read file line by line</p></li>
 <li><p>Extract the last n lines if the number of replicas is specified</p></li>
 <li><p>Extract lines from the last step if the number of replicas is not specified</p></li>
-<li><p>Process data conversion (temperature → inverse temperature, remove unnecessary columns)</p></li>
-<li><p>Write results to output file</p></li>
+<li><p>Process data conversion (remove unnecessary columns)</p></li>
+<li><p>Write (append) results to output file</p></li>
 </ol>
 </li>
 </ol>

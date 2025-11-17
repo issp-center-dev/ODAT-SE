@@ -48,16 +48,24 @@
 <h2><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code><a class="headerlink" href="#algorithmbase" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">AlgorithmBase</span></code> クラスは次のメソッドを提供します。</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">mpicomm:</span> <span class="pre">Optional[&quot;MPI.Comm&quot;]</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
 <blockquote>
 <div><ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">info</span></code> から <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。</p>
 <blockquote>
 <div><ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">self.mpicomm:</span> <span class="pre">Optional[MPI.Comm]</span></code> : <code class="docutils literal notranslate"><span class="pre">MPI.COMM_WORLD</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.mpicomm:</span> <span class="pre">Optional[MPI.Comm]</span></code> : MPI通信を行うための <code class="docutils literal notranslate"><span class="pre">mpi4py.MPI.Comm</span></code> オブジェクト</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpicomm</span></code> が指定されている場合は、その値を使用します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpicomm</span></code> が指定されていない場合</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> の import に失敗した場合、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が設定されます</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> が import できた場合は <code class="docutils literal notranslate"><span class="pre">mpi4py.MPI.COMM_WORLD</span></code> を使用します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> が import できなかった場合は、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が設定され、 シリアル実行されます。</p></li>
+</ul>
+</div></blockquote>
+</li>
 </ul>
 </div></blockquote>
 </li>

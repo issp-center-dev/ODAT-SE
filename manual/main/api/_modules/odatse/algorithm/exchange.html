@@ -78,7 +78,7 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
@@ -94,6 +94,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.separateT</span><span class="w"> </span><span class="kn">import</span> <span class="n">separateT</span><span class="p">,</span> <span class="n">calculate_statistics_from_separated_files</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.data_writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataWriter</span>
 
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm">[docs]</a>
@@ -141,7 +144,7 @@
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">xmin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">xmax</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="c1">#xunit: np.ndarray</span>
+    <span class="c1"># xunit: np.ndarray</span>
     <span class="n">xstep</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
     <span class="n">numsteps</span><span class="p">:</span> <span class="nb">int</span>
@@ -158,10 +161,12 @@
 
 <div class="viewcode-block" id="Algorithm.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
-                 <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
+        <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">mpicomm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MPI.Comm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the Algorithm class.</span>
@@ -174,13 +179,22 @@
 <span class="sd">            Runner object for executing the algorithm.</span>
 <span class="sd">        run_mode : str, optional</span>
 <span class="sd">            Mode to run the algorithm in, by default &quot;initial&quot;.</span>
+<span class="sd">        mpicomm : MPI.Comm</span>
+<span class="sd">            MPI communicator to use for parallelization.</span>
+<span class="sd">            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
 
         <span class="n">info_exchange</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;exchange&quot;</span><span class="p">]</span>
         <span class="n">nwalkers</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nreplica_per_proc&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+            <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+            <span class="n">nwalkers</span><span class="o">=</span><span class="n">nwalkers</span><span class="p">,</span>
+            <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">,</span>
+            <span class="n">mpicomm</span><span class="o">=</span><span class="n">mpicomm</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="o">=</span> <span class="n">read_Ts</span><span class="p">(</span><span class="n">info_exchange</span><span class="p">,</span> <span class="n">numT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">)</span>
@@ -211,7 +225,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
         <span class="p">)</span>
-        
+
         <span class="c1"># Initialize mappings between replica and temperature indices</span>
         <span class="c1"># Initially, replica i has temperature i</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rep2T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">)</span>  <span class="c1"># Maps replica index -&gt; temperature index</span>
@@ -628,7 +642,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Load status file failed&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1">#-- _algorithm</span>
+        <span class="c1"># -- _algorithm</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mpisize&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mpirank&quot;</span><span class="p">]</span>
 
@@ -640,10 +654,10 @@
         <span class="n">info</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
-        <span class="c1">#-- montecarlo</span>
+        <span class="c1"># -- montecarlo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;fx&quot;</span><span class="p">]</span>
-        <span class="c1">#self.inode = data[&quot;inode&quot;]</span>
+        <span class="c1"># self.inode = data[&quot;inode&quot;]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">]</span>
 
@@ -655,7 +669,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;naccepted&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ntrial&quot;</span><span class="p">]</span>
 
-        <span class="c1">#-- exchange</span>
+        <span class="c1"># -- exchange</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplica&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Tindex&quot;</span><span class="p">]</span>
@@ -663,7 +677,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;T2rep&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exchange_direction</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;exchange_direction&quot;</span><span class="p">]</span>
 
-        <span class="c1">#-- restore rng state in statespace</span>
+        <span class="c1"># -- restore rng state in statespace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span></div>
 </div>
 

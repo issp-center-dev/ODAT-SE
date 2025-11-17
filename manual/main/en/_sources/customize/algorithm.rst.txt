@@ -16,17 +16,23 @@
 
 ``AlgorithmBase`` class offers the following methods.
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
 
   - Reads the common parameters from ``info`` and sets the following instance variables:
 
-    - ``self.mpicomm: Optional[MPI.Comm]`` : ``MPI.COMM_WORLD``
+    - ``self.mpicomm: Optional[MPI.Comm]`` : MPI communicator ``mpi4py.MPI.Comm`` object to use for parallelization.
+
+      - If ``mpicomm`` is given, it is used.
+      - If ``mpicomm`` is not given,
+
+        - If ``mpi4py`` is imported, ``mpi4py.MPI.COMM_WORLD`` is used.
+        - If ``mpi4py`` is not imported, ``None`` is set, and the algorithm runs in serial.
 
     - ``self.mpisize: int`` : the number of MPI processes
 
     - ``self.mpirank: int`` : the rank of this process
 
-      - When ``import mpi4py`` fails, ``self.mpicomm`` is set to ``None``, ``self.mpisize`` is set to 1, and ``self.mpirank`` is set to 0.
+      - When ``import mpi4py`` fails, ``self.mpisize`` is set to 1, and ``self.mpirank`` is set to 0.
 
     - ``self.rng: np.random.Generator`` : pseudo random number generator
 

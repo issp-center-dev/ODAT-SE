@@ -51,15 +51,14 @@
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>PAMCの計算において、プロセスごとの各温度点での MCMC の出力ファイル result_T*.txt から、annealing が完了した時点のレプリカのデータを抽出する。データは指定したディレクトリ内に温度点ごとのファイルとして格納する。</p>
 <p>PAMCの計算データは DATA_DIRECTORY/[プロセス番号]/result_T[温度インデックス].txt の形式で配置されているものとする。
-各ファイルの書式はスペース区切りの数値データで、MCMCステップ数(step)、レプリカ番号(walker)、温度(T)、fx、座標値(x1 .. xN, Nは次元数)、weight、ancestor とする。</p>
+各ファイルの書式はスペース区切りの数値データで、MCMCステップ数(step)、レプリカ番号(walker)、温度(T)または逆温度(beta)、fx、座標値(x1 .. xN, Nは次元数)、weight、ancestor とする。</p>
 <p>出力データは EXPORT_DIRECTORY/result_T[温度インデックス]_summarized.txt の形式で配置される。
-各ファイルの書式は、逆温度(beta)、fx、座標値(x1 .. xN)、weight となる。</p>
+各ファイルの書式は、温度(T)または逆温度(beta)、fx、座標値(x1 .. xN)、weight となる。</p>
 <p>PAMCの計算に用いた入力パラメータファイルを INPUT_FILE として指定した場合、レプリカ数(nreplica)と計算データを格納するディレクトリ(data_directory)を入力ファイルから取得する。ただし、コマンドライン引数が優先される。</p>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <ul class="simple">
 <li><p>Python 3.6以上が必要です(タイプヒントとf文字列を使用しているため)。</p></li>
-<li><p>逆温度(beta)は温度(T)の逆数として計算されます(beta = 1/T)。T = 0 の場合は beta = 0 とされます。</p></li>
 <li><p>デフォルトでは、各ファイルの最後の nreplica 行を抽出します。この行数はレプリカ数に相当します。</p></li>
 <li><p>nreplica が指定されていない場合、最後のMCMCステップを自動で判別してデータを抽出します。</p></li>
 <li><p>プログレスバー表示には tqdm ライブラリが必要です。未インストールの場合はプログレスバーなしで処理が実行されます。</p></li>
@@ -119,11 +118,21 @@
 <p>このスクリプトは以下のデータ変換を行います：</p>
 <ol class="arabic">
 <li><p>入力データの形式:</p>
+<p>入力パラメータが温度 Tmin, Tmax で与えられた場合は</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id T fx x1 ... xN weight ancestor
 </pre></div>
 </div>
+<p>または、入力パラメータが逆温度 bmin, bmax で与えられた場合は</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>step walker_id beta fx x1 ... xN weight ancestor
+</pre></div>
+</div>
+<p>各カラムの内容はファイルのヘッダ部分にコメントとして記述されます。</p>
 </li>
 <li><p>出力データの形式:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>T fx x1 ... xN weight
+</pre></div>
+</div>
+<p>または、入力データが beta で与えられている場合は</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>beta fx x1 ... xN weight
 </pre></div>
 </div>
@@ -132,12 +141,10 @@
 <dl class="simple">
 <dt>主な変換ポイント:</dt><dd><ul class="simple">
 <li><p>最後のMCステップのデータの抽出</p></li>
-<li><p>温度(T)から逆温度(beta = 1/T)への変換</p></li>
 <li><p>不要なカラム(step、walker_id、ancestor)の削除</p></li>
 </ul>
 </dd>
 </dl>
-<p>温度(T)が 0 の場合は、逆温度(beta)も 0 として設定されます。</p>
 </section>
 <section id="toml">
 <h3>TOML設定ファイルの形式<a class="headerlink" href="#toml" title="Link to this heading">¶</a></h3>
@@ -160,11 +167,11 @@
 <li><p>入力ファイルのパターンマッチング(DATA_DIRECTORY/*/result_T*.txt)</p></li>
 <li><p>各ファイルの処理:</p>
 <ol class="loweralpha simple">
-<li><p>ファイルを行単位で読み込み(コメント行を除外)</p></li>
+<li><p>ファイルを読み込み</p></li>
 <li><p>レプリカ数が指定されている場合は最後の n 行を抽出</p></li>
 <li><p>レプリカ数が指定されていない場合は最後のステップの行を抽出</p></li>
-<li><p>データ変換処理(温度→逆温度、不要なカラムの削除)</p></li>
-<li><p>結果を出力ファイルに書き込み</p></li>
+<li><p>データ変換処理(不要なカラムの削除)</p></li>
+<li><p>結果を出力ファイルに書き込み(追記)</p></li>
 </ol>
 </li>
 </ol>

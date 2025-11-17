@@ -55,7 +55,10 @@ The implementation is based on <a class="reference external" href="https://www.p
 <p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is defined, it will be read from a mesh file.
 In a mesh file, one line gives one point in the parameter space,
 the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is not defined, <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, and <code class="docutils literal notranslate"><span class="pre">num_list</span></code> are used to create an evenly spaced grid for each parameter.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is not defined, candidate points are automatically generated from the search space defined by <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">num_list</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> points are sampled evenly for each parameter.
+If <code class="docutils literal notranslate"><span class="pre">num_points</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_points</span></code> points are randomly sampled from the search space.
+<code class="docutils literal notranslate"><span class="pre">num_list</span></code> and <code class="docutils literal notranslate"><span class="pre">num_points</span></code> cannot be defined at the same time.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>Format: String</p>
@@ -72,6 +75,10 @@ the first column is the data number, and the second and subsequent columns are t
 <li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
 <p>Format: List of integer. The length should match the value of dimension.</p>
 <p>Description: The number of grids the parametar can take at each dimension.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
+<p>Format: Integer.</p>
+<p>Description: The number of points to be randomly sampled.</p>
 </li>
 </ul>
 </section>

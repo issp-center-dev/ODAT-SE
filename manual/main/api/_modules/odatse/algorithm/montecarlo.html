@@ -79,7 +79,7 @@
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -91,6 +91,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">odatse</span><span class="w"> </span><span class="kn">import</span> <span class="n">mpi</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuousStateSpace</span><span class="p">,</span> <span class="n">DiscreteStateSpace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.data_writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataWriter</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
 
 
 <div class="viewcode-block" id="AlgorithmBase">
@@ -173,11 +176,15 @@
 
 <div class="viewcode-block" id="AlgorithmBase.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.montecarlo.html#odatse.algorithm.montecarlo.AlgorithmBase.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
-             <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">domain</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">nwalkers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-             <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
+        <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nwalkers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">mpicomm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MPI.Comm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the AlgorithmBase class.</span>
 
@@ -193,12 +200,15 @@
 <span class="sd">            Number of walkers to use in the simulation, by default 1.</span>
 <span class="sd">        run_mode : str, optional</span>
 <span class="sd">            Mode of the run, e.g., &quot;initial&quot;, by default &quot;initial&quot;.</span>
-<span class="sd">            </span>
+<span class="sd">        mpicomm : MPI.Comm</span>
+<span class="sd">            MPI communicator to use for parallelization.</span>
+<span class="sd">            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</span>
+
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If an unsupported domain type is provided or required parameters are missing.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; info = odatse.Info(config_file_path)</span>
@@ -206,7 +216,7 @@
 <span class="sd">        &gt;&gt;&gt; algorithm = AlgorithmBase(info, runner, nwalkers=100)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">,</span> <span class="n">mpicomm</span><span class="o">=</span><span class="n">mpicomm</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">nwalkers</span>
 
         <span class="k">if</span> <span class="n">domain</span><span class="p">:</span>
@@ -239,7 +249,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1">#-- writer</span>
+        <span class="c1"># -- writer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp_trial</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp_result</span> <span class="o">=</span> <span class="kc">None</span></div>
 
@@ -354,16 +364,16 @@
         <span class="n">old_fx</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
 
         <span class="n">new_state</span><span class="p">,</span> <span class="n">in_range</span><span class="p">,</span> <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">old_state</span><span class="p">)</span>
-        <span class="c1">#self.state = new_state</span>
+        <span class="c1"># self.state = new_state</span>
 
         <span class="c1"># evaluate &quot;Energy&quot;s</span>
         <span class="n">new_fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">in_range</span><span class="p">)</span>
-        <span class="c1">#XXX</span>
+        <span class="c1"># XXX</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">new_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">new_fx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_trial</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extra_info_to_write</span><span class="p">)</span>
 
-        <span class="c1">#print(old_fx, new_fx)</span>
+        <span class="c1"># print(old_fx, new_fx)</span>
         <span class="n">fdiff</span> <span class="o">=</span> <span class="n">new_fx</span> <span class="o">-</span> <span class="n">old_fx</span>
 
         <span class="c1"># Ignore an overflow warning in np.exp(x) for x &gt;~ 710</span>
@@ -372,7 +382,7 @@
         <span class="c1"># old_setting = np.seterr(over=&quot;ignore&quot;)</span>
         <span class="n">old_setting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span> <span class="o">*</span> <span class="n">fdiff</span><span class="p">)</span>
-        <span class="c1">#probs[np.isnan(probs)] = 0.0</span>
+        <span class="c1"># probs[np.isnan(probs)] = 0.0</span>
         <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">probs</span> <span class="o">*=</span> <span class="n">weight</span>
         <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="o">**</span><span class="n">old_setting</span><span class="p">)</span>

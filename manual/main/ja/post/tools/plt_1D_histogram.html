@@ -51,8 +51,8 @@
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>FILE に指定するデータファイルから1次元に周辺化したヒストグラムを作成する。</p>
 <p>データファイルはテキスト形式で、複数のカラムからなる数値データである。
-標準フォーマットでは、空白文字区切りで beta, fx, x1, ..., xN, weight の各数値を格納する。
-beta は逆温度、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
+標準フォーマットでは、空白文字区切りで T(または beta), fx, x1, ..., xN, weight の各数値を格納する。
+T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
 フィールド名はオプション (field_list) で指定できるほか、PAMC計算に用いた入力ファイルのパラメータ (label_list) を用いることができる。</p>
 <p>FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込む。</p>
 <p>ヒストグラムを作成する軸は columns オプションで指定する。指定がない場合は x1, ..., xN のすべての軸が対象となる。指定方法はフィールド名をカンマ区切りで列挙する。例えば <code class="docutils literal notranslate"><span class="pre">--column</span> <span class="pre">x1,x3</span></code> を指定すると <code class="docutils literal notranslate"><span class="pre">x1</span></code> および <code class="docutils literal notranslate"><span class="pre">x3</span></code> 軸に周辺化したヒストグラムを描画する。</p>
@@ -86,7 +86,7 @@ beta は逆温度、x1, ... xN はパラメータ値(N はパラメータの次�
 </dd>
 <dt><strong>--params PARAMS</strong></dt><dd><p>PAMCを実行する際に用いた入力パラメータファイルを指定する。パラメータファイルからは range (min_list, max_list) および field_list (label_list) の情報を取得する。</p>
 </dd>
-<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 beta, fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
+<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 T(or beta), fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
 columns のフィールド名指定に使われる。</p>
 </dd>
 <dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。tqdmがインストールされていない場合は、代わりに各ファイルの処理状況がメッセージとして表示される。</p>
@@ -110,7 +110,7 @@ columns のフィールド名指定に使われる。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>data<span class="w"> </span>-o<span class="w"> </span>1dhist
 </pre></div>
 </div>
-<p>1dhist ディレクトリに 1Dhistogram_result_T0_beta_NNNN.png 〜 1Dhistogram_result_T10_beta_MMMM.png が出力される。ファイル名の <code class="docutils literal notranslate"><span class="pre">summarized</span></code> は <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code> に置き換えられる。</p>
+<p>1dhist ディレクトリに 1Dhistogram_result_T0_NNNN.png 〜 1Dhistogram_result_T10_MMMM.png が出力される。ファイル名の <code class="docutils literal notranslate"><span class="pre">summarized</span></code> は <code class="docutils literal notranslate"><span class="pre">T_{T}</span></code> または <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code> に置き換えられる。</p>
 </li>
 <li><p>入力データ file.txt のうち、x1 と x3 のフィールドについてヒストグラムを作成し、png と pdf 形式で出力する。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-c<span class="w"> </span>x1,x3<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-f<span class="w"> </span>png,pdf<span class="w"> </span>file.txt
@@ -148,15 +148,15 @@ columns のフィールド名指定に使われる。</p>
 <h3>データファイルの形式<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p>標準フォーマットのデータファイルは以下の形式をとる。</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
-beta_value fx_value x1_value x2_value ... xN_value weight_value
-beta_value fx_value x1_value x2_value ... xN_value weight_value
+T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 ...
 </pre></div>
 </div>
 <p>各行は空白文字で区切られた数値データであり、各列は以下の意味を持つ:</p>
 <ul class="simple">
-<li><p>第1列: beta値(逆温度)</p></li>
-<li><p>第2列: fx値(関数値)</p></li>
+<li><p>第1列: T(温度) または beta(逆温度)</p></li>
+<li><p>第2列: fx(関数値)</p></li>
 <li><p>第3列〜第(N+2)列: パラメータ値 x1, x2, ..., xN</p></li>
 <li><p>最終列: 重み(weight)</p></li>
 </ul>
@@ -176,7 +176,7 @@ beta_value fx_value x1_value x2_value ... xN_value weight_value
 <p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{入力ファイル名}.{フォーマット}</span></code></p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">summarize_each_T.py</span></code> から出力された、ファイル名に _summarized.txt を含むファイル:</p>
-<p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{入力ファイル名の_summarizedを_beta_{beta値}に置換}.{フォーマット}</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{入力ファイル名の_summarizedを</span> <span class="pre">T</span> <span class="pre">または</span> <span class="pre">beta</span> <span class="pre">に置換}.{フォーマット}</span></code></p>
 </li>
 </ul>
 </section>

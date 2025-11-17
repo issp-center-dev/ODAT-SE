@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="odatse.algorithm.min_search module" href="odatse.algorithm.min_search.html" />
+    <link rel="next" title="odatse.algorithm.mapper_mpi_base module" href="odatse.algorithm.mapper_mpi_base.html" />
     <link rel="prev" title="odatse.algorithm.gather module" href="odatse.algorithm.gather.html" /> 
 </head>
 
@@ -91,8 +91,8 @@
 <span id="odatse-algorithm-mapper-mpi-module"></span><h1>odatse.algorithm.mapper_mpi module<a class="headerlink" href="#module-odatse.algorithm.mapper_mpi" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.mapper_mpi.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase" title="odatse.algorithm._algorithm.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.mapper_mpi.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpicomm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm" title="odatse.algorithm.mapper_mpi_base.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a></p>
 <p>Algorithm class for data analysis of quantum beam diffraction experiments.
 Inherits from odatse.algorithm.AlgorithmBase.</p>
 <p>Initialize the Algorithm instance.</p>
@@ -103,12 +103,14 @@ Inherits from odatse.algorithm.AlgorithmBase.</p>
 <li><p><strong>runner</strong> (<em>Runner</em>) – Optional runner object for submitting tasks.</p></li>
 <li><p><strong>domain</strong> – Optional domain object, defaults to MeshGrid.</p></li>
 <li><p><strong>run_mode</strong> (<em>str</em>) – Mode to run the algorithm, defaults to “initial”.</p></li>
+<li><p><strong>mpicomm</strong> (<em>MPI.Comm</em>) – MPI communicator to use for parallelization.
+If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpicomm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize the Algorithm instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -117,70 +119,9 @@ Inherits from odatse.algorithm.AlgorithmBase.</p>
 <li><p><strong>runner</strong> (<em>Runner</em>) – Optional runner object for submitting tasks.</p></li>
 <li><p><strong>domain</strong> – Optional domain object, defaults to MeshGrid.</p></li>
 <li><p><strong>run_mode</strong> (<em>str</em>) – Mode to run the algorithm, defaults to “initial”.</p></li>
+<li><p><strong>mpicomm</strong> (<em>MPI.Comm</em>) – MPI communicator to use for parallelization.
+If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._initialize">
-<span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._initialize" title="Link to this definition"></a></dt>
-<dd><p>Initialize the algorithm parameters and timer.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._load_state">
-<span class="sig-name descname"><span class="pre">_load_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._load_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._load_state" title="Link to this definition"></a></dt>
-<dd><p>Load the state of the algorithm from a file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – The name of the file to load the state from.</p></li>
-<li><p><strong>restore_rng</strong> (<em>bool</em>) – Whether to restore the random number generator state.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._output_results">
-<span class="sig-name descname"><span class="pre">_output_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._output_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._output_results" title="Link to this definition"></a></dt>
-<dd><p>Output the results to the colormap file.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._post">
-<span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._post" title="Link to this definition"></a></dt>
-<dd><p>Post-process the results and gather data from all MPI ranks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dictionary of results.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._prepare">
-<span class="sig-name descname"><span class="pre">_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._prepare" title="Link to this definition"></a></dt>
-<dd><p>Prepare the algorithm (no operation).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._run">
-<span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._run" title="Link to this definition"></a></dt>
-<dd><p>Execute the main algorithm process.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="odatse.algorithm.mapper_mpi.Algorithm._save_state">
-<span class="sig-name descname"><span class="pre">_save_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/mapper_mpi.html#Algorithm._save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.mapper_mpi.Algorithm._save_state" title="Link to this definition"></a></dt>
-<dd><p>Save the current state of the algorithm to a file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> – The name of the file to save the state to.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -194,7 +135,7 @@ Inherits from odatse.algorithm.AlgorithmBase.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="odatse.algorithm.gather.html" class="btn btn-neutral float-left" title="odatse.algorithm.gather module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odatse.algorithm.min_search.html" class="btn btn-neutral float-right" title="odatse.algorithm.min_search module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="odatse.algorithm.mapper_mpi_base.html" class="btn btn-neutral float-right" title="odatse.algorithm.mapper_mpi_base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -17,7 +17,9 @@ Submodules
    odatse.algorithm.exchange
    odatse.algorithm.gather
    odatse.algorithm.mapper_mpi
+   odatse.algorithm.mapper_mpi_base
    odatse.algorithm.min_search
    odatse.algorithm.montecarlo
    odatse.algorithm.pamc
+   odatse.algorithm.random_search
    odatse.algorithm.state

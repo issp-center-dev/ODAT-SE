@@ -50,8 +50,8 @@
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>Creates 1D marginalized histograms from data files specified in FILE.</p>
 <p>The data files should be in text format, containing numerical data in multiple columns.
-In the standard format, each line contains space-separated values for beta, fx, x1, …, xN, weight.
-Beta is the inverse temperature, x1, … xN are parameter values (N is the dimension of parameters), fx is the function value at that point, and weight is the weight value.
+In the standard format, each line contains space-separated values for T (or beta), fx, x1, …, xN, weight.
+T is the temperature (beta=1/T is the inverse temperature), x1, … xN are parameter values (N is the dimension of parameters), fx is the function value at that point, and weight is the weight value.
 Field names can be specified with the field_list option, or you can use the parameter labels (label_list) from the input file used in PAMC calculations.</p>
 <p>If FILE is not specified, the script reads files named result_*_summarized.txt from the directory specified by the data_dir option.</p>
 <p>The axes for creating histograms can be specified with the columns option. If not specified, all axes x1, …, xN will be used. Specify field names as a comma-separated list. For example, <code class="docutils literal notranslate"><span class="pre">--column</span> <span class="pre">x1,x3</span></code> will create histograms marginalized along the <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x3</span></code> axes.</p>
@@ -85,7 +85,7 @@ These options can also be provided collectively in a config file. The config fil
 </dd>
 <dt><strong>--params PARAMS</strong></dt><dd><p>Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.</p>
 </dd>
-<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>Specifies field names. If not specified, the standard format is assumed: beta, fx, x1, .. xN, weight (where N is the parameter dimension). If obtained from a parameter file, the values from label_list are used for x1 .. xN.
+<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>Specifies field names. If not specified, the standard format is assumed: T (or beta), fx, x1, .. xN, weight (where N is the parameter dimension). If obtained from a parameter file, the values from label_list are used for x1 .. xN.
 Used for field name specification in columns.</p>
 </dd>
 <dt><strong>--progress</strong></dt><dd><p>Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, messages about the processing status of each file are displayed instead.</p>
@@ -109,7 +109,7 @@ Used for field name specification in columns.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>data<span class="w"> </span>-o<span class="w"> </span>1dhist
 </pre></div>
 </div>
-<p>1Dhistogram_result_T0_beta_NNNN.png to 1Dhistogram_result_T10_beta_MMMM.png are output to the 1dhist directory. In the filename, <code class="docutils literal notranslate"><span class="pre">summarized</span></code> is replaced with <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code>.</p>
+<p>1Dhistogram_result_T0_NNNN.png to 1Dhistogram_result_T10_MMMM.png are output to the 1dhist directory. In the filename, <code class="docutils literal notranslate"><span class="pre">summarized</span></code> is replaced with <code class="docutils literal notranslate"><span class="pre">T_{T}</span></code> or <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code>.</p>
 </li>
 <li><p>Create histograms for the x1 and x3 fields from the input data file.txt, and output in png and pdf formats.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-c<span class="w"> </span>x1,x3<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-f<span class="w"> </span>png,pdf<span class="w"> </span>file.txt
@@ -147,14 +147,14 @@ Histograms are drawn for z1 and z2.</p>
 <h3>Data File Format<a class="headerlink" href="#data-file-format" title="Link to this heading">¶</a></h3>
 <p>Data files must be in the following format:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Comment line (optional)
-beta_value fx_value x1_value x2_value ... xN_value weight_value
-beta_value fx_value x1_value x2_value ... xN_value weight_value
+T (or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+T (or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 ...
 </pre></div>
 </div>
 <p>Each line consists of numerical data separated by whitespace. In the standard format, each column has the following meaning:</p>
 <ul class="simple">
-<li><p>Column 1: beta value (inverse temperature)</p></li>
+<li><p>Column 1: T value (temperature) or beta value (inverse temperature)</p></li>
 <li><p>Column 2: fx value (function value)</p></li>
 <li><p>Columns 3 to (N+2): Parameter values x1, x2, …, xN</p></li>
 <li><p>Last column: weight</p></li>
@@ -175,7 +175,7 @@ beta_value fx_value x1_value x2_value ... xN_value weight_value
 <p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{input_filename}.{format}</span></code></p>
 </li>
 <li><p>Files containing _summarized.txt (output from summarize_each_T.py):</p>
-<p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{input_filename_with_summarized_replaced_by_beta_{beta_value}}.{format}</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">1Dhistogram_{input_filename_with_summarized_replaced_by_T_or_beta}.{format}</span></code></p>
 </li>
 </ul>
 </section>

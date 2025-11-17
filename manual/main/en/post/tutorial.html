@@ -95,7 +95,7 @@ The expected values and variances of f(x), along with partition function values,
 <figure class="align-default" id="id1">
 <img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Plot of model evidence. Maximum value occurs at beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44).</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">Plot of model evidence. Maximum value occurs at beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44).</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </li>
@@ -119,7 +119,7 @@ The expected values and variances of f(x), along with partition function values,
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
 </pre></div>
 </div>
-<p>This creates histograms for each data file in summarized/, outputting to 1dhist/ as 1Dhistogram_result_T{index}_beta_{beta}.png. Value range is set to 3.0-6.0.</p>
+<p>This creates histograms for each data file in summarized/, outputting to 1dhist/ as 1Dhistogram_result_T{index}_beta_{beta}.png (when the temperature range has been specified by bmin and bmax in the PAMC calculation), or 1Dhistogram_result_T{index}_T_{T}.png (when the temperature range has been specified by Tmin and Tmax in the PAMC calculation). Value range is set to 3.0-6.0.</p>
 <p>plt_1D_histogram.py accepts these main options:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : Directory containing data files</p></li>
@@ -135,7 +135,7 @@ The expected values and variances of f(x), along with partition function values,
 <figure class="align-default" id="id2">
 <img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 9 </span><span class="caption-text">Example 1D marginalized histogram output (Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span>).</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Example 1D marginalized histogram output (Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span>).</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>To create 2D marginalized histograms:</p>
@@ -155,7 +155,7 @@ The expected values and variances of f(x), along with partition function values,
 <figure class="align-default" id="id3">
 <img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Example 2D marginalized histogram output (Tstep=22, z1-z2 axis plot).</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Example 2D marginalized histogram output (Tstep=22, z1-z2 axis plot).</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </li>

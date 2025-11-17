@@ -119,7 +119,7 @@ MPIプロセスごとの MCMC の計算ログは output/{rank}/result_T{index}.t
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
 </pre></div>
 </div>
-<p>を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。</p>
+<p>を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png (温度の範囲を bmin, bmax で指定してPAMC計算を実行した場合) または  1Dhistogram_result_T{index}_T_{T}.png (温度の範囲を Tmin, Tmax で指定してPAMC計算を実行した場合) というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。</p>
 <p>plt_1D_histogram.py は以下の主要なオプションを使用できます:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>

@@ -140,7 +140,8 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
             <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>
+            <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+            <span class="n">mpicomm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MPI.Comm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the algorithm with the given information and runner.</span>
@@ -153,10 +154,18 @@
 <span class="sd">            Optional runner object to execute the algorithm.</span>
 <span class="sd">        run_mode : str</span>
 <span class="sd">            Mode in which the algorithm should run.</span>
+<span class="sd">        mpicomm : MPI.Comm (optional)</span>
+<span class="sd">            MPI communicator to use for parallelization.</span>
+<span class="sd">            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">comm</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mpicomm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">comm</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="o">=</span> <span class="n">mpicomm</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">=</span> <span class="n">mpicomm</span><span class="o">.</span><span class="n">size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">=</span> <span class="n">mpicomm</span><span class="o">.</span><span class="n">rank</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;init&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;prepare&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">INIT</span>
