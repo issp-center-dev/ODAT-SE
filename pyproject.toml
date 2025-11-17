@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ODAT-SE"
-version = "3.1.0"
+version = "3.2.0"
 description = "Open Data Analysis Tool for Science and Engineering"
 authors = ["2DMAT developers <2dmat-dev@issp.u-tokyo.ac.jp>"]
 license = "MPL-2.0"
