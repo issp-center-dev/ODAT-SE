@@ -23,6 +23,12 @@ add_test(
   )
 
 add_test(
+  NAME mapper_random
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/mapper_random
+  )
+
+add_test(
   NAME minsearch
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/minsearch

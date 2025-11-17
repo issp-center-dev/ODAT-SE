@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -22,6 +22,9 @@ from odatse.algorithm.gather import gather_replica, gather_data
 import odatse.util.resampling
 from odatse.util.read_ts import read_Ts
 from odatse.util.data_writer import DataWriter
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
@@ -103,10 +106,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     Fmeans: np.ndarray
     Ferrs: np.ndarray
 
-    def __init__(self,
-                 info: odatse.Info,
-                 runner: odatse.Runner = None,
-                 run_mode: str = "initial"
+    def __init__(
+        self,
+        info: odatse.Info,
+        runner: odatse.Runner = None,
+        run_mode: str = "initial",
+        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -119,13 +124,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Runner object for executing the algorithm, by default None.
         run_mode : str, optional
             Mode in which to run the algorithm, by default "initial".
+        mpicomm : MPI.Comm
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         time_sta = time.perf_counter()
 
         info_pamc = info.algorithm["pamc"]
         nwalkers = info_pamc.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode, mpicomm=mpicomm)
 
         self.verbose = True and self.mpirank == 0
 
@@ -335,7 +343,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             # calculate participation ratio
             pr = self._calc_participation_ratio()
             self.pr_list[Tindex] = pr
-
 
             if Tindex == numT - 1:
                 break
@@ -838,7 +845,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        #-- _algorithm
+        # -- _algorithm
         assert self.mpisize == data["mpisize"]
         assert self.mpirank == data["mpirank"]
 
@@ -850,10 +857,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         info = data["info"]
         self._check_parameters(info)
 
-        #-- montecarlo
+        # -- montecarlo
         self.state = data["x"]
         self.fx = data["fx"]
-        #self.inode = data["inode"]
+        # self.inode = data["inode"]
 
         self.istep = data["istep"]
 
@@ -865,7 +872,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.naccepted = data["naccepted"]
         self.ntrial = data["ntrial"]
 
-        #-- pamc
+        # -- pamc
         self.Tindex = data["Tindex"]
         self.index_from_reset = data["index_from_reset"]
         self.nwalkers = data["nwalkers"]
@@ -925,5 +932,5 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.acceptance_ratio[0:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
         self.pr_list[0:len(data["pr_list"])] = data["pr_list"]
 
-        #-- restore rng state in statespace
+        # -- restore rng state in statespace
         self.statespace.rng = self.rng
