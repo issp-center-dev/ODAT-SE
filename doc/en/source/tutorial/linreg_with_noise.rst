@@ -439,13 +439,13 @@ Execute the script, passing ``input.toml`` as the input argument:
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml
+        python linreg_with_noise.py --input input.toml
 
 To use the auto-focus feature that determines a suitable plot window that includes the maximum of the model evidence plot according to a focus factor from 0 to 1, we can supply the optional ``--auto-focus`` and ``--focus-factor`` (default: 0.5) parameters:
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
+        python linreg_with_noise.py --input input.toml --auto-focus --focus-factor 0.3
 
 Theoretical Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^
