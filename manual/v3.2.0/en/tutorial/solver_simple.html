@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adding a direct problem solver &#8212; ODAT-SE 3.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=4f6ddb47"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Input file" href="../input.html" />
+    <link rel="prev" title="Replica Exchange Monte Carlo search with limitation" href="limitation.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Adding a direct problem solver</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="limitation.html">Replica Exchange Monte Carlo search with limitation</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">Input file</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="adding-a-direct-problem-solver">
+<h1>Adding a direct problem solver<a class="headerlink" href="#adding-a-direct-problem-solver" title="Link to this heading">¶</a></h1>
+<section id="solver-for-benchmarking-analytical">
+<h2>Solver for benchmarking, <code class="docutils literal notranslate"><span class="pre">analytical</span></code><a class="headerlink" href="#solver-for-benchmarking-analytical" title="Link to this heading">¶</a></h2>
+<p>ODAT-SE provides the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver as a direct problem solver that can be used to test search algorithms.</p>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, the users may set the <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section to <code class="docutils literal notranslate"><span class="pre">&quot;analytical&quot;</span></code>, and choose the benchmark function <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> in the <code class="docutils literal notranslate"><span class="pre">function_name</span></code> parameter.
+For example, to use Himmelblau function, make an input file including the following lines:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[solver]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;himmelblau&quot;</span>
+</pre></div>
+</div>
+<p>For details of <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, see <a class="reference internal" href="../solver/analytical.html"><span class="doc">the reference of the analytical solver</span></a>.</p>
+</section>
+<section id="how-to-add-a-direct-problem-solver">
+<h2>How to add a direct problem solver<a class="headerlink" href="#how-to-add-a-direct-problem-solver" title="Link to this heading">¶</a></h2>
+<p>The easiest way to define and analyze a user-defined direct problem solver is to add it to the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver as a function.
+As an example, we will explain the case of adding <a class="reference external" href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">the Booth function</a>:</p>
+<div class="math notranslate nohighlight">
+\[f(x,y) = (x+2y-7)^2 + (2x+y-5)^2.\]</div>
+<p>(The minimum point is <span class="math notranslate nohighlight">\(f(1,3) = 0\)</span>.)</p>
+<p>To do so, we need to download the source code of ODAT-SE and edit the file of <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver.
+For instructions on how to download the source code and run <code class="docutils literal notranslate"><span class="pre">odatse</span></code> from the source code, see <a class="reference internal" href="../start.html"><span class="doc">how to install</span></a>.
+<code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver is defined in the <code class="docutils literal notranslate"><span class="pre">src/odatse/solver/analytical.py</span></code>, so we will edit this.</p>
+<p>First, define the booth function as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">booth</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Booth function</span>
+
+<span class="sd">    it has one global minimum f(xs) = 0 at xs = [1,3].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;ERROR: booth expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">7.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>Next, insert the following code in the if branch of the <code class="docutils literal notranslate"><span class="pre">Solver</span></code> class’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__</span></code>) to allow users to choose the <code class="docutils literal notranslate"><span class="pre">booth</span></code> function by the <code class="docutils literal notranslate"><span class="pre">solver.function_name</span></code> parameter of the input file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;booth&quot;</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">booth</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With this modified <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, you can optimize the Booth function.
+For example, to optimize it by the Nelder-Mead method, pass the following input file (<code class="docutils literal notranslate"><span class="pre">input.toml</span></code>):</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span>
+
+<span class="k">[algorithm]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;minsearch&quot;</span>
+<span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
+
+<span class="k">[algorithm.param]</span>
+<span class="n">max_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">-6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">-6.0</span><span class="p">]</span>
+<span class="n">initial_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">[solver]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;booth&quot;</span>
+</pre></div>
+</div>
+<p>to <code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> script as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>src/odatse_main.py<span class="w"> </span>input.toml
+
+...<span class="w"> </span>skipped<span class="w"> </span>...
+
+Iterations:<span class="w"> </span><span class="m">38</span>
+Function<span class="w"> </span>evaluations:<span class="w"> </span><span class="m">75</span>
+Solution:
+<span class="nv">x1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>.0000128043523089
+<span class="nv">x2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.9999832920260863
+</pre></div>
+</div>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="limitation.html">Replica Exchange Monte Carlo search with limitation</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">Input file</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

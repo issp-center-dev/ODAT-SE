@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Direct parallel search mapper &#8212; ODAT-SE 3.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=4f6ddb47"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Replica exchange Monte Carlo exchange" href="exchange.html" />
+    <link rel="prev" title="Nelder-Mead method minsearch" href="minsearch.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Direct parallel search mapper</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="direct-parallel-search-mapper">
+<h1>Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code><a class="headerlink" href="#direct-parallel-search-mapper" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code> is an algorithm to search for the minimum value by computing <span class="math notranslate nohighlight">\(f(x)\)</span> on all the candidate points in the parameter space prepared in advance.
+In the case of MPI execution, the set of candidate points is divided into equal parts and automatically assigned to each process to perform trivial parallel computation.</p>
+<section id="preparation">
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
+<p>For MPI parallelism, you need to install <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+</pre></div>
+</div>
+</section>
+<section id="input-parameters">
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">¶</a></h2>
+<section id="param-section">
+<span id="mapper-input-param"></span><h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Link to this heading">¶</a></h3>
+<p>In this section, the search parameter space is defined.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is defined, it is read from a mesh file.
+In the mesh file, one line defines one point in the parameter space, the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is not defined, candidate points are automatically generated from the search space defined by <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">num_list</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> points are sampled evenly for each parameter.
+If <code class="docutils literal notranslate"><span class="pre">num_points</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_points</span></code> points are randomly sampled from the search space.
+<code class="docutils literal notranslate"><span class="pre">num_list</span></code> and <code class="docutils literal notranslate"><span class="pre">num_points</span></code> cannot be defined at the same time.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
+<p>Format: String</p>
+<p>Description: Path to the mesh definition file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>Format: List of float. The length should match the value of dimension.</p>
+<p>Description: The minimum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>Format: List of float.The length should match the value of dimension.</p>
+<p>Description: The maximum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>Format: List of integer. The length should match the value of dimension.</p>
+<p>Description:  The number of grids the parametar can take at each dimension.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
+<p>Format: Integer.</p>
+<p>Description: The number of points to be randomly sampled.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="reference-file">
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">¶</a></h2>
+<section id="mesh-definition-file">
+<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Link to this heading">¶</a></h3>
+<p>Define the grid space to be explored in this file.
+1 + <code class="docutils literal notranslate"><span class="pre">dimension</span></code> columns are required.
+The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
+The lines starting from <code class="docutils literal notranslate"><span class="pre">#</span></code> are ignored as comments.</p>
+<p>A sample file for two dimensions is shown below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
+<span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
+<span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>
+<span class="mi">4</span> <span class="mf">6.000000</span> <span class="mf">5.250000</span>
+<span class="mi">5</span> <span class="mf">6.000000</span> <span class="mf">5.000000</span>
+<span class="mi">6</span> <span class="mf">6.000000</span> <span class="mf">4.750000</span>
+<span class="mi">7</span> <span class="mf">6.000000</span> <span class="mf">4.500000</span>
+<span class="mi">8</span> <span class="mf">6.000000</span> <span class="mf">4.250000</span>
+<span class="mi">9</span> <span class="mf">6.000000</span> <span class="mf">4.000000</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-file">
+<h2>Output file<a class="headerlink" href="#output-file" title="Link to this heading">¶</a></h2>
+<section id="colormap-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code><a class="headerlink" href="#colormap-txt" title="Link to this heading">¶</a></h3>
+<p>This file contains the candidate parameters for each mesh and the function value at that time.
+The mesh data is listed in the order of the variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> sections of the input file, and the value of the function value is listed last.</p>
+<p>Below, output example is shown.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">6.000000</span> <span class="mf">6.000000</span> <span class="mf">0.047852</span>
+<span class="mf">6.000000</span> <span class="mf">5.750000</span> <span class="mf">0.055011</span>
+<span class="mf">6.000000</span> <span class="mf">5.500000</span> <span class="mf">0.053190</span>
+<span class="mf">6.000000</span> <span class="mf">5.250000</span> <span class="mf">0.038905</span>
+<span class="mf">6.000000</span> <span class="mf">5.000000</span> <span class="mf">0.047674</span>
+<span class="mf">6.000000</span> <span class="mf">4.750000</span> <span class="mf">0.065919</span>
+<span class="mf">6.000000</span> <span class="mf">4.500000</span> <span class="mf">0.053675</span>
+<span class="mf">6.000000</span> <span class="mf">4.250000</span> <span class="mf">0.061261</span>
+<span class="mf">6.000000</span> <span class="mf">4.000000</span> <span class="mf">0.069351</span>
+<span class="mf">6.000000</span> <span class="mf">3.750000</span> <span class="mf">0.071868</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
+<p>The program is started from the initial state.
+If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:</p>
+<ol class="arabic simple">
+<li><p>the specified number of grid points has been evaluated, or the specified period of time has passed.</p></li>
+<li><p>at the end of the execution.</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>The program execution is resumed from the latest checkpoint.
+The conditions such as the number of MPI processes should be kept the same.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>The continue mode is not supported.</p>
+</li>
+</ul>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="minsearch.html">Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

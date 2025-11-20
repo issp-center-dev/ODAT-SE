@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ODAT-SE のインストール &#8212; ODAT-SE 3.2.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=d67760e9"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="チュートリアル" href="tutorial/index.html" />
+    <link rel="prev" title="はじめに" href="introduction.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.2.0 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>ODAT-SE のインストール</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">はじめに</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tutorial/index.html">チュートリアル</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="odat-se">
+<h1>ODAT-SE のインストール<a class="headerlink" href="#odat-se" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>実行環境・必要なパッケージ<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul>
+<li><p>python 3.9 以上</p>
+<blockquote>
+<div><ul>
+<li><p>必要なpythonパッケージ</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>tomli (&gt;= 1.2) : TOML形式の設定ファイルを読み込むため</p></li>
+<li><p>numpy (&gt;= 1.14) : 数値計算のため</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Optional なパッケージ（特定の最適化手法を使用する場合に必要）</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mpi4py (グリッド探索利用時) : 並列計算による高速化のため</p></li>
+<li><p>scipy (Nelder-Mead法利用時) : Nelder-Mead法による最適化のため</p></li>
+<li><p>physbo (ベイズ最適化利用時, ver. 2.0以上) : ベイズ最適化のため</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h2>ダウンロード・インストール<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>下記に示す方法で、 <code class="docutils literal notranslate"><span class="pre">ODAT-SE</span></code> python パッケージと <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドがインストールできます。</p>
+<ul>
+<li><p>PyPI からのインストール(推奨)</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">ODAT-SE</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--user</span></code> オプションをつけるとローカル (<code class="docutils literal notranslate"><span class="pre">$HOME/.local</span></code>) にインストールできます</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ODAT-SE[all]</span></code> とすると Optional なパッケージも同時にインストールします</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>ソースコードからのインストール</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/issp-center-dev/ODAT-SE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">./ODAT-SE</span></code></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span></code> のバージョンは 19 以上が必要です (<code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">pip</span></code> で更新可能)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>サンプルファイルのダウンロード</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>サンプルファイルはソースコードに同梱されています。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/issp-center-dev/ODAT-SE</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h2>実行方法<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドは定義済みの最適化アルゴリズム <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> と順問題ソルバー <code class="docutils literal notranslate"><span class="pre">Solver</span></code> の組み合わせで解析を行います。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse<span class="w"> </span>input.toml
+</pre></div>
+</div>
+<p>定義済みの <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> については <a class="reference internal" href="algorithm/index.html"><span class="doc">探索アルゴリズム</span></a> を、
+<code class="docutils literal notranslate"><span class="pre">Solver</span></code> については <a class="reference internal" href="solver/index.html"><span class="doc">順問題ソルバー</span></a> を参照してください。</p>
+<p>2次元物質構造解析向け実験データ解析の順問題ソルバーは独立なパッケージとして提供されています。
+これらの解析を行う場合は別途パッケージと必要なソフトウェアをインストールしてください。
+現在は以下の順問題ソルバーが用意されています。</p>
+<ul class="simple">
+<li><p>全反射高速陽電子回折 (TRHEPD) -- odatse-STR パッケージ
+表面構造解析のための高精度な手法です。</p></li>
+<li><p>表面X線回折 (SXRD) -- odatse-SXRD パッケージ
+表面や界面の原子配列を調べるためのX線回折手法です。</p></li>
+<li><p>低速電子線回折 (LEED) -- odatse-LEED パッケージ
+固体表面の結晶構造を調べるための電子回折手法です。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> や <code class="docutils literal notranslate"><span class="pre">Solver</span></code> をユーザーが準備する場合は、 <code class="docutils literal notranslate"><span class="pre">ODAT-SE</span></code> パッケージを利用します。
+詳しくは <a class="reference internal" href="customize/index.html"><span class="doc">(開発者向け)ユーザー定義アルゴリズム・ソルバー</span></a> を参照してください。</p>
+<p>なお、 プログラムを改造する場合など、 <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドをインストールせずに直接実行することも可能です。
+<code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> を利用してください。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>src/odatse_main.py<span class="w"> </span>input.toml
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>インストールの確認<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<p>インストールが正常に完了したかを確認するには、以下のコマンドを実行します：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse<span class="w"> </span>--version
+$<span class="w"> </span>odatse<span class="w"> </span>--help
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>アンインストール<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<p>ODAT-SE モジュールをアンインストールするには、以下のコマンドを実行します。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>ODAT-SE
+</pre></div>
+</div>
+<p>関連するオプションパッケージも個別にアンインストールする必要がある場合は、同様のコマンドで実行できます。</p>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="introduction.html">はじめに</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="tutorial/index.html">チュートリアル</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

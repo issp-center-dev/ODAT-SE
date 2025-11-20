@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>odatse.algorithm.montecarlo module &mdash; ODAT-SE API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.algorithm.pamc module" href="odatse.algorithm.pamc.html" />
+    <link rel="prev" title="odatse.algorithm.min_search module" href="odatse.algorithm.min_search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ODAT-SE API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ODAT-SE API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
+          <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
+          <li class="breadcrumb-item"><a href="odatse.algorithm.html">odatse.algorithm package</a></li>
+      <li class="breadcrumb-item active">odatse.algorithm.montecarlo module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/odatse.algorithm.montecarlo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-odatse.algorithm.montecarlo">
+<span id="odatse-algorithm-montecarlo-module"></span><h1>odatse.algorithm.montecarlo module<a class="headerlink" href="#module-odatse.algorithm.montecarlo" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.montecarlo.</span></span><span class="sig-name descname"><span class="pre">AlgorithmBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpicomm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase" title="odatse.algorithm._algorithm.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
+<p>Base class for Monte Carlo algorithms implementing common functionality.</p>
+<p>This class provides the foundation for various Monte Carlo methods, handling both
+continuous and discrete parameter spaces. It supports parallel execution with
+multiple walkers and temperature-based sampling methods.</p>
+<section id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>The class handles two types of parameter spaces:</dt><dd><ol class="arabic simple">
+<li><p>Continuous: Uses real-valued parameters within specified bounds</p></li>
+<li><p>Discrete: Uses node-based parameters with defined neighbor relationships</p></li>
+</ol>
+</dd>
+<dt>For continuous problems:</dt><dd><ul class="simple">
+<li><p>Parameters are bounded by xmin and xmax</p></li>
+<li><p>Steps are controlled by xstep for each dimension</p></li>
+</ul>
+</dd>
+<dt>For discrete problems:</dt><dd><ul class="simple">
+<li><p>Parameters are represented as nodes in a graph</p></li>
+<li><p>Transitions are only allowed between neighboring nodes</p></li>
+<li><p>Neighbor relationships must form a connected, bidirectional graph</p></li>
+</ul>
+</dd>
+<dt>The sampling process:</dt><dd><ol class="arabic simple">
+<li><p>Initializes walkers in valid positions</p></li>
+<li><p>Proposes moves based on the parameter space type</p></li>
+<li><p>Evaluates the objective function (“Energy”)</p></li>
+<li><p>Accepts/rejects moves based on the Monte Carlo criterion</p></li>
+<li><p>Tracks the best solution found</p></li>
+</ol>
+</dd>
+</dl>
+</section>
+<section id="key-methods">
+<h2>Key Methods<a class="headerlink" href="#key-methods" title="Link to this heading"></a></h2>
+<blockquote>
+<div><dl class="simple">
+<dt>_initialize() :</dt><dd><p>Sets up initial walker positions and counters</p>
+</dd>
+<dt>propose() :</dt><dd><p>Generates candidate moves for walkers</p>
+</dd>
+<dt>local_update() :</dt><dd><p>Performs one Monte Carlo step</p>
+</dd>
+<dt>_evaluate() :</dt><dd><p>Computes objective function values</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Initialize the AlgorithmBase class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param info<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Information object containing algorithm parameters.</p>
+</dd>
+<dt class="field-even">type info<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.Info</p>
+</dd>
+<dt class="field-odd">param runner<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Runner object for executing the algorithm, by default None.</p>
+</dd>
+<dt class="field-even">type runner<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.Runner, optional</p>
+</dd>
+<dt class="field-odd">param domain<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Domain object defining the problem space, by default None.</p>
+</dd>
+<dt class="field-even">type domain<span class="colon">:</span></dt>
+<dd class="field-even"><p>odatse.domain.Domain, optional</p>
+</dd>
+<dt class="field-odd">param nwalkers<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of walkers to use in the simulation, by default 1.</p>
+</dd>
+<dt class="field-even">type nwalkers<span class="colon">:</span></dt>
+<dd class="field-even"><p>int, optional</p>
+</dd>
+<dt class="field-odd">param run_mode<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mode of the run, e.g., “initial”, by default “initial”.</p>
+</dd>
+<dt class="field-even">type run_mode<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+<dt class="field-odd">param mpicomm<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MPI communicator to use for parallelization.
+If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</p>
+</dd>
+<dt class="field-even">type mpicomm<span class="colon">:</span></dt>
+<dd class="field-even"><p>MPI.Comm</p>
+</dd>
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If an unsupported domain type is provided or required parameters are missing.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmBase</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpicomm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the AlgorithmBase class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm, by default None.</p></li>
+<li><p><strong>domain</strong> (<em>odatse.domain.Domain</em><em>, </em><em>optional</em>) – Domain object defining the problem space, by default None.</p></li>
+<li><p><strong>nwalkers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of walkers to use in the simulation, by default 1.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of the run, e.g., “initial”, by default “initial”.</p></li>
+<li><p><strong>mpicomm</strong> (<em>MPI.Comm</em>) – MPI communicator to use for parallelization.
+If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If an unsupported domain type is provided or required parameters are missing.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">AlgorithmBase</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._evaluate">
+<span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._evaluate" title="Link to this definition"></a></dt>
+<dd><p>Evaluate objective function for current walker positions.</p>
+<dl class="simple">
+<dt>Optimization Features:</dt><dd><ul class="simple">
+<li><p>Skips evaluation for out-of-bounds positions</p></li>
+<li><p>Tracks evaluation timing statistics</p></li>
+<li><p>Supports parallel evaluation across walkers</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in_range</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Boolean mask indicating valid positions
+True = position is valid and should be evaluated
+False = position is invalid, will be assigned inf</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of objective function values
+Invalid positions are assigned inf</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase._initialize">
+<span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase._initialize" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Monte Carlo simulation state.</p>
+<dl class="simple">
+<dt>For continuous problems:</dt><dd><ul class="simple">
+<li><p>Uses domain.initialize to generate valid initial positions</p></li>
+<li><p>Respects any additional limitations from the runner</p></li>
+</ul>
+</dd>
+<dt>For discrete problems:</dt><dd><ul class="simple">
+<li><p>Randomly assigns walkers to valid nodes</p></li>
+<li><p>Maps node indices to actual coordinate positions</p></li>
+</ul>
+</dd>
+<dt>Also initializes:</dt><dd><ul class="simple">
+<li><p>Objective function values (fx) to zero</p></li>
+<li><p>Best solution tracking variables</p></li>
+<li><p>Acceptance counters for monitoring convergence</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.montecarlo.AlgorithmBase.local_update">
+<span class="sig-name descname"><span class="pre">local_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_info_to_write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/montecarlo.html#AlgorithmBase.local_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.montecarlo.AlgorithmBase.local_update" title="Link to this definition"></a></dt>
+<dd><p>Perform one step of the Monte Carlo algorithm.</p>
+<dl class="simple">
+<dt>Algorithm Flow:</dt><dd><ol class="arabic simple">
+<li><p>Generate proposed moves for all walkers</p></li>
+<li><p>Check if proposals are within valid bounds</p></li>
+<li><p>Evaluate objective function for valid proposals</p></li>
+<li><p>Apply Metropolis acceptance criterion:
+<code class="docutils literal notranslate"><span class="pre">P(accept)</span> <span class="pre">=</span> <span class="pre">min(1,</span> <span class="pre">exp(-beta</span> <span class="pre">*</span> <span class="pre">(f_new</span> <span class="pre">-</span> <span class="pre">f_old)))</span></code></p></li>
+<li><p>For discrete case, adjust acceptance probability by:
+<code class="docutils literal notranslate"><span class="pre">P</span> <span class="pre">*=</span> <span class="pre">(n_neighbors_old</span> <span class="pre">/</span> <span class="pre">n_neighbors_new)</span></code></p></li>
+<li><p>Update positions and energies</p></li>
+<li><p>Track best solution found</p></li>
+<li><p>Log results if writers are configured</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – Inverse temperature(s) controlling acceptance probability
+Can be single value or array (one per walker)</p></li>
+<li><p><strong>extra_info_to_write</strong> (<em>Union</em><em>[</em><em>List</em><em>, </em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – Additional data to log with results</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Handles numerical overflow in exponential calculation</p></li>
+<li><p>Maintains detailed acceptance statistics</p></li>
+<li><p>Supports both single and multiple temperature values</p></li>
+<li><p>Preserves best solution across all steps</p></li>
+</ul>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="odatse.algorithm.min_search.html" class="btn btn-neutral float-left" title="odatse.algorithm.min_search module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="odatse.algorithm.pamc.html" class="btn btn-neutral float-right" title="odatse.algorithm.pamc module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, ISSP, UTokyo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

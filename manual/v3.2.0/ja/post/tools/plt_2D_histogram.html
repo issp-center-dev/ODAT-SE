@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>plt_2D_histogram.py &#8212; ODAT-SE 3.2.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
+    <script src="../../_static/documentation_options.js?v=d67760e9"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=4755f45a"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="extract_combined.py" href="extract_combined.html" />
+    <link rel="prev" title="plt_1D_histogram.py" href="plt_1D_histogram.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ODAT-SE 3.2.0 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>plt_2D_histogram.py</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="plt_1D_histogram.html">plt_1D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extract_combined.html">extract_combined.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="plt-2d-histogram-py">
+<h1>plt_2D_histogram.py<a class="headerlink" href="#plt-2d-histogram-py" title="Link to this heading">¶</a></h1>
+<section id="name">
+<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">¶</a></h2>
+<p>2次元周辺化ヒストグラムを作成する。</p>
+</section>
+<section id="synopsis">
+<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
+<p>FILE に指定するデータファイルから2次元に周辺化したヒストグラムを作成する。</p>
+<p>データファイルはテキスト形式で、複数のカラムからなる数値データである。
+標準フォーマットでは、空白文字区切りで T(または beta), fx, x1, ..., xN, weight の各数値を格納する。
+T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
+フィールド名はオプション (field_list) で指定できるほか、PAMC計算に用いた入力ファイルのパラメータ (label_list) を用いることができる。</p>
+<p>FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込む。</p>
+<p>ヒストグラムを作成する軸は columns オプションで指定する。指定した軸のすべての組み合わせの2次元プロットが作成される。指定がない場合は x1, ..., xN のすべての軸が対象となる。指定方法はフィールド名をカンマ区切りで列挙する。例えば <code class="docutils literal notranslate"><span class="pre">--column</span> <span class="pre">x1,x2,x3</span></code> を指定すると <code class="docutils literal notranslate"><span class="pre">x1</span> <span class="pre">vs</span> <span class="pre">x2</span></code> 軸、 <code class="docutils literal notranslate"><span class="pre">x1</span> <span class="pre">vs</span> <span class="pre">x3</span></code> 軸、および <code class="docutils literal notranslate"><span class="pre">x2</span> <span class="pre">vs</span> <span class="pre">x3</span></code> 軸に周辺化したヒストグラムを描画する。</p>
+<p>ヒストグラムの範囲は range オプションで指定できる。その場合は表示するすべての軸について共通の range が使われる。軸ごとに指定する場合は config ファイルに <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax]</span></code> の組をリストの形で与えるか、入力パラメータファイルの <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code> を利用する。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<ul class="simple">
+<li><p>Python 3.6以上が必要です(f文字列を使用しているため)。</p></li>
+<li><p>プログレスバー表示には tqdm ライブラリが必要です。未インストールの場合は通常のメッセージが表示されます。</p></li>
+<li><p>大きなデータセットを処理する場合はメモリ使用量に注意してください。</p></li>
+<li><p>2次元ヒストグラムは対数スケール(LogNorm)で表示されるため、非常に小さい値も視覚化されます。</p></li>
+</ul>
+</div>
+<p>指定可能なコマンドラインオプションを以下に示す。
+これらのオプションを一括して config ファイルで与えることもできる。config ファイルは TOML 形式で、オプション名 = 値の書式でオプションを指定する。</p>
+<dl class="simple">
+<dt><strong>-b BINS, --bins BINS</strong></dt><dd><p>bin の数を指定する。デフォルト値は 60。</p>
+</dd>
+<dt><strong>-c COLUMNS, --columns COLUMNS</strong></dt><dd><p>ヒストグラムを作成するフィールド名を指定する。カンマ区切りで複数のフィールド名を指定できる。省略した場合はすべての軸が対象となる。</p>
+</dd>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>データファイルをディレクトリから取得する場合(<code class="docutils literal notranslate"><span class="pre">FILE</span></code> を指定しない場合)のディレクトリを指定する。指定しない場合はカレントディレクトリが使われる。</p>
+</dd>
+<dt><strong>-f FORMAT, --format FORMAT</strong></dt><dd><p>出力するヒストグラムファイルのフォーマットを指定する。matplotlib がサポートするフォーマットを指定可能。カンマ区切りで複数のフォーマットを指定できる。デフォルト値は <code class="docutils literal notranslate"><span class="pre">png</span></code> 。</p>
+</dd>
+<dt><strong>-o OUTPUT_DIR, --output_dir OUTPUT_DIR</strong></dt><dd><p>ヒストグラムファイルを出力するディレクトリを指定する。指定しない場合はカレントディレクトリに書き出される。ディレクトリが存在しない場合は自動的に作成される。</p>
+</dd>
+<dt><strong>-r RANGE, --range RANGE</strong></dt><dd><p>ヒストグラムの範囲を xmin,xmax の形式で指定する。range コマンドラインオプションで指定した場合、すべての軸について共通になる。軸ごとに変える場合はパラメータファイルまたは config ファイルで指定する。いずれにも指定がない場合は軸ごとに自動設定される。</p>
+</dd>
+<dt><strong>-w WEIGHT_COLUMN, --weight_column WEIGHT_COLUMN</strong></dt><dd><p>weight 値のカラム番号 (0スタート) を指定する。デフォルト値は -1 (最後のカラム)。</p>
+</dd>
+<dt><strong>--config CONFIG</strong></dt><dd><p>config ファイルを指定する。config ファイルは TOML 形式で、コマンドラインオプションと同等のものを指定する。オプションの優先度はパラメータファイル &lt; configファイル &lt; コマンドラインオプションの順。</p>
+</dd>
+<dt><strong>--params PARAMS</strong></dt><dd><p>PAMCを実行する際に用いた入力パラメータファイルを指定する。パラメータファイルからは range (min_list, max_list) および field_list (label_list) の情報を取得する。</p>
+</dd>
+<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 T(or beta), fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
+columns のフィールド名指定に使われる。</p>
+</dd>
+<dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。tqdmがインストールされていない場合は、代わりに各ファイルの処理状況がメッセージとして表示される。</p>
+</dd>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+</dd>
+</dl>
+</section>
+<section id="usage">
+<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>入力データファイル file.txt を指定して実行する。出力先は 2dhist ディレクトリ。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>file.txt
+</pre></div>
+</div>
+<p>2dhist/2Dhistogram_file_x1_vs_x2.png,
+2dhist/2Dhistogram_file_x1_vs_x3.png,
+2dhist/2Dhistogram_file_x2_vs_x3.png が出力される。</p>
+</li>
+<li><p>入力データファイルが data ディレクトリに result_T0_summarized.txt 〜 result_T10_summarized.txt として用意されている場合。出力先は 2dhist ディレクトリとする。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-d<span class="w"> </span>data<span class="w"> </span>-o<span class="w"> </span>2dhist
+</pre></div>
+</div>
+<p>2dhist ディレクトリに 2Dhistogram_result_T0_NNNN_x1_vs_x2.png 〜 2Dhistogram_result_T10_MMMM_x2_vs_x3.png が出力される。ファイル名の <code class="docutils literal notranslate"><span class="pre">summarized</span></code> は <code class="docutils literal notranslate"><span class="pre">T_{T}</span></code> または <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code> に置き換えられる。</p>
+</li>
+<li><p>入力データ file.txt のうち、x1, x3 のフィールドについて2次元ヒストグラムを作成し、png と pdf 形式で出力する。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-c<span class="w"> </span>x1,x3<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-f<span class="w"> </span>png,pdf<span class="w"> </span>file.txt
+</pre></div>
+</div>
+<p>2dhist/2Dhistogram_file_x1_vs_x3.png と 2dhist/2Dhistogram_file_x1_vs_x3.pdf が出力される。</p>
+</li>
+<li><p>値の範囲を 3.0〜6.0 とする。すべての軸について同じ範囲に設定される。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>file.txt
+</pre></div>
+</div>
+</li>
+<li><p>オプションの内容を config ファイルに記述して利用する。conf.toml を以下のように用意する。</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">field_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+<span class="n">columns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">]</span>
+<span class="n">bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span>
+<span class="n">range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[[</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">-3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">]]</span>
+<span class="n">data_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./summarized&quot;</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2dhist&quot;</span>
+</pre></div>
+</div>
+<p>軸のラベルは z1, z2, z3 とし、それぞれの値の範囲はそれぞれ 3.0〜6.0, -3.0〜3.0, 0.0〜3.0 とする。
+その中で z1 vs z2 についてヒストグラムを描画する。</p>
+<p>config ファイルを指定して実行する。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>--config<span class="w"> </span>config.toml
+</pre></div>
+</div>
+<p>summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、2dhist/2Dhistogram_result_T*.png に出力される。</p>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>データファイルの形式<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>標準フォーマットのデータファイルは以下の形式をとる。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
+T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+...
+</pre></div>
+</div>
+<p>各行は空白文字で区切られた数値データであり、各列は以下の意味を持つ:</p>
+<ul class="simple">
+<li><p>第1列: T(温度) または beta(逆温度)</p></li>
+<li><p>第2列: fx(関数値)</p></li>
+<li><p>第3列〜第(N+2)列: パラメータ値 x1, x2, ..., xN</p></li>
+<li><p>最終列: 重み(weight)</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>2次元ヒストグラムの表示特性<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>このスクリプトによって生成される2次元ヒストグラムには以下の特徴がある:</p>
+<ul class="simple">
+<li><p>カラーマップは「Reds」カラースケールを使用(赤色の濃淡で密度を表現)</p></li>
+<li><p>対数スケール(LogNorm)でカラーマッピングされるため、低密度領域も視覚化できる</p></li>
+<li><p>カラーバーは「Normalized Density (Log Scale)」として表示</p></li>
+<li><p>グリッド線が薄いグレーで表示され、データの位置を把握しやすい</p></li>
+<li><p>ゼロ密度の領域は非常に小さい値(1e-10)で置き換えられ、対数スケールでも表示可能</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>ヒストグラム作成の仕組み<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>このスクリプトは以下の手順でヒストグラムを作成する:</p>
+<ol class="arabic simple">
+<li><p>入力ファイルからデータを読み込む</p></li>
+<li><p>重みを正規化する(合計が1になるように)</p></li>
+<li><p>指定された変数(列)のすべての組み合わせ(ペア)を生成</p></li>
+<li><p>各ペアについて2次元ヒストグラムを作成</p></li>
+<li><p>各ヒストグラムを指定されたフォーマットで保存</p></li>
+</ol>
+<p>出力ファイルの命名規則:</p>
+<ul>
+<li><p>通常のファイル:</p>
+<p><code class="docutils literal notranslate"><span class="pre">2Dhistogram_{入力ファイル名}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}</span></code></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">summarize_each_T.py</span></code> から出力された、ファイル名に _summarized.txt を含むファイル:</p>
+<p><code class="docutils literal notranslate"><span class="pre">2Dhistogram_{ファイル名の_summarizedを</span> <span class="pre">T</span> <span class="pre">または</span> <span class="pre">beta</span> <span class="pre">に置換}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}</span></code></p>
+</li>
+</ul>
+</section>
+<section id="id4">
+<h3>パフォーマンス<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>データ量に応じて必要なメモリ量は増加する</p></li>
+<li><p>2次元ヒストグラムは1次元よりも計算とメモリ負荷が高い</p></li>
+<li><p>多くの変数がある場合、組み合わせの数は急激に増加する(N個の変数では N*(N-1)/2 個のヒストグラム)</p></li>
+<li><p>多数のファイルや組み合わせを処理する場合、<code class="docutils literal notranslate"><span class="pre">--progress</span></code> オプションで進捗を確認するとよい</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>エラー処理と制限事項<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>データファイルが見つからない場合: エラーメッセージを表示</p></li>
+<li><p>データ形式が不正(数値でない、列数が一致しない): そのファイルをスキップしてエラーメッセージを表示</p></li>
+<li><p>フィールド名が存在しない: キーエラーが発生</p></li>
+<li><p>出力ディレクトリに書き込めない場合: 権限エラーが表示される</p></li>
+<li><p>メモリ不足: 特に大規模データセットで発生する可能性がある</p></li>
+</ul>
+<p>処理中にエラーが発生した場合、そのファイルまたはその特定のヒストグラムの作成をスキップして処理を継続する。
+最後に成功・失敗の要約が表示される。</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="plt_1D_histogram.html">plt_1D_histogram.py</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="extract_combined.html">extract_combined.py</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

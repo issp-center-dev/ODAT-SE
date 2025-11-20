@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>順問題ソルバーの追加 &#8212; ODAT-SE 3.2.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=d67760e9"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="入力ファイル" href="../input.html" />
+    <link rel="prev" title="制約式を適用したレプリカ交換モンテカルロ法による探索" href="limitation.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.2.0 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>順問題ソルバーの追加</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="limitation.html">制約式を適用したレプリカ交換モンテカルロ法による探索</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">入力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>順問題ソルバーの追加<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="id2">
+<h2>ベンチマーク関数ソルバー<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソルバーとして <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーを用意しています。</p>
+<p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーを使うには、入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">name</span></code> を <code class="docutils literal notranslate"><span class="pre">&quot;analytical&quot;</span></code> に設定し、 <code class="docutils literal notranslate"><span class="pre">function_name</span></code> パラメータを用いてベンチマーク関数 <span class="math notranslate nohighlight">\(f(x)\)</span> を選択します。
+たとえば、 Himmelblau 関数を用いる場合には</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[solver]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;himmelblau&quot;</span>
+</pre></div>
+</div>
+<p>とします。
+利用可能な関数の詳細は <a class="reference internal" href="../solver/analytical.html"><span class="doc">analytical ソルバーのリファレンス</span></a> を参照してください。</p>
+</section>
+<section id="id3">
+<h2>順問題ソルバーの追加<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>ユーザ定義の順問題ソルバーを定義・解析する一番簡単な方法は、 <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーに追加することです。
+ここでは例として、 <a class="reference external" href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">Booth関数</a></p>
+<div class="math notranslate nohighlight">
+\[f(x,y) = (x+2y-7)^{2} + (2x+y-5)^{2}\]</div>
+<p>を追加してみましょう。(最小値は <span class="math notranslate nohighlight">\(f(1,3) = 0\)</span>)</p>
+<p>そのためには、 ODAT-SEのソースコードをダウンロードし、ファイルを編集する必要があります。
+ダウンロード方法や、ソースコードからの実行方法などは、 <a class="reference internal" href="../start.html"><span class="doc">インストールページ</span></a> を参照してください。</p>
+<p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーは <code class="docutils literal notranslate"><span class="pre">src/odatse/solver/analytical.py</span></code> に定義されているので、これを編集します。</p>
+<p>まず、 <code class="docutils literal notranslate"><span class="pre">booth</span></code> 関数を定義します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">booth</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Booth function</span>
+
+<span class="sd">    it has one global minimum f(xs) = 0 at xs = [1,3].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;ERROR: booth expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">7.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>つぎに、入力ファイルの <code class="docutils literal notranslate"><span class="pre">solver.function_name</span></code> パラメータで <code class="docutils literal notranslate"><span class="pre">booth</span></code> 関数を指定できるようにするために、<code class="docutils literal notranslate"><span class="pre">Solver</span></code> クラスのコンストラクタ (<code class="docutils literal notranslate"><span class="pre">__init__</span></code>) 中の if 分岐に以下のコードを挿入します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;booth&quot;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">booth</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>この改造した <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーでは、 Booth 関数の最適化が行なえます。
+たとえばNelder-Mead 法による最適化は、以下の入力ファイル (<code class="docutils literal notranslate"><span class="pre">input.toml</span></code>) を</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
+<span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;minsearch&quot;</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
+
+<span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
+<span class="n">max_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]</span>
+<span class="n">min_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">initial_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="p">[</span><span class="n">solver</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;booth&quot;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">src/odatse_main.py</span></code> に渡せば実行可能です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 src/odatse_main.py input.toml
+
+... skipped ...
+
+Iterations: 38
+Function evaluations: 75
+Solution:
+x1 = 1.0000128043523089
+x2 = 2.9999832920260863
+</pre></div>
+</div>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="limitation.html">制約式を適用したレプリカ交換モンテカルロ法による探索</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">入力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

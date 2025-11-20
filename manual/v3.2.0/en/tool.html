@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Related Tools &#8212; ODAT-SE 3.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <script src="_static/documentation_options.js?v=4f6ddb47"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Post-Processing Tools" href="post/index.html" />
+    <link rel="prev" title="analytical solver" href="solver/analytical.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Related Tools</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="post/index.html">Post-Processing Tools</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="related-tools">
+<h1>Related Tools<a class="headerlink" href="#related-tools" title="Link to this heading">¶</a></h1>
+<section id="odatse-neighborlist">
+<h2><code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code><a class="headerlink" href="#odatse-neighborlist" title="Link to this heading">¶</a></h2>
+<p>This tool generates a neighborhood-list file from the mesh file for Monte Carlo search in discrete spaces.</p>
+<p>When you install ODAT-SE via <code class="docutils literal notranslate"><span class="pre">pip</span></code> command, <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> is also installed under the <code class="docutils literal notranslate"><span class="pre">bin</span></code>.
+A python script <code class="docutils literal notranslate"><span class="pre">src/odatse_neighborlist.py</span></code> is also available.</p>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h3>
+<p>Pass a path to the mesh file as an argument.
+The filename of the generated neighborhood-list file is specified by <code class="docutils literal notranslate"><span class="pre">-o</span></code> option.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_neighborlist<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
+
+Or
+
+$<span class="w"> </span>python3<span class="w"> </span>src/odatse_neighborlist.py<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
+</pre></div>
+</div>
+<p>The following command-line options are available.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">output</span></code> or <code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">output</span></code></p>
+<ul>
+<li><p>The filename of output (default: <code class="docutils literal notranslate"><span class="pre">neighborlist.txt</span></code>)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">--unit</span> <span class="pre">&quot;unit1</span> <span class="pre">unit2...&quot;</span></code></p>
+<ul>
+<li><p>Length scale for each dimension of coordinate (default: 1.0 for all dims)</p>
+<ul>
+<li><p>Put values splitted by whitespaces and quote the whole</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">-u</span> <span class="pre">&quot;2.0</span> <span class="pre">1.0</span> <span class="pre">3.0&quot;</span></code> (For 3D space, apply scale 2.0 for x-axis, 1.0 for y-axis, and 3.0 for z-axis)</p></li>
+</ul>
+</li>
+<li><p>Each dimension of coordinate is divided by the corresponding <code class="docutils literal notranslate"><span class="pre">unit</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">radius</span></code> or <code class="docutils literal notranslate"><span class="pre">--radius</span> <span class="pre">radius</span></code></p>
+<ul>
+<li><p>A pair of nodes where the Euclidean distance is less than <code class="docutils literal notranslate"><span class="pre">radius</span></code> is considered a neighborhood (default: 1.0)</p></li>
+<li><p>Distances are calculated in the space after coordinates are divided by <code class="docutils literal notranslate"><span class="pre">-u</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-q</span></code> or <code class="docutils literal notranslate"><span class="pre">--quiet</span></code></p>
+<ul>
+<li><p>Do not show a progress bar</p></li>
+<li><p>Showing a progress bar requires <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> python package</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--allow-selfloop</span></code></p>
+<ul>
+<li><p>Include <span class="math notranslate nohighlight">\(i\)</span> in the neighborhoods of <span class="math notranslate nohighlight">\(i\)</span> itself</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check-allpairs</span></code></p>
+<ul>
+<li><p>Calculate distances of all pairs</p></li>
+<li><p>This is for debug</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="mpi-parallel-computation">
+<h3>MPI Parallel Computation<a class="headerlink" href="#mpi-parallel-computation" title="Link to this heading">¶</a></h3>
+<p>MPI parallelization is available to speed up calculations. For example, when using the <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">4</span><span class="w"> </span>odatse_neighborlist<span class="w"> </span>-o<span class="w"> </span>neighborlist.txt<span class="w"> </span>MeshData.txt
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-np</span> <span class="pre">4</span></code> part specifies the number of processes to use. Adjust according to the number of cores available.</p>
+<p>Depending on your environment, you may need to use <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> or other commands, or execute MPI programs through a job scheduler.
+In those cases, please modify the command to suit your environment.</p>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="post/index.html">Post-Processing Tools</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

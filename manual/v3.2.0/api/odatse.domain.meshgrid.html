@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>odatse.domain.meshgrid module &mdash; ODAT-SE API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.domain.region module" href="odatse.domain.region.html" />
+    <link rel="prev" title="odatse.domain._domain module" href="odatse.domain._domain.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ODAT-SE API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ODAT-SE API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
+          <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
+          <li class="breadcrumb-item"><a href="odatse.domain.html">odatse.domain package</a></li>
+      <li class="breadcrumb-item active">odatse.domain.meshgrid module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/odatse.domain.meshgrid.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-odatse.domain.meshgrid">
+<span id="odatse-domain-meshgrid-module"></span><h1>odatse.domain.meshgrid module<a class="headerlink" href="#module-odatse.domain.meshgrid" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">odatse.domain.meshgrid.</span></span><span class="sig-name descname"><span class="pre">MeshGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.domain._domain.html#odatse.domain._domain.DomainBase" title="odatse.domain._domain.DomainBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DomainBase</span></code></a></p>
+<p>MeshGrid class for handling grid data for quantum beam diffraction experiments.</p>
+<p>Initialize the MeshGrid object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><em>Info</em></a><em>, </em><em>optional</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>param</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing parameters for setting up the grid.</p></li>
+<li><p><strong>mesh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use mesh grid or points.</p></li>
+<li><p><strong>rng</strong> (<em>np.random.RandomState</em><em>, </em><em>optional</em>) – Random number generator.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the MeshGrid object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><em>Info</em></a><em>, </em><em>optional</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>param</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containing parameters for setting up the grid.</p></li>
+<li><p><strong>mesh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use mesh grid or points.</p></li>
+<li><p><strong>rng</strong> (<em>np.random.RandomState</em><em>, </em><em>optional</em>) – Random number generator.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid._setup">
+<span class="sig-name descname"><span class="pre">_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid._setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid._setup" title="Link to this definition"></a></dt>
+<dd><p>Setup the grid based on provided parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info_param</strong> – Dictionary containing parameters for setting up the grid.</p></li>
+<li><p><strong>rng</strong> (<em>np.random.RandomState</em><em>, </em><em>optional</em>) – Random number generator.</p></li>
+<li><p><strong>mesh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use mesh grid or points.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid._setup_from_file">
+<span class="sig-name descname"><span class="pre">_setup_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid._setup_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid._setup_from_file" title="Link to this definition"></a></dt>
+<dd><p>Setup the grid from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info_param</strong> – Dictionary containing parameters for setting up the grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid._setup_grid">
+<span class="sig-name descname"><span class="pre">_setup_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid._setup_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid._setup_grid" title="Link to this definition"></a></dt>
+<dd><p>Setup the grid based on min, max, and num lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>info_param</strong> – Dictionary containing parameters for setting up the grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid.do_split">
+<span class="sig-name descname"><span class="pre">do_split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid.do_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid.do_split" title="Link to this definition"></a></dt>
+<dd><p>Split the grid data among MPI processes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid.from_dict">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid.from_dict" title="Link to this definition"></a></dt>
+<dd><p>Create a MeshGrid object from a dictionary of parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> – Dictionary containing parameters for setting up the grid.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a MeshGrid object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#odatse.domain.meshgrid.MeshGrid" title="odatse.domain.meshgrid.MeshGrid">MeshGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid.from_file">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid.from_file" title="Link to this definition"></a></dt>
+<dd><p>Create a MeshGrid object from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh_path</strong> – Path to the file containing the grid data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a MeshGrid object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#odatse.domain.meshgrid.MeshGrid" title="odatse.domain.meshgrid.MeshGrid">MeshGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.domain.meshgrid.MeshGrid.store_file">
+<span class="sig-name descname"><span class="pre">store_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/domain/meshgrid.html#MeshGrid.store_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.domain.meshgrid.MeshGrid.store_file" title="Link to this definition"></a></dt>
+<dd><p>Store the grid data to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_path</strong> – Path to the file where the grid data will be stored.</p></li>
+<li><p><strong>header</strong> – Header to be included in the file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="odatse.domain._domain.html" class="btn btn-neutral float-left" title="odatse.domain._domain module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="odatse.domain.region.html" class="btn btn-neutral float-right" title="odatse.domain.region module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, ISSP, UTokyo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

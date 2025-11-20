@@ -1,0 +1,7 @@
+odatse.solver.analytical module
+===============================
+
+.. automodule:: odatse.solver.analytical
+   :members:
+   :private-members:
+   :show-inheritance:

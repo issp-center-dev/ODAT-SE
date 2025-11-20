@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Bayesian optimization bayes &#8212; ODAT-SE 3.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <script src="../_static/documentation_options.js?v=4f6ddb47"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Direct Problem Solver" href="../solver/index.html" />
+    <link rel="prev" title="Population Annealing Monte Carlo pamc" href="pamc.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Bayesian optimization bayes</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../solver/index.html">Direct Problem Solver</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="bayesian-optimization-bayes">
+<h1>Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code><a class="headerlink" href="#bayesian-optimization-bayes" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">bayes</span></code> is an <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> that uses Bayesian optimization to perform parameter search.
+The implementation is based on <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a>.</p>
+<section id="preparation">
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
+<p>You will need to install <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> beforehand.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>physbo
+</pre></div>
+</div>
+<p>If <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> is installed, MPI parallel computing is possible.</p>
+</section>
+<section id="input-parameters">
+<span id="bayes-input"></span><h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">¶</a></h2>
+<section id="algorithm-param-section">
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>] section<a class="headerlink" href="#algorithm-param-section" title="Link to this heading">¶</a></h3>
+<p>In this section, the search parameter space is defined.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is defined, it will be read from a mesh file.
+In a mesh file, one line gives one point in the parameter space,
+the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> is not defined, candidate points are automatically generated from the search space defined by <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">num_list</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> points are sampled evenly for each parameter.
+If <code class="docutils literal notranslate"><span class="pre">num_points</span></code> is defined, <code class="docutils literal notranslate"><span class="pre">num_points</span></code> points are randomly sampled from the search space.
+<code class="docutils literal notranslate"><span class="pre">num_list</span></code> and <code class="docutils literal notranslate"><span class="pre">num_points</span></code> cannot be defined at the same time.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
+<p>Format: String</p>
+<p>Description: The path to a reference file that contains information about the mesh data.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>Format: List of float. The length should match the value of dimension.</p>
+<p>Description: The minimum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>Format: List of float.The length should match the value of dimension.</p>
+<p>Description: The maximum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>Format: List of integer. The length should match the value of dimension.</p>
+<p>Description: The number of grids the parametar can take at each dimension.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
+<p>Format: Integer.</p>
+<p>Description: The number of points to be randomly sampled.</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-bayes-section">
+<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.bayes</span></code>] section<a class="headerlink" href="#algorithm-bayes-section" title="Link to this heading">¶</a></h3>
+<p>The hyper parameters are defined.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code></p>
+<p>Format: Integer (default: 20)</p>
+<p>Description: Number of random samples to be taken before Bayesian optimization (random sampling is needed if parameters and scores are not available at the beginning).</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code></p>
+<p>Format: Integer (default: 40)</p>
+<p>Description: Number of times to perform Bayesian optimization.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">score</span></code></p>
+<p>Format: String (default: <code class="docutils literal notranslate"><span class="pre">TS</span></code> )</p>
+<p>Description: Parameter to specify the score function.
+<code class="docutils literal notranslate"><span class="pre">EI</span></code> (expected improvement), <code class="docutils literal notranslate"><span class="pre">PI</span></code> (probability of improvement), and <code class="docutils literal notranslate"><span class="pre">TS</span></code> (Thompson sampling) can be chosen.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
+<p>Format: Integer (default: 5)</p>
+<p>Description: The hyperparameters are learned at each specified interval. If a negative value is specified, no hyperparameter learning will be performed.
+If a value of 0 is specified, hyperparameter learning will be performed only in the first step.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_rand_basis</span></code></p>
+<p>Format: Integer (default: 5000)</p>
+<p>Description: Number of basis functions; if 0 is specified, the normal Gaussian process is performed without using the Bayesian linear model.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="reference-file">
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">¶</a></h2>
+<section id="mesh-definition-file">
+<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Link to this heading">¶</a></h3>
+<p>Define the grid space to be explored in this file.
+The first column is the index of the mesh, and the second and subsequent columns are the values of variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> section.</p>
+<p>Below, a sample file is shown.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
+<span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
+<span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>
+<span class="mi">4</span> <span class="mf">6.000000</span> <span class="mf">5.250000</span>
+<span class="mi">5</span> <span class="mf">6.000000</span> <span class="mf">5.000000</span>
+<span class="mi">6</span> <span class="mf">6.000000</span> <span class="mf">4.750000</span>
+<span class="mi">7</span> <span class="mf">6.000000</span> <span class="mf">4.500000</span>
+<span class="mi">8</span> <span class="mf">6.000000</span> <span class="mf">4.250000</span>
+<span class="mi">9</span> <span class="mf">6.000000</span> <span class="mf">4.000000</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-files">
+<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">¶</a></h2>
+<section id="bayesdata-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">BayesData.txt</span></code><a class="headerlink" href="#bayesdata-txt" title="Link to this heading">¶</a></h3>
+<p>At each step of the optimization process, the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far and the searched parameters at that step.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 R-factor z1_action z2_action R-factor_action</span>
+<span class="mi">0</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span>
+<span class="mi">1</span> <span class="mf">4.75</span> <span class="mf">4.5</span> <span class="mf">0.05141906746102885</span> <span class="mf">6.0</span> <span class="mf">4.75</span> <span class="mf">0.06591878368102033</span>
+<span class="mi">2</span> <span class="mf">5.5</span> <span class="mf">4.25</span> <span class="mf">0.04380131351780189</span> <span class="mf">5.5</span> <span class="mf">4.25</span> <span class="mf">0.04380131351780189</span>
+<span class="mi">3</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span> <span class="mf">5.0</span> <span class="mf">4.25</span> <span class="mf">0.02312528177606794</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
+<p>The program is started from the initial state.
+First, it performs the random sampling for the number of times specified by <code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code> parameter.
+Then, it performs the Bayes optimization for the number of times specified by <code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code>.</p>
+<p>If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:</p>
+<ol class="arabic simple">
+<li><p>when the random sampling is finished.</p></li>
+<li><p>during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.</p></li>
+<li><p>at the end of the execution.</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>The program execution is resumed from the latest checkpoint.
+The conditions such as the number of MPI processes should be kept the same.</p>
+<p>It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>The program execution of the Bayes optimization is continued from the previous run.
+The value of <code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code> should be increased. The step counter is taken over.</p>
+<p>For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with <code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes=100</span></code>. In the next run, the calculation is continued with <code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes=200</span></code>, where the calculations from 101st step to 200th step are carried out.</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-description">
+<h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_optimization">Bayesian optimization (BO)</a> is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function.</p>
+<p>In BO, the objective function <span class="math notranslate nohighlight">\(f(\vec{x})\)</span> is approximated by a model function (often a Gaussian process) <span class="math notranslate nohighlight">\(g(\vec{x})\)</span> that is quick to evaluate and easy to optimize.
+The <span class="math notranslate nohighlight">\(g\)</span> is trained to reproduce well the value of the objective function <span class="math notranslate nohighlight">\(\{\vec{x}_i\}_{i=1}^N\)</span> at some suitably predetermined points (training data set) <span class="math notranslate nohighlight">\(\{f(\vec{x}_i)\}_{i=1}^N\)</span>.</p>
+<p>At each point in the parameter space, we propose the following candidate points for computation <span class="math notranslate nohighlight">\(\vec{x}_{N+1}\)</span>, where the expected value of the trained <span class="math notranslate nohighlight">\(g(\vec{x})\)</span> value and the “score” (acquition function) obtained from the error are optimal.
+The training is done by evaluating <span class="math notranslate nohighlight">\(f(\vec{x}_{N+1})\)</span>, adding it to the training dataset, and retraining <span class="math notranslate nohighlight">\(g\)</span>.
+After repeating these searches, the best value of the objective function as the optimal solution will be returned.</p>
+<p>A point that gives a better expected value with a smaller error is likely to be the correct answer,
+but it does not contribute much to improving the accuracy of the model function because it is considered to already have enough information.
+On the other hand, a point with a large error may not be the correct answer,
+but it is a place with little information and is considered to be beneficial for updating the model function.
+Selecting the former is called “exploition,” while selecting the latter is called “exploration,” and it is important to balance both.
+The definition of “score” defines how to choose between them.</p>
+<p>In ODAT-SE, we use <a class="reference external" href="https://www.pasums.issp.u-tokyo.ac.jp/physbo/en">PHYSBO</a> as a library for Bayesian optimization.
+PHYSBO, like <code class="docutils literal notranslate"><span class="pre">mapper_mpi</span></code>, computes a “score” for a predetermined set of candidate points, and proposes an optimal solution.
+MPI parallel execution is possible by dividing the set of candidate points.
+In addition, we use a kernel that allows us to evaluate the model function and thus calculate the “score” with a linear amount of computation with respect to the number of training data points <span class="math notranslate nohighlight">\(N\)</span>.
+In PHYSBO, “expected improvement (EI)”, “probability of improvement (PI)”, and “Thompson sampling (TS)” are available as “score” functions.</p>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../solver/index.html">Direct Problem Solver</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

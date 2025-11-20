@@ -1,0 +1,7 @@
+odatse.exception module
+=======================
+
+.. automodule:: odatse.exception
+   :members:
+   :private-members:
+   :show-inheritance:

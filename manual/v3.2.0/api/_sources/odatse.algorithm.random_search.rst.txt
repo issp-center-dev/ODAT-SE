@@ -1,0 +1,7 @@
+odatse.algorithm.random\_search module
+======================================
+
+.. automodule:: odatse.algorithm.random_search
+   :members:
+   :private-members:
+   :show-inheritance:
