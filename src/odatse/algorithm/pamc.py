@@ -45,10 +45,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     Algorithm Flow:
       1. Initialize walker population at highest temperature
       2. For each temperature step:
+      
         a. Perform Monte Carlo updates at current temperature
         b. Calculate weights for next temperature
         c. Resample population based on weights
         d. Update statistical estimates
+        
       3. Track best solutions and maintain system statistics
 
     Attributes

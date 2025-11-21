@@ -34,7 +34,7 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
    Sampling by the population annealing Monte Carlo method.
 
 In the following sections, the procedures to run these algorithms are provided.
-In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. In the end of the section, how to define a direct problem solver wil be explained by a simple example.
+In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as some tutorials describing some applications.
 
 .. toctree::
    :maxdepth: 1
@@ -48,3 +48,5 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    pamc
    limitation
    solver_simple
+   linreg_with_noise
+   gpr
