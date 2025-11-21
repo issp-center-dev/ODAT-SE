@@ -49,3 +49,4 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    limitation
    solver_simple
    linreg_with_noise
+   gpr
