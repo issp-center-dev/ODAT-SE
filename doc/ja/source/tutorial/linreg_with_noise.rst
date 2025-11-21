@@ -546,13 +546,13 @@ PAMCアルゴリズムを用いた計算から以下の値が得られます:
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml
+        python linreg_with_noise.py --input input.toml
 
 自動フォーカス機能を使用すると、呼び出しは次のようになります: 
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
+        python linreg_with_noise.py --input input.toml --auto-focus --focus-factor 0.3
 
 数値結果
 ^^^^^^^^
