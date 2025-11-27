@@ -1,0 +1,21 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[algorithm]
+name = "ttopt"
+seed = 12345
+
+[algorithm.param]
+max_list = [6.0, 6.0]
+min_list = [-6.0, -6.0]
+
+[algorithm.ttopt]
+p_points = [2, 2]
+q_points = [25, 25]
+r_max = 4
+max_f_eval = 100000
