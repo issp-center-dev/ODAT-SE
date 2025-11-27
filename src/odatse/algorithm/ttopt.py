@@ -146,41 +146,31 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     def _run(self) -> None:
         run = self.runner
-
+        sweeps = [(True, range(self.n_q_dims - 1, -1, -1)), (False, range(0, self.n_q_dims))]
         while True:
-            for i in range(self.n_q_dims - 1, -1, -1): # sweep right to left, except edges at idx n_q_dims and 0
-                todo_q_pois = Algorithm.fuse_pois(self.grids[i], self.poi[i], self.poi[i + 1], self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
-                f_vals, self.xopt, self.fopt = Algorithm.f_eval(self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
-                self.f_eval_count += len(todo_q_pois)
-                if self.f_eval_count >= self.max_f_eval:
-                    return self.xopt, self.fopt
-                # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
-                z = np.exp(self.fopt - f_vals) # reference implementation uses this smoothing function
-                # z=(np.pi/2)-np.arctan(f_vals-min_f) # paper uses this smoothing function
-                # same as (and faster than) np.reshape(z,(n_q_points[i]*tt_ranks[i+1],tt_ranks[i])).T
-                z = np.reshape(z, (self.tt_ranks[i], self.n_q_points[i] * self.tt_ranks[i + 1]), order="F")
-                row_idxs = Algorithm.find_rows(z.T, self.maxvol_tol, self.maxvol_max_it)
-                if i != 0:
-                    self.poi[i] = Algorithm.update_left(self.grids[i], self.poi[i + 1], self.n_q_points[i], self.tt_ranks[i + 1], row_idxs)
-                    self.tt_ranks[i] = self.poi[i].shape[0]
-                # print(self.f_eval_count,self.fopt)
-            for i in range(0, self.n_q_dims): # sweep left to right, except edges at idx 0 and n_q_dims
-                todo_q_pois = Algorithm.fuse_pois(self.grids[i], self.poi[i], self.poi[i + 1], self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
-                f_vals, self.xopt, self.fopt = Algorithm.f_eval(self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
-                self.f_eval_count += len(todo_q_pois)
-                if self.f_eval_count >= self.max_f_eval:
-                    return self.xopt, self.fopt
-                # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
-                z = np.exp(self.fopt - f_vals) # reference implementation uses this smoothing function
-                # z=(np.pi/2)-np.arctan(f_vals-min_f) # paper uses this smoothing function
-                # same as (and faster than) np.reshape(z,(n_q_points[i]*tt_ranks[i+1],tt_ranks[i])).T
-                z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
-                row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
-                if i != self.n_q_dims - 1:
-                    self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
-                    self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
-                # print(self.f_eval_count,self.fopt)
-
+            for r2l, sweep_range in sweeps:
+                for i in sweep_range:
+                    todo_q_pois = Algorithm.fuse_pois(self.grids[i], self.poi[i], self.poi[i + 1], self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
+                    f_vals, self.xopt, self.fopt = Algorithm.f_eval(self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
+                    self.f_eval_count += len(todo_q_pois)
+                    if self.f_eval_count >= self.max_f_eval:
+                        return self.xopt, self.fopt
+                    # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
+                    z = np.exp(self.fopt - f_vals) # reference implementation uses this smoothing function
+                    # z=(np.pi/2)-np.arctan(f_vals-min_f) # paper uses this smoothing function
+                    if r2l:
+                        z = np.reshape(z, (self.tt_ranks[i], self.n_q_points[i] * self.tt_ranks[i + 1]), order="F")
+                        row_idxs = Algorithm.find_rows(z.T, self.maxvol_tol, self.maxvol_max_it)
+                        if i != 0:
+                            self.poi[i] = Algorithm.update_left(self.grids[i], self.poi[i + 1], self.n_q_points[i], self.tt_ranks[i + 1], row_idxs)
+                            self.tt_ranks[i] = self.poi[i].shape[0]
+                    else:
+                        z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
+                        row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
+                        if i != self.n_q_dims - 1:
+                            self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
+                            self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
+                    # print(self.f_eval_count,self.fopt)
         self.xopt = min_params
         self.fopt = min_f
 
