@@ -62,6 +62,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     xopt: Optional[np.ndarray]
     fopt: Optional[float]
 
+    f_eval_count: int
+    f_eval_count_history: List[int]
+    xopt_history: List[np.ndarray]
+    fopt_history: List[float]
+
     n_points: np.ndarray
     n_q_points: np.ndarray
     n_q_dims: int
@@ -139,20 +144,28 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         for i in range(self.n_q_dims - 1):
             z = self.rng.normal(size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])) # matrix is (L*C,R)
             z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
+            if self.mpisize > 1:  # make state uniform across all ranks
+                z = self.mpicomm.bcast(z, root=0)
             row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
             self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
             self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
         self.f_eval_count = 0
+        self.f_eval_count_history = []
+        self.xopt_history = []
+        self.fopt_history = []
 
     def _run(self) -> None:
         run = self.runner
-        sweeps = [(True, range(self.n_q_dims - 1, -1, -1)), (False, range(0, self.n_q_dims))]
+        sweeps = [(True, list(range(self.n_q_dims - 1, -1, -1))), (False, list(range(0, self.n_q_dims)))]
         while True:
             for r2l, sweep_range in sweeps:
                 for i in sweep_range:
                     todo_q_pois = Algorithm.fuse_pois(self.grids[i], self.poi[i], self.poi[i + 1], self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
-                    f_vals, self.xopt, self.fopt = Algorithm.f_eval(self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
+                    f_vals, self.xopt, self.fopt = Algorithm.f_eval(self, self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
                     self.f_eval_count += len(todo_q_pois)
+                    self.f_eval_count_history.append(self.f_eval_count)
+                    self.xopt_history.append(self.xopt)
+                    self.fopt_history.append(self.fopt)
                     if self.f_eval_count >= self.max_f_eval:
                         return self.xopt, self.fopt
                     # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
@@ -171,10 +184,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
                             self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
                     # print(self.f_eval_count,self.fopt)
-        self.xopt = min_params
-        self.fopt = min_f
 
-    def _post(self) -> Dict[str, np.ndarray]:
+    def _post(self) -> Dict:
         """Collect the best solution across ranks."""
         result = {
             "x": self.xopt,
@@ -190,8 +201,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fxs = [v["fx"] for v in results]
 
         idx = np.argmin(fxs)
-        print({"x": xs[idx], "fx": fxs[idx]})
-        return {"x": xs[idx], "fx": fxs[idx]}
+        result = {
+            "x": xs[idx],
+            "fx": fxs[idx],
+            "opt_history": list(zip(self.f_eval_count_history, self.xopt_history, self.fopt_history))
+        }
+        if self.mpirank == 0:
+            print("Best solution: x =", result["x"], "f(x) =", result["fx"])
+        return result
  
     @staticmethod
     def maxvol(mat: np.ndarray, tol: float = 1.001, max_it: int = 1000) -> Tuple[List[int], np.ndarray]:
@@ -250,8 +267,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             w2 = np.concatenate([w2, w3], axis=1)
         return w2
 
-    @staticmethod
-    def f_eval(bounds: np.ndarray, ps: np.ndarray, qs: np.ndarray, n_points: np.ndarray, n_q_points: np.ndarray, todo_q_pois: np.ndarray, min_params: np.ndarray, min_f: float, runner) -> Tuple[np.ndarray, np.ndarray, float]:
+    def f_eval(self, bounds: np.ndarray, ps: np.ndarray, qs: np.ndarray, n_points: np.ndarray, n_q_points: np.ndarray, todo_q_pois: np.ndarray, min_params: np.ndarray, min_f: float, runner) -> Tuple[np.ndarray, np.ndarray, float]:
         # convert p,q idxs to n idxs
         n_dims = bounds.shape[0]
         todo_pois = np.zeros((todo_q_pois.shape[0], n_dims), dtype=float)
@@ -264,7 +280,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         for dim_idx in range(todo_pois.shape[1]):
             t = todo_pois[:, dim_idx] / (n_points[dim_idx] - 1) * (bounds[dim_idx, 1] - bounds[dim_idx, 0]) + bounds[dim_idx, 0]  # scale before shift to minimize fp error
             todo_pois[:, dim_idx] = t
-        f_vals = runner.submit(todo_pois.T)
+        # parallelization
+        if self.mpisize > 1:
+            split = np.array_split(todo_pois, self.mpisize)
+            my_todo_pois = split[self.mpirank]
+            f_vals = runner.submit(my_todo_pois.T)
+            all_f_vals = self.mpicomm.allgather(f_vals)
+            f_vals = np.concatenate(all_f_vals)
+        else:
+            f_vals = runner.submit(todo_pois.T)
         best_idxs = np.argmin(f_vals)
         best_params = todo_pois[best_idxs]
         best_f = f_vals[best_idxs]
