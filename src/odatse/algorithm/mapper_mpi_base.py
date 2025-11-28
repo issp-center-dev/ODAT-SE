@@ -105,6 +105,8 @@ class Algorithm(AlgorithmBase):
 
             time_sta = time.perf_counter()
             fx = self.runner.submit(x, args)
+            if isinstance(fx, np.ndarray) and fx.size == 1:
+                fx = fx[0]
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
@@ -181,6 +183,13 @@ class Algorithm(AlgorithmBase):
         Dict
             Dictionary of results.
         """
+
+        if self.mpisize > 1:
+            opt_fxs = self.mpicomm.allgather(self.opt_fx)
+            opt_meshs = self.mpicomm.allgather(self.opt_mesh)
+            self.opt_fx  = np.min(opt_fxs)
+            self.opt_mesh = opt_meshs[np.argmin(opt_fxs)]
+
         if self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
@@ -194,8 +203,8 @@ class Algorithm(AlgorithmBase):
                     fp.write(" ".join(
                         map(lambda v: "{:8f}".format(v), (*x[1:], fx))
                     ) + "\n")
-
-        return {}
+        
+        return {"x": self.opt_mesh[1:], "fx": self.opt_fx}
 
     def _save_state(self, filename) -> None:
         """
