@@ -123,6 +123,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self.xopt = None
         self.fopt = np.inf
+        
+        # memoize known points
+        self.cache = {}
+        self.cache_hits = 0
 
         if self.p_points.shape[0] != self.dimension:
             raise ValueError("ttopt.p_points must match the problem dimension.")
@@ -183,7 +187,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         if i != self.n_q_dims - 1:
                             self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
                             self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
-                    # print(self.f_eval_count,self.fopt)
+                    # if self.mpirank == 0:
+                    #     print(self.f_eval_count,self.fopt)
 
     def _post(self) -> Dict:
         """Collect the best solution across ranks."""
@@ -207,7 +212,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "opt_history": list(zip(self.f_eval_count_history, self.xopt_history, self.fopt_history))
         }
         if self.mpirank == 0:
-            print("Best solution: x =", result["x"], "f(x) =", result["fx"])
+            print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
+            print(f"Cache hitrate: {100 * self.cache_hits / self.f_eval_count:.2f}%")
         return result
  
     @staticmethod
@@ -228,7 +234,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         return row_idxs, B
 
     @staticmethod
-    def find_rows(z: np.ndarray, tol: float = 1.001, max_it=1000) -> np.ndarray:
+    def find_rows(z: np.ndarray, tol: float = 1.001, max_it = 1000) -> np.ndarray:
         q, r = np.linalg.qr(z) # QR decompose to deal with singular z
         if q.shape[0] <= q.shape[1]: # bypass if matrix is wide and not tall
             row_idxs = np.arange(q.shape[0])
@@ -280,18 +286,39 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         for dim_idx in range(todo_pois.shape[1]):
             t = todo_pois[:, dim_idx] / (n_points[dim_idx] - 1) * (bounds[dim_idx, 1] - bounds[dim_idx, 0]) + bounds[dim_idx, 0]  # scale before shift to minimize fp error
             todo_pois[:, dim_idx] = t
+        f_vals = np.empty(todo_pois.shape[0])
+        eval_idxs = []
+        eval_pois = []
+        for i in range(todo_pois.shape[0]):
+            row_tuple = tuple(todo_pois[i])
+            if row_tuple in self.cache:
+                self.cache_hits += 1
+                f_vals[i] = self.cache[row_tuple]
+            else:
+                eval_idxs.append(i)
+                eval_pois.append(todo_pois[i])
+        eval_idxs = np.array(eval_idxs)
+        eval_pois = np.array(eval_pois)
         # parallelization
-        if self.mpisize > 1:
-            split = np.array_split(todo_pois, self.mpisize)
-            my_todo_pois = split[self.mpirank]
-            f_vals = runner.submit(my_todo_pois.T)
-            all_f_vals = self.mpicomm.allgather(f_vals)
-            f_vals = np.concatenate(all_f_vals)
-        else:
-            f_vals = runner.submit(todo_pois.T)
+        eval_f_vals = []
+        if len(eval_idxs) > 0:
+            if self.mpisize > 1:
+                split = np.array_split(eval_pois, self.mpisize)
+                my_todo_pois = split[self.mpirank]
+                my_f_vals = runner.submit(my_todo_pois.T) if my_todo_pois.shape[0] > 0 else []
+                all_f_vals = self.mpicomm.allgather(my_f_vals)
+                eval_f_vals = np.atleast_1d(np.concatenate(all_f_vals))
+            else:
+                eval_f_vals = np.atleast_1d(runner.submit(eval_pois.T))
+            for i, idx in enumerate(eval_idxs):
+                val = eval_f_vals[i]
+                self.cache[tuple(eval_pois[i])] = val
+                f_vals[idx] = val
         best_idxs = np.argmin(f_vals)
         best_params = todo_pois[best_idxs]
         best_f = f_vals[best_idxs]
+        # if self.mpirank == 0:
+        #     print(f_vals)
         if best_f < min_f:
             min_params, min_f = (best_params, best_f)
         return f_vals, min_params, min_f
