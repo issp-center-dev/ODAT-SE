@@ -197,6 +197,21 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "fx": self.fopt,
         }
 
+        opt_history = zip(self.f_eval_count_history, self.xopt_history, self.fopt_history)
+        if self.mpirank == 0:
+            with open("ttopt_history.txt", "w") as f:
+                f.write(f"nprocs = {self.mpisize}\n")
+                f.write(f"bounds = {self.bounds.tolist()}\n")
+                f.write(f"p_points = {self.p_points}\n")
+                f.write(f"q_points = {self.q_points}\n")
+                f.write(f"r_max = {self.fopt}\n")
+                f.write(f"max_f_eval = {self.max_f_eval}\n")
+                f.write(f"maxvol_tol = {self.maxvol_tol}\n")
+                f.write(f"maxvol_max_it = {self.maxvol_max_it}\n")
+                f.write(f"f_eval, x_opt, f_opt\n")
+                for entry in opt_history:
+                    f.write(f"{entry[0]}, {entry[1]}, {entry[2]}\n")
+
         if self.mpisize > 1:
             results = self.mpicomm.allgather(result)
         else:
@@ -209,7 +224,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         result = {
             "x": xs[idx],
             "fx": fxs[idx],
-            "opt_history": list(zip(self.f_eval_count_history, self.xopt_history, self.fopt_history))
+            "opt_history": opt_history
         }
         if self.mpirank == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
