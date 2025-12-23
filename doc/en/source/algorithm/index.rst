@@ -17,3 +17,4 @@ In this section, the search algorithms implemented in ODAT-SE are described.
    exchange
    pamc
    bayes
+   ttopt
