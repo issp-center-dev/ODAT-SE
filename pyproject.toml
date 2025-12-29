@@ -9,7 +9,8 @@ readme = "README.md"
 repository = "https://github.com/issp-center-dev/ODAT-SE"
 
 packages = [
-  { include = "odatse", from = "src" }
+  { include = "odatse", from = "src" },
+  { include = "odatse_kkr", from = "src" },
   ]
 
 [tool.poetry.dependencies]
