@@ -162,7 +162,7 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
-def michaelwicz(xs: np.ndarray) -> float:
+def michalewicz(xs: np.ndarray) -> float:
     """
     Michalewicz function.
 
@@ -357,8 +357,8 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
                 )
             self.set_function(himmelblau)
-        elif function_name == "michaelwicz":
-            self.set_function(michaelwicz)
+        elif function_name == "michalewicz":
+            self.set_function(michalewicz)
         elif function_name == "qing":
             self.set_function(qing)
         elif function_name == "rastrigin":

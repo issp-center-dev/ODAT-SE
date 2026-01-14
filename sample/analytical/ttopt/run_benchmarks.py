@@ -1,8 +1,7 @@
 import sys, os, subprocess
+import odatse
 
 np = sys.argv[1] if len(sys.argv) > 1 else "1"
-output_dir = "output"
-os.makedirs(output_dir, exist_ok=True)
 
 functions = {
     "ackley": [(-32.768, 32.768), 10],
@@ -10,7 +9,7 @@ functions = {
     "exponential": [(-1.0, 1.0), 10],
     "griewank": [(-600.0, 600.0), 10],
     "himmelblau": [(-6.0, 6.0), 2],
-    "michaelwicz": [(0.0, 3.14159), 10],
+    "michalewicz": [(0.0, 3.14159), 10],
     "qing": [(-500.0, 500.0), 10],
     "rastrigin": [(-5.12, 5.12), 10],
     "rosenbrock": [(-5.0, 5.0), 2],
@@ -19,6 +18,10 @@ functions = {
 }
 
 for func_name, (bounds, dim) in functions.items():
+    if odatse.mpi.rank() == 0:
+        print(f"Optimizing the {dim}-dimensional {func_name} function...", flush=True)
+    output_dir = f"output_{func_name}"
+    os.makedirs(output_dir, exist_ok=True)
     min_list = [bounds[0]] * dim
     max_list = [bounds[1]] * dim
     p_points = [2] * dim
