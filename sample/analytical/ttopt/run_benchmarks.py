@@ -20,7 +20,7 @@ functions = {
 for func_name, (bounds, dim) in functions.items():
     if odatse.mpi.rank() == 0:
         print(f"Optimizing the {dim}-dimensional {func_name} function...", flush=True)
-    output_dir = f"output_{func_name}"
+    output_dir = f"output/output_{func_name}"
     os.makedirs(output_dir, exist_ok=True)
     min_list = [bounds[0]] * dim
     max_list = [bounds[1]] * dim
