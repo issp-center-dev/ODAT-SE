@@ -65,10 +65,10 @@ for func_name, dims in functions.items():
         else:
             raise ValueError("Unknown function name: %s" % func_name)
         for i in range(len(q_mats)):
-            output_dir = "output_%s_%d_%d" % (func_name, dim, i)
-            os.makedirs(output_dir, exist_ok=True)
             df=pd.DataFrame(columns=["f","dim","instance","min_params","min_f","time"])
             for j in range(n_trials):
+                output_dir = "output/output_%s_d%d_i%d/trial%d" % (func_name, dim, i, j)
+                os.makedirs(output_dir, exist_ok=True)
                 # generate input file
                 toml_content = f"""[base]
 dimension = {dim}
@@ -100,21 +100,16 @@ max_f_eval = 100000
                 info, run_mode = odatse.initialize()
                 output_dir = info.base.get("output_dir", "./output")
                 os.makedirs(output_dir, exist_ok=True)
-                with open(os.path.join(output_dir, "odatse_run.log"), "w") as f:
-                    # sys.stdout = f
-                    # sys.stderr = f
-                    solver = QUBOSolver(info, q_mat = q_mats[i])
-                    runner = odatse.Runner(solver, info)
-                    alg_module = choose_algorithm(info.algorithm["name"])
-                    alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-                    time0 = time.time()
-                    result = alg.main()
-                    time1 = time.time()
-                    elapsed_time = time1 - time0
-                    df.loc[len(df)]=[func_name,dim,i,result["x"],result["fx"],elapsed_time]
-                    df=df.sort_index()
-                    # sys.stdout = original_stdout
-                    # sys.stderr = original_stderr
+                solver = QUBOSolver(info, q_mat = q_mats[i])
+                runner = odatse.Runner(solver, info)
+                alg_module = choose_algorithm(info.algorithm["name"])
+                alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+                time0 = time.time()
+                result = alg.main()
+                time1 = time.time()
+                elapsed_time = time1 - time0
+                df.loc[len(df)]=[func_name,dim,i,result["x"],result["fx"],elapsed_time]
+                df=df.sort_index()
 
                 # cleanup
                 if odatse.mpi.rank() == 0:
@@ -127,3 +122,5 @@ if odatse.mpi.rank() == 0:
     print("QUBO problems")
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(df[["f","dim","instance","min_f","time"]].groupby(["f","dim","instance"]).agg(["mean","std","min"]))
+    df.to_csv("qubo_results.csv", index=False)
+    df[["f","dim","instance","min_f","time"]].groupby(["f","dim","instance"]).agg(["mean","std","min"]).to_csv("qubo_results_agg.csv")
