@@ -312,11 +312,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 other_beta = self.betas[self.Tindex[0] + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
-                    ibuf[0] = self.Tindex
+                    ibuf[0] = self.Tindex[0]
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
                     self.Tindex[0] += 1
                 else:
-                    ibuf[0] = self.Tindex + 1
+                    ibuf[0] = self.Tindex[0] + 1
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
             else:
                 fbuf[0] = self.fx[0]
@@ -331,7 +331,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=0)
                 self.T2rep[ibuf[0]] = other_rank
         else:
-            ibuf[0] = self.Tindex
+            ibuf[0] = self.Tindex[0]
             self.mpicomm.Send(ibuf, dest=0, tag=0)
         self.mpicomm.Bcast(self.T2rep, root=0)
 
