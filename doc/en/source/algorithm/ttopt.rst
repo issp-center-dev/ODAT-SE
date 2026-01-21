@@ -6,7 +6,7 @@ Tensor Train Optimization ``ttopt``
 Preparation
 ~~~~~~~~~~~
 
-`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed for the MPI parallelization.
+`mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ should be installed when using MPI parallelization.
 
 .. code-block::
 
@@ -18,21 +18,17 @@ Input Parameters
 [``algorithm.param``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this section, the search parameter space is defined.
-
-If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list`` and ``max_list``.
-
 - ``min_list``
 
   Format: List of float. The length should match the value of dimension.
 
-  Description: The minimum value the parameter can take.
+  Description: The minimum value that each parameter can take.
 
 - ``max_list``
 
   Format: List of float. The length should match the value of dimension.
 
-  Description: The maximum value the parameter can take.
+  Description: The maximum value that each parameter can take.
 
 [``algorithm.ttopt``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,7 +39,7 @@ The following hyperparameters are supported:
 
   Format: List of integer
 
-  Description: Mode count along each dimension. In the implicit tensor train representation, each parameter corresponds to a dimension, which is represented by :math:`q` open legs in the tensor train. The interval is discretized into :math:`p^q` uniformly spaced points. In practice, for approximaions of continuous intervals, it is advisable to set :math:`p` to a small value like 2, adjusting :math:`q` appropriately.
+  Description: Mode count along each dimension. In the implicit tensor train representation, each parameter corresponds to a dimension, which is represented by :math:`q` open legs in the tensor train with bond dimension :math:`p`. The interval is discretized into :math:`p^q` uniformly spaced points. In practice, for approximaions of continuous intervals, it is advisable to set :math:`p` to a small value like 2, adjusting :math:`q` appropriately.
 
 - ``q_points``
 
@@ -65,7 +61,7 @@ The following hyperparameters are supported:
 
 - ``maxvol_tol``
 
-  Format: float (default: 1.001)
+  Format: Float (default: 1.001)
 
   Description: Tolerance used in computing the maximum volume submatrix. Exact decomposition of the matrix is done when the tolerance is set to 1. Values lower than 1 are clipped to 1.
 
@@ -81,7 +77,7 @@ Output Files
 ``ttopt_history.txt`` 
 ^^^^^^^^^^^^^^^^^^^^^
 
-After each sweep of the optimization process (i.e. traversal across each MPS tensor in one direction), the best estimate and the best combination of parameters are recorded.
+After each sweep of the optimization process (i.e. traversal across each MPS tensor in one direction), the best estimate and the best combination of parameters are recorded. The following is a sample output file:
 
 .. code-block::
 
@@ -107,7 +103,7 @@ TTOpt is a gradient-free optimization scheme based on repeated cross-approximati
 
 The TTOpt algorithm assumes that the large high-dimensional tensor representing the parameter space can be decomposed into a matrix product state (MPS) form. The open legs of the MPS are associated with parameter combinations in the space. The algorithm is designed such that only a small part of the whole large tensor needs to be explicitly computer. Thus, this approach is advantageous when the cost function is computationally costly or when the search space is very large. Furthermore, by representing the data in MPS form (up to a maximum bond dimensions along the internal legs), we can avoid having to form exponentially large matrices in the optimization process.
 
-A detailed description of the algorithm can be found in [1]. Broadly speaking, the algorithm works by considering unfoldings along axes of the large tensor and sampling at points corresponding to elements of maximum-volume submatrices.
+A detailed description of the algorithm can be found in [1]. Broadly speaking, the algorithm works by considering unfoldings along axes of the large tensor and sampling at points corresponding to elements of maximum-volume submatrices. While the algorithm assumes a discretized interval for each parameter, continuous function optimization can be approximated by using a sufficiently fine discretization of the interval.
 
 For this algorithm, execution using multiple MPI processes is possible. When MPI is used, evaluation of the cost function values at the sampled points is divided across the different ranks.
 
