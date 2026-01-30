@@ -45,6 +45,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         Meaningful values are larger than 1 (default: 1.001).
     maxvol_max_it: int
         The maximum number of maxvol iterations each time the maxvol subroutine is called (default: 1000).
+    init_points: Optional[np.ndarray]
+        Initial points in physical coordinates to evaluate at the start of optimization. (default: None).
     xopt: Optional[np.ndarray]
         The optimal solution.
     fopt: Optional[float]
@@ -58,6 +60,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     max_f_eval: int
     maxvol_tol: float
     maxvol_max_it: int
+    init_points: Optional[np.ndarray]
 
     xopt: Optional[np.ndarray]
     fopt: Optional[float]
@@ -120,6 +123,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.max_f_eval = int(info_ttopt.get("max_f_eval", 10000))
         self.maxvol_tol = float(info_ttopt.get("maxvol_tol", 1.001))
         self.maxvol_max_it = int(info_ttopt.get("maxvol_max_it", 1000))
+        self.init_points = np.unique(np.asarray(info_ttopt.get("init_points", []), dtype=float), axis=0)
 
         self.xopt = None
         self.fopt = np.inf
@@ -144,19 +148,76 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.tt_ranks = np.ones(self.n_q_dims + 1, dtype=int)
         for i in range(1, self.n_q_dims):
             self.tt_ranks[i] = np.min([self.tt_ranks[i - 1] * self.n_q_points[i - 1], self.r_max]) # rank is min(L*C,r_max)
+
+        self.f_eval_count = 0
+        self.f_eval_count_history = []
+        self.xopt_history = []
+        self.fopt_history = []
+
+        # process init_points
+        if self.init_points.shape[0] > 0:
+            n_init_points = self.init_points.shape[0]
+            n_dims = self.bounds.shape[0]
+
+            # convert to indices
+            init_indices = np.zeros((n_init_points, n_dims), dtype=float)
+            for dim in range(n_dims):
+                # inverse of coordinate conversion in f_eval
+                t = (self.init_points[:, dim] - self.bounds[dim, 0]) / (self.bounds[dim, 1] - self.bounds[dim, 0])
+                init_indices[:, dim] = t * (self.n_points[dim] - 1)
+                init_indices[:, dim] = np.round(init_indices[:, dim])
+
+            # convert to multi-indices
+            self.init_q_pois = np.zeros((n_init_points, self.n_q_dims), dtype=int)
+            start = 0
+            for dim in range(n_dims):
+                n_idx = init_indices[:, dim].astype(int)
+                n_idx = np.clip(n_idx, 0, self.n_points[dim] - 1)
+                for i in range(n_init_points):
+                    multi_idx = np.unravel_index(n_idx[i], self.n_q_points[start:start + self.q_points[dim]], order='F')
+                    self.init_q_pois[i, start:start + self.q_points[dim]] = multi_idx
+                start += self.q_points[dim]
+
+            # evaluate early to get values for z
+            f_vals_init, self.xopt, self.fopt = Algorithm.f_eval(self, self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, self.init_q_pois, self.xopt, self.fopt, self.runner)
+            self.f_eval_count += len(self.init_q_pois)
+            self.f_eval_count_history.append(self.f_eval_count)
+            self.xopt_history.append(self.xopt)
+            self.fopt_history.append(self.fopt)
+        else:
+            self.init_q_pois = None
+            f_vals_init = None
+
         self.poi = [None for _ in range(self.n_q_dims + 1)]
         for i in range(self.n_q_dims - 1):
-            z = self.rng.normal(size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])) # matrix is (L*C,R)
+            if self.init_q_pois is not None:
+                # fill z, an mps tensor with size (L, C, R), with known values from init_q_pois
+                z = np.zeros((self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1]))
+                # p/l/c/r are the point, left, center, right indices respectively
+                for p in range(self.init_q_pois.shape[0]):
+                    if i == 0:
+                        l = 0
+                    else:
+                        matches = np.all(self.poi[i] == self.init_q_pois[p, :i], axis=1)
+                        if not np.any(matches):
+                            continue
+                        l = np.where(matches)[0][0]
+
+                    c = self.init_q_pois[p, i]
+                    r = p % self.tt_ranks[i + 1] # in case there are more points than ranks
+                    z[l, c, r] = max(z[l, c, r], np.exp(self.fopt - f_vals_init[p]))
+                # fallback if all elements are 0
+                if np.sum(z) == 0:
+                    z = self.rng.normal(size=z.shape)
+            else:
+                z = self.rng.normal(size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])) # matrix is (L*C,R)
+
             z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
             if self.mpisize > 1:  # make state uniform across all ranks
                 z = self.mpicomm.bcast(z, root=0)
             row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
             self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
             self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
-        self.f_eval_count = 0
-        self.f_eval_count_history = []
-        self.xopt_history = []
-        self.fopt_history = []
 
     def _run(self) -> None:
         run = self.runner
@@ -188,7 +249,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
                             self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
                     # if self.mpirank == 0:
-                    #     print(self.f_eval_count,self.fopt)
+                    #     print(self.f_eval_count,self.xopt,self.fopt)
 
     def _post(self) -> Dict:
         """Collect the best solution across ranks."""

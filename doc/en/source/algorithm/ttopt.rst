@@ -71,6 +71,12 @@ The following hyperparameters are supported:
 
   Description: Maximum number of iterations used in computing the maximum volume submatrix.
 
+- ``init_points``
+
+  Format: List of lists of float (default: [])
+
+  Description: Initial guesses that are evaluated at the beginning of the optimization. Each inner list must have the same length as the dimension. This parameter is optional, and is used to inform the optimizer of existing candidate regions.
+
 Output Files
 ~~~~~~~~~~~~
 
