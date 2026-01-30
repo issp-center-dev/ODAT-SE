@@ -15,7 +15,6 @@ class QUBOSolver(odatse.solver.SolverBase):
 
         self.opt_x = None
         self.opt_fx = np.inf
-        self.opt_slope = None
 
     def evaluate(self, xs, args, nprocs=1, nthreads=1):
         res = qubo(xs, self.q_mat)
@@ -75,7 +74,7 @@ dimension = {dim}
 output_dir = "{output_dir}"
 
 [solver]
-name = "analytical"
+name = "custom"
 function_name = "{func_name}"
 
 [algorithm]

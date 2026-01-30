@@ -55,7 +55,7 @@ In this example, the input TOML files are dynamically generated for each type of
     output_dir = "{output_dir}"
 
     [solver]
-    name = "analytical"
+    name = "custom"
     function_name = "{func_name}"
 
     [algorithm]
