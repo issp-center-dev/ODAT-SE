@@ -135,7 +135,13 @@ def auto_range(beta, log_pdb, focus_factor=0.5):
     valid_mask = np.isfinite(log_pdb) & np.isfinite(beta) & (beta > 0)
     if not np.any(valid_mask):
         print("Warning: No valid data points for auto-focus")
-        return np.min(beta), np.max(beta), np.min(log_pdb), np.max(log_pdb)
+        # Fallback: use all finite values, if any; otherwise raise
+        finite_beta = beta[np.isfinite(beta)]
+        finite_log_pdb = log_pdb[np.isfinite(log_pdb)]
+        if finite_beta.size == 0 or finite_log_pdb.size == 0:
+            raise ValueError("auto_range: no finite beta/log_pdb values available for range calculation")
+        return (np.nanmin(finite_beta), np.nanmax(finite_beta),
+                np.nanmin(finite_log_pdb), np.nanmax(finite_log_pdb))
     valid_beta = beta[valid_mask]
     valid_log_pdb = log_pdb[valid_mask]
     max_idx = np.argmax(valid_log_pdb)
