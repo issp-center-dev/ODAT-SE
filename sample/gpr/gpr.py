@@ -178,17 +178,18 @@ if __name__ == "__main__":
     
     # Run ODAT-SE
     with open(args.logfile, "w") as f:
-        sys.stdout = f
-        sys.stderr = f
-        
-        solver = PredictorSolver(info, predictor=predictor)
-        runner = odatse.Runner(solver, info)
-        alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
-        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-        result = alg.main()
-        
-        sys.stdout = original_stdout
-        sys.stderr = original_stderr
+        try:
+            sys.stdout = f
+            sys.stderr = f
+            
+            solver = PredictorSolver(info, predictor=predictor)
+            runner = odatse.Runner(solver, info)
+            alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+            alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+            result = alg.main()
+        finally:
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
     print(f"Best solution: x^* = {result['x']}")
     print(f"Surrogate f(x^*) = {result['fx']}")
     print(f"True f(x^*) = {himmelblau(*tuple(result['x']))}")
