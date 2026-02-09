@@ -155,11 +155,11 @@ We define a custom solver using ODAT-SE's ``SolverBase`` class. Here, we define 
 	class PredictorSolver(odatse.solver.SolverBase):
 		def __init__(self, info, predictor):
 			super().__init__(info)
-			self.__name = "predict"
+			self._name = "predict"
 			self.predictor = predictor
 		
-		def evaluate(self, xs, _=()):
-			return self.predictor(xs)[0]
+		def evaluate(self, x, arg=(), nprocs=1, nthreads=1):
+			return self.predictor(x)[0]
 
 In the ``evaluate`` function, we call the predictor function (which, for this example, is the output of ``Converter.gen_predictor``).
 
