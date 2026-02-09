@@ -10,7 +10,6 @@ from typing import List, Union, Dict, Optional, TYPE_CHECKING
 
 from pathlib import Path
 from io import open
-import os
 
 import numpy as np
 from odatse import mpi
