@@ -238,7 +238,7 @@ def auto_range(beta, log_pdb, focus_factor=0.5):
     
     return beta_min, beta_max, y_min, y_max
 
-def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.ndarray = None, auto_focus = False, focus_factor = 0.5) -> None:
+def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.ndarray = None, auto_focus=False, focus_factor=0.5) -> None:
     """
     Plot the model evidence as a function of beta.
     
