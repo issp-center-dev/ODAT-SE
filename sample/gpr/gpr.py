@@ -75,7 +75,7 @@ class PredictorSolver(odatse.solver.SolverBase):
         self._name = "predict"
         self.predictor = predictor
 
-    def evaluate(self, xs, _=()):
+    def evaluate(self, xs, args=(), nprocs=1, nthreads=1):
         return self.predictor(xs)[0]
 
 def plot_res(Xtr, predictor):
