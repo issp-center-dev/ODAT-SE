@@ -97,17 +97,18 @@ if __name__ == "__main__":
     
     # Run ODAT-SE
     with open(args.logfile, "w") as f:
-        sys.stdout = f
-        sys.stderr = f
-        
-        solver = LinearRegression(info)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
-        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-        result = alg.main()
-        
-        sys.stdout = original_stdout
-        sys.stderr = original_stderr
+        try:
+            sys.stdout = f
+            sys.stderr = f
+            
+            solver = LinearRegression(info)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
+            alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+            result = alg.main()
+        finally:
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
     print("ODAT-SE run completed")
     print(f"Output directory: {output_dir}")
     
