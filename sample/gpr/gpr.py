@@ -72,7 +72,7 @@ class Converter:
 class PredictorSolver(odatse.solver.SolverBase):
     def __init__(self, info, predictor):
         super().__init__(info)
-        self.__name = "predict"
+        self._name = "predict"
         self.predictor = predictor
 
     def evaluate(self, xs, _=()):
