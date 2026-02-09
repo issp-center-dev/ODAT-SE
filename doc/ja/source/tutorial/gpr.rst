@@ -170,7 +170,7 @@ ODAT-SEの ``SolverBase`` クラスを使用してカスタムソルバーを定
 
 .. code:: python
 
-	def plot_res(predictor):
+	def plot_res(Xtr, predictor):
 		# Grid over the domain
 		x = np.linspace(xrange[0], xrange[1], 251)
 		y = np.linspace(yrange[0], yrange[1], 251)
@@ -266,7 +266,7 @@ ODAT-SEの ``SolverBase`` クラスを使用してカスタムソルバーを定
 		print(f"NMSE: {nmse:.6e}")
 
 		# Plot output
-		plot_res(predictor)
+		plot_res(Xtr, predictor)
 
 		original_stdout = sys.stdout
 		original_stderr = sys.stderr
