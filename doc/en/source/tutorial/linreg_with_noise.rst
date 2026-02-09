@@ -546,13 +546,13 @@ As in the previous example, we then run the script for each of the three dataset
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml
+        python linreg_with_noise.py --input input.toml
 
 With the auto-focus feature, the invocation could look like:
 
 .. code:: bash
 
-        python linreg_with_noise.py input.toml --auto-focus --focus-factor 0.3
+        python linreg_with_noise.py --input input.toml --auto-focus --focus-factor 0.3
 
 Numerical Results
 ^^^^^^^^^^^^^^^^^
