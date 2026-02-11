@@ -15,7 +15,6 @@ import os
 import time
 
 import odatse
-import odatse.domain
 
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
 from ._iterator import RandomIterator, ListIterator
@@ -31,7 +30,6 @@ class Algorithm(MapperMPIAlgorithm):
     def __init__(self,
                  info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
-                 domain = None,
                  run_mode: str = "initial",
                  mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
@@ -44,10 +42,10 @@ class Algorithm(MapperMPIAlgorithm):
             Information object containing algorithm parameters.
         runner : Runner
             Optional runner object for submitting tasks.
-        domain :
-            Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
+        mpicomm : MPI.Comm
+            Optional MPI communicator.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
@@ -128,12 +126,12 @@ class Algorithm(MapperMPIAlgorithm):
             elif seq == "latin":
                 sampler = qmc.LatinHypercube(d, scramble=True, strength=1, optimization=None)
             else:
-                ValueError("unknown sequence type {}".format(seq))
+                raise ValueError("unknown sequence type {}".format(seq))
 
             # generate samples on rank 0 all at once
             idx = np.arange(num_points)
             sample = sampler.random(n=num_points)
-            print("discrepancy=", qmc.discrepancy(sample))
+            #print("discrepancy=", qmc.discrepancy(sample))
             sample = qmc.scale(sample, min_list, max_list)
 
             data = [[i, *x] for i, x in zip(idx, sample)]

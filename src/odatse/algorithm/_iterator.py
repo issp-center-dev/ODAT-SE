@@ -6,11 +6,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union, Dict, Optional, TYPE_CHECKING
-
-from pathlib import Path
-from io import open
-
 import numpy as np
 from odatse import mpi
 
@@ -175,4 +170,4 @@ class RandomIterator(IteratorBase):
     def _restore_state(self, d):
         self._i = d["index"]
         self._rng = np.random.RandomState()
-        self._rng.set_state(data["rng_state"])
+        self._rng.set_state(d["rng_state"])

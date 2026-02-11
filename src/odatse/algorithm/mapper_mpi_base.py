@@ -12,6 +12,7 @@ from pathlib import Path
 from io import open
 import numpy as np
 import os
+import sys
 import time
 
 import odatse
@@ -43,12 +44,12 @@ class Algorithm(AlgorithmBase):
             Information object containing algorithm parameters.
         runner : Runner
             Optional runner object for submitting tasks.
-        domain :
-            Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        meshgrid : bool
-            Whether to use mesh grid or points.
+        mpicomm : MPI.Comm
+            Optional MPI communicator.
+        iterator : Iterator
+            Iterator object.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
@@ -135,6 +136,9 @@ class Algorithm(AlgorithmBase):
             print(f"[{self.mpirank}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
         self._output_results()
+
+        # close local colormap file
+        fp.close()
 
         # if Path(self.local_colormap_file).exists():
         #     os.remove(Path(self.local_colormap_file))
