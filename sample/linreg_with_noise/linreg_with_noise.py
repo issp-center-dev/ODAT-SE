@@ -6,6 +6,7 @@ Combines a custom ODAT-SE solver implementing linear regression with model evide
 
 import odatse
 import sys, os, argparse
+import contextlib
 import numpy as np
 from matplotlib import pyplot as plt
 from odatse.algorithm import choose_algorithm
@@ -81,9 +82,6 @@ if __name__ == "__main__":
     
     sys.argv = ["script.py", args.input, "--init"]
     
-    original_stdout = sys.stdout
-    original_stderr = sys.stderr
-    
     # Initialize ODAT-SE to get output directory
     info, run_mode = odatse.initialize()
     output_dir = info.base.get("output_dir", "./output")
@@ -95,19 +93,14 @@ if __name__ == "__main__":
     if args.logfile is None:
         args.logfile = os.path.join(output_dir, "odatse_run.log")
     
-    # Run ODAT-SE
+    # Run ODAT-SE with redirected output
     with open(args.logfile, "w") as f:
-        sys.stdout = f
-        sys.stderr = f
-        
-        solver = LinearRegression(info)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
-        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-        result = alg.main()
-        
-        sys.stdout = original_stdout
-        sys.stderr = original_stderr
+        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+            solver = LinearRegression(info)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
+            alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+            result = alg.main()
     print("ODAT-SE run completed")
     print(f"Output directory: {output_dir}")
     
