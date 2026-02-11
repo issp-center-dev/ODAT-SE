@@ -40,13 +40,13 @@ Input parameters
 [``mode``] section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this section, the search mode is defined. If this section is omitted, the quasi-random sequence (``random``) is chosen.
+In this section, the search mode is defined. If this section is omitted, the pseudo-random sequence (``random``) is chosen.
 
 - ``mode``
 
   Format: String
 
-  Description: Specify ``random`` for quasi-random sequence, or ``quasi-random`` for quasi-random sequence.
+  Description: Specify ``random`` for pseudo-random sequence, or ``quasi-random`` for quasi-random sequence.
 
 - ``sequence``
 
@@ -124,7 +124,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initial state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
   #. the specified number of grid points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.
@@ -136,4 +136,4 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 
 - ``"continue"``
 
-  The continue mode is not supported. For the quasi-random sequence, the calculation can be continued by starting with a different seed number.
+  The continue mode is not supported. For the pseudo-random sequence, the calculation can be continued by starting with a different seed number.
