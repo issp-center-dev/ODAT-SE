@@ -382,14 +382,14 @@ def main():
     if len(data_files) == 1:
         # Single file case: output raw model evidence
         print_log_pdb(result_file, beta, log_pdbs[0])
-        plot_log_pdb(output_file, beta, log_pdbs[0], None)
+        plot_log_pdb(output_file, beta, log_pdbs[0], None, args.auto_focus, args.focus_factor)
     else:
         # Multiple files case: calculate average and variance
         data = np.stack(log_pdbs)
         avg = np.mean(data, axis=0)
         var = np.std(data, axis=0)
         print_log_pdb(result_file, beta, avg, var)
-        plot_log_pdb(output_file, beta, avg, var)
+        plot_log_pdb(output_file, beta, avg, var, args.auto_focus, args.focus_factor)
         
 
 if __name__ == "__main__":
