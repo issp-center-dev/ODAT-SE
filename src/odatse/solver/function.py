@@ -13,7 +13,7 @@ import time
 
 # type hints
 from pathlib import Path
-from typing import Callable, Optional, Dict, Tuple
+from typing import Callable, Optional
 
 
 class Solver(odatse.solver.SolverBase):
@@ -40,7 +40,7 @@ class Solver(odatse.solver.SolverBase):
         # for debug purpose
         self.delay = info.solver.get("delay", 0.0)
 
-    def evaluate(self, x: np.ndarray, args: Tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
+    def evaluate(self, x: np.ndarray, args: tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
         """
         Evaluate the function with given parameters.
 
@@ -48,7 +48,7 @@ class Solver(odatse.solver.SolverBase):
         ----------
         x : np.ndarray
             Input array for the function.
-        args : Tuple, optional
+        args : tuple, optional
             Additional arguments for the function.
         nprocs : int, optional
             Number of processes to use.

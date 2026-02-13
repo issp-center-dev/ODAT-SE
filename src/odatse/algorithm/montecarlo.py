@@ -7,7 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import typing
-from typing import TextIO, Union, List, Tuple, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 import copy
 import time
 from pathlib import Path
@@ -80,7 +80,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     # inode: np.ndarray
     # nnodes: int
     # node_coordinates: np.ndarray
-    # neighbor_list: List[List[int]]
+    # neighbor_list: list[list[int]]
     # ncandidates: np.ndarray  # len(neighbor_list[i])-1
 
     # state: Union[ContinuousState, DiscreteState]
@@ -242,7 +242,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     def local_update(
         self,
         beta: Union[float, np.ndarray],
-        extra_info_to_write: Union[List, Tuple] = None,
+        extra_info_to_write: Union[list, tuple] = None,
     ) -> None:
         """
         Perform one step of the Monte Carlo algorithm.
@@ -264,7 +264,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         beta : Union[float, np.ndarray]
             Inverse temperature(s) controlling acceptance probability
             Can be single value or array (one per walker)
-        extra_info_to_write : Union[List, Tuple], optional
+        extra_info_to_write : Union[list, tuple], optional
             Additional data to log with results
 
         Notes

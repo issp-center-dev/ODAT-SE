@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union, Any
+from typing import Union, Any
 
 from pathlib import Path
 import numpy as np
@@ -19,15 +19,15 @@ class MeshGrid(DomainBase):
     MeshGrid class for handling grid data for quantum beam diffraction experiments.
     """
 
-    grid: List[List[Union[int, float]]] = []
-    grid_local: List[List[Union[int, float]]] = []
+    grid: list[list[Union[int, float]]] = []
+    grid_local: list[list[Union[int, float]]] = []
     candicates: int
 
     def __init__(
         self,
         info: odatse.Info = None,
         *,
-        param: Dict[str, Any] = None,
+        param: dict[str, Any] = None,
         mesh: bool = True,
         rng: np.random.RandomState = None,
     ):

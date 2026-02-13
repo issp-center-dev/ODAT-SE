@@ -56,7 +56,7 @@
             - ディレクトリが存在しない場合、自動的に作成されます
             - 各プロセスで最適化アルゴリズムはこのディレクトリで実行されます
 
-        - ``self.timer: Dict[str, Dict]`` : 実行時間を保存するための辞書
+        - ``self.timer: dict[str, dict]`` : 実行時間を保存するための辞書
 
             - 空の辞書が3つ、 ``"prepare"``, ``"run"``, ``"post"`` という名前で定義されます
 
@@ -85,13 +85,13 @@
       #. 元のディレクトリに戻る
     - ``self.prepare()`` の後に実行する必要があります
 
-- ``post(self) -> Dict``
+- ``post(self) -> dict``
 
     - 最適化結果のファイル出力など、後処理を行います
     - ``self.output_dir`` に移動し、 ``self._post()`` を実行した後、元のディレクトリに戻ります
     - ``self.run()`` のあとに実行する必要があります
 
-- ``main(self, run_mode) -> Dict``
+- ``main(self, run_mode) -> dict``
 
     - ``prepare``, ``run``, ``post`` を順番に実行します
     - それぞれの関数でかかった時間を計測し、結果をファイル出力します
@@ -138,7 +138,7 @@
 	 args = (step, set)
          fx = self.runner.submit(x, args)
 
-- ``_post(self) -> Dict``
+- ``_post(self) -> dict``
 
     - 最適化アルゴリズムの後処理を記述します
     - 探索の結果を辞書形式で返します
