@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Dict, List, Optional
+from typing import Optional
 import pathlib
 from os import PathLike
 from collections import namedtuple
@@ -58,7 +58,7 @@ def separateT(
     T2rank = {}
     results = []
     for rank, Ts_local in enumerate(np.array_split(Ts, mpisize)):
-        d: Dict[str, List[Entry]] = {}
+        d: dict[str, list[Entry]] = {}
         for T in Ts_local:
             T2rank[str(T)] = rank
             d[str(T)] = []

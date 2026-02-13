@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -284,6 +284,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If False, attempt exchanges between odd-even pairs.
         """
         if self.mpisize > 1:
+            assert self.mpicomm is not None
             self.mpicomm.Barrier()
         if direction:
             if self.Tindex[0] % 2 == 0:
@@ -398,7 +399,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """
         Post-process the results of the algorithm.
         """
@@ -429,6 +430,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         # Gather best results from all processes
         if self.mpisize > 1:
+            assert self.mpicomm is not None
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
             # ``Gather`` and ``allgather`` seem to work fine.

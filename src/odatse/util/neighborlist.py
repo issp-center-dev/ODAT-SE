@@ -7,7 +7,6 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import typing
-from typing import List, Set
 from os import PathLike
 
 import sys
@@ -35,7 +34,7 @@ class Cells:
     
     Attributes
     ----------
-    cells : List[Set[int]]
+    cells : list[set[int]]
         List of sets, where each set contains indices of points in that cell.
     dimension : int
         Number of spatial dimensions.
@@ -61,7 +60,7 @@ class Cells:
     >>> cells.cells[cell_index].add(point_index)
     """
 
-    cells: List[Set[int]]
+    cells: list[set[int]]
     dimension: int
     mins: np.ndarray
     maxs: np.ndarray
@@ -246,7 +245,7 @@ class Cells:
             return True
         return False
 
-    def neighborcells(self, index: int) -> List[int]:
+    def neighborcells(self, index: int) -> list[int]:
         """
         Get the indices of neighboring cells, including the cell itself.
         
@@ -260,7 +259,7 @@ class Cells:
             
         Returns
         -------
-        List[int]
+        list[int]
             The indices of the neighboring cells (including the cell itself).
             
         Examples
@@ -270,7 +269,7 @@ class Cells:
         >>> len(neighbors)  # 3x3 neighborhood in 2D
         9
         """
-        neighbors: List[int] = []
+        neighbors: list[int] = []
         center_coord = self.cellindex2cellcoord(index)
         for diff in itertools.product([-1, 0, 1], repeat=self.dimension):
             other_coord = center_coord + np.array(diff)
@@ -286,7 +285,7 @@ def make_neighbor_list_cell(
     allow_selfloop: bool,
     show_progress: bool,
     comm: mpi.Comm = None,
-) -> List[List[int]]:
+) -> list[list[int]]:
     """
     Create a neighbor list using cell-based spatial partitioning.
     
@@ -309,7 +308,7 @@ def make_neighbor_list_cell(
         
     Returns
     -------
-    List[List[int]]
+    list[list[int]]
         A list of lists, where each inner list contains the indices of
         neighboring points for a given point.
         
@@ -340,7 +339,7 @@ def make_neighbor_list_cell(
 
     points = np.array_split(range(npoints), mpisize)[mpirank]
     npoints_local = len(points)
-    nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
+    nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
         desc = "rank 0" if mpisize > 1 else None
@@ -372,7 +371,7 @@ def make_neighbor_list_naive(
     allow_selfloop: bool,
     show_progress: bool,
     comm: mpi.Comm = None,
-) -> List[List[int]]:
+) -> list[list[int]]:
     """
     Create a neighbor list using a naive all-pairs approach.
     
@@ -396,7 +395,7 @@ def make_neighbor_list_naive(
         
     Returns
     -------
-    List[List[int]]
+    list[list[int]]
         A list of lists, where each inner list contains the indices of
         neighboring points for a given point.
         
@@ -419,7 +418,7 @@ def make_neighbor_list_naive(
     npoints = X.shape[0]
     points = np.array_split(range(npoints), mpisize)[mpirank]
     npoints_local = len(points)
-    nnlist: List[List[int]] = [[] for _ in range(npoints_local)]
+    nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
         desc = "rank 0" if mpisize > 1 else None
@@ -450,7 +449,7 @@ def make_neighbor_list(
     check_allpairs: bool = False,
     show_progress: bool = False,
     comm: mpi.Comm = None,
-) -> List[List[int]]:
+) -> list[list[int]]:
     """
     Create a neighbor list for given points.
     
@@ -476,7 +475,7 @@ def make_neighbor_list(
         
     Returns
     -------
-    List[List[int]]
+    list[list[int]]
         A list of lists, where each inner list contains the indices of
         neighboring points for a given point.
         
@@ -510,7 +509,7 @@ def make_neighbor_list(
         )
 
 
-def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]]:
+def load_neighbor_list(filename: PathLike, nnodes: int = None) -> list[list[int]]:
     """
     Load a neighbor list from a file.
     
@@ -527,7 +526,7 @@ def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]
         
     Returns
     -------
-    List[List[int]]
+    list[list[int]]
         The neighbor list loaded from the file.
         
     Examples
@@ -549,7 +548,7 @@ def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]
                     continue
                 nnodes += 1
 
-    neighbor_list: List[List[int]] = [[] for _ in range(nnodes)]
+    neighbor_list: list[list[int]] = [[] for _ in range(nnodes)]
     with open(filename) as f:
         for line in f:
             line = line.strip().split("#")[0]
@@ -564,7 +563,7 @@ def load_neighbor_list(filename: PathLike, nnodes: int = None) -> List[List[int]
 
 def write_neighbor_list(
     filename: str,
-    nnlist: List[List[int]],
+    nnlist: list[list[int]],
     radius: float = None,
     unit: np.ndarray = None,
 ) -> None:
@@ -579,7 +578,7 @@ def write_neighbor_list(
     ----------
     filename : str
         The path to the output file.
-    nnlist : List[List[int]]
+    nnlist : list[list[int]]
         The neighbor list to write.
     radius : float, optional
         The neighborhood radius, written as a comment in the file, by default None.

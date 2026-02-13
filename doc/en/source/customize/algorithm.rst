@@ -40,7 +40,7 @@
 
     - ``self.dimension: int`` : the dimension of the parameter space
 
-    - ``self.label_list: List[str]`` : the name of each axes of the parameter space
+    - ``self.label_list: list[str]`` : the name of each axes of the parameter space
 
     - ``self.root_dir: pathlib.Path`` : root directory
 
@@ -86,13 +86,13 @@
 
     - It should be called after ``self.prepare()`` is called.
 
-- ``post(self) -> Dict``
+- ``post(self) -> dict``
 
     - Runs a post process of the algorithm, for example, writing the results into files.
     - Enters into ``self.output_dir``, calls ``self._post()``, and returns to the original directory.
     - It should be called after ``self.run()`` is called.
 
-- ``main(self, run_mode) -> Dict``
+- ``main(self, run_mode) -> dict``
 
     - Calls ``prepare``, ``run``, and ``post``.
     - Measures the elapsed times for calling functions, and writes them into a file
@@ -140,7 +140,7 @@ It is defined as a subclass of ``AlgorithmBase`` and should have the following m
 	 args = (step, set)
          fx = self.runner.submit(x, args)
 
-- ``_post(self) -> Dict``
+- ``_post(self) -> dict``
 
     - Describes post-process of the algorithm.
 

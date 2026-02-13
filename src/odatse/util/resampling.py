@@ -7,7 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import typing
-from typing import Union, List, Iterable
+from typing import Union, Iterable, overload
 
 import abc
 
@@ -30,7 +30,7 @@ class BinarySearch(Resampler):
     """
     A resampler that uses binary search to sample based on given weights.
     """
-    weights_accumulated: List[float]
+    weights_accumulated: list[float]
     wmax: float
 
     def __init__(self, weights: Iterable):
@@ -56,7 +56,7 @@ class BinarySearch(Resampler):
         self.weights_accumulated = list(itertools.accumulate(weights))
         self.wmax = self.weights_accumulated[-1]
 
-    @typing.overload
+    @overload
     def sample(self, rs: np.random.RandomState) -> int:
         """
         Sample a single index based on the weights.
@@ -73,7 +73,7 @@ class BinarySearch(Resampler):
         """
         ...
 
-    @typing.overload
+    @overload
     def sample(self, rs: np.random.RandomState, size) -> np.ndarray:
         """
         Sample multiple indices based on the weights.
@@ -177,7 +177,7 @@ class WalkerTable(Resampler):
         self.ptable += mean
         self.ptable *= 1.0 / mean
 
-    @typing.overload
+    @overload
     def sample(self, rs: np.random.RandomState) -> int:
         """
         Sample a single index based on the weights.
@@ -194,7 +194,7 @@ class WalkerTable(Resampler):
         """
         ...
 
-    @typing.overload
+    @overload
     def sample(self, rs: np.random.RandomState, size) -> np.ndarray:
         """
         Sample multiple indices based on the weights.
