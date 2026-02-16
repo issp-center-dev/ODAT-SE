@@ -105,7 +105,7 @@ Tutorial: How to Use Post-Processing Tools
 
       python3 plt_1D_histogram.py -d summarized -o 1dhist -r 3.0,6.0
 
-   This creates histograms for each data file in summarized/, outputting to 1dhist/ as 1Dhistogram_result_T{index}_beta_{beta}.png. Value range is set to 3.0-6.0.
+   This creates histograms for each data file in summarized/, outputting to 1dhist/ as 1Dhistogram_result_T{index}_beta_{beta}.png (when the temperature range has been specified by bmin and bmax in the PAMC calculation), or 1Dhistogram_result_T{index}_T_{T}.png (when the temperature range has been specified by Tmin and Tmax in the PAMC calculation). Value range is set to 3.0-6.0.
 
    plt_1D_histogram.py accepts these main options:
 

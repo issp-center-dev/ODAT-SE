@@ -19,11 +19,18 @@ class MeshGrid(DomainBase):
     MeshGrid class for handling grid data for quantum beam diffraction experiments.
     """
 
-    grid: List[Union[int, float]] = []
-    grid_local: List[Union[int, float]] = []
+    grid: List[List[Union[int, float]]] = []
+    grid_local: List[List[Union[int, float]]] = []
     candicates: int
 
-    def __init__(self, info: odatse.Info = None, *, param: Dict[str, Any] = None):
+    def __init__(
+        self,
+        info: odatse.Info = None,
+        *,
+        param: Dict[str, Any] = None,
+        mesh: bool = True,
+        rng: np.random.RandomState = None,
+    ):
         """
         Initialize the MeshGrid object.
 
@@ -33,16 +40,20 @@ class MeshGrid(DomainBase):
             Information object containing algorithm parameters.
         param : dict, optional
             Dictionary containing parameters for setting up the grid.
+        mesh : bool, optional
+            Whether to use mesh grid or points.
+        rng : np.random.RandomState, optional
+            Random number generator.
         """
         super().__init__(info)
 
         if info:
             if "param" in info.algorithm:
-                self._setup(info.algorithm["param"])
+                self._setup(info.algorithm["param"], rng, mesh=mesh)
             else:
                 raise ValueError("ERROR: algorithm.param not defined")
         elif param:
-            self._setup(param)
+            self._setup(param, rng, mesh=mesh)
         else:
             pass
 
@@ -57,7 +68,7 @@ class MeshGrid(DomainBase):
         else:
             self.grid_local = self.grid
 
-    def _setup(self, info_param):
+    def _setup(self, info_param, rng: np.random.RandomState, mesh: bool = True):
         """
         Setup the grid based on provided parameters.
 
@@ -65,11 +76,17 @@ class MeshGrid(DomainBase):
         ----------
         info_param
             Dictionary containing parameters for setting up the grid.
+        rng : np.random.RandomState, optional
+            Random number generator.
+        mesh : bool, optional
+            Whether to use mesh grid or points.
         """
         if "mesh_path" in info_param:
             self._setup_from_file(info_param)
-        else:
+        elif mesh:
             self._setup_grid(info_param)
+        else:
+            self._setup_random(info_param, rng)
 
         self.ncandicates = len(self.grid)
 
@@ -131,12 +148,10 @@ class MeshGrid(DomainBase):
 
         if len(min_list) != len(max_list) or len(min_list) != len(num_list):
             raise ValueError("ERROR: lengths of min_list, max_list, num_list do not match")
-
         xs = [
             np.linspace(mn, mx, num=nm)
             for mn, mx, nm in zip(min_list, max_list, num_list)
         ]
-
         self.grid = [
             [idx, *v] for idx, v in enumerate(
                 np.array(
@@ -144,6 +159,41 @@ class MeshGrid(DomainBase):
                 ).reshape(len(xs), -1).transpose()
             )
         ]
+
+    def _setup_random(self, info_param, rng: np.random.RandomState):
+        if "min_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
+        min_list = np.array(info_param["min_list"], dtype=float)
+
+        if "max_list" not in info_param:
+            raise ValueError("ERROR: algorithm.param.max_list is not defined in the input")
+        max_list = np.array(info_param["max_list"], dtype=float)
+
+        if "num_points" not in info_param:
+            raise ValueError("ERROR: algorithm.param.num_points is not defined in the input")
+        num_points = info_param["num_points"]
+
+        if len(min_list) != len(max_list):
+            raise ValueError("ERROR: lengths of min_list and max_list do not match")
+        if num_points <= 0:
+            raise ValueError("ERROR: num_points must be positive")
+
+        local_index = np.array_split(np.arange(num_points), self.mpisize)[self.mpirank]
+        num_local = len(local_index)
+
+        self.grid_local = [
+            [idx, *v]
+            for idx, v in zip(
+                local_index,
+                rng.uniform(min_list, max_list, size=(num_local, len(min_list))),
+            )
+        ]
+
+        if self.mpisize > 1:
+            grids = odatse.mpi.comm().allgather(self.grid_local)
+            self.grid = [v for vs in grids for v in vs]
+        else:
+            self.grid = self.grid_local
 
     def store_file(self, store_path, *, header=""):
         """

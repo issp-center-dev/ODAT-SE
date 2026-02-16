@@ -61,7 +61,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             self,
             info: odatse.Info,
             runner: Optional[odatse.Runner] = None,
-            run_mode: str = "initial"
+            run_mode: str = "initial",
+            mpicomm: Optional["MPI.Comm"] = None
     ) -> None:
         """
         Initialize the algorithm with the given information and runner.
@@ -74,10 +75,18 @@ class AlgorithmBase(metaclass=ABCMeta):
             Optional runner object to execute the algorithm.
         run_mode : str
             Mode in which the algorithm should run.
+        mpicomm : MPI.Comm (optional)
+            MPI communicator to use for parallelization.
+            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        self.mpicomm = mpi.comm()
-        self.mpisize = mpi.size()
-        self.mpirank = mpi.rank()
+        if mpicomm is None:
+            self.mpicomm = mpi.comm()
+            self.mpisize = mpi.size()
+            self.mpirank = mpi.rank()
+        else:
+            self.mpicomm = mpicomm
+            self.mpisize = mpicomm.size
+            self.mpirank = mpicomm.rank
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT

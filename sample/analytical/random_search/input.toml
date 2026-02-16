@@ -1,0 +1,20 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "random_search"
+seed = 12345
+
+[algorithm.param]
+max_list = [6.0, 6.0]
+min_list = [-6.0, -6.0]
+num_points = 100

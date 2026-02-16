@@ -18,8 +18,8 @@ DESCRIPTION
 FILE に指定するデータファイルから2次元に周辺化したヒストグラムを作成する。
 
 データファイルはテキスト形式で、複数のカラムからなる数値データである。
-標準フォーマットでは、空白文字区切りで beta, fx, x1, ..., xN, weight の各数値を格納する。
-beta は逆温度、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
+標準フォーマットでは、空白文字区切りで T(または beta), fx, x1, ..., xN, weight の各数値を格納する。
+T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
 フィールド名はオプション (field_list) で指定できるほか、PAMC計算に用いた入力ファイルのパラメータ (label_list) を用いることができる。
 
 FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込む。
@@ -65,7 +65,7 @@ FILE を指定しない場合、オプション (data_dir) で指定したディ
     PAMCを実行する際に用いた入力パラメータファイルを指定する。パラメータファイルからは range (min_list, max_list) および field_list (label_list) の情報を取得する。
 
 **--field_list FIELD_LIST**
-    フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 beta, fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
+    フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 T(or beta), fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
     columns のフィールド名指定に使われる。
 
 **--progress**
@@ -93,7 +93,7 @@ USAGE
 
       $ python3 plt_2D_histogram.py -d data -o 2dhist
 
-   2dhist ディレクトリに 2Dhistogram_result_T0_beta_{beta}_x1_vs_x2.png 〜 2Dhistogram_result_T10_beta_{beta}_x2_vs_x3.png が出力される。ファイル名の ``summarized`` は ``beta_{beta}`` に置き換えられる。
+   2dhist ディレクトリに 2Dhistogram_result_T0_NNNN_x1_vs_x2.png 〜 2Dhistogram_result_T10_MMMM_x2_vs_x3.png が出力される。ファイル名の ``summarized`` は ``T_{T}`` または ``beta_{beta}`` に置き換えられる。
 
 3. 入力データ file.txt のうち、x1, x3 のフィールドについて2次元ヒストグラムを作成し、png と pdf 形式で出力する。
 
@@ -142,14 +142,14 @@ NOTES
 .. code-block:: text
 
    # コメント行(任意)
-   beta_value fx_value x1_value x2_value ... xN_value weight_value
-   beta_value fx_value x1_value x2_value ... xN_value weight_value
+   T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
+   T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
    ...
 
 各行は空白文字で区切られた数値データであり、各列は以下の意味を持つ:
 
-* 第1列: beta値(逆温度)
-* 第2列: fx値(関数値)
+* 第1列: T(温度) または beta(逆温度)
+* 第2列: fx(関数値)
 * 第3列〜第(N+2)列: パラメータ値 x1, x2, ..., xN
 * 最終列: 重み(weight)
 
@@ -183,7 +183,7 @@ NOTES
 
 * ``summarize_each_T.py`` から出力された、ファイル名に _summarized.txt を含むファイル:
 
-  ``2Dhistogram_{ファイル名の_summarizedを_beta_{beta値}に置換}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
+  ``2Dhistogram_{ファイル名の_summarizedを T または beta に置換}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
 
 パフォーマンス
 ~~~~~~~~~~~~~~

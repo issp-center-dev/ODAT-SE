@@ -1,13 +1,8 @@
-.. 2dmat documentation master file, created by
-   sphinx-quickstart on Tue May 26 18:44:52 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 チュートリアル
 ==================================
 
 このチュートリアルでは、解析関数の最小化問題を例として、ODAT-SEによる逆問題解析の方法を説明します。
-ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の5つの手法が用意されています。
+ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の6つの手法が用意されています。
 
 - ``minsearch``
 
@@ -16,6 +11,10 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の5
 - ``mapper_mpi``
 
   与えられたパラメータの探索グリッドを全探索する
+
+- ``random_search``
+
+  与えられた範囲からランダムにパラメータを選び、関数値を評価する
 
 - ``bayes``
 
@@ -34,13 +33,14 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の5
 最後に、自分で順問題ソルバーを定義する簡単な例について説明します。
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   intro
-   minsearch
-   mapper
-   bayes
-   exchange
-   pamc
-   limitation
-   solver_simple
+  intro
+  minsearch
+  mapper
+  random_search
+  bayes
+  exchange
+  pamc
+  limitation
+  solver_simple

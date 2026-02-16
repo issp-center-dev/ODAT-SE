@@ -12,9 +12,13 @@ jobs:
       matrix:
         # os: ['ubuntu-22.04']
         python-version: ['3.9', '3.12']
+        numpy-version: ['1.21.6', 'latest']
+        exclude:
+          - python-version: '3.12'
+            numpy-version: '1.21.6'
       fail-fast: false
 
-    name: Run tests with Python ${{ matrix.python-version }}
+    name: Run tests with Python ${{ matrix.python-version }} and NumPy ${{ matrix.numpy-version }}
     runs-on: 'ubuntu-22.04'
     # runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -37,7 +41,12 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install setuptools wheel
-          python -m pip install numpy scipy tomli mpi4py
+          if [ "${{ matrix.numpy-version }}" = "latest" ]; then
+            python -m pip install numpy
+          else
+            python -m pip install "numpy==${{ matrix.numpy-version }}"
+          fi
+          python -m pip install scipy tomli mpi4py
           python -m pip install physbo
 
       - name: run

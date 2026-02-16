@@ -17,6 +17,10 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
 
    Entire search over a grid for a given parameter.
 
+- ``random_search``
+
+   Random search.
+
 - ``bayes``
 
    Bayesian optimization.
@@ -38,6 +42,7 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    intro
    minsearch
    mapper
+   random_search
    bayes
    exchange
    pamc
