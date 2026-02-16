@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union, Dict, Optional
+from typing import Union, Optional
 
 from pathlib import Path
 from io import open
@@ -23,7 +23,7 @@ class Algorithm(AlgorithmBase):
     Algorithm class for data analysis of quantum beam diffraction experiments.
     Inherits from odatse.algorithm.AlgorithmBase.
     """
-    mesh_list: List[Union[int, float]]
+    mesh_list: list[Union[int, float]]
 
     def __init__(self, info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
@@ -172,13 +172,13 @@ class Algorithm(AlgorithmBase):
         """
         pass
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """
         Post-process the results and gather data from all MPI ranks.
 
         Returns
         -------
-        Dict
+        dict
             Dictionary of results.
         """
         if self.mpisize > 1:

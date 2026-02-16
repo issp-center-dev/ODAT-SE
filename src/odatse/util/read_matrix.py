@@ -6,18 +6,18 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, List
+from typing import Union
 
 import numpy as np
 
 
-def read_vector(inp: Union[str, List[float]]) -> np.ndarray:
+def read_vector(inp: Union[str, list[float]]) -> np.ndarray:
     """
     Converts an input string or list of floats into a numpy array vector.
 
     Parameters
     ----------
-    inp : Union[str, List[float]]
+    inp : Union[str, list[float]]
         Input data, either as a space-separated string of numbers or a list of floats.
 
     Returns
@@ -40,13 +40,13 @@ def read_vector(inp: Union[str, List[float]]) -> np.ndarray:
         raise RuntimeError(msg)
     return v
 
-def read_matrix(inp: Union[str, List[List[float]]]) -> np.ndarray:
+def read_matrix(inp: Union[str, list[list[float]]]) -> np.ndarray:
     """
     Converts an input string or list of lists of floats into a numpy array matrix.
 
     Parameters
     ----------
-    inp : Union[str, List[List[float]]]
+    inp : Union[str, list[list[float]]]
         Input data, either as a string with rows of space-separated numbers or a list of lists of floats.
 
     Returns
@@ -60,7 +60,7 @@ def read_matrix(inp: Union[str, List[List[float]]]) -> np.ndarray:
         If the input is not a matrix.
     """
     if isinstance(inp, str):
-        Alist: List[List[float]] = []
+        Alist: list[list[float]] = []
         for line in inp.split("\n"):
             if not line.strip():  # empty
                 continue

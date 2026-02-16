@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 import time
 import copy
 from pathlib import Path
@@ -29,7 +29,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     ----------
     mesh_list : np.ndarray
         The mesh grid list.
-    label_list : List[str]
+    label_list : list[str]
         The list of labels.
     random_max_num_probes : int
         The maximum number of random probes.
@@ -43,13 +43,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         The number of random basis.
     xopt : np.ndarray
         The optimal solution.
-    best_fx : List[float]
+    best_fx : list[float]
         The list of best function values.
-    best_action : List[int]
+    best_action : list[int]
         The list of best actions.
-    fx_list : List[float]
+    fx_list : list[float]
         The list of function values.
-    param_list : List[np.ndarray]
+    param_list : list[np.ndarray]
         The list of parameters.
     """
 

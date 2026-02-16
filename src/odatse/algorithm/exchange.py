@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -284,6 +284,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If False, attempt exchanges between odd-even pairs.
         """
         if self.mpisize > 1:
+            assert self.mpicomm is not None
             self.mpicomm.Barrier()
         if direction:
             if self.Tindex[0] % 2 == 0:
@@ -312,11 +313,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 other_beta = self.betas[self.Tindex[0] + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
-                    ibuf[0] = self.Tindex
+                    ibuf[0] = self.Tindex[0]
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
                     self.Tindex[0] += 1
                 else:
-                    ibuf[0] = self.Tindex + 1
+                    ibuf[0] = self.Tindex[0] + 1
                     self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
             else:
                 fbuf[0] = self.fx[0]
@@ -331,7 +332,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 self.mpicomm.Recv(ibuf, source=other_rank, tag=0)
                 self.T2rep[ibuf[0]] = other_rank
         else:
-            ibuf[0] = self.Tindex
+            ibuf[0] = self.Tindex[0]
             self.mpicomm.Send(ibuf, dest=0, tag=0)
         self.mpicomm.Bcast(self.T2rep, root=0)
 
@@ -398,7 +399,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """
         Post-process the results of the algorithm.
         """
@@ -429,6 +430,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         # Gather best results from all processes
         if self.mpisize > 1:
+            assert self.mpicomm is not None
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
             # ``Gather`` and ``allgather`` seem to work fine.

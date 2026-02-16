@@ -19,7 +19,7 @@ from odatse.exception import InputError
 
 # type hints
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 from . import mpi
 
 
