@@ -23,10 +23,7 @@
     - ``self.mpicomm: Optional[MPI.Comm]`` : MPI communicator ``mpi4py.MPI.Comm`` object to use for parallelization.
 
       - If ``mpicomm`` is given, it is used.
-      - If ``mpicomm`` is not given,
-
-        - If ``mpi4py`` is imported, ``mpi4py.MPI.COMM_WORLD`` is used.
-        - If ``mpi4py`` is not imported, ``None`` is set, and the algorithm runs in serial.
+      - If ``mpicomm`` is not given, if ``mpi4py`` can be imported, ``mpi4py.MPI.COMM_WORLD`` is used. Otherwise, ``None`` is set, and the algorithm runs in serial.
 
     - ``self.mpisize: int`` : the number of MPI processes
 

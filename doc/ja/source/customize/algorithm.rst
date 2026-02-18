@@ -23,10 +23,7 @@
         - ``self.mpicomm: Optional[MPI.Comm]`` : MPI通信を行うための ``mpi4py.MPI.Comm`` オブジェクト
 
             - ``mpicomm`` が指定されている場合は、その値を使用します。
-            - ``mpicomm`` が指定されていない場合
-
-                - ``mpi4py`` が import できた場合は ``mpi4py.MPI.COMM_WORLD`` を使用します。
-                - ``mpi4py`` が import できなかった場合は、 ``None`` が設定され、 シリアル実行されます。
+            - ``mpicomm`` が指定されていない場合には、 ``mpi4py`` が import できた場合は ``mpi4py.MPI.COMM_WORLD`` を使用します。さもなくば、 ``None`` が設定され、 シリアル実行されます。
 
         - ``self.mpisize: int`` : MPIプロセス数
 
