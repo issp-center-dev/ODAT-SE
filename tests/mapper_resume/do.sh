@@ -1,5 +1,14 @@
 #!/bin/sh
 
+if [ "$(uname)" = "Darwin" ]; then
+  which gtimeout > /dev/null 2>&1 || { echo "gtimeout is not installed"; echo "Please install gtimeout using 'brew install coreutils'"; exit 1; }
+  TIMEOUT="gtimeout"
+else
+  which timeout > /dev/null 2>&1 || { echo "timeout is not installed"; exit 1; }
+  TIMEOUT="timeout"
+fi
+
+
 export PYTHONUNBUFFERED=1
 
 # Command to run the main Python script
@@ -11,7 +20,7 @@ CMD="python3 ../../src/odatse_main.py"
 rm -rf output1
 
 # Run the command with a timeout of 12 seconds using input1.toml
-time timeout 12s $CMD input1.toml
+time ${TIMEOUT} 12s $CMD input1.toml
 
 # Run the command with the --resume option using input1.toml
 time $CMD --resume input1.toml
