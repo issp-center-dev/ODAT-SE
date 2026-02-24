@@ -27,7 +27,6 @@ class LinearRegression(odatse.solver.SolverBase):
         self.ydata = data[1]
 
         dimension = self.dimension
-        print(f"{dimension=}")
         self.n = len(self.xdata)
         self.X = np.zeros((self.n, dimension))
         if self.has_intercept:
