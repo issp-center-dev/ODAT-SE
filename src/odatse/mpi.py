@@ -6,15 +6,39 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-try:
-    from mpi4py import MPI
+import os
+
+ODATSE_NOMPI = os.environ.get("ODATSE_NOMPI", "0")!="0"
+
+if not ODATSE_NOMPI:
+    try:
+        from mpi4py import MPI
+        ODATSE_NOMPI = False
+    except ImportError:
+        ODATSE_NOMPI = True
+
+if ODATSE_NOMPI:
+    Comm = None
+
+    def comm():
+        return None
+
+    def size() -> int:
+        return 1
+
+    def rank() -> int:
+        return 0
+
+    def enabled() -> bool:
+        return False
+else:
     Comm = MPI.Comm
 
     __comm = MPI.COMM_WORLD
     __size = __comm.size
     __rank = __comm.rank
 
-    def comm() -> MPI.Comm:
+    def comm():
         return __comm
 
     def size() -> int:
@@ -26,18 +50,3 @@ try:
     def enabled() -> bool:
         return True
 
-
-except ImportError:
-    Comm = None
-
-    def comm() -> None:
-        return None
-
-    def size() -> int:
-        return 1
-
-    def rank() -> int:
-        return 0
-
-    def enabled() -> bool:
-        return False
