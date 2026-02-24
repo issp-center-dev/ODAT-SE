@@ -168,21 +168,23 @@ For this tutorial, files can be located in ``sample/linreg_with_noise`` relative
 User-defined Target Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ODAT-SE framework allows users to define custom solvers by inheriting from the ``SolverBase`` class. Here, we demonstrate how to create a linear regression solver.
+The ODAT-SE framework allows users to define custom solvers by inheriting from the ``SolverBase`` class. Here, we demonstrate how to create a linear regression solver that supports a configurable dimension (polynomial order) and optional intercept via the design matrix :math:`X`.
 
 .. code:: python
 
         #!/usr/bin/env python
         """
         Integrated linear regression and model evidence analysis
-        Combines custom ODAT-SE solver implementing linear regression with model evidence calculation
+        Combines a custom ODAT-SE solver implementing linear regression with model evidence calculation
         """
 
         import odatse
         import sys, os, argparse
+        import contextlib
         import numpy as np
         from matplotlib import pyplot as plt
         from odatse.algorithm import choose_algorithm
+
         sys.path.append("../../script")
         from plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
 
@@ -192,33 +194,52 @@ The ODAT-SE framework allows users to define custom solvers by inheriting from t
                 def __init__(self, info):
                         super().__init__(info)
                         data_file = info.solver["reference"]["path"]
+                        self.has_intercept = info.solver.get("has_intercept", False)
                         data = np.loadtxt(data_file, unpack=True)
-
                         self.xdata = data[0]
                         self.ydata = data[1]
-                        self.n = len(self.ydata)
+
+                        dimension = self.dimension
+                        self.n = len(self.xdata)
+                        self.X = np.zeros((self.n, dimension))
+                        if self.has_intercept:
+                                self.X[:, 0] = 1.0
+                        else:
+                                self.X[:, 0] = self.xdata.copy()
+                        for i in range(1, dimension):
+                                self.X[:, i] = self.X[:, i - 1] * self.xdata
 
                 def evaluate(self, xs, args, nprocs=1, nthreads=1):
-                        loss = np.sum((xs*self.xdata - self.ydata)**2)
+                        loss = np.sum((self.X @ xs - self.ydata) ** 2)
                         return loss
 
-The target function is defined in the ``evaluate`` function. Here, we use the quadratic loss function representing the sum of squared residuals.
+The target function is defined in the ``evaluate`` function. Here, we use the quadratic loss (sum of squared residuals) with a design matrix :math:`X` so that the model can represent either :math:`y = a x` (``dimension = 1``, no intercept) or polynomial fits such as :math:`y = a_0 + a_1 x` (``dimension = 2`` with ``has_intercept = true``).
 
 Model Evidence Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the calculation of the model evidence we import functions from the post-processing tool ``plt_model_evidence.py`` (for details, see :doc:`../post/index`). To plot the linear fit together with noise bands, we use the following function:
+For the calculation of the model evidence we import functions from the post-processing tool ``plt_model_evidence.py`` (for details, see :doc:`../post/index`). To plot the linear fit together with noise bands, we use the following function (which supports both single coefficient and multiple coefficients, with or without intercept):
 
 .. code:: python
 
-        def plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file):
+        def plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file, intercept=False):
                 fig, ax = plt.subplots(figsize=(10, 6))
 
                 # Plot original data points and fitted line
                 ax.scatter(xdata, ydata, s=50, alpha=0.7, label='Data', color='blue')
                 x_fit = np.linspace(xdata.min(), xdata.max(), 100)
-                y_fit = a * x_fit
-                ax.plot(x_fit, y_fit, 'r-', linewidth=2, label=f'Fit: y = {a:.4f}x')
+                y_fit = np.zeros(len(x_fit))
+                if intercept:
+                        x = np.ones(len(x_fit))
+                else:
+                        x = x_fit.copy()
+                if not isinstance(a, np.ndarray):
+                        a = np.array([a])
+                for i in range(len(a)):
+                        y_fit += a[i] * x
+                        x *= x_fit
+
+                ax.plot(x_fit, y_fit, 'r-', linewidth=2, label=f'Coefficients: {a}')
 
                 # Add noise bands (\pm1\sigma, \pm2\sigma)
                 ax.fill_between(x_fit, y_fit - noise_level, y_fit + noise_level,
@@ -229,7 +250,7 @@ For the calculation of the model evidence we import functions from the post-proc
                 ax.set_xlabel('x', fontsize=12)
                 ax.set_ylabel('y', fontsize=12)
                 ax.set_title(f'Linear Regression with Optimal Noise Level\n' +
-                                        f'$a$ = {a:.4f}, $\\beta_{{opt}}$ = {beta_opt:.2e}, $\\sigma$ = {noise_level:.4f}', fontsize=14)
+                                        f'$a$ = {a}, $\\beta_{{opt}}$ = {beta_opt:.2e}, $\\sigma$ = {noise_level:.4f}', fontsize=14)
                 ax.legend(loc='best')
                 ax.grid(True, alpha=0.3)
 
@@ -268,9 +289,6 @@ The main function accepts a TOML file as input and optionally a log file. Other 
 
                 sys.argv = ["script.py", args.input, "--init"]
 
-                original_stdout = sys.stdout
-                original_stderr = sys.stderr
-
                 # Initialize ODAT-SE to get output directory
                 info, run_mode = odatse.initialize()
                 output_dir = info.base.get("output_dir", "./output")
@@ -282,29 +300,25 @@ The main function accepts a TOML file as input and optionally a log file. Other 
                 if args.logfile is None:
                         args.logfile = os.path.join(output_dir, "odatse_run.log")
 
-                # Run ODAT-SE
+                # Run ODAT-SE with redirected output
                 with open(args.logfile, "w") as f:
-                        sys.stdout = f
-                        sys.stderr = f
-
-                        solver = LinearRegression(info)
-                        runner = odatse.Runner(solver, info)
-                        alg_module = choose_algorithm(info.algorithm["name"])
-                        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-                        result = alg.main()
-
-                        sys.stdout = original_stdout
-                        sys.stderr = original_stderr
+                        with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f):
+                                solver = LinearRegression(info)
+                                runner = odatse.Runner(solver, info)
+                                alg_module = choose_algorithm(info.algorithm["name"])
+                                alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+                                result = alg.main()
                 print("ODAT-SE run completed")
                 print(f"Output directory: {output_dir}")
 
                 # Get fitting parameters
-                a = result['x'][0]
+                a = result['x']
                 xdata = solver.xdata
+                X = solver.X
                 ydata = solver.ydata
                 n_data = solver.n
                 print(f"\nFitting results:")
-                print(f"  Slope a = {a:.6f}")
+                print(f"  Coefficients a = {a}")
                 print(f"  Number of data points n = {n_data}")
 
                 # Step 2: Load fx.txt data and calculate model evidence
@@ -337,7 +351,7 @@ The main function accepts a TOML file as input and optionally a log file. Other 
                 print(f"  std = 1/sqrt(2*beta_opt) = {noise_level:.6f}")
 
                 # Calculate R^2 value
-                y_pred = a * xdata
+                y_pred = X @ np.asarray(a)
                 ss_res = np.sum((ydata - y_pred)**2)
                 ss_tot = np.sum((ydata - np.mean(ydata))**2)
                 r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
@@ -352,7 +366,8 @@ The main function accepts a TOML file as input and optionally a log file. Other 
                 evidence_plot = os.path.join(output_dir, "model_evidence.png")
                 plot_log_pdb(evidence_plot, beta, log_pdb, None, args.auto_focus, args.focus_factor)
                 fit_plot = os.path.join(output_dir, "linear_fit_with_noise.png")
-                plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file=fit_plot)
+                plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file=fit_plot,
+                                          intercept=solver.has_intercept)
 
                 # Save results to file
                 print("\nStep 6: Saving results...")
@@ -361,7 +376,7 @@ The main function accepts a TOML file as input and optionally a log file. Other 
                         f.write("Linear regression and model evidence analysis results\n")
                         f.write("="*50 + "\n\n")
                         f.write(f"Fitting parameters:\n")
-                        f.write(f"  Slope a = {a:.6f}\n")
+                        f.write(f"  Coefficients a = {a}\n")
                         f.write(f"  Number of data points n = {n_data}\n\n")
                         f.write(f"Optimal parameters:\n")
                         f.write(f"  beta_opt = {beta_opt:.6e}\n")
@@ -417,7 +432,6 @@ Create ``input.toml`` according to the ODATSE configuration (model evidence is a
         [algorithm]
         name = "pamc"
         seed = 12345
-        label_list = ["a"]
 
         [algorithm.param]
         min_list = [-20.0]
@@ -471,7 +485,7 @@ Numerical Results
 
 The PAMC algorithm yields:
 
-- :math:`a^* = 1.0066` (numerical)
+- :math:`a^* = 1.0066` (numerical, single coefficient for dimension = 1)
 - :math:`\beta_{\text{opt}} = 23.101` (numerical)
 - :math:`\sigma_{\text{opt}} = 0.14712` (from :math:`\beta_{\text{opt}}`)
 
@@ -481,7 +495,7 @@ Factors that cause the slight difference in :math:`\beta` values include the use
         :name: example_fit
         :width: 55%
 
-        Figure 1: Linear regression plot for the dataset used in this example.
+        Figure 1: Linear regression plot for the dataset used in this example (output: ``linear_fit_with_noise.png``).
 
 The estimated noise level :math:`\sigma \approx 0.1` is reasonable given the deviations of :math:`y_i` from the fitted line.
 
@@ -493,56 +507,40 @@ This example demonstrates the robustness of the noise estimation method by maxim
 Step 1: Prepare Input Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Below is a Python script that generates some linear data combined with Gaussian noise at various noise levels.
+The sample provides a script ``data_gen.py`` that generates linear data with Gaussian noise at configurable noise levels. It reads parameters from a file (e.g. ``parameters.txt``). Example parameter file:
 
-.. code:: python
-
-        import numpy as np
-        import matplotlib.pyplot as plt
-
-        np.random.seed(42)
-
-        n_samples = 50
-        x = np.linspace(0, 10, n_samples)
+.. code:: text
 
         a = 2.5
-        y_true = a * x
+        n = 50
+        x_min = 0.0
+        x_max = 10.0
+        noise_levels = 1.0, 3.0, 5.0
+        seed = 42
 
-        noise_levels = [1, 3, 5]
+Run the data generator (optionally passing a parameter file; default is ``parameters.txt``):
 
-        file_names = []
-        for noise in noise_levels:
-                y_noisy = y_true + np.random.normal(0, noise, size=n_samples)
-                data = np.column_stack((x, y_noisy))
-                file_name = f"linear_data_gaussian_noise{noise}.txt"
-                np.savetxt(file_name, data, comments='', fmt="%.6f")
-                file_names.append(file_name)
-                plt.scatter(x, y_noisy, label=f'Noise level: {noise}')
+.. code:: bash
 
-        plt.plot(x, y_true, color='red', label='True line', linewidth=2)
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('Linear Data with Gaussian Noise')
-        plt.legend()
-        plt.savefig("linear_data_gaussian_noise.png")
+        python data_gen.py parameters.txt
 
-The datasets generated by this script are plotted below.
+This produces data files named ``data_noise1.0.txt``, ``data_noise3.0.txt``, ``data_noise5.0.txt`` (when using the default ``datafile_prefix``), and a summary figure ``data.png``. The script supports vector coefficients ``a`` (e.g. ``a = 2.5, 0.1`` for a polynomial) and custom ``datafile_prefix``.
 
 .. figure:: ../../../common/img/linreg_with_noise/linear_data_gaussian_noise.png
         :name: linear_data_gaussian_noise
         :width: 50%
 
-        Figure 2: Artificial data generated from the function :math:`y=2.5x` with Gaussian noise at levels :math:`\sigma^*=1,3,5`.
+        Figure 2: Artificial data generated from the function :math:`y=2.5x` with Gaussian noise at levels :math:`\sigma^*=1,3,5` (generated by ``data_gen.py``; default output ``data.png``).
 
 Step 2: Create the ODAT-SE Input File
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We can use the same input file as in the previous example, replacing the value of ``output_dir`` under ``[base]`` and ``path`` under ``[solver.reference]`` to the appropriate paths to the output directory and input file (whose filenames are of the form ``data_noise#.txt``, where ``#`` denotes the noise level as taken from the above script for generating noisy input data).
+Use the same structure as in Example 1. Set ``[base].output_dir`` and ``[solver.reference].path`` to the desired output directory and one of the generated data files (e.g. ``./data_noise1.0.txt``). For multiple runs, change ``path`` to ``data_noise3.0.txt`` or ``data_noise5.0.txt`` as needed.
 
 Step 3: Run the Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-As in the previous example, we then run the script for each of the three datasets, specifying ``input.toml`` as the input argument (after making the appropriate changes to the input file):
+Run the script for each of the three datasets (change ``path`` in ``input.toml`` to the corresponding data file and ``output_dir`` if desired, then run):
 
 .. code:: bash
 
@@ -628,7 +626,7 @@ After performing a linear regression and noise estimation on each of the three d
 ..   :math:`a^* = 2.5`, :math:`\sigma^* = 3`, :math:`a = 2.4844`, :math:`\sigma = 2.5412`
 ..   :math:`a^* = 2.5`, :math:`\sigma^* = 5`, :math:`a = 2.4552`, :math:`\sigma = 4.8738`
 
-The regression plot and model evidence plot for the case where the model has noise level :math:`\sigma=5` are presented below.
+The regression plot and model evidence plot for the case where the model has noise level :math:`\sigma=5` are presented below. The fit figure is saved as ``linear_fit_with_noise.png`` in the run's output directory.
 
 .. figure:: ../../../common/img/linreg_with_noise/gaussian_noise5.png
         :name: gaussian_noise5
