@@ -21,9 +21,9 @@ project = u'ODAT-SE'
 copyright = u'2020, Institute for Solid State Physics, University of Tokyo'
 author = u'2DMAT Developer team'
 
-version = '3.3'
+version = '3.2'
 # The full version, including alpha/beta/rc tags
-release = '3.3-dev'
+release = '3.2.1'
 
 # -- General configuration ---------------------------------------------------
 
