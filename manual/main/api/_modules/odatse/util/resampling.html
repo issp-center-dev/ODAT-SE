@@ -78,7 +78,7 @@
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
 
@@ -106,7 +106,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A resampler that uses binary search to sample based on given weights.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">weights_accumulated</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">weights_accumulated</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
     <span class="n">wmax</span><span class="p">:</span> <span class="nb">float</span>
 
 <div class="viewcode-block" id="BinarySearch.__init__">
@@ -138,7 +138,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights_accumulated</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@overload</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample a single index based on the weights.</span>
@@ -155,7 +155,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@overload</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample multiple indices based on the weights.</span>
@@ -274,7 +274,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ptable</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">mean</span></div>
 
 
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@overload</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample a single index based on the weights.</span>
@@ -291,7 +291,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@overload</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample multiple indices based on the weights.</span>

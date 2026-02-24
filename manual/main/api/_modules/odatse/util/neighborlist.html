@@ -78,7 +78,6 @@
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -108,7 +107,7 @@
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    cells : List[Set[int]]</span>
+<span class="sd">    cells : list[set[int]]</span>
 <span class="sd">        List of sets, where each set contains indices of points in that cell.</span>
 <span class="sd">    dimension : int</span>
 <span class="sd">        Number of spatial dimensions.</span>
@@ -134,7 +133,7 @@
 <span class="sd">    &gt;&gt;&gt; cells.cells[cell_index].add(point_index)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">cells</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+    <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">mins</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">maxs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -339,7 +338,7 @@
 
 <div class="viewcode-block" id="Cells.neighborcells">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.neighborcells">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">neighborcells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">neighborcells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the indices of neighboring cells, including the cell itself.</span>
 <span class="sd">        </span>
@@ -353,7 +352,7 @@
 <span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        List[int]</span>
+<span class="sd">        list[int]</span>
 <span class="sd">            The indices of the neighboring cells (including the cell itself).</span>
 <span class="sd">            </span>
 <span class="sd">        Examples</span>
@@ -363,7 +362,7 @@
 <span class="sd">        &gt;&gt;&gt; len(neighbors)  # 3x3 neighborhood in 2D</span>
 <span class="sd">        9</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">neighbors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">neighbors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">center_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cellindex2cellcoord</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
             <span class="n">other_coord</span> <span class="o">=</span> <span class="n">center_coord</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
@@ -383,7 +382,7 @@
     <span class="n">allow_selfloop</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">mpi</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a neighbor list using cell-based spatial partitioning.</span>
 <span class="sd">    </span>
@@ -406,7 +405,7 @@
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    List[List[int]]</span>
+<span class="sd">    list[list[int]]</span>
 <span class="sd">        A list of lists, where each inner list contains the indices of</span>
 <span class="sd">        neighboring points for a given point.</span>
 <span class="sd">        </span>
@@ -437,7 +436,7 @@
 
     <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">npoints</span><span class="p">),</span> <span class="n">mpisize</span><span class="p">)[</span><span class="n">mpirank</span><span class="p">]</span>
     <span class="n">npoints_local</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-    <span class="n">nnlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
+    <span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_progress</span> <span class="ow">and</span> <span class="n">has_tqdm</span><span class="p">:</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;rank 0&quot;</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
@@ -472,7 +471,7 @@
     <span class="n">allow_selfloop</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">mpi</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a neighbor list using a naive all-pairs approach.</span>
 <span class="sd">    </span>
@@ -496,7 +495,7 @@
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    List[List[int]]</span>
+<span class="sd">    list[list[int]]</span>
 <span class="sd">        A list of lists, where each inner list contains the indices of</span>
 <span class="sd">        neighboring points for a given point.</span>
 <span class="sd">        </span>
@@ -519,7 +518,7 @@
     <span class="n">npoints</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">npoints</span><span class="p">),</span> <span class="n">mpisize</span><span class="p">)[</span><span class="n">mpirank</span><span class="p">]</span>
     <span class="n">npoints_local</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-    <span class="n">nnlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
+    <span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_progress</span> <span class="ow">and</span> <span class="n">has_tqdm</span><span class="p">:</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;rank 0&quot;</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
@@ -553,7 +552,7 @@
     <span class="n">check_allpairs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">mpi</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a neighbor list for given points.</span>
 <span class="sd">    </span>
@@ -579,7 +578,7 @@
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    List[List[int]]</span>
+<span class="sd">    list[list[int]]</span>
 <span class="sd">        A list of lists, where each inner list contains the indices of</span>
 <span class="sd">        neighboring points for a given point.</span>
 <span class="sd">        </span>
@@ -616,7 +615,7 @@
 
 <div class="viewcode-block" id="load_neighbor_list">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.load_neighbor_list">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_neighbor_list</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_neighbor_list</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load a neighbor list from a file.</span>
 <span class="sd">    </span>
@@ -633,7 +632,7 @@
 <span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    List[List[int]]</span>
+<span class="sd">    list[list[int]]</span>
 <span class="sd">        The neighbor list loaded from the file.</span>
 <span class="sd">        </span>
 <span class="sd">    Examples</span>
@@ -655,7 +654,7 @@
                     <span class="k">continue</span>
                 <span class="n">nnodes</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="n">neighbor_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)]</span>
+    <span class="n">neighbor_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -673,7 +672,7 @@
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.write_neighbor_list">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_neighbor_list</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">nnlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -688,7 +687,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    filename : str</span>
 <span class="sd">        The path to the output file.</span>
-<span class="sd">    nnlist : List[List[int]]</span>
+<span class="sd">    nnlist : list[list[int]]</span>
 <span class="sd">        The neighbor list to write.</span>
 <span class="sd">    radius : float, optional</span>
 <span class="sd">        The neighborhood radius, written as a comment in the file, by default None.</span>

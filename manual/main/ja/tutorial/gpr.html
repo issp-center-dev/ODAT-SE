@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>例：関数モデリングのためのガウス過程回帰 &#8212; ODAT-SE 3.2.1 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
+    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <script src="../_static/documentation_options.js?v=720fe4f0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="入力ファイル" href="../input.html" />
+    <link rel="prev" title="例: 線形回帰とノイズ推定" href="linreg_with_noise.html" /> 
+  </head><body>
+      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
+          <span>ODAT-SE 3.2.1 ドキュメント</span></a></h1>
+        <h2 class="heading"><span>例：関数モデリングのためのガウス過程回帰</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="Top">
+      
+        <p>
+        «&#160;&#160;<a href="linreg_with_noise.html">例: 線形回帰とノイズ推定</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">入力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content" role="main">
+        
+        
+  <section id="id1">
+<h1>例：関数モデリングのためのガウス過程回帰<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="id2">
+<h2>はじめに<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>このチュートリアルでは、ODAT-SEフレームワークを使用して、ガウス過程 (GP) 回帰により未知の関数をモデル化する方法を説明します。実験のケースでは、パラメータの組み合わせについて限られた数のデータポイントしか得られないことがよくあります。このチュートリアルの目標は、いくつかの異なる実験条件で得られた実験結果に対応する点のサブセットから関数をモデル化し、再構成されたモデルから真の関数の最小値を推定することです。</p>
+</section>
+<section id="id3">
+<h2>問題設定<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>実験測定データ <span class="math notranslate nohighlight">\(D \equiv \{(x_i,y_i,t_i)\}_i\)</span> を考えます。ここで：</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(i\)</span> は、与えられたデータセットの <span class="math notranslate nohighlight">\(n\)</span> 個のデータポイントのインデックスです。(<span class="math notranslate nohighlight">\(i\)</span> は1から <span class="math notranslate nohighlight">\(n\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\((x_i,y_i,t_i)\)</span> は <span class="math notranslate nohighlight">\(i\)</span> 番目の測定を表します。 <span class="math notranslate nohighlight">\(x_i\)</span> と <span class="math notranslate nohighlight">\(y_i\)</span> は (ノイズを含む) 測定 <span class="math notranslate nohighlight">\(t_i\)</span> の状態パラメータです。</p></li>
+</ul>
+<p>このチュートリアルの目的は：</p>
+<ol class="arabic simple">
+<li><p>データと最もよく適合するガウス過程モデルのハイパーパラメータを決定すること、および</p></li>
+<li><p>データセット上の回帰モデルから得られた代理(surrogate)モデルを使用して真の関数の最小値を推定すること、です。</p></li>
+</ol>
+<p>ここでは、ODAT-SE の <code class="docutils literal notranslate"><span class="pre">SolverBase</span></code> を継承するカスタムソルバーを実装して最小値を推定します。このソルバーは、フィッティングされたGPモデルを介して入力に対する予測を評価します。このチュートリアルに必要なモジュールは次のとおりです：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.gaussian_process</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianProcessRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.gaussian_process.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBF</span><span class="p">,</span> <span class="n">ConstantKernel</span><span class="p">,</span> <span class="n">WhiteKernel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CenteredNorm</span>
+</pre></div>
+</div>
+<section id="id4">
+<h3>サンプルデータセットの生成<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>テスト関数として、次の式で表される Himmelblau 関数を考えます：</p>
+<div class="math notranslate nohighlight">
+\[f(x,y)=(x^2+y-11)^2+(x+y^2-7)^2\]</div>
+<p>Pythonコードでの実装は次のとおりです：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">himmelblau</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">-</span> <span class="mf">11.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">7.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>サンプルデータポイントを探索空間内で一様ランダムに生成し、少量のノイズを加えます。得られたデータセットは、訓練セットとテストセットに分割されます。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">make_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">xrange</span><span class="p">,</span> <span class="n">yrange</span><span class="p">,</span> <span class="n">noise</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">*</span><span class="n">xrange</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">*</span><span class="n">yrange</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">noise</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">t</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">split_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">n_train</span><span class="p">,</span> <span class="n">n_test</span><span class="p">):</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">id_tr</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[:</span><span class="n">n_train</span><span class="p">]</span>
+        <span class="n">id_te</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[</span><span class="n">n_train</span><span class="p">:</span><span class="n">n_train</span> <span class="o">+</span> <span class="n">n_test</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">[</span><span class="n">id_tr</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="n">id_tr</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">id_te</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="n">id_te</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>ガウス過程回帰<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p>この例では、次のカーネルを使用してガウス過程回帰を実行します：</p>
+<div class="math notranslate nohighlight">
+\[k(x_i,x_j)=\theta_0^2\exp\left(-\frac{\lVert x_i-x_j\rVert^2}{2\theta_1^2}\right)+\theta_2\delta_{ij}\]</div>
+<p>ここで、 <span class="math notranslate nohighlight">\(\lVert\cdot\rVert\)</span> はベクトル <span class="math notranslate nohighlight">\(x_i\)</span> と <span class="math notranslate nohighlight">\(x_j\)</span> の間のユークリッド距離です。 <span class="math notranslate nohighlight">\(\theta_0\)</span>, <span class="math notranslate nohighlight">\(\theta_1\)</span>, <span class="math notranslate nohighlight">\(\theta_2\)</span> は、フィッティングで最適化されるハイパーパラメータです。</p>
+<p>GPを次の関数で初期化します。引数 <code class="docutils literal notranslate"><span class="pre">Xtr</span></code> (入力) と <code class="docutils literal notranslate"><span class="pre">ttr</span></code> (ターゲット) は訓練データを受け取ります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">gplearn</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ttr</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">ConstantKernel</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">))</span> <span class="o">*</span> <span class="n">RBF</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">))</span> <span class="o">+</span> <span class="n">WhiteKernel</span><span class="p">(</span><span class="n">noise_level</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">noise_level_bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">1e-16</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">gpr</span> <span class="o">=</span> <span class="n">GaussianProcessRegressor</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">,</span> <span class="n">n_restarts_optimizer</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">normalize_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">gpr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ttr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hyperparameters: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">gpr</span><span class="o">.</span><span class="n">kernel_</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitted kernel: </span><span class="si">{</span><span class="n">gpr</span><span class="o">.</span><span class="n">kernel_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">predictor</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">ts</span> <span class="o">=</span> <span class="n">gpr</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ts</span>  <span class="c1"># (N,)</span>
+        <span class="k">return</span> <span class="n">predictor</span>
+</pre></div>
+</div>
+<p>フィッティングは関数内で実行されます (<code class="docutils literal notranslate"><span class="pre">sklearn.gaussian_process.GaussianProcessRegressor</span></code> の <code class="docutils literal notranslate"><span class="pre">fit()</span></code> を使っています) 。このサブルーチンは、入力変数を受け取り予測量を出力する予測子に対応する関数を返します。</p>
+<section id="id6">
+<h4>データの正規化<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h4>
+<p>データをGPフィッティング関数に渡す前に、まずデータを適切に正規化します。これは次のクラスで行われます：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Converter</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaler_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaler_t</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaler_X</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaler_t</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">convert_X</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler_X</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">convert_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler_t</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">revert_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_scaled</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">t_scaled</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">t_scaled</span> <span class="o">=</span> <span class="n">t_scaled</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">t_proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaler_t</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">t_scaled</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">t_proc</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">gen_predictor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictor_raw</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">predictor</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                        <span class="n">Xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                        <span class="n">ts</span> <span class="o">=</span> <span class="n">predictor_raw</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">revert_t</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">predictor</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Converter</span></code> インスタンスの初期化中に、スケーラはデータに合わせて調整されます。前のセクションで定義された予測子関数を <code class="docutils literal notranslate"><span class="pre">gen_predictor()</span></code> に渡します。それにより、データを正規化してから最適なモデルを計算する関数が得られます。</p>
+</section>
+</section>
+</section>
+<section id="odat-se">
+<h2>ODAT-SEの実装<a class="headerlink" href="#odat-se" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h3>コード実装<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<p>このチュートリアルでは、ファイルはリポジトリ内の <code class="docutils literal notranslate"><span class="pre">sample/gpr</span></code> に配置されています。メインスクリプトは <code class="docutils literal notranslate"><span class="pre">gpr.py</span></code> という名前です。</p>
+<section id="solverbase">
+<h4><code class="docutils literal notranslate"><span class="pre">SolverBase</span></code> クラスから派生<a class="headerlink" href="#solverbase" title="Link to this heading">¶</a></h4>
+<p>ODAT-SEの <code class="docutils literal notranslate"><span class="pre">SolverBase</span></code> クラスを使用してカスタムソルバーを定義します。ここでは、汎用的な予測子関数のソルバーを定義します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PredictorSolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">predictor</span><span class="p">):</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;predict&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">predictor</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="p">(),</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">evaluate</span></code> 関数では、予測子関数を呼び出します (例えば <code class="docutils literal notranslate"><span class="pre">Converter.gen_predictor</span></code> の出力です) 。</p>
+</section>
+<section id="id8">
+<h4>メイン関数<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h4>
+<p>真のモデルに対する代理モデルの品質を可視化するための補助プロット関数を定義します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_res</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">predictor</span><span class="p">):</span>
+        <span class="c1"># Grid over the domain</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">251</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">yrange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yrange</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">251</span><span class="p">)</span>
+        <span class="n">Xg</span><span class="p">,</span> <span class="n">Yg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">XY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">Xg</span><span class="p">,</span> <span class="n">Yg</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># Compute maps</span>
+        <span class="n">Z_pred</span> <span class="o">=</span> <span class="n">predictor</span><span class="p">(</span><span class="n">XY</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Xg</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">Z_true</span> <span class="o">=</span> <span class="n">himmelblau</span><span class="p">(</span><span class="n">Xg</span><span class="p">,</span> <span class="n">Yg</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">Z_err</span> <span class="o">=</span> <span class="n">Z_pred</span> <span class="o">-</span> <span class="n">Z_true</span>
+
+        <span class="c1"># Shared limits for true/pred</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">Z_true</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Z_pred</span><span class="o">.</span><span class="n">min</span><span class="p">()))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">Z_true</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">Z_pred</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+
+        <span class="c1"># Plots: True | Pred | Error</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax_t</span><span class="p">,</span> <span class="n">ax_p</span><span class="p">,</span> <span class="n">ax_e</span> <span class="o">=</span> <span class="n">axes</span>
+
+        <span class="n">im_t</span> <span class="o">=</span> <span class="n">ax_t</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">Z_true</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="n">ax_t</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+        <span class="n">ax_t</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">ax_t</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">ax_t</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im_t</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_t</span><span class="p">)</span>
+
+        <span class="n">im_p</span> <span class="o">=</span> <span class="n">ax_p</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">Z_pred</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="n">ax_p</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Predicted&#39;</span><span class="p">)</span>
+        <span class="n">ax_p</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">ax_p</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">ax_p</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im_p</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_p</span><span class="p">)</span>
+
+        <span class="n">im_e</span> <span class="o">=</span> <span class="n">ax_e</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">Z_err</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">CenteredNorm</span><span class="p">(</span><span class="n">vcenter</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">ax_e</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Error (pred - true)&#39;</span><span class="p">)</span>
+        <span class="n">ax_e</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">ax_e</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">ax_e</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Xtr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im_e</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_e</span><span class="p">)</span>
+
+        <span class="c1"># plt.show()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;res.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>サンプルスクリプトのメイン関数は、TOMLファイルを入力として受け取り、オプションでログファイルと訓練およびテストデータセットのサイズを変更する引数を受け取ります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--input&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;input.toml&quot;</span><span class="p">,</span>
+                                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ODAT-SE input configuration file path&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--logfile&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ODAT-SE run log file (default: odatse_run.log)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ntrain&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of training data points (default: 500)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--ntest&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of test data points (default: 500)&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+        <span class="c1"># Initialize ODAT-SE to get output directory</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;script.py&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">]</span>
+        <span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;./output&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create output directory if it doesn&#39;t exist</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Set log file path</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">logfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;odatse_run.log&quot;</span><span class="p">)</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">])</span>
+        <span class="n">xrange</span><span class="p">,</span> <span class="n">yrange</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;param&quot;</span><span class="p">][</span><span class="s2">&quot;min_list&quot;</span><span class="p">],</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;param&quot;</span><span class="p">][</span><span class="s2">&quot;max_list&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Data</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="n">himmelblau</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ntrain</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">ntest</span><span class="p">,</span> <span class="n">xrange</span><span class="p">,</span> <span class="n">yrange</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+        <span class="c1"># Split</span>
+        <span class="n">Xtr</span><span class="p">,</span> <span class="n">ttr</span><span class="p">,</span> <span class="n">Xte</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ntrain</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ntest</span><span class="p">)</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">Converter</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ttr</span><span class="p">)</span>
+        <span class="n">Xtr_s</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">convert_X</span><span class="p">(</span><span class="n">Xtr</span><span class="p">)</span>
+        <span class="n">ttr_s</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">convert_t</span><span class="p">(</span><span class="n">ttr</span><span class="p">)</span>
+
+        <span class="n">predictor_raw</span> <span class="o">=</span> <span class="n">gplearn</span><span class="p">(</span><span class="n">Xtr_s</span><span class="p">,</span> <span class="n">ttr_s</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">])</span>
+        <span class="n">predictor</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">gen_predictor</span><span class="p">(</span><span class="n">predictor_raw</span><span class="p">)</span>
+
+        <span class="n">t_pred</span> <span class="o">=</span> <span class="n">predictor</span><span class="p">(</span><span class="n">Xte</span><span class="p">)</span>
+        <span class="n">t_true</span> <span class="o">=</span> <span class="n">himmelblau</span><span class="p">(</span><span class="n">Xte</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Xte</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">mse</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">t_pred</span> <span class="o">-</span> <span class="n">t_true</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">var_true</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_true</span><span class="p">))</span>
+        <span class="n">nmse</span> <span class="o">=</span> <span class="n">mse</span> <span class="o">/</span> <span class="p">(</span><span class="n">var_true</span> <span class="o">+</span> <span class="mf">1e-12</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MSE (n_test=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">t_true</span><span class="p">)</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">mse</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NMSE: </span><span class="si">{</span><span class="n">nmse</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Plot output</span>
+        <span class="n">plot_res</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">predictor</span><span class="p">)</span>
+
+        <span class="n">original_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="n">original_stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
+
+        <span class="c1"># Run ODAT-SE</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">f</span>
+
+                <span class="n">solver</span> <span class="o">=</span> <span class="n">PredictorSolver</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">predictor</span><span class="o">=</span><span class="n">predictor</span><span class="p">)</span>
+                <span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                <span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="n">alg</span> <span class="o">=</span> <span class="n">alg_module</span><span class="o">.</span><span class="n">Algorithm</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">original_stdout</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">original_stderr</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best solution: x^* = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Surrogate f(x^*) = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;fx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True f(x^*) = </span><span class="si">{</span><span class="n">himmelblau</span><span class="p">(</span><span class="o">*</span><span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>フィッティングされたモデルと真のモデルの比較を示すプロットに加えて、上記のコードはGPモデルのフィッティングされたハイパーパラメータ、結果として得られたカーネル、平均二乗誤差 (MSE) 、およびフィッティングされたモデルの正規化MSEを出力します。ODAT-SEは代理モデルの最小値を推定するために使用され、代理モデルに従った探索空間内の最小値の位置の推定値、推定最小値での代理モデルの値、および推定最小値での真の関数の値を出力します。</p>
+<p>この実装では、予測子関数 (この場合は <code class="docutils literal notranslate"><span class="pre">gplearn</span></code> の出力) を、異なるモデル (ニューラルネットワークなど) を実装する別の予測子関数に自由に置き換えることができます。</p>
+</section>
+<section id="id9">
+<h4>ODAT-SE入力ファイルの作成<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h4>
+<p>この例の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> は次のとおりです：</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./output&quot;</span>
+
+<span class="k">[solver]</span>
+
+<span class="k">[algorithm]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;minsearch&quot;</span>
+<span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
+
+<span class="k">[algorithm.param]</span>
+<span class="n">min_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">-6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">-6.0</span><span class="p">]</span>
+<span class="n">max_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">]</span>
+<span class="n">initial_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>関数の最小値を見つけるために <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> アルゴリズム (Nelder-Mead法) を使用します。探索空間は <span class="math notranslate nohighlight">\(x\)</span> と <span class="math notranslate nohighlight">\(y\)</span> について区間 <span class="math notranslate nohighlight">\([-6,6]\)</span> に取ります。</p>
+</section>
+<section id="id10">
+<h4>解析の実行<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">input.toml</span></code> を入力引数として渡してスクリプトを実行します：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>gpr.py<span class="w"> </span>--input<span class="w"> </span>input.toml
+</pre></div>
+</div>
+<p>次の結果が得られます：</p>
+<figure class="align-default" id="gpr-comparison">
+<img alt="../_images/gpr_comparison.png" src="../_images/gpr_comparison.png" />
+<figcaption>
+<p><span class="caption-text">図1：真のモデル (左) 、代理モデル (中央) 、およびそれらの差 (右) のプロット。点は訓練データポイントに対応します。</span><a class="headerlink" href="#gpr-comparison" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>これは、代理モデルが真のモデルをよく模倣していることを示しています。代理GPモデルの推定最小値について、次の情報も得られます：</p>
+<ul class="simple">
+<li><p>最良解：<span class="math notranslate nohighlight">\(x^* = (2.99690478,1.99537007)\)</span></p></li>
+<li><p>代理 <span class="math notranslate nohighlight">\(f(x^*) = -0.0022618891671299934\)</span></p></li>
+<li><p>真の <span class="math notranslate nohighlight">\(f(x^*) = 0.001004130687907469\)</span></p></li>
+</ul>
+<p>得られた最小値は、Himmelblau 関数の4つの大域的最小値 (値は <span class="math notranslate nohighlight">\(0\)</span>) の1つである <span class="math notranslate nohighlight">\((3.0,2.0)\)</span> に非常に近いことが分かります。</p>
+</section>
+</section>
+</section>
+</section>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
+      
+        <p>
+        «&#160;&#160;<a href="linreg_with_noise.html">例: 線形回帰とノイズ推定</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">コンテンツ</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../input.html">入力ファイル</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    </div>
+  </body>
+</html>

@@ -147,7 +147,7 @@ If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if m
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm._algorithm.AlgorithmBase._load_data">
-<span class="sig-name descname"><span class="pre">_load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'state.pickle'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase._load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase._load_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'state.pickle'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase._load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase._load_data" title="Link to this definition"></a></dt>
 <dd><p>Load data from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -157,14 +157,14 @@ If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if m
 <dd class="field-even"><p>Dictionary containing the loaded data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm._algorithm.AlgorithmBase._post">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase._post" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase._post" title="Link to this definition"></a></dt>
 <dd><p>Abstract method to be implemented by subclasses for post-processing steps.</p>
 </dd></dl>
 
@@ -209,14 +209,14 @@ If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if m
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.algorithm._algorithm.AlgorithmBase.post">
-<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase.post" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/_algorithm.html#AlgorithmBase.post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm._algorithm.AlgorithmBase.post" title="Link to this definition"></a></dt>
 <dd><p>Perform post-processing after the algorithm has run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dictionary containing post-processing results.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict</p>
+<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>

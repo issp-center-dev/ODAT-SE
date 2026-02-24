@@ -5,10 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>plt_model_evidence.py &#8212; ODAT-SE 3.2.0 documentation</title>
+    <title>plt_model_evidence.py &#8212; ODAT-SE 3.2.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/haiku.css?v=fce32b03" />
-    <script src="../../_static/documentation_options.js?v=4f6ddb47"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3fc7cb41" />
+    <script src="../../_static/documentation_options.js?v=eb155f5e"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -18,7 +19,7 @@
     <link rel="prev" title="Reference" href="index.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
-          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.2.1 documentation</span></a></h1>
         <h2 class="heading"><span>plt_model_evidence.py</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="Top">
@@ -72,6 +73,10 @@ Results are written to standard output and a plot of the results is saved to a f
 <dt><strong>-f RESULT, --result RESULT</strong></dt><dd><p>Specifies the filename for outputting model evidence values. Default is model_evidence.txt.</p>
 </dd>
 <dt><strong>-o OUTPUT, --output OUTPUT</strong></dt><dd><p>Specifies the filename for the model evidence plot. The output format is determined by the file extension, and any format supported by matplotlib can be specified. Default is model_evidence.png.</p>
+</dd>
+<dt><strong>--auto-focus</strong></dt><dd><p>Sets a flag that applies a method for determining a suitable plot window for the model evidence data based on the maximum value of of the model evidence. The tightness of the focused window is controlled by the <code class="docutils literal notranslate"><span class="pre">--focus-factor</span></code> option argument.</p>
+</dd>
+<dt><strong>--focus-factor</strong></dt><dd><p>Sets the tightness for the <code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> option. It should be a float between 0 and 1 (lower is tighter), and when <code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> is not set, this argument does nothing. The default value is 0.5.</p>
 </dd>
 <dt><strong>-h, --help</strong></dt><dd><p>Displays help message and exits the program.</p>
 </dd>

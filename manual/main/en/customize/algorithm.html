@@ -5,10 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Algorithm &#8212; ODAT-SE 3.2.0 documentation</title>
+    <title>Algorithm &#8212; ODAT-SE 3.2.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
-    <script src="../_static/documentation_options.js?v=4f6ddb47"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <script src="../_static/documentation_options.js?v=eb155f5e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -17,7 +18,7 @@
     <link rel="prev" title="Solver" href="solver.html" /> 
   </head><body>
       <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>ODAT-SE 3.2.0 documentation</span></a></h1>
+          <span>ODAT-SE 3.2.1 documentation</span></a></h1>
         <h2 class="heading"><span>Algorithm</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="Top">
@@ -54,12 +55,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">self.mpicomm:</span> <span class="pre">Optional[MPI.Comm]</span></code> : MPI communicator <code class="docutils literal notranslate"><span class="pre">mpi4py.MPI.Comm</span></code> object to use for parallelization.</p>
 <ul class="simple">
 <li><p>If <code class="docutils literal notranslate"><span class="pre">mpicomm</span></code> is given, it is used.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">mpicomm</span></code> is not given,</p>
-<ul>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> is imported, <code class="docutils literal notranslate"><span class="pre">mpi4py.MPI.COMM_WORLD</span></code> is used.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> is not imported, <code class="docutils literal notranslate"><span class="pre">None</span></code> is set, and the algorithm runs in serial.</p></li>
-</ul>
-</li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">mpicomm</span></code> is not given, if <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> can be imported, <code class="docutils literal notranslate"><span class="pre">mpi4py.MPI.COMM_WORLD</span></code> is used. Otherwise, <code class="docutils literal notranslate"><span class="pre">None</span></code> is set, and the algorithm runs in serial.</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">self.mpisize:</span> <span class="pre">int</span></code> : the number of MPI processes</p></li>
@@ -74,7 +70,7 @@
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">self.dimension:</span> <span class="pre">int</span></code> : the dimension of the parameter space</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">self.label_list:</span> <span class="pre">List[str]</span></code> : the name of each axes of the parameter space</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.label_list:</span> <span class="pre">list[str]</span></code> : the name of each axes of the parameter space</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">self.root_dir:</span> <span class="pre">pathlib.Path</span></code> : root directory</p>
 <ul class="simple">
 <li><p>It is taken from <code class="docutils literal notranslate"><span class="pre">info.base[&quot;root_dir&quot;]</span></code>.</p></li>
@@ -135,7 +131,7 @@
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">post(self)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Runs a post process of the algorithm, for example, writing the results into files.</p></li>
@@ -144,7 +140,7 @@
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">main(self,</span> <span class="pre">run_mode)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">main(self,</span> <span class="pre">run_mode)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></p>
 <blockquote>
 <div><ul>
 <li><p>Calls <code class="docutils literal notranslate"><span class="pre">prepare</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code>, and <code class="docutils literal notranslate"><span class="pre">post</span></code>.</p></li>
@@ -205,7 +201,7 @@ Otherwise, the search region should be created from <code class="docutils litera
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">_post(self)</span> <span class="pre">-&gt;</span> <span class="pre">Dict</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">_post(self)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Describes post-process of the algorithm.</p></li>

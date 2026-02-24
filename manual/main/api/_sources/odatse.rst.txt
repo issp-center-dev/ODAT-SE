@@ -23,6 +23,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   odatse.__main__
    odatse._info
    odatse._initialize
    odatse._main

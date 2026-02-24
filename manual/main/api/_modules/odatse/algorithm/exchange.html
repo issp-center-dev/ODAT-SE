@@ -78,7 +78,7 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
@@ -370,6 +370,7 @@
 <span class="sd">            If False, attempt exchanges between odd-even pairs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">direction</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -489,7 +490,7 @@
 
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._post">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post-process the results of the algorithm.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -520,6 +521,7 @@
 
         <span class="c1"># Gather best results from all processes</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="c1"># NOTE:</span>
             <span class="c1"># ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.</span>
             <span class="c1"># ``Gather`` and ``allgather`` seem to work fine.</span>

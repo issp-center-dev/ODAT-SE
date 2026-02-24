@@ -77,20 +77,20 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
 <div class="viewcode-block" id="read_vector">
 <a class="viewcode-back" href="../../../odatse.util.read_matrix.html#odatse.util.read_matrix.read_vector">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_vector</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_vector</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts an input string or list of floats into a numpy array vector.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    inp : Union[str, List[float]]</span>
+<span class="sd">    inp : Union[str, list[float]]</span>
 <span class="sd">        Input data, either as a space-separated string of numbers or a list of floats.</span>
 
 <span class="sd">    Returns</span>
@@ -116,13 +116,13 @@
 
 <div class="viewcode-block" id="read_matrix">
 <a class="viewcode-back" href="../../../odatse.util.read_matrix.html#odatse.util.read_matrix.read_matrix">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_matrix</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_matrix</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts an input string or list of lists of floats into a numpy array matrix.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    inp : Union[str, List[List[float]]]</span>
+<span class="sd">    inp : Union[str, list[list[float]]]</span>
 <span class="sd">        Input data, either as a string with rows of space-separated numbers or a list of lists of floats.</span>
 
 <span class="sd">    Returns</span>
@@ -136,7 +136,7 @@
 <span class="sd">        If the input is not a matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">Alist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">Alist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>  <span class="c1"># empty</span>
                 <span class="k">continue</span>

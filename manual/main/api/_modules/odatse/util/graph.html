@@ -78,7 +78,6 @@
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -86,13 +85,13 @@
 
 <div class="viewcode-block" id="is_connected">
 <a class="viewcode-back" href="../../../odatse.util.graph.html#odatse.util.graph.is_connected">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_connected</span><span class="p">(</span><span class="n">nnlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_connected</span><span class="p">(</span><span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the graph represented by the neighbor list is connected.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    nnlist : List[List[int]]</span>
+<span class="sd">    nnlist : list[list[int]]</span>
 <span class="sd">        A list of lists where each sublist represents the neighbors of a node.</span>
 
 <span class="sd">    Returns</span>
@@ -118,13 +117,13 @@
 
 <div class="viewcode-block" id="is_bidirectional">
 <a class="viewcode-back" href="../../../odatse.util.graph.html#odatse.util.graph.is_bidirectional">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_bidirectional</span><span class="p">(</span><span class="n">nnlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_bidirectional</span><span class="p">(</span><span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the graph represented by the neighbor list is bidirectional.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    nnlist : List[List[int]]</span>
+<span class="sd">    nnlist : list[list[int]]</span>
 <span class="sd">        A list of lists where each sublist represents the neighbors of a node.</span>
 
 <span class="sd">    Returns</span>

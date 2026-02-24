@@ -96,7 +96,7 @@
 
 <span class="c1"># for type hints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -121,14 +121,14 @@
     <span class="n">mpirank</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span>
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">label_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">label_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span>
 
     <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span>
 
-    <span class="n">timer</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span>
+    <span class="n">timer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
 
     <span class="n">status</span><span class="p">:</span> <span class="n">AlgorithmStatus</span> <span class="o">=</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">INIT</span>
     <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -292,13 +292,13 @@
 
 <div class="viewcode-block" id="AlgorithmBase.post">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.post">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform post-processing after the algorithm has run.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Dict</span>
+<span class="sd">        dict</span>
 <span class="sd">            Dictionary containing post-processing results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span>
@@ -314,7 +314,7 @@
 <div class="viewcode-block" id="AlgorithmBase._post">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._post">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Abstract method to be implemented by subclasses for post-processing steps.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
@@ -416,7 +416,7 @@
 
 <div class="viewcode-block" id="AlgorithmBase._load_data">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._load_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load data from a file.</span>
 
@@ -427,7 +427,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Dict</span>
+<span class="sd">        dict</span>
 <span class="sd">            Dictionary containing the loaded data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
