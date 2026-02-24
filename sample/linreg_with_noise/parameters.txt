@@ -1,0 +1,6 @@
+a = 2.5
+n = 50
+x_min = 0.0
+x_max = 10.0
+noise_levels = 1.0, 3.0, 5.0
+seed = 42
