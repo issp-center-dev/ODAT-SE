@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union, Any
+from typing import Union, Any
 
 from pathlib import Path
 import numpy as np
@@ -35,7 +35,7 @@ class Region(DomainBase):
     unit_list: np.array
     initial_list: np.array
 
-    def __init__(self, info: odatse.Info = None, *, param: Dict[str, Any] = None):
+    def __init__(self, info: odatse.Info = None, *, param: dict[str, Any] = None):
         """
         Initialize the Region object.
 

@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -45,10 +45,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     Algorithm Flow:
       1. Initialize walker population at highest temperature
       2. For each temperature step:
+      
         a. Perform Monte Carlo updates at current temperature
         b. Calculate weights for next temperature
         c. Resample population based on weights
         d. Update statistical estimates
+        
       3. Track best solutions and maintain system statistics
 
     Attributes
@@ -230,7 +232,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if rem > 0:
                 self.numsteps_for_T[0 : (rem - 1)] += 1
         else:
-            ss: List[int] = []
+            ss: list[int] = []
             while numsteps > 0:
                 if numsteps > numsteps_annealing:
                     ss.append(numsteps_annealing)
@@ -421,7 +423,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if v:
                 v.close()
 
-    def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
+    def _gather_information(self, numT: int = None) -> dict[str, np.ndarray]:
         """
         Collect and organize statistical information across all processes.
 
@@ -438,7 +440,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         Returns
         -------
-        Dict[str, np.ndarray]
+        dict[str, np.ndarray]
             Contains:
               - fxs: Energy values for all walkers
               - logweights: Log of importance weights
@@ -471,7 +473,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return res
 
-    def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
+    def _save_stats(self, info: dict[str, np.ndarray]) -> None:
         """
         Calculate and save statistical measures from the simulation.
 
@@ -487,7 +489,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         Parameters
         ----------
-        info : Dict[str, np.ndarray]
+        info : dict[str, np.ndarray]
             Dictionary containing the following keys:
               - fxs: Objective function of each walker over all processes.
               - logweights: Logarithm of weights.
@@ -711,7 +713,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if fwrite:
                 fwrite.close()
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """
         Post-processing after the algorithm execution.
 

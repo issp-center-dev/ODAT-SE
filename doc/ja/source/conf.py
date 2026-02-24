@@ -21,9 +21,9 @@ project = u'ODAT-SE'
 copyright = u'2020, Institute for Solid State Physics, University of Tokyo'
 author = u'2DMAT Developer team'
 
-version = '3.2'
+version = '3.3'
 # The full version, including alpha/beta/rc tags
-release = '3.2.0'
+release = '3.3-dev'
 
 # -- General configuration ---------------------------------------------------
 
@@ -56,7 +56,8 @@ html_theme = 'haiku'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
+html_css_files = ['css/custom.css']
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

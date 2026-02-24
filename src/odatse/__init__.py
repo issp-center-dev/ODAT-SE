@@ -16,4 +16,4 @@ from . import algorithm
 from ._main import main
 from ._initialize import initialize
 
-__version__ = "3.2.0"
+__version__ = "3.3-dev"
