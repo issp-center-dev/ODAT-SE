@@ -1,6 +1,6 @@
 [base]
-dimension = 1
-output_dir = "./output_data"
+dimension = 2
+output_dir = "./output_data_dim2"
 
 [solver]
 name = "user"
@@ -13,9 +13,9 @@ name = "pamc"
 seed = 12345
 
 [algorithm.param]
-min_list = [-20.0]
-max_list = [20.0]
-step_list = [0.05]
+min_list = [-20.0, -20.0]
+max_list = [20.0, 20.0]
+step_list = [0.05, 0.05]
 
 [algorithm.pamc]
 Tnum = 100

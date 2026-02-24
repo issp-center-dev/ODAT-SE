@@ -19,25 +19,45 @@ class LinearRegression(odatse.solver.SolverBase):
     def __init__(self, info):
         super().__init__(info)
         data_file = info.solver["reference"]["path"]
+        self.has_intercept = info.solver.get("has_intercept", False)
         data = np.loadtxt(data_file, unpack=True)
-        
         self.xdata = data[0]
         self.ydata = data[1]
-        self.n = len(self.ydata)
+
+        dimension = self.dimension
+        print(f"{dimension=}")
+        self.n = len(self.xdata)
+        self.X = np.zeros((self.n, dimension))
+        if self.has_intercept:
+            self.X[:, 0] = 1.0
+        else:
+            self.X[:, 0] = self.xdata.copy()
+        for i in range(1, dimension):
+            self.X[:, i] = self.X[:, i-1] * self.xdata
 
     def evaluate(self, xs, args, nprocs=1, nthreads=1):
-        loss = np.sum((xs*self.xdata - self.ydata)**2)
+        loss = np.sum((self.X @ xs - self.ydata)**2)
         return loss
 
-def plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file):
+def plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file, intercept=False):
     fig, ax = plt.subplots(figsize=(10, 6))
-    
+
     # Plot original data points and fitted line
     ax.scatter(xdata, ydata, s=50, alpha=0.7, label='Data', color='blue')
     x_fit = np.linspace(xdata.min(), xdata.max(), 100)
-    y_fit = a * x_fit
-    ax.plot(x_fit, y_fit, 'r-', linewidth=2, label=f'Fit: y = {a:.4f}x')
+    y_fit = np.zeros(len(x_fit))
+    if intercept:
+        x = np.ones(len(x_fit))
+    else:
+        x = x_fit.copy()
+    if not isinstance(a, np.ndarray):
+        a = np.array([a])
+    for i in range(len(a)):
+        y_fit += a[i] * x
+        x *= x_fit
     
+    ax.plot(x_fit, y_fit, 'r-', linewidth=2, label=f'Coefficients: {a}')
+
     # Add noise bands (\pm1\sigma, \pm2\sigma)
     ax.fill_between(x_fit, y_fit - noise_level, y_fit + noise_level, 
                     alpha=0.3, color='red', label=f'$\\pm1\\sigma$ noise')
@@ -47,7 +67,7 @@ def plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_fi
     ax.set_xlabel('x', fontsize=12)
     ax.set_ylabel('y', fontsize=12)
     ax.set_title(f'Linear Regression with Optimal Noise Level\n' + 
-                f'$a$ = {a:.4f}, $\\beta_{{opt}}$ = {beta_opt:.2e}, $\\sigma$ = {noise_level:.4f}', fontsize=14)
+                f'$a$ = {a}, $\\beta_{{opt}}$ = {beta_opt:.2e}, $\\sigma$ = {noise_level:.4f}', fontsize=14)
     ax.legend(loc='best')
     ax.grid(True, alpha=0.3)
     
@@ -105,12 +125,13 @@ if __name__ == "__main__":
     print(f"Output directory: {output_dir}")
     
     # Get fitting parameters
-    a = result['x'][0]
+    a = result['x']
     xdata = solver.xdata
+    X = solver.X
     ydata = solver.ydata
     n_data = solver.n
     print(f"\nFitting results:")
-    print(f"  Slope a = {a:.6f}")
+    print(f"  Coefficients a = {a}")
     print(f"  Number of data points n = {n_data}")
     
     # Step 2: Load fx.txt data and calculate model evidence
@@ -143,14 +164,14 @@ if __name__ == "__main__":
     print(f"  std = 1/sqrt(2*beta_opt) = {noise_level:.6f}")
     
     # Calculate R^2 value
-    y_pred = a * xdata
+    y_pred = X @ np.asarray(a)
     ss_res = np.sum((ydata - y_pred)**2)
     ss_tot = np.sum((ydata - np.mean(ydata))**2)
     r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
     print(f"\nFitting quality:")
     print(f"  R^2 = {r_squared:.6f}")
-    print(f"  Residual sum of squares = {ss_res:.6f}")
     
+    print(f"  Residual sum of squares = {ss_res:.6f}")
     # Step 5: Generate plots
     print("\nStep 5: Generating plots...")
     
@@ -158,7 +179,7 @@ if __name__ == "__main__":
     evidence_plot = os.path.join(output_dir, "model_evidence.png")
     plot_log_pdb(evidence_plot, beta, log_pdb, None, args.auto_focus, args.focus_factor)
     fit_plot = os.path.join(output_dir, "linear_fit_with_noise.png")
-    plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file=fit_plot)
+    plot_linear_fit_with_noise(xdata, ydata, a, noise_level, beta_opt, output_file=fit_plot, intercept=solver.has_intercept)
     
     # Save results to file
     print("\nStep 6: Saving results...")
@@ -167,7 +188,7 @@ if __name__ == "__main__":
         f.write("Linear regression and model evidence analysis results\n")
         f.write("="*50 + "\n\n")
         f.write(f"Fitting parameters:\n")
-        f.write(f"  Slope a = {a:.6f}\n")
+        f.write(f"  Coefficients a = {a}\n")
         f.write(f"  Number of data points n = {n_data}\n\n")
         f.write(f"Optimal parameters:\n")
         f.write(f"  beta_opt = {beta_opt:.6e}\n")

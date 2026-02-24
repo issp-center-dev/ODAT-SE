@@ -5,9 +5,14 @@ np.random.seed(42)
 
 n_samples = 50
 x = np.linspace(0, 10, n_samples)
+a = np.array([2.5])
 
-a = 2.5
-y_true = a * x
+dim = len(a)
+X = np.zeros((n_samples, dim))
+X[:, 0] = x.copy()
+for i in range(1, dim):
+    X[:, i] = X[:, i-1] * x
+y_true = X @ a
 
 noise_levels = [1, 3, 5]
 
@@ -20,7 +25,7 @@ for noise in noise_levels:
     file_names.append(file_name)
     plt.scatter(x, y_noisy, label=f'Noise level: $\\sigma^*={noise}$')
 
-plt.plot(x, y_true, color='red', label=f'True line: $y={a}x$', linewidth=2)
+plt.plot(x, y_true, color='red', label=f'Coeffs: {a}', linewidth=2)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('Linear Data with Gaussian Noise')
