@@ -7,19 +7,18 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-from typing import List
 
 import collections
 import numpy as np
 
 
-def is_connected(nnlist: List[List[int]]) -> bool:
+def is_connected(nnlist: list[list[int]]) -> bool:
     """
     Check if the graph represented by the neighbor list is connected.
 
     Parameters
     ----------
-    nnlist : List[List[int]]
+    nnlist : list[list[int]]
         A list of lists where each sublist represents the neighbors of a node.
 
     Returns
@@ -42,13 +41,13 @@ def is_connected(nnlist: List[List[int]]) -> bool:
     return nvisited == nnodes
 
 
-def is_bidirectional(nnlist: List[List[int]]) -> bool:
+def is_bidirectional(nnlist: list[list[int]]) -> bool:
     """
     Check if the graph represented by the neighbor list is bidirectional.
 
     Parameters
     ----------
-    nnlist : List[List[int]]
+    nnlist : list[list[int]]
         A list of lists where each sublist represents the neighbors of a node.
 
     Returns

@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union, Dict, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 
 from pathlib import Path
 from io import open
@@ -25,7 +25,7 @@ class Algorithm(MapperMPIAlgorithm):
     Algorithm class for data analysis of quantum beam diffraction experiments.
     Inherits from odatse.algorithm.AlgorithmBase.
     """
-    mesh_list: List[Union[int, float]]
+    mesh_list: list[Union[int, float]]
 
     def __init__(
         self,

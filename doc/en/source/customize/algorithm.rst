@@ -23,10 +23,7 @@
     - ``self.mpicomm: Optional[MPI.Comm]`` : MPI communicator ``mpi4py.MPI.Comm`` object to use for parallelization.
 
       - If ``mpicomm`` is given, it is used.
-      - If ``mpicomm`` is not given,
-
-        - If ``mpi4py`` is imported, ``mpi4py.MPI.COMM_WORLD`` is used.
-        - If ``mpi4py`` is not imported, ``None`` is set, and the algorithm runs in serial.
+      - If ``mpicomm`` is not given, if ``mpi4py`` can be imported, ``mpi4py.MPI.COMM_WORLD`` is used. Otherwise, ``None`` is set, and the algorithm runs in serial.
 
     - ``self.mpisize: int`` : the number of MPI processes
 
@@ -40,7 +37,7 @@
 
     - ``self.dimension: int`` : the dimension of the parameter space
 
-    - ``self.label_list: List[str]`` : the name of each axes of the parameter space
+    - ``self.label_list: list[str]`` : the name of each axes of the parameter space
 
     - ``self.root_dir: pathlib.Path`` : root directory
 
@@ -86,13 +83,13 @@
 
     - It should be called after ``self.prepare()`` is called.
 
-- ``post(self) -> Dict``
+- ``post(self) -> dict``
 
     - Runs a post process of the algorithm, for example, writing the results into files.
     - Enters into ``self.output_dir``, calls ``self._post()``, and returns to the original directory.
     - It should be called after ``self.run()`` is called.
 
-- ``main(self, run_mode) -> Dict``
+- ``main(self, run_mode) -> dict``
 
     - Calls ``prepare``, ``run``, and ``post``.
     - Measures the elapsed times for calling functions, and writes them into a file
@@ -140,7 +137,7 @@ It is defined as a subclass of ``AlgorithmBase`` and should have the following m
 	 args = (step, set)
          fx = self.runner.submit(x, args)
 
-- ``_post(self) -> Dict``
+- ``_post(self) -> dict``
 
     - Describes post-process of the algorithm.
 
