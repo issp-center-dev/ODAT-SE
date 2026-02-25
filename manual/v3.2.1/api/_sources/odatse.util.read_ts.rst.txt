@@ -1,0 +1,7 @@
+odatse.util.read\_ts module
+===========================
+
+.. automodule:: odatse.util.read_ts
+   :members:
+   :private-members:
+   :show-inheritance:

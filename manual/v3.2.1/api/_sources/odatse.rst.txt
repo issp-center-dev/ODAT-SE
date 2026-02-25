@@ -1,0 +1,32 @@
+odatse package
+==============
+
+.. automodule:: odatse
+   :members:
+   :private-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   odatse.algorithm
+   odatse.domain
+   odatse.solver
+   odatse.util
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   odatse.__main__
+   odatse._info
+   odatse._initialize
+   odatse._main
+   odatse._runner
+   odatse.exception
+   odatse.mpi

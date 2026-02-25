@@ -1,0 +1,7 @@
+odatse.\_info module
+====================
+
+.. automodule:: odatse._info
+   :members:
+   :private-members:
+   :show-inheritance:

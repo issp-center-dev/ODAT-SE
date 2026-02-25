@@ -1,0 +1,7 @@
+odatse.util.resampling module
+=============================
+
+.. automodule:: odatse.util.resampling
+   :members:
+   :private-members:
+   :show-inheritance:
