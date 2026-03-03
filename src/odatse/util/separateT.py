@@ -96,7 +96,7 @@ def separateT(
             entry = Entry(step=step, walker=walker, fx=fx, xs=xs)
             rank = T2rank[Tstr]
             results[rank][Tstr].append(entry)
-        if mpisize > 1:
+        if mpisize is not None and mpisize > 1:
             results2 = comm.alltoall(results)
         else:
             results2 = results

@@ -109,7 +109,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        comm = self.mpicomm if self.mpisize > 1 else None
+        comm = self.mpicomm if self.mpisize is not None and self.mpisize > 1 else None
         if physbo.__version__ < "3":
             self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         else:

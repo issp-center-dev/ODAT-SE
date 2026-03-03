@@ -80,9 +80,9 @@ class AlgorithmBase(metaclass=ABCMeta):
             If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         if mpicomm is None:
-            self.mpicomm = mpi.comm()
-            self.mpisize = mpi.size()
-            self.mpirank = mpi.rank()
+            self.mpicomm = mpi.algcomm()
+            self.mpisize = mpi.algsize()
+            self.mpirank = mpi.algrank()
         else:
             self.mpicomm = mpicomm
             self.mpisize = mpicomm.size
@@ -113,13 +113,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         # directories
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(self.mpirank)
+        self.proc_dir = self.output_dir / str(odatse.mpi.rank())
         self.proc_dir.mkdir(parents=True, exist_ok=True)
         # Some cache of the filesystem may delay making a dictionary
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             self.mpicomm.Barrier()
 
         # checkpointing
@@ -147,7 +147,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         if seed is None:
             self.rng = np.random.RandomState()
         else:
-            self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
+            self.rng = np.random.RandomState(seed + odatse.mpi.rank() * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
         """
@@ -222,29 +222,36 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Main method to execute the algorithm.
         """
-        time_sta = time.perf_counter()
-        self.prepare()
-        time_end = time.perf_counter()
-        self.timer["prepare"]["total"] = time_end - time_sta
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+        if self.mpirank is not None: # master branch, run solver
+            time_sta = time.perf_counter()
+            self.prepare()
+            time_end = time.perf_counter()
+            self.timer["prepare"]["total"] = time_end - time_sta
+            if self.mpisize is not None and self.mpisize > 1:
+                self.mpicomm.Barrier()
 
-        time_sta = time.perf_counter()
-        self.run()
-        time_end = time.perf_counter()
-        self.timer["run"]["total"] = time_end - time_sta
-        print("end of run")
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+            time_sta = time.perf_counter()
+            self.run()
+            time_end = time.perf_counter()
+            self.timer["run"]["total"] = time_end - time_sta
+            print("end of run")
+            if self.mpisize is not None and self.mpisize > 1:
+                self.mpicomm.Barrier()
 
-        time_sta = time.perf_counter()
-        result = self.post()
-        time_end = time.perf_counter()
-        self.timer["post"]["total"] = time_end - time_sta
+            if mpi.solsize() > 1: # signal workers to finish running
+                mpi.solcomm().bcast(None, root=0)
 
-        self.write_timer(self.proc_dir / "time.log")
+            time_sta = time.perf_counter()
+            result = self.post()
+            time_end = time.perf_counter()
+            self.timer["post"]["total"] = time_end - time_sta
 
-        return result
+            self.write_timer(self.proc_dir / "time.log")
+            return result
+        else: # worker branch, enter waiting state
+            if mpi.solsize() > 1:
+                self.runner.solver.worker_loop()
+            return None
 
     def write_timer(self, filename: Path):
         """

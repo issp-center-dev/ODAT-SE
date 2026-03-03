@@ -205,7 +205,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._output_results()
 
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             self.mpicomm.barrier()
 
     def _prepare(self):
@@ -252,7 +252,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "x0": self.initial_list,
         }
 
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             results = self.mpicomm.allgather(result)
         else:
             results = [result]

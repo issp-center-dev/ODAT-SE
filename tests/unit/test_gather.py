@@ -22,9 +22,9 @@ import odatse
 from odatse.algorithm.gather import gather_replica, gather_data
 
 def run_gather_data(shape, dtype, axis):
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    mpisize = odatse.mpi.algsize()
+    mpirank = odatse.mpi.algrank()
+    mpicomm = odatse.mpi.algcomm()
 
     assert axis < len(shape)
 
@@ -41,9 +41,9 @@ def run_gather_data(shape, dtype, axis):
 
 
 def run_gather_replica(_shape, dtype, axis):
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    mpisize = odatse.mpi.algsize()
+    mpirank = odatse.mpi.algrank()
+    mpicomm = odatse.mpi.algcomm()
 
     assert axis < len(_shape)
 

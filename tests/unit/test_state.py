@@ -12,9 +12,9 @@ import odatse
 def test_gather_discrete():
     from odatse.algorithm.state import DiscreteState, DiscreteStateSpace
 
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    mpisize = odatse.mpi.algsize()
+    mpirank = odatse.mpi.algrank()
+    mpicomm = odatse.mpi.algcomm()
     
     domain = odatse.domain.MeshGrid(param={
         "min_list": [-1.0, -1.0],
@@ -49,9 +49,9 @@ def test_gather_discrete():
 def test_gather_continuous():
     from odatse.algorithm.state import ContinuousState, ContinuousStateSpace
 
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    mpisize = odatse.mpi.algsize()
+    mpirank = odatse.mpi.algrank()
+    mpicomm = odatse.mpi.algcomm()
     
     domain = odatse.domain.Region(param={
         "min_list": [-1.0, -1.0],

@@ -342,7 +342,7 @@ def make_neighbor_list_cell(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -358,7 +358,7 @@ def make_neighbor_list_cell(
                 r = np.linalg.norm(xs - ys)
                 if r <= radius:
                     nnlist[n - points[0]].append(other)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -421,7 +421,7 @@ def make_neighbor_list_naive(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -435,7 +435,7 @@ def make_neighbor_list_naive(
             r = np.linalg.norm(xs - ys)
             if r <= radius:
                 nnlist[n - points[0]].append(m)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -675,11 +675,11 @@ Note:
     if mpi.rank() == 0:
         X = np.loadtxt(inputfile)
 
-    if mpi.size() > 1:
-        sh = mpi.comm().bcast(X.shape, root=0)
+    if mpi.algsize() > 1:
+        sh = mpi.algcomm().bcast(X.shape, root=0)
         if mpi.rank() != 0:
             X = np.zeros(sh)
-        mpi.comm().Bcast(X, root=0)
+        mpi.algcomm().Bcast(X, root=0)
 
     D = X.shape[1] - 1
 
@@ -698,7 +698,7 @@ Note:
         allow_selfloop=args.allow_selfloop,
         check_allpairs=args.check_allpairs,
         show_progress=(args.progress or not args.quiet),
-        comm=mpi.comm(),
+        comm=mpi.algcomm(),
     )
 
     write_neighbor_list(outputfile, nnlist, radius=radius, unit=unit)

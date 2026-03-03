@@ -382,7 +382,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._split_result_file("trial")
             self._split_result_file("result")
 
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             self.mpicomm.barrier()
         print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
 

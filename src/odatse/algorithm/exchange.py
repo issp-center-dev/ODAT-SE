@@ -283,7 +283,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If True, attempt exchanges between even-odd pairs.
             If False, attempt exchanges between odd-even pairs.
         """
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             assert self.mpicomm is not None
             self.mpicomm.Barrier()
         if direction:
@@ -350,7 +350,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If False, attempt exchanges between odd-even pairs.
         """
         comm = self.mpicomm
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             fx_all = comm.allgather(self.fx)
             fx_all = np.array(fx_all).flatten()
         else:
@@ -378,7 +378,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 T2rep_diff.append((iT, jrep))
                 T2rep_diff.append((jT, irep))
 
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             rep2T_diff = comm.allgather(rep2T_diff)
             rep2T_diff = list(itertools.chain.from_iterable(rep2T_diff))  # flatten
             T2rep_diff = comm.allgather(T2rep_diff)
@@ -429,7 +429,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             )
 
         # Gather best results from all processes
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             assert self.mpicomm is not None
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.

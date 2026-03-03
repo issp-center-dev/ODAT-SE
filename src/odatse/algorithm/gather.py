@@ -21,7 +21,7 @@ _use_buffer = int(os.environ.get("ODATSE_USE_MPI_BUFFERED", 0)) == 1
 #     _use_buffer = use_buffer
 
 def gather_replica(data, axis=0):
-    mpisize = odatse.mpi.size()
+    mpisize = odatse.mpi.algsize()
     if mpisize == 1:
         return data
     else:
@@ -31,7 +31,7 @@ def gather_replica(data, axis=0):
             return _do_gather_object(data, axis)
 
 def gather_data(data, axis=0):
-    mpisize = odatse.mpi.size()
+    mpisize = odatse.mpi.algsize()
     if mpisize == 1:
         return data
     else:
@@ -41,7 +41,7 @@ def gather_data(data, axis=0):
             return _do_gather_object(data, axis)
 
 def _do_gather_object(data, axis):
-    mpicomm = odatse.mpi.comm()
+    mpicomm = odatse.mpi.algcomm()
     return np.concatenate(mpicomm.allgather(data), axis=axis)
 
 def _do_gather_replica_buffer(data, axis):
@@ -58,8 +58,8 @@ def _do_gather_data_buffer(data, axis):
 
 def _do_gather_variable_buffer(data):
     from mpi4py.util.dtlib import from_numpy_dtype
-    mpicomm = odatse.mpi.comm()
-    mpisize = odatse.mpi.size()
+    mpicomm = odatse.mpi.algcomm()
+    mpisize = odatse.mpi.algsize()
 
     sh = data.shape
     nrep = np.array([sh[0]], dtype=np.int64)
@@ -85,8 +85,8 @@ def _do_gather_variable_buffer_transpose(data, axis):
         
 def _do_gather_fixed_buffer(data):
     from mpi4py.util.dtlib import from_numpy_dtype
-    mpicomm = odatse.mpi.comm()
-    mpisize = odatse.mpi.size()
+    mpicomm = odatse.mpi.algcomm()
+    mpisize = odatse.mpi.algsize()
 
     sh = data.shape
     buf = np.zeros((mpisize*sh[0], *sh[1:]), dtype=data.dtype)

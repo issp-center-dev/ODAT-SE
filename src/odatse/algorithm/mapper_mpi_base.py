@@ -105,6 +105,8 @@ class Algorithm(AlgorithmBase):
 
             time_sta = time.perf_counter()
             fx = self.runner.submit(x, args)
+            if isinstance(fx, np.ndarray) and fx.size == 1:
+                fx = fx[0]
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
@@ -181,7 +183,7 @@ class Algorithm(AlgorithmBase):
         dict
             Dictionary of results.
         """
-        if self.mpisize > 1:
+        if self.mpisize is not None and self.mpisize > 1:
             fx_lists = self.mpicomm.allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
         else:

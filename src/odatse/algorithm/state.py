@@ -58,15 +58,15 @@ class StateSpace(abc.ABC):
             return self._gather_data_object(data)
 
     def _gather_data_object(self, data):
-        mpicomm = mpi.comm()
+        mpicomm = mpi.algcomm()
         return np.concatenate(mpicomm.allgather(data), axis=0)
 
     def _gather_data_buffer(self, data):
         from mpi4py.util.dtlib import from_numpy_dtype
 
-        mpisize = mpi.size()
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
+        mpisize = mpi.algsize()
+        mpirank = mpi.algrank()
+        mpicomm = mpi.algcomm()
 
         sh = data.shape
         nrep = np.array([sh[0]], dtype=np.int64)
@@ -123,8 +123,8 @@ class ContinuousStateSpace(StateSpace):
         return ContinuousState(x_new)
 
     def gather(self, state):
-        mpisize = mpi.size()
-        if mpisize > 1:
+        mpisize = mpi.algsize()
+        if mpisize is not None and mpisize > 1:
             buf = self._gather_data(state.x)
             return ContinuousState(buf)
         else:
@@ -180,8 +180,8 @@ class DiscreteStateSpace(StateSpace):
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
         """
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
+        mpirank = mpi.algrank()
+        mpicomm = mpi.algcomm()
 
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = Path(info_param["neighborlist_path"]).expanduser()
@@ -211,8 +211,8 @@ class DiscreteStateSpace(StateSpace):
         self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
     def gather(self, state):
-        mpisize = mpi.size()
-        if mpisize > 1:
+        mpisize = mpi.algsize()
+        if mpisize is not None and mpisize > 1:
             inodes = self._gather_data(state.inode)
             return DiscreteState(inodes, self.node_coordinates[inodes, :])
         else:

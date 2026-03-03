@@ -82,3 +82,11 @@ class SolverBase(object, metaclass=ABCMeta):
             This method should be implemented by subclasses.
         """
         raise NotImplementedError()
+    
+    def worker_loop(self) -> None:
+        """
+        Worker loop for hybrid parallelization via MPI (algorithm + solver processes).
+        This should be overridden by subclasses that need to participate in
+        solver-level parallelization.
+        """
+        raise NotImplementedError()

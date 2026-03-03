@@ -61,7 +61,9 @@ class MeshGrid(DomainBase):
         """
         Split the grid data among MPI processes.
         """
-        if self.mpisize > 1:
+        if self.mpisize is None:
+            self.grid_local = []
+        elif self.mpisize > 1:
             index = [idx for idx, *v in self.grid]
             index_local = np.array_split(index, self.mpisize)[self.mpirank]
             self.grid_local = [[idx, *v] for idx, *v in self.grid if idx in index_local]
@@ -120,8 +122,8 @@ class MeshGrid(DomainBase):
         else:
             data = None
 
-        if self.mpisize > 1:
-            data = odatse.mpi.comm().bcast(data, root=0)
+        if self.mpisize is not None and self.mpisize > 1:
+            data = odatse.mpi.algcomm().bcast(data, root=0)
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
 
@@ -189,8 +191,8 @@ class MeshGrid(DomainBase):
             )
         ]
 
-        if self.mpisize > 1:
-            grids = odatse.mpi.comm().allgather(self.grid_local)
+        if self.mpisize is not None and self.mpisize > 1:
+            grids = odatse.mpi.algcomm().allgather(self.grid_local)
             self.grid = [v for vs in grids for v in vs]
         else:
             self.grid = self.grid_local
