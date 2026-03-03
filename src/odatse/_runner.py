@@ -140,4 +140,5 @@ class Runner(object):
         """
         Write the logger data.
         """
-        self.logger.write()
+        if odatse.mpi.solrank() == 0:
+            self.logger.write()

@@ -85,9 +85,10 @@ class Algorithm(AlgorithmBase):
             raise RuntimeError("unknown mode {}".format(self.mode))
 
         # local colormap file
-        fp = open(self.local_colormap_file, "a")
-        if self.mode.startswith("init"):
-            fp.write("#" + " ".join(self.label_list) + " fval\n")
+        if self.mpisize is not None and self.mpisize > 1:
+            fp = open(self.local_colormap_file, "a")
+            if self.mode.startswith("init"):
+                fp.write("#" + " ".join(self.label_list) + " fval\n")
 
         iterations = len(self.mesh_list)
         istart = len(self.fx_list)
@@ -113,9 +114,10 @@ class Algorithm(AlgorithmBase):
             self.fx_list.append([mesh[0], fx])
 
             # write to local colormap file
-            fp.write(" ".join(
-                map(lambda v: "{:8f}".format(v), (*x, fx))
-            ) + "\n")
+            if self.mpisize is not None and self.mpisize > 1:
+                fp.write(" ".join(
+                    map(lambda v: "{:8f}".format(v), (*x, fx))
+                ) + "\n")
 
             if self.checkpoint:
                 time_now = time.time()
@@ -123,6 +125,9 @@ class Algorithm(AlgorithmBase):
                     self._save_state(self.checkpoint_file)
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
+
+        if self.mpisize is not None and self.mpisize > 1:
+            fp.close()
 
         if iterations > 0:
             opt_index = np.argsort(self.fx_list, axis=0)[0][1]

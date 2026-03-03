@@ -114,12 +114,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.rank())
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        # Some cache of the filesystem may delay making a dictionary
-        # especially when mkdir just after removing the old one
-        while not self.proc_dir.is_dir():
-            time.sleep(0.1)
         if self.mpisize is not None and self.mpisize > 1:
+            self.proc_dir.mkdir(parents=True, exist_ok=True)
+            # Some cache of the filesystem may delay making a dictionary
+            # especially when mkdir just after removing the old one
+            while not self.proc_dir.is_dir():
+                time.sleep(0.1)
             self.mpicomm.Barrier()
 
         # checkpointing
@@ -246,7 +246,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             time_end = time.perf_counter()
             self.timer["post"]["total"] = time_end - time_sta
 
-            self.write_timer(self.proc_dir / "time.log")
+            if self.mpisize is not None and self.mpisize > 1:
+                self.write_timer(self.proc_dir / "time.log")
             return result
         else: # worker branch, enter waiting state
             if mpi.solsize() > 1:
