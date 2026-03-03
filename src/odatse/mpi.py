@@ -8,11 +8,50 @@
 
 try:
     from mpi4py import MPI
-    Comm = MPI.Comm
+
+    global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
 
     __comm = MPI.COMM_WORLD
     __size = __comm.size
     __rank = __comm.rank
+    __solcomm = None
+    __solsize = 1
+    __solrank = 0
+    __solthreads = 1
+    __algcomm = None
+    __algsize = 1
+    __algrank = 0
+    __color = 0
+    
+    def setup(nalg, nsolve, nthreads):
+        global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
+
+        if nthreads is not None:
+            assert nthreads > 0
+        if nalg is not None:
+            assert nalg > 0
+        if nsolve is not None:
+            assert nsolve > 0
+        if nalg is not None and nsolve is not None:
+            assert nalg * nsolve == __comm.size
+        elif nalg is not None and nsolve is None:
+            assert __comm.size % nalg == 0
+            nsolve = __comm.size // nalg
+        elif nsolve is not None and nalg is None:
+            assert __comm.size % nsolve == 0
+            nalg = __comm.size // nsolve
+        else: # both are None, default to parallelizing over search algorithm
+            nalg = __comm.size
+            nsolve = 1
+
+        __color = __comm.rank // nsolve
+        __solcomm = __comm.Split(color=__color, key=__comm.rank)
+        __solsize = __solcomm.size
+        __solrank = __solcomm.rank
+        __solthreads = nthreads
+        __algcomm = __comm.Create(__comm.Get_group().Incl([color * nsolve for color in range(nalg)]))
+        __algsize = __algcomm.size if __algcomm != MPI.COMM_NULL else None
+        __algrank = __algcomm.rank if __algcomm != MPI.COMM_NULL else None
 
     def comm() -> MPI.Comm:
         return __comm
@@ -23,12 +62,37 @@ try:
     def rank() -> int:
         return __rank
 
+    def solcomm() -> MPI.Comm:
+        return __solcomm
+
+    def solsize() -> int:
+        return __solsize
+
+    def solrank() -> int:
+        return __solrank
+
+    def solthreads() -> int:
+        return __solthreads
+
+    def algcomm() -> MPI.Comm:
+        return __algcomm
+
+    def algsize() -> int:
+        return __algsize
+
+    def algrank() -> int:
+        return __algrank
+    
+    def color() -> int:
+        return __color
+
     def enabled() -> bool:
         return True
 
 
 except ImportError:
-    Comm = None
+    def setup(nalg, nsolve, nthreads):
+        pass
 
     def comm() -> None:
         return None
@@ -37,6 +101,30 @@ except ImportError:
         return 1
 
     def rank() -> int:
+        return 0
+
+    def solcomm() -> None:
+        return None
+
+    def solsize() -> int:
+        return 1
+
+    def solrank() -> int:
+        return 0
+
+    def solthreads() -> int:
+        return 1
+
+    def algcomm() -> None:
+        return None
+
+    def algsize() -> int:
+        return 1
+
+    def algrank() -> int:
+        return 0
+
+    def color() -> int:
         return 0
 
     def enabled() -> bool:
