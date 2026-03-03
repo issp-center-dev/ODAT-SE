@@ -1,0 +1,22 @@
+[base]
+dimension = 1
+output_dir = "output_par_test"
+nsolve = 2
+nalg = 3
+nthreads = 2
+
+[solver]
+name = "custom"
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "mapper"
+seed = 12345
+
+[algorithm.param]
+max_list = [20]
+min_list = [1]
+num_list = [20]
