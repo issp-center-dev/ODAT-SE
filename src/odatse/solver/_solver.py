@@ -65,7 +65,7 @@ class SolverBase(object, metaclass=ABCMeta):
         return self._name
 
     @abstractmethod
-    def evaluate(self, x: np.ndarray, arg: tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
+    def evaluate(self, x: np.ndarray, arg: tuple = ()) -> float:
         """
         Evaluate the solver with the given parameters.
 
@@ -75,10 +75,6 @@ class SolverBase(object, metaclass=ABCMeta):
             Input data array.
         arg : tuple, optional
             Additional arguments for evaluation. Defaults to ().
-        nprocs : nt, optional
-            Number of processes to use. Defaults to 1.
-        nthreads : int, optional
-            Number of threads to use. Defaults to 1.
 
         Raises
         ------

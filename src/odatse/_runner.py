@@ -24,21 +24,15 @@ from . import mpi
 
 
 class Run(metaclass=ABCMeta):
-    def __init__(self, nprocs=None, nthreads=None, comm=None):
+    def __init__(self, comm=None):
         """
         Initialize the Run class.
 
         Parameters
         ----------
-        nprocs : int
-            Number of processes which one solver uses.
-        nthreads : int
-            Number of threads which one solver process uses.
         comm : MPI.Comm
             MPI Communicator.
         """
-        self.nprocs = nprocs
-        self.nthreads = nthreads
         self.comm = comm
 
     @abstractmethod
@@ -112,8 +106,7 @@ class Runner(object):
         self.logger.prepare(proc_dir)
 
     def submit(
-            self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1
-    ) -> float:
+            self, x: np.ndarray, args = ()) -> float:
         """
         Submit the solver with the given parameters.
 
@@ -123,10 +116,6 @@ class Runner(object):
             Input array.
         args : tuple, optional
             Additional arguments.
-        nprocs : int, optional
-            Number of processes.
-        nthreads : int, optional
-            Number of threads.
 
         Returns
         -------
