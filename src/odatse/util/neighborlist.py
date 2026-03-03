@@ -6,7 +6,9 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
 import typing
+from typing import TYPE_CHECKING
 from os import PathLike
 
 import sys
@@ -15,6 +17,9 @@ import itertools
 import numpy as np
 
 from odatse import mpi
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 try:
     from tqdm import tqdm
@@ -284,7 +289,7 @@ def make_neighbor_list_cell(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using cell-based spatial partitioning.
@@ -303,7 +308,7 @@ def make_neighbor_list_cell(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -370,7 +375,7 @@ def make_neighbor_list_naive(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using a naive all-pairs approach.
@@ -390,7 +395,7 @@ def make_neighbor_list_naive(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -448,7 +453,7 @@ def make_neighbor_list(
     allow_selfloop: bool = False,
     check_allpairs: bool = False,
     show_progress: bool = False,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list for given points.
@@ -470,7 +475,7 @@ def make_neighbor_list(
         by default False.
     show_progress : bool, optional
         Whether to show a progress bar during computation, by default False.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
