@@ -66,7 +66,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
     # forwarded to scipy.optimize.minimize as options
-    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping"}
+    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping", "use_gradient"}
 
     # basinhopping arguments managed by ODAT-SE itself; rejected if the user
     # sets them in [algorithm.minimize.basinhopping]
@@ -84,6 +84,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     minimize_options: dict
     # None: plain minimize; dict (possibly empty): basinhopping parameters
     basinhopping_params: Optional[dict]
+    # pass the solver's gradient to scipy as jac
+    use_gradient: bool
 
     # hyperparameters of Nelder-Mead
     initial_simplex_list: list[list[float]]
@@ -98,6 +100,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
     hop_history: list[list[Union[int, float]]]
+    grad_history: Optional[list[list[Union[int, float]]]]
 
     def __init__(
         self,
@@ -142,6 +145,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
+        self.use_gradient = bool(info_minimize.get("use_gradient", False))
 
         # basinhopping = true enables scipy.optimize.basinhopping with its
         # default parameters; a [algorithm.minimize.basinhopping] table both
@@ -298,6 +302,53 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fev_history.append([step[0], *x_scaled, y])
             return y
 
+        use_grad = (
+            self.use_gradient
+            and getattr(self.runner.solver, "supports_gradient", False)
+        )
+        grad_history = []
+
+        if use_grad:
+            def _jac_calc(x_list: np.ndarray, iset) -> np.ndarray:
+                """
+                Calculate the gradient of the objective function.
+                """
+                x_list = np.asarray(x_list, dtype=float).flatten()
+                if use_bounds:
+                    in_range = np.all((min_list <= x_list) & (x_list <= max_list))
+                else:
+                    in_range = np.all((min_list < x_list) & (x_list < max_list))
+                in_limit = self.runner.limitation.judge(x_list)
+                if not in_range or not in_limit:
+                    return np.zeros_like(x_list, dtype=np.float64)
+                x_scaled = x_list / unit_list
+                args = (0, iset)
+                grad_scaled = run.submit_gradient(x_scaled, args)
+                # chain rule for f(x / unit_list)
+                g = np.asarray(grad_scaled, dtype=np.float64).flatten() / unit_list
+                return np.atleast_1d(g).astype(np.float64)
+
+            grad_history.append([
+                *self.initial_list,
+                f0,
+                *_jac_calc(self.initial_list, 0),
+            ])
+
+            def _cb_grad(intermediate_result):
+                """
+                Callback function that also records the gradient.
+                """
+                # _cb must not return (x, fun): trust-constr stops on a
+                # truthy callback return value
+                _cb(intermediate_result)
+                *x, fun = iter_history[-1]
+                grad = _jac_calc(np.array(x), 0)
+                grad_history.append([*x, fun, *grad])
+
+            callback = _cb_grad
+        else:
+            callback = _cb
+
         use_basinhopping = self.basinhopping_params is not None
 
         options = dict(self.minimize_options)
@@ -324,6 +375,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         minimize_kwargs = {}
         if use_bounds:
             minimize_kwargs["bounds"] = list(zip(min_list, max_list))
+        if use_grad:
+            minimize_kwargs["jac"] = _jac_calc
 
         hop_history = []
 
@@ -360,7 +413,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             "method": self.method,
                             "args": (0,),
                             "options": options,
-                            "callback": _cb,
+                            "callback": callback,
                             **minimize_kwargs,
                         },
                         take_step=take_step,
@@ -378,7 +431,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         method=self.method,
                         args=(0,),
                         options=options,
-                        callback=_cb,
+                        callback=callback,
                         **minimize_kwargs,
                     )
         except OptimizeWarning as w:
@@ -399,6 +452,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.iter_history = iter_history
         self.fev_history = fev_history
         self.hop_history = hop_history
+        self.grad_history = grad_history if use_grad else None
 
         self._output_results()
 
@@ -441,6 +495,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fp.write("#hop " + " ".join(label_list) + " R-factor accept\n")
                 for v in self.hop_history:
                     fp.write(" ".join(map(str, v)) + "\n")
+
+        if self.grad_history is not None:
+            with open("History_Gradient.txt", "w") as fp:
+                fp.write(
+                    "#No " + " ".join(label_list) + " fx "
+                    + " ".join("grad_" + L for L in label_list) + "\n"
+                )
+                for i, v in enumerate(self.grad_history):
+                    fp.write(str(i) + " " + " ".join(map(str, v)) + "\n")
 
         with open("res.txt", "w") as fp:
             fp.write(f"fx = {self.fopt}\n")

@@ -69,7 +69,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 詳細は `scipy.optimize.minimize`_ のドキュメントを参照してください。
 
 ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
-``basinhopping``(後述)以外のパラメータは、そのまま
+``use_gradient``, ``basinhopping``(後述)以外のパラメータは、そのまま
 `scipy.optimize.minimize`_ の ``options`` 引数に渡されます。
 選択した手法が受け付けないパラメータ名が指定された場合は、
 最適化を開始する前にエラーで終了します。
@@ -83,7 +83,8 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   説明: 最適化手法の名前。 `scipy.optimize.minimize`_ の ``method`` 引数にそのまま渡されます。
   例: "Nelder-Mead", "Powell", "COBYLA" など。
   勾配を必要とする手法 (BFGS, CG など) では、勾配が数値差分で評価されるため
-  1回の勾配評価あたり次元数+1回のソルバー実行が発生することに注意してください。
+  1回の勾配評価あたり次元数+1回のソルバー実行が発生することに注意してください
+  (ソルバーが提供する勾配を使う場合を除きます。 ``use_gradient`` を参照)。
   また、探索範囲 (``min_list`` / ``max_list``) は、bounds に対応した手法
   (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA) では
   scipy の ``bounds`` 引数として渡されます。
@@ -97,6 +98,25 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできる dimension 個の点を合わせたものが ``initial_simplex`` として使われます。
   定義しなかった場合、各次元に 0.25 が設定されます。
   ``method`` が "Nelder-Mead" の場合のみ使用されます。
+
+- ``use_gradient``
+
+  形式: 真偽値 (default: false)
+
+  説明: true のとき、ソルバーが勾配を提供していれば、数値差分の代わりにソルバーが計算した勾配を
+  `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
+  勾配を用いる手法 ("BFGS", "L-BFGS-B", "CG" など) でのみ効果があります。
+  ソルバーが勾配を提供していない場合、このパラメータは無視されます。
+  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` が True を返すようにし、 ``gradient`` メソッドを実装する必要があります (:ref:`Solver の定義 <customize_solver>` を参照)。
+  ``[runner.mapping]`` を指定した場合と、ソルバー並列 (``--nsolve`` が 2 以上) の場合は、勾配の利用に対応していません。
+
+  設定例:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "L-BFGS-B"
+      use_gradient = true
 
 - ``xatol``
 
@@ -190,6 +210,14 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 局所最適化 1 回ごと(初期点からの 1 回 + ``niter`` 回のホップ)に、
 ホップ番号、局所最適化で得られた変数の値、目的関数の値、
 そのホップが受理されたかどうか (1/0) をこの順に出力します。
+
+``History_Gradient.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+勾配を利用した場合 (``use_gradient = true`` かつソルバーが勾配を提供する場合) のみ出力されます。
+1行目はヘッダー (``#No``、変数名、 ``fx``、各変数に対する勾配 ``grad_変数名``) です。
+2行目以降には、通し番号、変数の値、目的関数の値、勾配の値がこの順に出力されます。
+最初の行は初期点、それ以降は局所最適化の各反復に対応します。
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -113,6 +113,19 @@ def test_method_cobyla_without_nit(tmp_path, monkeypatch):
         assert "None" not in f.read_text()
 
 
+def test_method_trust_constr_is_not_stopped_by_callback(tmp_path, monkeypatch):
+    """trust-constr terminates when the callback returns a truthy value, so
+    the per-iteration callback must not return anything: the optimization
+    has to run to convergence instead of stopping after the first
+    iteration at the initial point."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                            minimize={"method": "trust-constr"})
+    assert alg.itera > 1
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+
+
 def test_unknown_option_raises(tmp_path, monkeypatch):
     """An option name the selected method does not accept must abort before
     the optimization instead of being silently ignored by scipy."""

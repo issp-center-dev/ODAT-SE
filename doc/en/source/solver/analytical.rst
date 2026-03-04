@@ -2,6 +2,7 @@
 ************************
 
 ``analytical`` is a ``Solver`` that computes a predefined benchmark function :math:`f(x)` for evaluating the performance of search algorithms.
+It also provides the gradient for ``quadratics``, ``quartics``, ``ackley``, ``rosenbrock``, ``himmelblau``, and ``linear_regression_test``.
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~

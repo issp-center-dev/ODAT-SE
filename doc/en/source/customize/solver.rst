@@ -1,3 +1,5 @@
+.. _customize_solver:
+
 ``Solver``
 ================================
 
@@ -78,3 +80,17 @@
      When the solver parallelization is used (``--nsolve`` greater than 1), ``evaluate`` is called on all MPI ranks in the solver group with the same ``x`` and ``args``.
      The division of roles among the ranks should be implemented within the solver. See :doc:`../tutorial/parallel_solver` for details.
      An exception raised by ``evaluate`` on any rank of the solver group is reported to the controller rank (``solrank() == 0``) and handled there: ``ignore_error`` applies when every failing rank raised a ``RuntimeError``; otherwise the job terminates with an error. Collectives inside ``evaluate`` must stay matched across the group even when a rank fails.
+
+- Optional gradient support
+
+  If the gradient of the objective function can be computed, the following members can be implemented to allow the ``Algorithm`` to use the gradient (e.g. ``use_gradient = true`` in ``minsearch``).
+
+  - ``supports_gradient`` (property, default: False)
+
+    Override to return True when this solver can compute gradients.
+
+  - ``gradient(self, x, args=()) -> np.ndarray``
+
+    Returns the gradient of the objective function at ``x`` (same shape as ``x``). Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
+
+  Gradients are not supported when ``[runner.mapping]`` is specified or when the solver parallelization is used (``--nsolve`` greater than 1).

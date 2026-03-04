@@ -3,6 +3,7 @@
 
 ``analytical`` は探索アルゴリズムの性能評価を目的とした、
 定義済みのベンチマーク関数 :math:`f(x)` を計算する ``Solver`` です。
+``quadratics``, ``quartics``, ``ackley``, ``rosenbrock``, ``himmelblau``, ``linear_regression_test`` については勾配も計算できます。
 
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~

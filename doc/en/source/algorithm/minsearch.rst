@@ -85,7 +85,7 @@ Set the optimization method and its hyperparameters.
 See the documentation of `scipy.optimize.minimize`_ for details.
 
 All parameters other than the ODAT-SE-specific keys ``method``,
-``initial_scale_list``, and ``basinhopping`` (described below) are passed
+``initial_scale_list``, ``use_gradient``, and ``basinhopping`` (described below) are passed
 verbatim to the ``options`` argument of `scipy.optimize.minimize`_.
 If a parameter name not accepted by the selected method is given,
 the program stops with an error before the optimization starts.
@@ -100,7 +100,8 @@ listed below apply only when ``method`` is "Nelder-Mead".
   Name of the optimization method, passed as-is to the ``method`` argument of `scipy.optimize.minimize`_.
   Examples: "Nelder-Mead", "Powell", "COBYLA".
   Note that for gradient-based methods (BFGS, CG, ...) the gradient is evaluated by numerical differentiation,
-  which costs dimension+1 solver evaluations per gradient evaluation.
+  which costs dimension+1 solver evaluations per gradient evaluation,
+  unless the gradient provided by the solver is used (see ``use_gradient``).
   The search region (``min_list`` / ``max_list``) is passed as the ``bounds`` argument of scipy
   for methods that support it (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA).
   For the Nelder-Mead method, out-of-range points are handled as before
@@ -115,6 +116,27 @@ listed below apply only when ``method`` is "Nelder-Mead".
   The ``initial_simplex`` consists of ``initial_list`` together with the ``dimension`` points obtained by adding each single component of ``initial_scale_list`` to ``initial_list``.
   If not defined, scales at each dimension are set to 0.25.
   Used only when ``method`` is "Nelder-Mead".
+
+- ``use_gradient``
+
+  Format: Boolean (default: false)
+
+  Description:
+  When true and the solver provides gradients, the gradient computed by the solver is passed to
+  `scipy.optimize.minimize`_ as its ``jac`` argument (also for the local optimizations of ``basinhopping``),
+  instead of the numerical differentiation.
+  It is effective only for methods that use gradients (e.g. "BFGS", "L-BFGS-B", "CG").
+  When the solver does not provide gradients, this parameter is ignored.
+  To use gradients with a custom solver, ``supports_gradient`` must return True and the ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
+  Gradients are not supported with ``[runner.mapping]`` or with the solver parallelization (``--nsolve`` greater than 1).
+
+  Example:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "L-BFGS-B"
+      use_gradient = true
 
 - ``xatol``
 
@@ -214,6 +236,14 @@ For each local optimization (one from the initial point plus ``niter`` hops),
 it outputs the hop number, the values of the variables at the local minimum,
 the value of the objective function, and whether the hop was accepted (1/0),
 in that order.
+
+``History_Gradient.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Written only when the gradient is used (``use_gradient = true`` with a solver that provides gradients).
+The first line is a header (``#No``, variable names, ``fx``, and ``grad_`` followed by each variable name).
+Each of the following lines contains the index, the values of the variables, the value of the objective function, and the gradient, in that order:
+the first line is for the initial point, and the others are for each iteration of the local optimization.
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

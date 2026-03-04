@@ -11,6 +11,9 @@ import numpy as np
 import odatse
 import odatse.solver.function
 
+# type hints
+from typing import Callable, Optional
+
 def quadratics(xs: np.ndarray) -> float:
     """
     Quadratic (sphere) function.
@@ -30,6 +33,10 @@ def quadratics(xs: np.ndarray) -> float:
     It has one global minimum f(xs)=0 at xs = [0,0,...,0].
     """
     return np.sum(xs * xs)
+
+def quadratics_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of quadratics (sphere): 2*x."""
+    return 2.0 * xs.copy()
 
 def quartics(xs: np.ndarray) -> float:
     """
@@ -51,6 +58,13 @@ def quartics(xs: np.ndarray) -> float:
     It has one saddle point f(0,0,...,0) = 1.0.
     """
     return np.mean((xs - 1.0) ** 2) * np.mean((xs + 1.0) ** 2)
+
+def quartics_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of quartics."""
+    n = xs.size
+    m1 = np.mean((xs - 1.0) ** 2)
+    m2 = np.mean((xs + 1.0) ** 2)
+    return (2.0 / n) * (m2 * (xs - 1.0) + m1 * (xs + 1.0))
 
 def ackley(xs: np.ndarray) -> float:
     """
@@ -76,6 +90,19 @@ def ackley(xs: np.ndarray) -> float:
     b = np.cos(2.0 * np.pi * xs)
     b = np.exp(np.mean(b, axis = 0))
     return 20.0 + np.exp(1.0) - a - b
+
+def ackley_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Ackley's function."""
+    n = xs.size
+    sqrt_mean = np.sqrt(np.mean(xs ** 2))
+    a = 20 * np.exp(-0.2 * sqrt_mean)
+    b = np.exp(np.mean(np.cos(2.0 * np.pi * xs)))
+    if sqrt_mean == 0:
+        da_dx = np.zeros_like(xs, dtype=float)
+    else:
+        da_dx = a * (-0.2 / sqrt_mean) * (xs / n)
+    db_dx = b * (-2.0 * np.pi / n) * np.sin(2.0 * np.pi * xs)
+    return -da_dx - db_dx
 
 def alpine(xs: np.ndarray) -> float:
     """
@@ -162,6 +189,15 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
+def himmelblau_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Himmelblau's function (d=2)."""
+    a = xs[0] ** 2 + xs[1] - 11.0
+    b = xs[0] + xs[1] ** 2 - 7.0
+    return np.array([
+        2.0 * a * 2.0 * xs[0] + 2.0 * b * 1.0,
+        2.0 * a * 1.0 + 2.0 * b * 2.0 * xs[1],
+    ])
+
 def michalewicz(xs: np.ndarray) -> float:
     """
     Michalewicz function.
@@ -245,6 +281,22 @@ def rosenbrock(xs: np.ndarray) -> float:
     """
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2, axis = 0)
 
+def rosenbrock_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Rosenbrock's function."""
+    g = np.empty_like(xs, dtype=float)
+    g[0] = (
+        -400.0 * xs[0] * (xs[1] - xs[0] ** 2)
+        - 2.0 * (1.0 - xs[0])
+    )
+    g[-1] = 200.0 * (xs[-1] - xs[-2] ** 2)
+    for i in range(1, xs.size - 1):
+        g[i] = (
+            200.0 * (xs[i] - xs[i - 1] ** 2)
+            - 400.0 * xs[i] * (xs[i + 1] - xs[i] ** 2)
+            - 2.0 * (1.0 - xs[i])
+        )
+    return g
+
 def schaffer(xs: np.ndarray) -> float:
     """
     Schaffer function (generalized).
@@ -319,11 +371,38 @@ def linear_regression_test(xs: np.ndarray) -> float:
         n * xs[2] + np.sum((xs[0] * xdata + xs[1] - ydata) ** 2) / np.exp(xs[2])
     )
 
+def linear_regression_test_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of linear_regression_test (negative log likelihood, d=3)."""
+    xdata = np.array([1, 2, 3, 4, 5, 6])
+    ydata = np.array([1, 3, 2, 4, 3, 5])
+    n = len(ydata)
+    resid = xs[0] * xdata + xs[1] - ydata
+    s = np.sum(resid ** 2)
+    exp_s2 = np.exp(xs[2])
+    return np.array([
+        np.sum(resid * xdata) / exp_s2,
+        np.sum(resid) / exp_s2,
+        0.5 * (n - s / exp_s2),
+    ])
+
 class Solver(odatse.solver.function.Solver):
-    """Function Solver with pre-defined benchmark functions"""
+    """Function Solver with pre-defined benchmark functions and gradients."""
 
     x: np.ndarray
     fx: float
+    # None for the functions whose gradient is not implemented
+    _grad_func: Optional[Callable[[np.ndarray], np.ndarray]] = None
+
+    @property
+    def supports_gradient(self) -> bool:
+        return self._grad_func is not None
+
+    def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
+        if self._grad_func is None:
+            raise NotImplementedError(
+                f"gradient of {self._function_name} is not implemented"
+            )
+        return self._grad_func(x)
 
     def __init__(self, info: odatse.Info) -> None:
         """
@@ -337,13 +416,17 @@ class Solver(odatse.solver.function.Solver):
         super().__init__(info)
         self._name = "analytical"
         function_name = info.solver.get("function_name", "quadratics")
+        self._function_name = function_name
 
         if function_name == "quadratics":
             self.set_function(quadratics)
+            self._grad_func = quadratics_gradient
         elif function_name == "quartics":
             self.set_function(quartics)
+            self._grad_func = quartics_gradient
         elif function_name == "ackley":
             self.set_function(ackley)
+            self._grad_func = ackley_gradient
         elif function_name == "alpine":
             self.set_function(alpine)
         elif function_name == "exponential":
@@ -357,6 +440,7 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
                 )
             self.set_function(himmelblau)
+            self._grad_func = himmelblau_gradient
         elif function_name == "michalewicz":
             self.set_function(michalewicz)
         elif function_name == "qing":
@@ -365,6 +449,7 @@ class Solver(odatse.solver.function.Solver):
             self.set_function(rastrigin)
         elif function_name == "rosenbrock":
             self.set_function(rosenbrock)
+            self._grad_func = rosenbrock_gradient
         elif function_name == "schaffer":
             self.set_function(schaffer)
         elif function_name == "schwefel":
@@ -376,5 +461,6 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: regression works only with dimension=3 but input is dimension={dimension}"
                 )
             self.set_function(linear_regression_test)
+            self._grad_func = linear_regression_test_gradient
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")

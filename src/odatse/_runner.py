@@ -331,6 +331,53 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             error.__cause__ = own_error
         return result, error
 
+    def submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
+        """
+        Return the gradient of the objective w.r.t. x.
+        Only valid when the solver supports gradient and mapping is Trivial
+        (chain rule not implemented otherwise).
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array (same convention as submit).
+        args : tuple, optional
+            Additional arguments.
+
+        Returns
+        -------
+        np.ndarray
+            Gradient vector, same shape as x.
+
+        Raises
+        ------
+        NotImplementedError
+            If solver does not support gradient, mapping is not Trivial,
+            or the solver group has more than one process.
+        """
+        if not getattr(self.solver, "supports_gradient", False):
+            raise NotImplementedError("Solver does not support gradient.")
+        if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
+            raise NotImplementedError(
+                "submit_gradient is only supported with TrivialMapping."
+            )
+        # the solver workers wait in serve() for MSG_EVALUATE and cannot take
+        # part in gradient(); calling it on the controller alone would hang a
+        # solver that uses solcomm
+        if odatse.mpi.solsize() > 1:
+            raise NotImplementedError(
+                "submit_gradient is not supported with a parallel solver (solver group size > 1)."
+            )
+        if not self.limitation.judge(x):
+            return np.zeros_like(x, dtype=float)
+        xp = self.mapping(x)
+        try:
+            return self.solver.gradient(xp, args)
+        except RuntimeError:
+            if self.ignore_error:
+                return np.zeros_like(x, dtype=float)
+            raise
+
     def post(self) -> None:
         """
         Write the logger data.
