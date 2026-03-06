@@ -1,0 +1,15 @@
+[base]
+dimension = 2
+output_dir = "./output"
+
+[solver]
+
+[algorithm]
+name = "minsearch"
+seed = 12345
+
+[algorithm.param]
+min_list = [-6.0, -6.0]
+max_list = [6.0, 6.0]
+initial_list = [0.0, 0.0]
+

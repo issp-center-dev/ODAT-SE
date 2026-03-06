@@ -1,0 +1,6 @@
+field_list = ["beta", "fx", "x", "y", "weight"]
+columns = ["x", "y"]
+bins = 120
+range = [[-6.0, 6.0], [-6.0, 6.0]]
+data_dir = "./summarized"
+output_dir = "./histogram"

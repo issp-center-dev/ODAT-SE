@@ -6,10 +6,63 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-try:
-    from mpi4py import MPI
+import os
 
+ODATSE_NOMPI = os.environ.get("ODATSE_NOMPI", "0")!="0"
+
+if not ODATSE_NOMPI:
+    try:
+        from mpi4py import MPI
+        ODATSE_NOMPI = False
+    except ImportError:
+        ODATSE_NOMPI = True
+
+if ODATSE_NOMPI:
+    Comm = None
+
+    def setup(nalg, nsolve, nthreads):
+        pass
+
+    def comm():
+        return None
+
+    def size() -> int:
+        return 1
+
+    def rank() -> int:
+        return 0
+
+    def solcomm():
+        return None
+
+    def solsize() -> int:
+        return 1
+
+    def solrank() -> int:
+        return 0
+
+    def solthreads() -> int:
+        return 1
+
+    def algcomm():
+        return None
+
+    def algsize() -> int:
+        return 1
+
+    def algrank() -> int:
+        return 0
+
+    def color() -> int:
+        return 0
+
+    def enabled() -> bool:
+        return False
+
+else:
     global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
+
+    Comm = MPI.Comm
 
     __comm = MPI.COMM_WORLD
     __size = __comm.size
@@ -53,7 +106,7 @@ try:
         __algsize = __algcomm.size if __algcomm != MPI.COMM_NULL else None
         __algrank = __algcomm.rank if __algcomm != MPI.COMM_NULL else None
 
-    def comm() -> MPI.Comm:
+    def comm():
         return __comm
 
     def size() -> int:
@@ -62,7 +115,7 @@ try:
     def rank() -> int:
         return __rank
 
-    def solcomm() -> MPI.Comm:
+    def solcomm():
         return __solcomm
 
     def solsize() -> int:
@@ -74,7 +127,7 @@ try:
     def solthreads() -> int:
         return __solthreads
 
-    def algcomm() -> MPI.Comm:
+    def algcomm():
         return __algcomm
 
     def algsize() -> int:
@@ -88,44 +141,3 @@ try:
 
     def enabled() -> bool:
         return True
-
-
-except ImportError:
-    def setup(nalg, nsolve, nthreads):
-        pass
-
-    def comm() -> None:
-        return None
-
-    def size() -> int:
-        return 1
-
-    def rank() -> int:
-        return 0
-
-    def solcomm() -> None:
-        return None
-
-    def solsize() -> int:
-        return 1
-
-    def solrank() -> int:
-        return 0
-
-    def solthreads() -> int:
-        return 1
-
-    def algcomm() -> None:
-        return None
-
-    def algsize() -> int:
-        return 1
-
-    def algrank() -> int:
-        return 0
-
-    def color() -> int:
-        return 0
-
-    def enabled() -> bool:
-        return False
