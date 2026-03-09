@@ -60,7 +60,7 @@ if ODATSE_NOMPI:
         return False
 
 else:
-    global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
+
 
     Comm = MPI.Comm
 
@@ -71,9 +71,9 @@ else:
     __solsize = 1
     __solrank = 0
     __solthreads = 1
-    __algcomm = None
-    __algsize = 1
-    __algrank = 0
+    __algcomm = MPI.COMM_WORLD
+    __algsize = __algcomm.size
+    __algrank = __algcomm.rank
     __color = 0
     
     def setup(nalg, nsolve, nthreads):
@@ -101,7 +101,7 @@ else:
         __solcomm = __comm.Split(color=__color, key=__comm.rank)
         __solsize = __solcomm.size
         __solrank = __solcomm.rank
-        __solthreads = nthreads
+        __solthreads = 1 if nthreads is None else nthreads
         __algcomm = __comm.Create(__comm.Get_group().Incl([color * nsolve for color in range(nalg)]))
         __algsize = __algcomm.size if __algcomm != MPI.COMM_NULL else None
         __algrank = __algcomm.rank if __algcomm != MPI.COMM_NULL else None
