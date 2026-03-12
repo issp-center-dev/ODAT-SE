@@ -132,7 +132,7 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if self.opt_fx is not None:
+        if not np.isinf(self.opt_fx):
             print(f"[{self.mpirank}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
         self._output_results()
@@ -159,7 +159,7 @@ class Algorithm(AlgorithmBase):
                     map(lambda v: "{:8f}".format(v), (*coord, fx))
                 ) + "\n")
 
-            if self.opt_fx is not None:
+            if not np.isinf(self.opt_fx):
                 fp.write("#Minimum point : " + " ".join(
                     map(lambda v: "{:8f}".format(v), self.opt_mesh[1])
                 ) + "\n")
