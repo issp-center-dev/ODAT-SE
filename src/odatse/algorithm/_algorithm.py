@@ -39,9 +39,6 @@ class AlgorithmStatus(IntEnum):
 class AlgorithmBase(metaclass=ABCMeta):
     """Base class for algorithms, providing common functionality and structure."""
 
-    mpicomm: Optional["MPI.Comm"]
-    mpisize: int
-    mpirank: int
     rng: np.random.RandomState
     dimension: int
     label_list: list[str]
@@ -62,7 +59,6 @@ class AlgorithmBase(metaclass=ABCMeta):
             info: odatse.Info,
             runner: Optional[odatse.Runner] = None,
             run_mode: str = "initial",
-            mpicomm: Optional["MPI.Comm"] = None
     ) -> None:
         """
         Initialize the algorithm with the given information and runner.
@@ -75,18 +71,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             Optional runner object to execute the algorithm.
         run_mode : str
             Mode in which the algorithm should run.
-        mpicomm : MPI.Comm (optional)
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        if mpicomm is None:
-            self.mpicomm = mpi.algcomm()
-            self.mpisize = mpi.algsize()
-            self.mpirank = mpi.algrank()
-        else:
-            self.mpicomm = mpicomm
-            self.mpisize = mpicomm.size
-            self.mpirank = mpicomm.rank
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
@@ -114,13 +99,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.rank())
-        if self.mpisize is not None:
+        if odatse.mpi.algsize() is not None:
             self.proc_dir.mkdir(parents=True, exist_ok=True)
             # Some cache of the filesystem may delay making a dictionary
             # especially when mkdir just after removing the old one
             while not self.proc_dir.is_dir():
                 time.sleep(0.1)
-            self.mpicomm.Barrier()
+            odatse.mpi.algcomm().Barrier()
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
@@ -222,35 +207,35 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Main method to execute the algorithm.
         """
-        if self.mpirank is not None: # master branch, run solver
+        if odatse.mpi.algrank() is not None: # master branch, run solver
             time_sta = time.perf_counter()
             self.prepare()
             time_end = time.perf_counter()
             self.timer["prepare"]["total"] = time_end - time_sta
-            if self.mpisize is not None and self.mpisize > 1:
-                self.mpicomm.Barrier()
+            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+                odatse.mpi.algcomm().Barrier()
 
             time_sta = time.perf_counter()
             self.run()
             time_end = time.perf_counter()
             self.timer["run"]["total"] = time_end - time_sta
             print("end of run")
-            if self.mpisize is not None and self.mpisize > 1:
-                self.mpicomm.Barrier()
+            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+                odatse.mpi.algcomm().Barrier()
 
-            if mpi.solsize() > 1: # signal workers to finish running
-                mpi.solcomm().bcast(None, root=0)
+            if odatse.mpi.solsize() > 1: # signal workers to finish running
+                odatse.mpi.solcomm().bcast(None, root=0)
 
             time_sta = time.perf_counter()
             result = self.post()
             time_end = time.perf_counter()
             self.timer["post"]["total"] = time_end - time_sta
 
-            if self.mpisize is not None and self.mpisize > 1:
+            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
                 self.write_timer(self.proc_dir / "time.log")
             return result
         else: # worker branch, enter waiting state
-            if mpi.solsize() > 1:
+            if odatse.mpi.solsize() > 1:
                 self.runner.solver.worker_loop()
             return None
 
@@ -344,7 +329,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Show the parameters of the algorithm.
         """
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             info = flatten_dict(self.info)
             for k, v in info.items():
                 print("{:16s}: {}".format(k, v))
@@ -364,9 +349,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         for k,v in info.items():
             w = info_prev.get(k, None)
             if v != w:
-                if self.mpirank == 0:
+                if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                     print("WARNING: parameter {} changed from {} to {}".format(k, w, v))
-            if self.mpirank == 0:
+            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                 print("{:16s}: {}".format(k, v))
 
 # utility

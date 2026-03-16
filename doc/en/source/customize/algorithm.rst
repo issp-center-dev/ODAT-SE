@@ -16,20 +16,9 @@
 
 ``AlgorithmBase`` class offers the following methods.
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
   - Reads the common parameters from ``info`` and sets the following instance variables:
-
-    - ``self.mpicomm: Optional[MPI.Comm]`` : MPI communicator ``mpi4py.MPI.Comm`` object to use for parallelization.
-
-      - If ``mpicomm`` is given, it is used.
-      - If ``mpicomm`` is not given, if ``mpi4py`` can be imported, ``mpi4py.MPI.COMM_WORLD`` is used. Otherwise, ``None`` is set, and the algorithm runs in serial.
-
-    - ``self.mpisize: int`` : the number of MPI processes
-
-    - ``self.mpirank: int`` : the rank of this process
-
-      - When ``import mpi4py`` fails, ``self.mpisize`` is set to 1, and ``self.mpirank`` is set to 0.
 
     - ``self.rng: np.random.Generator`` : pseudo random number generator
 
@@ -49,7 +38,7 @@
 
     - ``self.proc_dir: pathlib.Path`` : working directory of each process
 
-      - It is set to ``self.output_dir / str(self.mpirank)``.
+      - It is set to ``self.output_dir / str(odatse.mpi.algrank())``.
       - The directory will be made automatically.
       - Each process performs an optimization algorithm in this directory.
 

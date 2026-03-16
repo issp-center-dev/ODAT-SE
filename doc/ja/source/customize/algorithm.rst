@@ -16,22 +16,9 @@
 
 ``AlgorithmBase`` クラスは次のメソッドを提供します。
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
     - ``info`` から ``Algorithm`` 共通の入力パラメータを読み取り、次のインスタンス変数を設定します。
-
-        - ``self.mpicomm: Optional[MPI.Comm]`` : MPI通信を行うための ``mpi4py.MPI.Comm`` オブジェクト
-
-            - ``mpicomm`` が指定されている場合は、その値を使用します。
-            - ``mpicomm`` が指定されていない場合には、 ``mpi4py`` が import できた場合は ``mpi4py.MPI.COMM_WORLD`` を使用します。さもなくば、 ``None`` が設定され、 シリアル実行されます。
-
-        - ``self.mpisize: int`` : MPIプロセス数
-
-            - ``mpi4py`` の import に失敗した場合、 ``1`` が設定されます
-
-        - ``self.mpirank: int`` : MPIランク
-
-            - ``mpi4py`` の import に失敗した場合、 ``0`` が設定されます
 
         - ``self.rng: np.random.Generator`` : 擬似乱数生成器
 
@@ -49,7 +36,7 @@
 
         - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
-            - ``self.output_dir / str(self.mpirank)``
+            - ``self.output_dir / str(odatse.mpi.algrank())``
             - ディレクトリが存在しない場合、自動的に作成されます
             - 各プロセスで最適化アルゴリズムはこのディレクトリで実行されます
 
