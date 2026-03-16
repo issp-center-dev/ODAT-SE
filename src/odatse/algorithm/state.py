@@ -58,20 +58,20 @@ class StateSpace(abc.ABC):
             return self._gather_data_object(data)
 
     def _gather_data_object(self, data):
-        mpicomm = mpi.algcomm()
-        return np.concatenate(mpicomm.allgather(data), axis=0)
+        algcomm = mpi.algcomm()
+        return np.concatenate(algcomm.allgather(data), axis=0)
 
     def _gather_data_buffer(self, data):
         from mpi4py.util.dtlib import from_numpy_dtype
 
-        mpisize = mpi.algsize()
-        mpirank = mpi.algrank()
-        mpicomm = mpi.algcomm()
+        algsize = mpi.algsize()
+        algrank = mpi.algrank()
+        algcomm = mpi.algcomm()
 
         sh = data.shape
         nrep = np.array([sh[0]], dtype=np.int64)
-        nreps = np.zeros(mpisize, dtype=np.int64)
-        mpicomm.Allgather(nrep, nreps)
+        nreps = np.zeros(algsize, dtype=np.int64)
+        algcomm.Allgather(nrep, nreps)
 
         displ = np.cumsum(nreps) - nreps
         nrep_total = np.sum(nreps)
@@ -79,7 +79,7 @@ class StateSpace(abc.ABC):
 
         buf = np.zeros((nrep_total, *sh[1:]), dtype=data.dtype)
         dtype = from_numpy_dtype(data.dtype)
-        mpicomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
+        algcomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
 
         return buf
 
@@ -180,22 +180,32 @@ class DiscreteStateSpace(StateSpace):
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
         """
-        mpirank = mpi.algrank()
-        mpicomm = mpi.algcomm()
+        algrank = mpi.algrank()
+        algcomm = mpi.algcomm()
+        algsize = mpi.algsize()
+        
+        if algrank is None:
+            self.neighbor_list = []
+            self.ncandidates = np.array([], dtype=np.int64)
+            return
 
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = Path(info_param["neighborlist_path"]).expanduser()
-            if mpirank == 0:
+            if algrank == 0:
                 nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
             else:
                 nnlist = None
-            self.neighbor_list = mpicomm.bcast(nnlist, root=0)
+                
+            if algsize is not None and algsize > 1:
+                self.neighbor_list = algcomm.bcast(nnlist, root=0)
+            else:
+                self.neighbor_list = nnlist
         else:
             if "radius" not in info_param:
                 raise KeyError("parameter \"algorithm.param.radius\" not specified")
             radius = info_param["radius"]
             print(f"DEBUG: create neighbor list, radius={radius}")
-            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=mpicomm)
+            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius)
 
         # checks
         if not odatse.util.graph.is_connected(self.neighbor_list):
@@ -211,8 +221,8 @@ class DiscreteStateSpace(StateSpace):
         self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
     def gather(self, state):
-        mpisize = mpi.algsize()
-        if mpisize is not None and mpisize > 1:
+        algsize = mpi.algsize()
+        if algsize is not None and algsize > 1:
             inodes = self._gather_data(state.inode)
             return DiscreteState(inodes, self.node_coordinates[inodes, :])
         else:

@@ -59,7 +59,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Constructs all the necessary attributes for the Algorithm object.
@@ -74,11 +73,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             The domain object (default is None).
         run_mode : str, optional
             The run mode (default is "initial").
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         info_param = info.algorithm.get("param", {})
         info_bayes = info.algorithm.get("bayes", {})
@@ -94,7 +90,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             print("# parameter")
             print(f"random_max_num_probes = {self.random_max_num_probes}")
             print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
@@ -109,7 +105,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        comm = self.mpicomm if self.mpisize is not None and self.mpisize > 1 else None
+        comm = odatse.mpi.algcomm() if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1 else None
         if physbo.__version__ < "3":
             self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         else:
@@ -244,7 +240,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         Finalizes the algorithm execution and writes the results to a file.
         """
         label_list = self.label_list
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open("BayesData.txt", "w") as file_BD:
                 file_BD.write("#step")
                 for label in label_list:
@@ -279,8 +275,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             The name of the file to save the state.
         """
         data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
+            "mpi_algsize": odatse.mpi.algsize(),
+            "mpi_algrank": odatse.mpi.algrank(),
             "rng": self.rng.get_state(),
             "timer": self.timer,
             "info": self.info,
@@ -316,8 +312,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
+        assert odatse.mpi.algsize() is not None and odatse.mpi.algsize() == data["mpi_algsize"]
+        assert odatse.mpi.algrank() is not None and odatse.mpi.algrank() == data["mpi_algrank"]
 
         if restore_rng:
             self.rng = np.random.RandomState()

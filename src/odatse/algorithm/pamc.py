@@ -113,7 +113,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         info: odatse.Info,
         runner: odatse.Runner = None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -126,18 +125,15 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Runner object for executing the algorithm, by default None.
         run_mode : str, optional
             Mode in which to run the algorithm, by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         time_sta = time.perf_counter()
 
         info_pamc = info.algorithm["pamc"]
         nwalkers = info_pamc.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
 
-        self.verbose = True and self.mpirank == 0
+        self.verbose = True and odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0
 
         numT = self._find_scheduling(info_pamc)
 
@@ -166,12 +162,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
-        nreplicas = self.mpisize * self.nwalkers
+        nreplicas = (odatse.mpi.algsize() or 1) * self.nwalkers
         self.nreplicas = np.full(numT, nreplicas)
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
-        self.family_lo = self.nwalkers * self.mpirank
-        self.family_hi = self.nwalkers * (self.mpirank + 1)
+        self.family_lo = self.nwalkers * (odatse.mpi.algrank() or 0)
+        self.family_hi = self.nwalkers * ((odatse.mpi.algrank() or 0) + 1)
         self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
         self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
         self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
@@ -384,9 +380,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._split_result_file("trial")
             self._split_result_file("result")
 
-        if self.mpisize is not None and self.mpisize > 1:
-            self.mpicomm.barrier()
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().barrier()
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
     def _setup_writer(self):
         write_mode = "w" if self.mode.startswith("init") else "a"
@@ -576,7 +572,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         else:
             ns = res["ns"]
             offsets = np.cumsum(ns) - ns
-            self._resample_varied(weights, offsets[self.mpirank])
+            self._resample_varied(weights, offsets[odatse.mpi.algrank() or 0])
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
@@ -727,9 +723,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         best_iwalker = gather_data(np.array([self.best_iwalker]))
 
         best_rank = np.argmin(best_fx)
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open("best_result.txt", "w") as f:
-                f.write(f"nprocs = {self.mpisize}\n")
+                f.write(f"nprocs = {odatse.mpi.algsize()}\n")
                 f.write(f"rank = {best_rank}\n")
                 f.write(f"step = {best_istep[best_rank]}\n")
                 f.write(f"walker = {best_iwalker[best_rank]}\n")
@@ -772,7 +768,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         return {
             "x": best_x[best_rank],
             "fx": best_fx[best_rank],
-            "nprocs": self.mpisize,
+            "nprocs": odatse.mpi.algsize(),
             "rank": best_rank,
             "step": best_istep[best_rank],
             "walker": best_iwalker[best_rank],
@@ -789,8 +785,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         data = {
             #-- _algorithm
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
+            "algsize": odatse.mpi.algsize(),
+            "algrank": odatse.mpi.algrank(),
             "rng": self.rng.get_state(),
             "timer": self.timer,
             "info": self.info,
@@ -848,8 +844,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             sys.exit(1)
 
         # -- _algorithm
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
+        assert odatse.mpi.algsize() == data["algsize"]
+        assert odatse.mpi.algrank() == data["algrank"]
 
         if restore_rng:
             self.rng = np.random.RandomState()
@@ -908,7 +904,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         numT = len(self.betas)
 
-        nreplicas = self.mpisize * self.nwalkers
+        nreplicas = (odatse.mpi.algsize() or 1) * self.nwalkers
 
         self.logZs = np.zeros(numT)
         self.Fmeans = np.zeros(numT)
