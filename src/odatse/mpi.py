@@ -79,19 +79,23 @@ else:
     def setup(nalg, nsolve, nthreads):
         global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
 
-        if nthreads is not None:
-            assert nthreads > 0
-        if nalg is not None:
-            assert nalg > 0
-        if nsolve is not None:
-            assert nsolve > 0
+        if nthreads is not None and nthreads <= 0:
+            raise ValueError(f"nthreads must be a positive integer, got {nthreads}")
+        if nalg is not None and nalg <= 0:
+            raise ValueError(f"nalg must be a positive integer, got {nalg}")
+        if nsolve is not None and nsolve <= 0:
+            raise ValueError(f"nsolve must be a positive integer, got {nsolve}")
+        
         if nalg is not None and nsolve is not None:
-            assert nalg * nsolve == __comm.size
+            if nalg * nsolve != __comm.size:
+                raise ValueError(f"nalg * nsolve must equal the total number of MPI processes, but {nalg} * {nsolve} = {nalg * nsolve} != {__comm.size}")
         elif nalg is not None and nsolve is None:
-            assert __comm.size % nalg == 0
+            if __comm.size % nalg != 0:
+                raise ValueError(f"Total MPI processes ({__comm.size}) must be divisible by nalg ({nalg})")
             nsolve = __comm.size // nalg
         elif nsolve is not None and nalg is None:
-            assert __comm.size % nsolve == 0
+            if __comm.size % nsolve != 0:
+                raise ValueError(f"Total MPI processes ({__comm.size}) must be divisible by nsolve ({nsolve})")
             nalg = __comm.size // nsolve
         else: # both are None, default to parallelizing over search algorithm
             nalg = __comm.size
