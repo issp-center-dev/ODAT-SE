@@ -680,7 +680,7 @@ Note:
     if mpi.rank() == 0:
         X = np.loadtxt(inputfile)
 
-    if mpi.algsize() > 1:
+    if mpi.algsize() is not None and mpi.algsize() > 1:
         sh = mpi.algcomm().bcast(X.shape, root=0)
         if mpi.rank() != 0:
             X = np.zeros(sh)

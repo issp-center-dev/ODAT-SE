@@ -61,11 +61,11 @@ class MeshGrid(DomainBase):
         """
         Split the grid data among MPI processes.
         """
-        if self.mpisize is None:
+        if odatse.mpi.algsize() is None:
             self.grid_local = []
-        elif self.mpisize > 1:
+        elif odatse.mpi.algsize() > 1:
             index = [idx for idx, *v in self.grid]
-            index_local = np.array_split(index, self.mpisize)[self.mpirank]
+            index_local = np.array_split(index, odatse.mpi.algsize())[odatse.mpi.algrank()]
             self.grid_local = [[idx, *v] for idx, *v in self.grid if idx in index_local]
         else:
             self.grid_local = self.grid
@@ -112,7 +112,7 @@ class MeshGrid(DomainBase):
         delimiter = info_param.get("delimiter", None)
         skiprows = info_param.get("skiprows", 0)
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
             if data.ndim == 1:
                 data = data.reshape(1, -1)
@@ -122,7 +122,7 @@ class MeshGrid(DomainBase):
         else:
             data = None
 
-        if self.mpisize is not None and self.mpisize > 1:
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
             data = odatse.mpi.algcomm().bcast(data, root=0)
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
@@ -180,7 +180,10 @@ class MeshGrid(DomainBase):
         if num_points <= 0:
             raise ValueError("ERROR: num_points must be positive")
 
-        local_index = np.array_split(np.arange(num_points), self.mpisize)[self.mpirank]
+        if odatse.mpi.algsize() is not None:
+            local_index = np.array_split(np.arange(num_points), odatse.mpi.algsize())[odatse.mpi.algrank()]
+        else:
+            local_index = []
         num_local = len(local_index)
 
         self.grid_local = [
@@ -191,7 +194,7 @@ class MeshGrid(DomainBase):
             )
         ]
 
-        if self.mpisize is not None and self.mpisize > 1:
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
             grids = odatse.mpi.algcomm().allgather(self.grid_local)
             self.grid = [v for vs in grids for v in vs]
         else:
@@ -208,7 +211,7 @@ class MeshGrid(DomainBase):
         header
             Header to be included in the file.
         """
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             np.savetxt(store_path, [[*v] for idx, *v in self.grid], header=header)
 
     @classmethod
