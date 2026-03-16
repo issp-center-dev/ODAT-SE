@@ -45,8 +45,12 @@ class ParallelSolver(odatse.solver.SolverBase):
     def _compute(self, seeds): # called by all solcomm ranks after broadcast
         results = []
         for seed in seeds:
-            prng = np.random.default_rng(seed=int(seed))
-            mats = [prng.random(size=(self.matsize, self.matsize)) for _ in range(self.nmats)]
+            if odatse.mpi.solrank() == 0:
+                prng = np.random.default_rng(seed=int(seed))
+                mats = [prng.random(size=(self.matsize, self.matsize)) for _ in range(self.nmats)]
+            else:
+                mats = None
+            mats = odatse.mpi.solcomm().bcast(mats, root=0)
             mats = np.array_split(mats, odatse.mpi.solsize())[odatse.mpi.solrank()]
             results.append(self._testfunc(mats))
         odatse.mpi.solcomm().barrier()

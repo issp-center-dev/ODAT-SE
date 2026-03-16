@@ -14,7 +14,6 @@ interval = 20
 
 [algorithm]
 name = "mapper"
-seed = 12345
 
 [algorithm.param]
 max_list = [20]

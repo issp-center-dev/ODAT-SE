@@ -89,10 +89,11 @@ class SolverBase(object, metaclass=ABCMeta):
         This should be overridden by subclasses that need a different data protocolto participate in solver-level parallelization.
 
         Worker processes in the solver communicator (``solrank != 0``) call this method instead of the search algorithm.
+
+        When the controller sends the sentinel value ``None``, the loop exits. This avoids hanging for some workers and allows all processes to reach the same state before the next iteration. This must be also be recognized by overriding definitions since the sentinel is passed by ``AlgorithmBase.main()``.
         
         In the default implementation, the loop blocks on ``solcomm().bcast(None, root=0)`` while waiting for data broadcast by the algorithm-side controller (``solrank == 0``).
         The received data is forwarded to the solver's ``evaluate`` method so that the worker participates in the same computation as the controller.
-        When the controller sends the sentinel value ``None``, the loop exits. This avoids hanging for some workers and allows all processes to reach the same state before the next iteration.
         """
         while True:
             msg = odatse.mpi.solcomm().bcast(None, root=0)
