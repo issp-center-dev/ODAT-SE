@@ -231,7 +231,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             time_end = time.perf_counter()
             self.timer["post"]["total"] = time_end - time_sta
 
-            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                 self.write_timer(self.proc_dir / "time.log")
             return result
         else: # worker branch, enter waiting state
