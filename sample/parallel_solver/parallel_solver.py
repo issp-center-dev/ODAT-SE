@@ -16,6 +16,7 @@ import threadpoolctl
 #nmats matrices of size matsize*matsize are generated for each seed
 #each algcomm rank receives a seed which generates a set of matrices
 #each solcomm rank receives a subset of matrices
+
 #for each matrix, svd is computed using thread parallelization
 #each solcomm rank returns a sum of the largest singular values for its subset of matrices
 #each algcomm rank reduces the sum of largest singular values from its solcomm ranks and returns the minimum
@@ -56,16 +57,15 @@ class ParallelSolver(odatse.solver.SolverBase):
     def evaluate(self, xs, args): # only called by algcomm ranks (solrank==0)
         seeds = xs.astype(int)
 
-        odatse.mpi.solcomm().bcast(seeds, root=0) # wake up workers in this solcomm
-
         if odatse.mpi.solrank() == 0:
+            odatse.mpi.solcomm().bcast((seeds, args), root=0) # wake up workers in this solcomm
             print(f"color {odatse.mpi.color()}, seeds: {list(seeds)}")
 
         results = self._compute(seeds) # algcomm rank also calls compute
 
         if odatse.mpi.solrank() == 0:
             print(f"color {odatse.mpi.color()}, results: {list(results)}")
-
+        
         best_x = np.argmin(results)
         best_fx = results[best_x]
         if best_fx < self.opt_fx:

@@ -92,10 +92,11 @@ class SolverBase(object, metaclass=ABCMeta):
         
         In the default implementation, the loop blocks on ``solcomm().bcast(None, root=0)`` while waiting for data broadcast by the algorithm-side controller (``solrank == 0``).
         The received data is forwarded to the solver's ``evaluate`` method so that the worker participates in the same computation as the controller.
-        When the controller sends the sentinel value ``None``, the loop exits, allowing all processes to reach the same state before the next iteration.
+        When the controller sends the sentinel value ``None``, the loop exits. This avoids hanging for some workers and allows all processes to reach the same state before the next iteration.
         """
         while True:
-            data = odatse.mpi.solcomm().bcast(None, root=0)
-            if data is None:
+            msg = odatse.mpi.solcomm().bcast(None, root=0)
+            if msg is None:
                 break
-            self.evaluate(data)
+            x, arg = msg
+            self.evaluate(x, arg)
