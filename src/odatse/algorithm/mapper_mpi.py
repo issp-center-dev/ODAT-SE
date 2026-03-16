@@ -31,7 +31,6 @@ class Algorithm(MapperMPIAlgorithm):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -46,8 +45,5 @@ class Algorithm(MapperMPIAlgorithm):
             Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         super().__init__(info=info, runner=runner, domain=domain, run_mode=run_mode, meshgrid=True)

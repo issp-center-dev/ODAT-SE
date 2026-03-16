@@ -85,7 +85,7 @@ class Algorithm(AlgorithmBase):
             raise RuntimeError("unknown mode {}".format(self.mode))
 
         # local colormap file
-        if self.mpisize is not None and self.mpisize > 1:
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
             fp = open(self.local_colormap_file, "a")
             if self.mode.startswith("init"):
                 fp.write("#" + " ".join(self.label_list) + " fval\n")
@@ -114,7 +114,7 @@ class Algorithm(AlgorithmBase):
             self.fx_list.append([mesh[0], fx])
 
             # write to local colormap file
-            if self.mpisize is not None and self.mpisize > 1:
+            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
                 fp.write(" ".join(
                     map(lambda v: "{:8f}".format(v), (*x, fx))
                 ) + "\n")
@@ -126,7 +126,7 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if self.mpisize is not None and self.mpisize > 1:
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
             fp.close()
 
         if iterations > 0:
@@ -137,14 +137,14 @@ class Algorithm(AlgorithmBase):
             self.opt_fx = opt_fx
             self.opt_mesh = opt_mesh
 
-            print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
+            print(f"[{odatse.mpi.algrank()}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
 
         self._output_results()
 
         if Path(self.local_colormap_file).exists():
             os.remove(Path(self.local_colormap_file))
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
     def _output_results(self):
         """
@@ -188,13 +188,13 @@ class Algorithm(AlgorithmBase):
         dict
             Dictionary of results.
         """
-        if self.mpisize is not None and self.mpisize > 1:
-            fx_lists = self.mpicomm.allgather(self.fx_list)
+        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+            fx_lists = odatse.mpi.algcomm().allgather(self.fx_list)
             results = [v for vs in fx_lists for v in vs]
         else:
             results = self.fx_list
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open(self.colormap_file, "w") as fp:
                 for x, (idx, fx) in zip(self.domain.grid, results):
                     assert x[0] == idx
@@ -214,8 +214,8 @@ class Algorithm(AlgorithmBase):
             The name of the file to save the state to.
         """
         data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
+            "algsize": odatse.mpi.algsize(),
+            "algrank": odatse.mpi.algrank(),
             "timer": self.timer,
             "info": self.info,
             "fx_list": self.fx_list,
@@ -239,8 +239,8 @@ class Algorithm(AlgorithmBase):
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
+        assert odatse.mpi.algsize() == data["algsize"]
+        assert odatse.mpi.algrank() == data["algrank"]
 
         self.timer = data["timer"]
 
