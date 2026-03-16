@@ -86,7 +86,16 @@ class SolverBase(object, metaclass=ABCMeta):
     def worker_loop(self) -> None:
         """
         Worker loop for hybrid parallelization via MPI (algorithm + solver processes).
-        This should be overridden by subclasses that need to participate in
-        solver-level parallelization.
+        This should be overridden by subclasses that need a different data protocolto participate in solver-level parallelization.
+
+        Worker processes in the solver communicator (``solrank != 0``) call this method instead of the search algorithm.
+        
+        In the default implementation, the loop blocks on ``solcomm().bcast(None, root=0)`` while waiting for data broadcast by the algorithm-side controller (``solrank == 0``).
+        The received data is forwarded to the solver's ``evaluate`` method so that the worker participates in the same computation as the controller.
+        When the controller sends the sentinel value ``None``, the loop exits, allowing all processes to reach the same state before the next iteration.
         """
-        raise NotImplementedError()
+        while True:
+            data = odatse.mpi.solcomm().bcast(None, root=0)
+            if data is None:
+                break
+            self.evaluate(data)
