@@ -14,6 +14,12 @@ import threadpoolctl
 #solve the following problem in parallel:
 #find random seed with minimal average largest singular value
 #nmats matrices of size matsize*matsize are generated for each seed
+#each algcomm rank receives a seed which generates a set of matrices
+#each solcomm rank receives a subset of matrices
+#for each matrix, svd is computed using thread parallelization
+#each solcomm rank returns a sum of the largest singular values for its subset of matrices
+#each algcomm rank reduces the sum of largest singular values from its solcomm ranks and returns the minimum
+#the global minimum is returned as the optimal solution
 
 class ParallelSolver(odatse.solver.SolverBase):
     def __init__(self, info, **kwargs):
@@ -66,13 +72,6 @@ class ParallelSolver(odatse.solver.SolverBase):
             self.opt_x = xs[best_x]
             self.opt_fx = best_fx
         return results
-
-    def worker_loop(self):
-        while True:
-            seeds=odatse.mpi.solcomm().bcast(None, root=0) # block waiting for data
-            if seeds is None: # if data is None, exit
-                break
-            self._compute(seeds)
 
 parser=argparse.ArgumentParser()
 parser.add_argument('-m','--nalg', help='# of processes for search algorithm', type=int, default=1)
