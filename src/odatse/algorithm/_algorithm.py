@@ -99,12 +99,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.rank())
-        if odatse.mpi.algsize() is not None:
-            self.proc_dir.mkdir(parents=True, exist_ok=True)
-            # Some cache of the filesystem may delay making a dictionary
-            # especially when mkdir just after removing the old one
-            while not self.proc_dir.is_dir():
-                time.sleep(0.1)
+        # create directory for each rank in case every rank has some output
+        self.proc_dir.mkdir(parents=True, exist_ok=True)
+        # Some cache of the filesystem may delay making a dictionary
+        # especially when mkdir just after removing the old one
+        while not self.proc_dir.is_dir():
+            time.sleep(0.1)
+        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
             odatse.mpi.algcomm().Barrier()
 
         # checkpointing
