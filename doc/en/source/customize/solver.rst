@@ -32,7 +32,7 @@
 
     This parameter is taken from ``info.base["output_dir"]``, and used for the directory in which the result files are written. Usually, when the MPI parallelization is applied, the accumulated results are stored.
 
-  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(mpirank)``
+  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(odatse.mpi.rank())``
 
     The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
@@ -60,10 +60,4 @@
     One is the step count that corresponds to the Monte Carlo steps for MC type algorithms, or the index of the grid point for grid search algorithm.
     The other is the set number that represents :math:`n`-th iteration.
 
-  - ``nprocs: int = 1``
-
-  - ``nthreads: int = 1``
-
-    The number of processes and threads that specify how to run the solver in MPI/thread parallelisation. In the current version, ``nprocs=1`` and ``nthreads=1`` are accepted.
-  
   The ``evaluate`` method returns the value of the objective function as a float number.

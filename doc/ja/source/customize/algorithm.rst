@@ -36,7 +36,7 @@
 
         - ``self.proc_dir: pathlib.Path`` : プロセスごとの作業用ディレクトリ
 
-            - ``self.output_dir / str(odatse.mpi.algrank())``
+            - ``self.output_dir / str(odatse.mpi.rank())``
             - ディレクトリが存在しない場合、自動的に作成されます
             - 各プロセスで最適化アルゴリズムはこのディレクトリで実行されます
 

@@ -38,7 +38,7 @@
 
     - ``self.proc_dir: pathlib.Path`` : working directory of each process
 
-      - It is set to ``self.output_dir / str(odatse.mpi.algrank())``.
+      - It is set to ``self.output_dir / str(odatse.mpi.rank())``.
       - The directory will be made automatically.
       - Each process performs an optimization algorithm in this directory.
 
