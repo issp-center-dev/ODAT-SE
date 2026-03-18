@@ -184,6 +184,12 @@ Otherwise, continuous space is used.
 
   Description: Whether to write log files of Monte Carlo steps separately for each temperature.
 
+- ``anneal_from_beta0``
+
+  Format: Boolean (default: false)
+
+  Description: When set to ``true`` and ``bmin>0``, the algorithm first performs annealing and resampling from an initial random sample at :math:`\beta=0` (infinite temperature) up to the first temperature :math:`\beta_1`, before starting the main calculation.
+  This ensures that, even if the computation does not start from :math:`\beta=0`, the reference value of :math:`\log Z/Z_0` can still be considered as being taken at :math:`\beta=0`.
 
 About the number of steps
 ********************************
