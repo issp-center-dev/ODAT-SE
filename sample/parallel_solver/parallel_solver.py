@@ -40,7 +40,7 @@ class ParallelSolver(odatse.solver.SolverBase):
 
     def _testfunc(self, mats):
         with threadpoolctl.threadpool_limits(limits=odatse.mpi.solthreads()):
-            return np.sum([np.max(np.linalg.svd(mat).S) for mat in mats])
+            return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
 
     def _compute(self, seeds): # called by all solcomm ranks after broadcast
         results = []
