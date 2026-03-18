@@ -132,6 +132,8 @@ else:
         return __solthreads
 
     def algcomm():
+        if __algcomm is MPI.COMM_NULL:
+            return None
         return __algcomm
 
     def algsize() -> int:
