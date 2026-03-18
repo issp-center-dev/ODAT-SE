@@ -101,14 +101,34 @@ class ContinuousStateSpace(StateSpace):
         else:
             raise ValueError("ERROR: algorighm.param.step_list not specified")
 
+        ndim = len(self.xmin)
+        if "pbc_list" in info_param:
+            pbc_list = np.asarray(info_param["pbc_list"], dtype=bool)
+            if pbc_list.shape != (ndim,):
+                raise ValueError(
+                    "ERROR: algorithm.param.pbc_list length must match dimension (min_list/max_list). "
+                    f"Expected {ndim}, got {len(pbc_list)}."
+                )
+            self.pbc = pbc_list
+        else:
+            self.pbc = np.zeros(ndim, dtype=bool)
+
     def initialize(self, nwalkers):
         self.domain.initialize(rng=self.rng, limitation=self.limitation, num_walkers=nwalkers)
         return ContinuousState(self.domain.initial_list)
 
+    def _wrap_pbc(self, x: np.ndarray) -> np.ndarray:
+        """Wrap coordinates into [xmin, xmax) for dimensions with PBC."""
+        period = self.xmax - self.xmin
+        safe_period = np.where(period > 0, period, 1)
+        wrapped = self.xmin + np.mod(x - self.xmin, safe_period)
+        return np.where(self.pbc & (period > 0), wrapped, x).astype(np.float64)
+
     def propose(self, state):
         nwalkers = state.x.shape[0]
         dx = self.rng.normal(size=state.x.shape) * self.xstep
-        new_state = ContinuousState(state.x + dx)
+        new_x = self._wrap_pbc(state.x + dx)
+        new_state = ContinuousState(new_x)
         return new_state, self._check_in_range(new_state.x), None
 
     def _check_in_range(self, x):
