@@ -133,7 +133,7 @@ class ContinuousStateSpace(StateSpace):
 
     def _check_in_range(self, x):
         nwalkers = x.shape[0]
-        in_range = ((x >= self.xmin) & (x <= self.xmax)).all(axis=1)
+        in_range = ((x >= self.xmin) & (x < self.xmax)).all(axis=1)
         in_limit = [self.limitation.judge(x[idx,:]) for idx in range(nwalkers)]
         return in_range & in_limit
 
