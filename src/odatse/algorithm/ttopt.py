@@ -290,6 +290,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.mpirank == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
             print(f"Cache hitrate: {100 * self.cache_hits / self.f_eval_count:.2f if self.f_eval_count > 0 else 0}%")
+            with open("res.txt", "w") as fp:
+                fp.write(f"fx = {result['fx']}\n")
+                for label, val in zip(self.label_list, result["x"]):
+                    fp.write(f"{label} = {val}\n")
         return result
  
     @staticmethod
@@ -379,13 +383,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         eval_f_vals = []
         if len(eval_idxs) > 0:
             if self.mpisize > 1:
-                split = np.array_split(eval_pois, self.mpisize)
-                my_todo_pois = split[self.mpirank]
-                my_f_vals = runner.submit(my_todo_pois.T) if my_todo_pois.shape[0] > 0 else []
+                split = np.array_split(np.arange(len(eval_idxs)), self.mpisize)
+                my_local_idxs = split[self.mpirank]
+                my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
                 all_f_vals = self.mpicomm.allgather(my_f_vals)
-                eval_f_vals = np.atleast_1d(np.concatenate(all_f_vals))
+                eval_f_vals = [v for sublist in all_f_vals for v in sublist]
             else:
-                eval_f_vals = np.atleast_1d(runner.submit(eval_pois.T))
+                eval_f_vals = [runner.submit(eval_pois[k]) for k in range(len(eval_idxs))]
             for i, idx in enumerate(eval_idxs):
                 val = eval_f_vals[i]
                 self.cache[tuple(eval_pois[i])] = val
