@@ -135,7 +135,7 @@ def griewank(xs: np.ndarray) -> float:
     -----
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
-    return 1+(np.sum(xs**2,axis=0)/4000)+np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1)[:, None])),axis=0)
+    return 1+(np.sum(xs**2,axis=0)/4000)+np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1))),axis=0)
 
 def himmelblau(xs: np.ndarray) -> float:
     """
@@ -183,7 +183,7 @@ def michalewicz(xs: np.ndarray) -> float:
     For d=5, it has a global minimum f(x)=-4.6876.
     For d=10, it has a global minimum f(x)=-9.6602.
     """
-    return -np.sum(np.sin(xs)*(np.sin(((np.arange(xs.shape[0])+1)[:, None])*(xs**2)/np.pi)**(2*10)),axis=0)
+    return -np.sum(np.sin(xs)*(np.sin(((np.arange(xs.shape[0])+1))*(xs**2)/np.pi)**(2*10)),axis=0)
 
 def qing(xs: np.ndarray) -> float:
     """
@@ -203,7 +203,7 @@ def qing(xs: np.ndarray) -> float:
     -----
     It has a global minimum f(x)=0 at x=[+/-sqrt(n), ...], where n runs from 1 to d.
     """
-    return np.sum(((xs**2)-((np.arange(xs.shape[0])+1)[:, None]))**2,axis=0)
+    return np.sum(((xs**2)-((np.arange(xs.shape[0])+1)))**2,axis=0)
 
 def rastrigin(xs: np.ndarray) -> float:
     """
