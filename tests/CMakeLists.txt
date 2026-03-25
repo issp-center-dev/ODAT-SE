@@ -81,3 +81,9 @@ add_test(
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_varied_continue
   )
+
+add_test(
+  NAME ttopt
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/ttopt
+  )
