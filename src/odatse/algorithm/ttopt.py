@@ -101,7 +101,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
 
-        super().__init__(info=info, runner=runner, run_mode=run_mode)
+        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
 
         if self.runner is None:
             raise ValueError("The TTOpt algorithm requires a runner instance.")
@@ -289,7 +289,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         }
         if self.mpirank == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
-            print(f"Cache hitrate: {100 * self.cache_hits / self.f_eval_count:.2f}%")
+            print(f"Cache hitrate: {100 * self.cache_hits / self.f_eval_count:.2f if self.f_eval_count > 0 else 0}%")
         return result
  
     @staticmethod
