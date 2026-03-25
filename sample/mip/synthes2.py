@@ -47,9 +47,9 @@ class Synthes2Solver(odatse.solver.SolverBase):
         best_cost = np.min(costs)
         if best_cost < self.opt_fx:
             self.opt_fx = best_cost
-            self.opt_x = np.atleast_2d(xs)[:, np.argmin(costs)]
+            self.opt_x = xs
             self.opt_objvar = objvar[np.argmin(costs)] if isinstance(objvar, np.ndarray) else objvar
-            self.opt_cons = np.atleast_2d(cons)[:, np.argmin(costs)]
+            self.opt_cons = cons
         return costs
 
 # dim = 11

@@ -236,8 +236,8 @@ The script computes the relative difference (using the MATLAB solver result as t
                         <tr>
                                 <td class="centered">Minimum Vertex Cover</td>
                                 <td class="centered">$$d=200$$</td>
-                                <td class="centered">$$2.0183\times10^{-5}$$</td>
-                                <td class="centered">$$1.5075\times10^{-5}$$</td>
+                                <td class="centered">$$3.0093\times10^{-5}$$</td>
+                                <td class="centered">$$1.6078\times10^{-5}$$</td>
                         </tr>
                         <tr>
                                 <td class="centered">Quadratic Knapsack</td>
@@ -270,7 +270,7 @@ The script computes the relative difference (using the MATLAB solver result as t
         Maximum Cut & $200$ & $7.5553\times10^{-2}$ & $3.6504\times10^{-3}$ \\
         Minimum Vertex Cover & $50$ & $3.3014\times10^{-4}$ & $1.0065\times10^{-4}$ \\
         Minimum Vertex Cover & $100$ & $8.1636\times10^{-5}$ & $3.2435\times10^{-5}$ \\
-        Minimum Vertex Cover & $200$ & $2.0183\times10^{-5}$ & $1.5075\times10^{-5}$ \\
+        Minimum Vertex Cover & $200$ & $3.0093\times10^{-5}$ & $1.6078\times10^{-5}$ \\
         Quadratic Knapsack & $50$ & $0$ & $0$ \\
         Quadratic Knapsack & $100$ & $0$ & $0$ \\
         Quadratic Knapsack & $200$ & $1.4448\times10^{-3}$ & $1.8861\times10^{-4}$ \\

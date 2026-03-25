@@ -309,8 +309,8 @@ The obtained minimum for the objective function is:
 .. math::
 
    \begin{gather*}
-   f(x^*)\approx73.037 \\
-   x^*\approx(1.9074\times10^{-6},2,1.0861,0.64239,0.3212,1.0861,0,1,1,0)
+   f(x^*)\approx73.0422 \\
+   x^*\approx(0,2,1.0625,0.67188,0.33594,1.0625,0,1,1,0)
    \end{gather*}
 
 The known global minimum is:
@@ -373,8 +373,8 @@ The obtained minimum for the objective function is:
 .. math::
 
    \begin{gather*}
-   f(x^*)=-21.657 \\
-   x^*=(1,2,4,4,0,2,3,2,3,3,1.0952,1.6457,0.058570,3.9612,0.64696,0.39072,1.4405,0.76660,1.8726,1.2875)
+   f(x^*)=-21.438 \\
+   x^*=(1,2,5,4,0,2,2,2,3,3,1.0499,1.5595,0.055924,3.6254,0.61767,0.38695,1.2500,0.62500,1.7920,1.2743)
    \end{gather*}
 
 However, the known global minimum is:
@@ -388,7 +388,7 @@ However, the known global minimum is:
 
 which is close to the obtained minimum, but the two do not match since a discrete variable differs.
 
-The obtained minimum is a good candidate optimum, but we can supply an initial point assuming that the optimization problem has been partially solved through some other means. We then supply the following initial point in the inputting file (which corresponds to knowledge of the optimal values that the discrete variables can take): 
+The obtained minimum is a good candidate optimum, but we can supply an initial point assuming that the optimization problem has been partially solved through some other means. We then supply the following initial point in the input file (which corresponds to knowledge of the optimal values that the discrete variables can take): 
 
 - ``init_points = [[1, 2, 4, 4, 0, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]``
 
@@ -398,7 +398,7 @@ If we run the solver again, we will obtain an estimated minimum of:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
-   x^*\approx(1,2,4,4,0,2,2,2,3,3,1.2305,1.7969,0.073314,4.2139,0.68900,0.46783,1.5625,0.86699,2.1092,1.4696)
+   x^*\approx(1,2,4,4,0,2,2,2,3,3,1.2525,1.8542,0.043941,4.1973,0.69840,0.44467,1.5870,0.85935,2.0702,1.4647)
    \end{gather*}
 
 This can be compared with the known global minimum:

@@ -211,7 +211,7 @@ In the following table, for each optimization function, the global minimum is pr
                                 <td class="centered">$$d=2$$</td>
                                 <td class="centered">$$[-5, 5]$$</td>
                                 <td class="centered">$$0$$</td>
-                                <td class="centered">$$0.1502$$</td>
+                                <td class="centered">$$0.01175$$</td>
                         </tr>
                         <tr>
                                 <td class="centered">Schaffer</td>
@@ -243,9 +243,9 @@ In the following table, for each optimization function, the global minimum is pr
         Michalewicz & $10$ & $[0, \pi]$ & $-9.66015$ & $-9.578$ \\
         Qing & $10$ & $[-500, 500]$ & $0$ & $1.500\times10^{-8}$ \\
         Rastrigin & $10$ & $[-5.12, 5.12]$ & $0$ & $4.620\times10^{-11}$ \\
-        Rosenbrock & $2$ & $[-5, 5]$ & $0$ & $0.1502$ \\
+        Rosenbrock & $2$ & $[-5, 5]$ & $0$ & $0.01175$ \\
         Schaffer & $10$ & $[-100, 100]$ & $0$ & $3.606\times10^{-2}$ \\
         Schwefel & $10$ & $[-500, 500]$ & $0$ & $1.273\times10^{-4}$ \\
         \end{tabular}
 
-It can be seen that TTOpt provides good estimates of the global minimum for all the considered functions, with the exception of the Rosenbrock function.
+It can be seen that TTOpt provides good estimates of the global minimum for all the considered functions.
