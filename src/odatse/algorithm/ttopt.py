@@ -289,7 +289,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         }
         if self.mpirank == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
-            print(f"Cache hitrate: {100 * self.cache_hits / self.f_eval_count:.2f if self.f_eval_count > 0 else 0}%")
+            hitrate = 100 * self.cache_hits / self.f_eval_count if self.f_eval_count > 0 else 0
+            print(f"Cache hitrate: {hitrate:.2f}%")
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {result['fx']}\n")
                 for label, val in zip(self.label_list, result["x"]):
@@ -363,20 +364,18 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             todo_pois[:, dim_idx] = np.ravel_multi_index(submat.T, n_q_points[start:start + qs[dim_idx]], order="F")
             start += qs[dim_idx]
         # convert idxs to coordinates
-        for dim_idx in range(todo_pois.shape[1]):
-            t = todo_pois[:, dim_idx] / (n_points[dim_idx] - 1) * (bounds[dim_idx, 1] - bounds[dim_idx, 0]) + bounds[dim_idx, 0]  # scale before shift to minimize fp error
-            todo_pois[:, dim_idx] = t
+        todo_pois = todo_pois / (n_points - 1) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]  # scale before shift to minimize fp error
         f_vals = np.empty(todo_pois.shape[0])
         eval_idxs = []
         eval_pois = []
-        for i in range(todo_pois.shape[0]):
-            row_tuple = tuple(todo_pois[i])
+        for i, row in enumerate(todo_pois):
+            row_tuple = tuple(row)
             if row_tuple in self.cache:
                 self.cache_hits += 1
                 f_vals[i] = self.cache[row_tuple]
             else:
                 eval_idxs.append(i)
-                eval_pois.append(todo_pois[i])
+                eval_pois.append(row)
         eval_idxs = np.array(eval_idxs)
         eval_pois = np.array(eval_pois)
         # parallelization
