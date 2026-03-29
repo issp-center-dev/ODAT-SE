@@ -12,7 +12,7 @@ import numpy as np
 
 # type hints
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
 
 # Parameters
 # ----------
@@ -29,7 +29,7 @@ class Logger:
 
     logfile: Path
     buffer_size: int
-    buffer: List[str]
+    buffer: list[str]
     num_calls: int
     time_start: float
     time_previous: float
@@ -42,7 +42,7 @@ class Logger:
                  filename: str = "runner.log",
                  write_input: bool = False,
                  write_result: bool = False,
-                 params: Optional[Dict[str,Any]] = None,
+                 params: Optional[dict[str, Any]] = None,
                  **rest) -> None:
         """
         Initialize the Logger.
@@ -59,7 +59,7 @@ class Logger:
             Flag to indicate if input should be logged.
         write_result : bool
             Flag to indicate if result should be logged.
-        params : Dict[str,Any]], optional
+        params : dict[str, Any], optional
             Additional parameters for logging.
         **rest
             Additional keyword arguments.

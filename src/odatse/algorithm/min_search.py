@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 import time
 
 import numpy as np
@@ -33,7 +33,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     unit_list: np.ndarray
 
     # hyperparameters of Nelder-Mead
-    initial_simplex_list: List[List[float]]
+    initial_simplex_list: list[list[float]]
     xtol: float
     ftol: float
 
@@ -42,10 +42,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     fopt: float
     itera: int
     funcalls: int
-    allvecs: List[np.ndarray]
+    allvecs: list[np.ndarray]
 
-    iter_history: List[List[Union[int,float]]]
-    fev_history: List[List[Union[int,float]]]
+    iter_history: list[list[Union[int, float]]]
+    fev_history: list[list[Union[int, float]]]
 
     def __init__(
         self,

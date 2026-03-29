@@ -28,4 +28,4 @@ HTML_CONTEXT = {
 }
 
 
-HTML_CSS_FILES = ["custom.css"]
+HTML_CSS_FILES = ["custom.css", "css/custom.css"]
