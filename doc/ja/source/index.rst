@@ -48,13 +48,13 @@ ODAT-SE は、探索アルゴリズムと順問題ソルバーを組み合わせ
    :maxdepth: 2
    :hidden:
 
-   introduction
-   start
-   tutorial/index
-   manual/index
-   tools/index
-   customize/index
-   faq/index
-   gallery
-   acknowledgement
-   contact
+   ODAT-SEとは <introduction>
+   インストール <start>
+   チュートリアル <tutorial/index>
+   マニュアル <manual/index>
+   ツール <tools/index>
+   拡張 <customize/index>
+   FAQ <faq/index>
+   ギャラリー <gallery>
+   謝辞 <acknowledgement>
+   問い合わせ <contact>

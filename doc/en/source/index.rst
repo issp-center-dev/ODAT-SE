@@ -48,13 +48,13 @@ More Information
    :maxdepth: 2
    :hidden:
 
-   introduction
-   start
-   tutorial/index
-   manual/index
-   tools/index
-   customize/index
-   faq/index
-   gallery
-   acknowledgement
-   contact
+   About <introduction>
+   Start <start>
+   Tutorials <tutorial/index>
+   Manual <manual/index>
+   Tools <tools/index>
+   Customize <customize/index>
+   FAQ <faq/index>
+   Gallery <gallery>
+   Credits <acknowledgement>
+   Contact <contact>
