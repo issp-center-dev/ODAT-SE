@@ -210,7 +210,19 @@ html[data-theme="light"] table.docutils {
     border: 1px solid #d4c0a0;
 }
 
+html[data-theme="light"] table.table {
+    border-collapse: collapse;
+    border: 1px solid #d4c0a0;
+}
+
 html[data-theme="light"] table.docutils th {
+    background-color: #6b4f2e !important;
+    color: #faf3e8 !important;
+    border: 1px solid #5a4020;
+    padding: 8px 12px;
+}
+
+html[data-theme="light"] table.table th {
     background-color: #6b4f2e !important;
     color: #faf3e8 !important;
     border: 1px solid #5a4020;
@@ -224,8 +236,81 @@ html[data-theme="light"] table.docutils td {
     padding: 8px 12px;
 }
 
+html[data-theme="light"] table.table td {
+    background-color: #fff !important;
+    color: #3d3229 !important;
+    border: 1px solid #e0d0b8;
+    padding: 8px 12px;
+}
+
+html[data-theme="light"] table.docutils td p,
+html[data-theme="light"] table.docutils td li,
+html[data-theme="light"] table.docutils td span {
+    color: #3d3229 !important;
+}
+
+html[data-theme="light"] table.table td p,
+html[data-theme="light"] table.table td li,
+html[data-theme="light"] table.table td span {
+    color: #3d3229 !important;
+}
+
 html[data-theme="light"] table.docutils tr:nth-child(even) td {
     background-color: #fdf8f0 !important;
+}
+
+html[data-theme="light"] table.table tr:nth-child(even) td {
+    background-color: #fdf8f0 !important;
+}
+
+html[data-theme="light"] table.docutils td code,
+html[data-theme="light"] table.docutils td .docutils.literal {
+    background-color: #f3e7d6;
+    color: #5b3412 !important;
+    border: 1px solid #dfc7aa;
+    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+}
+
+html[data-theme="light"] table.table td code,
+html[data-theme="light"] table.table td .docutils.literal {
+    background-color: #f3e7d6;
+    color: #5b3412 !important;
+    border: 1px solid #dfc7aa;
+    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+}
+
+html[data-theme="dark"] table.docutils td code,
+html[data-theme="dark"] table.docutils td .docutils.literal {
+    background-color: #3a2f27;
+    color: #f2cf98 !important;
+    border: 1px solid #6a553f;
+    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+}
+
+html[data-theme="dark"] table.table td code,
+html[data-theme="dark"] table.table td .docutils.literal {
+    background-color: #3a2f27;
+    color: #f2cf98 !important;
+    border: 1px solid #6a553f;
+    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+}
+
+html[data-theme="dark"] table.docutils td,
+html[data-theme="dark"] table.docutils td p,
+html[data-theme="dark"] table.docutils td li,
+html[data-theme="dark"] table.docutils td span {
+    color: #e0d8cc !important;
+}
+
+html[data-theme="dark"] table.table td,
+html[data-theme="dark"] table.table td p,
+html[data-theme="dark"] table.table td li,
+html[data-theme="dark"] table.table td span {
+    color: #e0d8cc !important;
 }
 
 /* Code blocks - warm tint */
