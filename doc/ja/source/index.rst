@@ -1,24 +1,60 @@
-.. 2dmat documentation master file, created by
-   sphinx-quickstart on Tue May 26 18:44:52 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+ODAT-SE ドキュメント
+========================
 
-Welcome to ODAT-SE documentation!
-==================================
+ODAT-SE は、探索アルゴリズムと順問題ソルバーを組み合わせて逆問題解析を行うためのソフトウェアフレームワークです。
+複数の探索手法を同じ枠組みで試しながら、入力・出力や実行方法を共通の流れで扱えます。
+
+やりたいことから選ぶ
+--------------------
+
+- :doc:`インストールしたい <start>`
+  必要パッケージ、基本的な実行方法、再開オプション、MPI 実行の入口を確認できます。
+- :doc:`サンプルを動かしたい <tutorial/index>`
+  解析関数の最小化を例に、アルゴリズムごとの使い方を順番に試せます。
+- :doc:`入力や出力の仕様を調べたい <manual/index>`
+  入力ファイル、出力ファイル、アルゴリズム、ソルバーの仕様を参照できます。
+- :doc:`困ったときに確認したい <faq/index>`
+  インストール、アルゴリズム、エラー、カスタマイズに関する質問をまとめています。
+
+概要
+----
+
+- 探索アルゴリズムと順問題ソルバーを組み合わせて逆問題を解く
+- Bayes、PAMC、レプリカ交換、グリッド探索など複数手法を使い分ける
+- 独自ソルバーや外部プログラムを組み込んで拡張する
+- サンプルデータやテンプレートを出発点として実験系へ展開する
+
+関連リソース
+------------
+
+- :doc:`関連サンプルとテンプレート <gallery>`
+  TRHEPD、SXRD、LEED、XAFS のサンプルや、独自ソルバー開発用テンプレートをまとめています。
+- :doc:`カスタマイズガイド <customize/index>`
+  独自アルゴリズムや独自ソルバーを組み込みたい場合の入口です。
+
+そのほかの情報
+--------------
+
+- :doc:`はじめに <introduction>`
+  ODAT-SE の背景、対象分野、関連文献を知る。
+- :doc:`ツール <tools/index>`
+  近傍リスト生成やポスト処理ツールを確認する。
+- :doc:`関連リソース <gallery>`
+  サンプル集とソルバーテンプレートを参照する。
+- :doc:`問い合わせ先 <contact>`
+  バグ報告や連絡方法を確認する。
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
 
    introduction
    start
    tutorial/index
-   input
-   output
-   algorithm/index
-   solver/index
-   tool
-   post/index
+   manual/index
+   tools/index
    customize/index
+   faq/index
+   gallery
    acknowledgement
    contact

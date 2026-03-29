@@ -44,3 +44,5 @@ autoclass_content = 'both'
 
 napoleon_include_init_with_doc = True
 
+# Avoid importing optional runtime dependencies during API doc generation.
+autodoc_mock_imports = ["mpi4py", "physbo", "scipy"]

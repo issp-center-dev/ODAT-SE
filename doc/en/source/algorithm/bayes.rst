@@ -1,5 +1,6 @@
+================================
 Bayesian optimization ``bayes``
-*******************************
+================================
 
 .. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
 

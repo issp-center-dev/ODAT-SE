@@ -1,5 +1,6 @@
+===============================
 Nelder-Mead 法 ``minsearch``
-*******************************
+===============================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
 

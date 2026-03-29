@@ -55,9 +55,9 @@
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("work_dir", "."))
+       p = pathlib.Path(base.get("output_dir", "."))
        p = p.expanduser()
-       base["work_dir"] = base["root_dir"] / p
+       base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
@@ -71,7 +71,7 @@
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
 関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
 
-その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。
+その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 
 
 ``odatse.Mapping``

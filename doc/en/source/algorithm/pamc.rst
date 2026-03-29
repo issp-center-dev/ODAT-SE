@@ -186,9 +186,9 @@ Otherwise, continuous space is used.
 
 
 About the number of steps
-********************************
+"""""""""""""""""""""""""""""
 
-Specify just two of ``numstep``, ``numsteps_annealing``, and ``numT``.
+Specify just two of ``numstep``, ``numsteps_annealing``, and ``Tnum``.
 The value of the remaining one will be determined automatically.
 
 Reference file
