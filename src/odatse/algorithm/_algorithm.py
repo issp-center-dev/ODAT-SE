@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
+import sys
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
@@ -99,7 +99,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         # directories
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(odatse.mpi.rank())
+        self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
         # create directory for each rank in case every rank has some output
         self.proc_dir.mkdir(parents=True, exist_ok=True)
         # Some cache of the filesystem may delay making a dictionary
@@ -151,10 +151,26 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Prepare the algorithm for execution.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         if self.runner is None:
             msg = "Runner is not assigned"
             raise RuntimeError(msg)
-        self._prepare()
+        try:
+            self._prepare()
+            res = np.array([1])
+        except Exception:
+            res = np.array([0])
+            if odatse.mpi.algsize() > 1:
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+        if odatse.mpi.algsize() > 1:
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
         self.status = AlgorithmStatus.PREPARE
 
     @abstractmethod
@@ -166,15 +182,35 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Run the algorithm.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         if self.status < AlgorithmStatus.PREPARE:
             msg = "algorithm has not prepared yet"
             raise RuntimeError(msg)
-        original_dir = os.getcwd()
-        os.chdir(self.proc_dir)
-        self.runner.prepare(self.proc_dir)
-        self._run()
-        self.runner.post()
-        os.chdir(original_dir)
+
+        try:
+            assert self.runner is not None
+            original_dir = os.getcwd()
+            os.chdir(self.proc_dir)
+            self.runner.prepare(self.proc_dir)
+            self._run()
+            self.runner.post()
+            os.chdir(original_dir)
+        except Exception:
+            if odatse.mpi.algsize() > 1:
+                res = np.array([0])
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+
+        if odatse.mpi.algsize() > 1:
+            res = np.array([1])
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
+
         self.status = AlgorithmStatus.RUN
 
     @abstractmethod
@@ -191,13 +227,31 @@ class AlgorithmBase(metaclass=ABCMeta):
         dict
             Dictionary containing post-processing results.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return {}
+
         if self.status < AlgorithmStatus.RUN:
             msg = "algorithm has not run yet"
             raise RuntimeError(msg)
-        original_dir = os.getcwd()
-        os.chdir(self.output_dir)
-        result = self._post()
-        os.chdir(original_dir)
+        try:
+            original_dir = os.getcwd()
+            os.chdir(self.output_dir)
+            result = self._post()
+            os.chdir(original_dir)
+        except Exception:
+            if odatse.mpi.algsize() > 1:
+                res = np.array([0])
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+
+        if odatse.mpi.algsize() > 1:
+            res = np.array([1])
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
+
         return result
 
     @abstractmethod
@@ -205,40 +259,72 @@ class AlgorithmBase(metaclass=ABCMeta):
         """Abstract method to be implemented by subclasses for post-processing steps."""
         pass
 
+
+    def _main_algorithm(self):
+        time_sta = time.perf_counter()
+        self.prepare()
+        time_end = time.perf_counter()
+        self.timer["prepare"]["total"] = time_end - time_sta
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
+
+        time_sta = time.perf_counter()
+        self.run()
+        time_end = time.perf_counter()
+        self.timer["run"]["total"] = time_end - time_sta
+        print("end of run")
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
+
+        time_sta = time.perf_counter()
+        result = self.post()
+        time_end = time.perf_counter()
+        self.timer["post"]["total"] = time_end - time_sta
+
+        if odatse.mpi.algrank() == 0:
+            self.write_timer(self.proc_dir / "time.log")
+
+        return result
+
+    def __signal_workers(self, signal: int) -> None:
+        if odatse.mpi.solsize() > 1:
+            msg = np.array([signal])
+            odatse.mpi.solcomm().Bcast(msg, root=0)
+
     def main(self):
         """
         Main method to execute the algorithm.
         """
-        if odatse.mpi.algrank() is not None: # master branch, run solver
-            time_sta = time.perf_counter()
-            self.prepare()
-            time_end = time.perf_counter()
-            self.timer["prepare"]["total"] = time_end - time_sta
-            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-                odatse.mpi.algcomm().Barrier()
+        if odatse.mpi.run_on_algorithm():
+            try:
+                res = self._main_algorithm()
 
-            time_sta = time.perf_counter()
-            self.run()
-            time_end = time.perf_counter()
-            self.timer["run"]["total"] = time_end - time_sta
-            print("end of run")
-            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-                odatse.mpi.algcomm().Barrier()
+            except odatse.mpi.OtherAlgorithmProcessError:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                sys.exit(0)
 
-            if odatse.mpi.solsize() > 1: # signal workers to finish running
-                odatse.mpi.solcomm().bcast(None, root=0)
+            except Exception:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                raise
 
-            time_sta = time.perf_counter()
-            result = self.post()
-            time_end = time.perf_counter()
-            self.timer["post"]["total"] = time_end - time_sta
-
-            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
-                self.write_timer(self.proc_dir / "time.log")
-            return result
-        else: # worker branch, enter waiting state
-            if odatse.mpi.solsize() > 1:
-                self.runner.solver.worker_loop()
+            self.__signal_workers(odatse.mpi.MSG_FINISHED)
+            return res
+        else: # Worker process for solver
+            assert odatse.mpi.solrank() > 0
+            signal = np.array([0])
+            xp = np.zeros(self.runner.solver.dimension)
+            while True:
+                odatse.mpi.solcomm().Bcast(signal, root=0)
+                if signal[0] == odatse.mpi.MSG_FINISHED:
+                    break
+                elif signal[0] == odatse.mpi.MSG_ABORT:
+                    sys.exit(0)
+                elif signal[0] == odatse.mpi.MSG_EVALUATE:
+                    odatse.mpi.solcomm().Bcast(xp, root=0)
+                    args = odatse.mpi.solcomm().bcast(None, root=0)
+                    self.runner.solver.evaluate(xp, args)
+                else:
+                    raise ValueError(f"Unknown signal: {signal[0]}")
             return None
 
     def write_timer(self, filename: Path):

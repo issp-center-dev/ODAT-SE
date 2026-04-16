@@ -60,8 +60,8 @@ class Solver(odatse.solver.SolverBase):
         cwd = os.getcwd()
         os.chdir(self.work_dir)
         self.run()
-        os.chdir(cwd)
         result = self.get_results()
+        os.chdir(cwd)
         return result
 
     def prepare(self, x: np.ndarray, args = ()) -> None:

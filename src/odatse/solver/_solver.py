@@ -8,7 +8,6 @@
 
 from abc import ABCMeta, abstractmethod
 
-import subprocess
 import numpy as np
 
 import odatse
@@ -43,7 +42,7 @@ class SolverBase(object, metaclass=ABCMeta):
         """
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(odatse.mpi.rank())
+        self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
         self.work_dir = self.proc_dir
         self._name = ""
         self.timer = {"prepare": {}, "run": {}, "post": {}}
@@ -82,22 +81,3 @@ class SolverBase(object, metaclass=ABCMeta):
             This method should be implemented by subclasses.
         """
         raise NotImplementedError()
-    
-    def worker_loop(self) -> None:
-        """
-        Worker loop for hybrid parallelization via MPI (algorithm + solver processes).
-        This should be overridden by subclasses that need a different data protocol to participate in solver-level parallelization.
-
-        Worker processes in the solver communicator (``solrank != 0``) call this method instead of the search algorithm.
-
-        When the controller sends the sentinel value ``None``, the loop exits. This avoids hanging for some workers and allows all processes to reach the same state before the next iteration. This must also be recognized by overriding definitions since the sentinel is passed by ``AlgorithmBase.main()``.
-        
-        In the default implementation, the loop blocks on ``solcomm().bcast(None, root=0)`` while waiting for data broadcast by the algorithm-side controller (``solrank == 0``).
-        The received data is forwarded to the solver's ``evaluate`` method so that the worker participates in the same computation as the controller.
-        """
-        while True:
-            msg = odatse.mpi.solcomm().bcast(None, root=0)
-            if msg is None:
-                break
-            x, arg = msg
-            self.evaluate(x, arg)
