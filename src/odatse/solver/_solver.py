@@ -16,7 +16,6 @@ import odatse.mpi
 
 # type hints
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 class SolverBase(object, metaclass=ABCMeta):
@@ -30,7 +29,7 @@ class SolverBase(object, metaclass=ABCMeta):
     work_dir: Path
     _name: str
     dimension: int
-    timer: Dict[str, Dict]
+    timer: dict[str, dict]
 
     @abstractmethod
     def __init__(self, info: odatse.Info) -> None:
@@ -66,7 +65,7 @@ class SolverBase(object, metaclass=ABCMeta):
         return self._name
 
     @abstractmethod
-    def evaluate(self, x: np.ndarray, arg: Tuple = (), nprocs: int = 1, nthreads: int = 1) -> None:
+    def evaluate(self, x: np.ndarray, arg: tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
         """
         Evaluate the solver with the given parameters.
 
@@ -74,7 +73,7 @@ class SolverBase(object, metaclass=ABCMeta):
         ----------
         x : np.ndarray
             Input data array.
-        arg : Tuple, optional
+        arg : tuple, optional
             Additional arguments for evaluation. Defaults to ().
         nprocs : nt, optional
             Number of processes to use. Defaults to 1.

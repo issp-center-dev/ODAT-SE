@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union, Any
+from typing import Union, Any
 
 from pathlib import Path
 import numpy as np
@@ -19,15 +19,15 @@ class MeshGrid(DomainBase):
     MeshGrid class for handling grid data for quantum beam diffraction experiments.
     """
 
-    grid: List[List[Union[int, float]]] = []
-    grid_local: List[List[Union[int, float]]] = []
+    grid: list[list[Union[int, float]]] = []
+    grid_local: list[list[Union[int, float]]] = []
     candicates: int
 
     def __init__(
         self,
         info: odatse.Info = None,
         *,
-        param: Dict[str, Any] = None,
+        param: dict[str, Any] = None,
         mesh: bool = True,
         rng: np.random.RandomState = None,
     ):
@@ -124,6 +124,7 @@ class MeshGrid(DomainBase):
             data = odatse.mpi.comm().bcast(data, root=0)
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
+        self.do_split()
 
     def _setup_grid(self, info_param):
         """
@@ -159,6 +160,7 @@ class MeshGrid(DomainBase):
                 ).reshape(len(xs), -1).transpose()
             )
         ]
+        self.do_split()
 
     def _setup_random(self, info_param, rng: np.random.RandomState):
         if "min_list" not in info_param:
@@ -253,7 +255,7 @@ if __name__ == "__main__":
     ms.store_file("meshfile.dat", header="sample mesh data")
     
     ms2 = MeshGrid.from_file("meshfile.dat")
-    ms2.do_split()
+    #ms2.do_split()
 
     if odatse.mpi.rank() == 0:
         print(ms2.grid)

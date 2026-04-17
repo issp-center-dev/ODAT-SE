@@ -11,6 +11,7 @@ from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
 import os
+import sys
 import pathlib
 import pickle
 import shutil
@@ -24,7 +25,7 @@ from odatse import exception, mpi
 
 # for type hints
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING, Dict, Tuple
+from typing import Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -44,14 +45,14 @@ class AlgorithmBase(metaclass=ABCMeta):
     mpirank: int
     rng: np.random.RandomState
     dimension: int
-    label_list: List[str]
+    label_list: list[str]
     runner: Optional[odatse.Runner]
 
     root_dir: Path
     output_dir: Path
     proc_dir: Path
 
-    timer: Dict[str, Dict]
+    timer: dict[str, dict]
 
     status: AlgorithmStatus = AlgorithmStatus.INIT
     mode: Optional[str] = None
@@ -195,13 +196,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         """Abstract method to be implemented by subclasses for running steps."""
         pass
 
-    def post(self) -> Dict:
+    def post(self) -> dict:
         """
         Perform post-processing after the algorithm has run.
 
         Returns
         -------
-        Dict
+        dict
             Dictionary containing post-processing results.
         """
         if self.status < AlgorithmStatus.RUN:
@@ -214,7 +215,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         return result
 
     @abstractmethod
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """Abstract method to be implemented by subclasses for post-processing steps."""
         pass
 
@@ -304,7 +305,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         shutil.move(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
-    def _load_data(self, filename="state.pickle") -> Dict:
+    def _load_data(self, filename="state.pickle") -> dict:
         """
         Load data from a file.
 
@@ -315,7 +316,7 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         Returns
         -------
-        Dict
+        dict
             Dictionary containing the loaded data.
         """
         if Path(filename).exists():

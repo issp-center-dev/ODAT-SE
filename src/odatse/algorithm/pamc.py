@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import List, Dict, Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 
 from io import open
 import copy
@@ -45,10 +45,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     Algorithm Flow:
       1. Initialize walker population at highest temperature
       2. For each temperature step:
+      
         a. Perform Monte Carlo updates at current temperature
         b. Calculate weights for next temperature
         c. Resample population based on weights
         d. Update statistical estimates
+        
       3. Track best solutions and maintain system statistics
 
     Attributes
@@ -149,6 +151,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.export_combined_files = info_pamc.get("export_combined_files", False)
         self.separate_T = info_pamc.get("separate_T", True)
+        self.anneal_from_beta0 = self.betas[0] > 0.0 and info_pamc.get(
+            "anneal_from_beta0", False
+        )
 
         time_end = time.perf_counter()
         self.timer["init"]["total"] = time_end - time_sta
@@ -230,7 +235,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if rem > 0:
                 self.numsteps_for_T[0 : (rem - 1)] += 1
         else:
-            ss: List[int] = []
+            ss: list[int] = []
             while numsteps > 0:
                 if numsteps > numsteps_annealing:
                     ss.append(numsteps_annealing)
@@ -283,6 +288,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if self.mode.startswith("init"):
             beta = self.betas[self.Tindex]
             self.fx = self._evaluate(self.state)
+            if self.anneal_from_beta0:
+                # Anneal from beta=0 and resample
+                # In _resample, self.logZ is updated
+                self.logweights = -self.betas[0] * self.fx
+                self._resample(at_init=True)
 
             self._write_result(writer["trial"], [np.exp(self.logweights), self.walker_ancestors])
             self._write_result(writer["result"], [np.exp(self.logweights), self.walker_ancestors])
@@ -421,7 +431,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if v:
                 v.close()
 
-    def _gather_information(self, numT: int = None) -> Dict[str, np.ndarray]:
+    def _gather_information(self, numT: int = None) -> dict[str, np.ndarray]:
         """
         Collect and organize statistical information across all processes.
 
@@ -438,7 +448,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         Returns
         -------
-        Dict[str, np.ndarray]
+        dict[str, np.ndarray]
             Contains:
               - fxs: Energy values for all walkers
               - logweights: Log of importance weights
@@ -471,7 +481,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return res
 
-    def _save_stats(self, info: Dict[str, np.ndarray]) -> None:
+    def _save_stats(self, info: dict[str, np.ndarray]) -> None:
         """
         Calculate and save statistical measures from the simulation.
 
@@ -487,7 +497,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         Parameters
         ----------
-        info : Dict[str, np.ndarray]
+        info : dict[str, np.ndarray]
             Dictionary containing the following keys:
               - fxs: Objective function of each walker over all processes.
               - logweights: Logarithm of weights.
@@ -525,7 +535,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         logz += logweights_max.flatten()
         self.logZs[startTindex:endTindex] = self.logZ + logz
         if endTindex < len(self.betas):
-            # Calculate the next weight before reset and evaluate dF
             bdiff = self.betas[endTindex] - self.betas[endTindex - 1]
             w = np.exp(logweights[-1, :] - bdiff * fxs[-1, :])
             self.logZ = self.logZs[startTindex] + np.log(w.mean())
@@ -541,15 +550,22 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     self.acceptance_ratio[iT],
                 ])))
 
-    def _resample(self) -> None:
+    def _resample(self, at_init: bool = False) -> None:
         """
         Perform population resampling between temperature steps.
 
         This is a key component of PAMC that:
-          1. Gathers current population statistics
+          1. Gathers current population statistics (unless at_init)
           2. Calculates importance weights for the temperature change
           3. Resamples walkers based on their weights
-          4. Updates population statistics and free energy estimates
+          4. Updates population statistics and free energy estimates (unless at_init)
+
+        Parameters
+        ----------
+        at_init : bool, optional
+            If True, use current logweights only and skip gather/save_stats
+            (used when resampling at init with anneal_from_beta0).
+            self.logZ is updated in this case.
 
         The resampling can be done in two modes:
           - Fixed: Maintains constant population size
@@ -561,18 +577,24 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
           - Updates free energy estimates using resampling data
           - Handles MPI communication for parallel execution
         """
-        res = self._gather_information()
-        self._save_stats(res)
+        if at_init:
+            logweights = gather_replica(self.logweights)
+            lw_max = logweights.max()
+            weights = np.exp(logweights - lw_max)
+            self.logZ = np.log(weights.mean()) + lw_max
+            ns = gather_data(np.array([self.nwalkers]))
+        else:
+            res = self._gather_information()
+            self._save_stats(res)
+            dbeta = self.betas[self.Tindex + 1] - self.betas[self.Tindex]
+            logweights = res["logweights"][-1, :] - dbeta * res["fxs"][-1, :]
+            weights = np.exp(logweights - logweights.max())
+            ns = res["ns"]
 
-        # weights for resampling
-        dbeta = self.betas[self.Tindex + 1] - self.betas[self.Tindex]
-        logweights = res["logweights"][-1, :] - dbeta * res["fxs"][-1, :]
-        weights = np.exp(logweights - logweights.max())  # to avoid overflow
         if self.fix_nwalkers:
             self._resample_fixed(weights)
             self.logweights[:] = 0.0
         else:
-            ns = res["ns"]
             offsets = np.cumsum(ns) - ns
             self._resample_varied(weights, offsets[self.mpirank])
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
@@ -711,7 +733,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if fwrite:
                 fwrite.close()
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """
         Post-processing after the algorithm execution.
 
