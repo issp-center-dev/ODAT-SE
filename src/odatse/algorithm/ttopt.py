@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional, TYPE_CHECKING
+from typing import IO, Optional, TYPE_CHECKING
 
 import numpy as np
 from scipy.linalg import lu, solve_triangular
@@ -133,6 +133,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         Meaningful values are larger than 1 (default: 1.001).
     maxvol_max_it: int
         The maximum number of maxvol iterations each time the maxvol subroutine is called (default: 1000).
+    save_eval_history: bool
+        If True, stream ``ttopt_eval_history.txt`` under the output directory while running (rank 0
+        only; default: True). Rows are flushed when the in-memory buffer reaches
+        ``eval_history_buffer_rows`` points.
+    eval_history_buffer_rows: int
+        Number of evaluation rows to buffer in memory before appending to disk (default: 256).
     init_points: Optional[np.ndarray]
         Initial points in physical coordinates to evaluate at the start of optimization. (default: None).
     xopt: Optional[np.ndarray]
@@ -148,6 +154,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     max_f_eval: int
     maxvol_tol: float
     maxvol_max_it: int
+    save_eval_history: bool
+    eval_history_buffer_rows: int
     init_points: np.ndarray
 
     xopt: Optional[np.ndarray]
@@ -225,6 +233,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.max_f_eval = int(info_ttopt.get("max_f_eval", 10000))
         self.maxvol_tol = float(info_ttopt.get("maxvol_tol", 1.001))
         self.maxvol_max_it = int(info_ttopt.get("maxvol_max_it", 1000))
+        self.save_eval_history = bool(info_ttopt.get("save_eval_history", True))
+        _buf_rows = int(info_ttopt.get("eval_history_buffer_rows", 256))
+        self.eval_history_buffer_rows = max(1, _buf_rows)
         self.init_points = np.unique(
             np.asarray(info_ttopt.get("init_points", []), dtype=float), axis=0
         )
@@ -265,6 +276,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.f_eval_count_history = []
         self.xopt_history = []
         self.fopt_history = []
+        if self.mpirank == 0 and getattr(self, "_eval_hist_file", None) is not None:
+            self._eval_hist_file.close()
+        self._eval_hist_file: Optional[IO[str]] = None
+        self._eval_hist_next_row = 1
+        self._eval_hist_pending_x: list[np.ndarray] = []
+        self._eval_hist_pending_f: list[np.ndarray] = []
+        self._eval_hist_pending_nrows = 0
 
         # process init_points
         if self.init_points.shape[0] > 0:
@@ -364,6 +382,18 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             )
             self.tt_ranks[i + 1] = next_poi.shape[0]
             self.poi[i + 1] = next_poi
+        if self.mpirank == 0:
+            with open(self.output_dir / "ttopt_hyperparameters.txt", "w") as f:
+                f.write(f"nprocs = {self.mpisize}\n")
+                f.write(f"bounds = {self.bounds.tolist()}\n")
+                f.write(f"p_points = {self.p_points}\n")
+                f.write(f"q_points = {self.q_points}\n")
+                f.write(f"r_max = {self.r_max}\n")
+                f.write(f"max_f_eval = {self.max_f_eval}\n")
+                f.write(f"maxvol_tol = {self.maxvol_tol}\n")
+                f.write(f"maxvol_max_it = {self.maxvol_max_it}\n")
+                f.write(f"save_eval_history = {self.save_eval_history}\n")
+                f.write(f"eval_history_buffer_rows = {self.eval_history_buffer_rows}\n")
 
     def _run(self) -> None:
         run = self.runner
@@ -449,6 +479,61 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             self.tt_ranks[i + 1] = next_poi.shape[0]
                             self.poi[i + 1] = next_poi
 
+    def _eval_hist_append_batch(
+        self, todo_pois: np.ndarray, f_vals: np.ndarray
+    ) -> None:
+        if not self.save_eval_history or self.mpirank != 0:
+            return
+        n = int(f_vals.shape[0])
+        if n == 0:
+            return
+        self._eval_hist_pending_x.append(np.asarray(todo_pois).copy())
+        self._eval_hist_pending_f.append(np.asarray(f_vals).copy())
+        self._eval_hist_pending_nrows += n
+        if self._eval_hist_pending_nrows >= self.eval_history_buffer_rows:
+            self._eval_hist_flush(force=True)
+
+    def _eval_hist_flush(self, *, force: bool) -> None:
+        if not self.save_eval_history or self.mpirank != 0:
+            return
+        if self._eval_hist_pending_nrows == 0:
+            return
+        if not force and self._eval_hist_pending_nrows < self.eval_history_buffer_rows:
+            return
+        xs = np.vstack(self._eval_hist_pending_x)
+        fs = np.concatenate(self._eval_hist_pending_f)
+        path = self.output_dir / "ttopt_eval_history.txt"
+        if self._eval_hist_file is None:
+            self._eval_hist_file = open(
+                path,
+                "w",
+                encoding="utf-8",
+                newline="\n",
+            )
+            hf = self._eval_hist_file
+            hf.write("# $1: row index (order of batches in the run)\n")
+            for d in range(self.dimension):
+                hf.write(f"# ${d+2}: {self.label_list[d]}\n")
+            hf.write(f"# ${self.dimension+2}: f(x)\n")
+        hf = self._eval_hist_file
+        for row in range(xs.shape[0]):
+            hf.write(f"{self._eval_hist_next_row:d}")
+            self._eval_hist_next_row += 1
+            for d in range(self.dimension):
+                hf.write(f" {xs[row, d]:.15e}")
+            hf.write(f" {fs[row]:.15e}\n")
+        self._eval_hist_pending_x.clear()
+        self._eval_hist_pending_f.clear()
+        self._eval_hist_pending_nrows = 0
+
+    def _eval_hist_finalize(self) -> None:
+        if not self.save_eval_history or self.mpirank != 0:
+            return
+        self._eval_hist_flush(force=True)
+        if self._eval_hist_file is not None:
+            self._eval_hist_file.close()
+            self._eval_hist_file = None
+
     def _post(self) -> dict:
         """Collect the best solution across ranks."""
         result = {
@@ -460,18 +545,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             zip(self.f_eval_count_history, self.xopt_history, self.fopt_history)
         )
         if self.mpirank == 0:
+            self._eval_hist_finalize()
             with open("ttopt_history.txt", "w") as f:
-                f.write(f"nprocs = {self.mpisize}\n")
-                f.write(f"bounds = {self.bounds.tolist()}\n")
-                f.write(f"p_points = {self.p_points}\n")
-                f.write(f"q_points = {self.q_points}\n")
-                f.write(f"r_max = {self.r_max}\n")
-                f.write(f"max_f_eval = {self.max_f_eval}\n")
-                f.write(f"maxvol_tol = {self.maxvol_tol}\n")
-                f.write(f"maxvol_max_it = {self.maxvol_max_it}\n")
-                f.write("f_eval, x_opt, f_opt\n")
+                f.write("# $1: count\n")
+                for d in range(self.dimension):
+                    f.write(f"# ${d+2}: x_opt[{d}]\n")
+                f.write(f"# ${self.dimension+2}: fx_opt\n")
                 for entry in opt_history:
-                    f.write(f"{entry[0]}, {entry[1]}, {entry[2]}\n")
+                    f.write(f"{entry[0]:d}")
+                    for x in entry[1]:
+                        f.write(f" {x:.15e}")
+                    f.write(f" {entry[2]:.15e}\n")
 
         if self.mpisize > 1:
             assert self.mpicomm is not None
@@ -559,4 +643,5 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         best_f = f_vals[best_idxs]
         if best_f < min_f:
             min_params, min_f = (best_params, best_f)
+        self._eval_hist_append_batch(todo_pois, f_vals)
         return f_vals, min_params, min_f
