@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Tuple, List, Dict, Union, Optional, TYPE_CHECKING
+from typing import Union, Optional, TYPE_CHECKING
 
 import numpy as np
 from scipy.linalg import lu, solve_triangular
@@ -15,6 +15,94 @@ import odatse.domain
 
 if TYPE_CHECKING:
     from mpi4py import MPI
+
+
+def maxvol(
+    mat: np.ndarray, tol: float = 1.001, max_it: int = 1000
+) -> tuple[np.ndarray, np.ndarray]:
+    n, r = mat.shape
+    P, L, U = lu(mat, check_finite=False, p_indices=True)
+    row_idxs = P.argsort()[:r]
+    Q = solve_triangular(U, mat.T, trans=1, check_finite=False)
+    B = solve_triangular(L[:r, :], Q, trans=1, lower=True, check_finite=False).T
+    for _ in range(max_it):
+        i, j = np.divmod(np.abs(B).argmax(), r)
+        if np.abs(B[i, j]) <= tol:
+            break
+        Bi = B[i, :].copy()  # to avoid changing B
+        Bi[j] -= 1
+        B -= np.outer(B[:, j], Bi) / B[i, j]
+        row_idxs[j] = i
+    return row_idxs, B
+
+
+def find_rows(z: np.ndarray, tol: float = 1.001, max_it: int = 1000) -> np.ndarray:
+    q, r = np.linalg.qr(z)  # QR decompose to deal with singular z
+    if q.shape[0] <= q.shape[1]:  # bypass if matrix is wide and not tall
+        row_idxs = np.arange(q.shape[0])
+    else:
+        row_idxs = maxvol(q, tol, max_it)[0]
+    # reference implementation forces row idx of max entry in z to be in row list
+    max_idx = np.divmod(np.abs(z).argmax(), z.shape[1])
+    if max_idx[0] not in row_idxs:
+        row_idxs[-1] = max_idx[0]
+    return row_idxs
+
+
+def update_right(
+    grid: np.ndarray,
+    cur_poi: Optional[np.ndarray],
+    cur_n_points: int,
+    cur_rank: int,
+    idx_list: np.ndarray,
+) -> np.ndarray:
+    w2 = np.kron(
+        grid, np.ones((cur_rank if cur_poi is not None else 1, 1), dtype=int)
+    )
+    if cur_poi is not None:  # do nothing if at edge
+        w1 = np.kron(np.ones((cur_n_points, 1), dtype=int), cur_poi)
+        w2 = np.concatenate([w1, w2], axis=1)
+    return w2[idx_list, :]
+
+
+def update_left(
+    grid: np.ndarray,
+    next_poi: Optional[np.ndarray],
+    cur_n_points: int,
+    next_rank: int,
+    idx_list: np.ndarray,
+) -> np.ndarray:
+    w1 = np.kron(
+        np.ones((next_rank if next_poi is not None else 1, 1), dtype=int), grid
+    )
+    if next_poi is not None:  # do nothing if at edge
+        w2 = np.kron(next_poi, np.ones((cur_n_points, 1), dtype=int))
+        w1 = np.concatenate([w1, w2], axis=1)
+    return w1[idx_list, :]
+
+
+def fuse_pois(
+    grid: np.ndarray,
+    cur_poi: Optional[np.ndarray],
+    next_poi: Optional[np.ndarray],
+    cur_rank: int,
+    cur_n_points: int,
+    next_rank: int,
+) -> np.ndarray:
+    w2 = np.kron(
+        np.kron(
+            np.ones((next_rank if next_poi is not None else 1, 1), dtype=int), grid
+        ),
+        np.ones((cur_rank if cur_poi is not None else 1, 1), dtype=int),
+    )
+    if cur_poi is not None:
+        w1 = np.kron(np.ones((cur_n_points * next_rank, 1), dtype=int), cur_poi)
+        w2 = np.concatenate([w1, w2], axis=1)
+    if next_poi is not None:
+        w3 = np.kron(next_poi, np.ones((cur_rank * cur_n_points, 1), dtype=int))
+        w2 = np.concatenate([w2, w3], axis=1)
+    return w2
+
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
     """
@@ -60,28 +148,28 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     max_f_eval: int
     maxvol_tol: float
     maxvol_max_it: int
-    init_points: Optional[np.ndarray]
+    init_points: np.ndarray
 
     xopt: Optional[np.ndarray]
     fopt: Optional[float]
 
     f_eval_count: int
-    f_eval_count_history: List[int]
-    xopt_history: List[np.ndarray]
-    fopt_history: List[float]
+    f_eval_count_history: list[int]
+    xopt_history: list[np.ndarray]
+    fopt_history: list[float]
 
     n_points: np.ndarray
     n_q_points: np.ndarray
     n_q_dims: int
-    grids: List[np.ndarray]
+    grids: list[np.ndarray]
     tt_ranks: np.ndarray
-    poi: List[Union[None, np.ndarray]]
+    poi: list[Optional[np.ndarray]]
 
     def __init__(
         self,
         info: odatse.Info,
-        runner: odatse.Runner = None,
-        domain: Union[odatse.domain.MeshGrid, odatse.domain.Region] = None,
+        runner: Optional[odatse.Runner] = None,
+        domain: Optional[odatse.domain.Region] = None,
         run_mode: str = "initial",
         mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
@@ -106,7 +194,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.runner is None:
             raise ValueError("The TTOpt algorithm requires a runner instance.")
 
-        if domain and isinstance(domain, (odatse.domain.Region, odatse.domain.MeshGrid)):
+        if domain and isinstance(domain, odatse.domain.Region):
             self.domain = domain
         else:
             self.domain = odatse.domain.Region(info)
@@ -115,39 +203,63 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.max_list = self.domain.max_list
         self.bounds = np.vstack([self.min_list, self.max_list]).T
 
-        info_ttopt: Dict = info.algorithm.get("ttopt", {})
+        info_ttopt: dict = info.algorithm.get("ttopt", {})
 
-        self.p_points = np.asarray(info_ttopt.get("p_points", [2] * self.dimension), dtype=int)
-        self.q_points = np.asarray(info_ttopt.get("q_points", [1] * self.dimension), dtype=int)
-        self.r_max = int(info_ttopt.get("r_max", 4))
-        self.max_f_eval = int(info_ttopt.get("max_f_eval", 10000))
-        self.maxvol_tol = float(info_ttopt.get("maxvol_tol", 1.001))
-        self.maxvol_max_it = int(info_ttopt.get("maxvol_max_it", 1000))
-        self.init_points = np.unique(np.asarray(info_ttopt.get("init_points", []), dtype=float), axis=0)
+        p_points = info_ttopt.get("p_points", 2)
+        if isinstance(p_points, int):
+            p_points = [p_points] * self.dimension
 
-        self.xopt = None
-        self.fopt = np.inf
-        
-        # memoize known points
-        self.cache = {}
-        self.cache_hits = 0
+        q_points = info_ttopt.get("q_points", 1)
+        if isinstance(q_points, int):
+            q_points = [q_points] * self.dimension
+
+        self.p_points = np.asarray(p_points, dtype=int)
+        self.q_points = np.asarray(q_points, dtype=int)
 
         if self.p_points.shape[0] != self.dimension:
             raise ValueError("ttopt.p_points must match the problem dimension.")
         if self.q_points.shape[0] != self.dimension:
             raise ValueError("ttopt.q_points must match the problem dimension.")
 
+        self.r_max = int(info_ttopt.get("r_max", 4))
+        self.max_f_eval = int(info_ttopt.get("max_f_eval", 10000))
+        self.maxvol_tol = float(info_ttopt.get("maxvol_tol", 1.001))
+        self.maxvol_max_it = int(info_ttopt.get("maxvol_max_it", 1000))
+        self.init_points = np.unique(
+            np.asarray(info_ttopt.get("init_points", []), dtype=float), axis=0
+        )
+
+        self.xopt = None
+        self.fopt = np.inf
+
+        # memoize known points
+        self.cache = {}
+        self.cache_hits = 0
+
         self._show_parameters()
 
     def _prepare(self) -> None:
         assert self.bounds.shape[0] == self.p_points.shape[0] == self.q_points.shape[0]
-        self.n_points = self.p_points ** self.q_points # number of points in full discretized interval
-        self.n_q_points = np.asarray([self.p_points[i] for i in range(self.bounds.shape[0]) for _ in range(self.q_points[i])])
-        self.n_q_dims = self.n_q_points.shape[0] # number of quantized dims
-        self.grids = [np.reshape(np.arange(self.n_q_points[i], dtype=int), (-1, 1)) for i in range(self.n_q_dims)]
+        self.n_points = (
+            self.p_points**self.q_points
+        )  # number of points in full discretized interval
+        self.n_q_points = np.asarray(
+            [
+                self.p_points[i]
+                for i in range(self.bounds.shape[0])
+                for _ in range(self.q_points[i])
+            ]
+        )
+        self.n_q_dims = self.n_q_points.shape[0]  # number of quantized dims
+        self.grids = [
+            np.reshape(np.arange(self.n_q_points[i], dtype=int), (-1, 1))
+            for i in range(self.n_q_dims)
+        ]
         self.tt_ranks = np.ones(self.n_q_dims + 1, dtype=int)
         for i in range(1, self.n_q_dims):
-            self.tt_ranks[i] = np.min([self.tt_ranks[i - 1] * self.n_q_points[i - 1], self.r_max]) # rank is min(L*C,r_max)
+            self.tt_ranks[i] = np.min(
+                [self.tt_ranks[i - 1] * self.n_q_points[i - 1], self.r_max]
+            )  # rank is min(L*C,r_max)
 
         self.f_eval_count = 0
         self.f_eval_count_history = []
@@ -163,7 +275,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             init_indices = np.zeros((n_init_points, n_dims), dtype=float)
             for dim in range(n_dims):
                 # inverse of coordinate conversion in f_eval
-                t = (self.init_points[:, dim] - self.bounds[dim, 0]) / (self.bounds[dim, 1] - self.bounds[dim, 0])
+                t = (self.init_points[:, dim] - self.bounds[dim, 0]) / (
+                    self.bounds[dim, 1] - self.bounds[dim, 0]
+                )
                 init_indices[:, dim] = t * (self.n_points[dim] - 1)
                 init_indices[:, dim] = np.round(init_indices[:, dim])
 
@@ -174,25 +288,41 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 n_idx = init_indices[:, dim].astype(int)
                 n_idx = np.clip(n_idx, 0, self.n_points[dim] - 1)
                 for i in range(n_init_points):
-                    multi_idx = np.unravel_index(n_idx[i], self.n_q_points[start:start + self.q_points[dim]], order='F')
-                    self.init_q_pois[i, start:start + self.q_points[dim]] = multi_idx
+                    multi_idx = np.unravel_index(
+                        n_idx[i],
+                        self.n_q_points[start : start + self.q_points[dim]],
+                        order="F",
+                    )
+                    self.init_q_pois[i, start : start + self.q_points[dim]] = multi_idx
                 start += self.q_points[dim]
 
             # evaluate early to get values for z
-            f_vals_init, self.xopt, self.fopt = Algorithm.f_eval(self, self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, self.init_q_pois, self.xopt, self.fopt, self.runner)
+            f_vals_init, self.xopt, self.fopt = self.f_eval(
+                self.bounds,
+                self.p_points,
+                self.q_points,
+                self.n_points,
+                self.n_q_points,
+                self.init_q_pois,
+                self.xopt,
+                self.fopt,
+                self.runner,
+            )
             self.f_eval_count += len(self.init_q_pois)
             self.f_eval_count_history.append(self.f_eval_count)
             self.xopt_history.append(self.xopt)
             self.fopt_history.append(self.fopt)
         else:
-            self.init_q_pois = None
-            f_vals_init = None
+            self.init_q_pois = np.zeros((0, self.n_q_dims), dtype=int)
+            f_vals_init = np.zeros(0)
 
         self.poi = [None for _ in range(self.n_q_dims + 1)]
         for i in range(self.n_q_dims - 1):
-            if self.init_q_pois is not None:
+            if self.init_q_pois.shape[0] > 0: # if init_points > 0
                 # fill z, an mps tensor with size (L, C, R), with known values from init_q_pois
-                z = np.zeros((self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1]))
+                z = np.zeros(
+                    (self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
+                )
                 # p/l/c/r are the point, left, center, right indices respectively
                 for p in range(self.init_q_pois.shape[0]):
                     if i == 0:
@@ -204,61 +334,131 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         l = np.where(matches)[0][0]
 
                     c = self.init_q_pois[p, i]
-                    r = p % self.tt_ranks[i + 1] # in case there are more points than ranks
+                    r = (
+                        p % self.tt_ranks[i + 1]
+                    )  # in case there are more points than ranks
                     z[l, c, r] = max(z[l, c, r], np.exp(self.fopt - f_vals_init[p]))
                 # fallback if all elements are 0
                 if np.sum(z) == 0:
                     z = self.rng.normal(size=z.shape)
             else:
-                z = self.rng.normal(size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])) # matrix is (L*C,R)
+                z = self.rng.normal(
+                    size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
+                )  # matrix is (L*C,R)
 
-            z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
+            z = np.reshape(
+                z,
+                (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]),
+                order="F",
+            )
             if self.mpisize > 1:  # make state uniform across all ranks
+                assert self.mpicomm is not None
                 z = self.mpicomm.bcast(z, root=0)
-            row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
-            self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
-            self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
+            row_idxs = find_rows(z, self.maxvol_tol, self.maxvol_max_it)
+            next_poi = update_right(
+                self.grids[i],
+                self.poi[i],
+                self.n_q_points[i],
+                self.tt_ranks[i],
+                row_idxs,
+            )
+            self.tt_ranks[i + 1] = next_poi.shape[0]
+            self.poi[i + 1] = next_poi
 
     def _run(self) -> None:
         run = self.runner
-        sweeps = [(True, list(range(self.n_q_dims - 1, -1, -1))), (False, list(range(0, self.n_q_dims)))]
+        sweeps = [
+            (True, list(range(self.n_q_dims - 1, -1, -1))),
+            (False, list(range(0, self.n_q_dims))),
+        ]
         while True:
             for r2l, sweep_range in sweeps:
                 for i in sweep_range:
-                    todo_q_pois = Algorithm.fuse_pois(self.grids[i], self.poi[i], self.poi[i + 1], self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
-                    f_vals, self.xopt, self.fopt = Algorithm.f_eval(self, self.bounds, self.p_points, self.q_points, self.n_points, self.n_q_points, todo_q_pois, self.xopt, self.fopt, run)
+                    todo_q_pois = fuse_pois(
+                        self.grids[i],
+                        self.poi[i],
+                        self.poi[i + 1],
+                        self.tt_ranks[i],
+                        self.n_q_points[i],
+                        self.tt_ranks[i + 1],
+                    )
+                    f_vals, self.xopt, self.fopt = self.f_eval(
+                        self.bounds,
+                        self.p_points,
+                        self.q_points,
+                        self.n_points,
+                        self.n_q_points,
+                        todo_q_pois,
+                        self.xopt,
+                        self.fopt,
+                        run,
+                    )
                     self.f_eval_count += len(todo_q_pois)
                     self.f_eval_count_history.append(self.f_eval_count)
                     self.xopt_history.append(self.xopt)
                     self.fopt_history.append(self.fopt)
                     if self.f_eval_count >= self.max_f_eval:
-                        return self.xopt, self.fopt
+                        return
                     # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
-                    z = np.exp(self.fopt - f_vals) # reference implementation uses this smoothing function
+                    z = np.exp(
+                        self.fopt - f_vals
+                    )  # reference implementation uses this smoothing function
                     # z=(np.pi/2)-np.arctan(f_vals-min_f) # paper uses this smoothing function
                     if r2l:
-                        z = np.reshape(z, (self.tt_ranks[i], self.n_q_points[i] * self.tt_ranks[i + 1]), order="F")
-                        row_idxs = Algorithm.find_rows(z.T, self.maxvol_tol, self.maxvol_max_it)
+                        z = np.reshape(
+                            z,
+                            (
+                                self.tt_ranks[i],
+                                self.n_q_points[i] * self.tt_ranks[i + 1],
+                            ),
+                            order="F",
+                        )
+                        row_idxs = find_rows(
+                            z.T, self.maxvol_tol, self.maxvol_max_it
+                        )
                         if i != 0:
-                            self.poi[i] = Algorithm.update_left(self.grids[i], self.poi[i + 1], self.n_q_points[i], self.tt_ranks[i + 1], row_idxs)
-                            self.tt_ranks[i] = self.poi[i].shape[0]
+                            next_poi = update_left(
+                                self.grids[i],
+                                self.poi[i + 1],
+                                self.n_q_points[i],
+                                self.tt_ranks[i + 1],
+                                row_idxs,
+                            )
+                            self.tt_ranks[i] = next_poi.shape[0]
+                            self.poi[i] = next_poi
                     else:
-                        z = np.reshape(z, (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]), order="F")
-                        row_idxs = Algorithm.find_rows(z, self.maxvol_tol, self.maxvol_max_it)
+                        z = np.reshape(
+                            z,
+                            (
+                                self.tt_ranks[i] * self.n_q_points[i],
+                                self.tt_ranks[i + 1],
+                            ),
+                            order="F",
+                        )
+                        row_idxs = find_rows(
+                            z, self.maxvol_tol, self.maxvol_max_it
+                        )
                         if i != self.n_q_dims - 1:
-                            self.poi[i + 1] = Algorithm.update_right(self.grids[i], self.poi[i], self.n_q_points[i], self.tt_ranks[i], row_idxs)
-                            self.tt_ranks[i + 1] = self.poi[i + 1].shape[0]
-                    # if self.mpirank == 0:
-                    #     print(self.f_eval_count,self.xopt,self.fopt)
+                            next_poi = update_right(
+                                self.grids[i],
+                                self.poi[i],
+                                self.n_q_points[i],
+                                self.tt_ranks[i],
+                                row_idxs,
+                            )
+                            self.tt_ranks[i + 1] = next_poi.shape[0]
+                            self.poi[i + 1] = next_poi
 
-    def _post(self) -> Dict:
+    def _post(self) -> dict:
         """Collect the best solution across ranks."""
         result = {
             "x": self.xopt,
             "fx": self.fopt,
         }
 
-        opt_history = list(zip(self.f_eval_count_history, self.xopt_history, self.fopt_history))
+        opt_history = list(
+            zip(self.f_eval_count_history, self.xopt_history, self.fopt_history)
+        )
         if self.mpirank == 0:
             with open("ttopt_history.txt", "w") as f:
                 f.write(f"nprocs = {self.mpisize}\n")
@@ -269,11 +469,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 f.write(f"max_f_eval = {self.max_f_eval}\n")
                 f.write(f"maxvol_tol = {self.maxvol_tol}\n")
                 f.write(f"maxvol_max_it = {self.maxvol_max_it}\n")
-                f.write(f"f_eval, x_opt, f_opt\n")
+                f.write("f_eval, x_opt, f_opt\n")
                 for entry in opt_history:
                     f.write(f"{entry[0]}, {entry[1]}, {entry[2]}\n")
 
         if self.mpisize > 1:
+            assert self.mpicomm is not None
             results = self.mpicomm.allgather(result)
         else:
             results = [result]
@@ -282,89 +483,47 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fxs = [v["fx"] for v in results]
 
         idx = np.argmin(fxs)
-        result = {
-            "x": xs[idx],
-            "fx": fxs[idx],
-            "opt_history": opt_history
-        }
+        result = {"x": xs[idx], "fx": fxs[idx], "opt_history": opt_history}
         if self.mpirank == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
-            hitrate = 100 * self.cache_hits / self.f_eval_count if self.f_eval_count > 0 else 0
+            hitrate = (
+                100 * self.cache_hits / self.f_eval_count
+                if self.f_eval_count > 0
+                else 0
+            )
             print(f"Cache hitrate: {hitrate:.2f}%")
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {result['fx']}\n")
                 for label, val in zip(self.label_list, result["x"]):
                     fp.write(f"{label} = {val}\n")
         return result
- 
-    @staticmethod
-    def maxvol(mat: np.ndarray, tol: float = 1.001, max_it: int = 1000) -> Tuple[List[int], np.ndarray]:
-        n, r = mat.shape
-        P, L, U = lu(mat, check_finite=False, p_indices=True)
-        row_idxs = P.argsort()[:r]
-        Q = solve_triangular(U, mat.T, trans=1, check_finite=False)
-        B = solve_triangular(L[:r, :], Q, trans=1, lower=True, check_finite=False).T
-        for _ in range(max_it):
-            i, j = np.divmod(np.abs(B).argmax(), r)
-            if np.abs(B[i, j]) <= tol:
-                break
-            Bi = B[i, :].copy() # to avoid changing B
-            Bi[j] -= 1
-            B -= np.outer(B[:, j], Bi) / B[i, j]
-            row_idxs[j] = i
-        return row_idxs, B
 
-    @staticmethod
-    def find_rows(z: np.ndarray, tol: float = 1.001, max_it = 1000) -> np.ndarray:
-        q, r = np.linalg.qr(z) # QR decompose to deal with singular z
-        if q.shape[0] <= q.shape[1]: # bypass if matrix is wide and not tall
-            row_idxs = np.arange(q.shape[0])
-        else:
-            row_idxs, _ = Algorithm.maxvol(q, tol, max_it)
-        # reference implementation forces row idx of max entry in z to be in row list
-        max_idx = np.divmod(np.abs(z).argmax(), z.shape[1])
-        if not max_idx[0] in row_idxs:
-            row_idxs[-1] = max_idx[0]
-        return row_idxs
-
-    @staticmethod
-    def update_right(grid: np.ndarray, cur_poi: np.ndarray, cur_n_points: int, cur_rank: int, idx_list: np.ndarray) -> np.ndarray:
-        w2 = np.kron(grid, np.ones((cur_rank if cur_poi is not None else 1, 1), dtype=int))
-        if cur_poi is not None: # do nothing if at edge
-            w1 = np.kron(np.ones((cur_n_points, 1), dtype=int), cur_poi)
-            w2 = np.concatenate([w1, w2], axis=1)
-        return w2[idx_list, :]
-
-    @staticmethod
-    def update_left(grid: np.ndarray, next_poi: np.ndarray, cur_n_points: int, next_rank: int, idx_list: np.ndarray) -> np.ndarray:
-        w1 = np.kron(np.ones((next_rank if next_poi is not None else 1, 1), dtype=int), grid)
-        if next_poi is not None: # do nothing if at edge
-            w2 = np.kron(next_poi, np.ones((cur_n_points, 1), dtype=int))
-            w1 = np.concatenate([w1, w2], axis=1)
-        return w1[idx_list, :]
-    
-    @staticmethod
-    def fuse_pois(grid: np.ndarray, cur_poi: np.ndarray, next_poi: np.ndarray, cur_rank: int, cur_n_points: int, next_rank: int):
-        w2 = np.kron(np.kron(np.ones((next_rank if next_poi is not None else 1, 1), dtype=int), grid), np.ones((cur_rank if cur_poi is not None else 1, 1), dtype=int))
-        if cur_poi is not None:
-            w1 = np.kron(np.ones((cur_n_points * next_rank, 1), dtype=int), cur_poi)
-            w2 = np.concatenate([w1, w2], axis=1)
-        if next_poi is not None:
-            w3 = np.kron(next_poi, np.ones((cur_rank * cur_n_points, 1), dtype=int))
-            w2 = np.concatenate([w2, w3], axis=1)
-        return w2
-
-    def f_eval(self, bounds: np.ndarray, ps: np.ndarray, qs: np.ndarray, n_points: np.ndarray, n_q_points: np.ndarray, todo_q_pois: np.ndarray, min_params: np.ndarray, min_f: float, runner) -> Tuple[np.ndarray, np.ndarray, float]:
+    def f_eval(
+        self,
+        bounds: np.ndarray,
+        ps: np.ndarray,
+        qs: np.ndarray,
+        n_points: np.ndarray,
+        n_q_points: np.ndarray,
+        todo_q_pois: np.ndarray,
+        min_params: np.ndarray,
+        min_f: float,
+        runner,
+    ) -> tuple[np.ndarray, np.ndarray, float]:
         # convert p,q idxs to n idxs
         n_dims = bounds.shape[0]
         todo_pois = np.zeros((todo_q_pois.shape[0], n_dims), dtype=float)
         start = 0
         for dim_idx in range(n_dims):
-            submat = todo_q_pois[:, start:start + qs[dim_idx]]
-            todo_pois[:, dim_idx] = np.ravel_multi_index(submat.T, n_q_points[start:start + qs[dim_idx]], order="F")
+            submat = todo_q_pois[:, start : start + qs[dim_idx]]
+            todo_pois[:, dim_idx] = np.ravel_multi_index(
+                submat.T, n_q_points[start : start + qs[dim_idx]], order="F"
+            )
             start += qs[dim_idx]
         # convert idxs to coordinates
-        todo_pois = todo_pois / (n_points - 1) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]  # scale before shift to minimize fp error
+        todo_pois = (
+            todo_pois / (n_points - 1) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
+        )  # scale before shift to minimize fp error
         f_vals = np.empty(todo_pois.shape[0])
         eval_idxs = []
         eval_pois = []
@@ -376,19 +535,21 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             else:
                 eval_idxs.append(i)
                 eval_pois.append(row)
-        eval_idxs = np.array(eval_idxs)
-        eval_pois = np.array(eval_pois)
+
         # parallelization
         eval_f_vals = []
         if len(eval_idxs) > 0:
             if self.mpisize > 1:
+                assert self.mpicomm is not None
                 split = np.array_split(np.arange(len(eval_idxs)), self.mpisize)
                 my_local_idxs = split[self.mpirank]
                 my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
                 all_f_vals = self.mpicomm.allgather(my_f_vals)
                 eval_f_vals = [v for sublist in all_f_vals for v in sublist]
             else:
-                eval_f_vals = [runner.submit(eval_pois[k]) for k in range(len(eval_idxs))]
+                eval_f_vals = [
+                    runner.submit(eval_pois[k]) for k in range(len(eval_idxs))
+                ]
             for i, idx in enumerate(eval_idxs):
                 val = eval_f_vals[i]
                 self.cache[tuple(eval_pois[i])] = val
@@ -396,8 +557,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         best_idxs = np.argmin(f_vals)
         best_params = todo_pois[best_idxs]
         best_f = f_vals[best_idxs]
-        # if self.mpirank == 0:
-        #     print(f_vals)
         if best_f < min_f:
             min_params, min_f = (best_params, best_f)
         return f_vals, min_params, min_f
