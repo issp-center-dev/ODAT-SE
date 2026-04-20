@@ -15,7 +15,7 @@
    minsearch
    mapper_mpi
    random_search
-   exchange
-   pamc
    bayes
    ttopt
+   exchange
+   pamc

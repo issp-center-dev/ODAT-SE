@@ -77,28 +77,85 @@ The following hyperparameters are supported:
 
   Description: Initial guesses that are evaluated at the beginning of the optimization. Each inner list must have the same length as the dimension. This parameter is optional, and is used to inform the optimizer of existing candidate regions.
 
+- ``save_eval_history``
+
+  Format: Boolean (default: ``True``)
+
+  Description: If ``True``, each evaluated candidate is appended to ``ttopt_eval_history.txt`` (MPI rank 0 only). Rows are flushed to disk whenever the in-memory buffer reaches ``eval_history_buffer_rows`` evaluations.
+
+- ``eval_history_buffer_rows``
+
+  Format: Integer (default: 256)
+
+  Description: Frequency :math:`N_{\mathrm{flush}}` of writing to ``ttopt_eval_history.txt``. :math:`N_{\mathrm{flush}}` evaluations are written together.
+
 Output Files
-~~~~~~~~~~~~
+^^^^^^^^^^^^
+
+``ttopt_hyperparameters.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+At the end of the preparation phase (``prepare``), rank 0 writes the main hyperparameters, one field per line:
+.. code-block::
+
+    nprocs = 1
+    bounds = [[-6.0, 6.0], [-6.0, 6.0]]
+    p_points = [2 2]
+    q_points = [20 20]
+    r_max = 4
+    max_f_eval = 10000
+    maxvol_tol = 1.001
+    maxvol_max_it = 1000
+    save_eval_history = True
+    eval_history_buffer_rows = 256
 
 ``ttopt_history.txt``
 ^^^^^^^^^^^^^^^^^^^^^
 
-After each sweep of the optimization process (i.e. traversal across each MPS tensor in one direction), the best estimate and the best combination of parameters are recorded. The following is a sample output file:
+After each optimization step (after a batch of candidates is evaluated at one MPS core and the running best point is updated), the cumulative function evaluation count, the best point ``x_opt`` so far, and the best value ``fx_opt`` are appended. Leading ``#`` lines describe the columns.
 
 .. code-block::
 
-    nprocs = 8
-    bounds = [[0.0, 157.5], [0.0, 157.5], [0.0, 157.5], [0.0, 157.5], [0.0, 157.5], [0.0, 157.5], [0.0, 157.5], [0.0, 157.5]]
-    p_points = [8 8 8 8 8 8 8 8]
-    q_points = [1 1 1 1 1 1 1 1]
-    r_max = -16.09442984075178
-    max_f_eval = 1000000
-    maxvol_tol = 1.001
-    maxvol_max_it = 1000
-    f_eval, x_opt, f_opt
-    1024, [112.5  90.    0.    0.  157.5 112.5   0.   90. ], -14.562713869686608
-    9216, [ 90.   22.5   0.   90.  112.5   0.   22.5  90. ], -15.638476150205186
+    # $1: count
+    # $2: x_opt[0]
+    # $3: x_opt[1]
+    # $4: fx_opt
+    8 3.420030040769616e+00 -9.735097632501253e-01 7.005409201321578e+00
+    24 3.420030040769616e+00 -2.098510836134754e+00 2.643948442798083e+00
     ...
+
+For dimension :math:`D`, data columns are: column 1 is the evaluation count, columns 2 through :math:`D+1` are ``x_opt[0], ..., x_opt[D-1]``, and the last column is ``fx_opt``.
+
+``res.txt``
+^^^^^^^^^^^
+
+After the run, rank 0 writes the global best solution (best across ranks when MPI is used) as text: objective ``fx`` followed by each parameter (default labels ``x1``, ``x2``, ...).
+
+.. code-block::
+
+    fx = 3.188892404355571e-08
+    x1 = 3.584424576210571
+    x2 = -1.8480795365138398
+
+``ttopt_eval_history.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Created only if ``save_eval_history`` is ``True``: ``OUTPUT/ttopt_eval_history.txt``.
+Each row is one actually evaluated candidate with its coordinates and ``f(x)`` (leading ``#`` lines give column labels; parameter names follow ``label_list`` when set).
+
+.. code-block::
+
+    # $1: row index (order of batches in the run)
+    # $2: x1
+    # $3: x2
+    # $4: f(x)
+    1 3.420030040769616e+00 -5.098513697160432e+00 5.218032809779967e+02
+    2 3.420030040769616e+00 -9.735097632501253e-01 7.005409201321578e+00
+    ...
+
+``time.log``
+^^^^^^^^^^^^
+
+Total timing for the algorithm is written per rank to ``OUTPUT/<rank>/time.log``.
 
 Algorithm Description
 ~~~~~~~~~~~~~~~~~~~~~

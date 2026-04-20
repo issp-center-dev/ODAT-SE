@@ -15,7 +15,7 @@ In this section, the search algorithms implemented in ODAT-SE are described.
    minsearch
    mapper_mpi
    random_search
-   exchange
-   pamc
    bayes
    ttopt
+   exchange
+   pamc
