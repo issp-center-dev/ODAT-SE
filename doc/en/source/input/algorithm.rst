@@ -1,7 +1,7 @@
 .. _input_parameter_algorithm:
 
 ==========================================
-[``algorithm``] section
+``[algorithm]`` section
 ==========================================
 
 The ``name`` determines the type of algorithm. Each parameter is defined for each algorithm.

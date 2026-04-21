@@ -27,7 +27,7 @@ Input parameters
 
 .. _random_search_input_algorithm:
 
-[``algorithm``] section
+``[algorithm]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``name``
@@ -38,8 +38,8 @@ Input parameters
 
 .. _random_search_input_mode:
 
-[``mode``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.mode]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search mode is defined. If this section is omitted, the pseudo-random sequence (``random``) is chosen.
 
@@ -65,8 +65,8 @@ In this section, the search mode is defined. If this section is omitted, the pse
 
 .. _random_search_input_param:
 
-[``param``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search parameter space is defined.
 

@@ -17,7 +17,7 @@ Input parameters
 
 This has two subsections ``algorithm.param`` and ``algorithm.pamc`` .
 
-[``algorithm.param``]
+``[algorithm.param]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
@@ -115,7 +115,7 @@ Otherwise, continuous space is used.
     The number of mesh points along each parameter of the mesh to be generated.
 
 
-[``algorithm.pamc``]
+``[algorithm.pamc]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``

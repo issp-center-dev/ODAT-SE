@@ -1,5 +1,5 @@
 ==========================================
-[``runner``] section
+``[runner]`` section
 ==========================================
 
 This section sets the configuration of ``Runner``, which bridges ``Algorithm`` and ``Solver``.
@@ -13,7 +13,7 @@ It has three subsections, ``mapping``, ``limitation``, and ``log`` .
   A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
 
 
-[``runner.mapping``] section
+``[runner.mapping]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section defines the mapping from an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, to an :math:`M` dimensional parameter used in ``Solver``, :math:`y` .
@@ -61,7 +61,7 @@ mean
   \right).
 
 
-[``limitation``] section
+``[runner.limitation]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section defines the limitation (constraint) in an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, in addition of ``min_list`` and ``max_list``.
@@ -152,7 +152,7 @@ all represent:
 If neither ``co_a`` nor ``co_b`` is defined, no constraint equation will be applied to the search.
 
 
-[``log``] section
+``[runner.log]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Setting parametrs related to logging of solver calls.

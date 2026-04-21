@@ -28,7 +28,7 @@ The input file consists of the following four sections.
    algorithm
    runner
 
-[``base``] section
+``[base]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``dimension``
@@ -49,7 +49,7 @@ The input file consists of the following four sections.
 
   Description: Name of the directory to output the results.
 
-[``solver``] section
+``[solver]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``name`` determines the type of solver. Each parameter is defined for each solver.

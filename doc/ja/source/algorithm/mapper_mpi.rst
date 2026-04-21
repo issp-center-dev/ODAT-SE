@@ -19,8 +19,8 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 
 .. _mapper_input_param:
 
-[``param``] セクション
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 探索パラメータ空間を定義します。
 

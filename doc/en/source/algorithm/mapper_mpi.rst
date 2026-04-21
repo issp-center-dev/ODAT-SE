@@ -19,8 +19,8 @@ Input parameters
 
 .. _mapper_input_param:
 
-[``param``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search parameter space is defined.
 
