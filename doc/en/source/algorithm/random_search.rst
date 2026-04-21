@@ -2,10 +2,10 @@
 Random search ``random_search``
 ======================================
 
-``random_search`` is an algorithm that randomly samples parameters from a uniform distribution within a specified search range and evaluates the objective function :math:`f(x)` at each point.
-It is effective for high-dimensional problems where the computational cost of grid search becomes prohibitive, or when you want to obtain a global overview of the parameter space.
-In the case of MPI execution, the set of candidate points is divided into equal parts and automatically assigned to each process to perform trivial parallel computation.
-
+``random_search`` is an algorithm to search for the minimum value by computing :math:`f(x)` on random points in the parameter space.
+This algorithm is effective when it is difficult to use other methods such as grid search for high-dimensional problems.
+The random search is compatible with MPI. The sampling points are evaluated in an trivially parallel way over MPI processes.
+In addition to pseudo-random sequence, quasi-random (low-discrepancy) sequences such as Sobol sequence are available.
 
 Preparation
 ~~~~~~~~~~~~
@@ -14,10 +14,54 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 
 .. code-block::
 
-   $ python3 -m pip install mpi4py
+  $ python3 -m pip install mpi4py
+
+For quasi-random sequence, you need to install `scipy <https://scipy.org>`_.
+
+.. code-block::
+
+  $ python3 -m pip install scipy
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _random_search_input_algorithm:
+
+[``algorithm``] section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``name``
+
+  Format: String
+
+  Description: To use random search, specify ``random_search``.
+
+.. _random_search_input_mode:
+
+[``mode``] section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this section, the search mode is defined. If this section is omitted, the pseudo-random sequence (``random``) is chosen.
+
+- ``mode``
+
+  Format: String
+
+  Description: Specify ``random`` for pseudo-random sequence, or ``quasi-random`` for quasi-random sequence.
+
+- ``sequence``
+
+  Format: String
+
+  Description: Specify the type of quasi-random sequence. Available types are:
+
+  - ``sobol``: Sobol sequence
+
+  - ``halton``: Halton sequence
+
+  - ``latin``: Latin Hypercube
+
+  For details, refer to the descriptions in scipy.stats.qmc manual.
 
 .. _random_search_input_param:
 
@@ -83,16 +127,6 @@ Below, an output example is shown.
     ...
 
 
-Algorithm description
-~~~~~~~~~~~~~~~~~~~~~~
-
-The random search algorithm generates ``num_points`` parameter vectors :math:`x` by uniform random sampling from the range defined by ``min_list`` and ``max_list`` for each dimension. For each generated point, the solver is called to evaluate the objective function :math:`f(x)`.
-
-When running with MPI parallelism, the generated candidate points are divided equally among the processes, and each process evaluates its assigned points in parallel.
-
-Unlike the grid-based search (``mapper``), which discretizes the parameter space regularly, random search samples uniformly at random. This avoids the curse of dimensionality, where the number of grid points increases exponentially with the number of dimensions. On the other hand, random search is not well-suited for precisely locating optimal solutions, so it is often used as a preliminary exploration before applying other optimization methods.
-
-
 Restart
 ~~~~~~~~~~~~~~~~~~~~~~
 The execution mode is specified by the ``run_mode`` parameter to the constructor.
@@ -114,4 +148,15 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 
 - ``"continue"``
 
-  The continue mode is not supported.
+  The continue mode is not supported. For the pseudo-random sequence, the calculation can be continued by starting with a different seed number.
+
+
+Algorithm description
+~~~~~~~~~~~~~~~~~~~~~~
+
+The random search algorithm generates ``num_points`` parameter vectors :math:`x` by uniform random sampling from the range defined by ``min_list`` and ``max_list`` for each dimension. For each generated point, the solver is called to evaluate the objective function :math:`f(x)`.
+
+When running with MPI parallelism, the generated candidate points are divided equally among the processes, and each process evaluates its assigned points in parallel.
+
+Unlike the grid-based search (``mapper``), which discretizes the parameter space regularly, random search samples uniformly at random. This avoids the curse of dimensionality, where the number of grid points increases exponentially with the number of dimensions. On the other hand, random search is not well-suited for precisely locating optimal solutions, so it is often used as a preliminary exploration before applying other optimization methods.
+

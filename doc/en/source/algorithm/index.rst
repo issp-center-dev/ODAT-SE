@@ -34,6 +34,7 @@ Click each item for detailed usage, including input parameters and output files.
 
    minsearch
    mapper_mpi
+   random_search
    exchange
    pamc
    bayes
