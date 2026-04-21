@@ -12,15 +12,15 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description: Algorithm name. The following algorithms are available.
 
-    - ``minsearch`` : Minimum value search using Nelder-Mead method
+  - ``minsearch`` : Minimum value search using Nelder-Mead method
 
-    - ``mapper`` : Grid search
+  - ``mapper`` : Grid search
 
-    - ``exchange`` :  Replica Exchange Monte Carlo method
+  - ``exchange`` :  Replica Exchange Monte Carlo method
 
-    - ``pamc`` :  Population Annealing Monte Carlo method
+  - ``pamc`` :  Population Annealing Monte Carlo method
 
-    - ``bayes`` :  Bayesian optimization
+  - ``bayes`` :  Bayesian optimization
 
 - ``seed``
 

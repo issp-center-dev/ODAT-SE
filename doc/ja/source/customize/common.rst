@@ -10,19 +10,19 @@
 
 - ``base``
 
-    - ディレクトリ情報など、プログラム全体で共通するパラメータ
+  - ディレクトリ情報など、プログラム全体で共通するパラメータ
 
 - ``solver``
 
-    - ``Solver`` が用いる入力パラメータ
+  - ``Solver`` が用いる入力パラメータ
 
 - ``algorithm``
 
-    - ``Algorithm`` が用いる入力パラメータ
+  - ``Algorithm`` が用いる入力パラメータ
 
 - ``runner``
 
-    - ``Runner`` が用いる入力パラメータ
+  - ``Runner`` が用いる入力パラメータ
 
 
 ``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキー(省略可)を持つ ``dict`` を渡して初期化できます。また、クラスメソッド ``from_file`` に TOML形式の入力ファイルへのパスを渡して作成することもできます。
@@ -40,10 +40,10 @@
   - 先頭の ``~`` はホームディレクトリに展開されます
   - 具体的には次のコードが実行されます
 
-    .. code-block:: python
+  .. code-block:: python
 
-       p = pathlib.Path(base.get("root_dir", "."))
-       base["root_dir"] = p.expanduser().absolute()
+    p = pathlib.Path(base.get("root_dir", "."))
+    base["root_dir"] = p.expanduser().absolute()
 
 - 出力ディレクトリ ``output_dir``
 
@@ -55,9 +55,9 @@
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("output_dir", "."))
-       p = p.expanduser()
-       base["output_dir"] = base["root_dir"] / p
+      p = pathlib.Path(base.get("output_dir", "."))
+      p = p.expanduser()
+      base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
