@@ -63,4 +63,7 @@ If ``algorithm.checkpoint`` is set to true, the intermediate states are stored t
 They are read when the execution is resumed.
 The content of the file depends on the algorithm.
 
-The checkpoint feature allows you to resume calculations from the last saved state if a long calculation is interrupted. To resume, run the program with the same input file and set ``algorithm.checkpoint.restart = true``.
+The checkpoint feature allows you to resume calculations from the last saved state if a long calculation is interrupted.
+To resume, run the program with the same input file using ``odatse --resume input.toml``.
+To continue from a previous run while extending the calculation, use ``odatse --cont input.toml``.
+If you want to use a new random number sequence when resuming or continuing, add the ``--reset_rand`` option.

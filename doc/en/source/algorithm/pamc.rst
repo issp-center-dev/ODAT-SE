@@ -17,7 +17,7 @@ Input parameters
 
 This has two subsections ``algorithm.param`` and ``algorithm.pamc`` .
 
-[``algorithm.param``]
+``[algorithm.param]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
@@ -115,7 +115,7 @@ Otherwise, continuous space is used.
     The number of mesh points along each parameter of the mesh to be generated.
 
 
-[``algorithm.pamc``]
+``[algorithm.pamc]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``
@@ -200,9 +200,9 @@ Otherwise, continuous space is used.
   This ensures that, even if the computation does not start from :math:`\beta=0`, the reference value of :math:`\log Z/Z_0` can still be considered as being taken at :math:`\beta=0`.
 
 About the number of steps
-********************************
+"""""""""""""""""""""""""""""
 
-Specify just two of ``numstep``, ``numsteps_annealing``, and ``numT``.
+Specify just two of ``numstep``, ``numsteps_annealing``, and ``Tnum``.
 The value of the remaining one will be determined automatically.
 
 Reference file

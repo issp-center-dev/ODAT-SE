@@ -1,5 +1,6 @@
+================================
 Bayesian optimization ``bayes``
-*******************************
+================================
 
 .. _PHYSBO: https://www.pasums.issp.u-tokyo.ac.jp/physbo/en
 
@@ -21,7 +22,7 @@ If `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_ is installed, MPI parall
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
-[``algorithm.param``] section
+``[algorithm.param]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search parameter space is defined.
@@ -66,7 +67,7 @@ If ``num_points`` is defined, ``num_points`` points are randomly sampled from th
   Description: The number of points to be randomly sampled.
 
 
-[``algorithm.bayes``] section
+``[algorithm.bayes]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The hyper parameters are defined.

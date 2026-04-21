@@ -1,19 +1,43 @@
-.. 2dmat documentation master file, created by
-   sphinx-quickstart on Tue May 26 18:44:52 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Developer Guide
+====================
 
-(For developers) User-defined algorithms and solvers
-================================================================
+ODAT-SE is a framework that solves inverse problems by combining a forward problem solver ``Solver`` with a search algorithm ``Algorithm``.
+In addition to the built-in ``Solver`` and ``Algorithm``, users can define and use their own.
 
-ODAT-SE solves the inverse problems by the combination of ``Solver`` for the direct problems and ``Algorithm`` for the optimization methods.
-Instead of using ``Solver`` and ``Algorithm`` provided by ODAT-SE, users can define and use their own components.
-In this chapter, how to define ``Solver`` and ``Algorithm`` and to use them will be described.
+.. code-block:: text
+
+   ┌────────────┐     ┌────────┐     ┌────────────┐
+   │ Algorithm  │────→│ Runner │────→│   Solver   │
+   │ (search)   │←────│(bridge)│←────│(objective) │
+   └────────────┘     └────────┘     └────────────┘
+     proposes          coordinate      computes
+     parameter x       transform       f(x) and
+                       & constraints    returns it
+
+This chapter first explains **how to add a custom solver** through a hands-on tutorial,
+then provides API details.
+
+:doc:`tutorial_solver`
+    A tutorial for optimizing your own objective function with ODAT-SE. Provides a complete, copy-paste-ready example covering file creation, execution, and result verification. Start here if you are new to customization.
+
+:doc:`solver`
+    API reference for the ``Solver`` class. Details on inheriting ``SolverBase`` and implementing the ``evaluate`` method.
+
+:doc:`algorithm`
+    API reference for the ``Algorithm`` class. How to define custom search algorithms.
+
+:doc:`common`
+    Explanation of classes shared by Solver and Algorithm: ``Info``, ``Runner``, ``Mapping``, ``Limitation``.
+
+:doc:`usage`
+    Code example for combining custom Solver / Algorithm and running them.
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
-   common
+   tutorial_solver
    solver
    algorithm
+   common
    usage
