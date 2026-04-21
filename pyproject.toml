@@ -1,6 +1,6 @@
 [project]
 name = "ODAT-SE"
-version = "3.2.1"
+version = "3.3-dev"
 description = "Open Data Analysis Tool for Science and Engineering"
 authors = [{ name = "2DMAT developers", email = "2dmat-dev@issp.u-tokyo.ac.jp" }]
 requires-python = ">=3.9"
