@@ -1,5 +1,5 @@
-Optimization by Nelder-Mead method
-====================================
+Search by Nelder-Mead method
+==============================
 
 In this section, we will explain how to calculate the minimization problem of Himmelblau function using the Nelder-Mead method.
 The specific calculation procedure is as follows.

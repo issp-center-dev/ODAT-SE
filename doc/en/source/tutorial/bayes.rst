@@ -1,5 +1,5 @@
-Optimization by Bayesian Optimization
-========================================
+Search by Bayesian optimization
+=================================
 
 This tutorial describes how to estimate the minimization problem of Himmelblau function by using Bayesian optimization (BO).
 ODAT-SE uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.

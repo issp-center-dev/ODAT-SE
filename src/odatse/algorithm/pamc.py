@@ -108,6 +108,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     Fmeans: np.ndarray
     Ferrs: np.ndarray
 
+    # PAMC-specific fields appended to the MC base checkpoint.
+    # Fields restored with slice assignment or special logic are still listed
+    # here so that ``__getstate__`` saves them; ``_apply_state`` handles them
+    # explicitly rather than via the generic setattr loop.
+    _checkpoint_attrs: list[str] = [
+        "betas", "nwalkers", "input_as_beta", "numsteps_for_T",
+        "Tindex", "index_from_reset",
+        "logZ", "logZs", "logweights",
+        "Fmeans", "Ferrs", "nreplicas", "populations",
+        "family_lo", "family_hi", "walker_ancestors", "fx_from_reset",
+        "naccepted_from_reset", "acceptance_ratio", "pr_list",
+    ]
+
     def __init__(
         self,
         info: odatse.Info,
@@ -799,137 +812,55 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         }
 
     def _save_state(self, filename) -> None:
-        """
-        Save the current state of the algorithm to a file.
+        """Save the current state of the algorithm to a file."""
+        self._save_data(self.__getstate__(), filename)
+
+    def _apply_state(self, data: dict, restore_rng: bool = True, mode: str = "resume") -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, RNG restore, and MC-layer fields to the
+        base class, then handles PAMC-specific fields explicitly.  Simple
+        scalar fields are set directly; array fields that may be shorter than
+        the current schedule (``logZs``, ``Fmeans``, etc.) are written with
+        slice assignment after re-initialisation.
 
         Parameters
         ----------
-        filename : str
-            The name of the file where the state will be saved.
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*;
+            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
+        mode : str
+            ``"resume"`` — validate that the temperature schedule is identical
+            to the one stored in *data*.
+            ``"continue"`` — concatenate the stored schedule with the new one
+            (the stored last beta must equal the new first beta).
         """
-        data = {
-            #-- _algorithm
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
-            "rng": self.rng.get_state(),
-            "timer": self.timer,
-            "info": self.info,
-            #-- montecarlo
-            "x": self.state,
-            "fx": self.fx,
-            #"inode": self.inode,
-            "istep": self.istep,
-            "best_x": self.best_x,
-            "best_fx": self.best_fx,
-            "best_istep": self.best_istep,
-            "best_iwalker": self.best_iwalker,
-            "naccepted": self.naccepted,
-            "ntrial": self.ntrial,
-            #-- pamc
-            "betas": self.betas,
-            "nwalkers": self.nwalkers,
-            "input_as_beta": self.input_as_beta,
-            "numsteps_for_T": self.numsteps_for_T,
-            "Tindex": self.Tindex,
-            "index_from_reset": self.index_from_reset,
-            "logZ": self.logZ,
-            "logZs": self.logZs,
-            "logweights": self.logweights,
-            "Fmeans": self.Fmeans,
-            "Ferrs": self.Ferrs,
-            "nreplicas": self.nreplicas,
-            "populations": self.populations,
-            "family_lo": self.family_lo,
-            "family_hi": self.family_hi,
-            "walker_ancestors": self.walker_ancestors,
-            "fx_from_reset": self.fx_from_reset,
-            "naccepted_from_reset": self.naccepted_from_reset,
-            "acceptance_ratio": self.acceptance_ratio,
-            "pr_list": self.pr_list,
-        }
-        self._save_data(data, filename)
+        super()._apply_state(data, restore_rng)
 
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """
-        Load the saved state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename : str
-            The name of the file from which the state will be loaded.
-        mode : str, optional
-            The mode in which to load the state. Can be "resume" or "continue", by default "resume".
-        restore_rng : bool, optional
-            Whether to restore the random number generator state, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-
-        # -- _algorithm
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
-
-        if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        # -- montecarlo
-        self.state = data["x"]
-        self.fx = data["fx"]
-        # self.inode = data["inode"]
-
-        self.istep = data["istep"]
-
-        self.best_x = data["best_x"]
-        self.best_fx = data["best_fx"]
-        self.best_istep = data["best_istep"]
-        self.best_iwalker = data["best_iwalker"]
-
-        self.naccepted = data["naccepted"]
-        self.ntrial = data["ntrial"]
-
-        # -- pamc
+        # -- simple scalar fields
         self.Tindex = data["Tindex"]
         self.index_from_reset = data["index_from_reset"]
         self.nwalkers = data["nwalkers"]
 
+        # -- temperature schedule (mode-dependent)
         if mode == "resume":
-            # check if scheduling is as stored
-            betas = data["betas"]
-            input_as_beta = data["input_as_beta"]
-            numsteps_for_T = data["numsteps_for_T"]
-
-            assert np.all(betas == self.betas)
-            assert input_as_beta == self.input_as_beta
-            assert np.all(numsteps_for_T == self.numsteps_for_T)
+            assert np.all(data["betas"] == self.betas)
+            assert data["input_as_beta"] == self.input_as_beta
+            assert np.all(data["numsteps_for_T"] == self.numsteps_for_T)
             assert self.Tindex < len(self.betas)
-
         elif mode == "continue":
-            # check if scheduling is continuous
-            betas = data["betas"]
-            input_as_beta = data["input_as_beta"]
-            numsteps_for_T = data["numsteps_for_T"]
-
-            assert input_as_beta == self.input_as_beta
-            if not betas[-1] == self.betas[0]:
-                print("ERROR: temperator is not continuous")
+            assert data["input_as_beta"] == self.input_as_beta
+            if not data["betas"][-1] == self.betas[0]:
+                print("ERROR: temperature is not continuous")
                 sys.exit(1)
-            self.betas = np.concatenate([betas, self.betas[1:]])
-            self.numsteps_for_T = np.concatenate([numsteps_for_T, self.numsteps_for_T[1:]])
+            self.betas = np.concatenate([data["betas"], self.betas[1:]])
+            self.numsteps_for_T = np.concatenate([data["numsteps_for_T"], self.numsteps_for_T[1:]])
 
-        else:
-            pass
-
+        # -- re-initialise length-numT arrays, then overwrite with saved data
         numT = len(self.betas)
-
         nreplicas = self.mpisize * self.nwalkers
-
         self.logZs = np.zeros(numT)
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
@@ -938,21 +869,36 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.pr_list = np.zeros(numT)
 
         self.logZ = data["logZ"]
-        self.logZs[0:len(data["logZs"])] = data["logZs"]
+        self.logZs[:len(data["logZs"])] = data["logZs"]
         self.logweights = data["logweights"]
-        self.Fmeans[0:len(data["Fmeans"])] = data["Fmeans"]
-        self.Ferrs[0:len(data["Ferrs"])] = data["Ferrs"]
-        self.nreplicas[0:len(data["nreplicas"])] = data["nreplicas"]
+        self.Fmeans[:len(data["Fmeans"])] = data["Fmeans"]
+        self.Ferrs[:len(data["Ferrs"])] = data["Ferrs"]
+        self.nreplicas[:len(data["nreplicas"])] = data["nreplicas"]
         self.populations = data["populations"].copy()
-
         self.family_lo = data["family_lo"]
         self.family_hi = data["family_hi"]
-
         self.fx_from_reset = data["fx_from_reset"]
         self.walker_ancestors = data["walker_ancestors"]
         self.naccepted_from_reset = data["naccepted_from_reset"]
-        self.acceptance_ratio[0:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
-        self.pr_list[0:len(data["pr_list"])] = data["pr_list"]
+        self.acceptance_ratio[:len(data["acceptance_ratio"])] = data["acceptance_ratio"]
+        self.pr_list[:len(data["pr_list"])] = data["pr_list"]
 
-        # -- restore rng state in statespace
         self.statespace.rng = self.rng
+
+    def _load_state(self, filename, mode="resume", restore_rng=True):
+        """Load the saved state of the algorithm from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the checkpoint file to read.
+        mode : str, optional
+            ``"resume"`` or ``"continue"``, by default ``"resume"``.
+        restore_rng : bool, optional
+            Whether to restore the RNG state, by default True.
+        """
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+        self._apply_state(data, restore_rng=restore_rng, mode=mode)

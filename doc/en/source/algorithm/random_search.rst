@@ -1,5 +1,6 @@
+======================================
 Random search ``random_search``
-**********************************
+======================================
 
 ``random_search`` is an algorithm to search for the minimum value by computing :math:`f(x)` on random points in the parameter space.
 This algorithm is effective when it is difficult to use other methods such as grid search for high-dimensional problems.
@@ -13,20 +14,20 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 
 .. code-block::
 
-   $ python3 -m pip install mpi4py
+  $ python3 -m pip install mpi4py
 
 For quasi-random sequence, you need to install `scipy <https://scipy.org>`_.
 
 .. code-block::
 
-   $ python3 -m pip install scipy
+  $ python3 -m pip install scipy
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _random_search_input_algorithm:
 
-[``algorithm``] section
+``[algorithm]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``name``
@@ -37,8 +38,8 @@ Input parameters
 
 .. _random_search_input_mode:
 
-[``mode``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.mode]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search mode is defined. If this section is omitted, the pseudo-random sequence (``random``) is chosen.
 
@@ -64,8 +65,8 @@ In this section, the search mode is defined. If this section is omitted, the pse
 
 .. _random_search_input_param:
 
-[``param``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search parameter space is defined.
 
@@ -77,7 +78,7 @@ In this section, the search parameter space is defined.
 
 - ``max_list``
 
-  Format: List of float.The length should match the value of dimension.
+  Format: List of float. The length should match the value of dimension.
 
   Description: The maximum value the parameter can take.
 
@@ -87,31 +88,42 @@ In this section, the search parameter space is defined.
 
   Description: The number of points to be randomly sampled.
 
+- ``unit_list``
 
-Output file
+  Format: List of float. The length should match the value of dimension.
+
+  Description:
+  Units for each parameter.
+  In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+  If not defined, the value is 1.0 for all dimensions.
+
+The following parameters can be set in the ``[algorithm]`` section.
+
+- ``seed``
+
+  Format: Integer.
+
+  Description: The seed for the pseudo-random number generator used to generate the parameters.
+
+
+Output files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``ColorMap.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This file contains the candidate parameters for each sampling point and the function value at that time.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
+This file contains the candidate parameters for each sample point and the objective function value at that point.
+The data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the objective function is listed last.
 
-Below, output example is shown.
+Below, an output example is shown.
 
 .. code-block::
 
-    -0.829780 2.203245 232.782783
-    -4.998856 -1.976674 72748.392856
-    -3.532441 -4.076614 27426.531418
-    -3.137398 -1.544393 12984.994049
-    -1.032325 0.388167 50.034778
-    -0.808055 1.852195 147.087285
-    -2.955478 3.781174 2469.533327
-    -4.726124 1.704675 42598.971437
-    -0.826952 0.586898 4.277709
-    -3.596131 -3.018985 25465.012749
-    3.007446 4.682616 1906.833520
+    5.155393 -2.203493 187.944291
+    -3.792974 -3.545277 3.179381
+    0.812700 1.146536 108.254643
+    5.574174 1.838125 483.841834
+    2.986880 1.842838 0.436331
     ...
 
 
@@ -137,3 +149,14 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"continue"``
 
   The continue mode is not supported. For the pseudo-random sequence, the calculation can be continued by starting with a different seed number.
+
+
+Algorithm description
+~~~~~~~~~~~~~~~~~~~~~~
+
+The random search algorithm generates ``num_points`` parameter vectors :math:`x` by uniform random sampling from the range defined by ``min_list`` and ``max_list`` for each dimension. For each generated point, the solver is called to evaluate the objective function :math:`f(x)`.
+
+When running with MPI parallelism, the generated candidate points are divided equally among the processes, and each process evaluates its assigned points in parallel.
+
+Unlike the grid-based search (``mapper``), which discretizes the parameter space regularly, random search samples uniformly at random. This avoids the curse of dimensionality, where the number of grid points increases exponentially with the number of dimensions. On the other hand, random search is not well-suited for precisely locating optimal solutions, so it is often used as a preliminary exploration before applying other optimization methods.
+

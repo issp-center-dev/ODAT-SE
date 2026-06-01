@@ -1,8 +1,9 @@
+================================
 Related Tools
 ================================
 
 ``odatse_neighborlist``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This tool generates a neighborhood-list file from the mesh file for Monte Carlo search in discrete spaces.
 
