@@ -269,69 +269,62 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 print(x, "=", y)
         return {"x": self.xopt, "fx": self.best_fx}
 
+    # Bayes-specific fields (simple getattr/setattr).
+    _checkpoint_attrs: list[str] = ["istep", "param_list", "fx_list"]
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot, extending the base with the global RNG."""
+        state = super().__getstate__()
+        state["random_number"] = np.random.get_state()
+        return state
+
     def _save_state(self, filename):
-        """
-        Saves the current state of the algorithm to a file.
-
-        Parameters
-        ----------
-        filename : str
-            The name of the file to save the state.
-        """
-        data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
-            "rng": self.rng.get_state(),
-            "timer": self.timer,
-            "info": self.info,
-            "istep": self.istep,
-            "param_list": self.param_list,
-            "fx_list": self.fx_list,
-            "file_history": self.file_history,
-            "file_training": self.file_training,
-            "file_predictor": self.file_predictor,
-            "random_number": np.random.get_state(),
-        }
-        self._save_data(data, filename)
-
+        """Save the current state of the algorithm to a file."""
+        self._save_data(self.__getstate__(), filename)
         self.policy.save(file_history=Path(self.output_dir, self.file_history),
                          file_training=Path(self.output_dir, self.file_training),
                          file_predictor=Path(self.output_dir, self.file_predictor))
 
-    def _load_state(self, filename, mode="resume", restore_rng=True):
+    def _apply_state(self, data: dict, restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, optionally restores both the instance RNG and the global
+        numpy RNG, applies the Bayes-specific fields, then loads the physbo
+        policy from the saved files.
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        restore_rng : bool
+            When *True* (default) both RNG states are restored from *data*.
         """
-        Loads the state of the algorithm from a file.
+        super()._apply_state(data)
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
+            np.random.set_state(data["random_number"])
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
+        self.policy.load(file_history=Path(self.output_dir, self.file_history),
+                         file_training=Path(self.output_dir, self.file_training),
+                         file_predictor=Path(self.output_dir, self.file_predictor))
+
+    def _load_state(self, filename, mode="resume", restore_rng=True):
+        """Load the state of the algorithm from a file.
 
         Parameters
         ----------
         filename : str
-            The name of the file to load the state from.
+            Path to the checkpoint file.
         mode : str, optional
-            The mode to load the state (default is "resume").
+            Loading mode (currently unused; kept for API symmetry).
         restore_rng : bool, optional
-            Whether to restore the random number generator state (default is True).
+            Whether to restore RNG states, by default True.
         """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
             sys.exit(1)
-
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
-
-        if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
-            np.random.set_state(data["random_number"])
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        self.istep = data["istep"]
-        self.param_list = data["param_list"]
-        self.fx_list = data["fx_list"]
-
-        self.policy.load(file_history=Path(self.output_dir, self.file_history),
-                         file_training=Path(self.output_dir, self.file_training),
-                         file_predictor=Path(self.output_dir, self.file_predictor))
+        self._apply_state(data, restore_rng=restore_rng)

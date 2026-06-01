@@ -201,52 +201,44 @@ class Algorithm(AlgorithmBase):
 
         return {}
 
-    def _save_state(self, filename) -> None:
-        """
-        Save the current state of the algorithm to a file.
+    # Mapper-specific fields (simple getattr/setattr).
+    _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
 
-        Parameters
-        ----------
-        filename
-            The name of the file to save the state to.
-        """
-        data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
-            "timer": self.timer,
-            "info": self.info,
-            "results": self.results,
-            "opt_fx": self.opt_fx,
-            "opt_mesh": self.opt_mesh,
-        }
+    def _save_state(self, filename) -> None:
+        """Save the current state of the algorithm to a file."""
+        data = self.__getstate__()
         data.update(self._iter._save_state())
         self._save_data(data, filename)
 
-    def _load_state(self, filename, restore_rng=True):
+    def _apply_state(self, data: dict) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, applies the mapper-specific fields, then restores the
+        iterator position.
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``_save_state``.
         """
-        Load the state of the algorithm from a file.
+        super()._apply_state(data)
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
+        self._iter._restore_state(data)
+
+    def _load_state(self, filename, restore_rng=True) -> None:
+        """Load the state of the algorithm from a file.
 
         Parameters
         ----------
         filename
-            The name of the file to load the state from.
+            Path to the checkpoint file.
         restore_rng : bool
-            Whether to restore the random number generator state.
+            Unused; kept for API consistency with other algorithms.
         """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
             sys.exit(1)
-
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
-
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        self.results = data["results"]
-        self.opt_fx = data["opt_fx"]
-        self.opt_mesh = data["opt_mesh"]
-        self._iter._restore_state(data)
+        self._apply_state(data)
