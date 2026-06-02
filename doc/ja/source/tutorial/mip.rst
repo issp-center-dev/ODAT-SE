@@ -118,6 +118,7 @@
 以下の制約のもとで解く問題を、
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    g_i(\mathbf{x})=0, \quad i\in\{1,\ldots,M\} \\
@@ -133,6 +134,7 @@
 ここで :math:`p` はペナルティパラメータです。:math:`c_{eq}` と :math:`c_{ineq}` はそれぞれ等式制約・不等式制約に対するペナルティ関数で、ここでは二次ペナルティ関数を使用します。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    c_{eq}(g_i(\mathbf{x}))=g_i(\mathbf{x})^2 \\
@@ -163,6 +165,7 @@
 以下の制約のもとで
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = x_0(4x_0+3x_1-x_2)+x_1(3x_0+6x_1+x_2)+x_2(x_1-x_0+10x_2) \\
@@ -188,6 +191,7 @@
 以下の制約のもとで
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = x_0(4x_0+3x_1-y_0)+x_1(3x_0+6x_1+y_0)+y_0(x_1-x_0+10y_0) \\
@@ -235,6 +239,7 @@
 以下の制約のもとで
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \exp(x_0)-10x_0+\exp(\frac{5x_1}{6})-15x_1-60\log(1+x_3+x_4)+15x_3+5x_4 \\
@@ -274,6 +279,7 @@
 以下の制約のもとで
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \exp(x_0)-10x_0+\exp(\frac{5x_1}{6})-25x_1-60\log(1+x_3+x_4)+15x_3+5x_4 \\
@@ -310,6 +316,7 @@
 得られた目的関数の最小値は次のとおりです。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx73.0422 \\
@@ -319,6 +326,7 @@
 既知の大域最小値は次のとおりです。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx73.0353 \\
@@ -347,6 +355,7 @@
 以下の制約のもとで
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \sqrt{0.0001+\sum_{k=0}^9i_k^2+\sum_{k=10}^{19}x_k^2} \\
@@ -374,6 +383,7 @@
 得られた目的関数の最小値は次のとおりです。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)=-21.438 \\
@@ -383,6 +393,7 @@
 しかし既知の大域最小値は次のとおりです。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
@@ -398,6 +409,7 @@
 再度ソルバーを実行すると、推定最小値として次の結果が得られます。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
@@ -407,6 +419,7 @@
 これを既知の大域最小値と比較します。
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
