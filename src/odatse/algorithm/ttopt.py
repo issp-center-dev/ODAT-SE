@@ -7,6 +7,8 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import IO, Optional, TYPE_CHECKING
+import sys
+import time
 
 import numpy as np
 from scipy.linalg import lu, solve_triangular
@@ -173,6 +175,22 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     tt_ranks: np.ndarray
     poi: list[Optional[np.ndarray]]
 
+    # Fields saved and restored at every checkpoint.
+    # n_q_dims is included for structural consistency validation on resume.
+    _checkpoint_attrs: list[str] = [
+        "n_q_dims",
+        "f_eval_count",
+        "f_eval_count_history",
+        "xopt",
+        "fopt",
+        "xopt_history",
+        "fopt_history",
+        "poi",
+        "tt_ranks",
+        "cache",
+        "cache_hits",
+    ]
+
     def __init__(
         self,
         info: odatse.Info,
@@ -249,10 +267,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._show_parameters()
 
-    def _prepare(self) -> None:
+    def _setup_structure(self) -> None:
+        """Set up structural fields derived from config parameters.
+
+        Called on every run mode (init and resume).  These fields are
+        deterministic functions of the configuration and do not need to be
+        checkpointed, but they must exist before ``_run()`` can use them.
+        """
         assert self.bounds.shape[0] == self.p_points.shape[0] == self.q_points.shape[0]
         self.n_points = (
-            self.p_points**self.q_points
+            self.p_points ** self.q_points
         )  # number of points in full discretized interval
         self.n_q_points = np.asarray(
             [
@@ -270,8 +294,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         for i in range(1, self.n_q_dims):
             self.tt_ranks[i] = np.min(
                 [self.tt_ranks[i - 1] * self.n_q_points[i - 1], self.r_max]
-            )  # rank is min(L*C,r_max)
+            )  # rank is min(L*C, r_max)
 
+    def _init_counters(self) -> None:
+        """Reset evaluation counters and the eval-history file handle.
+
+        Called on every run mode so that the history file is opened fresh.
+        """
         self.f_eval_count = 0
         self.f_eval_count_history = []
         self.xopt_history = []
@@ -284,6 +313,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._eval_hist_pending_f: list[np.ndarray] = []
         self._eval_hist_pending_nrows = 0
 
+    def _init_poi(self) -> None:
+        """Evaluate init_points and initialize poi/tt_ranks via maxvol.
+
+        Called only for fresh runs (mode ``"initial"``).  On resume the
+        poi and tt_ranks are restored from the checkpoint instead.
+        """
         # process init_points
         if self.init_points.shape[0] > 0:
             n_init_points = self.init_points.shape[0]
@@ -336,7 +371,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self.poi = [None for _ in range(self.n_q_dims + 1)]
         for i in range(self.n_q_dims - 1):
-            if self.init_q_pois.shape[0] > 0: # if init_points > 0
+            if self.init_q_pois.shape[0] > 0:  # if init_points > 0
                 # fill z, an mps tensor with size (L, C, R), with known values from init_q_pois
                 z = np.zeros(
                     (self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
@@ -362,7 +397,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             else:
                 z = self.rng.normal(
                     size=(self.tt_ranks[i], self.n_q_points[i], self.tt_ranks[i + 1])
-                )  # matrix is (L*C,R)
+                )  # matrix is (L*C, R)
 
             z = np.reshape(
                 z,
@@ -382,6 +417,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             )
             self.tt_ranks[i + 1] = next_poi.shape[0]
             self.poi[i + 1] = next_poi
+
+    def _prepare(self) -> None:
+        """Prepare the TT decomposition structure and (for fresh runs) the initial poi.
+
+        On resume the structural fields are rebuilt from config, counters are
+        reset, and ``init_points`` evaluation is skipped — poi and tt_ranks
+        are restored from the checkpoint file at the start of ``_run()``.
+        """
+        self._setup_structure()
+        self._init_counters()
+
+        if not self.mode.startswith("resume"):
+            self._init_poi()
+
         if self.mpirank == 0:
             with open(self.output_dir / "ttopt_hyperparameters.txt", "w") as f:
                 f.write(f"nprocs = {self.mpisize}\n")
@@ -396,6 +445,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 f.write(f"eval_history_buffer_rows = {self.eval_history_buffer_rows}\n")
 
     def _run(self) -> None:
+        if self.mode.startswith("resume"):
+            self._load_state(self.checkpoint_file)
+
+        next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
+
         run = self.runner
         sweeps = [
             (True, list(range(self.n_q_dims - 1, -1, -1))),
@@ -478,6 +533,62 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             )
                             self.tt_ranks[i + 1] = next_poi.shape[0]
                             self.poi[i + 1] = next_poi
+
+            # Checkpoint after each complete double sweep (r2l + l2r).
+            # Saving mid-sweep would leave poi/tt_ranks in a partially updated
+            # state, so we always wait for the sweep boundary.
+            if self.checkpoint:
+                time_now = time.time()
+                if self.f_eval_count >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                    self._save_state(self.checkpoint_file)
+                    next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
+                    next_checkpoint_time = time_now + self.checkpoint_interval
+
+    def _save_state(self, filename) -> None:
+        """Save the current algorithm state to a checkpoint file."""
+        self._save_data(self.__getstate__(), filename)
+
+    def _apply_state(self, data: dict) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Validates the MPI configuration and structural consistency (n_q_dims),
+        then applies all fields listed in ``_checkpoint_attrs``.  The
+        structural fields rebuilt by ``_setup_structure()`` (grids, n_points,
+        etc.) are not restored from the checkpoint because they are
+        deterministic functions of the configuration parameters.
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        """
+        super()._apply_state(data)
+        if self.n_q_dims != data["n_q_dims"]:
+            raise RuntimeError(
+                f"n_q_dims mismatch: checkpoint has {data['n_q_dims']}, "
+                f"current config gives {self.n_q_dims}. "
+                "Check that p_points and q_points match the original run."
+            )
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
+
+    def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
+        """Load algorithm state from a checkpoint file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the checkpoint file.
+        mode : str, optional
+            Loading mode (currently only ``"resume"`` is supported for TTOpt).
+        restore_rng : bool, optional
+            Unused; kept for API symmetry with other algorithms.
+        """
+        data = self._load_data(filename)
+        if not data:
+            print("ERROR: Load status file failed")
+            sys.exit(1)
+        self._apply_state(data)
 
     def _eval_hist_append_batch(
         self, todo_pois: np.ndarray, f_vals: np.ndarray
