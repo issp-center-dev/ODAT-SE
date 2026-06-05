@@ -336,24 +336,37 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.fp_trial = fp_trial
         self.fp_result = fp_result
 
-    def _apply_state(self, data: dict, restore_rng: bool = True) -> None:
+    def prepare(self) -> None:
+        """Algorithm-specific preparation (MC layer).
+
+        Called by the framework after checkpoint dispatch.  The default
+        implementation does nothing; MC subclasses override this to
+        initialise timer entries or other pre-loop state.
+        """
+        pass
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, timer restore, and parameter check to the
         base class, optionally restores the RNG, then applies every field
         listed in ``montecarlo.AlgorithmBase._checkpoint_attrs``.  Subclasses
         that need additional fields should override this method, call
-        ``super()._apply_state()``, then handle their own fields.
+        ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``,
+        then handle their own fields.
 
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``, forwarded to base class and
+            available to subclass overrides for continue-mode semantics.
         restore_rng : bool
             When *True* (default) the RNG state is restored from *data*;
             when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        super()._apply_state(data)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         if restore_rng:
             self.rng = np.random.RandomState()
             self.rng.set_state(data["rng"])
