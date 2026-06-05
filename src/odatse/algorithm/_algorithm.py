@@ -200,7 +200,15 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
-        self.checkpoint_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        _chk_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        # Resolve to an absolute path so _load_state() / _save_state() work
+        # correctly regardless of the working directory at call time.
+        # _prepare() runs from the original directory, not proc_dir, so a
+        # relative path would resolve to the wrong location.
+        self.checkpoint_file = str(
+            Path(_chk_file) if Path(_chk_file).is_absolute()
+            else self.proc_dir / _chk_file
+        )
         self.checkpoint_steps = info.algorithm.get("checkpoint_steps", 65536*256)  # large number
         self.checkpoint_interval = info.algorithm.get("checkpoint_interval", 86400*360)  # longer enough
 
