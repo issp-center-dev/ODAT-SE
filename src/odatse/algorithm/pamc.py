@@ -174,6 +174,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     def _initialize(self) -> None:
         super()._initialize()
 
+        # PAMC-specific counters for a fresh run
+        self.Tindex = 0
+        self.index_from_reset = 0
+        self.istep = 0
+
         numT = len(self.betas)
 
         self.logZ = 0.0
@@ -261,40 +266,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return numT
 
-    def _run(self) -> None:
+    def run(self) -> None:
 
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-
-            self.Tindex = 0
-            self.index_from_reset = 0
-            self.istep = 0
-
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-
-            Tindex = self.Tindex
-
-            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
-            self.logweights += -dbeta * self.fx
-            if self.index_from_reset == self.resampling_interval:
-                time_sta = time.perf_counter()
-                self._resample()
-                time_end = time.perf_counter()
-                self.timer["run"]["resampling"] += time_end - time_sta
-                self.index_from_reset = 0
-
-            self.Tindex += 1
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は _prepare() が処理済み
 
         writer = self._setup_writer()
 
@@ -712,15 +686,29 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return pr
 
-    def _prepare(self) -> None:
+    def prepare(self) -> None:
         """
         Prepare the algorithm for execution.
 
-        This method initializes the timers for the 'submit' and 'resampling' phases
-        of the algorithm run.
+        Initialises the run-phase timers, then for ``continue`` mode applies
+        the logweight update and advances ``Tindex`` to the next temperature.
+        This must run after ``_apply_state()`` has extended the beta schedule
+        (done inside ``_prepare()`` dispatch) and after the timers are ready.
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
+
+        if self.mode.startswith("continue"):
+            Tindex = self.Tindex
+            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
+            self.logweights += -dbeta * self.fx
+            if self.index_from_reset == self.resampling_interval:
+                time_sta = time.perf_counter()
+                self._resample()
+                time_end = time.perf_counter()
+                self.timer["run"]["resampling"] += time_end - time_sta
+                self.index_from_reset = 0
+            self.Tindex += 1
 
     def _split_result_file(self, tag):
         current_beta = -1
@@ -746,7 +734,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if fwrite:
                 fwrite.close()
 
-    def _post(self) -> dict:
+    def post(self) -> dict:
         """
         Post-processing after the algorithm execution.
 
@@ -811,11 +799,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "walker": best_iwalker[best_rank],
         }
 
-    def _save_state(self, filename) -> None:
-        """Save the current state of the algorithm to a file."""
-        self._save_data(self.__getstate__(), filename)
-
-    def _apply_state(self, data: dict, restore_rng: bool = True, mode: str = "resume") -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, RNG restore, and MC-layer fields to the
@@ -824,20 +808,24 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         the current schedule (``logZs``, ``Fmeans``, etc.) are written with
         slice assignment after re-initialisation.
 
+        The logweight update, optional resampling, and ``Tindex`` increment
+        for ``continue`` mode are performed in ``prepare()`` after this method
+        returns, so that the run-phase timers are already initialised.
+
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
-        restore_rng : bool
-            When *True* (default) the RNG state is restored from *data*;
-            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         mode : str
             ``"resume"`` — validate that the temperature schedule is identical
             to the one stored in *data*.
             ``"continue"`` — concatenate the stored schedule with the new one
             (the stored last beta must equal the new first beta).
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*;
+            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        super()._apply_state(data, restore_rng)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
 
         # -- simple scalar fields
         self.Tindex = data["Tindex"]
@@ -884,21 +872,3 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.pr_list[:len(data["pr_list"])] = data["pr_list"]
 
         self.statespace.rng = self.rng
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """Load the saved state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file to read.
-        mode : str, optional
-            ``"resume"`` or ``"continue"``, by default ``"resume"``.
-        restore_rng : bool, optional
-            Whether to restore the RNG state, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data, restore_rng=restore_rng, mode=mode)
