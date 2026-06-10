@@ -31,7 +31,6 @@ class Algorithm(MapperMPIAlgorithm):
                  info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
                  run_mode: str = "initial",
-                 mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -44,10 +43,8 @@ class Algorithm(MapperMPIAlgorithm):
             Optional runner object for submitting tasks.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            Optional MPI communicator.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         info_mode = info.algorithm.get("mode", None)
         if info_mode is None:
@@ -58,17 +55,17 @@ class Algorithm(MapperMPIAlgorithm):
         info_param = info.algorithm.get("param", {})
 
         if mode == "random":
-            iter = self._random_iterator(info_param, self.rng, mpicomm)
+            iter = self._random_iterator(info_param, self.rng)
         elif mode == "quasi-random":
             seq = info_mode.get("sequence", "sobol")
-            iter = self._quasi_random_iterator(info_param, seq, mpicomm)
+            iter = self._quasi_random_iterator(info_param, seq)
         else:
             raise ValueError("ERROR: algorithm.mode.mode = {} is not supported".format(mode))
 
         # delayed setup
         self._iter = iter
 
-    def _random_iterator(self, info_param, rng, mpicomm=None):
+    def _random_iterator(self, info_param, rng):
         """
         Setup the grid based on min, max, and num lists.
 
@@ -94,9 +91,9 @@ class Algorithm(MapperMPIAlgorithm):
         if num_points <= 0:
             raise ValueError("ERROR: num_points must be positive")
 
-        return RandomIterator(min_list, max_list, num_points, rng, mpicomm)
+        return RandomIterator(min_list, max_list, num_points, rng)
 
-    def _quasi_random_iterator(self, info_param, seq, mpicomm=None):
+    def _quasi_random_iterator(self, info_param, seq):
         from scipy.stats import qmc
 
         if "min_list" not in info_param:
@@ -116,7 +113,7 @@ class Algorithm(MapperMPIAlgorithm):
         if num_points <= 0:
             raise ValueError("ERROR: num_points must be positive")
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             d = len(min_list)
 
             if seq == "sobol":
@@ -138,4 +135,4 @@ class Algorithm(MapperMPIAlgorithm):
         else:
             data = None
 
-        return ListIterator(data, mpicomm)
+        return ListIterator(data)

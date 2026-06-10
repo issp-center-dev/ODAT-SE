@@ -11,15 +11,16 @@ from odatse import mpi
 
 
 class IteratorBase(object):
-    def __init__(self, mpicomm):
-        if mpicomm is None:
-            self.mpicomm = mpi.comm()
-            self.mpisize = mpi.size()
-            self.mpirank = mpi.rank()
+    def __init__(self):
+        algcomm = mpi.algcomm()
+        if algcomm is not None and mpi.algsize() > 1:
+            self.mpicomm = algcomm
+            self.mpisize = mpi.algsize()
+            self.mpirank = mpi.algrank()
         else:
-            self.mpicomm = mpicomm
-            self.mpisize = mpicomm.Get_size()
-            self.mpirank = mpicomm.Get_rank()
+            self.mpicomm = algcomm
+            self.mpisize = 1
+            self.mpirank = 0
 
         self._index_start = 0
         self._index_end = 0
@@ -42,8 +43,8 @@ class IteratorBase(object):
 
 
 class MeshIterator(IteratorBase):
-    def __init__(self, xmin, xmax, xnum, mpicomm=None):
-        super().__init__(mpicomm)
+    def __init__(self, xmin, xmax, xnum):
+        super().__init__()
         
         self._xlist = [np.linspace(l, h, n) for l, h, n in zip(xmin, xmax, xnum)]
         self._num = np.array(xnum)
@@ -72,10 +73,10 @@ class MeshIterator(IteratorBase):
 
 
 class ListIterator(IteratorBase):
-    def __init__(self, data, mpicomm=None):
+    def __init__(self, data):
         # input: rank 0 has all data
         # split data and distrubute to other ranks
-        super().__init__(mpicomm)
+        super().__init__()
 
         self._data = self._setup(data)
 
@@ -114,9 +115,9 @@ class ListIterator(IteratorBase):
         self._data = d["data"]
 
 class DistributedListIterator(IteratorBase):
-    def __init__(self, data, mpicomm=None):
+    def __init__(self, data):
         # all ranks have their own chunk of data
-        super().__init__(mpicomm)
+        super().__init__()
 
         self._data = data
 
@@ -142,8 +143,8 @@ class DistributedListIterator(IteratorBase):
         self._data = d["data"]
 
 class RandomIterator(IteratorBase):
-    def __init__(self, xmin, xmax, count, rng, mpicomm=None):
-        super().__init__(mpicomm)
+    def __init__(self, xmin, xmax, count, rng):
+        super().__init__()
 
         self._rng = rng
         self._xmin = np.array(xmin)

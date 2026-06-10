@@ -32,7 +32,6 @@ class Algorithm(AlgorithmBase):
                  info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
                  run_mode: str = "initial",
-                 mpicomm: Optional["MPI.Comm"] = None,
                  iterator = None,
     ) -> None:
         """
@@ -46,12 +45,10 @@ class Algorithm(AlgorithmBase):
             Optional runner object for submitting tasks.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            Optional MPI communicator.
         iterator : Iterator
             Iterator object.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         self._iter = iterator
 
@@ -142,36 +139,34 @@ class Algorithm(AlgorithmBase):
         if not np.isinf(self.opt_fx):
             print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
-        self._output_results()
-
-        # close local colormap file
-        fp.close()
+        # self._output_results()
 
         # if Path(self.local_colormap_file).exists():
         #     os.remove(Path(self.local_colormap_file))
 
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
-    def _output_results(self):
+    def _output_results(self, results):
         """
         Output the results to the colormap file.
         """
+
         print("Make ColorMap")
         time_sta = time.perf_counter()
 
         with open(self.colormap_file, "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
-            for idx, coord, fx in self.results:
+            for idx, coord, fx in results:
                 fp.write(" ".join(
                     map(lambda v: "{:8f}".format(v), (*coord, fx))
                 ) + "\n")
 
             if not np.isinf(self.opt_fx):
-                fp.write("#Minimum point : " + " ".join(
+                fp.write("#Index of the minimum point : {:d}\n".format(self.opt_mesh[0]))
+                fp.write("#Coordinates of the minimum point : " + " ".join(
                     map(lambda v: "{:8f}".format(v), self.opt_mesh[1])
                 ) + "\n")
-                fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
-                fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
+                fp.write("#f(x) at the minimum point : {:8f}\n".format(self.opt_fx))
             else:
                 fp.write("# No mesh point\n")
 
@@ -194,17 +189,13 @@ class Algorithm(AlgorithmBase):
             Dictionary of results.
         """
         if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-            fx_lists = odatse.mpi.algcomm().allgather(self.fx_list)
-            results = [v for vs in fx_lists for v in vs]
+            results_lists = odatse.mpi.algcomm().allgather(self.results)
+            results = [v for vs in results_lists for v in vs]
         else:
             results = self.results
 
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
-            with open(self.colormap_file, "w") as fp:
-                for idx, coord, fx in results:
-                    fp.write(" ".join(
-                        map(lambda v: "{:8f}".format(v), (*coord, fx))
-                    ) + "\n")
+        if odatse.mpi.algrank() == 0:
+            self._output_results(results)
 
         return {}
 
