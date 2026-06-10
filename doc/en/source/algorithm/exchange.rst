@@ -17,7 +17,7 @@ Input parameters
 
 This has two subsections ``algorithm.param`` and ``algorithm.exchange`` .
 
-[``algorithm.param``]
+``[algorithm.param]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
@@ -37,27 +37,34 @@ Otherwise, continuous space is used.
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Minimum value of each parameter.
-    When a parameter falls below this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
-
+    Description: The minimum value that each parameter can take.
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Maximum value of each parameter.
-    When a parameter exceeds this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
+    Description: The maximum value that each parameter can take.
 
   - ``step_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    The step length in one Monte Carlo update (deviation of Gaussian distribution).
+    Description: Step width (standard deviation of the Gaussian distribution) used for Monte Carlo updates.
+
+  - ``pbc_list``
+
+    Format: List of boolean (default: false for each parameter).
+
+    Description: Whether to use periodic boundary conditions (PBC) for generating local candidate points for each parameter. The length should be equal to ``dimension``.
+
+  - About state proposals
+
+    - In Monte Carlo updates, candidate points are proposed according to a Gaussian distribution centered at the current state.
+      If a candidate parameter ``d`` falls outside the range [min_list[d], max_list[d]):
+
+      - If ``pbc_list[d] = true``, it will be wrapped into the range [min_list[d], max_list[d]) using periodic boundary conditions.
+      - If ``pbc_list[d] = false``, the proposal will be rejected.
+
 
 - Discrete space
 
@@ -107,7 +114,7 @@ Otherwise, continuous space is used.
     The number of mesh points along each parameter of the mesh to be generated.
 
 
-[``algorithm.exchange``]
+``[algorithm.exchange]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``

@@ -1,5 +1,6 @@
+================================
 Nelder-Mead method ``minsearch``
-********************************
+================================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
 
@@ -28,8 +29,8 @@ It has subsections ``param`` and ``minimize``.
 
 .. _minsearch_input_param:
 
-[``param``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``initial_list``
 
@@ -64,8 +65,8 @@ It has subsections ``param`` and ``minimize``.
   When a parameter exceeds this value during the Nelson-Mead method,
   the solver is not evaluated and the value is considered infinite.
 
-[``minimize``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.minimize]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Set the hyperparameters for the Nelder-Mead method.
 See the documentation of `scipy.optimize.minimize`_ for details.

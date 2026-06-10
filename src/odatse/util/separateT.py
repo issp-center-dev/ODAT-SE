@@ -14,13 +14,192 @@ from collections import namedtuple
 
 import numpy as np
 
-from odatse import mpi
-
 if TYPE_CHECKING:
     from mpi4py import MPI
 
-Entry = namedtuple("Entry", ["step", "walker", "fx", "xs"])
+# step and walker are stored as ints; Tstr, fx, xs are kept as raw strings so
+# that exact serialised values are round-tripped without floating-point loss.
+Entry = namedtuple("Entry", ["step", "walker", "Tstr", "fx", "xs"])
 
+
+# ---------------------------------------------------------------------------
+# separateT – private helpers
+# ---------------------------------------------------------------------------
+
+def _parse_result_line(line: str, mpirank: int, nwalkers: int) -> Optional[Entry]:
+    """Parse one line from ``result.txt`` into an :class:`Entry`.
+
+    Returns ``None`` for blank or comment-only lines.
+    The *walker* field is remapped from a rank-local index to a global index.
+    *Tstr*, *fx*, and *xs* are kept as raw strings to preserve exact values.
+    """
+    line = line.split("#")[0].strip()
+    if not line:
+        return None
+    words = line.split()
+    return Entry(
+        step=int(words[0]),
+        walker=mpirank * nwalkers + int(words[1]),
+        Tstr=words[2],
+        fx=words[3],
+        xs=words[4:],
+    )
+
+
+def _distribute_entries(
+    entries: list[Entry],
+    T2rank: dict[str, int],
+    results: list[dict[str, list[Entry]]],
+) -> None:
+    """Append each entry into the destination-rank bucket it belongs to."""
+    for entry in entries:
+        results[T2rank[entry.Tstr]][entry.Tstr].append(entry)
+
+
+def _merge_results(results2: list[dict[str, list[Entry]]]) -> dict[str, list[Entry]]:
+    """Merge per-source dicts received from alltoall into a single dict.
+
+    ``results2[0]`` is mutated in-place and returned; the caller owns the object
+    (alltoall in mpi4py returns fresh objects, and in the serial path this is the
+    same dict that will be cleared at the start of the next chunk).
+    """
+    merged = results2[0]
+    for part in results2[1:]:
+        for key in merged:
+            merged[key].extend(part[key])
+    return merged
+
+
+def _clear_results(results: list[dict[str, list[Entry]]]) -> None:
+    """Reset all entry lists to empty so the structure can be reused each chunk."""
+    for d in results:
+        for key in d:
+            d[key] = []
+
+
+def _write_entries_to_file(entries: list[Entry], filepath: pathlib.Path) -> None:
+    """Sort *entries* by step number and append them to *filepath*."""
+    entries.sort(key=lambda e: e.step)
+    with open(filepath, "a") as f_out:
+        for e in entries:
+            f_out.write(f"{e.step} {e.walker} {e.fx}")
+            for x in e.xs:
+                f_out.write(f" {x}")
+            f_out.write("\n")
+
+
+# ---------------------------------------------------------------------------
+# calculate_statistics – private helpers
+# ---------------------------------------------------------------------------
+
+def _read_result_T_entries(
+    filepath: pathlib.Path,
+) -> list[tuple[int, float, np.ndarray]]:
+    """Read ``result_T<idx>.txt`` and return a list of ``(step, fx, x)`` tuples.
+
+    Comment lines and blank lines are skipped.
+    """
+    samples: list[tuple[int, float, np.ndarray]] = []
+    with open(filepath, "r") as f_in:
+        for line in f_in:
+            line = line.split("#")[0].strip()
+            if not line:
+                continue
+            words = line.split()
+            step = int(words[0])
+            fx = float(words[2])
+            x = np.array([float(v) for v in words[3:]])
+            samples.append((step, fx, x))
+    return samples
+
+
+def _compute_temperature_statistics(
+    samples: list[tuple[int, float, np.ndarray]],
+    thermalization_steps: int,
+    dbeta: float,
+) -> tuple[float, float, float, float]:
+    """Compute statistics for one temperature from a list of MC samples.
+
+    Parameters
+    ----------
+    samples : list of (step, fx, x)
+        Raw MC samples in the order they were recorded.
+    thermalization_steps : int
+        Steps with ``step < thermalization_steps`` are discarded as thermalisation.
+    dbeta : float
+        ``1/T_lower - 1/T``; pass ``0.0`` when there is no lower-temperature
+        neighbour (the thermodynamic-integration contribution is then 0).
+
+    Returns
+    -------
+    fx_mean : float
+        Arithmetic mean of f(x) over production samples.  ``nan`` if N == 0.
+    fx_error : float
+        Standard error of the mean.  ``nan`` if N <= 1.
+    dlogZ : float
+        ``log(Z_lower / Z_this)`` via log-sum-exp thermodynamic integration.
+        ``0.0`` when ``dbeta == 0.0`` or N == 0.
+    acceptance : float
+        Fraction of steps where x changed.  ``nan`` if N == 0.
+    """
+    dlogZ = 0.0
+    f_base: Optional[float] = None
+    fx_sum = 0.0
+    fx_sum2 = 0.0
+    accepted = 0
+    old_x: Optional[np.ndarray] = None
+    N = 0
+
+    for step, fx, x in samples:
+        if step < thermalization_steps:
+            old_x = x
+            continue
+
+        N += 1
+        # Guard against old_x being None on the very first production step
+        # (can happen when thermalization_steps == 0).
+        if old_x is not None and not np.allclose(x, old_x):
+            accepted += 1
+        old_x = x
+
+        fx_sum += fx
+        fx_sum2 += fx * fx
+
+        if dbeta == 0.0:
+            continue
+
+        if f_base is None:
+            # First production sample: record baseline for numerical stability.
+            f_base = fx
+            continue
+
+        # log-sum-exp accumulation: log(sum_i exp(-dbeta*(fx_i - f_base)))
+        # Uses the identity log(A+B) = log(A) + log(1 + exp(log(B)-log(A)))
+        # with the larger term as logA for numerical stability.
+        logA = dlogZ
+        logB = -dbeta * (fx - f_base)
+        if logB > logA:
+            logA, logB = logB, logA
+        dlogZ = logA + np.log1p(np.exp(logB - logA))
+
+    if N == 0:
+        return np.nan, np.nan, 0.0, np.nan
+
+    mean = fx_sum / N
+    err = np.sqrt((fx_sum2 / N - mean ** 2) / (N - 1)) if N > 1 else np.nan
+    acceptance = accepted / N
+
+    if dbeta != 0.0 and f_base is not None:
+        # Normalise: log((1/N) * sum) + shift back by f_base
+        dlogZ -= np.log(N)
+        dlogZ += -dbeta * f_base
+
+    return mean, err, dlogZ, acceptance
+
+
+# ---------------------------------------------------------------------------
+# Public functions
+# ---------------------------------------------------------------------------
 
 def separateT(
     Ts: np.ndarray,
@@ -33,20 +212,26 @@ def separateT(
     """
     Separates and processes temperature data for quantum beam diffraction experiments.
 
+    Reads each rank's ``result.txt``, redistributes entries to the rank that owns
+    their temperature via MPI alltoall, and writes per-temperature ``result_T*.txt``
+    files.  Large files are processed in chunks of *buffer_size* lines so that
+    memory usage is bounded.
+
     Parameters
     ----------
     Ts : np.ndarray
-        Array of temperature values.
+        Array of temperature (or beta) values, shared across all ranks.
     nwalkers : int
-        Number of walkers.
+        Number of walkers per MPI rank.  Must satisfy ``len(Ts) == nwalkers * mpisize``.
     output_dir : PathLike
-        Directory to store the output files.
+        Root output directory.  Rank *r* reads from ``output_dir/<r>/result.txt``.
     comm : MPI.Comm, optional
-        MPI communicator for parallel processing.
+        MPI communicator.  Pass ``None`` for serial execution.
     use_beta : bool
-        Flag to determine if beta values are used instead of temperature.
+        Write ``# beta = …`` headers instead of ``# T = …`` when ``True``.
     buffer_size : int, optional
-        Size of the buffer for reading input data. Default is 10000.
+        Maximum number of lines read per chunk (rounded up to a multiple of
+        *nwalkers*).  Default is 10000.
     """
     if comm is None:
         mpisize = 1
@@ -54,13 +239,17 @@ def separateT(
     else:
         mpisize = comm.size
         mpirank = comm.rank
+
+    # Round up so that each buffer covers whole walker-groups.
     buffer_size = int(np.ceil(buffer_size / nwalkers)) * nwalkers
     output_dir = pathlib.Path(output_dir)
     proc_dir = output_dir / str(mpirank)
 
     T2idx = {T: i for i, T in enumerate(Ts)}
-    T2rank = {}
-    results = []
+
+    # Build per-rank routing table and empty bucket structure.
+    T2rank: dict[str, int] = {}
+    results: list[dict[str, list[Entry]]] = []
     for rank, Ts_local in enumerate(np.array_split(Ts, mpisize)):
         d: dict[str, list[Entry]] = {}
         for T in Ts_local:
@@ -68,57 +257,41 @@ def separateT(
             d[str(T)] = []
         results.append(d)
 
-    # write file header
-    for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
-        idx = T2idx[T]
-        with open(output_dir / f"result_T{idx}.txt", "w") as f_out:
-            if use_beta:
-                f_out.write(f"# beta = {T}\n")
-            else:
-                f_out.write(f"# T = {T}\n")
+    local_Ts = Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]
 
-    f_in = open(proc_dir / "result.txt")
-    EOF = False
-    while not EOF:
-        for i in range(len(results)):
-            for key in results[i].keys():
-                results[i][key] = []
-        for _ in range(buffer_size):
-            line = f_in.readline()
-            if line == "":
-                EOF = True
+    # Write per-temperature output file headers.
+    label = "beta" if use_beta else "T"
+    for T in local_Ts:
+        with open(output_dir / f"result_T{T2idx[T]}.txt", "w") as f_out:
+            f_out.write(f"# {label} = {T}\n")
+
+    # Read result.txt in chunks, redistribute each chunk, and write to output.
+    with open(proc_dir / "result.txt") as f_in:
+        while True:
+            _clear_results(results)
+            entries: list[Entry] = []
+            reached_eof = False
+
+            for _ in range(buffer_size):
+                raw = f_in.readline()
+                if raw == "":
+                    reached_eof = True
+                    break
+                entry = _parse_result_line(raw, mpirank, nwalkers)
+                if entry is not None:
+                    entries.append(entry)
+
+            _distribute_entries(entries, T2rank, results)
+            results2 = comm.alltoall(results) if mpisize > 1 else results
+            merged = _merge_results(results2)
+
+            for T in local_Ts:
+                _write_entries_to_file(
+                    merged[str(T)], output_dir / f"result_T{T2idx[T]}.txt"
+                )
+
+            if reached_eof:
                 break
-            line = line.split("#")[0].strip()
-            if len(line) == 0:
-                continue
-            words = line.split()
-            step = int(words[0])
-            walker = mpirank * nwalkers + int(words[1])
-            Tstr = words[2]
-            fx = words[3]
-            xs = words[4:]
-            entry = Entry(step=step, walker=walker, fx=fx, xs=xs)
-            rank = T2rank[Tstr]
-            results[rank][Tstr].append(entry)
-        if mpisize is not None and mpisize > 1:
-            results2 = comm.alltoall(results)
-        else:
-            results2 = results
-        d = results2[0]
-        for i in range(1, len(results2)):
-            for key in d.keys():
-                d[key].extend(results2[i][key])
-        for T in Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]:
-            idx = T2idx[T]
-            d[str(T)].sort(key=lambda e: e.step)
-            with open(output_dir / f"result_T{idx}.txt", "a") as f_out:
-                for e in d[str(T)]:
-                    f_out.write(f"{e.step} ")
-                    f_out.write(f"{e.walker} ")
-                    f_out.write(f"{e.fx} ")
-                    for x in e.xs:
-                        f_out.write(f"{x} ")
-                    f_out.write("\n")
 
 
 def calculate_statistics_from_separated_files(
@@ -130,7 +303,8 @@ def calculate_statistics_from_separated_files(
     """
     Calculate and save statistical quantities (means and errors of f(x) and partition function) from separated files generated by separateT.
 
-    This function reads the separated files, ``result_T<Tindex>.txt`` in ``output_dir``, generated by separateT.
+    This function reads the separated files, ``result_T<Tindex>.txt`` in ``output_dir``,
+    generated by separateT.
     The output file is ``fx.txt`` in ``output_dir``. The format is described as a header as follows:
 
     .. code-block::
@@ -153,7 +327,6 @@ def calculate_statistics_from_separated_files(
     comm : MPI.Comm, optional
         MPI communicator for parallel processing.
     """
-
     if comm is None:
         mpisize = 1
         mpirank = 0
@@ -171,8 +344,6 @@ def calculate_statistics_from_separated_files(
     dlogZs = np.zeros(numT)
     acceptances = np.zeros(numT)
 
-    use_log_sum = True
-
     for Tindex in local_Tindices:
         T = Ts[Tindex]
 
@@ -186,66 +357,17 @@ def calculate_statistics_from_separated_files(
         else:
             lowerTindex = -1
             dbeta = 0.0
-        dlogZ = 0.0
-        f_base = None
-        fx_sum = 0.0
-        fx_sum2 = 0.0
-        accepted = 0
-        old_x = None
-        N = 0
-        with open(output_dir / f"result_T{Tindex}.txt", "r") as f_in:
-            for line in f_in:
-                line = line.split("#")[0].strip()
-                if len(line) == 0:
-                    continue
-                words = line.split()
-                step = int(words[0])
-                fx = float(words[2])
-                x = np.array([float(x) for x in words[3:]])
-                if step < thermalization_steps:
-                    old_x = x
-                    continue
 
-                N += 1
-                if not np.allclose(x, old_x):
-                    accepted += 1
-                old_x = x
+        samples = _read_result_T_entries(output_dir / f"result_T{Tindex}.txt")
+        mean, err, dlogZ, acceptance = _compute_temperature_statistics(
+            samples, thermalization_steps, dbeta
+        )
 
-                fx_sum += fx
-                fx_sum2 += fx*fx
-
-                if lowerTindex < 0:
-                    continue
-
-                if f_base is None:
-                    f_base = fx
-                    continue
-
-                if use_log_sum:
-                    ## for A > B > 0,
-                    ## log(A+B) = log(A) + log(1+B/A) = log(A) + log(1+exp(log(B)-log(A)))
-                    logA = dlogZ
-                    logB = -dbeta * (fx - f_base)
-                    if logB > logA:
-                        logA, logB = logB, logA
-                    dlogZ = logA + np.log1p(np.exp(logB - logA))
-                else:
-                    dlogZ += np.exp(-dbeta * (fx - f_base))
-                
-        mean = fx_sum / N
         fx_means[Tindex] = mean
-        err = np.sqrt((fx_sum2/N - mean**2)/(N-1))
         fx_errors[Tindex] = err
-        acceptances[Tindex] = accepted / N
-
-        if lowerTindex < 0:
-            continue
-        if use_log_sum:
-            dlogZ -= np.log(N)
-        else:
-            dlogZ = np.log(dlogZ/N)
-        dlogZ += -dbeta * f_base
-        dlogZs[lowerTindex] = dlogZ
+        acceptances[Tindex] = acceptance
+        if lowerTindex >= 0:
+            dlogZs[lowerTindex] = dlogZ
 
     if comm is not None and mpisize > 1:
         buffer = np.zeros(numT)
@@ -262,7 +384,7 @@ def calculate_statistics_from_separated_files(
         acceptances[:] = buffer
 
     if mpirank == 0:
-        dlogZ = 0.0
+        dlogZ_acc = 0.0
         with open(output_dir / "fx.txt", "w") as f_out:
             f_out.write("# $1: 1/T\n")
             f_out.write("# $2: mean of f(x)\n")
@@ -274,12 +396,12 @@ def calculate_statistics_from_separated_files(
             if T_is_ascending:
                 Tindices = Tindices[::-1]
             for Tindex in Tindices:
-                dlogZ += dlogZs[Tindex]
+                dlogZ_acc += dlogZs[Tindex]
                 T = Ts[Tindex]
                 f_out.write(f"{1/T}")
                 f_out.write(f" {fx_means[Tindex]}")
                 f_out.write(f" {fx_errors[Tindex]}")
                 f_out.write(f" {numT}")
-                f_out.write(f" {dlogZ}")
+                f_out.write(f" {dlogZ_acc}")
                 f_out.write(f" {acceptances[Tindex]}")
-                f_out.write(f"\n")
+                f_out.write("\n")

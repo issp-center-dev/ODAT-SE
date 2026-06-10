@@ -1,5 +1,5 @@
-Optimization by replica exchange Monte Carlo
-================================================
+Search by replica exchange Monte Carlo
+========================================
 
 This tutorial describes how to estimate the minimization problem of Himmelblau function by using the replica exchange Monte Carlo method (RXMC).
 

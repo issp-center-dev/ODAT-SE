@@ -126,6 +126,7 @@ class MeshGrid(DomainBase):
             data = odatse.mpi.algcomm().bcast(data, root=0)
 
         self.grid = [[idx, *v] for idx, v in enumerate(data)]
+        self.do_split()
 
     def _setup_grid(self, info_param):
         """
@@ -161,6 +162,7 @@ class MeshGrid(DomainBase):
                 ).reshape(len(xs), -1).transpose()
             )
         ]
+        self.do_split()
 
     def _setup_random(self, info_param, rng: np.random.RandomState):
         if "min_list" not in info_param:
@@ -258,7 +260,7 @@ if __name__ == "__main__":
     ms.store_file("meshfile.dat", header="sample mesh data")
     
     ms2 = MeshGrid.from_file("meshfile.dat")
-    ms2.do_split()
+    #ms2.do_split()
 
     if odatse.mpi.rank() == 0:
         print(ms2.grid)

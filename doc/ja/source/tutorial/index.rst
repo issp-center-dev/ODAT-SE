@@ -6,7 +6,7 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の6
 
 - ``minsearch``
 
-  Nealder-Mead法
+  Nelder-Mead法
 
 - ``mapper_mpi``
 
