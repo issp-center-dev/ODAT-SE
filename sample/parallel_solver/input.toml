@@ -1,8 +1,6 @@
 [base]
 dimension = 1
 output_dir = "output_par_test"
-nsolve = 2
-nalg = 3
 
 [solver]
 name = "custom"

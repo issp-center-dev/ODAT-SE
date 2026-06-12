@@ -4,21 +4,12 @@ from mpi4py import MPI
 import odatse
 from odatse.algorithm import choose_algorithm
 
-#initialize nalg*nsolve mpi processes with ranks 0...nalg*nsolve-1
-#split the global communicator into nalg subcommunicators with nsolve processes each
-#process 0 in each subcommunicator is the controller (algorithm layer)
-#each of the nalg subcommunicators obtains its share of tasks
-
-#solve the following problem in parallel:
-#find random seed with minimal average largest singular value
-#nmats matrices of size matsize*matsize are generated for each seed
-#each algcomm rank receives a seed which generates a set of matrices
-#each solcomm rank receives a subset of matrices
-
-#for each matrix, svd is computed using thread parallelization
-#each solcomm rank returns a sum of the largest singular values for its subset of matrices
-#each algcomm rank reduces the sum of largest singular values from its solcomm ranks and returns the minimum
-#the global minimum is returned as the optimal solution
+# Parallel solver sample demonstrating two-level MPI parallelism:
+#   nalg  algorithm processes each evaluate a disjoint subset of seeds (algcomm)
+#   nsolve solver processes per group share the SVD computation within one evaluation (solcomm)
+#
+# Problem: find the integer seed minimising the average largest singular value
+# of nmats random matrices of size matsize x matsize.
 
 class ParallelSolver(odatse.solver.SolverBase):
     def __init__(self, info, **kwargs):
@@ -38,7 +29,7 @@ class ParallelSolver(odatse.solver.SolverBase):
     def _testfunc(self, mats):
         return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
 
-    def _compute(self, seeds): # called by all solcomm ranks after broadcast
+    def _compute(self, seeds): # called by all solcomm ranks
         results = []
         for seed in seeds:
             if odatse.mpi.solrank() == 0:
@@ -54,7 +45,7 @@ class ParallelSolver(odatse.solver.SolverBase):
         results /= self.nmats
         return results
 
-    def evaluate(self, xs, args): # called by all solcomm ranks
+    def evaluate(self, xs, args):
         seeds = xs.astype(int)
 
         if odatse.mpi.solrank() == 0:
