@@ -6,8 +6,7 @@ from odatse.algorithm import choose_algorithm
 
 #initialize nalg*nsolve mpi processes with ranks 0...nalg*nsolve-1
 #split the global communicator into nalg subcommunicators with nsolve processes each
-#each process has its own thread pool (via threadpoolctl)
-#process 0 in each communicator is the controller
+#process 0 in each subcommunicator is the controller (algorithm layer)
 #each of the nalg subcommunicators obtains its share of tasks
 
 #solve the following problem in parallel:
@@ -55,23 +54,22 @@ class ParallelSolver(odatse.solver.SolverBase):
         results /= self.nmats
         return results
 
-    def evaluate(self, xs, args): # only called by algcomm ranks (solrank==0)
+    def evaluate(self, xs, args): # called by all solcomm ranks
         seeds = xs.astype(int)
 
         if odatse.mpi.solrank() == 0:
-            odatse.mpi.solcomm().bcast((seeds, args), root=0) # wake up workers in this solcomm
             print(f"algrank: {odatse.mpi.algrank()}, seeds: {list(seeds)}")
 
-        results = self._compute(seeds) # algcomm rank also calls compute
+        results = self._compute(seeds)
 
         if odatse.mpi.solrank() == 0:
             print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
 
-        best_x = np.argmin(results)
-        best_fx = results[best_x]
-        if best_fx < self.opt_fx:
-            self.opt_x = xs[best_x]
-            self.opt_fx = best_fx
+            best_x = np.argmin(results)
+            best_fx = results[best_x]
+            if best_fx < self.opt_fx:
+                self.opt_x = xs[best_x]
+                self.opt_fx = best_fx
         return results
 
 parser=argparse.ArgumentParser()
@@ -100,7 +98,7 @@ odatse.mpi.comm().barrier()
 time1 = time.time()
 elapsed_time = time1 - time0
 
-if odatse.mpi.algrank() is not None:
+if odatse.mpi.run_on_algorithm():
     solver.opt_fx, solver.opt_x = min(odatse.mpi.algcomm().allgather((solver.opt_fx, solver.opt_x)), key=lambda x: x[0])
 
 odatse.mpi.comm().barrier()
