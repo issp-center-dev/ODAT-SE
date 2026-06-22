@@ -336,7 +336,7 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.fp_trial = fp_trial
         self.fp_result = fp_result
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         """Algorithm-specific preparation (MC layer).
 
         Called by the framework after checkpoint dispatch.  The default

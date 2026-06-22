@@ -162,11 +162,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self._show_parameters()
 
-    def run(self) -> None:
+    def _run(self) -> None:
         """
         Run the algorithm.
         """
-        # dispatch は _prepare() が処理済み
+        # dispatch は prepare() が処理済み
 
         # Get current beta (inverse temperature) values for each replica
         beta = self.betas[self.Tindex]
@@ -380,14 +380,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.mpirank * self.nwalkers : (self.mpirank + 1) * self.nwalkers
         ]
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         """
         Prepare the algorithm for execution.
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["exchange"] = 0.0
 
-    def post(self) -> dict:
+    def _post(self) -> dict:
         """
         Post-process the results of the algorithm.
         """

@@ -135,7 +135,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._show_parameters()
 
-    def run(self) -> None:
+    def _prepare(self) -> None:
+        pass
+
+    def _run(self) -> None:
         """
         Runs the Bayesian optimization process.
         """
@@ -220,7 +223,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.checkpoint:
             self._save_state(self.checkpoint_file)
 
-    def post(self) -> None:
+    def _post(self) -> None:
         """
         Finalizes the algorithm execution and writes the results to a file.
         """

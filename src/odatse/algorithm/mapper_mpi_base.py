@@ -71,11 +71,14 @@ class Algorithm(AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
-    def run(self) -> None:
+    def _prepare(self) -> None:
+        pass
+
+    def _run(self) -> None:
         """
         Execute the main algorithm process.
         """
-        # dispatch は _prepare() が処理済み
+        # dispatch は prepare() が処理済み
 
         # local colormap file
         fp = open(self.local_colormap_file, "a")
@@ -161,7 +164,7 @@ class Algorithm(AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["file_CM"] = time_end - time_sta
 
-    def post(self) -> dict:
+    def _post(self) -> dict:
         """
         Post-process the results and gather data from all MPI ranks.
 

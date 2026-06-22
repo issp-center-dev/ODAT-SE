@@ -266,9 +266,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return numT
 
-    def run(self) -> None:
+    def _run(self) -> None:
 
-        # dispatch は _prepare() が処理済み
+        # dispatch は prepare() が処理済み
 
         writer = self._setup_writer()
 
@@ -686,7 +686,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         return pr
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         """
         Prepare the algorithm for execution.
 
@@ -734,7 +734,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if fwrite:
                 fwrite.close()
 
-    def post(self) -> dict:
+    def _post(self) -> dict:
         """
         Post-processing after the algorithm execution.
 

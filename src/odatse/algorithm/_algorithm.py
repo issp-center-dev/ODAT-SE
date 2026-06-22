@@ -42,16 +42,16 @@ class AlgorithmBase(metaclass=ABCMeta):
 
     Lifecycle
     ---------
-    ``main()`` drives the three-phase lifecycle by calling the internal wrappers::
+    ``main()`` drives the three-phase lifecycle by calling the framework wrappers::
 
         main()
-          ├── _prepare()   runner.prepare → dispatch(init/resume/continue) → prepare()
-          ├── _run()       run()
-          └── _post()      post() → runner.post()
+          ├── prepare()   runner.prepare → dispatch(init/resume/continue) → _prepare()
+          ├── run()       _run()
+          └── post()      _post() → runner.post()
 
-    Subclasses implement the extension points without underscores:
-    ``prepare()`` (optional), ``run()`` (required), ``post()`` (required).
-    The underscore-prefixed wrappers ``_prepare``, ``_run``, ``_post`` are
+    Subclasses implement the hooks with underscore prefix:
+    ``_prepare()`` (optional), ``_run()`` (required), ``_post()`` (required).
+    The plain-named wrappers ``prepare``, ``run``, ``post`` are
     framework internals and must **not** be overridden in subclasses.
 
     Checkpoint
@@ -248,14 +248,14 @@ class AlgorithmBase(metaclass=ABCMeta):
     # Framework wrappers – called by main().  Do NOT override in subclasses.
     # ------------------------------------------------------------------
 
-    def _prepare(self) -> None:
+    def prepare(self) -> None:
         """Framework wrapper for the prepare phase.
 
         Calls ``runner.prepare()``, dispatches init/resume/continue, then
-        calls the ``prepare()`` extension point.
+        calls the ``_prepare()`` hook.
 
         Do **not** override this method in subclasses.  Implement
-        ``prepare()`` instead.
+        ``_prepare()`` instead.
         """
         if self.runner is None:
             raise RuntimeError("Runner is not assigned")
@@ -272,69 +272,69 @@ class AlgorithmBase(metaclass=ABCMeta):
         else:
             raise RuntimeError(f"unknown mode {self.mode}")
         # algorithm-specific preparation
-        self.prepare()
+        self._prepare()
         self.status = AlgorithmStatus.PREPARE
 
-    def _run(self) -> None:
+    def run(self) -> None:
         """Framework wrapper for the run phase.
 
-        Calls the ``run()`` extension point.  Runner calls are handled by
-        ``_prepare()`` and ``_post()``; this wrapper contains no runner
+        Calls the ``_run()`` hook.  Runner calls are handled by
+        ``prepare()`` and ``post()``; this wrapper contains no runner
         invocations.
 
         Do **not** override this method in subclasses.  Implement
-        ``run()`` instead.
+        ``_run()`` instead.
         """
         if self.status < AlgorithmStatus.PREPARE:
             raise RuntimeError("algorithm has not prepared yet")
         original_dir = os.getcwd()
         os.chdir(self.proc_dir)
-        self.run()
+        self._run()
         os.chdir(original_dir)
         self.status = AlgorithmStatus.RUN
 
-    def _post(self) -> dict:
+    def post(self) -> dict:
         """Framework wrapper for the post phase.
 
-        Calls the ``post()`` extension point then ``runner.post()``.
+        Calls the ``_post()`` hook then ``runner.post()``.
 
         Do **not** override this method in subclasses.  Implement
-        ``post()`` instead.
+        ``_post()`` instead.
         """
         if self.status < AlgorithmStatus.RUN:
             raise RuntimeError("algorithm has not run yet")
         original_dir = os.getcwd()
         os.chdir(self.output_dir)
-        result = self.post()
+        result = self._post()
         os.chdir(original_dir)
         # runner lifecycle ends (commit 936e48: moved here from run())
         self.runner.post()
         return result
 
     # ------------------------------------------------------------------
-    # Extension points – override these in subclasses.
+    # Hooks – override these in subclasses.
     # ------------------------------------------------------------------
 
     @abstractmethod
     def _initialize(self) -> None:
         """Set up initial algorithm state for a fresh run (init mode).
 
-        Called by ``_prepare()`` when ``mode`` starts with ``"init"``.
-        Must not use the runner (evaluation happens later in ``run()``).
-        """
-        pass
-
-    def prepare(self) -> None:
-        """Algorithm-specific preparation, called after dispatch.
-
-        Override in subclasses to perform setup that must happen after the
-        checkpoint state is established (e.g. initialising timer entries).
-        The default implementation does nothing.
+        Called by ``prepare()`` when ``mode`` starts with ``"init"``.
+        Must not use the runner (evaluation happens later in ``_run()``).
         """
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    def _prepare(self) -> None:
+        """Algorithm-specific preparation, called after dispatch.
+
+        Override in subclasses to perform setup that must happen after the
+        checkpoint state is established (e.g. initialising timer entries).
+        """
+        pass
+
+    @abstractmethod
+    def _run(self) -> None:
         """Execute the main algorithm loop.
 
         For ``init`` mode, perform the initial evaluation here before
@@ -344,7 +344,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def post(self) -> dict:
+    def _post(self) -> dict:
         """Perform post-processing and return results."""
         pass
 
@@ -399,14 +399,14 @@ class AlgorithmBase(metaclass=ABCMeta):
         Main method to execute the algorithm.
         """
         time_sta = time.perf_counter()
-        self._prepare()
+        self.prepare()
         time_end = time.perf_counter()
         self.timer["prepare"]["total"] = time_end - time_sta
         if self.mpisize > 1:
             self.mpicomm.Barrier()
 
         time_sta = time.perf_counter()
-        self._run()
+        self.run()
         time_end = time.perf_counter()
         self.timer["run"]["total"] = time_end - time_sta
         print("end of run")
@@ -414,7 +414,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             self.mpicomm.Barrier()
 
         time_sta = time.perf_counter()
-        result = self._post()
+        result = self.post()
         time_end = time.perf_counter()
         self.timer["post"]["total"] = time_end - time_sta
 

@@ -105,7 +105,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         pass
 
-    def run(self) -> None:
+    def _run(self) -> None:
         """
         Run the minimization algorithm.
         """
@@ -216,7 +216,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.mpisize > 1:
             self.mpicomm.barrier()
 
-    def prepare(self):
+    def _prepare(self):
         """
         Prepare the initial simplex for the Nelder-Mead algorithm.
         """
@@ -250,7 +250,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             fp.write(f"iterations = {self.itera}\n")
             fp.write(f"function_evaluations = {self.funcalls}\n")
 
-    def post(self):
+    def _post(self):
         """
         Post-process the results after minimization.
         """

@@ -24,13 +24,13 @@ Lifecycle
 .. code-block:: none
 
     main()
-      ├── _prepare()   runner.prepare() → dispatch(init/resume/continue) → prepare()
-      ├── _run()       run()
-      └── _post()      post() → runner.post()
+      ├── prepare()   runner.prepare() → dispatch(init/resume/continue) → _prepare()
+      ├── run()       _run()
+      └── post()      _post() → runner.post()
 
-Subclasses implement the *extension points* – the methods **without** a leading
-underscore: ``_initialize()``, ``prepare()`` (optional), ``run()``, and ``post()``.
-The underscore-prefixed wrappers ``_prepare``, ``_run``, ``_post`` are framework
+Subclasses implement the *hooks* – the methods **with** a leading underscore:
+``_initialize()``, ``_prepare()``, ``_run()``, and ``_post()``.
+The plain-named wrappers ``prepare``, ``run``, ``post`` are framework
 internals and must **not** be overridden in subclasses.
 
 Instance variables set by ``__init__``
@@ -65,7 +65,7 @@ Instance variables set by ``__init__``
 
     - Set to ``self.output_dir / str(self.mpirank)``.
     - Created automatically.
-    - ``run()`` is called from this directory.
+    - ``_run()`` is called from this directory.
 
   - ``self.timer: dict[str, dict]`` : elapsed-time dictionary.
 
@@ -81,32 +81,32 @@ Instance variables set by ``__init__``
 Framework wrappers (do not override)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``_prepare(self) -> None``
+- ``prepare(self) -> None``
 
-  Calls ``runner.prepare()``, dispatches init/resume/continue, then calls ``prepare()``.
+  Calls ``runner.prepare()``, dispatches init/resume/continue, then calls ``_prepare()``.
   The checkpoint dispatch is handled automatically:
 
   - ``mode`` starts with ``"init"`` → ``_initialize()`` is called.
   - ``mode`` starts with ``"resume"`` or ``"continue"`` → ``_load_state()`` is called.
 
-  Do **not** override this method. Implement ``prepare()`` instead.
+  Do **not** override this method. Implement ``_prepare()`` instead.
 
-- ``_run(self) -> None``
+- ``run(self) -> None``
 
-  Enters ``proc_dir`` and calls ``run()``.
-  Runner calls are handled by ``_prepare()`` and ``_post()``; this wrapper performs no runner invocations.
+  Enters ``proc_dir`` and calls ``_run()``.
+  Runner calls are handled by ``prepare()`` and ``post()``; this wrapper performs no runner invocations.
 
-  Do **not** override this method. Implement ``run()`` instead.
+  Do **not** override this method. Implement ``_run()`` instead.
 
-- ``_post(self) -> dict``
+- ``post(self) -> dict``
 
-  Enters ``output_dir``, calls ``post()``, then calls ``runner.post()``.
+  Enters ``output_dir``, calls ``_post()``, then calls ``runner.post()``.
 
-  Do **not** override this method. Implement ``post()`` instead.
+  Do **not** override this method. Implement ``_post()`` instead.
 
 - ``main(self) -> dict``
 
-  Calls ``_prepare()``, ``_run()``, and ``_post()`` in sequence with timing and MPI barriers.
+  Calls ``prepare()``, ``run()``, and ``post()`` in sequence with timing and MPI barriers.
   Returns the result of the optimization as a dictionary.
 
 Checkpoint helpers
@@ -162,35 +162,34 @@ that the subclass may need.
 
     def _initialize(self) -> None:
         # Set up the algorithm state for a fresh run.
-        # Do NOT call the runner here – evaluation happens in run().
+        # Do NOT call the runner here – evaluation happens in _run().
         self.istep = 0
         self.best_fx = np.inf
         ...
 
 Called by the framework when ``mode`` starts with ``"init"``.
-Must not use the runner (the initial evaluation should be done in ``run()``).
+Must not use the runner (the initial evaluation should be done in ``_run()``).
 
-``prepare`` (optional)
-^^^^^^^^^^^^^^^^^^^^^^^
+``_prepare`` (required)
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-    def prepare(self) -> None:
+    def _prepare(self) -> None:
         # Called after the checkpoint dispatch and before the main loop.
         # Good place to initialise timers or open output files.
         self.timer["run"]["submit"] = 0.0
 
-Called after ``_initialize()`` or ``_load_state()`` and before ``run()``.
-The default implementation does nothing; override only when needed.
+Called after ``_initialize()`` or ``_load_state()`` and before ``_run()``.
 
-``run`` (required)
-^^^^^^^^^^^^^^^^^^^
+``_run`` (required)
+^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-    def run(self) -> None:
+    def _run(self) -> None:
         # The checkpoint dispatch (init/resume/continue) has already been
-        # performed by _prepare(); start the main loop directly.
+        # performed by prepare(); start the main loop directly.
 
         # For "init" mode, perform the initial evaluation here.
         if self.mode.startswith("init"):
@@ -218,7 +217,7 @@ The default implementation does nothing; override only when needed.
             self._save_state(self.checkpoint_file)
 
 The algorithm body.
-The checkpoint dispatch is already done; ``run()`` can check ``self.mode`` only for
+The checkpoint dispatch is already done; ``_run()`` can check ``self.mode`` only for
 actions that are specific to the very first evaluation step (``mode.startswith("init")``).
 
 To evaluate the objective function for parameter ``x``:
@@ -228,12 +227,12 @@ To evaluate the objective function for parameter ``x``:
     args = (step, set)
     fx = self.runner.submit(x, args)
 
-``post`` (required)
-^^^^^^^^^^^^^^^^^^^^
+``_post`` (required)
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-    def post(self) -> dict:
+    def _post(self) -> dict:
         # Write results to files, gather from MPI ranks, …
         return {"x": self.xopt, "fx": self.best_fx}
 
@@ -295,10 +294,10 @@ Minimal working example
             self.best_x = None
             self.results = []
 
-        def prepare(self) -> None:
+        def _prepare(self) -> None:
             self.timer["run"]["submit"] = 0.0
 
-        def run(self) -> None:
+        def _run(self) -> None:
             next_chk_step = self.icount + self.checkpoint_steps
             next_chk_time = time.time() + self.checkpoint_interval
 
@@ -324,7 +323,7 @@ Minimal working example
             if self.checkpoint:
                 self._save_state(self.checkpoint_file)
 
-        def post(self) -> dict:
+        def _post(self) -> dict:
             if self.mpirank == 0:
                 with open("result.txt", "w") as f:
                     f.write(f"fx = {self.best_fx}\n")
