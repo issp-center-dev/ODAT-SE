@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """
     Replica Exchange Monte Carlo (REMC) Algorithm Implementation.
-    
-    This class implements the Replica Exchange Monte Carlo algorithm, also known as 
+
+    This class implements the Replica Exchange Monte Carlo algorithm, also known as
     Parallel Tempering. The algorithm runs multiple replicas of the system at different
     temperatures and periodically attempts to swap configurations between adjacent
     temperature levels.
@@ -115,7 +115,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             run_mode=run_mode,
         )
 
-        self.nreplica = (odatse.mpi.algsize() or 1) * self.nwalkers
+        self.nreplica = odatse.mpi.algsize() * self.nwalkers
         self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)
 
         self.numsteps = info_exchange["numsteps"]
@@ -279,8 +279,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If False, attempt exchanges between odd-even pairs.
         """
         comm = odatse.mpi.algcomm()
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-            comm.Barrier()
+
+        comm.Barrier()
+
         if direction:
             if self.Tindex[0] % 2 == 0:
                 other_index = self.Tindex[0] + 1
@@ -321,7 +322,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 self.Tindex[0] = ibuf[0]
 
         comm.Barrier()
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+
+        if odatse.mpi.algrank() == 0:
             self.T2rep[self.Tindex[0]] = odatse.mpi.algrank()
             for other_rank in range(1, self.nreplica):
                 comm.Recv(ibuf, source=other_rank, tag=0)
@@ -345,7 +347,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If False, attempt exchanges between odd-even pairs.
         """
         comm = odatse.mpi.algcomm()
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+
+        if odatse.mpi.algsize() > 1:
             fx_all = comm.allgather(self.fx)
             fx_all = np.array(fx_all).flatten()
         else:
@@ -354,9 +357,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         rep2T_diff = []
         T2rep_diff = []
 
-        for irep in range(
-            (odatse.mpi.algrank() or 0) * self.nwalkers, ((odatse.mpi.algrank() or 0) + 1) * self.nwalkers
-        ):
+        rank = odatse.mpi.algrank()
+
+        for irep in range(rank * self.nwalkers, (rank+1) * self.nwalkers):
             iT = self.rep2T[irep]
             if iT % 2 != 0:
                 continue
@@ -373,7 +376,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 T2rep_diff.append((iT, jrep))
                 T2rep_diff.append((jT, irep))
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algsize() > 1:
             rep2T_diff = comm.allgather(rep2T_diff)
             rep2T_diff = list(itertools.chain.from_iterable(rep2T_diff))  # flatten
             T2rep_diff = comm.allgather(T2rep_diff)
@@ -383,9 +386,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.rep2T[diff[0]] = diff[1]
         for diff in T2rep_diff:
             self.T2rep[diff[0]] = diff[1]
-        self.Tindex = self.rep2T[
-            odatse.mpi.algrank() * self.nwalkers : (odatse.mpi.algrank() + 1) * self.nwalkers
-        ]
+
+        self.Tindex = self.rep2T[rank * self.nwalkers : (rank + 1) * self.nwalkers]
 
     def _prepare(self) -> None:
         """
@@ -400,7 +402,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         # Separate results by temperature if requested
         if self.separate_T and not self.export_combined_files:
-            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+            if odatse.mpi.algrank() == 0:
                 print(f"start separateT {odatse.mpi.algrank()}")
                 sys.stdout.flush()
 
@@ -424,7 +426,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             )
 
         # Gather best results from all processes
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algsize() > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
             # ``Gather`` and ``allgather`` seem to work fine.
@@ -444,7 +446,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         best_rank = np.argmin(best_fx)
 
         # Write best result to file (rank 0 only)
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+        if odatse.mpi.algrank() == 0:
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.nreplica}\n")
                 f.write(f"rank = {best_rank}\n")
@@ -543,8 +545,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             sys.exit(1)
 
         # -- _algorithm
-        assert odatse.mpi.algsize() is not None and odatse.mpi.algsize() == data["algsize"]
-        assert odatse.mpi.algrank() is not None and odatse.mpi.algrank() == data["algrank"]
+        assert odatse.mpi.algsize() == data["algsize"]
+        assert odatse.mpi.algrank() == data["algrank"]
 
         if restore_rng:
             self.rng = np.random.RandomState()

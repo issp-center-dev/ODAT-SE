@@ -165,7 +165,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
-        nreplicas = (odatse.mpi.algsize() or 1) * self.nwalkers
+        nreplicas = odatse.mpi.algsize() * self.nwalkers
         self.nreplicas = np.full(numT, nreplicas)
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
@@ -388,8 +388,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._split_result_file("trial")
             self._split_result_file("result")
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algsize() > 1:
             odatse.mpi.algcomm().barrier()
+
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
     def _setup_writer(self):

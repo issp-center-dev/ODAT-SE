@@ -204,6 +204,8 @@ if not _NOMPI:
 
             self._ready = True
 
+            # self._print_status()
+
         def _require_ready(self) -> None:
             if not self._ready:
                 raise RuntimeError("odatse.mpi.setup() has not been called")
@@ -255,6 +257,17 @@ if not _NOMPI:
 
         def run_on_algorithm(self) -> bool:
             return self._solrank == 0
+
+        # --- debug ---
+
+        def _print_status(self):
+            print("DEBUG: "
+                  + f"global: size={self._comm.size}, rank={self._comm.rank}"
+                  + "; "
+                  + f"alg: comm={self._algcomm}, size={self._algsize}, rank={self._algrank}"
+                  + "; "
+                  + f"sol: comm={self._solcomm}, size={self._solsize}, rank={self._solrank}"
+            )
 
         # --- Checkpoint ---
 

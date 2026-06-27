@@ -85,10 +85,9 @@ class Algorithm(AlgorithmBase):
             raise RuntimeError("unknown mode {}".format(self.mode))
 
         # local colormap file
-        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
-            fp = open(self.local_colormap_file, "a")
-            if self.mode.startswith("init"):
-                fp.write("#" + " ".join(self.label_list) + " fval\n")
+        fp = open(self.local_colormap_file, "a")
+        if self.mode.startswith("init"):
+            fp.write("#" + " ".join(self.label_list) + " fval\n")
 
         #iterations = len(self.mesh_list)
         #istart = len(self.fx_list)
@@ -115,10 +114,9 @@ class Algorithm(AlgorithmBase):
             self.results.append([idx, coord, fx])
 
             # write to local colormap file
-            if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-                fp.write(" ".join(
-                    map(lambda v: "{:8f}".format(v), (*x, fx))
-                ) + "\n")
+            fp.write(" ".join(
+                map(lambda v: "{:8f}".format(v), (*x, fx))
+            ) + "\n")
 
             # update optimal value
             if fx < self.opt_fx:
@@ -133,8 +131,8 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
-            fp.close()
+        # close local colormap file
+        fp.close()
 
         if not np.isinf(self.opt_fx):
             print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
