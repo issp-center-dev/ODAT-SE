@@ -63,38 +63,47 @@ class ParallelSolver(odatse.solver.SolverBase):
                 self.opt_fx = best_fx
         return results
 
-parser=argparse.ArgumentParser()
-parser.add_argument('-m','--nalg', help='# of processes for search algorithm', type=int, default=1)
-parser.add_argument('-n','--nsolve', help='# of processes for solver', type=int, default=1)
-args=parser.parse_args()
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('-m','--nalg', help='# of processes for search algorithm', type=int, default=1)
+    parser.add_argument('-n','--nsolve', help='# of processes for solver', type=int, default=1)
+    args=parser.parse_args()
 
-assert args.nalg*args.nsolve == odatse.mpi.comm().size
+    assert args.nalg*args.nsolve == odatse.mpi.comm().size
 
-nmats=50
-matsize=1000
+    argv = ["input.toml", "--init", f"--nalg={args.nalg}", f"--nsolve={args.nsolve}"]
+    info, run_mode = odatse.initialize(argv)
 
-argv = ["input.toml", "--init", f"--nalg={args.nalg}", f"--nsolve={args.nsolve}"]
-info, run_mode = odatse.initialize(argv)
+    if odatse.mpi.rank() == 0:
+        print(f"total mpi: {odatse.mpi.size()}")
 
-output_dir = info.base.get("output_dir", "./output")
-os.makedirs(output_dir, exist_ok=True)
-print(odatse.mpi.size(), odatse.mpi.algsize(), odatse.mpi.solsize())
-solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-runner = odatse.Runner(solver, info)
-alg_module = choose_algorithm(info.algorithm["name"])
-alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-time0 = time.time()
-result = alg.main()
-odatse.mpi.comm().barrier()
-time1 = time.time()
-elapsed_time = time1 - time0
+    nmats = info.solver["param"].get("nmats", 50)
+    matsize = info.solver["param"].get("matsize", 1000)
 
-if odatse.mpi.run_on_algorithm():
-    solver.opt_fx, solver.opt_x = min(odatse.mpi.algcomm().allgather((solver.opt_fx, solver.opt_x)), key=lambda x: x[0])
+    output_dir = info.base.get("output_dir", "./output")
+    os.makedirs(output_dir, exist_ok=True)
 
-odatse.mpi.comm().barrier()
+    solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+    runner = odatse.Runner(solver, info)
+    alg_module = choose_algorithm(info.algorithm["name"])
+    alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+    time0 = time.time()
+    result = alg.main()
+    odatse.mpi.comm().barrier()
+    time1 = time.time()
+    elapsed_time = time1 - time0
 
-if odatse.mpi.rank() == 0:
-    print(f"\nopt_x={solver.opt_x}")
-    print(f"opt_fx={solver.opt_fx}")
-    print(f"time: {elapsed_time}s")
+    if odatse.mpi.run_on_algorithm():
+        opt_fx, opt_x = min(
+            odatse.mpi.algcomm().allgather( (solver.opt_fx, solver.opt_x) ),
+            key=lambda x: x[0])
+
+    odatse.mpi.comm().barrier()
+
+    if odatse.mpi.rank() == 0:
+        print(f"\nopt_x={opt_x}")
+        print(f"opt_fx={opt_fx}")
+        print(f"time: {elapsed_time:.6f}s")
+
+if __name__ == "__main__":
+    main()
