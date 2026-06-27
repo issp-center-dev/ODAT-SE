@@ -85,7 +85,7 @@ class Algorithm(AlgorithmBase):
             raise RuntimeError("unknown mode {}".format(self.mode))
 
         # local colormap file
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
             fp = open(self.local_colormap_file, "a")
             if self.mode.startswith("init"):
                 fp.write("#" + " ".join(self.label_list) + " fval\n")
@@ -133,7 +133,7 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
             fp.close()
 
         if not np.isinf(self.opt_fx):

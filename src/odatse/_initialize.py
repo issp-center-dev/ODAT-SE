@@ -46,10 +46,9 @@ def initialize(argv: Optional[Sequence[str]] = None):
     
     parser.add_argument("--nalg", type=int, default=None, help="# of processes for search algorithm")
     parser.add_argument("--nsolve", type=int, default=None, help="# of processes for solver")
-    parser.add_argument("--nthreads", type=int, default=None, help="# of threads")
 
     args = parser.parse_args(argv)
-    odatse.mpi.setup(args.nalg, args.nsolve, args.nthreads)
+    odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
 
 
     if args.init is True:

@@ -106,7 +106,7 @@ class Runner(object):
         self.logger.prepare(proc_dir)
 
     def submit(
-            self, x: np.ndarray, args = ()) -> float:
+            self, x: np.ndarray, args: tuple = ()) -> float:
         """
         Submit the solver with the given parameters.
 
@@ -124,6 +124,16 @@ class Runner(object):
         """
         if self.limitation.judge(x):
             xp = self.mapping(x)
+
+            assert xp.ndim == 1
+            assert xp.shape[0] == self.solver.dimension
+
+            if odatse.mpi.solsize() > 1:
+                msg = np.array([odatse.mpi.MSG_EVALUATE])
+                odatse.mpi.solcomm().Bcast(msg, root=0)
+                odatse.mpi.solcomm().Bcast(xp, root=0)
+                odatse.mpi.solcomm().bcast(args, root=0) # args is not array, so we use bcast instead of Bcast
+
             try:
                 result = self.solver.evaluate(xp, args)
             except RuntimeError as err:
@@ -131,6 +141,7 @@ class Runner(object):
                     result = np.nan
                 else:
                     raise
+
         else:
             result = np.inf
         self.logger.count(x, args, result)

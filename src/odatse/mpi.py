@@ -7,6 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import os
+import numpy as np
 
 ODATSE_NOMPI = os.environ.get("ODATSE_NOMPI", "0")!="0"
 
@@ -20,7 +21,7 @@ if not ODATSE_NOMPI:
 if ODATSE_NOMPI:
     Comm = None
 
-    def setup(nalg, nsolve, nthreads):
+    def setup(*, nalg=None, nsolve=None):
         pass
 
     def comm():
@@ -41,9 +42,6 @@ if ODATSE_NOMPI:
     def solrank() -> int:
         return 0
 
-    def solthreads() -> int:
-        return 1
-
     def algcomm():
         return None
 
@@ -53,11 +51,11 @@ if ODATSE_NOMPI:
     def algrank() -> int:
         return 0
 
-    def color() -> int:
-        return 0
-
     def enabled() -> bool:
         return False
+
+    def run_on_algorithm() -> bool:
+        return True
 
 else:
 
@@ -67,25 +65,21 @@ else:
     __comm = MPI.COMM_WORLD
     __size = __comm.size
     __rank = __comm.rank
-    __solcomm = None
+    __solcomm = MPI.COMM_SELF
     __solsize = 1
     __solrank = 0
-    __solthreads = 1
     __algcomm = MPI.COMM_WORLD
     __algsize = __algcomm.size
     __algrank = __algcomm.rank
-    __color = 0
-    
-    def setup(nalg, nsolve, nthreads):
-        global __comm, __size, __rank, __solcomm, __solsize, __solrank, __solthreads, __algcomm, __algsize, __algrank, __color
 
-        if nthreads is not None and nthreads <= 0:
-            raise ValueError(f"nthreads must be a positive integer, got {nthreads}")
+    def setup(*, nalg=None, nsolve=None):
+        global __comm, __size, __rank, __solcomm, __solsize, __solrank, __algcomm, __algsize, __algrank
+
         if nalg is not None and nalg <= 0:
             raise ValueError(f"nalg must be a positive integer, got {nalg}")
         if nsolve is not None and nsolve <= 0:
             raise ValueError(f"nsolve must be a positive integer, got {nsolve}")
-        
+
         if nalg is not None and nsolve is not None:
             if nalg * nsolve != __comm.size:
                 raise ValueError(f"nalg * nsolve must equal the total number of MPI processes, but {nalg} * {nsolve} = {nalg * nsolve} != {__comm.size}")
@@ -101,14 +95,27 @@ else:
             nalg = __comm.size
             nsolve = 1
 
-        __color = __comm.rank // nsolve
-        __solcomm = __comm.Split(color=__color, key=__comm.rank)
+        # create solver intracommunicators
+        color = __comm.rank // nsolve
+        __solcomm = __comm.Split(color=color, key=__comm.rank)
         __solsize = __solcomm.size
+        assert __solsize == nsolve
         __solrank = __solcomm.rank
-        __solthreads = 1 if nthreads is None else nthreads
+
+        # create algorithm intracommunicator including all procs with __solrank==0
         __algcomm = __comm.Create(__comm.Get_group().Incl([color * nsolve for color in range(nalg)]))
-        __algsize = __algcomm.size if __algcomm != MPI.COMM_NULL else None
-        __algrank = __algcomm.rank if __algcomm != MPI.COMM_NULL else None
+        if __algcomm != MPI.COMM_NULL:
+            __algsize = __algcomm.size
+            __algrank = __algcomm.rank
+            sr = np.array([__algsize, __algrank])
+            sr = __solcomm.bcast(sr, root=0)
+        else:
+            __algsize = 0
+            __algrank = 0
+            sr = np.array([__algsize, __algrank])
+            sr = __solcomm.bcast(sr, root=0)
+            __algsize, __algrank = sr
+            __algcomm = None
 
     def comm():
         return __comm
@@ -128,12 +135,7 @@ else:
     def solrank() -> int:
         return __solrank
 
-    def solthreads() -> int:
-        return __solthreads
-
     def algcomm():
-        if __algcomm is MPI.COMM_NULL:
-            return None
         return __algcomm
 
     def algsize() -> int:
@@ -141,9 +143,26 @@ else:
 
     def algrank() -> int:
         return __algrank
-    
-    def color() -> int:
-        return __color
+
+    def run_on_algorithm() -> bool:
+        """
+        Check if the current process is running on the algorithm.
+        """
+        return __solrank == 0
 
     def enabled() -> bool:
         return True
+
+
+class OtherAlgorithmProcessError(Exception):
+    """Exception raised when an error occurs in another algorithm process.
+
+    After this error is caught, the algorithm process should clean up (e.g., signal solver workers to finish) and exit without any message.
+    """
+    
+    def __init__(self) -> None:
+        super().__init__()
+
+MSG_ABORT = -1
+MSG_FINISHED = 0
+MSG_EVALUATE = 1

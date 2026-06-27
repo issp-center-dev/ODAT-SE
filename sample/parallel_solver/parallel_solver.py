@@ -1,9 +1,8 @@
-import sys, os, time, argparse
+import os, time, argparse
 import numpy as np
 from mpi4py import MPI
 import odatse
 from odatse.algorithm import choose_algorithm
-import threadpoolctl
 
 #initialize nalg*nsolve mpi processes with ranks 0...nalg*nsolve-1
 #split the global communicator into nalg subcommunicators with nsolve processes each
@@ -35,12 +34,10 @@ class ParallelSolver(odatse.solver.SolverBase):
         if odatse.mpi.rank()==0:
             print(f"nalg: {odatse.mpi.algsize()}")
             print(f"nsolve: {odatse.mpi.solsize()}")
-            print(f"nthreads: {odatse.mpi.solthreads()}")
         odatse.mpi.comm().barrier()
 
     def _testfunc(self, mats):
-        with threadpoolctl.threadpool_limits(limits=odatse.mpi.solthreads()):
-            return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
+        return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
 
     def _compute(self, seeds): # called by all solcomm ranks after broadcast
         results = []
@@ -63,13 +60,13 @@ class ParallelSolver(odatse.solver.SolverBase):
 
         if odatse.mpi.solrank() == 0:
             odatse.mpi.solcomm().bcast((seeds, args), root=0) # wake up workers in this solcomm
-            print(f"color {odatse.mpi.color()}, seeds: {list(seeds)}")
+            print(f"algrank: {odatse.mpi.algrank()}, seeds: {list(seeds)}")
 
         results = self._compute(seeds) # algcomm rank also calls compute
 
         if odatse.mpi.solrank() == 0:
-            print(f"color {odatse.mpi.color()}, results: {list(results)}")
-        
+            print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
+
         best_x = np.argmin(results)
         best_fx = results[best_x]
         if best_fx < self.opt_fx:
@@ -80,7 +77,6 @@ class ParallelSolver(odatse.solver.SolverBase):
 parser=argparse.ArgumentParser()
 parser.add_argument('-m','--nalg', help='# of processes for search algorithm', type=int, default=1)
 parser.add_argument('-n','--nsolve', help='# of processes for solver', type=int, default=1)
-parser.add_argument('-t','--nthreads', help='# of threads', type=int, default=1)
 args=parser.parse_args()
 
 assert args.nalg*args.nsolve == odatse.mpi.comm().size
@@ -88,11 +84,12 @@ assert args.nalg*args.nsolve == odatse.mpi.comm().size
 nmats=50
 matsize=1000
 
-sys.argv = ["script.py", "input.toml", "--init", f"--nalg={args.nalg}", f"--nsolve={args.nsolve}", f"--nthreads={args.nthreads}"]
-info, run_mode = odatse.initialize()
+argv = ["input.toml", "--init", f"--nalg={args.nalg}", f"--nsolve={args.nsolve}"]
+info, run_mode = odatse.initialize(argv)
+
 output_dir = info.base.get("output_dir", "./output")
 os.makedirs(output_dir, exist_ok=True)
-print(odatse.mpi.size(), odatse.mpi.algsize(), odatse.mpi.solsize(), odatse.mpi.solthreads())
+print(odatse.mpi.size(), odatse.mpi.algsize(), odatse.mpi.solsize())
 solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
 runner = odatse.Runner(solver, info)
 alg_module = choose_algorithm(info.algorithm["name"])
