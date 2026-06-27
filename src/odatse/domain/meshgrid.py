@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Any
+from typing import Sequence, Union, Any
 
 from pathlib import Path
 import numpy as np
@@ -19,9 +19,9 @@ class MeshGrid(DomainBase):
     MeshGrid class for handling grid data for quantum beam diffraction experiments.
     """
 
-    grid: list[list[Union[int, float]]] = []
-    grid_local: list[list[Union[int, float]]] = []
-    candicates: int
+    # whole grid and local chunk: list of vectors
+    grid: Sequence[Sequence[Union[int, float]]] = []
+    grid_local: Sequence[Sequence[Union[int, float]]] = []
 
     def __init__(
         self,
@@ -61,14 +61,14 @@ class MeshGrid(DomainBase):
         """
         Split the grid data among MPI processes.
         """
-        if odatse.mpi.algsize() is None:
-            self.grid_local = []
-        elif odatse.mpi.algsize() > 1:
-            index = [idx for idx, *v in self.grid]
-            index_local = np.array_split(index, odatse.mpi.algsize())[odatse.mpi.algrank()]
-            self.grid_local = [[idx, *v] for idx, *v in self.grid if idx in index_local]
+        if odatse.mpi.run_on_algorithm():
+            if odatse.mpi.algsize() > 1:
+                _data = np.array_split(self.grid, odatse.mpi.algsize())[odatse.mpi.algrank()]
+                self.grid_local = [[idx, *v] for idx, *v in _data]
+            else:
+                self.grid_local = self.grid
         else:
-            self.grid_local = self.grid
+            self.grid_local = []
 
     def _setup(self, info_param, rng: np.random.RandomState, mesh: bool = True):
         """
@@ -90,7 +90,7 @@ class MeshGrid(DomainBase):
         else:
             self._setup_random(info_param, rng)
 
-        self.ncandicates = len(self.grid)
+        #self.ncandicates = len(self.grid)
 
     def _setup_from_file(self, info_param):
         """
@@ -112,21 +112,24 @@ class MeshGrid(DomainBase):
         delimiter = info_param.get("delimiter", None)
         skiprows = info_param.get("skiprows", 0)
 
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
-            data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
-            if data.ndim == 1:
-                data = data.reshape(1, -1)
+        # load mesh file and distribute
+        if odatse.mpi.run_on_algorithm():
+            if odatse.mpi.algrank() == 0:
+                _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
+                if _data.ndim == 1:
+                    _data = _data.reshape(-1, 1)
+            else:
+                _data = None
 
-            # old format: index x1 x2 ... -> omit index
-            data = data[:, 1:]
+            if odatse.mpi.algsize() > 1:
+                _data = odatse.mpi.algcomm().bcast(_data, root=0)
         else:
-            data = None
+            _data = []
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-            data = odatse.mpi.algcomm().bcast(data, root=0)
-
-        self.grid = [[idx, *v] for idx, v in enumerate(data)]
+        self.grid = [[int(idx), *v] for idx, *v in _data]
         self.do_split()
+
+        # print(f"DEBUG: rank={odatse.mpi.rank}: grid size={len(self.grid)}, local grid size={len(self.local_grid)}")
 
     def _setup_grid(self, info_param):
         """
@@ -182,25 +185,19 @@ class MeshGrid(DomainBase):
         if num_points <= 0:
             raise ValueError("ERROR: num_points must be positive")
 
-        if odatse.mpi.algsize() is not None:
-            local_index = np.array_split(np.arange(num_points), odatse.mpi.algsize())[odatse.mpi.algrank()]
-        else:
-            local_index = []
-        num_local = len(local_index)
+        if odatse.mpi.run_on_algorithm():
+            # generate random numbers on rank0 and distribute
+            if odatse.mpi.algrank() == 0:
+                data = [[idx, *v] for idx, *v in enumerate(
+                    rng.uniform(min_list, max_list, size=(num_points, len(min_list))) )]
+            else:
+                data = None
+            data = odatse.mpi.algcomm().bcast(data, root=0)
 
-        self.grid_local = [
-            [idx, *v]
-            for idx, v in zip(
-                local_index,
-                rng.uniform(min_list, max_list, size=(num_local, len(min_list))),
-            )
-        ]
-
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-            grids = odatse.mpi.algcomm().allgather(self.grid_local)
-            self.grid = [v for vs in grids for v in vs]
+            self.grid = data
+            self.grid_local = np.array_split(data, odatse.mpi.algsize())[odatse.mpi.algrank()]
         else:
-            self.grid = self.grid_local
+            pass
 
     def store_file(self, store_path, *, header=""):
         """
@@ -213,8 +210,10 @@ class MeshGrid(DomainBase):
         header
             Header to be included in the file.
         """
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
-            np.savetxt(store_path, [[*v] for idx, *v in self.grid], header=header)
+        #if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+        if odatse.mpi.run_on_algorithm():
+            if odatse.mpi.algrank() == 0:
+                np.savetxt(store_path, [[*v] for idx, *v in self.grid], header=header)
 
     @classmethod
     def from_file(cls, mesh_path):
@@ -258,7 +257,7 @@ if __name__ == "__main__":
         'num_list': [5,5,5],
     })
     ms.store_file("meshfile.dat", header="sample mesh data")
-    
+
     ms2 = MeshGrid.from_file("meshfile.dat")
     #ms2.do_split()
 

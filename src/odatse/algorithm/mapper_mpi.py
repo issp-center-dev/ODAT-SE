@@ -50,17 +50,19 @@ class Algorithm(MapperMPIAlgorithm):
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        if domain:
-            iter = DistributedListIterator(domain.grid_local)
-        else:
-            info_param = info.algorithm.get("param", {})
-            if "mesh_path" in info_param:
-                iter = self._read_mesh_file(info_param)
+        if odatse.mpi.run_on_algorithm():
+            if domain:
+                iter = DistributedListIterator(domain.grid_local)
             else:
-                iter = self._find_mesh_info(info_param)
-
-        # delayed setup
-        self._iter = iter
+                info_param = info.algorithm.get("param", {})
+                if "mesh_path" in info_param:
+                    iter = self._read_mesh_file(info_param)
+                else:
+                    iter = self._find_mesh_info(info_param)
+            # delayed setup
+            self._iter = iter
+        else:
+            self._iter = None
 
     def _read_mesh_file(self, info_param):
         """
@@ -82,12 +84,12 @@ class Algorithm(MapperMPIAlgorithm):
         delimiter = info_param.get("delimiter", None)
         skiprows = info_param.get("skiprows", 0)
 
-        if odatse.mpi.algrank() == 0:
+        if odatse.mpi.rank() == 0:
             # mesh data format: index x1 x2 ...
             _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
             if _data.ndim == 1:
-                _data = _data.reshape(1, -1)
-            data = [[int(v[0]), *v[1:]] for v in _data]
+                _data = _data.reshape(-1, 1)
+            data = [[int(idx), *v] for idx, *v in _data]
         else:
             data = None
 

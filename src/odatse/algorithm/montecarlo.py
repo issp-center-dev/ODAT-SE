@@ -133,6 +133,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
 
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         if domain:
             if isinstance(domain, odatse.domain.MeshGrid):
                 self.iscontinuous = False

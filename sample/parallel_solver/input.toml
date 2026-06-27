@@ -1,12 +1,13 @@
 [base]
 dimension = 1
-output_dir = "output_par_test"
-nsolve = 2
-nalg = 3
-nthreads = 2
+output_dir = "output"
 
 [solver]
 name = "custom"
+
+[solver.param]
+nmats = 50
+matsize = 1000
 
 [runner]
 [runner.log]

@@ -81,3 +81,5 @@ add_test(
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_varied_continue
   )
+
+add_subdirectory(parallel_solver)

@@ -79,7 +79,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.max_list = self.domain.max_list
         self.unit_list = self.domain.unit_list
 
-        if odatse.mpi.algsize() is not None:
+        if odatse.mpi.run_on_algorithm():
             self.domain.initialize(rng=self.rng, limitation=runner.limitation, num_walkers=odatse.mpi.algsize())
             self.initial_list = self.domain.initial_list[odatse.mpi.algrank()]
         else:
@@ -204,8 +204,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._output_results()
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
-            odatse.mpi.algcomm().barrier()
+        if odatse.mpi.run_on_algorithm():
+            if odatse.mpi.algsize() > 1:
+                odatse.mpi.algcomm().barrier()
 
     def _prepare(self):
         """
@@ -251,7 +252,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "x0": self.initial_list,
         }
 
-        if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1:
+        if odatse.mpi.algsize() > 1:
             results = odatse.mpi.algcomm().allgather(result)
         else:
             results = [result]
@@ -262,7 +263,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         idx = np.argmin(fxs)
 
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+        if odatse.mpi.algrank() == 0:
             label_list = self.label_list
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {fxs[idx]}\n")

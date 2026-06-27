@@ -12,15 +12,10 @@ from odatse import mpi
 
 class IteratorBase(object):
     def __init__(self):
-        algcomm = mpi.algcomm()
-        if algcomm is not None and mpi.algsize() > 1:
-            self.mpicomm = algcomm
-            self.mpisize = mpi.algsize()
-            self.mpirank = mpi.algrank()
-        else:
-            self.mpicomm = algcomm
-            self.mpisize = 1
-            self.mpirank = 0
+        # aliases
+        self.mpicomm = mpi.algcomm()
+        self.mpisize = mpi.algsize()
+        self.mpirank = mpi.algrank()
 
         self._index_start = 0
         self._index_end = 0
@@ -45,7 +40,7 @@ class IteratorBase(object):
 class MeshIterator(IteratorBase):
     def __init__(self, xmin, xmax, xnum):
         super().__init__()
-        
+
         self._xlist = [np.linspace(l, h, n) for l, h, n in zip(xmin, xmax, xnum)]
         self._num = np.array(xnum)
         #self._stride = np.cumprod([1]+xnum[::-1])[::-1][1:]  # row major
@@ -94,14 +89,11 @@ class ListIterator(IteratorBase):
     def _setup(self, data):
         if self.mpisize > 1:
             if self.mpirank == 0:
-                n, r = divmod(len(data), self.mpisize)
-                ns = [n + 1 if p < r else n for p in range(self.mpisize)]
-                _start = [sum(ns[:p]) for p in range(self.mpisize)]
-                _end = [sum(ns[:p+1]) for p in range(self.mpisize)]
-                data_block = [data[_start[p]:_end[p]] for p in range(self.mpisize)]
+                data_block = np.array_split(data, self.mpisize)
             else:
                 data_block = None
             data = self.mpicomm.scatter(data_block, root=0)
+            data = [[int(idx), *v] for idx, *v in data]
         return data
 
     def _save_state(self):
@@ -153,6 +145,10 @@ class RandomIterator(IteratorBase):
 
         self._set_index_range(self._count)
         self._i = self._index_start
+
+        # # spin
+        # for _ in range(self._index_start):
+        #     self._rng.uniform(self._xmin, self._xmax)
 
     def __next__(self):
         if self._i == self._index_end:

@@ -76,9 +76,13 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        info_param = info.algorithm.get("param", {})
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         info_bayes = info.algorithm.get("bayes", {})
 
+        # CHECK: deprecated parameters
+        info_param = info.algorithm.get("param", {})
         for key in ("random_max_num_probes", "bayes_max_num_probes", "score", "interval", "num_rand_basis"):
             if key in info_param and key not in info_bayes:
                 print(f"WARNING: algorithm.param.{key} is deprecated. Use algorithm.bayes.{key} .")
@@ -90,7 +94,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
+        if odatse.mpi.algrank() == 0:
             print("# parameter")
             print(f"random_max_num_probes = {self.random_max_num_probes}")
             print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
@@ -105,7 +109,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        comm = odatse.mpi.algcomm() if odatse.mpi.algsize() is not None and odatse.mpi.algsize() > 1 else None
+        comm = odatse.mpi.algcomm()
+
         if physbo.__version__ < "3":
             self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         else:
@@ -312,8 +317,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             print("ERROR: Load status file failed")
             sys.exit(1)
 
-        assert odatse.mpi.algsize() is not None and odatse.mpi.algsize() == data["mpi_algsize"]
-        assert odatse.mpi.algrank() is not None and odatse.mpi.algrank() == data["mpi_algrank"]
+        assert odatse.mpi.algsize() == data["mpi_algsize"]
+        assert odatse.mpi.algrank() == data["mpi_algrank"]
 
         if restore_rng:
             self.rng = np.random.RandomState()
