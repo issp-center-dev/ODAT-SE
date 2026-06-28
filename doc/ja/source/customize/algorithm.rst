@@ -36,24 +36,11 @@ wrapper であり、サブクラスでオーバーライドしては **いけま
 ``__init__`` が設定するインスタンス変数
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
   ``info`` から共通の入力パラメータを読み取り、以下のインスタンス変数を設定します。
 
-  - ``self.mpicomm: Optional[MPI.Comm]`` : MPI通信オブジェクト（``mpi4py.MPI.Comm``）。
-
-    - ``mpicomm`` が指定された場合はその値を使用します。
-    - 指定がない場合は ``mpi4py`` が利用可能であれば ``mpi4py.MPI.COMM_WORLD``、そうでなければ ``None`` （シリアル実行）。
-
-  - ``self.mpisize: int`` : MPIプロセス数（MPI不使用時は ``1``）。
-
-  - ``self.mpirank: int`` : MPIランク（MPI不使用時は ``0``）。
-
-  - ``self.rng: np.random.RandomState`` : 擬似乱数生成器。
-
-    シードの詳細は :ref:`入力パラメータの [algorithm] セクション <input_algorithm>` を参照してください。
-
-  - ``self.dimension: int`` : 探索パラメータ空間の次元。
+  - ``self.rng: np.random.Generator`` : 擬似乱数生成器
 
   - ``self.label_list: list[str]`` : 各パラメータ軸の名前。
 
@@ -68,6 +55,10 @@ wrapper であり、サブクラスでオーバーライドしては **いけま
     - ``_run()`` はこのディレクトリ内で呼び出されます。
 
   - ``self.timer: dict[str, dict]`` : 実行時間を保存するための辞書。
+
+      - ``self.output_dir / str(odatse.mpi.rank())``
+      - ディレクトリが存在しない場合、自動的に作成されます
+      - 各プロセスで最適化アルゴリズムはこのディレクトリで実行されます
 
     ``"prepare"``、``"run"``、``"post"`` の空の辞書が事前に作成されます。
 

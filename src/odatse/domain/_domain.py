@@ -41,6 +41,3 @@ class DomainBase:
         else:
             self.root_dir = Path(".")
             self.output_dir = Path(".")
-
-        self.mpisize = odatse.mpi.size()
-        self.mpirank = odatse.mpi.rank()

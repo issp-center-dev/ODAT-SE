@@ -24,21 +24,15 @@ from . import mpi
 
 
 class Run(metaclass=ABCMeta):
-    def __init__(self, nprocs=None, nthreads=None, comm=None):
+    def __init__(self, comm=None):
         """
         Initialize the Run class.
 
         Parameters
         ----------
-        nprocs : int
-            Number of processes which one solver uses.
-        nthreads : int
-            Number of threads which one solver process uses.
         comm : MPI.Comm
             MPI Communicator.
         """
-        self.nprocs = nprocs
-        self.nthreads = nthreads
         self.comm = comm
 
     @abstractmethod
@@ -112,8 +106,7 @@ class Runner(object):
         self.logger.prepare(proc_dir)
 
     def submit(
-            self, x: np.ndarray, args = (), nprocs: int = 1, nthreads: int = 1
-    ) -> float:
+            self, x: np.ndarray, args: tuple = ()) -> float:
         """
         Submit the solver with the given parameters.
 
@@ -123,10 +116,6 @@ class Runner(object):
             Input array.
         args : tuple, optional
             Additional arguments.
-        nprocs : int, optional
-            Number of processes.
-        nthreads : int, optional
-            Number of threads.
 
         Returns
         -------
@@ -135,6 +124,16 @@ class Runner(object):
         """
         if self.limitation.judge(x):
             xp = self.mapping(x)
+
+            assert xp.ndim == 1
+            assert xp.shape[0] == self.solver.dimension
+
+            if odatse.mpi.solsize() > 1:
+                msg = np.array([odatse.mpi.MSG_EVALUATE])
+                odatse.mpi.solcomm().Bcast(msg, root=0)
+                odatse.mpi.solcomm().Bcast(xp, root=0)
+                odatse.mpi.solcomm().bcast(args, root=0) # args is not array, so we use bcast instead of Bcast
+
             try:
                 result = self.solver.evaluate(xp, args)
             except RuntimeError as err:
@@ -142,6 +141,7 @@ class Runner(object):
                     result = np.nan
                 else:
                     raise
+
         else:
             result = np.inf
         self.logger.count(x, args, result)
@@ -151,4 +151,5 @@ class Runner(object):
         """
         Write the logger data.
         """
-        self.logger.write()
+        if odatse.mpi.solrank() == 0:
+            self.logger.write()

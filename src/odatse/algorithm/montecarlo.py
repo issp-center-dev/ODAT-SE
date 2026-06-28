@@ -16,13 +16,7 @@ import numpy as np
 
 import odatse
 import odatse.domain
-from odatse import mpi
 from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
-from odatse.util.data_writer import DataWriter
-
-if TYPE_CHECKING:
-    from mpi4py import MPI
-
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """
@@ -116,7 +110,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         domain=None,
         nwalkers: int = 1,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the AlgorithmBase class.
@@ -133,9 +126,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             Number of walkers to use in the simulation, by default 1.
         run_mode : str, optional
             Mode of the run, e.g., "initial", by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
 
         Raises
         ------
@@ -149,8 +139,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
         time_sta = time.perf_counter()
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
+
+        if not odatse.mpi.run_on_algorithm():
+            return
 
         if domain:
             if isinstance(domain, odatse.domain.MeshGrid):

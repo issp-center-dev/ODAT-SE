@@ -59,7 +59,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Constructs all the necessary attributes for the Algorithm object.
@@ -74,15 +73,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             The domain object (default is None).
         run_mode : str, optional
             The run mode (default is "initial").
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        info_param = info.algorithm.get("param", {})
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         info_bayes = info.algorithm.get("bayes", {})
 
+        # CHECK: deprecated parameters
+        info_param = info.algorithm.get("param", {})
         for key in ("random_max_num_probes", "bayes_max_num_probes", "score", "interval", "num_rand_basis"):
             if key in info_param and key not in info_bayes:
                 print(f"WARNING: algorithm.param.{key} is deprecated. Use algorithm.bayes.{key} .")
@@ -94,7 +94,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             print("# parameter")
             print(f"random_max_num_probes = {self.random_max_num_probes}")
             print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
@@ -109,7 +109,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        comm = self.mpicomm if self.mpisize > 1 else None
+        comm = odatse.mpi.algcomm()
+
         if physbo.__version__ < "3":
             self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         else:
@@ -228,7 +229,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         Finalizes the algorithm execution and writes the results to a file.
         """
         label_list = self.label_list
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open("BayesData.txt", "w") as file_BD:
                 file_BD.write("#step")
                 for label in label_list:

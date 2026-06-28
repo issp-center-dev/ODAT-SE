@@ -53,7 +53,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -68,11 +67,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             Domain object defining the search space.
         run_mode : str
             Mode of running the algorithm.
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         if domain and isinstance(domain, odatse.domain.Region):
             self.domain = domain
@@ -83,8 +79,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.max_list = self.domain.max_list
         self.unit_list = self.domain.unit_list
 
-        self.domain.initialize(rng=self.rng, limitation=runner.limitation, num_walkers=self.mpisize)
-        self.initial_list = self.domain.initial_list[self.mpirank]
+        if odatse.mpi.run_on_algorithm():
+            self.domain.initialize(rng=self.rng, limitation=runner.limitation, num_walkers=odatse.mpi.algsize())
+            self.initial_list = self.domain.initial_list[odatse.mpi.algrank()]
+        else:
+            self.initial_list = []
 
         info_minimize = info.algorithm.get("minimize", {})
         self.initial_scale_list = info_minimize.get(
@@ -213,8 +212,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._output_results()
 
-        if self.mpisize > 1:
-            self.mpicomm.barrier()
+        if odatse.mpi.run_on_algorithm():
+            if odatse.mpi.algsize() > 1:
+                odatse.mpi.algcomm().barrier()
 
     def _prepare(self):
         """
@@ -260,8 +260,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "x0": self.initial_list,
         }
 
-        if self.mpisize > 1:
-            results = self.mpicomm.allgather(result)
+        if odatse.mpi.algsize() > 1:
+            results = odatse.mpi.algcomm().allgather(result)
         else:
             results = [result]
 
@@ -271,7 +271,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         idx = np.argmin(fxs)
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             label_list = self.label_list
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {fxs[idx]}\n")

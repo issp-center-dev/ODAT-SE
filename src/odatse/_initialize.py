@@ -43,8 +43,12 @@ def initialize(argv: Optional[Sequence[str]] = None):
     mode_group.add_argument("--cont", action="store_true", help="continue from previous run")
 
     parser.add_argument("--reset_rand", action="store_true", default=False, help="new random number series in resume or continue mode")
+    
+    parser.add_argument("--nalg", type=int, default=None, help="# of processes for search algorithm")
+    parser.add_argument("--nsolve", type=int, default=None, help="# of processes for solver")
 
     args = parser.parse_args(argv)
+    odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
 
 
     if args.init is True:

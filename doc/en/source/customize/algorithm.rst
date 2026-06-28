@@ -36,22 +36,11 @@ internals and must **not** be overridden in subclasses.
 Instance variables set by ``__init__``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, mpicomm: Optional["MPI.Comm"] = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
 
   Reads the common parameters from ``info`` and sets the following instance variables:
 
-  - ``self.mpicomm: Optional[MPI.Comm]`` : MPI communicator (``mpi4py.MPI.Comm``).
-
-    - If ``mpicomm`` is given, it is used directly.
-    - Otherwise ``mpi4py.MPI.COMM_WORLD`` is used when ``mpi4py`` is available; ``None`` for serial execution.
-
-  - ``self.mpisize: int`` : number of MPI processes (``1`` when MPI is unavailable).
-
-  - ``self.mpirank: int`` : rank of this process (``0`` when MPI is unavailable).
-
-  - ``self.rng: np.random.RandomState`` : pseudo-random number generator.
-
-    See :ref:`the [algorithm] section of the input parameter <input_parameter_algorithm>` for seed details.
+    - ``self.rng: np.random.Generator`` : pseudo random number generator
 
   - ``self.dimension: int`` : dimension of the parameter space.
 
@@ -70,6 +59,10 @@ Instance variables set by ``__init__``
   - ``self.timer: dict[str, dict]`` : elapsed-time dictionary.
 
     Sub-dictionaries ``"prepare"``, ``"run"``, and ``"post"`` are pre-created.
+
+      - It is set to ``self.output_dir / str(odatse.mpi.rank())``.
+      - The directory will be made automatically.
+      - Each process performs an optimization algorithm in this directory.
 
   - ``self.checkpoint: bool`` : whether checkpointing is enabled.
   - ``self.checkpoint_file: str`` : absolute path to the checkpoint file (default: ``<proc_dir>/status.pickle``).

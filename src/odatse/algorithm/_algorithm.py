@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
+import sys
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
@@ -64,9 +64,6 @@ class AlgorithmBase(metaclass=ABCMeta):
     only when extra files (e.g. an external policy object) must be written.
     """
 
-    mpicomm: Optional["MPI.Comm"]
-    mpisize: int
-    mpirank: int
     rng: np.random.RandomState
     dimension: int
     label_list: list[str]
@@ -97,8 +94,8 @@ class AlgorithmBase(metaclass=ABCMeta):
         RNG or an external policy object).
         """
         state: dict = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
+            "algsize": odatse.mpi.algsize(),
+            "algrank": odatse.mpi.algrank(),
             "rng": self.rng.get_state(),
             "timer": self.timer,
             "info": self.info,
@@ -127,8 +124,8 @@ class AlgorithmBase(metaclass=ABCMeta):
         restore_rng : bool
             When *True* (default) the RNG state is restored from *data*.
         """
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
+        assert odatse.mpi.algsize() == data["algsize"]
+        assert odatse.mpi.algrank() == data["algrank"]
         self.timer = data["timer"]
         self._check_parameters(data["info"])
 
@@ -138,7 +135,6 @@ class AlgorithmBase(metaclass=ABCMeta):
             info: odatse.Info,
             runner: Optional[odatse.Runner] = None,
             run_mode: str = "initial",
-            mpicomm: Optional["MPI.Comm"] = None
     ) -> None:
         """
         Initialize the algorithm with the given information and runner.
@@ -151,18 +147,7 @@ class AlgorithmBase(metaclass=ABCMeta):
             Optional runner object to execute the algorithm.
         run_mode : str
             Mode in which the algorithm should run.
-        mpicomm : MPI.Comm (optional)
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        if mpicomm is None:
-            self.mpicomm = mpi.comm()
-            self.mpisize = mpi.size()
-            self.mpirank = mpi.rank()
-        else:
-            self.mpicomm = mpicomm
-            self.mpisize = mpicomm.size
-            self.mpirank = mpicomm.rank
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
@@ -189,14 +174,16 @@ class AlgorithmBase(metaclass=ABCMeta):
         # directories
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(self.mpirank)
+        self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
+        # create directory for each rank in case every rank has some output
         self.proc_dir.mkdir(parents=True, exist_ok=True)
         # Some cache of the filesystem may delay making a dictionary
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+
+        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
@@ -231,7 +218,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         if seed is None:
             self.rng = np.random.RandomState()
         else:
-            self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
+            self.rng = np.random.RandomState(seed + odatse.mpi.rank() * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
         """
@@ -257,10 +244,15 @@ class AlgorithmBase(metaclass=ABCMeta):
         Do **not** override this method in subclasses.  Implement
         ``_prepare()`` instead.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         if self.runner is None:
             raise RuntimeError("Runner is not assigned")
+
         # runner lifecycle starts (commit 936e48: moved here from run())
         self.runner.prepare(self.proc_dir)
+
         # checkpoint dispatch
         restore_rng = not self.mode.endswith("-resetrand")
         if self.mode.startswith("init"):
@@ -271,8 +263,24 @@ class AlgorithmBase(metaclass=ABCMeta):
             self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
         else:
             raise RuntimeError(f"unknown mode {self.mode}")
+        
         # algorithm-specific preparation
-        self._prepare()
+        try:
+            self._prepare()
+            res = np.array([1])
+        except Exception:
+            res = np.array([0])
+            if odatse.mpi.algsize() > 1:
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+        if odatse.mpi.algsize() > 1:
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
+
+        # preparation step completed
         self.status = AlgorithmStatus.PREPARE
 
     def run(self) -> None:
@@ -285,12 +293,35 @@ class AlgorithmBase(metaclass=ABCMeta):
         Do **not** override this method in subclasses.  Implement
         ``_run()`` instead.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
+        if self.runner is None:
+            raise RuntimeError("Runner is not assigned")
+
         if self.status < AlgorithmStatus.PREPARE:
             raise RuntimeError("algorithm has not prepared yet")
-        original_dir = os.getcwd()
-        os.chdir(self.proc_dir)
-        self._run()
-        os.chdir(original_dir)
+
+        try:
+            original_dir = os.getcwd()
+            os.chdir(self.proc_dir)
+            self._run()
+            os.chdir(original_dir)
+        except Exception:
+            if odatse.mpi.algsize() > 1:
+                res = np.array([0])
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+
+        if odatse.mpi.algsize() > 1:
+            res = np.array([1])
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
+
+        # run step completed
         self.status = AlgorithmStatus.RUN
 
     def post(self) -> dict:
@@ -301,14 +332,34 @@ class AlgorithmBase(metaclass=ABCMeta):
         Do **not** override this method in subclasses.  Implement
         ``_post()`` instead.
         """
+        if not odatse.mpi.run_on_algorithm():
+            return {}
+
         if self.status < AlgorithmStatus.RUN:
             raise RuntimeError("algorithm has not run yet")
-        original_dir = os.getcwd()
-        os.chdir(self.output_dir)
-        result = self._post()
-        os.chdir(original_dir)
+
+        try:
+            original_dir = os.getcwd()
+            os.chdir(self.output_dir)
+            result = self._post()
+            os.chdir(original_dir)
+        except Exception:
+            if odatse.mpi.algsize() > 1:
+                res = np.array([0])
+                resall = np.array([0])
+                odatse.mpi.algcomm().Allreduce(res, resall)
+            raise
+
+        if odatse.mpi.algsize() > 1:
+            res = np.array([1])
+            resall = np.array([0])
+            odatse.mpi.algcomm().Allreduce(res, resall)
+            if resall[0] < odatse.mpi.algsize():
+                raise odatse.mpi.OtherAlgorithmProcessError()
+
         # runner lifecycle ends (commit 936e48: moved here from run())
         self.runner.post()
+
         return result
 
     # ------------------------------------------------------------------
@@ -394,33 +445,72 @@ class AlgorithmBase(metaclass=ABCMeta):
     # main() – orchestrates the three phases with timing and MPI barriers.
     # ------------------------------------------------------------------
 
-    def main(self):
-        """
-        Main method to execute the algorithm.
-        """
+    def _main_algorithm(self):
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()
         self.timer["prepare"]["total"] = time_end - time_sta
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         time_sta = time.perf_counter()
         self.run()
         time_end = time.perf_counter()
         self.timer["run"]["total"] = time_end - time_sta
         print("end of run")
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         time_sta = time.perf_counter()
         result = self.post()
         time_end = time.perf_counter()
         self.timer["post"]["total"] = time_end - time_sta
 
-        self.write_timer(self.proc_dir / "time.log")
+        if odatse.mpi.algrank() == 0:
+            self.write_timer(self.proc_dir / "time.log")
 
         return result
+
+    def __signal_workers(self, signal: int) -> None:
+        if odatse.mpi.solsize() > 1:
+            msg = np.array([signal])
+            odatse.mpi.solcomm().Bcast(msg, root=0)
+
+    def main(self):
+        """
+        Main method to execute the algorithm.
+        """
+        if odatse.mpi.run_on_algorithm():
+            try:
+                res = self._main_algorithm()
+
+            except odatse.mpi.OtherAlgorithmProcessError:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                sys.exit(0)
+
+            except Exception:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                raise
+
+            self.__signal_workers(odatse.mpi.MSG_FINISHED)
+            return res
+        else: # Worker process for solver
+            assert odatse.mpi.solrank() > 0
+            signal = np.array([0])
+            xp = np.zeros(self.runner.solver.dimension)
+            while True:
+                odatse.mpi.solcomm().Bcast(signal, root=0)
+                if signal[0] == odatse.mpi.MSG_FINISHED:
+                    break
+                elif signal[0] == odatse.mpi.MSG_ABORT:
+                    sys.exit(0)
+                elif signal[0] == odatse.mpi.MSG_EVALUATE:
+                    odatse.mpi.solcomm().Bcast(xp, root=0)
+                    args = odatse.mpi.solcomm().bcast(None, root=0)
+                    self.runner.solver.evaluate(xp, args)
+                else:
+                    raise ValueError(f"Unknown signal: {signal[0]}")
+            return None
 
     def write_timer(self, filename: Path):
         """
@@ -512,7 +602,7 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         Show the parameters of the algorithm.
         """
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             info = flatten_dict(self.info)
             for k, v in info.items():
                 print("{:16s}: {}".format(k, v))
@@ -532,9 +622,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         for k,v in info.items():
             w = info_prev.get(k, None)
             if v != w:
-                if self.mpirank == 0:
+                if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                     print("WARNING: parameter {} changed from {} to {}".format(k, w, v))
-            if self.mpirank == 0:
+            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                 print("{:16s}: {}".format(k, v))
 
 # utility

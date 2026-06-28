@@ -33,7 +33,6 @@ class Algorithm(MapperMPIAlgorithm):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -48,25 +47,24 @@ class Algorithm(MapperMPIAlgorithm):
             Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        if domain:
-            iter = DistributedListIterator(domain.grid_local, mpicomm)
-        else:
-            info_param = info.algorithm.get("param", {})
-            if "mesh_path" in info_param:
-                iter = self._read_mesh_file(info_param, mpicomm)
+        if odatse.mpi.run_on_algorithm():
+            if domain:
+                iter = DistributedListIterator(domain.grid_local)
             else:
-                iter = self._find_mesh_info(info_param, mpicomm)
+                info_param = info.algorithm.get("param", {})
+                if "mesh_path" in info_param:
+                    iter = self._read_mesh_file(info_param)
+                else:
+                    iter = self._find_mesh_info(info_param)
+            # delayed setup
+            self._iter = iter
+        else:
+            self._iter = None
 
-        # delayed setup
-        self._iter = iter
-
-    def _read_mesh_file(self, info_param, mpicomm=None):
+    def _read_mesh_file(self, info_param):
         """
         Setup the grid from a file.
 
@@ -86,18 +84,18 @@ class Algorithm(MapperMPIAlgorithm):
         delimiter = info_param.get("delimiter", None)
         skiprows = info_param.get("skiprows", 0)
 
-        if self.mpirank == 0:
+        if odatse.mpi.rank() == 0:
             # mesh data format: index x1 x2 ...
             _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
             if _data.ndim == 1:
-                _data = _data.reshape(1, -1)
-            data = [[int(v[0]), *v[1:]] for v in _data]
+                _data = _data.reshape(-1, 1)
+            data = [[int(idx), *v] for idx, *v in _data]
         else:
             data = None
 
-        return ListIterator(data, mpicomm)
+        return ListIterator(data)
 
-    def _find_mesh_info(self, info_param, mpicomm=None):
+    def _find_mesh_info(self, info_param):
         """
         Setup the grid based on min, max, and num lists.
 
@@ -121,4 +119,4 @@ class Algorithm(MapperMPIAlgorithm):
         if len(min_list) != len(max_list) or len(min_list) != len(num_list):
             raise ValueError("ERROR: lengths of min_list, max_list, num_list do not match")
 
-        return MeshIterator(min_list, max_list, num_list, mpicomm)
+        return MeshIterator(min_list, max_list, num_list)
