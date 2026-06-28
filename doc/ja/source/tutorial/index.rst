@@ -45,6 +45,9 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の6
   random_search
   bayes
   ttopt
+  mip
+  qubo
+  ttopt_benchmark
   exchange
   pamc
   limitation
