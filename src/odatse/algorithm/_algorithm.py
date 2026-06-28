@@ -57,6 +57,51 @@ class AlgorithmBase(metaclass=ABCMeta):
     status: AlgorithmStatus = AlgorithmStatus.INIT
     mode: Optional[str] = None
 
+    # Fields saved/restored at every checkpoint for this class.
+    # Each subclass declares only its own fields; ``__getstate__`` collects
+    # them all by walking the MRO.
+    _checkpoint_attrs: list[str] = []
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot of the full algorithm state.
+
+        Saves the MPI configuration, RNG state, timer, and ``info``, then
+        appends every field declared in ``_checkpoint_attrs`` by this class
+        and all its subclasses (collected via MRO traversal).  Subclasses
+        need only declare their own ``_checkpoint_attrs``; no override is
+        needed unless extra non-attribute data must be saved (e.g. a global
+        RNG or an external policy object).
+        """
+        state: dict = {
+            "mpisize": self.mpisize,
+            "mpirank": self.mpirank,
+            "rng": self.rng.get_state(),
+            "timer": self.timer,
+            "info": self.info,
+        }
+        for cls in reversed(type(self).__mro__):
+            for attr in cls.__dict__.get("_checkpoint_attrs", []):
+                state[attr] = getattr(self, attr)
+        return state
+
+    def _apply_state(self, data: dict) -> None:
+        """Restore the base algorithm state from a checkpoint snapshot.
+
+        Validates the MPI configuration, restores the timer, and checks
+        that algorithm parameters are consistent.  Subclasses should call
+        ``super()._apply_state(data)`` and then handle their own fields
+        (RNG restore, subclass-specific ``_checkpoint_attrs``, etc.).
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        """
+        assert self.mpisize == data["mpisize"]
+        assert self.mpirank == data["mpirank"]
+        self.timer = data["timer"]
+        self._check_parameters(data["info"])
+
     @abstractmethod
     def __init__(
             self,
