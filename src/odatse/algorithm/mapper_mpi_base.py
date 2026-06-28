@@ -71,21 +71,14 @@ class Algorithm(AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
+    def _prepare(self) -> None:
+        pass
+
     def _run(self) -> None:
         """
         Execute the main algorithm process.
         """
-        # Make ColorMap
-
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # local colormap file
         fp = open(self.local_colormap_file, "a")
@@ -171,12 +164,6 @@ class Algorithm(AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["file_CM"] = time_end - time_sta
 
-    def _prepare(self) -> None:
-        """
-        Prepare the algorithm (no operation).
-        """
-        pass
-
     def _post(self) -> dict:
         """
         Post-process the results and gather data from all MPI ranks.
@@ -204,13 +191,17 @@ class Algorithm(AlgorithmBase):
     # Mapper-specific fields (simple getattr/setattr).
     _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
 
-    def _save_state(self, filename) -> None:
-        """Save the current state of the algorithm to a file."""
-        data = self.__getstate__()
-        data.update(self._iter._save_state())
-        self._save_data(data, filename)
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot including iterator state.
 
-    def _apply_state(self, data: dict) -> None:
+        Extends the base ``__getstate__()`` with the iterator's own state
+        so that a single pickle file captures everything needed to resume.
+        """
+        state = super().__getstate__()
+        state.update(self._iter._save_state())
+        return state
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, timer restore, and parameter check to the
@@ -220,25 +211,16 @@ class Algorithm(AlgorithmBase):
         Parameters
         ----------
         data : dict
-            Snapshot previously produced by ``_save_state``.
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` is the only supported mode; ``"continue"`` raises
+            ``RuntimeError`` because mapper has no concept of extending a run.
+        restore_rng : bool
+            Unused; mapper has no stochastic RNG to restore.
         """
-        super()._apply_state(data)
+        if mode == "continue":
+            raise RuntimeError("continue mode is not supported for mapper")
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
         self._iter._restore_state(data)
-
-    def _load_state(self, filename, restore_rng=True) -> None:
-        """Load the state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename
-            Path to the checkpoint file.
-        restore_rng : bool
-            Unused; kept for API consistency with other algorithms.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data)

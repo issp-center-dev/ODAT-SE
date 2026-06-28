@@ -166,22 +166,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Run the algorithm.
         """
-        # Validate run mode is set
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        # Determine whether to restore RNG state from checkpoint
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        # Initialize or restore simulation state based on mode
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # Get current beta (inverse temperature) values for each replica
         beta = self.betas[self.Tindex]
@@ -480,46 +465,28 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "walker": best_iwalker[best_rank],
         }
 
-    def _save_state(self, filename) -> None:
-        """Save the current algorithm state to a checkpoint file."""
-        self._save_data(self.__getstate__(), filename)
-
-    def _apply_state(self, data: dict, restore_rng: bool = True) -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, RNG restore, and MC-layer fields to the
         base class, validates the replica count, then applies exchange-specific
         fields and propagates the restored RNG to the state space.
 
+        REMC does not distinguish between resume and continue modes; ``mode``
+        is accepted for API consistency with PAMC and forwarded to super().
+
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``; forwarded to the base class.
         restore_rng : bool
             When *True* (default) the RNG state is restored from *data*;
             when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        super()._apply_state(data, restore_rng)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         assert self.nreplica == data["nreplica"]
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
         self.statespace.rng = self.rng
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """Load algorithm state from a checkpoint file.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file to read.
-        mode : str, optional
-            Loading mode — ``"resume"`` or ``"continue"`` (currently unused
-            for REMC; kept for API symmetry with PAMC).
-        restore_rng : bool, optional
-            Whether to restore the RNG state, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data, restore_rng=restore_rng)

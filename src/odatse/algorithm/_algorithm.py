@@ -38,7 +38,31 @@ class AlgorithmStatus(IntEnum):
     RUN = 3
 
 class AlgorithmBase(metaclass=ABCMeta):
-    """Base class for algorithms, providing common functionality and structure."""
+    """Base class for algorithms, providing common functionality and structure.
+
+    Lifecycle
+    ---------
+    ``main()`` drives the three-phase lifecycle by calling the framework wrappers::
+
+        main()
+          ├── prepare()   runner.prepare → dispatch(init/resume/continue) → _prepare()
+          ├── run()       _run()
+          └── post()      _post() → runner.post()
+
+    Subclasses implement the hooks with underscore prefix:
+    ``_prepare()`` (optional), ``_run()`` (required), ``_post()`` (required).
+    The plain-named wrappers ``prepare``, ``run``, ``post`` are
+    framework internals and must **not** be overridden in subclasses.
+
+    Checkpoint
+    ----------
+    Each class declares ``_checkpoint_attrs`` (a list of attribute names).
+    ``__getstate__()`` walks the MRO and collects them all automatically.
+    Subclasses normally need only declare their own ``_checkpoint_attrs``
+    and override ``_apply_state()`` to call ``super()`` and restore RNG /
+    algorithm-specific state.  Override ``_save_state()`` / ``_load_state()``
+    only when extra files (e.g. an external policy object) must be written.
+    """
 
     mpicomm: Optional["MPI.Comm"]
     mpisize: int
@@ -84,18 +108,24 @@ class AlgorithmBase(metaclass=ABCMeta):
                 state[attr] = getattr(self, attr)
         return state
 
-    def _apply_state(self, data: dict) -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore the base algorithm state from a checkpoint snapshot.
 
         Validates the MPI configuration, restores the timer, and checks
         that algorithm parameters are consistent.  Subclasses should call
-        ``super()._apply_state(data)`` and then handle their own fields
-        (RNG restore, subclass-specific ``_checkpoint_attrs``, etc.).
+        ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``
+        and then handle their own fields (RNG restore, subclass-specific
+        ``_checkpoint_attrs``, continue-mode semantics, etc.).
 
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``.  Passed through to subclass
+            overrides so they can implement continue-mode semantics.
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*.
         """
         assert self.mpisize == data["mpisize"]
         assert self.mpirank == data["mpirank"]
@@ -170,7 +200,15 @@ class AlgorithmBase(metaclass=ABCMeta):
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
-        self.checkpoint_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        _chk_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        # Resolve to an absolute path so _load_state() / _save_state() work
+        # correctly regardless of the working directory at call time.
+        # _prepare() runs from the original directory, not proc_dir, so a
+        # relative path would resolve to the wrong location.
+        self.checkpoint_file = str(
+            Path(_chk_file) if Path(_chk_file).is_absolute()
+            else self.proc_dir / _chk_file
+        )
         self.checkpoint_steps = info.algorithm.get("checkpoint_steps", 65536*256)  # large number
         self.checkpoint_interval = info.algorithm.get("checkpoint_interval", 86400*360)  # longer enough
 
@@ -206,63 +244,155 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         self.runner = runner
 
+    # ------------------------------------------------------------------
+    # Framework wrappers – called by main().  Do NOT override in subclasses.
+    # ------------------------------------------------------------------
+
     def prepare(self) -> None:
-        """
-        Prepare the algorithm for execution.
+        """Framework wrapper for the prepare phase.
+
+        Calls ``runner.prepare()``, dispatches init/resume/continue, then
+        calls the ``_prepare()`` hook.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_prepare()`` instead.
         """
         if self.runner is None:
-            msg = "Runner is not assigned"
-            raise RuntimeError(msg)
+            raise RuntimeError("Runner is not assigned")
+        # runner lifecycle starts (commit 936e48: moved here from run())
+        self.runner.prepare(self.proc_dir)
+        # checkpoint dispatch
+        restore_rng = not self.mode.endswith("-resetrand")
+        if self.mode.startswith("init"):
+            self._initialize()
+        elif self.mode.startswith("resume"):
+            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+        elif self.mode.startswith("continue"):
+            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+        else:
+            raise RuntimeError(f"unknown mode {self.mode}")
+        # algorithm-specific preparation
         self._prepare()
         self.status = AlgorithmStatus.PREPARE
 
-    @abstractmethod
-    def _prepare(self) -> None:
-        """Abstract method to be implemented by subclasses for preparation steps."""
-        pass
-
     def run(self) -> None:
-        """
-        Run the algorithm.
+        """Framework wrapper for the run phase.
+
+        Calls the ``_run()`` hook.  Runner calls are handled by
+        ``prepare()`` and ``post()``; this wrapper contains no runner
+        invocations.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_run()`` instead.
         """
         if self.status < AlgorithmStatus.PREPARE:
-            msg = "algorithm has not prepared yet"
-            raise RuntimeError(msg)
+            raise RuntimeError("algorithm has not prepared yet")
         original_dir = os.getcwd()
         os.chdir(self.proc_dir)
-        self.runner.prepare(self.proc_dir)
         self._run()
-        self.runner.post()
         os.chdir(original_dir)
         self.status = AlgorithmStatus.RUN
 
-    @abstractmethod
-    def _run(self) -> None:
-        """Abstract method to be implemented by subclasses for running steps."""
-        pass
-
     def post(self) -> dict:
-        """
-        Perform post-processing after the algorithm has run.
+        """Framework wrapper for the post phase.
 
-        Returns
-        -------
-        dict
-            Dictionary containing post-processing results.
+        Calls the ``_post()`` hook then ``runner.post()``.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_post()`` instead.
         """
         if self.status < AlgorithmStatus.RUN:
-            msg = "algorithm has not run yet"
-            raise RuntimeError(msg)
+            raise RuntimeError("algorithm has not run yet")
         original_dir = os.getcwd()
         os.chdir(self.output_dir)
         result = self._post()
         os.chdir(original_dir)
+        # runner lifecycle ends (commit 936e48: moved here from run())
+        self.runner.post()
         return result
+
+    # ------------------------------------------------------------------
+    # Hooks – override these in subclasses.
+    # ------------------------------------------------------------------
+
+    @abstractmethod
+    def _initialize(self) -> None:
+        """Set up initial algorithm state for a fresh run (init mode).
+
+        Called by ``prepare()`` when ``mode`` starts with ``"init"``.
+        Must not use the runner (evaluation happens later in ``_run()``).
+        """
+        pass
+
+    @abstractmethod
+    def _prepare(self) -> None:
+        """Algorithm-specific preparation, called after dispatch.
+
+        Override in subclasses to perform setup that must happen after the
+        checkpoint state is established (e.g. initialising timer entries).
+        """
+        pass
+
+    @abstractmethod
+    def _run(self) -> None:
+        """Execute the main algorithm loop.
+
+        For ``init`` mode, perform the initial evaluation here before
+        entering the main loop.  Call ``_save_state()`` at the appropriate
+        points inside the loop.
+        """
+        pass
 
     @abstractmethod
     def _post(self) -> dict:
-        """Abstract method to be implemented by subclasses for post-processing steps."""
+        """Perform post-processing and return results."""
         pass
+
+    # ------------------------------------------------------------------
+    # Checkpoint helpers – concrete implementations in the base class.
+    # ------------------------------------------------------------------
+
+    def _save_state(self, filename) -> None:
+        """Save a checkpoint snapshot to *filename*.
+
+        Uses ``__getstate__()`` to collect all fields declared in
+        ``_checkpoint_attrs`` across the MRO, then delegates to
+        ``_save_data()`` for versioned pickle storage.
+
+        Override in subclasses **only** when extra files must be written
+        alongside the pickle (e.g. an external policy object).  In that
+        case call ``super()._save_state(filename)`` first.
+        """
+        self._save_data(self.__getstate__(), filename)
+
+    def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
+        """Load a checkpoint snapshot from *filename* and apply it.
+
+        Delegates to ``_load_data()`` then ``_apply_state()``.
+
+        Override in subclasses **only** when extra files must be read
+        (e.g. an external policy object).  In that case call
+        ``super()._load_state(filename, mode=mode, restore_rng=restore_rng)``
+        first.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the checkpoint file.
+        mode : str
+            ``"resume"`` or ``"continue"``, forwarded to ``_apply_state()``.
+        restore_rng : bool
+            Whether to restore the RNG state.
+        """
+        data = self._load_data(filename)
+        if not data:
+            print(f"ERROR: failed to load checkpoint from {filename}")
+            sys.exit(1)
+        self._apply_state(data, mode=mode, restore_rng=restore_rng)
+
+    # ------------------------------------------------------------------
+    # main() – orchestrates the three phases with timing and MPI barriers.
+    # ------------------------------------------------------------------
 
     def main(self):
         """
