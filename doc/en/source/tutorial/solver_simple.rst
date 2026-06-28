@@ -15,7 +15,7 @@ For example, to use Himmelblau function, make an input file including the follow
     name = "analytical"
     function_name = "himmelblau"
 
-For details of ``analytical`` solver, see :doc:`the reference of the analytical solver <../solver/analytical>`.
+For details of ``analytical`` solver, see :doc:`the reference of the analytical solver <../solver/index>`.
 
 
 How to add a direct problem solver

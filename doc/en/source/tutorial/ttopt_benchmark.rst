@@ -42,7 +42,7 @@ In this example, the input TOML files are dynamically generated for each test fu
     r_max = 4
     max_f_eval = 100000
 
-Parameter values of the form ``{...}`` are metavariables that are replaced with the appropriate quantity as specified in ``run_benchmarks.py``. For details, see the manual entries :doc:`../input` and :doc:`../algorithm/ttopt`.
+Parameter values of the form ``{...}`` are metavariables that are replaced with the appropriate quantity as specified in ``run_benchmarks.py``. For details, see the manual entries :doc:`../input/index` and :doc:`../algorithm/ttopt`.
 
 The ``[base]`` section specifies some global parameter values used in the ODAT-SE run:
 

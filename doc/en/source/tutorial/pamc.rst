@@ -1,5 +1,5 @@
-Optimization by population annealing
-================================================
+Search by population annealing
+================================
 
 This tutorial describes how to estimate the optimization problem of Himmelblau function by using the population annealing Monte Carlo method (PAMC).
 

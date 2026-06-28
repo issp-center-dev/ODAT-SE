@@ -16,13 +16,7 @@ import numpy as np
 
 import odatse
 import odatse.domain
-from odatse import mpi
 from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
-from odatse.util.data_writer import DataWriter
-
-if TYPE_CHECKING:
-    from mpi4py import MPI
-
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     """
@@ -100,6 +94,15 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     ntrial: int
     naccepted: int
 
+    # Fields saved/restored at every checkpoint for all MC algorithms.
+    # Subclasses extend this by declaring their own ``_checkpoint_attrs``
+    # class variable; ``__getstate__`` collects them all via MRO traversal.
+    _checkpoint_attrs: list[str] = [
+        "state", "fx", "istep",
+        "best_x", "best_fx", "best_istep", "best_iwalker",
+        "naccepted", "ntrial",
+    ]
+
     def __init__(
         self,
         info: odatse.Info,
@@ -107,7 +110,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         domain=None,
         nwalkers: int = 1,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the AlgorithmBase class.
@@ -124,9 +126,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             Number of walkers to use in the simulation, by default 1.
         run_mode : str, optional
             Mode of the run, e.g., "initial", by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
 
         Raises
         ------
@@ -140,8 +139,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
         time_sta = time.perf_counter()
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
+
+        if not odatse.mpi.run_on_algorithm():
+            return
 
         if domain:
             if isinstance(domain, odatse.domain.MeshGrid):
@@ -326,6 +328,43 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     def _set_writer(self, fp_trial, fp_result):
         self.fp_trial = fp_trial
         self.fp_result = fp_result
+
+    def _prepare(self) -> None:
+        """Algorithm-specific preparation (MC layer).
+
+        Called by the framework after checkpoint dispatch.  The default
+        implementation does nothing; MC subclasses override this to
+        initialise timer entries or other pre-loop state.
+        """
+        pass
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, optionally restores the RNG, then applies every field
+        listed in ``montecarlo.AlgorithmBase._checkpoint_attrs``.  Subclasses
+        that need additional fields should override this method, call
+        ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``,
+        then handle their own fields.
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``, forwarded to base class and
+            available to subclass overrides for continue-mode semantics.
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*;
+            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
+        """
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
+        for attr in AlgorithmBase._checkpoint_attrs:
+            setattr(self, attr, data[attr])
 
     def _write_result(self, writer, extras=None):
         for iwalker in range(self.nwalkers):

@@ -87,3 +87,12 @@ add_test(
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/ttopt
   )
+
+add_test(
+  NAME ttopt_resume
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/ttopt_resume
+  )
+
+add_subdirectory(parallel_solver)
+

@@ -32,7 +32,6 @@ class Algorithm(AlgorithmBase):
                  info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
                  run_mode: str = "initial",
-                 mpicomm: Optional["MPI.Comm"] = None,
                  iterator = None,
     ) -> None:
         """
@@ -46,12 +45,10 @@ class Algorithm(AlgorithmBase):
             Optional runner object for submitting tasks.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        mpicomm : MPI.Comm
-            Optional MPI communicator.
         iterator : Iterator
             Iterator object.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         self._iter = iterator
 
@@ -71,21 +68,14 @@ class Algorithm(AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
+    def _prepare(self) -> None:
+        pass
+
     def _run(self) -> None:
         """
         Execute the main algorithm process.
         """
-        # Make ColorMap
-
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # local colormap file
         fp = open(self.local_colormap_file, "a")
@@ -134,50 +124,45 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if not np.isinf(self.opt_fx):
-            print(f"[{self.mpirank}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
-
-        self._output_results()
-
         # close local colormap file
         fp.close()
+
+        if not np.isinf(self.opt_fx):
+            print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
+
+        # self._output_results()
 
         # if Path(self.local_colormap_file).exists():
         #     os.remove(Path(self.local_colormap_file))
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
-    def _output_results(self):
+    def _output_results(self, results, opt_fx, opt_mesh):
         """
         Output the results to the colormap file.
         """
+
         print("Make ColorMap")
         time_sta = time.perf_counter()
 
         with open(self.colormap_file, "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
-            for idx, coord, fx in self.results:
+            for idx, coord, fx in results:
                 fp.write(" ".join(
                     map(lambda v: "{:8f}".format(v), (*coord, fx))
                 ) + "\n")
 
-            if not np.isinf(self.opt_fx):
-                fp.write("#Minimum point : " + " ".join(
-                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1])
+            if not np.isinf(opt_fx):
+                fp.write("#Index of the minimum point : {:d}\n".format(opt_mesh[0]))
+                fp.write("#Coordinates of the minimum point : " + " ".join(
+                    map(lambda v: "{:8f}".format(v), opt_mesh[1])
                 ) + "\n")
-                fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
-                fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
+                fp.write("#f(x) at the minimum point : {:8f}\n".format(opt_fx))
             else:
                 fp.write("# No mesh point\n")
 
         time_end = time.perf_counter()
         self.timer["run"]["file_CM"] = time_end - time_sta
-
-    def _prepare(self) -> None:
-        """
-        Prepare the algorithm (no operation).
-        """
-        pass
 
     def _post(self) -> dict:
         """
@@ -188,74 +173,61 @@ class Algorithm(AlgorithmBase):
         dict
             Dictionary of results.
         """
+        if odatse.mpi.algsize() > 1:
+            # gather results
+            results_lists = odatse.mpi.algcomm().allgather(self.results)
+            results = [v for vs in results_lists for v in vs]
 
-        if self.mpisize > 1:
-            opt_fxs = self.mpicomm.allgather(self.opt_fx)
-            opt_meshs = self.mpicomm.allgather(self.opt_mesh)
-            self.opt_fx  = np.min(opt_fxs)
-            self.opt_mesh = opt_meshs[np.argmin(opt_fxs)]
+            # gather local optimal values and find minimum among them
+            opt_fx_all = odatse.mpi.algcomm().allgather(self.opt_fx)
+            opt_mesh_all = odatse.mpi.algcomm().allgather(self.opt_mesh)
 
-        if self.mpisize > 1:
-            _data = self.mpicomm.allgather(self.results)
-            results = [v for vs in _data for v in vs]
+            idx = np.argmin(np.array(opt_fx_all))
+            opt_fx = opt_fx_all[idx]
+            opt_mesh = opt_mesh_all[idx]
         else:
             results = self.results
+            opt_fx = self.opt_fx
+            opt_mesh = self.opt_mesh
 
-        if self.mpirank == 0:
-            with open(self.colormap_file, "w") as fp:
-                for idx, coord, fx in results:
-                    fp.write(" ".join(
-                        map(lambda v: "{:8f}".format(v), (*coord, fx))
-                    ) + "\n")
-        
-        return {"x": self.opt_mesh[1:], "fx": self.opt_fx}
+        if odatse.mpi.algrank() == 0:
+            self._output_results(results, opt_fx, opt_mesh)
 
-    def _save_state(self, filename) -> None:
+        return {}
+
+    # Mapper-specific fields (simple getattr/setattr).
+    _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot including iterator state.
+
+        Extends the base ``__getstate__()`` with the iterator's own state
+        so that a single pickle file captures everything needed to resume.
         """
-        Save the current state of the algorithm to a file.
+        state = super().__getstate__()
+        state.update(self._iter._save_state())
+        return state
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, applies the mapper-specific fields, then restores the
+        iterator position.
 
         Parameters
         ----------
-        filename
-            The name of the file to save the state to.
-        """
-        data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
-            "timer": self.timer,
-            "info": self.info,
-            "results": self.results,
-            "opt_fx": self.opt_fx,
-            "opt_mesh": self.opt_mesh,
-        }
-        data.update(self._iter._save_state())
-        self._save_data(data, filename)
-
-    def _load_state(self, filename, restore_rng=True):
-        """
-        Load the state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename
-            The name of the file to load the state from.
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` is the only supported mode; ``"continue"`` raises
+            ``RuntimeError`` because mapper has no concept of extending a run.
         restore_rng : bool
-            Whether to restore the random number generator state.
+            Unused; mapper has no stochastic RNG to restore.
         """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
-
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        self.results = data["results"]
-        self.opt_fx = data["opt_fx"]
-        self.opt_mesh = data["opt_mesh"]
+        if mode == "continue":
+            raise RuntimeError("continue mode is not supported for mapper")
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
         self._iter._restore_state(data)

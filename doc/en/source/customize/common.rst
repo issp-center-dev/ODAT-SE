@@ -59,9 +59,9 @@ As items of ``base`` field, ``root_dir`` indicating the root dirctory of the cal
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("work_dir", "."))
+       p = pathlib.Path(base.get("output_dir", "."))
        p = p.expanduser()
-       base["work_dir"] = base["root_dir"] / p
+       base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
@@ -75,7 +75,7 @@ If the instance of ``Limitation`` is omitted, ``Unlimited`` is assumed that do n
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` method invokes the solver and returns the value of objective function ``f(x)``.
 ``submit`` internally uses the instance of ``Limitation`` to check whether the search parameter ``x`` satisfies the constraints. Then, it applies the instance of ``Mapping`` to obtain from ``x`` the input ``y = mapping(x)`` that is actually used by the solver.
 
-See :doc:`../input` for details how/which components of ``info`` ``Runner`` uses.
+See :doc:`../input/index` for details how/which components of ``info`` ``Runner`` uses.
 
 
 ``odatse.Mapping``

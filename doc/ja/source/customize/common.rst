@@ -10,19 +10,19 @@
 
 - ``base``
 
-    - ディレクトリ情報など、プログラム全体で共通するパラメータ
+  - ディレクトリ情報など、プログラム全体で共通するパラメータ
 
 - ``solver``
 
-    - ``Solver`` が用いる入力パラメータ
+  - ``Solver`` が用いる入力パラメータ
 
 - ``algorithm``
 
-    - ``Algorithm`` が用いる入力パラメータ
+  - ``Algorithm`` が用いる入力パラメータ
 
 - ``runner``
 
-    - ``Runner`` が用いる入力パラメータ
+  - ``Runner`` が用いる入力パラメータ
 
 
 ``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキー(省略可)を持つ ``dict`` を渡して初期化できます。また、クラスメソッド ``from_file`` に TOML形式の入力ファイルへのパスを渡して作成することもできます。
@@ -40,10 +40,10 @@
   - 先頭の ``~`` はホームディレクトリに展開されます
   - 具体的には次のコードが実行されます
 
-    .. code-block:: python
+  .. code-block:: python
 
-       p = pathlib.Path(base.get("root_dir", "."))
-       base["root_dir"] = p.expanduser().absolute()
+    p = pathlib.Path(base.get("root_dir", "."))
+    base["root_dir"] = p.expanduser().absolute()
 
 - 出力ディレクトリ ``output_dir``
 
@@ -55,9 +55,9 @@
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("work_dir", "."))
-       p = p.expanduser()
-       base["work_dir"] = base["root_dir"] / p
+      p = pathlib.Path(base.get("output_dir", "."))
+      p = p.expanduser()
+      base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
@@ -71,7 +71,7 @@
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
 関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
 
-その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。
+その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 
 
 ``odatse.Mapping``

@@ -6,7 +6,9 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
 import typing
+from typing import TYPE_CHECKING
 from os import PathLike
 
 import sys
@@ -15,6 +17,9 @@ import itertools
 import numpy as np
 
 from odatse import mpi
+
+if TYPE_CHECKING:
+    from mpi4py import MPI
 
 try:
     from tqdm import tqdm
@@ -284,7 +289,7 @@ def make_neighbor_list_cell(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using cell-based spatial partitioning.
@@ -303,7 +308,7 @@ def make_neighbor_list_cell(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -342,7 +347,7 @@ def make_neighbor_list_cell(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -358,7 +363,7 @@ def make_neighbor_list_cell(
                 r = np.linalg.norm(xs - ys)
                 if r <= radius:
                     nnlist[n - points[0]].append(other)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -370,7 +375,7 @@ def make_neighbor_list_naive(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using a naive all-pairs approach.
@@ -390,7 +395,7 @@ def make_neighbor_list_naive(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -421,7 +426,7 @@ def make_neighbor_list_naive(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -435,7 +440,7 @@ def make_neighbor_list_naive(
             r = np.linalg.norm(xs - ys)
             if r <= radius:
                 nnlist[n - points[0]].append(m)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -448,7 +453,7 @@ def make_neighbor_list(
     allow_selfloop: bool = False,
     check_allpairs: bool = False,
     show_progress: bool = False,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list for given points.
@@ -470,7 +475,7 @@ def make_neighbor_list(
         by default False.
     show_progress : bool, optional
         Whether to show a progress bar during computation, by default False.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -663,6 +668,8 @@ Note:
 
     args = parser.parse_args()
 
+    mpi.setup()
+
     inputfile = args.input
     outputfile = args.output
     radius = args.radius
@@ -675,11 +682,11 @@ Note:
     if mpi.rank() == 0:
         X = np.loadtxt(inputfile)
 
-    if mpi.size() > 1:
-        sh = mpi.comm().bcast(X.shape, root=0)
+    if mpi.algsize() > 1:
+        sh = mpi.algcomm().bcast(X.shape, root=0)
         if mpi.rank() != 0:
             X = np.zeros(sh)
-        mpi.comm().Bcast(X, root=0)
+        mpi.algcomm().Bcast(X, root=0)
 
     D = X.shape[1] - 1
 
@@ -698,7 +705,7 @@ Note:
         allow_selfloop=args.allow_selfloop,
         check_allpairs=args.check_allpairs,
         show_progress=(args.progress or not args.quiet),
-        comm=mpi.comm(),
+        comm=mpi.algcomm(),
     )
 
     write_neighbor_list(outputfile, nnlist, radius=radius, unit=unit)

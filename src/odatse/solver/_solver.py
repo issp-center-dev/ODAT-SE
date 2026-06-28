@@ -8,7 +8,6 @@
 
 from abc import ABCMeta, abstractmethod
 
-import subprocess
 import numpy as np
 
 import odatse
@@ -43,7 +42,7 @@ class SolverBase(object, metaclass=ABCMeta):
         """
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(odatse.mpi.rank())
+        self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
         self.work_dir = self.proc_dir
         self._name = ""
         self.timer = {"prepare": {}, "run": {}, "post": {}}
@@ -65,7 +64,7 @@ class SolverBase(object, metaclass=ABCMeta):
         return self._name
 
     @abstractmethod
-    def evaluate(self, x: np.ndarray, arg: tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
+    def evaluate(self, x: np.ndarray, arg: tuple = ()) -> float:
         """
         Evaluate the solver with the given parameters.
 
@@ -75,10 +74,6 @@ class SolverBase(object, metaclass=ABCMeta):
             Input data array.
         arg : tuple, optional
             Additional arguments for evaluation. Defaults to ().
-        nprocs : nt, optional
-            Number of processes to use. Defaults to 1.
-        nthreads : int, optional
-            Number of threads to use. Defaults to 1.
 
         Raises
         ------
