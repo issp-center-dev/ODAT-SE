@@ -136,8 +136,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Initialize ODAT-SE to get output directory
-    sys.argv = ["script.py", args.input, "--init"]
-    info, run_mode = odatse.initialize()
+    info, run_mode = odatse.initialize([args.input, "--init"])
     output_dir = info.base.get("output_dir", "./output")
     
     # Create output directory if it doesn't exist
