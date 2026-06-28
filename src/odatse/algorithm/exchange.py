@@ -85,6 +85,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     exchange_direction: bool
 
+    # Exchange-specific fields appended to the MC base checkpoint.
+    _checkpoint_attrs: list[str] = ["nreplica", "Tindex", "rep2T", "T2rep", "exchange_direction"]
+
     def __init__(
         self,
         info: odatse.Info,
@@ -158,22 +161,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Run the algorithm.
         """
-        # Validate run mode is set
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        # Determine whether to restore RNG state from checkpoint
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        # Initialize or restore simulation state based on mode
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # Get current beta (inverse temperature) values for each replica
         beta = self.betas[self.Tindex]
@@ -474,110 +462,28 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "walker": best_iwalker[best_rank],
         }
 
-    def _save_state(self, filename) -> None:
-        """
-        Save the current algorithm state to a checkpoint file.
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
 
-        Saves all necessary data to resume the simulation later, including:
-          - MPI configuration
-          - Random number generator state
-          - Timer information
-          - Current configurations and energies
-          - Best solutions found
-          - Replica exchange state information
+        Delegates MPI validation, RNG restore, and MC-layer fields to the
+        base class, validates the replica count, then applies exchange-specific
+        fields and propagates the restored RNG to the state space.
+
+        REMC does not distinguish between resume and continue modes; ``mode``
+        is accepted for API consistency with PAMC and forwarded to super().
 
         Parameters
         ----------
-        filename : str
-            Path to the checkpoint file to write.
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``; forwarded to the base class.
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*;
+            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        data = {
-            #-- _algorithm
-            "algsize": odatse.mpi.algsize(),
-            "algrank": odatse.mpi.algrank(),
-            "rng": self.rng.get_state(),
-            "timer": self.timer,
-            "info": self.info,
-            #-- montecarlo
-            "x": self.state,
-            "fx": self.fx,
-            #"inode": self.inode,
-            "istep": self.istep,
-            "best_x": self.best_x,
-            "best_fx": self.best_fx,
-            "best_istep": self.best_istep,
-            "best_iwalker": self.best_iwalker,
-            "naccepted": self.naccepted,
-            "ntrial": self.ntrial,
-            #-- exchange
-            "nreplica": self.nreplica,
-            "Tindex": self.Tindex,
-            "rep2T": self.rep2T,
-            "T2rep": self.T2rep,
-            "exchange_direction": self.exchange_direction,
-        }
-        self._save_data(data, filename)
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """
-        Load algorithm state from a checkpoint file.
-
-        Restores all necessary data to resume a previous simulation run.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file to read.
-        mode : str, optional
-            Loading mode - either "resume" or "continue", by default "resume".
-        restore_rng : bool, optional
-            Whether to restore the random number generator state, by default True.
-            Set to False to use a fresh RNG state.
-
-        Raises
-        ------
-        AssertionError
-            If loaded state doesn't match current MPI configuration.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-
-        # -- _algorithm
-        assert odatse.mpi.algsize() == data["algsize"]
-        assert odatse.mpi.algrank() == data["algrank"]
-
-        if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        # -- montecarlo
-        self.state = data["x"]
-        self.fx = data["fx"]
-        # self.inode = data["inode"]
-
-        self.istep = data["istep"]
-
-        self.best_x = data["best_x"]
-        self.best_fx = data["best_fx"]
-        self.best_istep = data["best_istep"]
-        self.best_iwalker = data["best_iwalker"]
-
-        self.naccepted = data["naccepted"]
-        self.ntrial = data["ntrial"]
-
-        # -- exchange
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         assert self.nreplica == data["nreplica"]
-
-        self.Tindex = data["Tindex"]
-        self.rep2T = data["rep2T"]
-        self.T2rep = data["T2rep"]
-        self.exchange_direction = data["exchange_direction"]
-
-        # -- restore rng state in statespace
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
         self.statespace.rng = self.rng

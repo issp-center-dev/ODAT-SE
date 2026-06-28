@@ -68,21 +68,14 @@ class Algorithm(AlgorithmBase):
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
 
+    def _prepare(self) -> None:
+        pass
+
     def _run(self) -> None:
         """
         Execute the main algorithm process.
         """
-        # Make ColorMap
-
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # local colormap file
         fp = open(self.local_colormap_file, "a")
@@ -171,12 +164,6 @@ class Algorithm(AlgorithmBase):
         time_end = time.perf_counter()
         self.timer["run"]["file_CM"] = time_end - time_sta
 
-    def _prepare(self) -> None:
-        """
-        Prepare the algorithm (no operation).
-        """
-        pass
-
     def _post(self) -> dict:
         """
         Post-process the results and gather data from all MPI ranks.
@@ -208,52 +195,39 @@ class Algorithm(AlgorithmBase):
 
         return {}
 
-    def _save_state(self, filename) -> None:
+    # Mapper-specific fields (simple getattr/setattr).
+    _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot including iterator state.
+
+        Extends the base ``__getstate__()`` with the iterator's own state
+        so that a single pickle file captures everything needed to resume.
         """
-        Save the current state of the algorithm to a file.
+        state = super().__getstate__()
+        state.update(self._iter._save_state())
+        return state
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, applies the mapper-specific fields, then restores the
+        iterator position.
 
         Parameters
         ----------
-        filename
-            The name of the file to save the state to.
-        """
-        data = {
-            "algsize": odatse.mpi.algsize(),
-            "algrank": odatse.mpi.algrank(),
-            "timer": self.timer,
-            "info": self.info,
-            "results": self.results,
-            "opt_fx": self.opt_fx,
-            "opt_mesh": self.opt_mesh,
-        }
-        data.update(self._iter._save_state())
-        self._save_data(data, filename)
-
-    def _load_state(self, filename, restore_rng=True):
-        """
-        Load the state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename
-            The name of the file to load the state from.
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` is the only supported mode; ``"continue"`` raises
+            ``RuntimeError`` because mapper has no concept of extending a run.
         restore_rng : bool
-            Whether to restore the random number generator state.
+            Unused; mapper has no stochastic RNG to restore.
         """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-
-        assert odatse.mpi.algsize() == data["algsize"]
-        assert odatse.mpi.algrank() == data["algrank"]
-
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        self.results = data["results"]
-        self.opt_fx = data["opt_fx"]
-        self.opt_mesh = data["opt_mesh"]
+        if mode == "continue":
+            raise RuntimeError("continue mode is not supported for mapper")
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
         self._iter._restore_state(data)

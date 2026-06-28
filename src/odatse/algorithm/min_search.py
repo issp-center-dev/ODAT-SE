@@ -96,6 +96,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._show_parameters()
 
+    def _initialize(self) -> None:
+        """Set up initial state for a fresh run.
+
+        Nelder-Mead does not use checkpointing, so this is a no-op.
+        The simplex initialisation is done in ``prepare()``.
+        """
+        pass
+
     def _run(self) -> None:
         """
         Run the minimization algorithm.

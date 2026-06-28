@@ -11,6 +11,9 @@ from odatse import mpi
 
 
 class IteratorBase(object):
+    # Fields saved/restored at checkpoint; subclasses declare their own list.
+    _checkpoint_attrs: list[str] = []
+
     def __init__(self):
         # aliases
         self.mpicomm = mpi.algcomm()
@@ -19,6 +22,15 @@ class IteratorBase(object):
 
         self._index_start = 0
         self._index_end = 0
+
+    def _save_state(self) -> dict:
+        """Return a snapshot of the iterator position as a plain dict."""
+        return {attr: getattr(self, attr) for attr in type(self)._checkpoint_attrs}
+
+    def _restore_state(self, d: dict) -> None:
+        """Restore the iterator position from a snapshot dict."""
+        for attr in type(self)._checkpoint_attrs:
+            setattr(self, attr, d[attr])
 
     def __iter__(self):
         return self
@@ -38,6 +50,8 @@ class IteratorBase(object):
 
 
 class MeshIterator(IteratorBase):
+    _checkpoint_attrs: list[str] = ["_i"]
+
     def __init__(self, xmin, xmax, xnum):
         super().__init__()
 
@@ -58,16 +72,10 @@ class MeshIterator(IteratorBase):
         self._i += 1
         return tag, coord
 
-    def _save_state(self):
-        return {
-            "index": self._i,
-        }
-
-    def _restore_state(self, d):
-        self._i = d["index"]
-
 
 class ListIterator(IteratorBase):
+    _checkpoint_attrs: list[str] = ["_i", "_data"]
+
     def __init__(self, data):
         # input: rank 0 has all data
         # split data and distrubute to other ranks
@@ -96,18 +104,11 @@ class ListIterator(IteratorBase):
             data = [[int(idx), *v] for idx, *v in data]
         return data
 
-    def _save_state(self):
-        return {
-            "index": self._i,
-            "data": self._data,
-        }
-
-    def _restore_state(self, d):
-        self._i = d["index"]
-        self._data = d["data"]
 
 class DistributedListIterator(IteratorBase):
-    def __init__(self, data):
+    _checkpoint_attrs: list[str] = ["_i", "_data"]
+
+    def __init__(self, data, mpicomm=None):
         # all ranks have their own chunk of data
         super().__init__()
 
@@ -124,17 +125,10 @@ class DistributedListIterator(IteratorBase):
         self._i += 1
         return data[0], data[1:]
 
-    def _save_state(self):
-        return {
-            "index": self._i,
-            "data": self._data,
-        }
-
-    def _restore_state(self, d):
-        self._i = d["index"]
-        self._data = d["data"]
 
 class RandomIterator(IteratorBase):
+    _checkpoint_attrs: list[str] = ["_i"]
+
     def __init__(self, xmin, xmax, count, rng):
         super().__init__()
 
@@ -158,13 +152,12 @@ class RandomIterator(IteratorBase):
         self._i += 1
         return tag, coord
 
-    def _save_state(self):
-        return {
-            "index": self._i,
-            "rng_state": self._rng.get_state(),
-        }
+    def _save_state(self) -> dict:
+        state = super()._save_state()
+        state["rng_state"] = self._rng.get_state()
+        return state
 
-    def _restore_state(self, d):
-        self._i = d["index"]
+    def _restore_state(self, d: dict) -> None:
+        super()._restore_state(d)
         self._rng = np.random.RandomState()
         self._rng.set_state(d["rng_state"])
