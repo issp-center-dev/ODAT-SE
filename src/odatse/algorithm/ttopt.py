@@ -15,9 +15,6 @@ from scipy.linalg import lu, solve_triangular
 import odatse
 import odatse.domain
 
-if TYPE_CHECKING:
-    from mpi4py import MPI
-
 
 def maxvol(
     mat: np.ndarray, tol: float = 1.001, max_it: int = 1000
@@ -197,7 +194,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         runner: Optional[odatse.Runner] = None,
         domain: Optional[odatse.domain.Region] = None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -210,12 +206,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             Runner object for executing the algorithm.
         run_mode : str, optional
             Mode to run the algorithm in, by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
 
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         if self.runner is None:
             raise ValueError("The TTOpt algorithm requires a runner instance.")
@@ -267,6 +260,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._show_parameters()
 
+    def _initialize(self):
+        pass
+
     def _setup_structure(self) -> None:
         """Set up structural fields derived from config parameters.
 
@@ -305,7 +301,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.f_eval_count_history = []
         self.xopt_history = []
         self.fopt_history = []
-        if self.mpirank == 0 and getattr(self, "_eval_hist_file", None) is not None:
+        if odatse.mpi.algrank() == 0 and getattr(self, "_eval_hist_file", None) is not None:
             self._eval_hist_file.close()
         self._eval_hist_file: Optional[IO[str]] = None
         self._eval_hist_next_row = 1
@@ -404,9 +400,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 (self.tt_ranks[i] * self.n_q_points[i], self.tt_ranks[i + 1]),
                 order="F",
             )
-            if self.mpisize > 1:  # make state uniform across all ranks
-                assert self.mpicomm is not None
-                z = self.mpicomm.bcast(z, root=0)
+
+            if odatse.mpi.algsize() > 1:  # make state uniform across all ranks
+                assert odatse.mpi.algcomm() is not None
+                z = odatse.mpi.algcomm().bcast(z, root=0)
             row_idxs = find_rows(z, self.maxvol_tol, self.maxvol_max_it)
             next_poi = update_right(
                 self.grids[i],
@@ -431,9 +428,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if not self.mode.startswith("resume"):
             self._init_poi()
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             with open(self.output_dir / "ttopt_hyperparameters.txt", "w") as f:
-                f.write(f"nprocs = {self.mpisize}\n")
+                f.write(f"nprocs = {odatse.mpi.algsize()}\n")
                 f.write(f"bounds = {self.bounds.tolist()}\n")
                 f.write(f"p_points = {self.p_points}\n")
                 f.write(f"q_points = {self.q_points}\n")
@@ -563,12 +560,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             Snapshot previously produced by ``__getstate__``.
         """
         super()._apply_state(data)
-        if self.n_q_dims != data["n_q_dims"]:
-            raise RuntimeError(
-                f"n_q_dims mismatch: checkpoint has {data['n_q_dims']}, "
-                f"current config gives {self.n_q_dims}. "
-                "Check that p_points and q_points match the original run."
-            )
+        # if self.n_q_dims != data["n_q_dims"]:
+        #     raise RuntimeError(
+        #         f"n_q_dims mismatch: checkpoint has {data['n_q_dims']}, "
+        #         f"current config gives {self.n_q_dims}. "
+        #         "Check that p_points and q_points match the original run."
+        #     )
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
 
@@ -593,7 +590,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _eval_hist_append_batch(
         self, todo_pois: np.ndarray, f_vals: np.ndarray
     ) -> None:
-        if not self.save_eval_history or self.mpirank != 0:
+        if not self.save_eval_history or odatse.mpi.algrank() != 0:
             return
         n = int(f_vals.shape[0])
         if n == 0:
@@ -605,7 +602,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             self._eval_hist_flush(force=True)
 
     def _eval_hist_flush(self, *, force: bool) -> None:
-        if not self.save_eval_history or self.mpirank != 0:
+        if not self.save_eval_history or odatse.mpi.algrank() != 0:
             return
         if self._eval_hist_pending_nrows == 0:
             return
@@ -638,7 +635,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._eval_hist_pending_nrows = 0
 
     def _eval_hist_finalize(self) -> None:
-        if not self.save_eval_history or self.mpirank != 0:
+        if not self.save_eval_history or odatse.mpi.algrank() != 0:
             return
         self._eval_hist_flush(force=True)
         if self._eval_hist_file is not None:
@@ -655,7 +652,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         opt_history = list(
             zip(self.f_eval_count_history, self.xopt_history, self.fopt_history)
         )
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             self._eval_hist_finalize()
             with open("ttopt_history.txt", "w") as f:
                 f.write("# $1: count\n")
@@ -668,9 +665,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         f.write(f" {x:.15e}")
                     f.write(f" {entry[2]:.15e}\n")
 
-        if self.mpisize > 1:
-            assert self.mpicomm is not None
-            results = self.mpicomm.allgather(result)
+        if odatse.mpi.algsize() > 1:
+            assert odatse.mpi.algcomm() is not None
+            results = odatse.mpi.algcomm().allgather(result)
         else:
             results = [result]
 
@@ -679,7 +676,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         idx = np.argmin(fxs)
         result = {"x": xs[idx], "fx": fxs[idx], "opt_history": opt_history}
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             print(f"Best solution: x = {result['x']}, f(x) = {result['fx']}")
             hitrate = (
                 100 * self.cache_hits / self.f_eval_count
@@ -734,12 +731,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # parallelization
         eval_f_vals = []
         if len(eval_idxs) > 0:
-            if self.mpisize > 1:
-                assert self.mpicomm is not None
-                split = np.array_split(np.arange(len(eval_idxs)), self.mpisize)
-                my_local_idxs = split[self.mpirank]
+            if odatse.mpi.algsize() > 1:
+                assert odatse.mpi.algcomm() is not None
+                split = np.array_split(np.arange(len(eval_idxs)), odatse.mpi.algsize())
+                my_local_idxs = split[odatse.mpi.algrank()]
                 my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
-                all_f_vals = self.mpicomm.allgather(my_f_vals)
+                all_f_vals = odatse.mpi.algcomm().allgather(my_f_vals)
                 eval_f_vals = [v for sublist in all_f_vals for v in sublist]
             else:
                 eval_f_vals = [

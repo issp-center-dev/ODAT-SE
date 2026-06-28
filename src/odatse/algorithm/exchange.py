@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     """
     Replica Exchange Monte Carlo (REMC) Algorithm Implementation.
-    
-    This class implements the Replica Exchange Monte Carlo algorithm, also known as 
+
+    This class implements the Replica Exchange Monte Carlo algorithm, also known as
     Parallel Tempering. The algorithm runs multiple replicas of the system at different
     temperatures and periodically attempts to swap configurations between adjacent
     temperature levels.
@@ -93,7 +93,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         info: odatse.Info,
         runner: odatse.Runner = None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -106,9 +105,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Runner object for executing the algorithm.
         run_mode : str, optional
             Mode to run the algorithm in, by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         time_sta = time.perf_counter()
 
@@ -120,10 +116,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             runner=runner,
             nwalkers=nwalkers,
             run_mode=run_mode,
-            mpicomm=mpicomm,
         )
 
-        self.nreplica = self.mpisize * self.nwalkers
+        self.nreplica = odatse.mpi.algsize() * self.nwalkers
         self.input_as_beta, self.betas = read_Ts(info_exchange, numT=self.nreplica)
 
         self.numsteps = info_exchange["numsteps"]
@@ -147,7 +142,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         # Each process handles a contiguous block of temperature indices
         # based on its rank and number of walkers
         self.Tindex = np.arange(
-            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
+            (odatse.mpi.algrank() or 0) * self.nwalkers, ((odatse.mpi.algrank() or 0) + 1) * self.nwalkers
         )
 
         # Initialize mappings between replica and temperature indices
@@ -166,22 +161,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Run the algorithm.
         """
-        # Validate run mode is set
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        # Determine whether to restore RNG state from checkpoint
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        # Initialize or restore simulation state based on mode
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # Get current beta (inverse temperature) values for each replica
         beta = self.betas[self.Tindex]
@@ -248,7 +228,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         # Clean up file handles
         fp_trial.close()
         fp_result.close()
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
         # Save final state for possible continuation
         if self.checkpoint:
@@ -286,9 +266,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If True, attempt exchanges between even-odd pairs.
             If False, attempt exchanges between odd-even pairs.
         """
-        if self.mpisize > 1:
-            assert self.mpicomm is not None
-            self.mpicomm.Barrier()
+        comm = odatse.mpi.algcomm()
+
+        comm.Barrier()
+
         if direction:
             if self.Tindex[0] % 2 == 0:
                 other_index = self.Tindex[0] + 1
@@ -310,34 +291,35 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         if 0 <= other_index < self.nreplica:
             other_rank = self.T2rep[other_index]
             if is_main:
-                self.mpicomm.Recv(fbuf, source=other_rank, tag=1)
+                comm.Recv(fbuf, source=other_rank, tag=1)
                 other_fx = fbuf[0]
                 beta = self.betas[self.Tindex[0]]
                 other_beta = self.betas[self.Tindex[0] + 1]
                 logp = (other_beta - beta) * (other_fx - self.fx[0])
                 if logp >= 0.0 or self.rng.rand() < np.exp(logp):
                     ibuf[0] = self.Tindex[0]
-                    self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
+                    comm.Send(ibuf, dest=other_rank, tag=2)
                     self.Tindex[0] += 1
                 else:
                     ibuf[0] = self.Tindex[0] + 1
-                    self.mpicomm.Send(ibuf, dest=other_rank, tag=2)
+                    comm.Send(ibuf, dest=other_rank, tag=2)
             else:
                 fbuf[0] = self.fx[0]
-                self.mpicomm.Send(fbuf, dest=other_rank, tag=1)
-                self.mpicomm.Recv(ibuf, source=other_rank, tag=2)
+                comm.Send(fbuf, dest=other_rank, tag=1)
+                comm.Recv(ibuf, source=other_rank, tag=2)
                 self.Tindex[0] = ibuf[0]
 
-        self.mpicomm.Barrier()
-        if self.mpirank == 0:
-            self.T2rep[self.Tindex[0]] = self.mpirank
+        comm.Barrier()
+
+        if odatse.mpi.algrank() == 0:
+            self.T2rep[self.Tindex[0]] = odatse.mpi.algrank()
             for other_rank in range(1, self.nreplica):
-                self.mpicomm.Recv(ibuf, source=other_rank, tag=0)
+                comm.Recv(ibuf, source=other_rank, tag=0)
                 self.T2rep[ibuf[0]] = other_rank
         else:
             ibuf[0] = self.Tindex[0]
-            self.mpicomm.Send(ibuf, dest=0, tag=0)
-        self.mpicomm.Bcast(self.T2rep, root=0)
+            comm.Send(ibuf, dest=0, tag=0)
+        comm.Bcast(self.T2rep, root=0)
 
     def __exchange_multi_walker(self, direction: bool) -> None:
         """
@@ -352,8 +334,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If True, attempt exchanges between even-odd pairs.
             If False, attempt exchanges between odd-even pairs.
         """
-        comm = self.mpicomm
-        if self.mpisize > 1:
+        comm = odatse.mpi.algcomm()
+
+        if odatse.mpi.algsize() > 1:
             fx_all = comm.allgather(self.fx)
             fx_all = np.array(fx_all).flatten()
         else:
@@ -362,9 +345,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         rep2T_diff = []
         T2rep_diff = []
 
-        for irep in range(
-            self.mpirank * self.nwalkers, (self.mpirank + 1) * self.nwalkers
-        ):
+        rank = odatse.mpi.algrank()
+
+        for irep in range(rank * self.nwalkers, (rank+1) * self.nwalkers):
             iT = self.rep2T[irep]
             if iT % 2 != 0:
                 continue
@@ -381,7 +364,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 T2rep_diff.append((iT, jrep))
                 T2rep_diff.append((jT, irep))
 
-        if self.mpisize > 1:
+        if odatse.mpi.algsize() > 1:
             rep2T_diff = comm.allgather(rep2T_diff)
             rep2T_diff = list(itertools.chain.from_iterable(rep2T_diff))  # flatten
             T2rep_diff = comm.allgather(T2rep_diff)
@@ -391,9 +374,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.rep2T[diff[0]] = diff[1]
         for diff in T2rep_diff:
             self.T2rep[diff[0]] = diff[1]
-        self.Tindex = self.rep2T[
-            self.mpirank * self.nwalkers : (self.mpirank + 1) * self.nwalkers
-        ]
+
+        self.Tindex = self.rep2T[rank * self.nwalkers : (rank + 1) * self.nwalkers]
 
     def _prepare(self) -> None:
         """
@@ -408,8 +390,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         # Separate results by temperature if requested
         if self.separate_T and not self.export_combined_files:
-            if self.mpirank == 0:
-                print(f"start separateT {self.mpirank}")
+            if odatse.mpi.algrank() == 0:
+                print(f"start separateT {odatse.mpi.algrank()}")
                 sys.stdout.flush()
 
             # Convert beta to temperature if needed
@@ -420,7 +402,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 Ts=Ts,
                 nwalkers=self.nwalkers,
                 output_dir=self.output_dir,
-                comm=self.mpicomm,
+                comm=odatse.mpi.algcomm(),
                 use_beta=self.input_as_beta,
                 buffer_size=10000,
             )
@@ -428,20 +410,20 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 Ts=Ts,
                 output_dir=self.output_dir,
                 thermalization_steps=self.numsteps_thermalization,
-                comm=self.mpicomm,
+                comm=odatse.mpi.algcomm(),
             )
 
         # Gather best results from all processes
-        if self.mpisize > 1:
-            assert self.mpicomm is not None
+        if odatse.mpi.algsize() > 1:
             # NOTE:
             # ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.
             # ``Gather`` and ``allgather`` seem to work fine.
             # Since the performance is not so important here, we use ``allgather`` for simplicity.
-            best_fx = self.mpicomm.allgather(self.best_fx)
-            best_x = self.mpicomm.allgather(self.best_x)
-            best_istep = self.mpicomm.allgather(self.best_istep)
-            best_iwalker = self.mpicomm.allgather(self.best_iwalker)
+            comm = odatse.mpi.algcomm()
+            best_fx = comm.allgather(self.best_fx)
+            best_x = comm.allgather(self.best_x)
+            best_istep = comm.allgather(self.best_istep)
+            best_iwalker = comm.allgather(self.best_iwalker)
         else:
             best_fx = [self.best_fx]
             best_x = [self.best_x]
@@ -452,7 +434,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         best_rank = np.argmin(best_fx)
 
         # Write best result to file (rank 0 only)
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             with open("best_result.txt", "w") as f:
                 f.write(f"nprocs = {self.nreplica}\n")
                 f.write(f"rank = {best_rank}\n")
@@ -480,46 +462,28 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             "walker": best_iwalker[best_rank],
         }
 
-    def _save_state(self, filename) -> None:
-        """Save the current algorithm state to a checkpoint file."""
-        self._save_data(self.__getstate__(), filename)
-
-    def _apply_state(self, data: dict, restore_rng: bool = True) -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, RNG restore, and MC-layer fields to the
         base class, validates the replica count, then applies exchange-specific
         fields and propagates the restored RNG to the state space.
 
+        REMC does not distinguish between resume and continue modes; ``mode``
+        is accepted for API consistency with PAMC and forwarded to super().
+
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``; forwarded to the base class.
         restore_rng : bool
             When *True* (default) the RNG state is restored from *data*;
             when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        super()._apply_state(data, restore_rng)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         assert self.nreplica == data["nreplica"]
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
         self.statespace.rng = self.rng
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """Load algorithm state from a checkpoint file.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file to read.
-        mode : str, optional
-            Loading mode — ``"resume"`` or ``"continue"`` (currently unused
-            for REMC; kept for API symmetry with PAMC).
-        restore_rng : bool, optional
-            Whether to restore the RNG state, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data, restore_rng=restore_rng)

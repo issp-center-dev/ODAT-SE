@@ -126,7 +126,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         info: odatse.Info,
         runner: odatse.Runner = None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Initialize the Algorithm class.
@@ -139,18 +138,15 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Runner object for executing the algorithm, by default None.
         run_mode : str, optional
             Mode in which to run the algorithm, by default "initial".
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
         time_sta = time.perf_counter()
 
         info_pamc = info.algorithm["pamc"]
         nwalkers = info_pamc.get("nreplica_per_proc", 1)
 
-        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, nwalkers=nwalkers, run_mode=run_mode)
 
-        self.verbose = True and self.mpirank == 0
+        self.verbose = True and odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0
 
         numT = self._find_scheduling(info_pamc)
 
@@ -174,6 +170,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     def _initialize(self) -> None:
         super()._initialize()
 
+        # PAMC-specific counters for a fresh run
+        self.Tindex = 0
+        self.index_from_reset = 0
+        self.istep = 0
+
         numT = len(self.betas)
 
         self.logZ = 0.0
@@ -182,12 +183,12 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
-        nreplicas = self.mpisize * self.nwalkers
+        nreplicas = odatse.mpi.algsize() * self.nwalkers
         self.nreplicas = np.full(numT, nreplicas)
 
         self.populations = np.zeros((numT, self.nwalkers), dtype=int)
-        self.family_lo = self.nwalkers * self.mpirank
-        self.family_hi = self.nwalkers * (self.mpirank + 1)
+        self.family_lo = self.nwalkers * odatse.mpi.algrank()
+        self.family_hi = self.nwalkers * (odatse.mpi.algrank() + 1)
         self.walker_ancestors = np.arange(self.family_lo, self.family_hi)
         self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
         self.naccepted_from_reset = np.zeros((self.resampling_interval, 2), dtype=int)
@@ -263,38 +264,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     def _run(self) -> None:
 
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-
-            self.Tindex = 0
-            self.index_from_reset = 0
-            self.istep = 0
-
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-
-            Tindex = self.Tindex
-
-            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
-            self.logweights += -dbeta * self.fx
-            if self.index_from_reset == self.resampling_interval:
-                time_sta = time.perf_counter()
-                self._resample()
-                time_end = time.perf_counter()
-                self.timer["run"]["resampling"] += time_end - time_sta
-                self.index_from_reset = 0
-
-            self.Tindex += 1
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         writer = self._setup_writer()
 
@@ -405,9 +375,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._split_result_file("trial")
             self._split_result_file("result")
 
-        if self.mpisize > 1:
-            self.mpicomm.barrier()
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().barrier()
+
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
     def _setup_writer(self):
         write_mode = "w" if self.mode.startswith("init") else "a"
@@ -609,7 +580,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.logweights[:] = 0.0
         else:
             offsets = np.cumsum(ns) - ns
-            self._resample_varied(weights, offsets[self.mpirank])
+            self._resample_varied(weights, offsets[odatse.mpi.algrank()])
             self.fx_from_reset = np.zeros((self.resampling_interval, self.nwalkers))
             self.logweights = np.zeros(self.nwalkers)
 
@@ -716,11 +687,25 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Prepare the algorithm for execution.
 
-        This method initializes the timers for the 'submit' and 'resampling' phases
-        of the algorithm run.
+        Initialises the run-phase timers, then for ``continue`` mode applies
+        the logweight update and advances ``Tindex`` to the next temperature.
+        This must run after ``_apply_state()`` has extended the beta schedule
+        (done inside ``_prepare()`` dispatch) and after the timers are ready.
         """
         self.timer["run"]["submit"] = 0.0
         self.timer["run"]["resampling"] = 0.0
+
+        if self.mode.startswith("continue"):
+            Tindex = self.Tindex
+            dbeta = self.betas[Tindex + 1] - self.betas[Tindex]
+            self.logweights += -dbeta * self.fx
+            if self.index_from_reset == self.resampling_interval:
+                time_sta = time.perf_counter()
+                self._resample()
+                time_end = time.perf_counter()
+                self.timer["run"]["resampling"] += time_end - time_sta
+                self.index_from_reset = 0
+            self.Tindex += 1
 
     def _split_result_file(self, tag):
         current_beta = -1
@@ -760,9 +745,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         best_iwalker = gather_data(np.array([self.best_iwalker]))
 
         best_rank = np.argmin(best_fx)
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open("best_result.txt", "w") as f:
-                f.write(f"nprocs = {self.mpisize}\n")
+                f.write(f"nprocs = {odatse.mpi.algsize()}\n")
                 f.write(f"rank = {best_rank}\n")
                 f.write(f"step = {best_istep[best_rank]}\n")
                 f.write(f"walker = {best_iwalker[best_rank]}\n")
@@ -805,17 +790,13 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         return {
             "x": best_x[best_rank],
             "fx": best_fx[best_rank],
-            "nprocs": self.mpisize,
+            "nprocs": odatse.mpi.algsize(),
             "rank": best_rank,
             "step": best_istep[best_rank],
             "walker": best_iwalker[best_rank],
         }
 
-    def _save_state(self, filename) -> None:
-        """Save the current state of the algorithm to a file."""
-        self._save_data(self.__getstate__(), filename)
-
-    def _apply_state(self, data: dict, restore_rng: bool = True, mode: str = "resume") -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, RNG restore, and MC-layer fields to the
@@ -824,20 +805,24 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         the current schedule (``logZs``, ``Fmeans``, etc.) are written with
         slice assignment after re-initialisation.
 
+        The logweight update, optional resampling, and ``Tindex`` increment
+        for ``continue`` mode are performed in ``prepare()`` after this method
+        returns, so that the run-phase timers are already initialised.
+
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
-        restore_rng : bool
-            When *True* (default) the RNG state is restored from *data*;
-            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         mode : str
             ``"resume"`` — validate that the temperature schedule is identical
             to the one stored in *data*.
             ``"continue"`` — concatenate the stored schedule with the new one
             (the stored last beta must equal the new first beta).
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*;
+            when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
-        super()._apply_state(data, restore_rng)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
 
         # -- simple scalar fields
         self.Tindex = data["Tindex"]
@@ -860,7 +845,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         # -- re-initialise length-numT arrays, then overwrite with saved data
         numT = len(self.betas)
-        nreplicas = self.mpisize * self.nwalkers
+        nreplicas = odatse.mpi.algsize() * self.nwalkers
+
         self.logZs = np.zeros(numT)
         self.Fmeans = np.zeros(numT)
         self.Ferrs = np.zeros(numT)
@@ -884,21 +870,3 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.pr_list[:len(data["pr_list"])] = data["pr_list"]
 
         self.statespace.rng = self.rng
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """Load the saved state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file to read.
-        mode : str, optional
-            ``"resume"`` or ``"continue"``, by default ``"resume"``.
-        restore_rng : bool, optional
-            Whether to restore the RNG state, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data, restore_rng=restore_rng, mode=mode)

@@ -7,21 +7,22 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 rm -rf output
 
 # Run the Python script using MPI with 2 processes
-time mpiexec -np 2 python3 -m mpi4py ../../src/odatse_main.py input.toml
+/usr/bin/time mpiexec -np 2 python3 ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/res.txt
+reffile=ref.txt
 
 # Compare the result file with the reference file
-echo diff $resfile ref.txt
+echo diff $resfile $reffile
 res=0
-diff $resfile ref.txt || res=$?
+diff $resfile $reffile || res=$?
 
 # Check the result of the diff command
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
 else
-  echo TEST FAILED: $resfile and ref.txt differ
+  echo TEST FAILED: $resfile and $reffile differ
   false
 fi

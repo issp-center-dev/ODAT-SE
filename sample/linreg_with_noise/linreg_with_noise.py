@@ -142,10 +142,8 @@ if __name__ == "__main__":
     # Step 1: Run ODAT-SE
     print("\nStep 1: Running ODAT-SE linear regression...")
 
-    sys.argv = ["script.py", args.input, "--init"]
-
     # Initialize ODAT-SE to get output directory
-    info, run_mode = odatse.initialize()
+    info, run_mode = odatse.initialize([args.input, "--init"])
     output_dir = info.base.get("output_dir", "./output")
 
     # Create output directory if it doesn't exist

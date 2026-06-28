@@ -47,6 +47,7 @@ jobs:
             python -m pip install "numpy==${{ matrix.numpy-version }}"
           fi
           python -m pip install scipy tomli mpi4py
+          python -m pip install .
           python -m pip install physbo
 
       - name: run

@@ -1,0 +1,22 @@
+[base]
+dimension = 1
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[solver.param]
+nmats = 50
+matsize = 1000
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+max_list = [20]
+min_list = [1]
+num_list = [20]

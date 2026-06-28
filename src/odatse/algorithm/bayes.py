@@ -59,7 +59,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         runner: odatse.Runner = None,
         domain=None,
         run_mode: str = "initial",
-        mpicomm: Optional["MPI.Comm"] = None,
     ) -> None:
         """
         Constructs all the necessary attributes for the Algorithm object.
@@ -74,15 +73,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             The domain object (default is None).
         run_mode : str, optional
             The run mode (default is "initial").
-        mpicomm : MPI.Comm
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        info_param = info.algorithm.get("param", {})
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         info_bayes = info.algorithm.get("bayes", {})
 
+        # CHECK: deprecated parameters
+        info_param = info.algorithm.get("param", {})
         for key in ("random_max_num_probes", "bayes_max_num_probes", "score", "interval", "num_rand_basis"):
             if key in info_param and key not in info_bayes:
                 print(f"WARNING: algorithm.param.{key} is deprecated. Use algorithm.bayes.{key} .")
@@ -94,7 +94,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.interval = info_bayes.get("interval", 5)
         self.num_rand_basis = info_bayes.get("num_rand_basis", 5000)
 
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() == 0:
             print("# parameter")
             print(f"random_max_num_probes = {self.random_max_num_probes}")
             print(f"bayes_max_num_probes = {self.bayes_max_num_probes}")
@@ -109,7 +109,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.mesh_list = np.array(self.domain.grid)
 
         X_normalized = physbo.misc.centering(self.mesh_list[:, 1:])
-        comm = self.mpicomm if self.mpisize > 1 else None
+        comm = odatse.mpi.algcomm()
+
         if physbo.__version__ < "3":
             self.policy = physbo.search.discrete.policy(test_X=X_normalized, comm=comm)
         else:
@@ -134,6 +135,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.timer["run"]["bayes_search"] = 0.0
 
         self._show_parameters()
+
+    def _prepare(self) -> None:
+        pass
 
     def _run(self) -> None:
         """
@@ -165,20 +169,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 param_list.append(mesh_list[a])
                 return -fx
 
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        restore_rng = not self.mode.endswith("-resetrand")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
-
+        # dispatch は _prepare() が処理済み
         fx_list = self.fx_list
         param_list = self.param_list
 
@@ -233,18 +224,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.checkpoint:
             self._save_state(self.checkpoint_file)
 
-    def _prepare(self) -> None:
-        """
-        Prepares the algorithm for execution.
-        """
-        pass
-
     def _post(self) -> None:
         """
         Finalizes the algorithm execution and writes the results to a file.
         """
         label_list = self.label_list
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             with open("BayesData.txt", "w") as file_BD:
                 file_BD.write("#step")
                 for label in label_list:
@@ -279,13 +264,18 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         return state
 
     def _save_state(self, filename):
-        """Save the current state of the algorithm to a file."""
-        self._save_data(self.__getstate__(), filename)
+        """Save the current state of the algorithm to a file.
+
+        Extends the base implementation with physbo policy files.
+        The pickle snapshot (including the global numpy RNG captured in
+        ``__getstate__``) is written by ``super()._save_state()``.
+        """
+        super()._save_state(filename)
         self.policy.save(file_history=Path(self.output_dir, self.file_history),
                          file_training=Path(self.output_dir, self.file_training),
                          file_predictor=Path(self.output_dir, self.file_predictor))
 
-    def _apply_state(self, data: dict, restore_rng: bool = True) -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Delegates MPI validation, timer restore, and parameter check to the
@@ -293,14 +283,21 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         numpy RNG, applies the Bayes-specific fields, then loads the physbo
         policy from the saved files.
 
+        ``_load_state()`` is not overridden; the base class implementation
+        calls ``self._apply_state()`` (this method), so policy files are
+        loaded automatically when resuming from a checkpoint.
+
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``; forwarded to the base class.
+            Bayes optimisation does not distinguish between the two modes.
         restore_rng : bool
             When *True* (default) both RNG states are restored from *data*.
         """
-        super()._apply_state(data)
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         if restore_rng:
             self.rng = np.random.RandomState()
             self.rng.set_state(data["rng"])
@@ -310,21 +307,3 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.policy.load(file_history=Path(self.output_dir, self.file_history),
                          file_training=Path(self.output_dir, self.file_training),
                          file_predictor=Path(self.output_dir, self.file_predictor))
-
-    def _load_state(self, filename, mode="resume", restore_rng=True):
-        """Load the state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename : str
-            Path to the checkpoint file.
-        mode : str, optional
-            Loading mode (currently unused; kept for API symmetry).
-        restore_rng : bool, optional
-            Whether to restore RNG states, by default True.
-        """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-        self._apply_state(data, restore_rng=restore_rng)

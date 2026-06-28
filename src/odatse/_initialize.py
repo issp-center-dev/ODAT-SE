@@ -6,11 +6,20 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from typing import Optional, Sequence
+
 import odatse
 
-def initialize():
+def initialize(argv: Optional[Sequence[str]] = None):
     """
     Initialize for main function by parsing commandline arguments and loading input files
+
+    Parameters
+    ----------
+    argv : list of str, optional
+        Argument list to parse. If None (default), sys.argv[1:] is used.
+        Pass an explicit list to avoid modifying sys.argv when embedding
+        odatse in a larger script that has its own argument parser.
 
     Returns
     -------
@@ -34,8 +43,12 @@ def initialize():
     mode_group.add_argument("--cont", action="store_true", help="continue from previous run")
 
     parser.add_argument("--reset_rand", action="store_true", default=False, help="new random number series in resume or continue mode")
+    
+    parser.add_argument("--nalg", type=int, default=None, help="# of processes for search algorithm")
+    parser.add_argument("--nsolve", type=int, default=None, help="# of processes for solver")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
 
 
     if args.init is True:
