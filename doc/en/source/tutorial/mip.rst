@@ -115,6 +115,7 @@ The penalty method introduces penalty terms to the objective function that penal
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    g_i(\mathbf{x})=0, i\in\{1,\ldots,M\} \\
@@ -130,6 +131,7 @@ into the following unconstrained problem:
 where :math:`p` is the penalty parameter. The functions :math:`c_{eq}` and :math:`c_{ineq}` are the penalty functions for equality and inequality constraints, respectively. We use the quadratic penalty functions:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    c_{eq}(g_i(\mathbf{x}))=g_i(\mathbf{x})^2 \\
@@ -160,6 +162,7 @@ The ``alan`` instance is an example of a portfolio optmization problem with 8 va
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = x_0(4x_0+3x_1-x_2)+x_1(3x_0+6x_1+x_2)+x_2(x_1-x_0+10x_2) \\
@@ -185,6 +188,7 @@ Since the original formulation contains two linear equality constraints, we can 
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = x_0(4x_0+3x_1-y_0)+x_1(3x_0+6x_1+y_0)+y_0(x_1-x_0+10y_0) \\
@@ -232,6 +236,7 @@ The ``synthes2`` instance is an example of a process synthesis problem with 11 v
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \exp(x_0)-10x_0+\exp(\frac{5x_1}{6})-15x_1-60\log(1+x_3+x_4)+15x_3+5x_4 \\
@@ -271,6 +276,7 @@ The reduced optimization problem can be expressed as follows:
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \exp(x_0)-10x_0+\exp(\frac{5x_1}{6})-25x_1-60\log(1+x_3+x_4)+15x_3+5x_4 \\
@@ -307,6 +313,7 @@ The first four dimensions are chosen to represent continuous variables (discreti
 The obtained minimum for the objective function is: 
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx73.0422 \\
@@ -316,6 +323,7 @@ The obtained minimum for the objective function is:
 The known global minimum is:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx73.0353 \\
@@ -344,6 +352,7 @@ The ``cvxnonsep_normcon20`` instance is a synthetic test function with 20 variab
 subject to the following constraints:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(\mathbf{x}) = \sqrt{0.0001+\sum_{k=0}^9i_k^2+\sum_{k=10}^{19}x_k^2} \\
@@ -371,6 +380,7 @@ The first ten dimensions are chosen to represent the integer variables and the r
 The obtained minimum for the objective function is:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)=-21.438 \\
@@ -380,6 +390,7 @@ The obtained minimum for the objective function is:
 However, the known global minimum is:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
@@ -395,6 +406,7 @@ The obtained minimum is a good candidate optimum, but we can supply an initial p
 If we run the solver again, we will obtain an estimated minimum of:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\
@@ -404,6 +416,7 @@ If we run the solver again, we will obtain an estimated minimum of:
 This can be compared with the known global minimum:
 
 .. math::
+   :nowrap:
 
    \begin{gather*}
    f(x^*)\approx-21.749 \\

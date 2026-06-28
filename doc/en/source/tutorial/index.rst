@@ -41,7 +41,7 @@ In the following sections, the procedures to run these algorithms are provided.
 In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as some tutorials describing some applications.
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
 
    intro
    minsearch
@@ -49,6 +49,9 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    random_search
    bayes
    ttopt
+   mip
+   qubo
+   ttopt_benchmark
    exchange
    pamc
    limitation

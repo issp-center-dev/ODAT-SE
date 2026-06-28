@@ -1,22 +1,23 @@
-Tensor train optimization for analytical test functions
-=======================================================
+解析的テスト関数に対するテンソル列最適化
+=========================================
 
-This tutorial describes how to use the TTOpt algorithm for minimizing various high-dimensional benchmark functions used in optimization. This example is concerned with the optimization of functions with continuous parameters. A related tutorial describing an application to functions with discrete parameters, please see :doc:`qubo`.
+このチュートリアルでは、TTOpt アルゴリズムを用いて最適化の分野でよく使われる高次元ベンチマーク関数の最小化を行う方法を説明します。
+この例は連続パラメータをもつ関数の最適化を扱います。離散パラメータをもつ関数への適用例については :doc:`qubo` を参照してください。
 
-Sample files
-~~~~~~~~~~~~
+サンプルファイルの場所
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/ttopt`` .
-This directory includes the following files:
+サンプルファイルは ``sample/analytical/ttopt`` にあります。
+フォルダには以下のファイルが格納されています。
 
 - ``run_benchmarks.py``
 
-  Main program file.
+  メインプログラムファイル。
 
-Input files
-~~~~~~~~~~~
+入力ファイルの説明
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, the input TOML files are dynamically generated for each test function. This subsection describes the input file template.
+この例では、各テスト関数に対して入力 TOML ファイルを動的に生成しています。以下はそのテンプレートです。
 
 .. code-block::
 
@@ -42,57 +43,57 @@ In this example, the input TOML files are dynamically generated for each test fu
     r_max = 4
     max_f_eval = 100000
 
-Parameter values of the form ``{...}`` are metavariables that are replaced with the appropriate quantity as specified in ``run_benchmarks.py``. For details, see the manual entries :doc:`../input/index` and :doc:`../algorithm/ttopt`.
+``{...}`` の形式のパラメータは ``run_benchmarks.py`` 内で適切な値に置き換えられるメタ変数です。詳細は :doc:`../input` および :doc:`../algorithm/ttopt` を参照してください。
 
-The ``[base]`` section specifies some global parameter values used in the ODAT-SE run:
+``[base]`` セクションでは ODAT-SE 実行時のグローバルパラメータを指定します。
 
-- ``dimension`` denotes the number of dimensions in the optimization. This corresponds to the number of scalar parameters needed to specify a point in the state space.
+- ``dimension`` は最適化の次元数（状態空間上の 1 点を指定するスカラーパラメータの数）を表します。
 
-- ``output_dir`` is the location where the results of the ODAT-SE run will be saved to.
+- ``output_dir`` は ODAT-SE の実行結果を保存する場所です。
 
-The ``[algorithm]`` section specifies general parameters for the algorithm.
+``[algorithm]`` セクションではアルゴリズムの共通パラメータを指定します。
 
-- ``name`` is the name of the algorithm (``ttopt`` in this case)
+- ``name`` はアルゴリズムの名前です（ここでは ``ttopt``）。
 
-- ``seed`` is the initial seed used in the PRNG.
+- ``seed`` は擬似乱数生成器の初期シードです。
 
-The ``[algorithm.param]`` section sets the parameter space to be explored.
+``[algorithm.param]`` セクションでは探索するパラメータ空間を設定します。
 
-- ``max_list`` is a list of upper bounds along each dimension in the optimization.
+- ``max_list`` は各次元の上限値のリストです。
 
-- ``min_list`` is a list of lower bounds along each dimension in the optimization.
+- ``min_list`` は各次元の下限値のリストです。
 
-The ``[algorithm.ttopt]`` section specifies parameters specific to the TTOpt algorithm.
+``[algorithm.ttopt]`` セクションでは TTOpt アルゴリズム固有のパラメータを指定します。
 
-- ``p_points`` is the number of modes for each dimension, which corresponds to the bond dimension along the tensor legs allotted for the parameter. Together with the ``q_points`` parameter, this is related to the number of possible values each parameter can take. The total number of possible values for a parameter is :math:`p^q`.
+- ``p_points`` は各次元のモード数であり、パラメータに割り当てたテンソル脚のボンド次元に対応します。``q_points`` と合わせて、各パラメータが取りうる値の数が決まります。1 つのパラメータが取りうる値の総数は :math:`p^q` です。
 
-- ``q_points`` is the number of submodes for each dimension, which corresponds to the number of tensor legs allotted for the parameter. Together with the ``p_points`` parameter, this is related to the number of possible values each parameter can take. The total number of possible values for a parameter is :math:`p^q`.
+- ``q_points`` は各次元のサブモード数であり、パラメータに割り当てたテンソル脚の本数に対応します。``p_points`` と合わせて、各パラメータが取りうる値の数が決まります。1 つのパラメータが取りうる値の総数は :math:`p^q` です。
 
-- ``r_max`` is the maximum rank of the implicit MPS representation used to model the state space.
+- ``r_max`` は状態空間をモデル化する暗示的 MPS 表現の最大ランクです。
 
-- ``max_f_eval`` is the maximum number of function evaluations used in the optimization process.
+- ``max_f_eval`` は最適化で使用する関数評価回数の上限です。
 
 
-Calculation
-~~~~~~~~~~~
+計算の実行
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We assume that the current working directory is the directory containing the relevant tutorial files.
+チュートリアルファイルが置かれているディレクトリへ移動します。
 
 .. code-block::
 
    $ cd sample/analytical/ttopt
-   
-In this tutorial, we search for the minimum of various benchmark functions in 2 and 10 dimensions. The benchmark minimization is run by executing the following command together with an optional argument that sets the number of MPI processes to use:
+
+このチュートリアルでは、2 次元および 10 次元の各種ベンチマーク関数の最小値を探します。使用する MPI プロセス数を引数として指定しながら、次のコマンドでベンチマーク最小化を実行します。
 
 .. code-block::
 
    $ python3 ./run_benchmarks.py 8 | tee log.txt
 
-Here, the calculation is performed using 8 processes communicating over MPI. Each optimization should take a few seconds to complete.
+ここでは 8 プロセスの MPI を使用しています。各最適化は数秒程度で完了します。
 
-For each benchmark function, a folder of the form ``output/output_{func_name}`` is first created, and all output files for the ODAT-SE run are stored in this folder. Each MPI process is given a subfolder indexed by the process rank. Within each subfolder is a log file containing execution time details for the process. The log file containing the optimization history for the entire optimization process is the ``ttopt_history.txt`` file located in the output folder.
+各ベンチマーク関数について、``output/output_{func_name}`` 形式のフォルダが作成され、ODAT-SE の出力ファイルがすべて格納されます。各 MPI プロセスには MPI ランク番号で索引付けられたサブフォルダが割り当てられます。各サブフォルダにはそのプロセスの実行時間の詳細を含むログファイルがあります。最適化全体の履歴は出力フォルダ内の ``ttopt_history.txt`` ファイルに記録されます。
 
-The file ``ttopt_history.txt`` contains a list of parameters set when invoking the optimization method, as well as a record of the number of function evaluations, the best point found so far, and the best objective function value found so far.
+``ttopt_history.txt`` ファイルには最適化メソッドの呼び出し時に設定されたパラメータの一覧と、関数評価回数・これまでの最良点・これまでに得られた最良目的関数値の記録が含まれます。
 
 .. code-block::
 
@@ -111,9 +112,9 @@ The file ``ttopt_history.txt`` contains a list of parameters set when invoking t
      -10.49954426  28.96521473 -19.50112851 -17.7153394   -9.98021612], 21.450699050623328
     ...
 
-By piping the output to an output file (here, it is ``log.txt``), the optimization results can be examined.
+出力をファイル（ここでは ``log.txt``）にリダイレクトすることで、最適化結果を後から確認できます。
 
-In the following table, for each optimization function, the global minimum is provided together with the estimate of the global minimum.
+以下の表に、各最適化関数について大域最小値と推定最小値をまとめます。
 
 .. raw:: html
 
@@ -142,11 +143,11 @@ In the following table, for each optimization function, the global minimum is pr
                 </colgroup>
                 <thead>
                         <tr>
-                                <td class="centered">Function</td>
-                                <td class="centered">Dimension</td>
-                                <td class="centered">Bounds</td>
-                                <td class="centered">Minimum</td>
-                                <td class="centered">Estimated Minimum</td>
+                                <td class="centered">関数</td>
+                                <td class="centered">次元</td>
+                                <td class="centered">探索範囲</td>
+                                <td class="centered">最小値</td>
+                                <td class="centered">推定最小値</td>
                         </tr>
                 </thead>
                 <tbody>
@@ -200,7 +201,7 @@ In the following table, for each optimization function, the global minimum is pr
                                 <td class="centered">$$1.500\times10^{-8}$$</td>
                         </tr>
                         <tr>
-                                <td class="centered">Rastrigin</td>
+                                <td class="centered;">Rastrigin</td>
                                 <td class="centered;">$$d=10$$</td>
                                 <td class="centered;">$$[-5.12, 5.12]$$</td>
                                 <td class="centered;">$$0$$</td>
@@ -233,7 +234,7 @@ In the following table, for each optimization function, the global minimum is pr
 .. raw:: latex
 
         \begin{tabular}{ccc|cc}
-        Function & Dimension & Bounds & Minimum & Estimated Minimum \\
+        関数 & 次元 & 探索範囲 & 最小値 & 推定最小値 \\
         \hline
         Ackley & $10$ & $[-32.768, 32.768]$ & $0$ & $3.906\times10^{-6}$ \\
         Alpine & $10$ & $[-10, 10]$ & $0$ & $2.879\times10^{-7}$ \\
@@ -248,4 +249,4 @@ In the following table, for each optimization function, the global minimum is pr
         Schwefel & $10$ & $[-500, 500]$ & $0$ & $1.273\times10^{-4}$ \\
         \end{tabular}
 
-It can be seen that TTOpt provides good estimates of the global minimum for all the considered functions.
+TTOpt は検討したすべての関数に対して大域最小値の良好な推定値を与えることがわかります。
