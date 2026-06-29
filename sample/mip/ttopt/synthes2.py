@@ -1,4 +1,4 @@
-import sys, os
+import os
 import numpy as np
 import odatse
 from odatse.algorithm import choose_algorithm
@@ -62,18 +62,24 @@ min_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 max_list = [2, 2, 2, 1, 1, 3, 1, 1, 1, 1]
 p_points = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 q_points = [20, 20, 20, 20, 20, 20, 1, 1, 1, 1]
-init_points = []
+def main():
+    # Partition the MPI communicator once; the penalty loop below reuses it.
+    # Each iteration rebuilds Info with Info.from_file() rather than
+    # odatse.initialize(), since odatse.mpi.setup() may only run once.
+    odatse.mpi.setup()
 
-output_dir = f"output/output_synthes2"
-if odatse.mpi.rank() == 0:
-    os.makedirs(output_dir, exist_ok=True)
-
-penalty = 100
-for n in range(20):
+    output_dir = "output/output_synthes2"
     if odatse.mpi.rank() == 0:
-        print(f"\nIteration {n+1} with penalty={penalty}")
-    # generate input file
-    toml_content = f"""[base]
+        os.makedirs(output_dir, exist_ok=True)
+
+    init_points = []
+    penalty = 100
+    solver = None
+    for n in range(20):
+        if odatse.mpi.rank() == 0:
+            print(f"\nIteration {n+1} with penalty={penalty}")
+        # generate input file
+        toml_content = f"""[base]
 dimension = {dim}
 output_dir = "{output_dir}"
 
@@ -95,35 +101,36 @@ r_max = 4
 max_f_eval = 100000
 init_points = {init_points}
 """
-    toml_filename = f"input_synthes2.toml"
-    if odatse.mpi.rank() == 0:
-        with open(toml_filename, "w") as f:
-            f.write(toml_content)
-    sys.argv = ["script.py", toml_filename, "--init"]
-    info, run_mode = odatse.initialize()
-    output_dir = info.base.get("output_dir", "./output")
-    os.makedirs(output_dir, exist_ok=True)
-    solver = Synthes2Solver(info, penalty=penalty)
-    runner = odatse.Runner(solver, info)
-    alg_module = choose_algorithm(info.algorithm["name"])
-    alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-    result = alg.main()
-    if result["x"].tolist() not in init_points:
-        init_points.append(result["x"].tolist())
-    penalty *= 2
+        toml_filename = "input_synthes2.toml"
+        if odatse.mpi.rank() == 0:
+            with open(toml_filename, "w") as f:
+                f.write(toml_content)
+        info = odatse.Info.from_file(toml_filename)
+        solver = Synthes2Solver(info, penalty=penalty)
+        runner = odatse.Runner(solver, info)
+        alg_module = choose_algorithm(info.algorithm["name"])
+        alg = alg_module.Algorithm(info, runner, run_mode="initial")
+        result = alg.main()
+        if result["x"].tolist() not in init_points:
+            init_points.append(result["x"].tolist())
+        penalty *= 2
+
+        if odatse.mpi.rank() == 0:
+            print(f"\nopt_x={solver.opt_x}")
+            print(f"opt_fx={solver.opt_fx} (objective={solver.opt_objvar})")
+            print(f"infeasibility={np.sum(solver.opt_cons)}\n")
+
+        # cleanup
+        if odatse.mpi.rank() == 0:
+            if os.path.exists(toml_filename):
+                os.remove(toml_filename)
 
     if odatse.mpi.rank() == 0:
-        print(f"\nopt_x={solver.opt_x}")
-        print(f"opt_fx={solver.opt_fx} (objective={solver.opt_objvar})")
-        print(f"infeasibility={np.sum(solver.opt_cons)}\n")
+        # true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 1, 0]
+        true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 0]
+        solver.penalty = 0  # report the objective only, without the penalty term
+        print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
 
-    # cleanup
-    if odatse.mpi.rank() == 0:
-        if os.path.exists(toml_filename):
-            os.remove(toml_filename)
 
-if odatse.mpi.rank() == 0:
-    # true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 1, 0]
-    true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 0]
-    solver.penalty = 0  # report the objective only, without the penalty term
-    print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
+if __name__ == "__main__":
+    main()
