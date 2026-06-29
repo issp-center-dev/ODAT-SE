@@ -128,4 +128,5 @@ for n in range(20):
 if odatse.mpi.rank() == 0:
     # true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 1, 0]
     true_opt_x = [0, 2, 1.078388278576160, 0.652014651779925, 0.326007325889962, 1.078388278576160, 0, 1, 1, 0]
+    solver.penalty = 0  # report the objective only, without the penalty term
     print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
