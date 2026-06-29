@@ -35,7 +35,7 @@ q_points = [1]*10 + [20]*10
 init_points = []
 # init_points = [[1, 2, 4, 4, 0, 2, 2, 2, 3, 3] + [0]*10]
 
-output_dir = f"output/output_jit1"
+output_dir = "output/output_cvxnonsep_normcon20"
 if odatse.mpi.rank() == 0:
     os.makedirs(output_dir, exist_ok=True)
 
