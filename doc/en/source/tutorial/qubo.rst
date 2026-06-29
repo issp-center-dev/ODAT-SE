@@ -19,12 +19,16 @@ MATLAB is used as a reference solver to compare against, but it is not necessary
 Sample files
 ~~~~~~~~~~~~
 
-Sample files are available from ``sample/qubo`` .
+Sample files are available from ``sample/qubo/ttopt`` .
 This directory includes the following files:
 
 - ``run_qubo_test.py``
 
   Main program file.
+
+- ``qubo_instances.py``
+
+  Module defining the QUBO problem instances, shared by ``run_qubo_test.py`` and ``qubo_mats.py`` so that both solve the same set of instances.
 
 - ``qubo_mats.py``
 
@@ -110,8 +114,8 @@ We assume that the current working directory is the directory containing the rel
 
 .. code-block::
 
-   $ cd sample/qubo
-   
+   $ cd sample/qubo/ttopt
+
 This tutorial is concerned with finding candidate minima for certain types of QUBO problems in :math:`d=50,100,200` dimensions. Specifically, we focus on instances describing the max-cut, minimum vertex cover, and quadratic knapsack problems. In the language of spin systems, these QUBO-type problems correspond to (possibly frustrated) systems of :math:`d` Ising spins. The test program is run by executing the following command together with an optional argument that sets the number of MPI processes to use:
 
 .. code-block::

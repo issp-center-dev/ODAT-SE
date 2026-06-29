@@ -18,6 +18,6 @@ for k = 1:length(matFiles)
     fid = fopen(outputFilePath, 'w');
     fprintf(fid, 'Results for %s:\n', matFiles(k).name);
     fprintf(fid, '%s\n', mat2str(result.BestX));
-    fprintf(fid, '%s\n', result.BestFunctionValue);
+    fprintf(fid, '%.15g\n', result.BestFunctionValue);
     fclose(fid);
 end
