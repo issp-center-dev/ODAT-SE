@@ -6,7 +6,7 @@ This tutorial describes how to use the TTOpt algorithm for minimizing various hi
 Sample files
 ~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/ttopt`` .
+Sample files are available from ``sample/analytical/ttopt_benchmark`` .
 This directory includes the following files:
 
 - ``run_benchmarks.py``
@@ -80,8 +80,8 @@ We assume that the current working directory is the directory containing the rel
 
 .. code-block::
 
-   $ cd sample/analytical/ttopt
-   
+   $ cd sample/analytical/ttopt_benchmark
+
 In this tutorial, we search for the minimum of various benchmark functions in 2 and 10 dimensions. The benchmark minimization is run by executing the following command together with an optional argument that sets the number of MPI processes to use:
 
 .. code-block::
