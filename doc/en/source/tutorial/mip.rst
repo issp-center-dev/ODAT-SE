@@ -16,7 +16,7 @@ These problems were selected for their relative small problem size, their broad 
 Sample files
 ~~~~~~~~~~~~
 
-Sample files are available from ``sample/mip`` .
+Sample files are available from ``sample/mip/ttopt`` .
 This directory includes the following files:
 
 - ``alan.py``
@@ -99,7 +99,7 @@ We assume that the current working directory is the directory containing the rel
 
 .. code-block::
 
-   $ cd sample/mip
+   $ cd sample/mip/ttopt
 
 The instances that we consider in this tutorial are formulated as constrained optimization problems. However, the ``ttopt`` algorithm does not support constraints directly, so we use the penalty method to enforce inequality constraints. The ``ttopt`` algorithm is limited in the sense that it struggles with equality constraints (since equality constraints implicitly reduce the dimension of the problem, but the optimizer does not know about this reduction), so we consider instances where the equality constraints (if present) can be eliminated algebraically.
 
@@ -355,9 +355,9 @@ subject to the following constraints:
    :nowrap:
 
    \begin{gather*}
-   f(\mathbf{x}) = \sqrt{0.0001+\sum_{k=0}^9i_k^2+\sum_{k=10}^{19}x_k^2} \\
-   -0.175i_0-0.39i_1-0.83i_2-0.805i_3-0.06i_4-0.4i_5-0.52i_6-0.415i_7-0.655i_8-0.63i_9 \\
-   -0.29x_{10}-0.43x_{11}-0.015x_{12}-0.985x_{13}-0.165x_{14}-0.105x_{15}-0.37x_{16}-0.2x_{17}-0.49x_{18}-0.34x_{19}\le0 \\
+   f(\mathbf{x}) = -0.175i_0-0.39i_1-0.83i_2-0.805i_3-0.06i_4-0.4i_5-0.52i_6-0.415i_7-0.655i_8-0.63i_9 \\
+   -0.29x_{10}-0.43x_{11}-0.015x_{12}-0.985x_{13}-0.165x_{14}-0.105x_{15}-0.37x_{16}-0.2x_{17}-0.49x_{18}-0.34x_{19} \\
+   \sqrt{0.0001+\sum_{k=0}^9i_k^2+\sum_{k=10}^{19}x_k^2}\le10 \\
    x_{10},x_{11},x_{12},x_{13},x_{14},x_{15},x_{16},x_{17},x_{18},x_{19}\in[0,5] \\
    i_0,i_1,i_2,i_3,i_4,i_5,i_6,i_7,i_8,i_9,\in\{0,1,2,3,4,5\}
    \end{gather*}
