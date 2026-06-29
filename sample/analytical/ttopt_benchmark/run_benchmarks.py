@@ -55,6 +55,7 @@ max_f_eval = 100000
         f.write(toml_content)
 
     env = os.environ.copy()
+    env["OMP_NUM_THREADS"] = "1"
     env["OPENBLAS_NUM_THREADS"] = "1"
     cmd = ["mpiexec", "-np", np, sys.executable, "-m", "odatse", input_filename]
     try:
