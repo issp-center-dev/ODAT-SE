@@ -16,7 +16,7 @@ These problems were selected for their relative small problem size, their broad 
 Sample files
 ~~~~~~~~~~~~
 
-Sample files are available from ``sample/mip`` .
+Sample files are available from ``sample/mip/ttopt`` .
 This directory includes the following files:
 
 - ``alan.py``
@@ -99,7 +99,7 @@ We assume that the current working directory is the directory containing the rel
 
 .. code-block::
 
-   $ cd sample/mip
+   $ cd sample/mip/ttopt
 
 The instances that we consider in this tutorial are formulated as constrained optimization problems. However, the ``ttopt`` algorithm does not support constraints directly, so we use the penalty method to enforce inequality constraints. The ``ttopt`` algorithm is limited in the sense that it struggles with equality constraints (since equality constraints implicitly reduce the dimension of the problem, but the optimizer does not know about this reduction), so we consider instances where the equality constraints (if present) can be eliminated algebraically.
 
