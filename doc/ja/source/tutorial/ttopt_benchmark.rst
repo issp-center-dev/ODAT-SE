@@ -7,7 +7,7 @@
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-サンプルファイルは ``sample/analytical/ttopt`` にあります。
+サンプルファイルは ``sample/analytical/ttopt_benchmark`` にあります。
 フォルダには以下のファイルが格納されています。
 
 - ``run_benchmarks.py``
@@ -81,7 +81,7 @@
 
 .. code-block::
 
-   $ cd sample/analytical/ttopt
+   $ cd sample/analytical/ttopt_benchmark
 
 このチュートリアルでは、2 次元および 10 次元の各種ベンチマーク関数の最小値を探します。使用する MPI プロセス数を引数として指定しながら、次のコマンドでベンチマーク最小化を実行します。
 
