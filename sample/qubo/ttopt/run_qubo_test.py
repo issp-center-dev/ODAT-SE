@@ -16,9 +16,8 @@ class QUBOSolver(odatse.solver.SolverBase):
         self.opt_x = None
         self.opt_fx = np.inf
 
-    def evaluate(self, xs, args, nprocs=1, nthreads=1):
-        res = qubo(xs, self.q_mat)
-        return res
+    def evaluate(self, x, args=()):
+        return qubo(x, self.q_mat)
 
 def qubo(x: np.ndarray, q_mat: np.ndarray) -> np.ndarray:
     return np.einsum("i...,ij,j...",x,q_mat,x)
