@@ -3,8 +3,9 @@ import odatse
 from odatse.algorithm import choose_algorithm
 import numpy as np
 import pandas as pd
-import networkx as nx
-import qubogen
+
+from qubo_instances import functions, generate_instances
+
 np.set_printoptions(threshold=np.inf)
 
 class QUBOSolver(odatse.solver.SolverBase):
@@ -22,29 +23,7 @@ class QUBOSolver(odatse.solver.SolverBase):
 def qubo(x: np.ndarray, q_mat: np.ndarray) -> np.ndarray:
     return np.einsum("i...,ij,j...",x,q_mat,x)
 
-def qubo_maxcut(n: int, p: float, seed: int) -> np.ndarray:
-    g=nx.fast_gnp_random_graph(n=n,p=p,seed=seed)
-    g=qubogen.Graph(edges=g.edges,n_nodes=n)
-    return qubogen.qubo_max_cut(g)
-
-def qubo_mvc(n: int, p: float, seed: int) -> np.ndarray:
-    g=nx.fast_gnp_random_graph(n=n,p=p,seed=seed)
-    g=qubogen.Graph(edges=g.edges,n_nodes=n)
-    return qubogen.qubo_mvc(g)
-
-def qubo_qkp(n: int, seed: int) -> np.ndarray:
-    rng=np.random.default_rng(seed=seed)
-    v=np.diag(rng.random(n))/3
-    a=rng.random(n)
-    return qubogen.qubo_qkp(v,a,np.mean(a))
-
 n_trials = 10
-
-functions = {
-    "qubo_maxcut": [50, 100, 200],
-    "qubo_mvc": [50, 100, 200],
-    "qubo_qkp": [50, 100, 200],
-}
 
 dfs = []
 for func_name, dims in functions.items():
@@ -54,14 +33,7 @@ for func_name, dims in functions.items():
         p_points = [2] * dim
         q_points = [1] * dim
 
-        if func_name == "qubo_maxcut":
-            q_mats=[qubo_maxcut(dim,0.5,i) for i in range(10)]
-        elif func_name == "qubo_mvc":
-            q_mats=[qubo_mvc(dim,0.5,i) for i in range(10)]
-        elif func_name == "qubo_qkp":
-            q_mats=[qubo_qkp(dim,i) for i in range(10)]
-        else:
-            raise ValueError("Unknown function name: %s" % func_name)
+        q_mats = generate_instances(func_name, dim)
         for i in range(len(q_mats)):
             df=pd.DataFrame(columns=["f","dim","instance","min_params","min_f","time"])
             for j in range(n_trials):
