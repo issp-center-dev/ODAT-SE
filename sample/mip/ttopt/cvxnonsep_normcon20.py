@@ -1,4 +1,4 @@
-import sys, os
+import os
 import numpy as np
 import odatse
 from odatse.algorithm import choose_algorithm
@@ -32,19 +32,27 @@ min_list = [0]*20
 max_list = [5]*20
 p_points = [6]*10 + [2]*10
 q_points = [1]*10 + [20]*10
-init_points = []
 # init_points = [[1, 2, 4, 4, 0, 2, 2, 2, 3, 3] + [0]*10]
 
-output_dir = "output/output_cvxnonsep_normcon20"
-if odatse.mpi.rank() == 0:
-    os.makedirs(output_dir, exist_ok=True)
 
-penalty = 1
-for n in range(20):
+def main():
+    # Partition the MPI communicator once; the penalty loop below reuses it.
+    # Each iteration rebuilds Info with Info.from_file() rather than
+    # odatse.initialize(), since odatse.mpi.setup() may only run once.
+    odatse.mpi.setup()
+
+    output_dir = "output/output_cvxnonsep_normcon20"
     if odatse.mpi.rank() == 0:
-        print(f"\nIteration {n+1} with penalty={penalty}")
-    # generate input file
-    toml_content = f"""[base]
+        os.makedirs(output_dir, exist_ok=True)
+
+    init_points = []
+    penalty = 1
+    solver = None
+    for n in range(20):
+        if odatse.mpi.rank() == 0:
+            print(f"\nIteration {n+1} with penalty={penalty}")
+        # generate input file
+        toml_content = f"""[base]
 dimension = {dim}
 output_dir = "{output_dir}"
 
@@ -66,34 +74,35 @@ r_max = 4
 max_f_eval = 100000
 init_points = {init_points}
 """
-    toml_filename = f"input_cvxnonsep_normcon20.toml"
-    if odatse.mpi.rank() == 0:
-        with open(toml_filename, "w") as f:
-            f.write(toml_content)
-    sys.argv = ["script.py", toml_filename, "--init"]
-    info, run_mode = odatse.initialize()
-    output_dir = info.base.get("output_dir", "./output")
-    os.makedirs(output_dir, exist_ok=True)
-    solver = CvxNonSep_NormCon20Solver(info, penalty=penalty)
-    runner = odatse.Runner(solver, info)
-    alg_module = choose_algorithm(info.algorithm["name"])
-    alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-    result = alg.main()
-    if result["x"].tolist() not in init_points:
-        init_points.append(result["x"].tolist())
-    penalty *= 2
+        toml_filename = "input_cvxnonsep_normcon20.toml"
+        if odatse.mpi.rank() == 0:
+            with open(toml_filename, "w") as f:
+                f.write(toml_content)
+        info = odatse.Info.from_file(toml_filename)
+        solver = CvxNonSep_NormCon20Solver(info, penalty=penalty)
+        runner = odatse.Runner(solver, info)
+        alg_module = choose_algorithm(info.algorithm["name"])
+        alg = alg_module.Algorithm(info, runner, run_mode="initial")
+        result = alg.main()
+        if result["x"].tolist() not in init_points:
+            init_points.append(result["x"].tolist())
+        penalty *= 2
+
+        if odatse.mpi.rank() == 0:
+            print(f"\nopt_x={solver.opt_x}")
+            print(f"opt_fx={solver.opt_fx} (objective={solver.opt_objvar})")
+            print(f"infeasibility={np.sum(solver.opt_cons)}\n")
+
+        # cleanup
+        if odatse.mpi.rank() == 0:
+            if os.path.exists(toml_filename):
+                os.remove(toml_filename)
 
     if odatse.mpi.rank() == 0:
-        print(f"\nopt_x={solver.opt_x}")
-        print(f"opt_fx={solver.opt_fx} (objective={solver.opt_objvar})")
-        print(f"infeasibility={np.sum(solver.opt_cons)}\n")
+        true_opt_x = [1, 2, 4, 4, 0, 2, 2, 2, 3, 3, 1.238166456215540, 1.835901986779380, 0.064043093177772, 4.205496411514280, 0.704474018226710, 0.448301648012646, 1.579729616536840, 0.853907900860535, 2.092074357017180, 1.451643429643470]
+        solver.penalty = 0  # report the objective only, without the penalty term
+        print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
 
-    # cleanup
-    if odatse.mpi.rank() == 0:
-        if os.path.exists(toml_filename):
-            os.remove(toml_filename)
 
-if odatse.mpi.rank() == 0:
-    true_opt_x = [1, 2, 4, 4, 0, 2, 2, 2, 3, 3, 1.238166456215540, 1.835901986779380, 0.064043093177772, 4.205496411514280, 0.704474018226710, 0.448301648012646, 1.579729616536840, 0.853907900860535, 2.092074357017180, 1.451643429643470]
-    solver.penalty = 0  # report the objective only, without the penalty term
-    print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
+if __name__ == "__main__":
+    main()
