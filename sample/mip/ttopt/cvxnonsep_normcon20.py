@@ -1,4 +1,4 @@
-import sys, os, time
+import sys, os
 import numpy as np
 import odatse
 from odatse.algorithm import choose_algorithm
@@ -45,27 +45,27 @@ for n in range(20):
         print(f"\nIteration {n+1} with penalty={penalty}")
     # generate input file
     toml_content = f"""[base]
-    dimension = {dim}
-    output_dir = "{output_dir}"
+dimension = {dim}
+output_dir = "{output_dir}"
 
-    [solver]
-    name = "custom"
+[solver]
+name = "custom"
 
-    [algorithm]
-    name = "ttopt"
-    seed = 12345
+[algorithm]
+name = "ttopt"
+seed = 12345
 
-    [algorithm.param]
-    max_list = {max_list}
-    min_list = {min_list}
+[algorithm.param]
+max_list = {max_list}
+min_list = {min_list}
 
-    [algorithm.ttopt]
-    p_points = {p_points}
-    q_points = {q_points}
-    r_max = 4
-    max_f_eval = 100000
-    init_points = {init_points}
-    """
+[algorithm.ttopt]
+p_points = {p_points}
+q_points = {q_points}
+r_max = 4
+max_f_eval = 100000
+init_points = {init_points}
+"""
     toml_filename = f"input_cvxnonsep_normcon20.toml"
     if odatse.mpi.rank() == 0:
         with open(toml_filename, "w") as f:
@@ -78,10 +78,7 @@ for n in range(20):
     runner = odatse.Runner(solver, info)
     alg_module = choose_algorithm(info.algorithm["name"])
     alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-    time0 = time.time()
     result = alg.main()
-    time1 = time.time()
-    elapsed_time = time1 - time0
     if result["x"].tolist() not in init_points:
         init_points.append(result["x"].tolist())
     penalty *= 2
