@@ -56,7 +56,7 @@ max_f_eval = 100000
 
     env = os.environ.copy()
     env["OPENBLAS_NUM_THREADS"] = "1"
-    cmd = ["mpiexec", "-np", np, "python3", "../../../src/odatse_main.py", input_filename]
+    cmd = ["mpiexec", "-np", np, sys.executable, "-m", "odatse", input_filename]
     try:
         subprocess.run(cmd, env=env, check=True)
     except subprocess.CalledProcessError as e:
