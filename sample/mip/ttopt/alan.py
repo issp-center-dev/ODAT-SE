@@ -12,35 +12,35 @@ class AlanSolver(odatse.solver.SolverBase):
         self.opt_x = None
         self.opt_fx = np.inf
 
-    def evaluate(self, xs, args, nprocs=1, nthreads=1):
-        # cons = np.zeros((7, xs.shape[1] if xs.ndim > 1 else 1))
+    def evaluate(self, x, args=()):
+        # Original (un-reduced) 8-variable formulation:
         # objvar = xs[0]*(4*xs[0] + 3*xs[1] - xs[2]) + xs[1]*(3*xs[0] + 6*xs[1] + xs[2]) + xs[2]*(xs[1] - xs[0] + 10*xs[2])
-        # cons[0] = (np.sum(xs[:4], axis=0) - 1) ** 2
+        # cons[0] = (np.sum(xs[:4]) - 1) ** 2
         # cons[1] = (8*xs[0] + 9*xs[1] + 12*xs[2] + 7*xs[3] - 10) ** 2
-        # cons[2] = np.clip(np.sum(xs[4:], axis=0) - 3, 0, np.inf) ** 2
+        # cons[2] = np.clip(np.sum(xs[4:]) - 3, 0, np.inf) ** 2
         # cons[3] = np.clip(xs[0] - xs[4], 0, np.inf) ** 2
         # cons[4] = np.clip(xs[1] - xs[5], 0, np.inf) ** 2
         # cons[5] = np.clip(xs[2] - xs[6], 0, np.inf) ** 2
         # cons[6] = np.clip(xs[3] - xs[7], 0, np.inf) ** 2
 
-        cons = np.zeros((5, xs.shape[1] if xs.ndim > 1 else 1))
-        y0 = (3-xs[0]-xs[1]) / 5
-        y1 = 1-xs[0]-xs[1]-y0
-        objvar = xs[0]*(4*xs[0] + 3*xs[1] - y0) + xs[1]*(3*xs[0] + 6*xs[1] + y0) + y0*(xs[1] - xs[0] + 10*y0)
-        cons[0] = np.clip(np.sum(xs[2:], axis=0) - 3, 0, np.inf) ** 2
-        cons[1] = np.clip(xs[0] - xs[2], 0, np.inf) ** 2
-        cons[2] = np.clip(xs[1] - xs[3], 0, np.inf) ** 2
-        cons[3] = np.clip(y0 - xs[4], 0, np.inf) ** 2
-        cons[4] = np.clip(y1 - xs[5], 0, np.inf) ** 2
+        y0 = (3 - x[0] - x[1]) / 5
+        y1 = 1 - x[0] - x[1] - y0
+        objvar = x[0]*(4*x[0] + 3*x[1] - y0) + x[1]*(3*x[0] + 6*x[1] + y0) + y0*(x[1] - x[0] + 10*y0)
+        cons = np.array([
+            np.clip(np.sum(x[2:]) - 3, 0, np.inf) ** 2,
+            np.clip(x[0] - x[2], 0, np.inf) ** 2,
+            np.clip(x[1] - x[3], 0, np.inf) ** 2,
+            np.clip(y0 - x[4], 0, np.inf) ** 2,
+            np.clip(y1 - x[5], 0, np.inf) ** 2,
+        ])
 
-        costs = objvar + np.sum(self.penalty * cons, axis=0)
-        best_cost = np.min(costs)
-        if best_cost < self.opt_fx:
-            self.opt_fx = best_cost
-            self.opt_x = xs
-            self.opt_objvar = objvar[np.argmin(costs)] if isinstance(objvar, np.ndarray) else objvar
+        cost = objvar + np.sum(self.penalty * cons)
+        if cost < self.opt_fx:
+            self.opt_fx = cost
+            self.opt_x = x
+            self.opt_objvar = objvar
             self.opt_cons = cons
-        return costs
+        return cost
 
 # dim = 8
 # min_list = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -118,4 +118,4 @@ for n in range(20):
 if odatse.mpi.rank() == 0:
     # true_opt_x = [0.375, 0, 0.525, 0.1, 1, 0, 1, 1]
     true_opt_x = [0.375, 0, 1, 0, 1, 1]
-    print(f"global optimum: {solver.evaluate(np.array(true_opt_x), args=None)[0]} at {true_opt_x}")
+    print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")

@@ -12,19 +12,20 @@ class CvxNonSep_NormCon20Solver(odatse.solver.SolverBase):
         self.opt_x = None
         self.opt_fx = np.inf
 
-    def evaluate(self, xs, args, nprocs=1, nthreads=1):
-        cons = np.zeros((1, xs.shape[1] if xs.ndim > 1 else 1))
-        objvar = -np.dot(xs.T,np.asarray([0.175, 0.39, 0.83, 0.805, 0.06, 0.4, 0.52, 0.415, 0.655, 0.63, 0.29, 0.43, 0.015, 0.985, 0.165, 0.105, 0.37, 0.2, 0.49, 0.34]))
-        cons[0] = np.clip(np.sqrt(0.0001 + np.sum(xs**2, axis=0)) - 10, 0, np.inf) ** 2
+    def evaluate(self, x, args=()):
+        weights = np.asarray([0.175, 0.39, 0.83, 0.805, 0.06, 0.4, 0.52, 0.415, 0.655, 0.63, 0.29, 0.43, 0.015, 0.985, 0.165, 0.105, 0.37, 0.2, 0.49, 0.34])
+        objvar = -np.dot(x, weights)
+        cons = np.array([
+            np.clip(np.sqrt(0.0001 + np.sum(x**2)) - 10, 0, np.inf) ** 2,
+        ])
 
-        costs = objvar + np.sum(self.penalty * cons, axis=0)
-        best_cost = np.min(costs)
-        if best_cost < self.opt_fx:
-            self.opt_fx = best_cost
-            self.opt_x = xs
-            self.opt_objvar = objvar[np.argmin(costs)] if isinstance(objvar, np.ndarray) else objvar
+        cost = objvar + np.sum(self.penalty * cons)
+        if cost < self.opt_fx:
+            self.opt_fx = cost
+            self.opt_x = x
+            self.opt_objvar = objvar
             self.opt_cons = cons
-        return costs
+        return cost
 
 dim = 20
 min_list = [0]*20
@@ -97,4 +98,4 @@ for n in range(20):
 
 if odatse.mpi.rank() == 0:
     true_opt_x = [1, 2, 4, 4, 0, 2, 2, 2, 3, 3, 1.238166456215540, 1.835901986779380, 0.064043093177772, 4.205496411514280, 0.704474018226710, 0.448301648012646, 1.579729616536840, 0.853907900860535, 2.092074357017180, 1.451643429643470]
-    print(f"global optimum: {solver.evaluate(np.array(true_opt_x), args=None)[0]} at {true_opt_x}")
+    print(f"global optimum: {solver.evaluate(np.array(true_opt_x))} at {true_opt_x}")
