@@ -14,9 +14,6 @@ class QUBOSolver(odatse.solver.SolverBase):
 
         self.q_mat = kwargs.get("q_mat", None)
 
-        self.opt_x = None
-        self.opt_fx = np.inf
-
     def evaluate(self, x, args=()):
         return qubo(x, self.q_mat)
 
@@ -79,7 +76,6 @@ max_f_eval = 100000
                 time1 = time.time()
                 elapsed_time = time1 - time0
                 df.loc[len(df)]=[func_name,dim,i,result["x"],result["fx"],elapsed_time]
-                df=df.sort_index()
 
                 # cleanup
                 if odatse.mpi.rank() == 0:
