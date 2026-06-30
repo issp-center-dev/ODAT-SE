@@ -39,7 +39,7 @@ def initialize(argv: Optional[Sequence[str]] = None):
 
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--init", action="store_true", help="initial start (default)")
-    mode_group.add_argument("--resume", action="store_true", help="resume intterupted run")
+    mode_group.add_argument("--resume", action="store_true", help="resume interrupted run")
     mode_group.add_argument("--cont", action="store_true", help="continue from previous run")
 
     parser.add_argument("--reset_rand", action="store_true", default=False, help="new random number series in resume or continue mode")

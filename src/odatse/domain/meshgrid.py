@@ -96,8 +96,6 @@ class MeshGrid(DomainBase):
         else:
             self._setup_random(info_param, rng)
 
-        #self.ncandicates = len(self.grid)
-
     def _setup_from_file(self, info_param):
         """
         Setup the grid from a file.
@@ -134,8 +132,6 @@ class MeshGrid(DomainBase):
 
         self.grid = [[int(idx), *v] for idx, *v in _data]
         self.do_split()
-
-        # print(f"DEBUG: rank={odatse.mpi.rank}: grid size={len(self.grid)}, local grid size={len(self.local_grid)}")
 
     def _setup_grid(self, info_param):
         """
