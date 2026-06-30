@@ -214,7 +214,7 @@ def separateT(
     buffer_size: int = 10000,
 ) -> None:
     """
-    Separates and processes temperature data for quantum beam diffraction experiments.
+    Separates and processes temperature data for the data analysis framework.
 
     Reads each rank's ``result.txt``, redistributes entries to the rank that owns
     their temperature via MPI alltoall, and writes per-temperature ``result_T*.txt``

@@ -29,10 +29,7 @@ def initialize(argv: Optional[Sequence[str]] = None):
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=(
-            "Data-analysis software of quantum beam "
-            "diffraction experiments for 2D material structure"
-        )
+        description="Open framework for data analysis"
     )
     parser.add_argument("inputfile", help="input file with TOML format")
     parser.add_argument("--version", action="version", version=odatse.__version__)

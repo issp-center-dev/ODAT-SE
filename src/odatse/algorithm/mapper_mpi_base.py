@@ -23,7 +23,7 @@ from ._algorithm import AlgorithmBase
 
 class Algorithm(AlgorithmBase):
     """
-    Algorithm class for data analysis of quantum beam diffraction experiments.
+    Algorithm class for the data analysis framework.
     Inherits from odatse.algorithm.AlgorithmBase.
     """
     #mesh_list: List[Union[int, float]]

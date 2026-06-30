@@ -16,7 +16,7 @@ from ._domain import DomainBase
 
 class MeshGrid(DomainBase):
     """
-    MeshGrid class for handling grid data for quantum beam diffraction experiments.
+    MeshGrid class for handling grid data for the data analysis framework.
     """
 
     # whole grid and local chunk: list of vectors.
