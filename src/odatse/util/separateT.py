@@ -240,6 +240,18 @@ def separateT(
         mpisize = comm.size
         mpirank = comm.rank
 
+    # Temperatures are used as routing/index keys (both as ``str(T)`` for the
+    # per-rank buckets and as the raw value for T2idx). Duplicate values -- or
+    # values whose string representation collides -- would make distinct
+    # replicas share one output file and silently lose data. Separation by
+    # temperature is only well-defined for distinct temperatures, so reject the
+    # ambiguous case explicitly instead of producing wrong output.
+    if len(set(map(str, Ts))) != len(Ts):
+        raise ValueError(
+            "separateT requires distinct temperature/beta values, "
+            f"but got duplicates in {list(Ts)}"
+        )
+
     # Round up so that each buffer covers whole walker-groups.
     buffer_size = int(np.ceil(buffer_size / nwalkers)) * nwalkers
     output_dir = pathlib.Path(output_dir)
