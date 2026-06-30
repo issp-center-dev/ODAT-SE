@@ -218,7 +218,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         if seed is None:
             self.rng = np.random.RandomState()
         else:
-            self.rng = np.random.RandomState(seed + odatse.mpi.rank() * seed_delta)
+            # Offset the seed by the algorithm-layer rank, not the global MPI
+            # rank.  When the solver runs in parallel (nsolve > 1) the global
+            # rank differs from the algorithm rank, so seeding by rank() would
+            # make the per-replica seeds depend on the solver parallelism and
+            # break reproducibility.  algrank() identifies the replica.
+            self.rng = np.random.RandomState(seed + odatse.mpi.algrank() * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
         """
