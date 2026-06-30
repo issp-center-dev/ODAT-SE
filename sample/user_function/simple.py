@@ -39,6 +39,13 @@ file_name = "input.toml"  # Configuration file path
 inp = odatse.util.toml.load(file_name)  # Parse the TOML file
 info = odatse.Info(inp)  # Create an Info object with the configuration parameters
 
+# Partition the MPI communicator. This is required before constructing the
+# solver/algorithm because they query the MPI layer (e.g. algrank()). When
+# the pipeline is built manually like here (instead of via odatse.initialize),
+# setup() must be called explicitly. With no arguments all processes are
+# assigned to the algorithm layer (nsolve=1).
+odatse.mpi.setup()
+
 # Set up the function solver
 solver = odatse.solver.function.Solver(info)  # Initialize a function solver with configuration
 solver.set_function(my_objective_fn)  # Set our custom objective function
