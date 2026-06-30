@@ -31,7 +31,11 @@ class BaseWriter:
     _logger = logging.getLogger("BaseWriter")
 
     _combined_filename = "combined.txt"
-    _combined_filemode = "w"
+    # None means "not explicitly configured": the combined file is then opened
+    # using the mode of the first writer that opens it (so an "a" writer on
+    # resume appends instead of truncating). basicConfig() can set an explicit
+    # mode that overrides this.
+    _combined_filemode = None
 
     @classmethod
     def basicConfig(cls, combined_filename=None, combined_mode=None):
@@ -90,7 +94,7 @@ class BaseWriter:
     def _open(self):
         if self.combined:
             self._logger.debug(f"open: combined file")
-            self.fp = __class__._open_combined()
+            self.fp = __class__._open_combined(self.mode)
             self.tag = f"<{self.filename}> "
         else:
             self._logger.debug(f"open: local file, file={self.filename}")
@@ -109,10 +113,13 @@ class BaseWriter:
             self.fp = None
 
     @classmethod
-    def _open_combined(cls):
+    def _open_combined(cls, mode=None):
         if cls._fp is None:
-            cls._logger.debug(f"open_combined: open file {cls._combined_filename} with mode=\"{cls._combined_filemode}\"")
-            cls._fp = open(cls._combined_filename, cls._combined_filemode)
+            # An explicit basicConfig() mode wins; otherwise use the opening
+            # writer's mode (falling back to "w" only if neither is given).
+            filemode = cls._combined_filemode if cls._combined_filemode is not None else (mode or "w")
+            cls._logger.debug(f"open_combined: open file {cls._combined_filename} with mode=\"{filemode}\"")
+            cls._fp = open(cls._combined_filename, filemode)
         else:
             cls._logger.debug(f"open_combined: already opened")
         cls._fp_count += 1
