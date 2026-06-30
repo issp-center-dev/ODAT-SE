@@ -96,3 +96,5 @@ add_test(
 
 add_subdirectory(parallel_solver)
 
+add_subdirectory(unit)
+
