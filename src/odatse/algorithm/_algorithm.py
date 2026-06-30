@@ -559,20 +559,27 @@ class AlgorithmBase(metaclass=ABCMeta):
             fn = Path(filename + ".tmp")
             with open(fn, "wb") as f:
                 pickle.dump(data, f)
+                # Make sure the new checkpoint is durable on disk before it
+                # replaces the current one below.
+                f.flush()
+                os.fsync(f.fileno())
         except Exception as e:
             print("ERROR: {}".format(e))
             sys.exit(1)
 
+        # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
         for idx in range(ngen-1, 0, -1):
             fn_from = Path(filename + "." + str(idx))
             fn_to = Path(filename + "." + str(idx+1))
             if fn_from.exists():
                 shutil.move(fn_from, fn_to)
-        if ngen > 0:
-            if Path(filename).exists():
-                fn_to = Path(filename + "." + str(1))
-                shutil.move(Path(filename), fn_to)
-        shutil.move(Path(filename + ".tmp"), Path(filename))
+        # Keep the current checkpoint as .1 by *copying* it (not moving), so
+        # that `filename` always points to a complete checkpoint -- there is no
+        # window in which it is missing. Then atomically swap in the new one
+        # with os.replace(), which is the only step that touches `filename`.
+        if ngen > 0 and Path(filename).exists():
+            shutil.copy2(Path(filename), Path(filename + "." + str(1)))
+        os.replace(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
     def _load_data(self, filename="state.pickle") -> dict:
@@ -589,15 +596,22 @@ class AlgorithmBase(metaclass=ABCMeta):
         dict
             Dictionary containing the loaded data.
         """
-        if Path(filename).exists():
+        # Prefer the current checkpoint, but fall back to the previous
+        # generation (.1) if it is missing -- e.g. a crash in an older version
+        # during the save window, or external corruption of `filename`.
+        fn = Path(filename)
+        if not fn.exists() and Path(filename + "." + str(1)).exists():
+            fn = Path(filename + "." + str(1))
+            print("WARNING: {} not found, falling back to {}".format(filename, fn))
+
+        if fn.exists():
             try:
-                fn = Path(filename)
                 with open(fn, "rb") as f:
                     data = pickle.load(f)
             except Exception as e:
                 print("ERROR: {}".format(e))
                 sys.exit(1)
-            print("load_state: load from {}".format(filename))
+            print("load_state: load from {}".format(fn))
         else:
             print("ERROR: file {} not exist.".format(filename))
             data = {}
