@@ -25,7 +25,7 @@ try:
     from tqdm import tqdm
 
     has_tqdm = True
-except:
+except ImportError:
     has_tqdm = False
 
 
