@@ -9,6 +9,7 @@ sys.path.insert(0, SOURCE_PATH)
 import pytest
 
 from odatse.algorithm._algorithm import AlgorithmBase
+from odatse.exception import CheckpointError
 
 
 class _Dummy(AlgorithmBase):
@@ -90,3 +91,29 @@ def test_load_falls_back_to_generation_1(tmp_path):
 
     Path(fn).unlink()  # lose the current checkpoint
     assert alg._load_data(filename=fn) == {"gen": 1}
+
+
+def test_load_state_missing_file_raises_checkpoint_error(tmp_path):
+    """A missing checkpoint must raise CheckpointError, not sys.exit."""
+    alg = _alg()
+    fn = str(tmp_path / "does_not_exist.pickle")
+    with pytest.raises(CheckpointError):
+        alg._load_state(fn, mode="resume")
+
+
+def test_load_data_corrupt_file_raises_checkpoint_error(tmp_path):
+    """An unreadable/corrupt checkpoint must raise CheckpointError."""
+    alg = _alg()
+    fn = tmp_path / "state.pickle"
+    fn.write_bytes(b"this is not a pickle")
+    with pytest.raises(CheckpointError):
+        alg._load_data(filename=str(fn))
+
+
+def test_save_data_failure_raises_checkpoint_error(tmp_path):
+    """A failure while writing the checkpoint must raise CheckpointError."""
+    alg = _alg()
+    fn = str(tmp_path / "state.pickle")
+    # a lambda cannot be pickled, so pickle.dump raises
+    with pytest.raises(CheckpointError):
+        alg._save_data({"bad": lambda x: x}, filename=fn)

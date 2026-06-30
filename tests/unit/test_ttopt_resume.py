@@ -10,6 +10,7 @@ import pytest
 
 import odatse.mpi as mpi
 from odatse.algorithm.ttopt import Algorithm
+from odatse.exception import CheckpointError
 
 
 def _bare():
@@ -102,3 +103,10 @@ def test_load_state_defers_apply(tmp_path):
     assert alg._resume_data is not None
     assert alg._resume_restore_rng is True
     assert not hasattr(alg, "f_eval_count")
+
+
+def test_load_state_missing_file_raises_checkpoint_error(tmp_path):
+    """A missing checkpoint must raise CheckpointError, not sys.exit."""
+    alg = _bare()
+    with pytest.raises(CheckpointError):
+        alg._load_state(str(tmp_path / "does_not_exist.pickle"))

@@ -7,7 +7,6 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import IO, Optional, TYPE_CHECKING
-import sys
 import time
 
 import numpy as np
@@ -608,8 +607,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         data = self._load_data(filename)
         if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
+            raise odatse.exception.CheckpointError(
+                f"failed to load checkpoint from {filename}"
+            )
         self._resume_data = data
         self._resume_restore_rng = restore_rng
 

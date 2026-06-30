@@ -441,8 +441,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         data = self._load_data(filename)
         if not data:
-            print(f"ERROR: failed to load checkpoint from {filename}")
-            sys.exit(1)
+            raise exception.CheckpointError(
+                f"failed to load checkpoint from {filename}"
+            )
         self._apply_state(data, mode=mode, restore_rng=restore_rng)
 
     # ------------------------------------------------------------------
@@ -563,8 +564,9 @@ class AlgorithmBase(metaclass=ABCMeta):
                 f.flush()
                 os.fsync(f.fileno())
         except Exception as e:
-            print("ERROR: {}".format(e))
-            sys.exit(1)
+            raise exception.CheckpointError(
+                f"failed to save checkpoint to {filename}: {e}"
+            ) from e
 
         # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
         for idx in range(ngen-1, 0, -1):
@@ -608,8 +610,9 @@ class AlgorithmBase(metaclass=ABCMeta):
                 with open(fn, "rb") as f:
                     data = pickle.load(f)
             except Exception as e:
-                print("ERROR: {}".format(e))
-                sys.exit(1)
+                raise exception.CheckpointError(
+                    f"failed to read checkpoint from {fn}: {e}"
+                ) from e
             print("load_state: load from {}".format(fn))
         else:
             print("ERROR: file {} not exist.".format(filename))
