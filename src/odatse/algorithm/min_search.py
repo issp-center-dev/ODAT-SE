@@ -171,13 +171,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 print("Warning: variables do not satisfy the constraint formula")
                 return float("inf")
 
-            x_list /= unit_list
+            # Scale into solver units on a *copy*: x_list is the array owned by
+            # scipy's optimizer (and, for scipy < 1.11, the same array passed
+            # to the callback). Dividing it in place corrupts the optimizer's
+            # simplex bookkeeping and, on old scipy, double-scales x in _cb.
+            x_scaled = x_list / unit_list
 
             step[0] += 1
             args = (step[0], iset)
-            y = run.submit(x_list, args)
+            y = run.submit(x_scaled, args)
             if iset == 0:
-                fev_history.append([step[0], *x_list, y])
+                fev_history.append([step[0], *x_scaled, y])
             return y
 
         time_sta = time.perf_counter()
