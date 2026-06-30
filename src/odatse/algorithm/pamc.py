@@ -247,7 +247,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.numsteps_for_T = np.full(numT, nr)
             rem = numsteps - nr * numT
             if rem > 0:
-                self.numsteps_for_T[0 : (rem - 1)] += 1
+                # Distribute the remainder over the first ``rem`` temperatures
+                # so that the per-temperature step counts sum to ``numsteps``.
+                self.numsteps_for_T[0:rem] += 1
         else:
             ss: list[int] = []
             while numsteps > 0:
