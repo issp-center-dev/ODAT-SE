@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: MPL-2.0
+#
+# ODAT-SE -- an open framework for data analysis
+# Copyright (C) 2020- The University of Tokyo
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+# If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 Integrated linear regression and model evidence analysis
 Combines a custom ODAT-SE solver implementing linear regression with model evidence calculation
@@ -36,8 +43,8 @@ class LinearRegression(odatse.solver.SolverBase):
         for i in range(1, dimension):
             self.X[:, i] = self.X[:, i - 1] * self.xdata
 
-    def evaluate(self, xs, args, nprocs=1, nthreads=1):
-        loss = np.sum((self.X @ xs - self.ydata) ** 2)
+    def evaluate(self, x, args=()):
+        loss = np.sum((self.X @ x - self.ydata) ** 2)
         return loss
 
 
