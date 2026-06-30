@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # Try to import tqdm for progress bar, set to None if not available
 try:
     from tqdm import tqdm
-except:
+except ImportError:
     tqdm = None
 
 def parse_options():
@@ -84,7 +84,7 @@ def parse_options():
     # Override config with command-line arguments if specified
     if args.columns:
         config["columns"] = [s.strip() for s in args.columns.split(",")]
-    if args.weight_column:
+    if args.weight_column is not None:
         config["weight_column"] = args.weight_column
     if args.bins:
         config["bins"] = args.bins
@@ -176,7 +176,7 @@ def main():
     columns = opt["columns"]
     weight_column = opt["weight_column"]
     bins = opt["bins"]
-    field_list = opt["field_list"]
+    configured_field_list = opt["field_list"]  # may be empty; default is per-file
 
     # Determine histogram range and axis sharing behavior
     hist_range = opt["range"]
@@ -192,9 +192,6 @@ def main():
                 share_axis = True     # Same range for all variables
         else:
             raise ValueError("unknown data type for range parameter: {}".format(type(hist_range)))
-
-    field_id = None    # Will map field names to column indices
-    z_columns = None   # Will store column indices to plot
 
     # Create output directory if it doesn't exist
     os.makedirs(opt["output_dir"], exist_ok=True)
@@ -215,16 +212,24 @@ def main():
 
             with open(file_path, "r") as f:
                 for line in f:
-                    if line.startswith("#") and is_beta is None:
-                        if " beta" in line:
-                            is_beta = True
-                        elif " T" in line:
-                            is_beta = False
-                    else:
-                        items = [float(s) for s in line.split()]
-                        data.append(items)
+                    if line.startswith("#"):
+                        # Detect whether column 1 is beta or T from the header
+                        if is_beta is None:
+                            if " beta" in line:
+                                is_beta = True
+                            elif " T" in line:
+                                is_beta = False
+                        continue
+                    items = line.split()
+                    if not items:
+                        continue  # skip blank lines
+                    data.append([float(s) for s in items])
 
             data = np.array(data)
+            if data.ndim != 2 or data.shape[0] == 0:
+                print(f"Skipping {file_path}: no data rows")
+                err += 1
+                continue
             ndata, ncols = data.shape
 
             # Extract beta value in float (0.00101) or scientific notation (e.g., 1.01e-3)
@@ -236,24 +241,27 @@ def main():
             # Normalize weights so they sum to 1
             normalized_weights = weights / np.sum(weights)
 
-            # Set up column labels if not provided
-            if not field_list:
-                # Assume standard format: beta, fx, x1, .., xn, weight
-                field_list = ["beta", "fx"] + [f"x{i-1}" for i in range(2, ncols-1)] + ["weight"]
-            
-            # Create mapping from field names to column indices
-            if not field_id:
-                field_id = {s: id for id, s in enumerate(field_list)}
-
-            # Determine which columns to plot
-            if not z_columns:
-                if columns:
-                    # Use columns specified by name
-                    z_columns = [field_id[col] for col in columns]
-                else:
-                    # Use all data columns (excluding beta, fx, and weight)
-                    z_columns = [i for i in range(2, ncols-1)]
+            # Column labels / indices, recomputed per file so that files with
+            # differing widths are not mis-indexed by a value cached from the
+            # first file. Standard format: beta, fx, x1, .., xn, weight.
+            field_list = configured_field_list if configured_field_list else \
+                (["beta", "fx"] + [f"x{i-1}" for i in range(2, ncols-1)] + ["weight"])
+            field_id = {s: idx for idx, s in enumerate(field_list)}
+            if columns:
+                z_columns = [field_id[col] for col in columns]
+            else:
+                # Use all data columns (excluding beta, fx, and weight)
+                z_columns = [i for i in range(2, ncols-1)]
             num_variables = len(z_columns)
+
+            # Map each per-variable range to its data column. When config["range"]
+            # is a per-parameter list it is ordered as the parameters x1..xn,
+            # which occupy columns 2..ncols-2; columns outside that (beta, fx,
+            # weight) get no fixed range and fall back to auto.
+            range_by_col = {}
+            if not auto_axis and not share_axis:
+                for k, rng in enumerate(hist_range):
+                    range_by_col[2 + k] = rng
 
             # Create figure with subplots for each variable
             fig, axes = plt.subplots(num_variables, 1, figsize=(10, 4 * num_variables), sharex=share_axis)
@@ -267,16 +275,19 @@ def main():
                 # Determine range for histogram
                 if auto_axis:
                     hrange = None  # Let matplotlib determine range automatically
+                elif share_axis:
+                    hrange = hist_range  # Same range for all variables
                 else:
-                    # Use specified range (either shared or per-variable)
-                    hrange = hist_range if share_axis else hist_range[col_index-2]  # Adjust index for range list
+                    # Per-variable range, keyed by column (None for non-parameter columns)
+                    hrange = range_by_col.get(col_index)
 
                 # Create histogram with normalized weights
                 axes[i].hist(z, bins=bins, range=hrange, weights=normalized_weights)
                 axes[i].set_title(f'{field_list[col_index]} 1D Histogram')
                 axes[i].set_ylabel(f'{field_list[col_index]}')
                 axes[i].grid(True, linestyle='--', linewidth=0.5, alpha=0.7)  # Add grid lines
-                axes[i].set_xlim(hrange)  # Set x-axis limits
+                if hrange is not None:
+                    axes[i].set_xlim(hrange)  # Set x-axis limits
 
             # Set x-label for bottom subplot if provided
             if opt["xlabel"]:
@@ -305,7 +316,7 @@ def main():
             plt.close()
 
         except Exception as e:
-            print(f"Error occurred while processing {file_path}: {e}")
+            print(f"Error occurred while processing {file_path}: {type(e).__name__}: {e}")
             err += 1
 
     # Print summary message
