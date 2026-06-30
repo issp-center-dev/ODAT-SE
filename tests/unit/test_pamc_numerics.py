@@ -7,6 +7,7 @@ sys.path.insert(0, SOURCE_PATH)
 import numpy as np
 import pytest
 
+import odatse.mpi as mpi
 from odatse.algorithm.pamc import Algorithm
 
 
@@ -16,9 +17,11 @@ def _bare():
 
 def test_participation_ratio_normal():
     alg = _bare()
-    alg.logweights = np.zeros(4)  # equal weights
-    # (sum w)^2 / sum w^2 = 16 / 4 = 4
-    assert alg._calc_participation_ratio() == pytest.approx(4.0)
+    alg.logweights = np.zeros(4)  # equal weights, per rank
+    # _calc_participation_ratio gathers weights across ranks, so with M equal
+    # weights total the ratio is (sum w)^2 / sum w^2 = M. Here M = 4 * algsize.
+    expected = 4.0 * mpi.algsize()
+    assert alg._calc_participation_ratio() == pytest.approx(expected)
 
 
 def test_participation_ratio_degenerate_weights_not_nan():
