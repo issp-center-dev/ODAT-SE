@@ -239,6 +239,38 @@ class AlgorithmBase(metaclass=ABCMeta):
     # Framework wrappers – called by main().  Do NOT override in subclasses.
     # ------------------------------------------------------------------
 
+    def _reach_consensus(self, error: Optional[Exception], ok: "np.ndarray") -> None:
+        """Collectively agree on whether *every* algorithm rank succeeded.
+
+        Every algorithm rank must call this exactly once per phase, regardless
+        of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when
+        this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the
+        exception this rank caught (or ``None``).
+
+        A single ``Allreduce`` shares the success flags, then:
+
+        * if this rank failed, its own exception is re-raised;
+        * else if any other rank failed, ``OtherAlgorithmProcessError`` is
+          raised so this rank bails out too.
+
+        Because the only collective on the failure path is this one
+        ``Allreduce`` -- reached by all ranks whether they succeeded or failed
+        -- a per-rank failure can no longer leave the other ranks blocked.
+        (Collectives *inside* the ``_prepare``/``_run``/``_post`` hooks remain
+        the responsibility of each algorithm to keep balanced across ranks.)
+        """
+        if odatse.mpi.algsize() > 1:
+            total = np.array([0])
+            odatse.mpi.algcomm().Allreduce(ok, total)
+            all_ok = bool(total[0] == odatse.mpi.algsize())
+        else:
+            all_ok = error is None
+
+        if error is not None:
+            raise error
+        if not all_ok:
+            raise odatse.mpi.OtherAlgorithmProcessError()
+
     def prepare(self) -> None:
         """Framework wrapper for the prepare phase.
 
@@ -254,35 +286,36 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.runner is None:
             raise RuntimeError("Runner is not assigned")
 
-        # runner lifecycle starts (commit 936e48: moved here from run())
-        self.runner.prepare(self.proc_dir)
-
-        # checkpoint dispatch
         restore_rng = not self.mode.endswith("-resetrand")
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError(f"unknown mode {self.mode}")
-        
-        # algorithm-specific preparation
+
+        # Everything that can fail per-rank (runner setup, checkpoint dispatch,
+        # the _prepare() hook) is inside the try so that a failure on any rank
+        # is shared through the single collective in _reach_consensus() instead
+        # of leaving the other ranks blocked. The exception is captured here and
+        # re-raised only after that collective.
+        error = None
+        ok = np.array([0])
         try:
+            # runner lifecycle starts (commit 936e48: moved here from run())
+            self.runner.prepare(self.proc_dir)
+
+            # checkpoint dispatch
+            if self.mode.startswith("init"):
+                self._initialize()
+            elif self.mode.startswith("resume"):
+                self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+            elif self.mode.startswith("continue"):
+                self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+            else:
+                raise RuntimeError(f"unknown mode {self.mode}")
+
+            # algorithm-specific preparation
             self._prepare()
-            res = np.array([1])
-        except Exception:
-            res = np.array([0])
-            if odatse.mpi.algsize() > 1:
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
-        if odatse.mpi.algsize() > 1:
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+
+        self._reach_consensus(error, ok)
 
         # preparation step completed
         self.status = AlgorithmStatus.PREPARE
@@ -306,24 +339,19 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.status < AlgorithmStatus.PREPARE:
             raise RuntimeError("algorithm has not prepared yet")
 
+        error = None
+        ok = np.array([0])
+        original_dir = os.getcwd()
         try:
-            original_dir = os.getcwd()
             os.chdir(self.proc_dir)
             self._run()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
             os.chdir(original_dir)
-        except Exception:
-            if odatse.mpi.algsize() > 1:
-                res = np.array([0])
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
 
-        if odatse.mpi.algsize() > 1:
-            res = np.array([1])
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+        self._reach_consensus(error, ok)
 
         # run step completed
         self.status = AlgorithmStatus.RUN
@@ -342,24 +370,20 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.status < AlgorithmStatus.RUN:
             raise RuntimeError("algorithm has not run yet")
 
+        error = None
+        ok = np.array([0])
+        result = {}
+        original_dir = os.getcwd()
         try:
-            original_dir = os.getcwd()
             os.chdir(self.output_dir)
             result = self._post()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
             os.chdir(original_dir)
-        except Exception:
-            if odatse.mpi.algsize() > 1:
-                res = np.array([0])
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
 
-        if odatse.mpi.algsize() > 1:
-            res = np.array([1])
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+        self._reach_consensus(error, ok)
 
         # runner lifecycle ends (commit 936e48: moved here from run())
         self.runner.post()
