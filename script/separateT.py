@@ -19,85 +19,66 @@ import argparse
 import glob
 try:
     from tqdm import tqdm  # Import tqdm for progress bar if available
-except:
+except ImportError:
     tqdm = None  # Set tqdm to None if not available
 
 def do_separate(filename: str) -> None:
     """
-    Separate a single MCMC data file into multiple files based on temperature values.
-    
+    Separate a single MCMC data file into multiple files, one per temperature.
+
+    Lines are routed to an output file keyed by the temperature value in the
+    3rd column (index 2). Unlike a simple "split whenever the value changes
+    from the previous line", this groups all lines with the same temperature
+    together even when temperatures are interleaved (as in exchange MC), so
+    each temperature gets exactly one file. Temperatures are indexed in order
+    of first appearance.
+
     Parameters
     ----------
     filename : str
         Path to the MCMC data file to be separated.
-    
+
     Returns
     -------
     None
         Files are written to disk with naming pattern: original_filename_T{index}.ext
     """
-    with open(filename, "r") as fp:
-        header = []  # Store header lines (comments starting with #)
-        buf = []     # Buffer to store lines for current temperature
-        index = 0    # Index to track temperature number
-        current = None  # Current temperature value
-        
-        # Process the file line by line
-        for line in fp:
-            # Preserve header lines (comments)
-            if line.startswith("#"):
-                header.append(line)
-                continue
-            
-            # Split line into columns
-            items = line.strip().split()
-            
-            # Initialize current temperature if this is the first data line
-            if current is None:
-                current = items[2]  # Temperature is in the 3rd column (index 2)
-            
-            # If temperature changes, write the buffered data and reset
-            if items[2] != current:
-                do_write(filename, index, buf, header)
-                current = items[2]  # Update to new temperature
-                index += 1          # Increment temperature index
-                buf = []            # Clear buffer for new temperature
-            
-            # Add current line to buffer
-            buf.append(line)
-            
-        # Write the last temperature data if buffer is not empty
-        if buf:
-            do_write(filename, index, buf, header)
-
-def do_write(filename: str, index: int, buf: list, header: list) -> None:
-    """
-    Write a separated temperature file.
-    
-    Parameters
-    ----------
-    filename : str
-        Original filename used to create the new filename.
-    index : int
-        Temperature index used in the new filename.
-    buf : list
-        List of data lines to write to the file.
-    header : list
-        List of header lines to include at the top of the file.
-    
-    Returns
-    -------
-    None
-        File is written to disk.
-    """
-    # Create new filename with temperature index
     file_base, file_ext = os.path.splitext(filename)
-    new_file = file_base + f"_T{index}" + file_ext
-    
-    # Write header and data to the new file
-    with open(new_file, "w") as fp:
-        fp.writelines(header)
-        fp.writelines(buf)
+
+    header = []                # header lines (comments starting with #)
+    writers: dict = {}         # temperature value (str) -> open output file
+
+    with open(filename, "r") as fp:
+        try:
+            for line in fp:
+                # Preserve header lines (comments)
+                if line.startswith("#"):
+                    header.append(line)
+                    continue
+
+                # Split line into columns; skip blank / malformed lines
+                items = line.split()
+                if len(items) < 3:
+                    continue
+
+                temperature = items[2]  # temperature is in the 3rd column
+
+                # Open a new file the first time a temperature is seen, indexed
+                # by first-appearance order, and write the header collected so
+                # far (all comment lines precede the data in result.txt).
+                if temperature not in writers:
+                    index = len(writers)
+                    new_file = file_base + f"_T{index}" + file_ext
+                    out = open(new_file, "w")
+                    out.writelines(header)
+                    out.write(f"# T (or beta) = {temperature}\n")
+                    writers[temperature] = out
+
+                writers[temperature].write(line)
+        finally:
+            # Always close every output file, even on error.
+            for out in writers.values():
+                out.close()
 
 def main() -> None:
     """
@@ -129,9 +110,13 @@ def main() -> None:
     elif args.data_dir:
         # Find files matching pattern in data directory
         file_pattern = os.path.join(args.data_dir, "*", args.file_type)
-        input_files = glob.glob(file_pattern)
+        input_files = sorted(glob.glob(file_pattern))
     else:
         input_files = []
+
+    # Nothing to do: warn rather than exiting silently with success.
+    if not input_files:
+        parser.error("no input files: specify input files or --data_dir")
 
     # Add progress bar if requested and tqdm is available
     if tqdm and args.progress:
@@ -139,8 +124,6 @@ def main() -> None:
 
     # Process each input file
     for input_file in input_files:
-        dir_name = os.path.dirname(input_file)
-
         # Print progress message if not using progress bar
         if not args.progress or not tqdm:
             print("processing file {}...".format(input_file))
