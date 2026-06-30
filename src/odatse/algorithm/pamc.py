@@ -453,7 +453,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         res["ancestors"] = gather_replica(self.walker_ancestors)
         nacc = gather_data([self.naccepted_from_reset[0:numT,:]])
         nacc = np.sum(nacc, axis=0)
-        res["acceptance ratio"] = nacc[:,0] / nacc[:,1]
+        # A temperature with no trials (e.g. numsteps_for_T == 0) would give a
+        # 0/0 acceptance ratio; report 0.0 there instead of nan/inf.
+        ntrials = nacc[:, 1]
+        res["acceptance ratio"] = np.divide(
+            nacc[:, 0], ntrials,
+            out=np.zeros(nacc.shape[0], dtype=np.float64),
+            where=(ntrials != 0),
+        )
 
         fxs = res["fxs"]
         nreplicas = np.sum(res["ns"])
@@ -678,10 +685,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         log_weights = gather_replica(self.logweights)
         max_log_weight = np.max(log_weights)
 
-        sum_weight = np.sum(np.exp(log_weights - max_log_weight))
-        sum_weight_sq = np.sum(np.exp(log_weights - max_log_weight)**2)
+        # Degenerate weights (e.g. all -inf) make (log_weights - max) contain
+        # nan; the guard below turns that into a finite 0.0, so suppress the
+        # transient invalid-value warning here.
+        with np.errstate(invalid="ignore"):
+            sum_weight = np.sum(np.exp(log_weights - max_log_weight))
+            sum_weight_sq = np.sum(np.exp(log_weights - max_log_weight)**2)
 
-        pr = sum_weight ** 2 / sum_weight_sq
+        # sum_weight_sq is normally >= 1 (the max element contributes exp(0)=1),
+        # but degenerate weights make it 0 or nan; guard so the participation
+        # ratio is a finite number rather than nan.
+        pr = sum_weight ** 2 / sum_weight_sq if sum_weight_sq > 0 else 0.0
 
         return pr
 
