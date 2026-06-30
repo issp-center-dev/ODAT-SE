@@ -1,3 +1,11 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# ODAT-SE -- an open framework for data analysis
+# Copyright (C) 2020- The University of Tokyo
+#
+# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+# If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 import sys, os, argparse
 import numpy as np
 import odatse
@@ -75,8 +83,8 @@ class PredictorSolver(odatse.solver.SolverBase):
         self._name = "predict"
         self.predictor = predictor
 
-    def evaluate(self, xs, args=(), nprocs=1, nthreads=1):
-        return self.predictor(xs)[0]
+    def evaluate(self, x, args=()):
+        return self.predictor(x)[0]
 
 def plot_res(Xtr, predictor):
     # Grid over the domain
