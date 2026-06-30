@@ -147,7 +147,7 @@ class DataWriter(BaseWriter):
     Extends BaseWriter to handle formatted data output with column headers
     and optional descriptions.
     """
-    def __init__(self, filename=None, mode="w", item_list=[], *, 
+    def __init__(self, filename=None, mode="w", item_list=None, *,
                  description=None, long_format=False, combined=False):
         """
         Initialize data writer with column specifications.
@@ -169,7 +169,7 @@ class DataWriter(BaseWriter):
         """
         self._logger = logging.getLogger(__class__.__name__)
         super().__init__(filename=filename, mode=mode, combined=combined)
-        self.header = self._find_item_list(item_list)
+        self.header = self._find_item_list(item_list or [])
         if mode == "w":
             self._write_header(description, long_format)
 
