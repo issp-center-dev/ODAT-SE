@@ -64,6 +64,30 @@ def test_nompi_context_getstate():
     }
 
 
+def test_module_singleton_matches_build():
+    """The module singleton and public API must reflect whether MPI is active.
+
+    With mpi4py installed, MPI is enabled automatically; this assertion only
+    bites when ODATSE_NOMPI=1 is set explicitly (see the ``unit_nompi`` ctest
+    entry), in which case the stub context is selected and every public
+    accessor reports a single serial process.
+    """
+    if mpi.enabled():
+        assert isinstance(mpi._ctx, mpi._MPIContext)
+    else:
+        assert isinstance(mpi._ctx, mpi._NoMPIContext)
+        assert mpi.size() == 1
+        assert mpi.rank() == 0
+        assert mpi.algsize() == 1
+        assert mpi.algrank() == 0
+        assert mpi.solsize() == 1
+        assert mpi.solrank() == 0
+        assert mpi.run_on_algorithm() is True
+        assert mpi.comm() is None
+        assert mpi.algcomm() is None
+        assert mpi.solcomm() is None
+
+
 # --------------------------------------------------------------------------- #
 #  MPI context: accessors and setup() validation
 # --------------------------------------------------------------------------- #
