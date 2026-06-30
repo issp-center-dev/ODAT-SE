@@ -7,8 +7,10 @@ sys.path.append(SOURCE_PATH)
 import numpy as np
 import pytest
 
+import odatse.mpi as mpi
 from odatse.util.neighborlist import (
     Cells,
+    make_neighbor_list,
     make_neighbor_list_cell,
     make_neighbor_list_naive,
 )
@@ -73,3 +75,21 @@ def test_cell_method_matches_naive_on_noncubic_grid():
     assert len(nl_cell) == len(nl_naive)
     for a, b in zip(nl_cell, nl_naive):
         assert sorted(a) == sorted(b)
+
+
+def test_mpi_parallel_matches_serial():
+    """make_neighbor_list distributes the points across MPI ranks and
+    allgathers the result, so the parallel result on every rank must equal the
+    serial (comm=None) one. Runs meaningfully under ``mpirun -n N`` and is a
+    trivial identity check serially."""
+    rng = np.random.RandomState(2024)
+    # ensure each rank gets at least one point (npoints >> mpisize)
+    X = rng.uniform(low=[0, 0, 0], high=[4, 6, 10], size=(300, 3))
+    radius = 1.1
+
+    serial = make_neighbor_list(X, radius, comm=None)
+    parallel = make_neighbor_list(X, radius, comm=mpi.comm())
+
+    assert len(serial) == len(parallel)
+    for a, b in zip(serial, parallel):
+        assert a == b

@@ -71,3 +71,25 @@ def test_seed_none_gives_unseeded_rng(monkeypatch):
     monkeypatch.setattr(odatse.mpi, "algrank", lambda: 0)
     rng = _seed_rng(_Info({}))
     assert isinstance(rng, np.random.RandomState)
+
+
+def test_real_mpi_ranks_get_distinct_seeds():
+    """Under real MPI each algorithm rank must be seeded by its own algrank, so
+    the first draws differ across ranks. This is the multi-rank manifestation
+    of the fix; serially (algsize == 1) there is nothing to compare."""
+    algsize = odatse.mpi.algsize()
+    if algsize <= 1:
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+
+    seed, seed_delta = 12345, 314159
+    rng = _seed_rng(_Info({"seed": seed, "seed_delta": seed_delta}))
+    first = rng.rand()
+
+    # this rank must match seed + algrank * seed_delta exactly
+    expected = np.random.RandomState(
+        seed + odatse.mpi.algrank() * seed_delta).rand()
+    assert first == expected
+
+    # and every rank's draw must be distinct
+    gathered = odatse.mpi.algcomm().allgather(first)
+    assert len(set(gathered)) == len(gathered)
