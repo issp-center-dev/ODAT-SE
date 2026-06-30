@@ -856,8 +856,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         elif mode == "continue":
             assert data["input_as_beta"] == self.input_as_beta
             if not data["betas"][-1] == self.betas[0]:
-                print("ERROR: temperature is not continuous")
-                sys.exit(1)
+                raise odatse.exception.InputError(
+                    "temperature is not continuous between the saved and "
+                    "current schedules (saved last beta "
+                    f"{data['betas'][-1]} != current first beta {self.betas[0]})"
+                )
             self.betas = np.concatenate([data["betas"], self.betas[1:]])
             self.numsteps_for_T = np.concatenate([data["numsteps_for_T"], self.numsteps_for_T[1:]])
 
