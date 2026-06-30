@@ -38,5 +38,6 @@ ODAT-SE では以下の探索アルゴリズムが利用できます。
    mapper_mpi
    random_search
    bayes
+   ttopt
    exchange
    pamc

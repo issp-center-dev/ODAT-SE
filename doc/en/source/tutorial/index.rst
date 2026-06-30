@@ -25,6 +25,10 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
 
   Bayesian optimization.
 
+- ``ttopt``
+
+   Tensor train optimization.
+
 - ``exchange``
 
   Sampling by the replica exchange Monte Carlo method.
@@ -37,17 +41,18 @@ In the following sections, the procedures to run these algorithms are provided.
 In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as some tutorials describing some applications.
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
 
-  intro
-  minsearch
-  mapper
-  random_search
-  bayes
-  exchange
-  pamc
-  limitation
-  solver_simple
-  linreg_with_noise
-  gpr
-  parallel_solver
+   intro
+   minsearch
+   mapper
+   random_search
+   bayes
+   ttopt
+   exchange
+   pamc
+   limitation
+   solver_simple
+   linreg_with_noise
+   gpr
+   parallel_solver

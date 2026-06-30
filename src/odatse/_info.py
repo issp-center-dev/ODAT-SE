@@ -85,7 +85,7 @@ class Info:
         self.runner = {}
 
     @classmethod
-    def from_file(cls, file_name, fmt="", **kwargs):
+    def from_file(cls, file_name, **kwargs):
         """
         Create an Info object from a file.
 
@@ -93,8 +93,6 @@ class Info:
         ----------
         file_name : str
             The name of the file to load the information from.
-        fmt : str
-            The format of the file (default is "").
         **kwargs
             Additional keyword arguments.
 
@@ -105,15 +103,12 @@ class Info:
 
         Raises
         ------
-        ValueError
-            If the file format is unsupported.
+        TOMLDecodeError
+            If the file is an invalid TOML document.
         """
-        if fmt == "toml" or fnmatch(file_name.lower(), "*.toml"):
-            inp = {}
-            if mpi.rank() == 0:
-                inp = toml.load(file_name)
-            if mpi.size() > 1:
-                inp = mpi.comm().bcast(inp, root=0)
-            return cls(inp)
-        else:
-            raise ValueError("unsupported file format: {}".format(file_name))
+        inp = {}
+        if mpi.rank() == 0:
+            inp = toml.load(file_name)
+        if mpi.size() > 1:
+            inp = mpi.comm().bcast(inp, root=0)
+        return cls(inp)

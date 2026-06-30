@@ -37,5 +37,6 @@ Click each item for detailed usage, including input parameters and output files.
    mapper_mpi
    random_search
    bayes
+   ttopt
    exchange
    pamc
