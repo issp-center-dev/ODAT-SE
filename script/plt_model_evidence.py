@@ -27,8 +27,13 @@ def load_data(filename: str) -> tuple:
         - logz: log evidence values
     """
     fx_data = np.loadtxt(filename, unpack=True, comments="#")
-    beta = fx_data[0]  # First column contains beta values
-    logz = fx_data[4]  # Fifth column contains log evidence values
+    if fx_data.ndim != 2 or fx_data.shape[0] < 5:
+        raise ValueError(
+            f"{filename}: expected at least 5 columns "
+            f"(beta ... log(Z/Z0) in column 5), got shape {fx_data.shape}"
+        )
+    beta = fx_data[0]  # First column: beta (1/T)
+    logz = fx_data[4]  # Fifth column: log(Z/Z0)
     return beta, logz
 
 
@@ -60,8 +65,8 @@ def calc_log_pdb(beta: np.ndarray, logz: np.ndarray, n_mu: np.ndarray,
     # Calculate total number of data points
     n = np.sum(n_mu)
     
-    # Normalize weights to sum to 1
-    w_mu /= np.sum(w_mu)
+    # Normalize weights to sum to 1 (on a copy; do not mutate the caller's array)
+    w_mu = w_mu / np.sum(w_mu)
     
     # Calculate log model evidence using the formula:
     # log P(D;\beta) = log Z - log V + (n/2) log \beta + sum((n_\mu/2) log w_\mu) - (n/2) log \pi
@@ -82,7 +87,7 @@ def print_log_pdb(filename: str, *data) -> None:
         Variable length argument list containing:
         - beta: inverse temperature values
         - log_pdb: log model evidence values
-        - var (optional): variance of log model evidence values
+        - std (optional): standard deviation of log model evidence values
         
     Returns
     -------
@@ -107,7 +112,7 @@ def print_log_pdb(filename: str, *data) -> None:
             fp.write("# $1: Tstep\n"
                      "# $2: beta\n"
                      "# $3: average model_evidence\n"
-                     "# $4: variance\n")
+                     "# $4: standard deviation\n")
 
         # Write the data values
         for idx, v in enumerate(zip(*data)):
@@ -195,7 +200,8 @@ def auto_range(beta, log_pdb, focus_factor=0.5):
         beta_min = 10 ** (beta_log_center - beta_log_half_range * expansion)
         beta_max = 10 ** (beta_log_center + beta_log_half_range * expansion)
         
-        # Ensure we don't go beyond data bounds
+        # Ensure we don't go beyond data bounds (valid_beta is ascending:
+        # fx.txt is written in increasing-beta / Tstep order).
         beta_min = max(beta_min, valid_beta[0] * 0.8)
         beta_max = min(beta_max, valid_beta[-1] * 1.2)
     else:
@@ -244,7 +250,7 @@ def auto_range(beta, log_pdb, focus_factor=0.5):
     
     return beta_min, beta_max, y_min, y_max
 
-def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.ndarray = None, auto_focus=False, focus_factor=0.5) -> None:
+def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, std: np.ndarray = None, auto_focus=False, focus_factor=0.5) -> None:
     """
     Plot the model evidence as a function of beta.
     
@@ -256,8 +262,9 @@ def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.n
         Array of inverse temperature values.
     log_pdb : np.ndarray
         Array of log model evidence values.
-    var : np.ndarray, optional
-        Array of variance values for log model evidence. If provided, error bars are shown.
+    std : np.ndarray, optional
+        Array of standard-deviation values for log model evidence. If provided,
+        error bars are shown.
     auto_focus : bool
         Whether to use automatic focus feature
     focus_factor : float
@@ -276,10 +283,10 @@ def plot_log_pdb(filename: str, beta: np.ndarray, log_pdb: np.ndarray, var: np.n
     ax.set_ylabel('model evidence')
 
     # Plot data points with or without error bars
-    if var is None:
+    if std is None:
         ax.scatter(beta, log_pdb, s=50, marker='x', c='red', label='data')
     else:
-        ax.errorbar(beta, log_pdb, yerr=var, marker='x', markersize=8, 
+        ax.errorbar(beta, log_pdb, yerr=std, marker='x', markersize=8,
                    linestyle="none", c='red', label='data')
 
     # Highlight maximum point
@@ -345,24 +352,26 @@ def main():
                        help='Auto-focus tightness (0-1, smaller is tighter, default: 0.5)')
     args = parser.parse_args()
 
-    # Initialize default values
-    V = 1.0
-    n = [1]
-    w_mu = [1.0]
-
-    # Override defaults with command line arguments if provided
-    if args.Volume:
-        V = args.Volume
-    if args.ndata:
-        n = [int(s) for s in args.ndata.split(",")]
+    V = args.Volume
+    n = [int(s) for s in args.ndata.split(",")]
     if args.weight:
         w_mu = [float(s) for s in args.weight.split(",")]
-    
+    else:
+        # Default to equal weights, one per data group.
+        w_mu = [1.0] * len(n)
+
     # Check for invalid arguments
-    if args.Volume<=0:
+    if V <= 0:
         sys.exit("Error: normalization factor must be greater than 0.")
-    if args.focus_factor<0 or args.focus_factor>1:
+    if args.focus_factor < 0 or args.focus_factor > 1:
         sys.exit("Error: focus factor must be between 0 and 1.")
+    if len(n) != len(w_mu):
+        sys.exit(f"Error: --ndata ({len(n)}) and --weight ({len(w_mu)}) "
+                 "must have the same number of values.")
+    if any(ni <= 0 for ni in n):
+        sys.exit("Error: --ndata values must be positive.")
+    if any(wi <= 0 for wi in w_mu):
+        sys.exit("Error: --weight values must be positive.")
 
     # Get input and output file paths
     data_files = args.data_files
@@ -384,12 +393,13 @@ def main():
         print_log_pdb(result_file, beta, log_pdbs[0])
         plot_log_pdb(output_file, beta, log_pdbs[0], None, args.auto_focus, args.focus_factor)
     else:
-        # Multiple files case: calculate average and variance
+        # Multiple files case: average and (sample) standard deviation across
+        # the input files, the latter used as the error bar.
         data = np.stack(log_pdbs)
         avg = np.mean(data, axis=0)
-        var = np.std(data, axis=0)
-        print_log_pdb(result_file, beta, avg, var)
-        plot_log_pdb(output_file, beta, avg, var, args.auto_focus, args.focus_factor)
+        std = np.std(data, axis=0, ddof=1)
+        print_log_pdb(result_file, beta, avg, std)
+        plot_log_pdb(output_file, beta, avg, std, args.auto_focus, args.focus_factor)
         
 
 if __name__ == "__main__":
