@@ -186,7 +186,11 @@ def _compute_temperature_statistics(
         return np.nan, np.nan, 0.0, np.nan
 
     mean = fx_sum / N
-    err = np.sqrt((fx_sum2 / N - mean ** 2) / (N - 1)) if N > 1 else np.nan
+    # The one-pass variance E[x^2] - E[x]^2 can come out slightly negative for
+    # near-constant f(x) due to catastrophic cancellation; clamp to 0 so the
+    # square root does not produce nan.
+    variance = max(fx_sum2 / N - mean ** 2, 0.0)
+    err = np.sqrt(variance / (N - 1)) if N > 1 else np.nan
     acceptance = accepted / N
 
     if dbeta != 0.0 and f_base is not None:
