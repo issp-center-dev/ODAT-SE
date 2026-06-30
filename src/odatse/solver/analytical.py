@@ -47,7 +47,7 @@ def quartics(xs: np.ndarray) -> float:
 
     Notes
     -----
-    It has two global minima f(xs)=0 at xs = [1,1,...,1] and [0,0,...,0].
+    It has two global minima f(xs)=0 at xs = [1,1,...,1] and [-1,-1,...,-1].
     It has one saddle point f(0,0,...,0) = 1.0.
     """
     return np.mean((xs - 1.0) ** 2) * np.mean((xs + 1.0) ** 2)

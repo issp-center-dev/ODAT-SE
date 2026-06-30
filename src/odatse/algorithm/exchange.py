@@ -37,14 +37,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     Attributes
     ----------
-    x : np.ndarray
-        Current configuration state for all walkers.
-    xmin : np.ndarray
-        Minimum allowed values for parameters.
-    xmax : np.ndarray
-        Maximum allowed values for parameters.
-    xstep : np.ndarray
-        Step sizes for parameter updates.
     numsteps : int
         Total number of Monte Carlo steps to perform.
     numsteps_exchange : int
@@ -67,11 +59,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Direction for attempting exchanges (alternates between True/False).
     """
 
-    x: np.ndarray
-    xmin: np.ndarray
-    xmax: np.ndarray
-    # xunit: np.ndarray
-    xstep: np.ndarray
+    # Coordinate bounds/steps live on self.statespace; the walker state is in
+    # self.state (see montecarlo.AlgorithmBase / state.py).
 
     numsteps: int
     numsteps_exchange: int

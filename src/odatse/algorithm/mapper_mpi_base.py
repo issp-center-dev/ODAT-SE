@@ -223,7 +223,8 @@ class Algorithm(AlgorithmBase):
             ``"resume"`` is the only supported mode; ``"continue"`` raises
             ``RuntimeError`` because mapper has no concept of extending a run.
         restore_rng : bool
-            Unused; mapper has no stochastic RNG to restore.
+            Forwarded to the base class and to the iterator's state restore
+            (e.g. RandomIterator restores its RNG state when this is True).
         """
         if mode == "continue":
             raise RuntimeError("continue mode is not supported for mapper")

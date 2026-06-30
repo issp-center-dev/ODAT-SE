@@ -13,7 +13,7 @@ import odatse
 
 class DomainBase:
     """
-    Base class for domain management in the 2DMAT software.
+    Base class for domain management in ODAT-SE.
 
     Attributes
     ----------
@@ -21,10 +21,6 @@ class DomainBase:
         The root directory for the domain.
     output_dir : Path
         The output directory for the domain.
-    mpisize : int
-        The size of the MPI communicator.
-    mpirank : int
-        The rank of the MPI process.
     """
     def __init__(self, info: odatse.Info = None):
         """

@@ -22,8 +22,8 @@ from ._iterator import RandomIterator, ListIterator
 
 class Algorithm(MapperMPIAlgorithm):
     """
-    Algorithm class for data analysis of quantum beam diffraction experiments.
-    Inherits from odatse.algorithm.mapper_mpi.Algorithm.
+    Algorithm class that evaluates the objective function at random points.
+    Inherits from odatse.algorithm.mapper_mpi_base.Algorithm.
     """
     mesh_list: list[Union[int, float]]
 

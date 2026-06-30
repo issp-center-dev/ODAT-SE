@@ -195,8 +195,9 @@ class DiscreteStateSpace(StateSpace):
 
         Raises
         ------
-        ValueError
-            If the neighbor list path is not specified in the parameters.
+        KeyError
+            If neither a neighbor-list/mesh path nor ``radius`` is specified in
+            the parameters.
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
         """

@@ -128,7 +128,7 @@ class Cells:
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
         >>> cells.coord2cellindex(np.array([3.5, 4.2]))
-        7
+        8
         """
         return self.cellcoord2cellindex(self.coord2cellcoord(x))
 
@@ -178,7 +178,7 @@ class Cells:
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
         >>> cells.cellcoord2cellindex(np.array([1, 2]))
-        7
+        8
         """
         # Row-major (C-order) flattening: the stride of dimension d is the
         # product of the cell counts of the dimensions after it.  At each step
@@ -210,7 +210,7 @@ class Cells:
         Examples
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
-        >>> cells.cellindex2cellcoord(7)
+        >>> cells.cellindex2cellcoord(8)
         array([1, 2])
         """
         ns = np.zeros(self.dimension, dtype=np.int64)
@@ -272,7 +272,7 @@ class Cells:
         Examples
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
-        >>> neighbors = cells.neighborcells(12)
+        >>> neighbors = cells.neighborcells(7)  # interior cell [1, 1]
         >>> len(neighbors)  # 3x3 neighborhood in 2D
         9
         """

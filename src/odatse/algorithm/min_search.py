@@ -100,7 +100,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """Set up initial state for a fresh run.
 
         Nelder-Mead does not use checkpointing, so this is a no-op.
-        The simplex initialisation is done in ``prepare()``.
+        The simplex initialisation is done in ``_prepare()``.
         """
         pass
 

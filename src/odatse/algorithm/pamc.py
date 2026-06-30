@@ -54,8 +54,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     Attributes
     ----------
-    x : np.ndarray
-        Current configurations for all walkers
     logweights : np.ndarray
         Log of importance weights for each walker
     fx : np.ndarray
@@ -74,11 +72,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Tracks genealogy of walkers for analysis
     """
 
-    # x: np.ndarray
-    # xmin: np.ndarray
-    # xmax: np.ndarray
-    # #xunit: np.ndarray
-    # xstep: np.ndarray
+    # Coordinate bounds/steps live on self.statespace; the walker state is in
+    # self.state (see montecarlo.AlgorithmBase / state.py).
 
     numsteps: int
     numsteps_annealing: int
@@ -752,9 +747,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Post-processing after the algorithm execution.
 
-        This method consolidates the results from different temperature steps
-        into single files for 'result' and 'trial'. It also gathers the best
-        results from all processes and writes them to 'best_result.txt'.
+        Gathers the best solution across all processes and writes it to
+        ``best_result.txt``, and writes the per-temperature statistics
+        (free energy, errors, partition function) to ``fx.txt`` and the
+        participation ratios to ``pr.txt``. (Splitting of ``trial``/``result``
+        into per-temperature files is done in ``_run``, not here.)
         """
         best_fx = gather_data(np.array([self.best_fx]))
         best_x = gather_data(np.array([self.best_x]))

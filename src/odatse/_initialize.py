@@ -65,6 +65,5 @@ def initialize(argv: Optional[Sequence[str]] = None):
         run_mode = "initial"  # default
 
     info = odatse.Info.from_file(args.inputfile)
-    # info.algorithm.update({"run_mode": run_mode})
 
     return info, run_mode
