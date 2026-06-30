@@ -373,7 +373,7 @@ class Solver(odatse.solver.function.Solver):
             dimension = self.dimension
             if int(dimension) != 3:
                 raise RuntimeError(
-                    f"ERROR: regression works only with dimension=2 but input is dimension={dimension}"
+                    f"ERROR: regression works only with dimension=3 but input is dimension={dimension}"
                 )
             self.set_function(linear_regression_test)
         else:
