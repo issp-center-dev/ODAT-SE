@@ -49,9 +49,6 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    random_search
    bayes
    ttopt
-   mip
-   qubo
-   ttopt_benchmark
    exchange
    pamc
    limitation
