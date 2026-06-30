@@ -418,14 +418,23 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _prepare(self) -> None:
         """Prepare the TT decomposition structure and (for fresh runs) the initial poi.
 
-        On resume the structural fields are rebuilt from config, counters are
-        reset, and ``init_points`` evaluation is skipped — poi and tt_ranks
-        are restored from the checkpoint file at the start of ``_run()``.
+        The deterministic structural fields are always rebuilt from config and
+        the counters reset.  On resume the checkpoint snapshot (already read by
+        prepare()'s dispatch into ``self._resume_data``) is applied *here*,
+        after the structural rebuild, so that the restored poi/tt_ranks/counters
+        are not clobbered by ``_setup_structure()``/``_init_counters()``.  For a
+        fresh run the initial poi is built from ``init_points`` instead.
         """
         self._setup_structure()
         self._init_counters()
 
-        if not self.mode.startswith("resume"):
+        if self.mode.startswith("resume"):
+            self._apply_state(
+                self._resume_data, restore_rng=self._resume_restore_rng
+            )
+            # the snapshot is no longer needed once applied
+            self._resume_data = None
+        else:
             self._init_poi()
 
         if odatse.mpi.algrank() == 0:
@@ -442,9 +451,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 f.write(f"eval_history_buffer_rows = {self.eval_history_buffer_rows}\n")
 
     def _run(self) -> None:
-        if self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file)
-
+        # The checkpoint was already loaded by prepare() and applied at the end
+        # of _prepare(); no second load here.
         next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
@@ -545,32 +553,48 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """Save the current algorithm state to a checkpoint file."""
         self._save_data(self.__getstate__(), filename)
 
-    def _apply_state(self, data: dict) -> None:
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
         Validates the MPI configuration and structural consistency (n_q_dims),
-        then applies all fields listed in ``_checkpoint_attrs``.  The
-        structural fields rebuilt by ``_setup_structure()`` (grids, n_points,
-        etc.) are not restored from the checkpoint because they are
-        deterministic functions of the configuration parameters.
+        optionally restores the RNG, then applies all fields listed in
+        ``_checkpoint_attrs``.  The structural fields rebuilt by
+        ``_setup_structure()`` (grids, n_points, etc.) are not restored from the
+        checkpoint because they are deterministic functions of the
+        configuration parameters.
+
+        Must be called *after* ``_setup_structure()`` so that ``self.n_q_dims``
+        reflects the current configuration and can be compared with the saved
+        value.
 
         Parameters
         ----------
         data : dict
             Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` (the only mode TTOpt supports).
+        restore_rng : bool
+            When *True*, restore the RNG state from *data*.
         """
-        super()._apply_state(data)
-        # if self.n_q_dims != data["n_q_dims"]:
-        #     raise RuntimeError(
-        #         f"n_q_dims mismatch: checkpoint has {data['n_q_dims']}, "
-        #         f"current config gives {self.n_q_dims}. "
-        #         "Check that p_points and q_points match the original run."
-        #     )
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
+        if self.n_q_dims != data["n_q_dims"]:
+            raise RuntimeError(
+                f"n_q_dims mismatch: checkpoint has {data['n_q_dims']}, "
+                f"current config gives {self.n_q_dims}. "
+                "Check that p_points and q_points match the original run."
+            )
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
 
     def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
-        """Load algorithm state from a checkpoint file.
+        """Read a checkpoint file and defer applying it until ``_prepare()``.
+
+        The snapshot is *not* applied here: ``_prepare()`` first rebuilds the
+        deterministic structural fields (which would otherwise clobber the
+        restored poi/tt_ranks/counters), and only then calls ``_apply_state``.
 
         Parameters
         ----------
@@ -579,13 +603,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         mode : str, optional
             Loading mode (currently only ``"resume"`` is supported for TTOpt).
         restore_rng : bool, optional
-            Unused; kept for API symmetry with other algorithms.
+            Whether the RNG state should be restored when the snapshot is
+            applied.
         """
         data = self._load_data(filename)
         if not data:
             print("ERROR: Load status file failed")
             sys.exit(1)
-        self._apply_state(data)
+        self._resume_data = data
+        self._resume_restore_rng = restore_rng
 
     def _eval_hist_append_batch(
         self, todo_pois: np.ndarray, f_vals: np.ndarray
