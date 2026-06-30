@@ -48,3 +48,24 @@ def test_gather_information_zero_trial_acceptance_ratio_not_nan():
     assert np.all(np.isfinite(ar))
     assert ar[0] == 0.0
     assert ar[1] == pytest.approx(0.6)
+
+
+class _FakeStateSpace:
+    def pick(self, state, index):
+        return state
+
+
+def test_resample_keeps_nwalkers_a_plain_int():
+    """After Poisson resampling, nwalkers must stay a plain int (np.sum returns
+    np.int64), since downstream isinstance(..., int) checks rely on it."""
+    alg = _bare()
+    alg.nreplicas = np.array([4])
+    alg.nwalkers = 2
+    alg.rng = np.random.RandomState(0)
+    alg.state = object()
+    alg.statespace = _FakeStateSpace()
+    alg.fx = np.array([1.0, 2.0])
+
+    alg._resample_varied(np.array([1.0, 1.0]), 0)
+
+    assert type(alg.nwalkers) is int

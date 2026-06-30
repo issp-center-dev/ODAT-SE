@@ -651,7 +651,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.fx = new_fx
         self.walker_ancestors = np.array(new_index)
 
-        self.nwalkers = np.sum(next_numbers)
+        # keep nwalkers a plain int (np.sum returns np.int64), since downstream
+        # code does isinstance(..., int) checks and uses it as an array size
+        self.nwalkers = int(np.sum(next_numbers))
 
     def _calc_participation_ratio(self) -> float:
         """
