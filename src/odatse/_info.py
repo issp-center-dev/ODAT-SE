@@ -104,11 +104,43 @@ class Info:
         Raises
         ------
         TOMLDecodeError
-            If the file is an invalid TOML document.
+            If the file is an invalid TOML document (raised on rank 0).
+        exception.InputError
+            On the other ranks, if the load failed on rank 0.
+
+        Notes
+        -----
+        Only rank 0 reads the file. The load status is broadcast *before* the
+        parsed data so that a failure on rank 0 does not leave the other ranks
+        blocked forever on the data broadcast.
         """
         inp = {}
-        if mpi.rank() == 0:
-            inp = toml.load(file_name)
         if mpi.size() > 1:
-            inp = mpi.comm().bcast(inp, root=0)
+            comm = mpi.comm()
+            rank = mpi.rank()
+
+            # Phase 1: rank 0 attempts the load; share the outcome with all
+            # ranks. ``error_message`` is a plain (picklable) string so the
+            # status broadcast itself can never fail and deadlock.
+            error = None          # original exception, rank 0 only
+            error_message = None  # status shared with every rank
+            if rank == 0:
+                try:
+                    inp = toml.load(file_name)
+                except Exception as e:
+                    error = e
+                    error_message = f"{type(e).__name__}: {e}"
+            error_message = comm.bcast(error_message, root=0)
+
+            if error_message is not None:
+                if rank == 0:
+                    raise error
+                raise exception.InputError(
+                    f"failed to load '{file_name}' on rank 0: {error_message}"
+                )
+
+            # Phase 2: broadcast the parsed data only when the load succeeded.
+            inp = comm.bcast(inp, root=0)
+        else:
+            inp = toml.load(file_name)
         return cls(inp)
