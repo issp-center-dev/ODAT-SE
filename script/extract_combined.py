@@ -11,7 +11,7 @@ import argparse
 import glob
 try:
     from tqdm import tqdm  # Import progress bar library if available
-except:
+except ImportError:
     tqdm = None  # Set to None if import fails
 
 
@@ -36,7 +36,9 @@ def extract_tag(tag: str, file_input: str, file_output: str) -> None:
     with open(file_input, "r") as fread, open(file_output, "w") as fwrite:
         for line in fread:
             if line.startswith(tag_text):  # Check if line starts with tag
-                ll = line.replace(tag_text, "")  # Remove tag from line
+                # Strip only the leading tag prefix; using str.replace here would
+                # also remove any later occurrence of the tag within the line.
+                ll = line[len(tag_text):]
                 fwrite.write(ll)  # Write processed line to output file
                 
 def main():
@@ -61,18 +63,27 @@ def main():
     elif args.data_dir:
         # Search for combined.txt files in subdirectories of data_dir
         file_pattern = os.path.join(args.data_dir, "*", "combined.txt")
-        input_files = glob.glob(file_pattern)
+        input_files = sorted(glob.glob(file_pattern))
     else:
         input_files = []
+
+    # Nothing to do: error out rather than exiting silently with success.
+    if not input_files:
+        parser.error("no input files: specify input files or --data_dir")
 
     # Add progress bar if requested and tqdm is available
     if tqdm and args.progress:
         input_files = tqdm(input_files)
-    
+
     # Process each input file
     for input_file in input_files:
         dir_name = os.path.dirname(input_file)
         output_file = os.path.join(dir_name, tag)
+
+        # Don't clobber the input itself (e.g. tag == "combined.txt").
+        if os.path.realpath(output_file) == os.path.realpath(input_file):
+            print("skip {}: output would overwrite the input".format(input_file))
+            continue
 
         # Print progress message if not using progress bar
         if not args.progress or not tqdm:
