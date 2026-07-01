@@ -1,156 +1,276 @@
-Hybrid parallelization with MPI and OpenMP
-===================================================
-
-MATLAB is used as a reference solver to compare against, but it is not necessary.
+Two-level MPI parallelization of the solver
+===========================================
 
 Introduction
 ------------
 
-This tutorial shows how to use the ODAT-SE framework with solvers that can be parallelized in a hybrid fashion using both MPI and OpenMP.
+This tutorial shows how to write a custom solver that exploits two levels of
+MPI parallelism within the ODAT-SE framework. The sample files are located in
+``sample/parallel_solver`` relative to the root of the repository; the main
+script is named ``parallel_solver.py``.
 
-Preparation
-~~~~~~~~~~~
+Two levels of parallelism
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For control over thread-based parallelization, the package ``threadpoolctl`` is required to run this tutorial. If it is not installed, it can be installed using the following command:
+The workflow of ODAT-SE has two stages: a search *algorithm* proposes candidate
+points in the parameter space, and a *solver* evaluates the objective function
+at those points. ODAT-SE can parallelize both stages with MPI at the same time:
 
-.. code-block::
+- **Algorithm-layer parallelism** (``nalg`` processes): the search space is
+  distributed across independent evaluations.
+- **Solver-layer parallelism** (``nsolve`` processes per group): the work of a
+  single evaluation is distributed within a group of processes.
 
-    $ python3 -m pip install threadpoolctl
+The total number of MPI processes is ``nalg × nsolve``.
 
-For this tutorial, files can be located in ``sample/parallel_solver`` relative to the repository root. The main script is named ``parallel_solver.py``.
-
-
-Structure of ODAT-SE Parallelization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The workflow of ODAT-SE can be decomposed into two stages: first, a search algorithm is used to find candidate points in a state space. Then, a solver is used to evaluate the cost function at the candidate points. ODAT-SE supports two levels of parallelization: algorithm-level parallelization and solver-level parallelization, and both can be used simultaneously.
-
-ODAT-SE accepts arguments for the number of processes for search algorithms and solvers, and the number of threads for each solver process. These arguments are passed to the solver through the ``info`` object. For example, consider the following command:
+The number of processes for each layer is given on the command line with
+``--nalg`` and ``--nsolve``; ``odatse.initialize()`` forwards them to
+``odatse.mpi.setup()``. For example,
 
 .. code:: bash
 
-    mpirun -np 6 python3 ./src/odatse_main.py input.toml --init --nalg=3 --nsolve=2 --nthreads=2
+    mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
-This command will run ODAT-SE with 3 algorithm processes and 2 solver processes, each with 2 threads. The total number of MPI ranks is 6, which is the product of the number of algorithm processes and the number of solver processes. Each of the 6 processes uses 2 threads for computation in the solver step. 
+runs with 3 algorithm processes and 2 solver processes per group, 6 MPI ranks
+in total.
 
-When ODAT-SE is run under MPI parallelization, the global communicator is split into ``nalg`` solver subcommunicators (``solcomm``), each with ``nsolve`` processes. One process in each subcommunicator is chosen to be the controller responsible for participating in the parallelization of the search algorithm. The chosen processes form the algorithm subcommunicator (``algcomm``). Note that the controller process is the one with the lowest rank in each subcommunicator, so rank 0 is always included in the algorithm subcommunicator.
+Thread-level parallelism inside each solver process (for example the BLAS
+routines called by NumPy) is controlled separately through the
+``OMP_NUM_THREADS`` environment variable; ODAT-SE itself does not manage
+threads.
 
-ODAT-SE provides the ``odatse.mpi`` module, which provides the following functions:
+How the two layers are set up
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``odatse.mpi.comm()``: returns the global communicator
-- ``odatse.mpi.size()``: returns the size of the global communicator
-- ``odatse.mpi.rank()``: returns the rank of the current process in the global communicator
-- ``odatse.mpi.color()``: returns the color (solver subcommunicator ID) of the current process in the global communicator
-- ``odatse.mpi.solcomm()``: returns the solver subcommunicator
-- ``odatse.mpi.solsize()``: returns the size of the solver subcommunicator
-- ``odatse.mpi.solrank()``: returns the rank of the current process in the solver subcommunicator
-- ``odatse.mpi.algcomm()``: if the current process is in the algorithm subcommunicator, it returns the algorithm subcommunicator, otherwise it returns ``None``
-- ``odatse.mpi.algsize()``: if the current process is in the algorithm subcommunicator, it returns the size of the algorithm subcommunicator, otherwise it returns ``None``
-- ``odatse.mpi.algrank()``: if the current process is in the algorithm subcommunicator, it returns the rank of the current process in the algorithm subcommunicator, otherwise it returns ``None``
+When ODAT-SE runs under MPI, ``odatse.mpi.setup(nalg=..., nsolve=...)`` splits
+the global communicator (``MPI_COMM_WORLD``) into ``nalg`` solver
+subcommunicators (``solcomm``), each with ``nsolve`` processes. The process
+with rank 0 in each ``solcomm`` acts as the group *controller* and participates
+in the search algorithm; the controllers together form the algorithm
+subcommunicator (``algcomm``). Because the controller is the lowest rank of each
+group, global rank 0 is always a controller.
 
-When the candidate points are generated by the search algorithm, they are broadcast to the other processes in each solver group, and all solver processes work together to evaluate the cost function at the candidate points. The results are then reduced within each group and sent to the controller process, and the search algorithm is updated.
+The ``odatse.mpi`` module provides the following accessors. The global-layer
+ones and ``enabled()`` are available immediately; the solver- and
+algorithm-layer ones require ``setup()`` to have been called.
 
-To accomplish the desired synchronicity between controller processes and solver processes, a master-worker structure is used. The controller process executes the algorithm's ``prepare()``, ``run()``, and ``post()`` methods as normal, whereas the worker processes only execute ``worker_loop()``. The default implementation of the ``worker_loop()`` method is as follows:
+- ``odatse.mpi.comm()`` / ``size()`` / ``rank()``: the global communicator, its
+  size, and this process's rank in it.
+- ``odatse.mpi.solcomm()`` / ``solsize()`` / ``solrank()``: the solver
+  subcommunicator, its size (``nsolve``), and this process's rank in it.
+- ``odatse.mpi.algcomm()`` / ``algsize()`` / ``algrank()``: the algorithm
+  subcommunicator, its size (``nalg``), and this process's rank in it.
+  ``algcomm()`` returns ``None`` on solver-worker processes; ``algsize()`` and
+  ``algrank()`` return the values of the group controller (broadcast to the
+  workers), so they can be used to identify the group on any process.
+- ``odatse.mpi.run_on_algorithm()``: ``True`` on the group controllers
+  (``solrank() == 0``), ``False`` on the solver workers.
+- ``odatse.mpi.enabled()``: whether MPI is available (``False`` when the
+  environment variable ``ODATSE_NOMPI=1`` is set).
+
+Master-worker execution
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Within each solver group a master-worker scheme keeps the controller and the
+workers synchronized. This is handled entirely by the framework, so the solver
+author does not have to write a worker loop.
+
+- The controller (``solrank() == 0``) runs the algorithm's ``prepare()``,
+  ``run()``, and ``post()`` as usual. Whenever the algorithm evaluates a
+  candidate ``x``, ``Runner.submit()`` broadcasts ``x`` and the extra ``args``
+  to the whole solver group and then calls the solver's ``evaluate(x, args)``.
+- The workers (``solrank() > 0``) sit in a loop inside the framework, receive
+  the broadcast ``x`` / ``args``, and call the same ``evaluate(x, args)``. Their
+  return value is discarded.
+
+In other words, ``evaluate(x, args)`` is invoked on **every** process of a
+solver group with the **same** ``x`` and ``args``. The solver body is then free
+to distribute the work of that single evaluation across the group using
+``solcomm`` collectives. When the algorithm finishes, the framework signals the
+workers to leave their loop.
+
+Custom solver example
+~~~~~~~~~~~~~~~~~~~~~~~
+
+As a toy problem we look for the integer seed in ``{1, …, 20}`` that minimises
+the average largest singular value of ``nmats`` random matrices of size
+``matsize × matsize``. The solver is a subclass of ``odatse.solver.SolverBase``
+(the full script is ``sample/parallel_solver/parallel_solver.py``):
 
 .. code:: python
 
-    def worker_loop(self) -> None:
-        while True:
-            msg = odatse.mpi.solcomm().bcast(None, root=0)
-            if msg is None:
-                break
-            x, arg = msg
-            self.evaluate(x, arg)
+    import os, time, argparse
+    import numpy as np
+    from mpi4py import MPI
+    import odatse
+    from odatse.algorithm import choose_algorithm
 
-In the default implementation, the loop immediately blocks on the broadcast while waiting for data from the controller (which has ``solrank == 0``). The received data is forwarded to the solver's ``evaluate`` method so that the worker participates in the same computation as the controller. The user must implement the ``evaluate`` method such that the controller broadcasts some data to the worker processes. Note that the controller process also participates in the solver-level parallelization.
-
-After the evaluation of all candidate points is completed (including reduction of the result to the controller), the controller sends the sentinel value ``None`` to the worker processes, and the loop exits. Then, the next set of points is determined and the process repeats.
-
-Custom Solver Example
-~~~~~~~~~~~~~~~~~~~~~
-
-In what follows, we demonstrate how to create a simple solver that can be parallelized in a hybrid fashion using both MPI (process-based parallelism) and OpenMP (thread-based parallelism).
-
-.. code:: python
-
-	import sys, os, time, argparse
-        import numpy as np
-        from mpi4py import MPI
-        import odatse
-        from odatse.algorithm import choose_algorithm
-        import threadpoolctl
-
-        class ParallelSolver(odatse.solver.SolverBase):
+    class ParallelSolver(odatse.solver.SolverBase):
         def __init__(self, info, **kwargs):
-                super().__init__(info)
+            super().__init__(info)
 
-                self.opt_x = None
-                self.opt_fx = np.inf
+            self.opt_x = None
+            self.opt_fx = np.inf
 
-                self.nmats=kwargs["nmats"]
-                self.matsize=kwargs["matsize"]
+            self.nmats = kwargs["nmats"]
+            self.matsize = kwargs["matsize"]
 
-                if odatse.mpi.rank()==0:
-                        print(f"nalg: {odatse.mpi.algsize()}")
-                        print(f"nsolve: {odatse.mpi.solsize()}")
-                        print(f"nthreads: {odatse.mpi.solthreads()}")
-                odatse.mpi.comm().barrier()
+            if odatse.mpi.rank() == 0:
+                print(f"nalg: {odatse.mpi.algsize()}")
+                print(f"nsolve: {odatse.mpi.solsize()}")
+            odatse.mpi.comm().barrier()
 
         def _testfunc(self, mats):
-                with threadpoolctl.threadpool_limits(limits=odatse.mpi.solthreads()):
-                        return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
+            return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
 
-        def _compute(self, seeds): # called by all solcomm ranks after broadcast
-                results = []
-                for seed in seeds:
-                        prng = np.random.default_rng(seed=int(seed))
-                        mats = [prng.random(size=(self.matsize, self.matsize)) for _ in range(self.nmats)]
-                        mats = np.array_split(mats, odatse.mpi.solsize())[odatse.mpi.solrank()]
-                        results.append(self._testfunc(mats))
-                        odatse.mpi.solcomm().barrier()
-                        results = odatse.mpi.solcomm().allreduce(np.asarray(results), op=MPI.SUM)
-                        results /= self.nmats
-                return results
-
-        def evaluate(self, xs, args): # only called by algcomm ranks (solrank==0)
-                seeds = xs.astype(int)
-
+        def _compute(self, seeds):  # called by all solcomm ranks
+            results = []
+            for seed in seeds:
                 if odatse.mpi.solrank() == 0:
-                        odatse.mpi.solcomm().bcast((seeds, args), root=0) # wake up workers in this solcomm
-                        print(f"color {odatse.mpi.color()}, seeds: {list(seeds)}")
+                    prng = np.random.default_rng(seed=int(seed))
+                    mats = [prng.random(size=(self.matsize, self.matsize)) for _ in range(self.nmats)]
+                else:
+                    mats = None
+                mats = odatse.mpi.solcomm().bcast(mats, root=0)
+                mats = np.array_split(mats, odatse.mpi.solsize())[odatse.mpi.solrank()]
+                results.append(self._testfunc(mats))
+            odatse.mpi.solcomm().barrier()
+            results = odatse.mpi.solcomm().allreduce(np.asarray(results), op=MPI.SUM)
+            results /= self.nmats
+            return results
 
-                results = self._compute(seeds) # algcomm rank also calls compute
+        def evaluate(self, xs, args):
+            seeds = xs.astype(int)
 
-                if odatse.mpi.solrank() == 0:
-                        print(f"color {odatse.mpi.color()}, results: {list(results)}")
-                
+            if odatse.mpi.solrank() == 0:
+                print(f"algrank: {odatse.mpi.algrank()}, seeds: {list(seeds)}")
+
+            results = self._compute(seeds)
+
+            if odatse.mpi.solrank() == 0:
+                print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
+
                 best_x = np.argmin(results)
                 best_fx = results[best_x]
                 if best_fx < self.opt_fx:
-                        self.opt_x = xs[best_x]
-                        self.opt_fx = best_fx
-                return results
+                    self.opt_x = xs[best_x]
+                    self.opt_fx = best_fx
+            return results
 
-The cost function is computed in the ``evaluate`` function. The input file ``input.toml`` contains the following snippet:
+The objective value is computed in ``evaluate``. Note that ``evaluate`` runs on
+every rank of the solver group: the controller (``solrank() == 0``) generates
+the ``nmats`` random matrices for each seed, broadcasts them over ``solcomm``,
+each rank computes the largest singular value of its own slice with
+``_testfunc``, and the partial sums are reduced across the group before being
+averaged. Only the controller records the running best solution in
+``self.opt_x`` / ``self.opt_fx``.
+
+Driver and input file
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The script builds the ODAT-SE pipeline in its ``main()``. It parses ``--nalg``
+/ ``--nsolve``, hands them to ``odatse.initialize()`` (which calls
+``odatse.mpi.setup()``), constructs the solver and runner, chooses the
+algorithm, and runs it. After ``alg.main()`` returns, the best result of each
+solver group is collected over ``algcomm``:
+
+.. code:: python
+
+    def main():
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-m', '--nalg', help='# of processes for search algorithm', type=int, default=1)
+        parser.add_argument('-n', '--nsolve', help='# of processes for solver', type=int, default=1)
+        args = parser.parse_args()
+
+        assert args.nalg * args.nsolve == odatse.mpi.comm().size
+
+        argv = ["input.toml", "--init", f"--nalg={args.nalg}", f"--nsolve={args.nsolve}"]
+        info, run_mode = odatse.initialize(argv)
+
+        nmats = info.solver["param"].get("nmats", 50)
+        matsize = info.solver["param"].get("matsize", 1000)
+
+        output_dir = info.base.get("output_dir", "./output")
+        os.makedirs(output_dir, exist_ok=True)
+
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+        alg_module = choose_algorithm(info.algorithm["name"])
+        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+        result = alg.main()
+
+        if odatse.mpi.run_on_algorithm():
+            opt_fx, opt_x = min(
+                odatse.mpi.algcomm().allgather((solver.opt_fx, solver.opt_x)),
+                key=lambda x: x[0])
+
+        if odatse.mpi.rank() == 0:
+            print(f"\nopt_x={opt_x}")
+            print(f"opt_fx={opt_fx}")
+
+The input file ``input.toml`` selects the ``mapper`` algorithm and sets the
+search range and the solver parameters:
 
 .. code:: toml
 
-        [algorithm]
-        name = "mapper"
+    [base]
+    dimension = 1
+    output_dir = "output"
 
-        [algorithm.param]
-        max_list = [20]
-        min_list = [1]
-        num_list = [20]
+    [solver]
+    name = "custom"
 
-In this tutorial, we consider a toy problem of finding an RNG seed that minimizes the average maximum singular value of a given number of randomly-generated matrices with a given size. Here, ``nmats`` and ``matsize`` are the number of matrices and the size of each matrix, respectively, and they are set to 50 and 1000.
+    [solver.param]
+    nmats = 50
+    matsize = 1000
 
-From the input file, the algorithm is set to ``mapper`` and the parameter space is the set of integers from 1 to 20. First, since the algorithm is ``mapper``, ODAT-SE will decompose the parameter space into ``nalg`` parts. Each subdomain is assigned to each solver group controller. In the function ``_compute``, each controller then broadcasts the candidate seeds to the solver processes in its group. For each seed, the controller generates ``nmats`` random matrices and broadcasts the data to other solver processes in the group, who then take their share of the matrices. Then, ``_testfunction`` is called by each solver process. This function computes the SVD of each matrix and returns the sum of the largest singular values. It is constrained to run with ``nthreads`` threads using the library ``threadpoolctl``. The results are then reduced via summation within each group and sent to the controller process, then the average is computed, and finally, the search algorithm is updated.
+    [algorithm]
+    name = "mapper"
 
-To verify that the parallelization works as expected, we can run the script with the following command (here, 6 MPI processes are spawned, the algorithm is parallelized over 3 processes, and the solver is parallelized over 2 processes with 2 threads each):
+    [algorithm.param]
+    min_list = [1]
+    max_list = [20]
+    num_list = [20]
+
+Here ``[solver.param]`` holds the parameters read in ``main()`` (``nmats`` and
+``matsize``, the number and size of the random matrices). The ``[solver] name``
+is nominal: ``parallel_solver.py`` instantiates ``ParallelSolver`` directly, so
+this string only labels the run. Because the algorithm is ``mapper``, ODAT-SE
+sweeps the ``num_list = [20]`` grid points (the integer seeds ``1`` to ``20``)
+and distributes them across the ``nalg`` solver-group controllers.
+
+The values of ``nalg`` and ``nsolve`` are passed on the command line, not
+through ``input.toml``.
+
+Running
+~~~~~~~
+
+The number of MPI processes must equal ``nalg × nsolve``. For 3 algorithm
+processes and 2 solver processes per group (6 ranks in total), with 2 BLAS
+threads per process:
 
 .. code:: bash
 
-        mpiexec -np 6 python3 parallel_solver.py -m 3 -n 2 -t 2
+    export OMP_NUM_THREADS=2
+    mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
-When viewing the process activity (using ``top`` or similar OS-dependent software), we should observe that there are 6 ``python`` processes running, with each process running at 2 * 100% = 200% CPU usage.
+The sample's ``do.sh`` runs a smaller configuration:
+
+.. code:: bash
+
+    export OMP_NUM_THREADS=2
+    mpirun -np 4 python3 parallel_solver.py -m 2 -n 2
+
+(``-m`` / ``-n`` are the short forms of ``--nalg`` / ``--nsolve``.) When viewing
+the process activity (with ``top`` or a similar tool), you should see the MPI
+``python`` processes each using up to ``OMP_NUM_THREADS × 100 %`` CPU during the
+solver step.
+
+To run serially without MPI, set ``ODATSE_NOMPI=1``:
+
+.. code:: bash
+
+    ODATSE_NOMPI=1 python3 parallel_solver.py
+
+All parallelism is disabled and the script runs in a single process, which is
+convenient for testing.
