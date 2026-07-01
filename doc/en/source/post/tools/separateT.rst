@@ -94,7 +94,7 @@ The input file (MCMC log file) is expected to have the following format:
    ...
 
 Each line contains space-separated data, with the third column (index 2) being the temperature value T.
-Consecutive lines with the same temperature value are grouped into a single file.
+All lines with the same temperature value are grouped into a single file, even when the temperatures are interleaved (as in exchange Monte Carlo). Temperatures are indexed in order of first appearance.
 
 Processing Mechanism
 ~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +104,7 @@ This script processes data in the following steps:
 1. Reads the input file line by line
 2. Records comment lines (lines starting with #) as headers
 3. Obtains the temperature value from the third column (index 2) of each data line
-4. Whenever the temperature value changes, writes the accumulated data to a separate file
+4. Routes each data line to the output file keyed by its temperature value, opening a new file the first time a temperature is seen
 5. Data for each temperature value is saved to a file with the original filename plus "_T{index}"
 
 Output File Format
@@ -128,4 +128,4 @@ Error Handling
 
 * If the input file is not found: A file open error occurs and a message is displayed
 * If the output file cannot be written: A permission error or similar occurs and a message is displayed
-* If the data line has insufficient columns: An index error may occur (if the third column does not exist)
+* Blank lines and lines with fewer than three columns are skipped

@@ -19,7 +19,7 @@ DESCRIPTION
 Extracts beta and partition function values from PAMC output files (FILE) and calculates the model evidence.
 Results are written to standard output and a plot of the results is saved to a file.
 
-When multiple FILEs are specified, the average and variance of their model evidence values are calculated and a plot with error bars is generated.
+When multiple FILEs are specified, the average and standard deviation of their model evidence values are calculated and a plot with error bars is generated.
 
 .. note::
    * Python 3.6 or higher is required (due to the use of f-strings).
@@ -80,7 +80,7 @@ USAGE
 
       $ python3 plt_model_evidence.py -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
 
-   Calculates the model evidence from three data files and determines the mean and variance.
+   Calculates the model evidence from three data files and determines the mean and standard deviation.
    Outputs the results to evidence_data.txt and generates a plot with error bars in evidence_plot.pdf.
 
 NOTES
@@ -147,7 +147,7 @@ The output file (model_evidence.txt) has the following format:
    1  beta1  model_evidence1
    ...
 
-When processing multiple input files, a variance column is added:
+When processing multiple input files, a standard-deviation column is added:
 
 .. code-block:: text
 
@@ -155,9 +155,9 @@ When processing multiple input files, a variance column is added:
    # $1: Tstep
    # $2: beta
    # $3: average model_evidence
-   # $4: variance
-   0  beta0  avg_model_evidence0  variance0
-   1  beta1  avg_model_evidence1  variance1
+   # $4: standard deviation
+   0  beta0  avg_model_evidence0  std0
+   1  beta1  avg_model_evidence1  std1
    ...
 
 Processing Mechanism
@@ -168,7 +168,7 @@ This script processes data in the following steps:
 1. Reads beta values and logz values from input files
 2. Obtains the number of data points and weights for each dataset
 3. Calculates the logarithm of the model evidence
-4. Calculates the mean and variance for multiple files
+4. Calculates the mean and standard deviation for multiple files
 5. Outputs the results to a file
 6. Plots the model evidence as a function of beta
 
@@ -185,6 +185,6 @@ Error Handling
 
 * If the input file does not exist: A file open error occurs
 * If the data format is invalid: An error occurs in numpy.loadtxt
-* If the lengths of NDATA and WEIGHT do not match: An AssertionError occurs
+* If the lengths of NDATA and WEIGHT do not match, or if a data count or weight is not positive: the program prints an error message and exits
 
 In particular, the number of data points list and their weights must always match.
