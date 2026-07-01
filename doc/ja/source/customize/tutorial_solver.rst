@@ -69,10 +69,15 @@ Step 1: ソルバーを定義する
     input_file = sys.argv[1]
     info = odatse.Info.from_file(input_file)
 
+    # MPI コミュニケータを分割する。ソルバー/アルゴリズムは構築時に MPI 層
+    # (algrank() など)を参照するため、構築前に呼ぶ必要がある。
+    odatse.mpi.setup()
+
     # ソルバー → Runner → Algorithm の順に組み立てる
     solver = MySolver(info)
     runner = odatse.Runner(solver, info)
-    algorithm = odatse.algorithm.choose_algorithm(info, runner)
+    alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+    algorithm = alg_module.Algorithm(info, runner)
 
     # 実行
     result = algorithm.main()
@@ -82,7 +87,8 @@ Step 1: ソルバーを定義する
 - ``MySolver`` は ``odatse.solver.SolverBase`` を継承しています
 - ``__init__`` で ``super().__init__(info)`` を必ず呼びます。これにより出力ディレクトリなどが自動設定されます
 - ``evaluate`` メソッドに目的関数の計算を書きます。引数 ``x`` は numpy 配列で、戻り値は float です
-- ``odatse.algorithm.choose_algorithm`` を使うと、TOML ファイルの ``[algorithm]`` セクションで指定したアルゴリズムが自動的に選択されます
+- パイプラインを手動で組み立てる場合、ソルバー/アルゴリズムを構築する前に ``odatse.mpi.setup()`` を呼ぶ必要があります( ``odatse.initialize()`` を使う場合は内部で呼ばれます)
+- ``odatse.algorithm.choose_algorithm`` は TOML ファイルの ``[algorithm]`` セクションの名前に対応するアルゴリズムモジュールを返します。そのモジュールの ``Algorithm`` クラスをインスタンス化します
 
 
 Step 2: TOML 設定ファイルを作成する

@@ -69,10 +69,15 @@ Create a file called ``my_solver.py`` with the following content.
     input_file = sys.argv[1]
     info = odatse.Info.from_file(input_file)
 
+    # Partition the MPI communicator. This is required before constructing the
+    # solver/algorithm because they query the MPI layer (algrank(), etc.).
+    odatse.mpi.setup()
+
     # Assemble: Solver -> Runner -> Algorithm
     solver = MySolver(info)
     runner = odatse.Runner(solver, info)
-    algorithm = odatse.algorithm.choose_algorithm(info, runner)
+    alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+    algorithm = alg_module.Algorithm(info, runner)
 
     # Run
     result = algorithm.main()
@@ -82,7 +87,8 @@ Create a file called ``my_solver.py`` with the following content.
 - ``MySolver`` inherits from ``odatse.solver.SolverBase``
 - ``__init__`` must call ``super().__init__(info)``. This automatically sets up output directories
 - Write the objective function computation in the ``evaluate`` method. The argument ``x`` is a numpy array and the return value is a float
-- ``odatse.algorithm.choose_algorithm`` automatically selects the algorithm specified in the ``[algorithm]`` section of the TOML file
+- ``odatse.mpi.setup()`` must be called before constructing the solver/algorithm when the pipeline is built by hand (``odatse.initialize()`` does this for you)
+- ``odatse.algorithm.choose_algorithm`` returns the algorithm module for the name in the ``[algorithm]`` section of the TOML file; its ``Algorithm`` class is then instantiated
 
 
 Step 2: Create a TOML Configuration File
