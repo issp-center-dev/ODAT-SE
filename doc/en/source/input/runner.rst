@@ -26,7 +26,7 @@ In the current version, the affine mapping (linear mapping + translation) :math:
   Format: List of list of float, or a string (default: ``[]``)
 
   Description:
-  :math:`N \times M` matrix :math:`A`. An empty list ``[]`` is a shorthand of an identity matrix.
+  :math:`M \times N` matrix :math:`A` (mapping the :math:`N`-dim parameter :math:`x` to the :math:`M`-dim :math:`y`). An empty list ``[]`` is a shorthand of an identity matrix.
   If you want to set it by a string, arrange the elements of the matrix separated with spaces and newlines (see the example).
 
 

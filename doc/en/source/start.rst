@@ -95,6 +95,18 @@ The ``odatse`` command provides options to control the execution mode.
 
   Used together with ``--resume`` or ``--cont`` to start with a new random number sequence.
 
+- ``--nalg``
+
+  Number of MPI processes for the search algorithm layer. Combined with ``--nsolve``, it partitions the MPI communicator (``nalg × nsolve`` must equal the total number of processes). If omitted, it is derived from the total process count and ``--nsolve``.
+
+- ``--nsolve``
+
+  Number of MPI processes per solver group. See ``--nalg``. If both are omitted, all processes are assigned to the algorithm layer (``nsolve = 1``).
+
+- ``--version``
+
+  Prints the version and exits.
+
 Examples:
 
 .. code-block:: bash
