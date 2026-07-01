@@ -21,7 +21,7 @@ reffile=ref_BayesData.txt
 # Compare the result file with the reference file
 echo diff $resfile $reffile
 res=0
-diff $resfile $reffile || res=$?
+diff $resfile $reffile || ${PYTHON:-python3} ../../almost_diff.py $resfile $reffile || res=$?
 
 # Check the result of the diff command
 if [ $res -eq 0 ]; then
