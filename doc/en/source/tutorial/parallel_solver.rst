@@ -39,6 +39,15 @@ routines called by NumPy) is controlled separately through the
 ``OMP_NUM_THREADS`` environment variable; ODAT-SE itself does not manage
 threads.
 
+.. note::
+
+   Earlier versions of ODAT-SE controlled the number of threads per solver
+   process from within the framework (through a ``--nthreads`` command-line
+   option and an ``odatse.mpi`` thread accessor). That mechanism has been
+   removed. Set the thread count with the ``OMP_NUM_THREADS`` environment
+   variable instead, for example ``export OMP_NUM_THREADS=2`` before launching
+   the job.
+
 How the two layers are set up
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
