@@ -130,7 +130,7 @@ At each step of the optimization process, the values of the parameters and the c
 
 .. code-block::
 
-    #step z1 z2 R-factor z1_action z2_action R-factor_action
+    #step z1 z2 fx z1_action z2_action fx_action
     0 4.75 4.5 0.05141906746102885 4.75 4.5 0.05141906746102885
     1 4.75 4.5 0.05141906746102885 6.0 4.75 0.06591878368102033
     2 5.5 4.25 0.04380131351780189 5.5 4.25 0.04380131351780189

@@ -128,6 +128,12 @@ The following is an example of the output.
     4 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
     5 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
 
+``History_FunctionCall.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Records every call of the objective function during the optimization.
+Each line contains the call number, the values of the variables, and the value of the objective function, in that order.
+
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
