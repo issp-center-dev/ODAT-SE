@@ -130,7 +130,7 @@ The standard output will be seen as follows.
     ...
 
 The ``x1`` and ``x2`` are the candidate parameters at each step and the function value at that point.
-The final estimated parameters is written to ``output/res.dat``. 
+The final estimated parameters is written to ``output/res.txt``.
 In the current case, the following result will be obtained:
 
 .. code-block::

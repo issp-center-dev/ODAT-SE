@@ -39,7 +39,7 @@ For details, see the input file section of the manual.
   seed = 12345
 
   [algorithm.param]
-  min_list = [3.0, 3.0]
+  min_list = [-6.0, -6.0]
   max_list = [6.0, 6.0]
   step_list = [0.3, 0.3]
 
@@ -66,11 +66,11 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
+- ``step_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 ``[algorithm.exchange]`` section sets the hyper parameters for RXMC.
 
-- ``numstep`` is the number of Monte Carlo steps.
+- ``numsteps`` is the number of Monte Carlo steps.
 
 - ``numsteps_exchange`` is the number of steps between temperature exchanges.
 

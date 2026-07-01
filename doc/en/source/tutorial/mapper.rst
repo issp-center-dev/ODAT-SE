@@ -75,7 +75,7 @@ First, move to the folder where the sample files are located. (We assume that yo
 
 .. code-block::
 
-   $ cd sample/analytical/minsearch
+   $ cd sample/analytical/mapper
 
 The, run the main program. The computation time takes only a few seconds on a normal PC.
 
