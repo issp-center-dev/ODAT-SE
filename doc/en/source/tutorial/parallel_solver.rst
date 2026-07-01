@@ -41,12 +41,13 @@ threads.
 
 .. note::
 
-   Earlier versions of ODAT-SE controlled the number of threads per solver
-   process from within the framework (through a ``--nthreads`` command-line
-   option and an ``odatse.mpi`` thread accessor). That mechanism has been
-   removed. Set the thread count with the ``OMP_NUM_THREADS`` environment
-   variable instead, for example ``export OMP_NUM_THREADS=2`` before launching
-   the job.
+   ODAT-SE does not control the number of threads per solver process, so this
+   has to be done outside the library. The usual way is an environment variable
+   such as ``OMP_NUM_THREADS`` (for example ``export OMP_NUM_THREADS=2`` before
+   launching the job). Alternatively, the thread count can be set
+   programmatically inside the solver with a library such as ``threadpoolctl``,
+   for example by wrapping the heavy computation in
+   ``with threadpoolctl.threadpool_limits(limits=n_threads): ...``.
 
 How the two layers are set up
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
