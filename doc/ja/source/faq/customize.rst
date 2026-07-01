@@ -19,7 +19,7 @@
     import subprocess
 
     class MySolver(odatse.solver.SolverBase):
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             # パラメータをファイルに書き出す
             with open("params.dat", "w") as f:
                 for xi in x:

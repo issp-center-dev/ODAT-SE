@@ -209,8 +209,8 @@ ODAT-SEフレームワークでは、ユーザーが ``SolverBase`` クラスを
             for i in range(1, dimension):
                 self.X[:, i] = self.X[:, i - 1] * self.xdata
 
-        def evaluate(self, xs, args, nprocs=1, nthreads=1):
-            loss = np.sum((self.X @ xs - self.ydata) ** 2)
+        def evaluate(self, x, args=()):
+            loss = np.sum((self.X @ x - self.ydata) ** 2)
             return loss
 
 

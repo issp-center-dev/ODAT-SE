@@ -49,7 +49,7 @@ Step 1: ソルバーを定義する
             # TOML ファイルの [solver] セクションからパラメータを読み取れます
             # 例: self.param = info.solver.get("my_param", 1.0)
 
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             """
             目的関数を計算して返す。
 
@@ -201,7 +201,7 @@ TOML ファイルの ``[algorithm]`` セクションを変更するだけで、P
             self.cx = info.solver.get("center_x", 0.0)
             self.cy = info.solver.get("center_y", 0.0)
 
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             return (x[0] - self.cx) ** 2 + (x[1] - self.cy) ** 2
 
 このように、TOML ファイルとソルバーの組み合わせで、コードを変更せずにパラメータを変えて実験できます。

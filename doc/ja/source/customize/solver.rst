@@ -29,7 +29,7 @@
 
   - ``self.output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
 
-  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(odatse.mpi.rank())`` が設定されます。
+  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(odatse.mpi.algrank())`` が設定されます。
     ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
     MPIを使用しない場合もランク番号を0として扱います。
 
@@ -40,7 +40,7 @@
 
   .. code-block:: python
 
-         def evaluate(self, x, args=(), nprocs=1, nthreads=1) -> float:
+         def evaluate(self, x, args=()) -> float:
 	     pass
 
   入力変数に対して目的変数の値を返すメソッドです。以下の引数を取ります。

@@ -49,7 +49,7 @@ Create a file called ``my_solver.py`` with the following content.
             # You can read parameters from the [solver] section of the TOML file
             # Example: self.param = info.solver.get("my_param", 1.0)
 
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             """
             Compute and return the objective function value.
 
@@ -201,7 +201,7 @@ and read them in ``__init__``.
             self.cx = info.solver.get("center_x", 0.0)
             self.cy = info.solver.get("center_y", 0.0)
 
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             return (x[0] - self.cx) ** 2 + (x[1] - self.cy) ** 2
 
 This way, you can change parameters without modifying the code, simply by editing the TOML file.
