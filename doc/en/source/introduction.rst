@@ -11,7 +11,7 @@ It has been developed by the name 2DMAT, and since version 3, it is organized as
 Users can define their own direct problem solvers. 
 As the standard direct problem solver, the experimental data analysis software for two-dimensional material structure analysis is prepared. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm. 
 In the current version, for solving a direct problem, ODAT-SE offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment[1, 2], surface X-ray diffraction (sxrd)[3], and low-energy electron diffraction (leed)[4].
-As algorithms, it offers the Nelder-Mead method[5], the grid search method[6], the Bayesian optimization method[7], the replica exchange Monte Carlo method[8], and the population annealing Monte Carlo method[9-11].
+As algorithms, it offers the Nelder-Mead method[5], the grid search method[6], the Bayesian optimization method[7], the replica exchange Monte Carlo method[8], the population annealing Monte Carlo method[9-11], the tensor train optimization method, and the random search method.
 
 In the future, we plan to add other direct problem solvers and search algorithms in ODAT-SE.
 
