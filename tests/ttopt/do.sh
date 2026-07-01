@@ -7,7 +7,7 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 rm -rf output
 
 # Run the Python script using MPI with 2 processes
-/usr/bin/time mpiexec -np 2 python3 ../../src/odatse_main.py input.toml
+/usr/bin/time mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/res.txt

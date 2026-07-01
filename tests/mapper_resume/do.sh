@@ -12,9 +12,9 @@ fi
 export PYTHONUNBUFFERED=1
 
 # Command to run the main Python script
-CMD="python3 ../../src/odatse_main.py"
+CMD="${PYTHON:-python3} ../../src/odatse_main.py"
 # Uncomment the following line to run with MPI
-# CMD="mpiexec -np 2 python3 ../../src/odatse_main.py"
+# CMD="mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py"
 
 # Remove the output1 directory if it exists
 rm -rf output1
