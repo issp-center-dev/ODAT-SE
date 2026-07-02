@@ -29,17 +29,11 @@ def read_toml(input_filename):
     dict
         Contains 'replica_per_proc' and 'output_dir' extracted from the config.
     """
-    try:
-        import tomllib
-    except ImportError:
-        import tomli as tomllib
-        # Numeric comparison: a string compare is wrong (e.g. "1.10.0" < "1.2.0").
-        major_minor = tuple(int(x) for x in tomllib.__version__.split(".")[:2])
-        if major_minor < (1, 2):
-            raise ImportError("tomli 1.2.0 or later required")
+    # Reuse the library loader, which handles the tomllib/tomli/toml fallback
+    # and the robust version check in one place (odatse.util.version).
+    from odatse.util.toml import load
 
-    with open(input_filename, "rb") as fp:
-        dict_toml = tomllib.load(fp)
+    dict_toml = load(input_filename)
 
     # This tool targets PAMC output; give a clear error (not a bare KeyError)
     # if the config is for another algorithm or lacks the field. Pass -n to

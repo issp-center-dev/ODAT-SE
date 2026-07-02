@@ -17,10 +17,15 @@ import os
 import sys
 import argparse
 import glob
+from collections import OrderedDict
 try:
     from tqdm import tqdm  # Import tqdm for progress bar if available
 except ImportError:
     tqdm = None  # Set tqdm to None if not available
+
+# Upper bound on simultaneously open output files, to stay well under typical
+# file-descriptor soft limits (e.g. 256 on macOS) regardless of numT.
+MAX_OPEN_FILES = 64
 
 def do_separate(filename: str) -> None:
     """
@@ -46,7 +51,36 @@ def do_separate(filename: str) -> None:
     file_base, file_ext = os.path.splitext(filename)
 
     header = []                # header lines (comments starting with #)
-    writers: dict = {}         # temperature value (str) -> open output file
+    seen: dict = {}            # temperature value (str) -> file index
+    # Bounded LRU pool of open handles: keeping one open file per distinct
+    # temperature would exhaust the file-descriptor limit for large numT
+    # (e.g. hundreds of temperatures vs. the default 256 macOS soft limit).
+    # A temperature evicted from the pool is reopened in append mode later.
+    open_files: "OrderedDict[str, object]" = OrderedDict()
+
+    def _writer(temperature):
+        if temperature in open_files:
+            open_files.move_to_end(temperature)  # mark most-recently used
+            return open_files[temperature]
+        if len(open_files) >= MAX_OPEN_FILES:
+            _, victim = open_files.popitem(last=False)  # close least-recent
+            victim.close()
+        if temperature in seen:
+            # reopen an existing file; header already written on first open
+            new_file = file_base + f"_T{seen[temperature]}" + file_ext
+            out = open(new_file, "a")
+        else:
+            # first time this temperature is seen: index by appearance order,
+            # create the file and write the header collected so far (all
+            # comment lines precede the data in result.txt).
+            index = len(seen)
+            seen[temperature] = index
+            new_file = file_base + f"_T{index}" + file_ext
+            out = open(new_file, "w")
+            out.writelines(header)
+            out.write(f"# T (or beta) = {temperature}\n")
+        open_files[temperature] = out
+        return out
 
     with open(filename, "r") as fp:
         try:
@@ -62,22 +96,10 @@ def do_separate(filename: str) -> None:
                     continue
 
                 temperature = items[2]  # temperature is in the 3rd column
-
-                # Open a new file the first time a temperature is seen, indexed
-                # by first-appearance order, and write the header collected so
-                # far (all comment lines precede the data in result.txt).
-                if temperature not in writers:
-                    index = len(writers)
-                    new_file = file_base + f"_T{index}" + file_ext
-                    out = open(new_file, "w")
-                    out.writelines(header)
-                    out.write(f"# T (or beta) = {temperature}\n")
-                    writers[temperature] = out
-
-                writers[temperature].write(line)
+                _writer(temperature).write(line)
         finally:
-            # Always close every output file, even on error.
-            for out in writers.values():
+            # Always close every open output file, even on error.
+            for out in open_files.values():
                 out.close()
 
 def main() -> None:
