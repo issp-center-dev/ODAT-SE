@@ -74,9 +74,6 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
                     "This sample requires MPI (do not set ODATSE_NOMPI=1)"
                 )
 
-            self.opt_x = None
-            self.opt_fx = np.inf
-
             self.nmats = kwargs["nmats"]
             self.matsize = kwargs["matsize"]
 
@@ -114,20 +111,14 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
             if odatse.mpi.solrank() == 0:
                 print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
-
-                best_x = np.argmin(results)
-                best_fx = results[best_x]
-                if best_fx < self.opt_fx:
-                    self.opt_x = xs[best_x]
-                    self.opt_fx = best_fx
             return results
 
-目的関数の値は ``evaluate`` で計算されます。``evaluate`` はソルバーグループのすべてのランクで実行される点に注意してください。コントローラ(``solrank() == 0``)が各シードについて ``nmats`` 個のランダム行列を生成して ``solcomm`` 上でブロードキャストし、各ランクが ``_testfunc`` で自分の担当分の最大特異値を計算し、部分和がグループ内で集約されてから平均されます。実行中の暫定最良解を ``self.opt_x`` / ``self.opt_fx`` に記録するのはコントローラのみです。
+目的関数の値は ``evaluate`` で計算されます。``evaluate`` はソルバーグループのすべてのランクで実行される点に注意してください。コントローラ(``solrank() == 0``)が各シードについて ``nmats`` 個のランダム行列を生成して ``solcomm`` 上でブロードキャストし、各ランクが ``_testfunc`` で自分の担当分の最大特異値を計算し、部分和がグループ内で集約されてから平均されます。ソルバーは目的関数を評価するだけで、最良解の記録はアルゴリズムの責務です(後述)。
 
 ドライバーと入力ファイル
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-スクリプトは ``main()`` の中で ODAT-SE のパイプラインを組み立てます。``--nalg`` / ``--nsolve`` を解析し、それらを ``odatse.initialize()`` (内部で ``odatse.mpi.setup()`` を呼ぶ)に渡し、ソルバーとランナーを構築し、アルゴリズムを選択して実行します。``alg.main()`` が返った後、各ソルバーグループの最良結果を ``algcomm`` 上で集約します。
+スクリプトは ``main()`` の中で ODAT-SE のパイプラインを組み立てます。``--nalg`` / ``--nsolve`` を解析し、それらを ``odatse.initialize()`` (内部で ``odatse.mpi.setup()`` を呼ぶ)に渡し、ソルバーとランナーを構築し、アルゴリズムを選択して実行します。``alg.main()`` はアルゴリズムが見つけた最適解を辞書で返します。``mapper`` アルゴリズムの場合、キー ``x`` (最小点の座標)、``fx`` (そこでの目的関数値)、``index`` (最小点のメッシュ番号)を持ちます。全ソルバーグループにわたる最良解はアルゴリズム内部で ``algcomm`` 上ですでに集約済みなので、ドライバーは戻り値から読み取るだけです。
 
 .. code:: python
 
@@ -154,14 +145,10 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 
-        if odatse.mpi.run_on_algorithm():
-            opt_fx, opt_x = min(
-                odatse.mpi.algcomm().allgather((solver.opt_fx, solver.opt_x)),
-                key=lambda x: x[0])
-
         if odatse.mpi.rank() == 0:
-            print(f"\nopt_x={opt_x}")
-            print(f"opt_fx={opt_fx}")
+            print(f"\nopt_x={result['x']}")
+            print(f"opt_fx={result['fx']}")
+            print(f"opt_index={result['index']}")
 
 入力ファイル ``input.toml`` は ``mapper`` アルゴリズムを選択し、探索範囲とソルバーのパラメータを設定します。
 

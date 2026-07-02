@@ -123,9 +123,6 @@ the average largest singular value of ``nmats`` random matrices of size
                     "This sample requires MPI (do not set ODATSE_NOMPI=1)"
                 )
 
-            self.opt_x = None
-            self.opt_fx = np.inf
-
             self.nmats = kwargs["nmats"]
             self.matsize = kwargs["matsize"]
 
@@ -163,12 +160,6 @@ the average largest singular value of ``nmats`` random matrices of size
 
             if odatse.mpi.solrank() == 0:
                 print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
-
-                best_x = np.argmin(results)
-                best_fx = results[best_x]
-                if best_fx < self.opt_fx:
-                    self.opt_x = xs[best_x]
-                    self.opt_fx = best_fx
             return results
 
 The objective value is computed in ``evaluate``. Note that ``evaluate`` runs on
@@ -176,8 +167,8 @@ every rank of the solver group: the controller (``solrank() == 0``) generates
 the ``nmats`` random matrices for each seed, broadcasts them over ``solcomm``,
 each rank computes the largest singular value of its own slice with
 ``_testfunc``, and the partial sums are reduced across the group before being
-averaged. Only the controller records the running best solution in
-``self.opt_x`` / ``self.opt_fx``.
+averaged. The solver only evaluates the objective function; tracking the best
+solution is the algorithm's responsibility (see below).
 
 Driver and input file
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,8 +176,12 @@ Driver and input file
 The script builds the ODAT-SE pipeline in its ``main()``. It parses ``--nalg``
 / ``--nsolve``, hands them to ``odatse.initialize()`` (which calls
 ``odatse.mpi.setup()``), constructs the solver and runner, chooses the
-algorithm, and runs it. After ``alg.main()`` returns, the best result of each
-solver group is collected over ``algcomm``:
+algorithm, and runs it. ``alg.main()`` returns the optimum found by the
+algorithm as a dictionary; for the ``mapper`` algorithm it holds the keys
+``x`` (coordinates of the minimum), ``fx`` (objective value there), and
+``index`` (mesh index of the minimum). The best solution over all solver
+groups has already been reduced across ``algcomm`` inside the algorithm, so the
+driver just reads it from the return value:
 
 .. code:: python
 
@@ -213,14 +208,10 @@ solver group is collected over ``algcomm``:
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 
-        if odatse.mpi.run_on_algorithm():
-            opt_fx, opt_x = min(
-                odatse.mpi.algcomm().allgather((solver.opt_fx, solver.opt_x)),
-                key=lambda x: x[0])
-
         if odatse.mpi.rank() == 0:
-            print(f"\nopt_x={opt_x}")
-            print(f"opt_fx={opt_fx}")
+            print(f"\nopt_x={result['x']}")
+            print(f"opt_fx={result['fx']}")
+            print(f"opt_index={result['index']}")
 
 The input file ``input.toml`` selects the ``mapper`` algorithm and sets the
 search range and the solver parameters:
