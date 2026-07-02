@@ -1,24 +1,11 @@
-import os
-import sys
-
-SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
-# insert, not append: an installed odatse package must not shadow src/
-sys.path.insert(0, SOURCE_PATH)
-
+# sys.path and odatse.mpi.setup() are handled by conftest.py
 import numpy as np
 import pytest
 
 pytest.importorskip("scipy")
 
 import odatse
-import odatse.mpi
 import odatse.solver.function
-
-try:
-    odatse.mpi.setup()
-except RuntimeError:
-    pass  # already set up by another test module in this session
-
 import odatse.algorithm.min_search as min_search
 
 

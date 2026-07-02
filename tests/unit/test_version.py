@@ -1,10 +1,4 @@
-import os
-import sys
-
-SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
-# insert, not append: an installed odatse package must not shadow src/
-sys.path.insert(0, SOURCE_PATH)
-
+# sys.path is handled by conftest.py
 from odatse.util.version import parse_version
 
 
