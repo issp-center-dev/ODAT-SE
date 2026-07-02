@@ -1,24 +1,11 @@
-import os
-import sys
-
-SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
-# insert, not append: an installed odatse package must not shadow src/
-sys.path.insert(0, SOURCE_PATH)
-
+# sys.path and odatse.mpi.setup() are handled by conftest.py
 import numpy as np
 import pytest
 
 pytest.importorskip("scipy")
 
 import odatse
-import odatse.mpi
 import odatse.solver.function
-
-try:
-    odatse.mpi.setup()
-except RuntimeError:
-    pass  # already set up by another test module in this session
-
 import odatse.algorithm.min_search as min_search
 
 
@@ -48,7 +35,11 @@ def _run_minsearch(workdir, unit_list, record):
     solver.set_function(fn)
     runner = odatse.Runner(solver, info)
     alg = min_search.Algorithm(info, runner)
+    # under mpirun only walker 0 gets the configured initial_list; the other
+    # ranks draw a random initial point, so capture this rank's actual one
+    x0 = np.array(alg.initial_list, dtype=float, copy=True)
     alg.main()
+    return x0
 
 
 def test_initial_evaluation_uses_unit_scaling(tmp_path, monkeypatch):
@@ -56,10 +47,11 @@ def test_initial_evaluation_uses_unit_scaling(tmp_path, monkeypatch):
     consistently with every later evaluation through _f_calc."""
     monkeypatch.chdir(tmp_path)
     record = []
-    _run_minsearch(tmp_path, unit_list=[2.0, 2.0], record=record)
-    # initial point [2, 2] with unit_list [2, 2] must arrive at the solver
-    # as [1, 1]; the unfixed code submitted the unscaled [2, 2]
-    np.testing.assert_allclose(record[0], [1.0, 1.0])
+    unit_list = [2.0, 2.0]
+    x0 = _run_minsearch(tmp_path, unit_list=unit_list, record=record)
+    # the initial point must arrive at the solver divided by unit_list
+    # (e.g. [2, 2] -> [1, 1]); the unfixed code submitted it unscaled
+    np.testing.assert_allclose(record[0], x0 / np.array(unit_list))
 
 
 def test_run_with_prerelease_scipy_version(tmp_path, monkeypatch):
