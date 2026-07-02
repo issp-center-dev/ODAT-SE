@@ -582,9 +582,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 f"current config gives {self.n_q_dims}. "
                 "Check that p_points and q_points match the original run."
             )
-        if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
 
@@ -606,10 +603,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             applied.
         """
         data = self._load_data(filename)
-        if not data:
-            raise odatse.exception.CheckpointError(
-                f"failed to load checkpoint from {filename}"
-            )
         self._resume_data = data
         self._resume_restore_rng = restore_rng
 

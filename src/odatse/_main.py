@@ -64,6 +64,13 @@ def main(argv: Optional[Sequence[str]] = None):
 
         return alg.main()
     except exception.Error as e:
-        if odatse.mpi.rank() == 0:
-            print(f"ERROR: {e}", file=sys.stderr)
+        # Report on whichever rank raised the error, not only global rank 0.
+        # Some failures are per-rank (e.g. a CheckpointError while resuming
+        # from a corrupt status.pickle on one rank): gating on rank 0 would let
+        # such a rank abort the job (nonzero exit) with no diagnostic anywhere,
+        # while the other ranks exit quietly via OtherAlgorithmProcessError.
+        # The rank prefix identifies the source under mpirun; for errors that
+        # occur identically on all ranks (e.g. InputError) it simply repeats
+        # the same message per rank.
+        print(f"ERROR [rank {odatse.mpi.rank()}]: {e}", file=sys.stderr)
         sys.exit(1)

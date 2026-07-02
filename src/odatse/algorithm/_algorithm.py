@@ -110,8 +110,10 @@ class AlgorithmBase(metaclass=ABCMeta):
         Validates the MPI configuration, restores the timer, and checks
         that algorithm parameters are consistent.  Subclasses should call
         ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``
-        and then handle their own fields (RNG restore, subclass-specific
-        ``_checkpoint_attrs``, continue-mode semantics, etc.).
+        and then handle their own subclass-specific fields
+        (``_checkpoint_attrs``, continue-mode semantics, etc.).  The RNG state
+        saved by ``__getstate__`` for every algorithm is restored here (guarded
+        by ``restore_rng``), so subclasses need not repeat it.
 
         Parameters
         ----------
@@ -127,6 +129,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         assert odatse.mpi.algrank() == data["algrank"]
         self.timer = data["timer"]
         self._check_parameters(data["info"])
+        if restore_rng:
+            self.rng = np.random.RandomState()
+            self.rng.set_state(data["rng"])
 
     @abstractmethod
     def __init__(
@@ -464,10 +469,6 @@ class AlgorithmBase(metaclass=ABCMeta):
             Whether to restore the RNG state.
         """
         data = self._load_data(filename)
-        if not data:
-            raise exception.CheckpointError(
-                f"failed to load checkpoint from {filename}"
-            )
         self._apply_state(data, mode=mode, restore_rng=restore_rng)
 
     # ------------------------------------------------------------------
@@ -598,12 +599,12 @@ class AlgorithmBase(metaclass=ABCMeta):
             fn_to = Path(filename + "." + str(idx+1))
             if fn_from.exists():
                 shutil.move(fn_from, fn_to)
-        # Keep the current checkpoint as .1 by *copying* it (not moving), so
-        # that `filename` always points to a complete checkpoint -- there is no
-        # window in which it is missing. Then atomically swap in the new one
-        # with os.replace(), which is the only step that touches `filename`.
+        # Move the current checkpoint aside to .1 with an atomic rename (O(1),
+        # no re-read/re-write of the pickle), then atomically swap in the new
+        # one. There is a tiny window between the two renames in which
+        # `filename` is absent; `_load_data` covers it by falling back to .1.
         if ngen > 0 and Path(filename).exists():
-            shutil.copy2(Path(filename), Path(filename + "." + str(1)))
+            os.replace(Path(filename), Path(filename + "." + str(1)))
         os.replace(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
@@ -639,8 +640,9 @@ class AlgorithmBase(metaclass=ABCMeta):
                 ) from e
             print("load_state: load from {}".format(fn))
         else:
-            print("ERROR: file {} not exist.".format(filename))
-            data = {}
+            raise exception.CheckpointError(
+                f"checkpoint file {filename} does not exist"
+            )
         return data
 
     def _show_parameters(self):
