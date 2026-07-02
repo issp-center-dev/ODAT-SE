@@ -118,6 +118,10 @@ the average largest singular value of ``nmats`` random matrices of size
     class ParallelSolver(odatse.solver.SolverBase):
         def __init__(self, info, **kwargs):
             super().__init__(info)
+            if not odatse.mpi.enabled():
+                raise RuntimeError(
+                    "This sample requires MPI (do not set ODATSE_NOMPI=1)"
+                )
 
             self.opt_x = None
             self.opt_fx = np.inf
@@ -276,11 +280,11 @@ the process activity (with ``top`` or a similar tool), you should see the MPI
 ``python`` processes each using up to ``OMP_NUM_THREADS × 100 %`` CPU during the
 solver step.
 
-To run serially without MPI, set ``ODATSE_NOMPI=1``:
+This sample requires MPI: it uses ``comm`` and ``solcomm`` collectives throughout.
+Do **not** set ``ODATSE_NOMPI=1`` (``odatse.mpi.enabled()`` is ``False`` in that
+mode and the communicators are unavailable). Even a single-process run must be
+launched under ``mpirun`` / ``mpiexec``:
 
 .. code:: bash
 
-    ODATSE_NOMPI=1 python3 parallel_solver.py
-
-All parallelism is disabled and the script runs in a single process, which is
-convenient for testing.
+    mpirun -np 1 python3 parallel_solver.py --nalg 1 --nsolve 1
