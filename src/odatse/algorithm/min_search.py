@@ -15,6 +15,7 @@ from scipy.optimize import minimize
 
 import odatse
 import odatse.domain
+from odatse.util.version import parse_version
 
 if TYPE_CHECKING:
     from mpi4py import MPI
@@ -119,12 +120,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         iter_history = []
         fev_history = []
 
-        f0 = run.submit(self.initial_list, (0, 0))
+        # evaluate the initial point in solver units, as _f_calc does
+        f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
         iter_history.append([*self.initial_list, f0])
 
-        scipy_version = [int(s) for s in scipy.__version__.split('.')]
-
-        if scipy_version[0] >= 1 and scipy_version[1] >= 11:
+        if parse_version(scipy.__version__) >= (1, 11, 0):
             def _cb(intermediate_result):
                 """
                 Callback function for scipy.optimize.minimize.
