@@ -278,10 +278,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
-        Delegates MPI validation, timer restore, and parameter check to the
-        base class, optionally restores both the instance RNG and the global
-        numpy RNG, applies the Bayes-specific fields, then loads the physbo
-        policy from the saved files.
+        Delegates MPI validation, timer restore, parameter check, and the
+        instance RNG restore to the base class; additionally restores the
+        global numpy RNG used by physbo, applies the Bayes-specific fields,
+        then loads the physbo policy from the saved files.
 
         ``_load_state()`` is not overridden; the base class implementation
         calls ``self._apply_state()`` (this method), so policy files are
@@ -299,8 +299,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         """
         super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
             np.random.set_state(data["random_number"])
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])

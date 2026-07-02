@@ -62,6 +62,25 @@ def test_apply_state_restores_rng_and_fields():
     assert alg.cache_hits == 3
 
 
+def test_apply_state_restores_rng_in_place():
+    """The RNG must be restored *in place*, not rebound to a new object:
+    collaborators constructed in __init__ (e.g. the Monte Carlo StateSpace,
+    which draws proposals) capture a reference to alg.rng, and __init__ runs
+    before the resume dispatch. Rebinding would leave them on the stale
+    un-restored generator, silently splitting the random stream on resume."""
+    alg = _bare()
+    alg.n_q_dims = 1
+    captured = alg.rng  # what a collaborator would hold
+
+    ref = np.random.RandomState(12345)
+    data = _snapshot(n_q_dims=1, rng_state=ref.get_state())
+    alg._apply_state(data, restore_rng=True)
+
+    assert alg.rng is captured
+    # the shared object carries the restored stream
+    np.testing.assert_array_equal(captured.rand(4), ref.rand(4))
+
+
 def test_apply_state_skips_rng_when_disabled():
     alg = _bare()
     alg.n_q_dims = 1

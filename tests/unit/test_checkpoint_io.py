@@ -101,6 +101,16 @@ def test_load_state_missing_file_raises_checkpoint_error(tmp_path):
         alg._load_state(fn, mode="resume")
 
 
+def test_load_data_missing_all_generations_raises(tmp_path):
+    """A fully-missing checkpoint (no current file and no .1 backup) must raise
+    CheckpointError directly from _load_data, not return an empty-dict sentinel
+    that callers have to re-check."""
+    alg = _alg()
+    fn = str(tmp_path / "does_not_exist.pickle")
+    with pytest.raises(CheckpointError):
+        alg._load_data(filename=fn)
+
+
 def test_load_data_corrupt_file_raises_checkpoint_error(tmp_path):
     """An unreadable/corrupt checkpoint must raise CheckpointError."""
     alg = _alg()
