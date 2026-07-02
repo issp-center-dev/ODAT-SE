@@ -7,9 +7,19 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 class Error(Exception):
-    """Base class of exceptions in odatse"""
+    """Base class of exceptions in odatse
 
-    pass
+    Attributes
+    ----------
+    rank_local : bool
+        True when the error occurred on this MPI rank specifically (e.g. a
+        checkpoint I/O failure re-raised through the phase consensus
+        protocol), as opposed to an error raised identically on every rank
+        (e.g. a config error). The CLI boundary prints rank-local errors from
+        the owning rank; all other errors are printed on rank 0 only.
+    """
+
+    rank_local = False
 
 
 class InputError(Error):
