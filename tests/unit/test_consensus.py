@@ -87,3 +87,29 @@ def test_prepare_dispatch_failure_does_not_deadlock():
     assert raised
     survived = mpi.algcomm().allgather(True)
     assert len(survived) == mpi.algsize() and all(survived)
+
+
+# --- rank-local marking for the CLI error boundary (issue #60) ---
+
+def test_reach_consensus_marks_own_odatse_error_rank_local():
+    """When a rank re-raises its own odatse error through the consensus
+    protocol, the exception must be marked rank-local so the CLI boundary
+    (odatse._main.main) reports it from the owning rank, not only rank 0."""
+    import odatse.exception
+
+    alg = _bare()
+    err = odatse.exception.CheckpointError("boom")
+    assert err.rank_local is False
+    with pytest.raises(odatse.exception.CheckpointError):
+        alg._reach_consensus(err, np.array([0]))
+    assert err.rank_local is True
+
+
+def test_reach_consensus_leaves_foreign_exceptions_unmarked():
+    """Non-odatse exceptions propagate as-is (they surface as tracebacks on
+    the failing rank anyway)."""
+    alg = _bare()
+    err = ValueError("boom")
+    with pytest.raises(ValueError):
+        alg._reach_consensus(err, np.array([0]))
+    assert not hasattr(err, "rank_local")
