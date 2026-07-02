@@ -22,7 +22,7 @@ try:
 except ImportError:
     tqdm = None  # Set tqdm to None if not available
 
-def do_separate(filename: str) -> None:
+def do_separate(filename: str, buffer_limit: int = 200_000) -> None:
     """
     Separate a single MCMC data file into multiple files, one per temperature.
 
@@ -33,10 +33,18 @@ def do_separate(filename: str) -> None:
     each temperature gets exactly one file. Temperatures are indexed in order
     of first appearance.
 
+    Lines are buffered per temperature and flushed by open-append-close, so
+    at most two file descriptors are in use at any time regardless of how
+    many distinct temperatures the input contains (keeping one descriptor
+    open per temperature exhausts the default file-descriptor limit for
+    runs with hundreds of temperature points).
+
     Parameters
     ----------
     filename : str
         Path to the MCMC data file to be separated.
+    buffer_limit : int
+        Total number of buffered data lines that triggers a flush to disk.
 
     Returns
     -------
@@ -45,8 +53,20 @@ def do_separate(filename: str) -> None:
     """
     file_base, file_ext = os.path.splitext(filename)
 
-    header = []                # header lines (comments starting with #)
-    writers: dict = {}         # temperature value (str) -> open output file
+    header = []       # header lines (comments starting with #)
+    paths: dict = {}  # temperature value (str) -> output file path
+    buffers: dict = {}  # temperature value (str) -> pending data lines
+    pending = 0       # total buffered lines across all temperatures
+
+    def flush() -> None:
+        nonlocal pending
+        for temperature, lines in buffers.items():
+            if not lines:
+                continue
+            with open(paths[temperature], "a") as out:
+                out.writelines(lines)
+            lines.clear()
+        pending = 0
 
     with open(filename, "r") as fp:
         try:
@@ -63,22 +83,25 @@ def do_separate(filename: str) -> None:
 
                 temperature = items[2]  # temperature is in the 3rd column
 
-                # Open a new file the first time a temperature is seen, indexed
+                # Create the file the first time a temperature is seen, indexed
                 # by first-appearance order, and write the header collected so
                 # far (all comment lines precede the data in result.txt).
-                if temperature not in writers:
-                    index = len(writers)
+                if temperature not in paths:
+                    index = len(paths)
                     new_file = file_base + f"_T{index}" + file_ext
-                    out = open(new_file, "w")
-                    out.writelines(header)
-                    out.write(f"# T (or beta) = {temperature}\n")
-                    writers[temperature] = out
+                    with open(new_file, "w") as out:
+                        out.writelines(header)
+                        out.write(f"# T (or beta) = {temperature}\n")
+                    paths[temperature] = new_file
+                    buffers[temperature] = []
 
-                writers[temperature].write(line)
+                buffers[temperature].append(line)
+                pending += 1
+                if pending >= buffer_limit:
+                    flush()
         finally:
-            # Always close every output file, even on error.
-            for out in writers.values():
-                out.close()
+            # Always write out buffered lines, even on error.
+            flush()
 
 def main() -> None:
     """
