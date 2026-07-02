@@ -209,8 +209,8 @@ The ODAT-SE framework allows users to define custom solvers by inheriting from t
             for i in range(1, dimension):
                 self.X[:, i] = self.X[:, i - 1] * self.xdata
 
-        def evaluate(self, xs, args, nprocs=1, nthreads=1):
-            loss = np.sum((self.X @ xs - self.ydata) ** 2)
+        def evaluate(self, x, args=()):
+            loss = np.sum((self.X @ x - self.ydata) ** 2)
             return loss
 
 The target function is defined in the ``evaluate`` function. Here, we use the quadratic loss (sum of squared residuals) with a design matrix :math:`X` so that the model can represent either :math:`y = a x` (``dimension = 1``, no intercept) or polynomial fits such as :math:`y = a_0 + a_1 x` (``dimension = 2`` with ``has_intercept = true``).

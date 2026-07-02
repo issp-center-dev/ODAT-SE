@@ -11,6 +11,29 @@ from typing import Any
 
 from ..mpi import rank
 
+
+def _parse_version(version: str) -> tuple:
+    """Parse a dotted version string into a 3-tuple of integers.
+
+    Non-numeric suffixes on a component (e.g. ``1.2.0rc1``) are ignored, and
+    the result is padded to three components so that ``"1.2"`` compares equal
+    to ``"1.2.0"``. Used to compare versions numerically -- a plain string
+    comparison is wrong (e.g. ``"1.10.0" < "1.2.0"`` is True).
+    """
+    parts = []
+    for token in version.split("."):
+        num = ""
+        for ch in token:
+            if ch.isdigit():
+                num += ch
+            else:
+                break
+        parts.append(int(num) if num else 0)
+    while len(parts) < 3:
+        parts.append(0)
+    return tuple(parts[:3])
+
+
 try:
     import tomllib
     # print("tomllib is available")
@@ -18,7 +41,7 @@ except ImportError:
     tomllib = None
     try:
         import tomli
-        if tomli.__version__ < "1.2.0":
+        if _parse_version(tomli.__version__) < (1, 2, 0):
             use_old_tomli_api = True
             # print("tomli old api is available")
         else:

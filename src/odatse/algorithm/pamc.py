@@ -11,7 +11,6 @@ from typing import Union, Optional, TYPE_CHECKING
 from io import open
 import copy
 import time
-import sys
 
 import numpy as np
 
@@ -55,8 +54,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     Attributes
     ----------
-    x : np.ndarray
-        Current configurations for all walkers
     logweights : np.ndarray
         Log of importance weights for each walker
     fx : np.ndarray
@@ -75,11 +72,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Tracks genealogy of walkers for analysis
     """
 
-    # x: np.ndarray
-    # xmin: np.ndarray
-    # xmax: np.ndarray
-    # #xunit: np.ndarray
-    # xstep: np.ndarray
+    # Coordinate bounds/steps live on self.statespace; the walker state is in
+    # self.state (see montecarlo.AlgorithmBase / state.py).
 
     numsteps: int
     numsteps_annealing: int
@@ -247,7 +241,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.numsteps_for_T = np.full(numT, nr)
             rem = numsteps - nr * numT
             if rem > 0:
-                self.numsteps_for_T[0 : (rem - 1)] += 1
+                # Distribute the remainder over the first ``rem`` temperatures
+                # so that the per-temperature step counts sum to ``numsteps``.
+                self.numsteps_for_T[0:rem] += 1
         else:
             ss: list[int] = []
             while numsteps > 0:
@@ -451,7 +447,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         res["ancestors"] = gather_replica(self.walker_ancestors)
         nacc = gather_data([self.naccepted_from_reset[0:numT,:]])
         nacc = np.sum(nacc, axis=0)
-        res["acceptance ratio"] = nacc[:,0] / nacc[:,1]
+        # A temperature with no trials (e.g. numsteps_for_T == 0) would give a
+        # 0/0 acceptance ratio; report 0.0 there instead of nan/inf.
+        ntrials = nacc[:, 1]
+        res["acceptance ratio"] = np.divide(
+            nacc[:, 0], ntrials,
+            out=np.zeros(nacc.shape[0], dtype=np.float64),
+            where=(ntrials != 0),
+        )
 
         fxs = res["fxs"]
         nreplicas = np.sum(res["ns"])
@@ -642,7 +645,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.fx = new_fx
         self.walker_ancestors = np.array(new_index)
 
-        self.nwalkers = np.sum(next_numbers)
+        # keep nwalkers a plain int (np.sum returns np.int64), since downstream
+        # code does isinstance(..., int) checks and uses it as an array size
+        self.nwalkers = int(np.sum(next_numbers))
 
     def _calc_participation_ratio(self) -> float:
         """
@@ -676,10 +681,17 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         log_weights = gather_replica(self.logweights)
         max_log_weight = np.max(log_weights)
 
-        sum_weight = np.sum(np.exp(log_weights - max_log_weight))
-        sum_weight_sq = np.sum(np.exp(log_weights - max_log_weight)**2)
+        # Degenerate weights (e.g. all -inf) make (log_weights - max) contain
+        # nan; the guard below turns that into a finite 0.0, so suppress the
+        # transient invalid-value warning here.
+        with np.errstate(invalid="ignore"):
+            sum_weight = np.sum(np.exp(log_weights - max_log_weight))
+            sum_weight_sq = np.sum(np.exp(log_weights - max_log_weight)**2)
 
-        pr = sum_weight ** 2 / sum_weight_sq
+        # sum_weight_sq is normally >= 1 (the max element contributes exp(0)=1),
+        # but degenerate weights make it 0 or nan; guard so the participation
+        # ratio is a finite number rather than nan.
+        pr = sum_weight ** 2 / sum_weight_sq if sum_weight_sq > 0 else 0.0
 
         return pr
 
@@ -735,9 +747,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         """
         Post-processing after the algorithm execution.
 
-        This method consolidates the results from different temperature steps
-        into single files for 'result' and 'trial'. It also gathers the best
-        results from all processes and writes them to 'best_result.txt'.
+        Gathers the best solution across all processes and writes it to
+        ``best_result.txt``, and writes the per-temperature statistics
+        (free energy, errors, partition function) to ``fx.txt`` and the
+        participation ratios to ``pr.txt``. (Splitting of ``trial``/``result``
+        into per-temperature files is done in ``_run``, not here.)
         """
         best_fx = gather_data(np.array([self.best_fx]))
         best_x = gather_data(np.array([self.best_x]))
@@ -838,8 +852,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         elif mode == "continue":
             assert data["input_as_beta"] == self.input_as_beta
             if not data["betas"][-1] == self.betas[0]:
-                print("ERROR: temperature is not continuous")
-                sys.exit(1)
+                raise odatse.exception.InputError(
+                    "temperature is not continuous between the saved and "
+                    "current schedules (saved last beta "
+                    f"{data['betas'][-1]} != current first beta {self.betas[0]})"
+                )
             self.betas = np.concatenate([data["betas"], self.betas[1:]])
             self.numsteps_for_T = np.concatenate([data["numsteps_for_T"], self.numsteps_for_T[1:]])
 

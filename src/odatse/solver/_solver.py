@@ -19,7 +19,7 @@ from pathlib import Path
 
 class SolverBase(object, metaclass=ABCMeta):
     """
-    Abstract base class for solvers in the 2DMAT software.
+    Abstract base class for solvers in ODAT-SE.
     """
 
     root_dir: Path

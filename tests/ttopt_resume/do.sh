@@ -30,8 +30,8 @@ fi
 
 export PYTHONUNBUFFERED=1
 
-CMD="python3 ../../src/odatse_main.py"
-# CMD="mpiexec -np 2 python3 ../../src/odatse_main.py"
+CMD="${PYTHON:-python3} ../../src/odatse_main.py"
+# CMD="mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py"
 
 # --- Part 1: initial run, interrupted by timeout ---
 rm -rf output1

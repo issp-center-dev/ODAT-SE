@@ -186,7 +186,11 @@ def _compute_temperature_statistics(
         return np.nan, np.nan, 0.0, np.nan
 
     mean = fx_sum / N
-    err = np.sqrt((fx_sum2 / N - mean ** 2) / (N - 1)) if N > 1 else np.nan
+    # The one-pass variance E[x^2] - E[x]^2 can come out slightly negative for
+    # near-constant f(x) due to catastrophic cancellation; clamp to 0 so the
+    # square root does not produce nan.
+    variance = max(fx_sum2 / N - mean ** 2, 0.0)
+    err = np.sqrt(variance / (N - 1)) if N > 1 else np.nan
     acceptance = accepted / N
 
     if dbeta != 0.0 and f_base is not None:
@@ -210,7 +214,7 @@ def separateT(
     buffer_size: int = 10000,
 ) -> None:
     """
-    Separates and processes temperature data for quantum beam diffraction experiments.
+    Separates and processes temperature data for the data analysis framework.
 
     Reads each rank's ``result.txt``, redistributes entries to the rank that owns
     their temperature via MPI alltoall, and writes per-temperature ``result_T*.txt``
@@ -239,6 +243,18 @@ def separateT(
     else:
         mpisize = comm.size
         mpirank = comm.rank
+
+    # Temperatures are used as routing/index keys (both as ``str(T)`` for the
+    # per-rank buckets and as the raw value for T2idx). Duplicate values -- or
+    # values whose string representation collides -- would make distinct
+    # replicas share one output file and silently lose data. Separation by
+    # temperature is only well-defined for distinct temperatures, so reject the
+    # ambiguous case explicitly instead of producing wrong output.
+    if len(set(map(str, Ts))) != len(Ts):
+        raise ValueError(
+            "separateT requires distinct temperature/beta values, "
+            f"but got duplicates in {list(Ts)}"
+        )
 
     # Round up so that each buffer covers whole walker-groups.
     buffer_size = int(np.ceil(buffer_size / nwalkers)) * nwalkers

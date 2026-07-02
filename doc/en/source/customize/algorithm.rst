@@ -40,7 +40,7 @@ Instance variables set by ``__init__``
 
   Reads the common parameters from ``info`` and sets the following instance variables:
 
-    - ``self.rng: np.random.Generator`` : pseudo random number generator
+    - ``self.rng: np.random.RandomState`` : pseudo random number generator
 
   - ``self.dimension: int`` : dimension of the parameter space.
 
@@ -52,7 +52,7 @@ Instance variables set by ``__init__``
 
   - ``self.proc_dir: pathlib.Path`` : per-process working directory.
 
-    - Set to ``self.output_dir / str(self.mpirank)``.
+    - Set to ``self.output_dir / str(odatse.mpi.algrank())``.
     - Created automatically.
     - ``_run()`` is called from this directory.
 
@@ -60,7 +60,7 @@ Instance variables set by ``__init__``
 
     Sub-dictionaries ``"prepare"``, ``"run"``, and ``"post"`` are pre-created.
 
-      - It is set to ``self.output_dir / str(odatse.mpi.rank())``.
+      - It is set to ``self.output_dir / str(odatse.mpi.algrank())``.
       - The directory will be made automatically.
       - Each process performs an optimization algorithm in this directory.
 
@@ -139,13 +139,13 @@ It is defined as a subclass of ``AlgorithmBase`` and must implement the followin
 .. code-block:: python
 
     def __init__(self, info: odatse.Info, runner: odatse.Runner = None,
-                 run_mode: str = "initial", mpicomm=None):
-        super().__init__(info=info, runner=runner, run_mode=run_mode, mpicomm=mpicomm)
+                 run_mode: str = "initial"):
+        super().__init__(info=info, runner=runner, run_mode=run_mode)
         # read algorithm-specific parameters from info ...
 
-Pass ``info``, ``runner``, ``run_mode``, and ``mpicomm`` to the base class constructor.
+Pass ``info``, ``runner``, and ``run_mode`` to the base class constructor.
 Read algorithm-specific parameters from ``info`` **after** calling ``super().__init__()``,
-because the base constructor sets the attributes (``mpisize``, ``rng``, ``proc_dir``, …)
+because the base constructor sets the attributes (``rng``, ``proc_dir``, …)
 that the subclass may need.
 
 ``_initialize`` (required)
@@ -186,7 +186,7 @@ Called after ``_initialize()`` or ``_load_state()`` and before ``_run()``.
 
         # For "init" mode, perform the initial evaluation here.
         if self.mode.startswith("init"):
-            self.fx = self._evaluate(self.state)
+            self.fx = self.runner.submit(self.state, (0, 0))
             ...
 
         # Main loop
@@ -276,9 +276,8 @@ Minimal working example
 
         _checkpoint_attrs: list[str] = ["icount", "best_x", "best_fx", "results"]
 
-        def __init__(self, info, runner=None, run_mode="initial", mpicomm=None):
-            super().__init__(info=info, runner=runner,
-                             run_mode=run_mode, mpicomm=mpicomm)
+        def __init__(self, info, runner=None, run_mode="initial"):
+            super().__init__(info=info, runner=runner, run_mode=run_mode)
             self.mesh = [...]   # read from info
 
         def _initialize(self) -> None:
@@ -317,7 +316,7 @@ Minimal working example
                 self._save_state(self.checkpoint_file)
 
         def _post(self) -> dict:
-            if self.mpirank == 0:
+            if odatse.mpi.algrank() == 0:
                 with open("result.txt", "w") as f:
                     f.write(f"fx = {self.best_fx}\n")
             return {"x": self.best_x, "fx": self.best_fx}

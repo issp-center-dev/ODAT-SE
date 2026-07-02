@@ -10,7 +10,7 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 rm -rf output
 
 # Run the Python script with MPI
-/usr/bin/time mpirun -np 8 python3 ../parallel_solver.py --nalg 4 --nsolve 2 input.toml
+/usr/bin/time mpirun -np 8 ${PYTHON:-python3} ../parallel_solver.py --nalg 4 --nsolve 2 input.toml
 
 # Define the result file path
 resfile=output/0/res.txt

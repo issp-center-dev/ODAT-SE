@@ -166,7 +166,7 @@ Performance and Considerations
 
 * The `\-\-progress` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
-* Since data is written to output files in append mode (`a`), results may be duplicated if the same process is executed multiple times. If re-executing, empty the output directory or specify a new directory.
+* Each per-temperature output file is truncated on its first write within a run and appended to for the remaining input files, so re-running the tool overwrites the previous output rather than duplicating it.
 * If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.
 
 Error Handling

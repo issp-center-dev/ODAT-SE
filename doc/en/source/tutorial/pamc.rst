@@ -74,15 +74,15 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
+- ``step_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
 
 ``[algorithm.pamc]`` section sets the parameters for PAMC.
 
 - ``numsteps_annealing`` is the number of interval steps between temperature decreasing.
 
-- ``bmin``, ``bmax`` are the minimum and the maximum of inversed temperature, respectively.
+- ``Tmin``, ``Tmax`` are the minimum and the maximum of temperature, respectively. (Inverse temperature can be set instead with ``bmin``/``bmax``.)
 
-- ``Tnum`` is the number of (inversed) temperature points.
+- ``Tnum`` is the number of temperature points.
 
 - When ``Tlogspace`` is ``true``, the temperature points are distributed uniformly in the logarithmic space.
 

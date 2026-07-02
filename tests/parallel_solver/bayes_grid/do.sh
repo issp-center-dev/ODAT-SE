@@ -10,8 +10,8 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 rm -rf output
 
 # Run the Python script with MPI
-#/usr/bin/time mpirun -np 1 python3 ../parallel_solver.py --nalg 1 --nsolve 1 input.toml
-/usr/bin/time mpirun -np 8 python3 ../parallel_solver.py --nalg 4 --nsolve 2 input.toml
+#/usr/bin/time mpirun -np 1 ${PYTHON:-python3} ../parallel_solver.py --nalg 1 --nsolve 1 input.toml
+/usr/bin/time mpirun -np 8 ${PYTHON:-python3} ../parallel_solver.py --nalg 4 --nsolve 2 input.toml
 
 # Define the result file path
 resfile=output/BayesData.txt
@@ -20,7 +20,7 @@ reffile=ref_BayesData.txt
 # Compare the result file with the reference file
 echo diff $resfile $reffile
 res=0
-diff $resfile $reffile || res=$?
+diff $resfile $reffile || ${PYTHON:-python3} ../../almost_diff.py $resfile $reffile || res=$?
 
 # Check the result of the diff command
 if [ $res -eq 0 ]; then

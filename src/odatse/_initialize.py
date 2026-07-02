@@ -29,17 +29,14 @@ def initialize(argv: Optional[Sequence[str]] = None):
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=(
-            "Data-analysis software of quantum beam "
-            "diffraction experiments for 2D material structure"
-        )
+        description="Open framework for data analysis"
     )
     parser.add_argument("inputfile", help="input file with TOML format")
     parser.add_argument("--version", action="version", version=odatse.__version__)
 
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--init", action="store_true", help="initial start (default)")
-    mode_group.add_argument("--resume", action="store_true", help="resume intterupted run")
+    mode_group.add_argument("--resume", action="store_true", help="resume interrupted run")
     mode_group.add_argument("--cont", action="store_true", help="continue from previous run")
 
     parser.add_argument("--reset_rand", action="store_true", default=False, help="new random number series in resume or continue mode")
@@ -65,6 +62,5 @@ def initialize(argv: Optional[Sequence[str]] = None):
         run_mode = "initial"  # default
 
     info = odatse.Info.from_file(args.inputfile)
-    # info.algorithm.update({"run_mode": run_mode})
 
     return info, run_mode

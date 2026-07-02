@@ -7,15 +7,15 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 rm -rf output
 
 # Run the Python script using mpiexec with 4 processes and measure the time taken
-time mpiexec -np 4 python3 ../../src/odatse_main.py input.toml
+time mpiexec -np 4 ${PYTHON:-python3} ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/best_result.txt
 
 # Compare the result file with the reference file
-echo python3 ../test_utilities/diff_res_mc.py $resfile ref.txt
+echo ${PYTHON:-python3} ../test_utilities/diff_res_mc.py $resfile ref.txt
 res=0
-python3 ../test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
+${PYTHON:-python3} ../test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
 
 # Check the result of the diff command
 if [ $res -eq 0 ]; then

@@ -141,7 +141,7 @@ In this case, ``BayesData.txt`` can be seen as the following
    ...
 
 
-The first column contains the number of steps, and the second, third, and fourth columns contain ``x2``, ``x2``, and ``f(x)``, which give the highest score at that time.
+The first column contains the number of steps, and the second, third, and fourth columns contain ``x1``, ``x2``, and ``f(x)``, which give the highest score at that time.
 This is followed by the candidate ``x1``, ``x2`` and ``f(x)`` for that step.
 In this case, you can see that the correct solution is obtained at the 41st step.
 

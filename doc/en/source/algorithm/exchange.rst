@@ -264,6 +264,7 @@ The optimal value of the solver and the corresponding parameter among the all sa
     nprocs = 4
     rank = 2
     step = 65
+    walker = 0
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661

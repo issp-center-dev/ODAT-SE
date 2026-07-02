@@ -32,7 +32,7 @@
 
     This parameter is taken from ``info.base["output_dir"]``, and used for the directory in which the result files are written. Usually, when the MPI parallelization is applied, the accumulated results are stored.
 
-  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(odatse.mpi.rank())``
+  - ``self.proc_dir: pathlib.Path`` : Working directory for each MPI process by the form ``self.output_dir / str(odatse.mpi.algrank())``
 
     The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
@@ -45,7 +45,7 @@
 
   .. code-block:: python
 
-     def evaluate(self, x, args=(), nprocs=1, nthreads=1) -> float:
+     def evaluate(self, x, args=()) -> float:
          pass
 
   This method evaluates the objective function at a given parameter value `x` and returns the result. It takes the following arguments:

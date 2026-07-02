@@ -108,7 +108,7 @@ if not _NOMPI:
     class _MPIContext(_CheckpointMixin):
         """MPI-enabled implementation.
 
-        Manages two layers of parallelism:
+        Manages three sets of communicators:
 
         * Global MPI      : comm / size / rank
         * Algorithm layer : algcomm / algsize / algrank

@@ -82,3 +82,11 @@ add_test(
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/random_search
   )
 
+# The do.sh scripts run "mpirun ... ${PYTHON:-python3}". Point PYTHON at the
+# interpreter CMake resolved (see top-level CMakeLists.txt) so mpirun does not
+# fall back to the system python3, which lacks the installed packages.
+get_property(_dosh_tests DIRECTORY PROPERTY TESTS)
+if(_dosh_tests)
+  set_tests_properties(${_dosh_tests} PROPERTIES ENVIRONMENT "PYTHON=${Python3_EXECUTABLE}")
+endif()
+

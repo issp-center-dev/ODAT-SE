@@ -16,12 +16,14 @@ from ._domain import DomainBase
 
 class MeshGrid(DomainBase):
     """
-    MeshGrid class for handling grid data for quantum beam diffraction experiments.
+    MeshGrid class for handling grid data for the data analysis framework.
     """
 
-    # whole grid and local chunk: list of vectors
-    grid: Sequence[Sequence[Union[int, float]]] = []
-    grid_local: Sequence[Sequence[Union[int, float]]] = []
+    # whole grid and local chunk: list of vectors.
+    # These are initialised per-instance in __init__; declared here only as
+    # type annotations (no shared class-level mutable list).
+    grid: Sequence[Sequence[Union[int, float]]]
+    grid_local: Sequence[Sequence[Union[int, float]]]
 
     def __init__(
         self,
@@ -46,6 +48,10 @@ class MeshGrid(DomainBase):
             Random number generator.
         """
         super().__init__(info)
+
+        # per-instance defaults so distinct MeshGrid objects never share a list
+        self.grid = []
+        self.grid_local = []
 
         if info:
             if "param" in info.algorithm:
@@ -90,8 +96,6 @@ class MeshGrid(DomainBase):
         else:
             self._setup_random(info_param, rng)
 
-        #self.ncandicates = len(self.grid)
-
     def _setup_from_file(self, info_param):
         """
         Setup the grid from a file.
@@ -128,8 +132,6 @@ class MeshGrid(DomainBase):
 
         self.grid = [[int(idx), *v] for idx, *v in _data]
         self.do_split()
-
-        # print(f"DEBUG: rank={odatse.mpi.rank}: grid size={len(self.grid)}, local grid size={len(self.local_grid)}")
 
     def _setup_grid(self, info_param):
         """

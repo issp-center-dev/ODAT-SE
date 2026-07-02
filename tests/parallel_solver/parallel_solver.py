@@ -38,12 +38,15 @@ class ParallelSolver(odatse.solver.SolverBase):
 
     def evaluate(self, xs, args):
         if odatse.mpi.solrank() == 0:
-            print(f"algrank: {odatse.mpi.algrank()}, x: {list(xs)}")
+            # Per-evaluation logging is verbose; comment out to suppress.
+            # print(f"algrank: {odatse.mpi.algrank()}, x: {list(xs)}")
+            pass
 
         result = self._compute(xs)
 
         if odatse.mpi.solrank() == 0:
-            print(f"algrank: {odatse.mpi.algrank()}, result: {result}")
+            # Per-evaluation logging is verbose; comment out to suppress.
+            # print(f"algrank: {odatse.mpi.algrank()}, result: {result}")
 
             # for debug purose
             if self.delay > 0.0:

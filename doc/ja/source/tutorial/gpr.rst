@@ -158,7 +158,7 @@ ODAT-SEの ``SolverBase`` クラスを使用してカスタムソルバーを定
             self._name = "predict"
             self.predictor = predictor
         
-        def evaluate(self, x, arg=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             return self.predictor(x)[0]
 
 ``evaluate`` 関数では、予測子関数を呼び出します (例えば ``Converter.gen_predictor`` の出力です) 。

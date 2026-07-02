@@ -224,7 +224,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.checkpoint:
             self._save_state(self.checkpoint_file)
 
-    def _post(self) -> None:
+    def _post(self) -> dict:
         """
         Finalizes the algorithm execution and writes the results to a file.
         """

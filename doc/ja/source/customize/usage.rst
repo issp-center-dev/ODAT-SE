@@ -12,7 +12,7 @@
 
    - ``Info`` クラスにはTOML形式の入力ファイルを読み込むクラスメソッドが用意されています。この他にも、dict形式でパラメータを用意して ``Info`` クラスのコンストラクタに渡して作成することができます。
 
-3. ``solver: Solver``, ``runner: odatse.Runner``, ``algorithm: Algorithm`` を作成する
+3. ``odatse.mpi.setup()`` を呼び(MPI コミュニケータを分割します。ソルバー/アルゴリズムの構築前に必要です。 ``odatse.initialize()`` を使う場合は内部で呼ばれます)、``solver: Solver``, ``runner: odatse.Runner``, ``algorithm: Algorithm`` を作成する
 
 4. ``algorithm.main()`` を実行する
 
@@ -38,6 +38,7 @@
     info = odatse.Info.from_file(input_file)
 
     # (3)
+    odatse.mpi.setup()
     solver = Solver(info)
     runner = odatse.Runner(solver, info)
     algorithm = Algorithm(info, runner)

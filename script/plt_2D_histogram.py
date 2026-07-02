@@ -16,7 +16,7 @@ import itertools  # For generating combinations of columns
 # Try to import tqdm for progress bar, set to None if not available
 try:
     from tqdm import tqdm
-except:
+except ImportError:
     tqdm = None
 
 
@@ -85,7 +85,7 @@ def parse_options():
     # Override config with command-line arguments if specified
     if args.columns:
         config["columns"] = [s.strip() for s in args.columns.split(",")]
-    if args.weight_column:
+    if args.weight_column is not None:
         config["weight_column"] = args.weight_column
     if args.bins:
         config["bins"] = args.bins
@@ -175,7 +175,7 @@ def main():
     columns = opt["columns"]
     weight_column = opt["weight_column"]
     bins = opt["bins"]
-    field_list = opt["field_list"]
+    configured_field_list = opt["field_list"]  # may be empty; default is per-file
 
     # Determine axis range settings
     hist_range = opt["range"]
@@ -195,10 +195,6 @@ def main():
         else:
             raise ValueError("unknown data type for range parameter: {}".format(type(hist_range)))
     
-    # Initialize variables for field mapping
-    field_id = None
-    z_columns = None
-
     # Create output directory if it doesn't exist
     os.makedirs(opt["output_dir"], exist_ok=True)
 
@@ -219,16 +215,24 @@ def main():
 
             with open(file_path, "r") as f:
                 for line in f:
-                    if line.startswith("#") and is_beta is None:
-                        if " beta" in line:
-                            is_beta = True
-                        elif " T" in line:
-                            is_beta = False
-                    else:
-                        items = [float(s) for s in line.split()]
-                        data.append(items)
+                    if line.startswith("#"):
+                        # Detect whether column 1 is beta or T from the header
+                        if is_beta is None:
+                            if " beta" in line:
+                                is_beta = True
+                            elif " T" in line:
+                                is_beta = False
+                        continue
+                    items = line.split()
+                    if not items:
+                        continue  # skip blank lines
+                    data.append([float(s) for s in items])
 
             data = np.array(data)
+            if data.ndim != 2 or data.shape[0] == 0:
+                print(f"Skipping {file_path}: no data rows")
+                err += 1
+                continue
             ndata, ncols = data.shape
 
             # Extract beta value in float (0.00101) or scientific notation (e.g., 1.01e-3)
@@ -240,22 +244,25 @@ def main():
             # Normalize weights to sum to 1
             normalized_weights = weights / np.sum(weights)
 
-            # Set up column labels if not provided
-            if not field_list:
-                # Assume standard format: beta, fx, x1, .., xn, weight
-                field_list = ["beta", "fx"] + [f"x{i-1}" for i in range(2, ncols-1)] + ["weight"]
-            
-            # Create mapping from field names to column indices
-            if not field_id:
-                field_id = {s: id for id, s in enumerate(field_list)}
+            # Column labels / indices, recomputed per file so that files with
+            # differing widths are not mis-indexed by values cached from the
+            # first file. Standard format: beta, fx, x1, .., xn, weight.
+            field_list = configured_field_list if configured_field_list else \
+                (["beta", "fx"] + [f"x{i-1}" for i in range(2, ncols-1)] + ["weight"])
+            field_id = {s: idx for idx, s in enumerate(field_list)}
 
-            # Determine which columns to use for histograms
-            if not columns:
-                # Default to all data columns (excluding beta, fx, and weight)
-                columns = [field_list[i] for i in range(2, ncols-1)]
+            # Column names to plot (don't overwrite the configured `columns`).
+            plot_columns = columns if columns else [field_list[i] for i in range(2, ncols-1)]
+
+            # Map each per-variable range to its data column (parameters x1..xn
+            # occupy columns 2..ncols-2; other columns get no fixed range).
+            range_by_col = {}
+            if not auto_axis and not share_axis:
+                for k, rng in enumerate(hist_range):
+                    range_by_col[2 + k] = rng
 
             # Generate all possible pairs of columns for 2D histograms
-            pairs = list(itertools.combinations(columns, 2))
+            pairs = list(itertools.combinations(plot_columns, 2))
             
             # Generate 2D histograms for all pairs of columns
             for ix, iy in pairs:
@@ -277,26 +284,30 @@ def main():
                     xrange = hist_range
                     yrange = hist_range
                 else:
-                    # Use specific ranges for each axis
-                    # Adjust index to account for beta and fx columns
-                    xrange = hist_range[id_x - 2]  # Adjust index for range list
-                    yrange = hist_range[id_y - 2]  # Adjust index for range list
+                    # Per-variable range keyed by column (None for non-parameter columns)
+                    xrange = range_by_col.get(id_x)
+                    yrange = range_by_col.get(id_y)
 
                 # Create 2D histogram with normalized weights
                 H, xedges, yedges = np.histogram2d(
                     x, y, bins=bins, range=[xrange, yrange], weights=normalized_weights
                 )
 
-                # Replace zeros with a small positive number to avoid log(0) in LogNorm
-                H[H == 0] = 1e-10
+                # Mask empty bins so they render transparent (not as a LogNorm floor)
+                positive = H[H > 0]
+                if positive.size == 0:
+                    plt.close()
+                    continue
+                H = np.ma.masked_where(H == 0, H)
 
                 # Create figure and plot the 2D histogram
                 fig, ax = plt.subplots(figsize=(8, 6))
                 X, Y = np.meshgrid(xedges, yedges)
-                # Use LogNorm for color scaling to better visualize the distribution
-                cmap = ax.pcolormesh(X, Y, H.T, cmap='Reds', shading='auto', 
-                                    norm=LogNorm(vmin=1e-3, vmax=1))
-                
+                # LogNorm color scale with data-driven limits (a fixed 1e-3..1
+                # range did not match the per-bin magnitudes, which depend on bins)
+                cmap = ax.pcolormesh(X, Y, H.T, cmap='Reds', shading='auto',
+                                    norm=LogNorm(vmin=positive.min(), vmax=positive.max()))
+
                 # Add colorbar with label
                 cbar = plt.colorbar(cmap, ax=ax)
                 cbar.set_label('Normalized Density (Log Scale)')
@@ -305,8 +316,10 @@ def main():
                 ax.set_title(f'2D Color Map: {ix} vs {iy}')
                 ax.set_xlabel(ix)
                 ax.set_ylabel(iy)
-                ax.set_xlim(xrange)
-                ax.set_ylim(yrange)
+                if xrange is not None:
+                    ax.set_xlim(xrange)
+                if yrange is not None:
+                    ax.set_ylim(yrange)
                 ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)  # Add grid lines
 
                 # Create output filename based on input filename
@@ -330,7 +343,7 @@ def main():
                 plt.close()
 
         except Exception as e:
-            print(f"Error occurred while processing {file_path}: {e}")
+            print(f"Error occurred while processing {file_path}: {type(e).__name__}: {e}")
             err += 1
 
     # Print summary message

@@ -11,7 +11,6 @@ from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
 import os
-import sys
 import pathlib
 import pickle
 import shutil
@@ -218,7 +217,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         if seed is None:
             self.rng = np.random.RandomState()
         else:
-            self.rng = np.random.RandomState(seed + odatse.mpi.rank() * seed_delta)
+            # Offset the seed by the algorithm-layer rank, not the global MPI
+            # rank.  When the solver runs in parallel (nsolve > 1) the global
+            # rank differs from the algorithm rank, so seeding by rank() would
+            # make the per-replica seeds depend on the solver parallelism and
+            # break reproducibility.  algrank() identifies the replica.
+            self.rng = np.random.RandomState(seed + odatse.mpi.algrank() * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
         """
@@ -235,6 +239,38 @@ class AlgorithmBase(metaclass=ABCMeta):
     # Framework wrappers – called by main().  Do NOT override in subclasses.
     # ------------------------------------------------------------------
 
+    def _reach_consensus(self, error: Optional[Exception], ok: "np.ndarray") -> None:
+        """Collectively agree on whether *every* algorithm rank succeeded.
+
+        Every algorithm rank must call this exactly once per phase, regardless
+        of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when
+        this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the
+        exception this rank caught (or ``None``).
+
+        A single ``Allreduce`` shares the success flags, then:
+
+        * if this rank failed, its own exception is re-raised;
+        * else if any other rank failed, ``OtherAlgorithmProcessError`` is
+          raised so this rank bails out too.
+
+        Because the only collective on the failure path is this one
+        ``Allreduce`` -- reached by all ranks whether they succeeded or failed
+        -- a per-rank failure can no longer leave the other ranks blocked.
+        (Collectives *inside* the ``_prepare``/``_run``/``_post`` hooks remain
+        the responsibility of each algorithm to keep balanced across ranks.)
+        """
+        if odatse.mpi.algsize() > 1:
+            total = np.array([0])
+            odatse.mpi.algcomm().Allreduce(ok, total)
+            all_ok = bool(total[0] == odatse.mpi.algsize())
+        else:
+            all_ok = error is None
+
+        if error is not None:
+            raise error
+        if not all_ok:
+            raise odatse.mpi.OtherAlgorithmProcessError()
+
     def prepare(self) -> None:
         """Framework wrapper for the prepare phase.
 
@@ -250,35 +286,36 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.runner is None:
             raise RuntimeError("Runner is not assigned")
 
-        # runner lifecycle starts (commit 936e48: moved here from run())
-        self.runner.prepare(self.proc_dir)
-
-        # checkpoint dispatch
         restore_rng = not self.mode.endswith("-resetrand")
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
-        elif self.mode.startswith("continue"):
-            self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
-        else:
-            raise RuntimeError(f"unknown mode {self.mode}")
-        
-        # algorithm-specific preparation
+
+        # Everything that can fail per-rank (runner setup, checkpoint dispatch,
+        # the _prepare() hook) is inside the try so that a failure on any rank
+        # is shared through the single collective in _reach_consensus() instead
+        # of leaving the other ranks blocked. The exception is captured here and
+        # re-raised only after that collective.
+        error = None
+        ok = np.array([0])
         try:
+            # runner lifecycle starts (commit 936e48: moved here from run())
+            self.runner.prepare(self.proc_dir)
+
+            # checkpoint dispatch
+            if self.mode.startswith("init"):
+                self._initialize()
+            elif self.mode.startswith("resume"):
+                self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+            elif self.mode.startswith("continue"):
+                self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+            else:
+                raise RuntimeError(f"unknown mode {self.mode}")
+
+            # algorithm-specific preparation
             self._prepare()
-            res = np.array([1])
-        except Exception:
-            res = np.array([0])
-            if odatse.mpi.algsize() > 1:
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
-        if odatse.mpi.algsize() > 1:
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+
+        self._reach_consensus(error, ok)
 
         # preparation step completed
         self.status = AlgorithmStatus.PREPARE
@@ -302,24 +339,19 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.status < AlgorithmStatus.PREPARE:
             raise RuntimeError("algorithm has not prepared yet")
 
+        error = None
+        ok = np.array([0])
+        original_dir = os.getcwd()
         try:
-            original_dir = os.getcwd()
             os.chdir(self.proc_dir)
             self._run()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
             os.chdir(original_dir)
-        except Exception:
-            if odatse.mpi.algsize() > 1:
-                res = np.array([0])
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
 
-        if odatse.mpi.algsize() > 1:
-            res = np.array([1])
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+        self._reach_consensus(error, ok)
 
         # run step completed
         self.status = AlgorithmStatus.RUN
@@ -338,24 +370,20 @@ class AlgorithmBase(metaclass=ABCMeta):
         if self.status < AlgorithmStatus.RUN:
             raise RuntimeError("algorithm has not run yet")
 
+        error = None
+        ok = np.array([0])
+        result = {}
+        original_dir = os.getcwd()
         try:
-            original_dir = os.getcwd()
             os.chdir(self.output_dir)
             result = self._post()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
             os.chdir(original_dir)
-        except Exception:
-            if odatse.mpi.algsize() > 1:
-                res = np.array([0])
-                resall = np.array([0])
-                odatse.mpi.algcomm().Allreduce(res, resall)
-            raise
 
-        if odatse.mpi.algsize() > 1:
-            res = np.array([1])
-            resall = np.array([0])
-            odatse.mpi.algcomm().Allreduce(res, resall)
-            if resall[0] < odatse.mpi.algsize():
-                raise odatse.mpi.OtherAlgorithmProcessError()
+        self._reach_consensus(error, ok)
 
         # runner lifecycle ends (commit 936e48: moved here from run())
         self.runner.post()
@@ -437,8 +465,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         data = self._load_data(filename)
         if not data:
-            print(f"ERROR: failed to load checkpoint from {filename}")
-            sys.exit(1)
+            raise exception.CheckpointError(
+                f"failed to load checkpoint from {filename}"
+            )
         self._apply_state(data, mode=mode, restore_rng=restore_rng)
 
     # ------------------------------------------------------------------
@@ -554,20 +583,28 @@ class AlgorithmBase(metaclass=ABCMeta):
             fn = Path(filename + ".tmp")
             with open(fn, "wb") as f:
                 pickle.dump(data, f)
+                # Make sure the new checkpoint is durable on disk before it
+                # replaces the current one below.
+                f.flush()
+                os.fsync(f.fileno())
         except Exception as e:
-            print("ERROR: {}".format(e))
-            sys.exit(1)
+            raise exception.CheckpointError(
+                f"failed to save checkpoint to {filename}: {e}"
+            ) from e
 
+        # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
         for idx in range(ngen-1, 0, -1):
             fn_from = Path(filename + "." + str(idx))
             fn_to = Path(filename + "." + str(idx+1))
             if fn_from.exists():
                 shutil.move(fn_from, fn_to)
-        if ngen > 0:
-            if Path(filename).exists():
-                fn_to = Path(filename + "." + str(1))
-                shutil.move(Path(filename), fn_to)
-        shutil.move(Path(filename + ".tmp"), Path(filename))
+        # Keep the current checkpoint as .1 by *copying* it (not moving), so
+        # that `filename` always points to a complete checkpoint -- there is no
+        # window in which it is missing. Then atomically swap in the new one
+        # with os.replace(), which is the only step that touches `filename`.
+        if ngen > 0 and Path(filename).exists():
+            shutil.copy2(Path(filename), Path(filename + "." + str(1)))
+        os.replace(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
     def _load_data(self, filename="state.pickle") -> dict:
@@ -584,15 +621,23 @@ class AlgorithmBase(metaclass=ABCMeta):
         dict
             Dictionary containing the loaded data.
         """
-        if Path(filename).exists():
+        # Prefer the current checkpoint, but fall back to the previous
+        # generation (.1) if it is missing -- e.g. a crash in an older version
+        # during the save window, or external corruption of `filename`.
+        fn = Path(filename)
+        if not fn.exists() and Path(filename + "." + str(1)).exists():
+            fn = Path(filename + "." + str(1))
+            print("WARNING: {} not found, falling back to {}".format(filename, fn))
+
+        if fn.exists():
             try:
-                fn = Path(filename)
                 with open(fn, "rb") as f:
                     data = pickle.load(f)
             except Exception as e:
-                print("ERROR: {}".format(e))
-                sys.exit(1)
-            print("load_state: load from {}".format(filename))
+                raise exception.CheckpointError(
+                    f"failed to read checkpoint from {fn}: {e}"
+                ) from e
+            print("load_state: load from {}".format(fn))
         else:
             print("ERROR: file {} not exist.".format(filename))
             data = {}

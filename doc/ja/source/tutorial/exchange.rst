@@ -40,7 +40,7 @@
   seed = 12345
 
   [algorithm.param]
-  min_list = [3.0, 3.0]
+  min_list = [-6.0, -6.0]
   max_list = [6.0, 6.0]
   step_list = [0.3, 0.3]
 
@@ -69,7 +69,7 @@
 
 ``[algorithm.exchange]`` サブセクションは、レプリカ交換モンテカルロ法のハイパーパラメータを指定します。
 
-- ``numstep`` はモンテカルロ更新の回数です。
+- ``numsteps`` はモンテカルロ更新の回数です。
 
 - ``numsteps_exchange`` で指定した回数のモンテカルロ更新の後に、温度交換を試みます。
 

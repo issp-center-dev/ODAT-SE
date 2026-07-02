@@ -16,6 +16,8 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``mapper`` : Grid search
 
+  - ``random_search`` : Random search
+
   - ``exchange`` :  Replica Exchange Monte Carlo method
 
   - ``pamc`` :  Population Annealing Monte Carlo method
@@ -28,8 +30,8 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description:
   A parameter to specify seeds of the pseudo-random number generator used for random generation of initial values, Monte Carlo updates, etc.
-  For each MPI process, the value of ``seed + mpi_rank * seed_delta`` is given as seeds.
-  If omitted, the initialization is done by  `the Numpy's prescribed method <https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng>`_.
+  For each algorithm process, the value of ``seed + algrank * seed_delta`` is given as seeds, where ``algrank`` is the process rank in the algorithm layer (independent of the solver parallelism ``nsolve``).
+  If omitted, the initialization is done by  `the Numpy's prescribed method <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_.
 
 - ``seed_delta``
 

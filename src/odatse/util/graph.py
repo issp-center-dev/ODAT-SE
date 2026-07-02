@@ -27,6 +27,10 @@ def is_connected(nnlist: list[list[int]]) -> bool:
         True if the graph is connected, False otherwise.
     """
     nnodes = len(nnlist)
+    if nnodes == 0:
+        # an empty graph has nothing to disconnect; also avoids indexing
+        # visited[0] on a zero-length array
+        return True
     visited = np.full(nnodes, False)
     nvisited = 1
     visited[0] = True

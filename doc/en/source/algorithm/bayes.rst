@@ -31,10 +31,7 @@ If ``mesh_path`` is defined, it will be read from a mesh file.
 In a mesh file, one line gives one point in the parameter space,
 the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.
 
-If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list`` and ``max_list``.
-If ``num_list`` is defined, ``num_list`` points are sampled evenly for each parameter.
-If ``num_points`` is defined, ``num_points`` points are randomly sampled from the search space.
-``num_list`` and ``num_points`` cannot be defined at the same time.
+If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list``, ``max_list``, and ``num_list``: ``num_list`` points are sampled evenly for each parameter.
 
 - ``mesh_path``
 
@@ -59,12 +56,6 @@ If ``num_points`` is defined, ``num_points`` points are randomly sampled from th
   Format: List of integer. The length should match the value of dimension.
 
   Description: The number of grids the parametar can take at each dimension.
-
-- ``num_points``
-
-  Format: Integer.
-
-  Description: The number of points to be randomly sampled.
 
 
 ``[algorithm.bayes]`` section
@@ -139,7 +130,7 @@ At each step of the optimization process, the values of the parameters and the c
 
 .. code-block::
 
-    #step z1 z2 R-factor z1_action z2_action R-factor_action
+    #step z1 z2 fx z1_action z2_action fx_action
     0 4.75 4.5 0.05141906746102885 4.75 4.5 0.05141906746102885
     1 4.75 4.5 0.05141906746102885 6.0 4.75 0.06591878368102033
     2 5.5 4.25 0.04380131351780189 5.5 4.25 0.04380131351780189

@@ -37,14 +37,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
     Attributes
     ----------
-    x : np.ndarray
-        Current configuration state for all walkers.
-    xmin : np.ndarray
-        Minimum allowed values for parameters.
-    xmax : np.ndarray
-        Maximum allowed values for parameters.
-    xstep : np.ndarray
-        Step sizes for parameter updates.
     numsteps : int
         Total number of Monte Carlo steps to perform.
     numsteps_exchange : int
@@ -67,11 +59,8 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         Direction for attempting exchanges (alternates between True/False).
     """
 
-    x: np.ndarray
-    xmin: np.ndarray
-    xmax: np.ndarray
-    # xunit: np.ndarray
-    xstep: np.ndarray
+    # Coordinate bounds/steps live on self.statespace; the walker state is in
+    # self.state (see montecarlo.AlgorithmBase / state.py).
 
     numsteps: int
     numsteps_exchange: int
@@ -266,6 +255,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             If True, attempt exchanges between even-odd pairs.
             If False, attempt exchanges between odd-even pairs.
         """
+        # This path identifies each replica with exactly one MPI rank: T2rep
+        # entries are used directly as Send/Recv ranks, and MPI ranks are
+        # iterated as replica indices below (range(1, nreplica)). That identity
+        # holds only when there is one replica per process, i.e.
+        # nreplica == algsize (guaranteed here because nwalkers == 1). Guard it
+        # so a future change cannot silently corrupt T2rep or deadlock on a bad
+        # rank.
+        assert self.nreplica == odatse.mpi.algsize(), (
+            "single-walker exchange requires one replica per process "
+            f"(nreplica == algsize), got nreplica={self.nreplica}, "
+            f"algsize={odatse.mpi.algsize()}"
+        )
+
         comm = odatse.mpi.algcomm()
 
         comm.Barrier()

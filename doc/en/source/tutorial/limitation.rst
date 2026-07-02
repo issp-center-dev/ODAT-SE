@@ -79,7 +79,7 @@ The following ``input.toml`` is an input file for the main program.
   
 ``[algorithm.exchange]`` sub-section specifies the hyperparameters of the replica exchange Monte Carlo method.
 
-- ``numstep`` is the number of Monte Carlo updates.
+- ``numsteps`` is the number of Monte Carlo updates.
 
 - ``numsteps_exchange`` specifies the number of times to attempt temperature exchange.
 

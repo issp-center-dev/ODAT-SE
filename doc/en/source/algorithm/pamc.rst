@@ -312,6 +312,7 @@ The optimal value of the solver and the corresponding parameter among the all sa
     nprocs = 4
     rank = 2
     step = 65
+    walker = 0
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661
@@ -344,6 +345,36 @@ The sixth column is the acceptance ratio of MC updates.
     0.0 33.36426034198166 3.0193077565358273 100 0.0 0.9804
     0.1 4.518006242920819 0.9535301415484388 100 -1.2134775491597027 0.9058
     0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
+    ...
+
+``RANK/weight.txt``
+^^^^^^^^^^^^^^^^^^^
+This file stores the Neal-Jarzynski weight of each replica at each temperature.
+The columns are, in order, the temperature index (``Tindex``), the inverse temperature (``beta``),
+the walker index (``walker``), the grand-ancestor id (``idnum``), the value of the solver (``fx``),
+the logarithm of the weight (``log_weight``), and the coordinates.
+
+Example::
+
+    # Tindex beta walker idnum fx log_weight x1
+    0 0.0 0 0 73.82799488298886 0.0 8.592321856342956
+    0 0.0 1 1 13.487174782058675 0.0 -3.672488908364282
+    ...
+
+``pr.txt``
+^^^^^^^^^^
+This file stores the participation ratio of the weights for each temperature,
+which measures the effective number of replicas.
+The first column is the temperature index (``Tindex``), the second column is the
+inverse temperature (:math:`1/T`), and the third column is the participation ratio.
+
+.. code-block::
+
+    # $1: Tindex
+    # $2: 1/T
+    # $3: participation ratio
+    0 0.0 100.0
+    1 0.1 87.23456789012345
     ...
 
 Restart

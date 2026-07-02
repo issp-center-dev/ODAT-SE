@@ -19,7 +19,7 @@ DESCRIPTION
 PAMC の出力ファイル FILE から beta および分配関数の値を取り出し、model evidence を計算する。
 結果は標準出力に書き出される。また、結果をプロットした図をファイルに出力する。
 
-複数の FILE を指定した場合は、それらの model evidence の平均と分散を出力し、エラーバー付きのプロットを生成する。
+複数の FILE を指定した場合は、それらの model evidence の平均と標準偏差を出力し、エラーバー付きのプロットを生成する。
 
 .. note::
    * Python 3.6以上が必要です(f文字列を使用しているため)。
@@ -43,6 +43,12 @@ PAMC の出力ファイル FILE から beta および分配関数の値を取り
 
 **-o OUTPUT, --output OUTPUT**
     model evidence のプロットを出力するファイル名。出力形式は拡張子を元に設定され、matplotlib がサポートする形式を指定可能。デフォルトは model_evidence.png 。
+
+**--auto-focus**
+    model evidence の最大値をもとに、プロットの表示範囲を自動的に決定する方法を適用するフラグ。範囲の絞り込みの強さは ``--focus-factor`` オプションで制御する。
+
+**--focus-factor**
+    ``--auto-focus`` の絞り込みの強さを指定する。0 から 1 の実数（小さいほど狭い）で、``--auto-focus`` が指定されていない場合は無効。デフォルトは 0.5。
 
 **-h, --help**
     ヘルプメッセージを表示してプログラムを終了する。
@@ -74,7 +80,7 @@ USAGE
 
       $ python3 plt_model_evidence.py -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
 
-   3つのデータファイルから model evidence を計算し、それらの平均と分散を求める。
+   3つのデータファイルから model evidence を計算し、それらの平均と標準偏差を求める。
    結果を evidence_data.txt に出力し、evidence_plot.pdf にエラーバー付きのプロットを生成する。
 
 NOTES
@@ -143,7 +149,7 @@ model evidence :math:`P(D|\beta)` は以下の式で計算される:
    1  beta1  model_evidence1
    ...
 
-複数の入力ファイルを処理した場合は、分散の列が追加されます:
+複数の入力ファイルを処理した場合は、標準偏差の列が追加されます:
 
 .. code-block:: text
 
@@ -151,9 +157,9 @@ model evidence :math:`P(D|\beta)` は以下の式で計算される:
    # $1: Tstep
    # $2: beta
    # $3: average model_evidence
-   # $4: variance
-   0  beta0  avg_model_evidence0  variance0
-   1  beta1  avg_model_evidence1  variance1
+   # $4: standard deviation
+   0  beta0  avg_model_evidence0  std0
+   1  beta1  avg_model_evidence1  std1
    ...
 
 処理の仕組み
@@ -164,7 +170,7 @@ model evidence :math:`P(D|\beta)` は以下の式で計算される:
 1. 入力ファイルからbeta値とlogz値を読み込む
 2. 各データセットのデータ点数と重みを取得
 3. model evidenceの対数値を計算
-4. 複数ファイルの場合は平均と分散を計算
+4. 複数ファイルの場合は平均と標準偏差を計算
 5. 結果をファイルに出力
 6. model evidenceをbetaの関数としてプロット
 
@@ -181,7 +187,7 @@ model evidence :math:`P(D|\beta)` は以下の式で計算される:
 
 * 入力ファイルが存在しない場合: ファイルオープンエラーが発生
 * データ形式が不正: numpy.loadtxtでエラーが発生
-* NDATAとWEIGHTの長さが一致しない場合: AssertionErrorが発生
+* NDATAとWEIGHTの長さが一致しない場合、またはデータ点数・重みが正でない場合: エラーメッセージを表示して終了
 
 特に、データ点数のリストとそれらの重みの数は必ず一致させる必要があります。
 

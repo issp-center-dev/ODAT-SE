@@ -52,8 +52,8 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     -----------
       _initialize() :
          Sets up initial walker positions and counters
-      propose() :
-         Generates candidate moves for walkers
+      statespace.propose() :
+         Generates candidate moves for walkers (lives on the state space)
       local_update() :
          Performs one Monte Carlo step
       _evaluate() :
@@ -64,20 +64,9 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
     iscontinuous: bool
 
-    # # continuous problem
-    # x: np.ndarray
-    # xmin: np.ndarray
-    # xmax: np.ndarray
-    # xstep: np.ndarray
-
-    # # discrete problem
-    # inode: np.ndarray
-    # nnodes: int
-    # node_coordinates: np.ndarray
-    # neighbor_list: list[list[int]]
-    # ncandidates: np.ndarray  # len(neighbor_list[i])-1
-
-    # state: Union[ContinuousState, DiscreteState]
+    # The per-walker coordinate/step data and the discrete-graph data now live
+    # on the StateSpace objects (Continuous/DiscreteStateSpace in state.py);
+    # the current walker state is held in ``self.state``.
 
     numsteps: int
 
@@ -216,6 +205,8 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
 
         Parameters
         ----------
+        state : ContinuousState or DiscreteState
+            Walker state whose positions ``state.x`` are evaluated.
         in_range : np.ndarray, optional
             Boolean mask indicating valid positions
             True = position is valid and should be evaluated

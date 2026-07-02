@@ -10,28 +10,60 @@ from typing import Optional, Sequence
 
 import sys
 import odatse
+from . import exception
 
-def main(argv: Optional[Sequence[str]] = None):
+
+def choose_solver(info):
     """
-    Main function to run the data-analysis software for quantum beam diffraction experiments
-    on 2D material structures. It parses command-line arguments, loads the input file,
-    selects the appropriate algorithm and solver, and executes the analysis.
+    Select the solver class for the given info.
+
+    Parameters
+    ----------
+    info : odatse.Info
+        Information object containing the solver configuration.
+
+    Returns
+    -------
+    type
+        The solver class.
+
+    Raises
+    ------
+    odatse.exception.InputError
+        If the solver name is not recognised.
     """
-
-    info, run_mode = odatse.initialize(argv)
-
-    alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
-
     solvername = info.solver["name"]
     if solvername == "analytical":
         from .solver.analytical import Solver
-    else:
+        return Solver
+    raise exception.InputError(f"Unknown solver ({solvername})")
+
+
+def main(argv: Optional[Sequence[str]] = None):
+    """
+    Command-line entry point for the data-analysis software.
+
+    Parses command-line arguments, loads the input file, selects the algorithm
+    and solver, and executes the analysis.
+
+    This is the top-level boundary: user-facing errors
+    (``odatse.exception.Error``) are reported and converted to a non-zero exit
+    status. To handle these as exceptions instead, compose the lower-level API
+    (``odatse.initialize`` / ``odatse.algorithm.choose_algorithm`` /
+    ``Algorithm``) directly.
+    """
+    try:
+        info, run_mode = odatse.initialize(argv)
+
+        alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+
+        Solver = choose_solver(info)
+        solver = Solver(info)
+        runner = odatse.Runner(solver, info)
+        alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
+
+        return alg.main()
+    except exception.Error as e:
         if odatse.mpi.rank() == 0:
-            print(f"ERROR: Unknown solver ({solvername})")
+            print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
-
-    solver = Solver(info)
-    runner = odatse.Runner(solver, info)
-    alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
-
-    result = alg.main()

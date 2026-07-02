@@ -162,7 +162,7 @@ Each line contains numerical data separated by whitespace. In the standard forma
 * Color mapping is on a logarithmic scale (LogNorm), allowing visualization of low-density regions
 * Color bar is displayed as "Normalized Density (Log Scale)"
 * Grid lines are displayed in light gray, making it easier to grasp data positions
-* Zero-density regions are replaced with a very small value (1e-10) to enable display on a logarithmic scale
+* Empty (zero-density) bins are masked and rendered transparent; the logarithmic color scale uses data-driven limits (vmin/vmax taken from the non-empty bins)
 
 Histogram Creation Mechanism
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

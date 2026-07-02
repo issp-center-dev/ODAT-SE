@@ -8,12 +8,11 @@
 
 import os
 import glob
-import numpy as np
 import argparse
 
 try:
     from tqdm import tqdm
-except:
+except ImportError:
     tqdm = None
 
 def read_toml(input_filename):
@@ -34,28 +33,47 @@ def read_toml(input_filename):
         import tomllib
     except ImportError:
         import tomli as tomllib
-        if tomllib.__version__ < "1.2.0":
+        # Numeric comparison: a string compare is wrong (e.g. "1.10.0" < "1.2.0").
+        major_minor = tuple(int(x) for x in tomllib.__version__.split(".")[:2])
+        if major_minor < (1, 2):
             raise ImportError("tomli 1.2.0 or later required")
 
     with open(input_filename, "rb") as fp:
         dict_toml = tomllib.load(fp)
 
-    replica_per_proc = dict_toml["algorithm"]["pamc"]["nreplica_per_proc"]
-    output_dir = dict_toml["base"]["output_dir"]
+    # This tool targets PAMC output; give a clear error (not a bare KeyError)
+    # if the config is for another algorithm or lacks the field. Pass -n to
+    # override the replica count without a config.
+    try:
+        replica_per_proc = dict_toml["algorithm"]["pamc"]["nreplica_per_proc"]
+    except (KeyError, TypeError):
+        raise KeyError(
+            f"{input_filename}: [algorithm.pamc].nreplica_per_proc not found "
+            "(expected a PAMC config; use -n to set the replica count instead)"
+        )
+    output_dir = dict_toml.get("base", {}).get("output_dir", ".")
 
     return {
         "replica_per_proc": replica_per_proc,
         "output_dir": output_dir
     }
 
-def extract_columns(file_path, export_dir, replica_per_proc):
+def extract_columns(file_path, export_dir, replica_per_proc, written):
     """
-    Extracts and processes specific data from a file.
+    Extract the final population (one row per walker) from a result file.
 
-    Processes the last 'replica_per_proc' rows from the file:
-      - removes the 1st and 2nd columns,
-      - replaces the 3rd column (T) with its reciprocal (beta), and
-      - appends results to an output file, adding a header if the file is newly created.
+    Selects the final sample of each walker, drops the step / walker_id /
+    ancestor columns, and writes the remaining columns to a per-temperature
+    output file.
+
+    When ``replica_per_proc > 0`` the last ``replica_per_proc`` rows are taken
+    (they are the final population). Otherwise the final sample of each walker
+    is selected as the row with the largest step per walker id (column 1), so
+    walkers that ended at different steps are handled correctly.
+
+    Output files are aggregated across all input files of a run: the first time
+    a given output file is written in this run it is truncated (``written``
+    tracks that), so re-running does not duplicate data.
 
     Parameters
     ----------
@@ -64,7 +82,9 @@ def extract_columns(file_path, export_dir, replica_per_proc):
     export_dir : str
         Directory where the output file will be saved.
     replica_per_proc : int
-        Number of rows to extract from the end of the file.
+        Number of final rows to extract (<= 0 selects the last step per walker).
+    written : set
+        Set of output paths already written in this run (mutated here).
 
     Note
     ----
@@ -78,39 +98,51 @@ def extract_columns(file_path, export_dir, replica_per_proc):
     output_filename = file_base + "_summarized" + file_ext
     output_file_path = os.path.join(export_dir, output_filename)
 
-    # Check if file exists to determine if header is needed
-    file_exists = os.path.isfile(output_file_path)
-
-    # Read input data file
+    # Read input data file (skip comment and blank lines)
     with open(file_path, "r") as f:
         lines_all = f.readlines()
-        headers = [line.strip() for line in lines_all if line.startswith("#")]
-        lines = [line.strip() for line in lines_all if not line.startswith("#")]
+    headers = [line.strip() for line in lines_all if line.startswith("#")]
+    lines = [line for line in lines_all
+             if line.strip() and not line.startswith("#")]
 
-    # Process header line
+    # Build the output header (column labels minus step/walker_id/ancestor)
+    header_line = None
     for line in headers:
         if "walker" in line:
-            header_line = "# " + " ".join(line.replace("#","").split()[2:-1]) + "\n"
+            header_line = "# " + " ".join(line.replace("#", "").split()[2:-1]) + "\n"
             break
-    else:
-        header_line = None
+    if header_line is None:
+        print(f"Warning: no header with 'walker' found in {file_path}; "
+              "output header omitted")
 
-    # Extract data
+    # Select the final sample(s)
     if replica_per_proc > 0:
         extracted_data = lines[-replica_per_proc:]
     else:
-        steps = set([int(line.split()[0]) for line in lines])
-        last_step = np.sort(list(steps))[-1]
-        extracted_data = [line for line in lines if int(line.split()[0]) == last_step]
+        # Final sample of each walker: the row with the largest step per
+        # walker id (column 1). Output ordered by walker id.
+        last = {}
+        for line in lines:
+            cols = line.split()
+            step, walker = int(cols[0]), cols[1]
+            if walker not in last or step > last[walker][0]:
+                last[walker] = (step, line)
+        extracted_data = [last[w][1] for w in sorted(last, key=int)]
 
-    # Omit step, walker_id, ancester fields
+    # Omit step, walker_id, ancestor fields
     new_lines = [" ".join(line.split()[2:-1]) + "\n" for line in extracted_data]
 
-    # Write data
-    with open(output_file_path, "a") as f:
-        if not file_exists:
-            if header_line is not None:
-                f.write(header_line)
+    # Truncate on the first write to this output file in the current run, then
+    # append for the remaining input files. This aggregates per-temperature
+    # data across directories without duplicating it on re-runs.
+    if output_file_path not in written:
+        mode = "w"
+        written.add(output_file_path)
+    else:
+        mode = "a"
+    with open(output_file_path, mode) as f:
+        if mode == "w" and header_line is not None:
+            f.write(header_line)
         f.writelines(new_lines)
 
 
@@ -129,7 +161,6 @@ def main():
 
     replica_per_proc = 0
     output_dir = "."
-    export_dir = "."
 
     # Read TOML configuration
     if args.input_file:
@@ -137,8 +168,8 @@ def main():
         replica_per_proc = toml_config["replica_per_proc"]
         output_dir = toml_config["output_dir"]
 
-    # Overwrite options by commandline args
-    if args.nreplica:
+    # Overwrite options by commandline args (use "is not None" so -n 0 is honored)
+    if args.nreplica is not None:
         replica_per_proc = args.nreplica
     if args.data_directory:
         output_dir = args.data_directory
@@ -146,19 +177,28 @@ def main():
     # Prepare output directory
     os.makedirs(args.export_directory, exist_ok=True)
 
-    # Find and process input files
+    # Find input files
     file_pattern = os.path.join(output_dir, "*", "result_T*.txt")
     input_files = sorted(glob.glob(file_pattern))
+    if not input_files:
+        parser.error(f"no input files found matching {file_pattern}")
 
-    if tqdm and args.progress:
-        input_files = tqdm(input_files)
+    iterator = tqdm(input_files) if (tqdm and args.progress) else input_files
 
-    # Extract data from each file
-    for file_path in input_files:
+    # Extract data from each file. `written` makes the per-temperature output
+    # files truncate-then-append within one run (idempotent on re-run).
+    written = set()
+    err = 0
+    for file_path in iterator:
         try:
-            extract_columns(file_path, args.export_directory, replica_per_proc)
+            extract_columns(file_path, args.export_directory, replica_per_proc, written)
         except Exception as e:
-            print(f"Error processing file {file_path}: {e}")
+            print(f"Error processing file {file_path}: {type(e).__name__}: {e}")
+            err += 1
+
+    if err:
+        print(f"ERROR: {err} file(s) failed.")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

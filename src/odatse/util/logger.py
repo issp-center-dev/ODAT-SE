@@ -67,7 +67,9 @@ class Logger:
         if info is not None:
             info_log = info.runner.get("log", {})
         else:
-            info_log = params
+            # params may be omitted; fall back to an empty config so the
+            # .get() lookups below use the keyword defaults instead of raising.
+            info_log = params or {}
 
         self.buffer_size = info_log.get("interval", buffer_size)
         self.filename = info_log.get("filename", filename)

@@ -19,7 +19,7 @@ You can call external programs using ``subprocess`` inside the ``evaluate`` meth
     import subprocess
 
     class MySolver(odatse.solver.SolverBase):
-        def evaluate(self, x, args=(), nprocs=1, nthreads=1):
+        def evaluate(self, x, args=()):
             # Write parameters to file
             with open("params.dat", "w") as f:
                 for xi in x:

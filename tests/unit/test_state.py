@@ -10,6 +10,14 @@ import pytest
 import odatse
 from odatse import mpi
 
+# These tests gather walker states across the algorithm communicator, which
+# only exists when MPI is enabled. Skip them when MPI is disabled
+# (ODATSE_NOMPI=1), where algcomm() is None.
+pytestmark = pytest.mark.skipif(
+    not mpi.enabled(), reason="requires an MPI algorithm communicator"
+)
+
+
 def test_gather_discrete():
     from odatse.algorithm.state import DiscreteState, DiscreteStateSpace
 

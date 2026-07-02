@@ -29,4 +29,10 @@ First, enable checkpointing:
     checkpoint_steps = 1000
     checkpoint_interval = 3600  # every 1 hour
 
-If the calculation is interrupted, running again with the same input file automatically resumes from the last checkpoint.
+If the calculation is interrupted, run the program again with the same input file and the ``--resume`` option to restart from the last checkpoint:
+
+.. code-block:: bash
+
+    $ odatse --resume input.toml
+
+Without an option the program starts from the beginning (equivalent to ``--init``, the default). Use ``--cont`` to continue a finished run for additional steps.
