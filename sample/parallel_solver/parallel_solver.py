@@ -34,9 +34,6 @@ class ParallelSolver(odatse.solver.SolverBase):
         super().__init__(info)
         _require_mpi()
 
-        self.opt_x = None
-        self.opt_fx = np.inf
-
         self.nmats=kwargs["nmats"]
         self.matsize=kwargs["matsize"]
 
@@ -74,12 +71,6 @@ class ParallelSolver(odatse.solver.SolverBase):
 
         if odatse.mpi.solrank() == 0:
             print(f"algrank: {odatse.mpi.algrank()}, results: {list(results)}")
-
-            best_x = np.argmin(results)
-            best_fx = results[best_x]
-            if best_fx < self.opt_fx:
-                self.opt_x = xs[best_x]
-                self.opt_fx = best_fx
         return results
 
 def main():
@@ -114,16 +105,10 @@ def main():
     time1 = time.time()
     elapsed_time = time1 - time0
 
-    if odatse.mpi.run_on_algorithm():
-        opt_fx, opt_x = min(
-            odatse.mpi.algcomm().allgather( (solver.opt_fx, solver.opt_x) ),
-            key=lambda x: x[0])
-
-    odatse.mpi.comm().barrier()
-
     if odatse.mpi.rank() == 0:
-        print(f"\nopt_x={opt_x}")
-        print(f"opt_fx={opt_fx}")
+        print(f"\nopt_x={result['x']}")
+        print(f"opt_fx={result['fx']}")
+        print(f"opt_index={result['index']}")
         print(f"time: {elapsed_time:.6f}s")
 
 if __name__ == "__main__":

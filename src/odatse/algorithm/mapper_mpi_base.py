@@ -171,7 +171,10 @@ class Algorithm(AlgorithmBase):
         Returns
         -------
         dict
-            Dictionary of results.
+            Dictionary with the optimal point: ``x`` (coordinates of the
+            minimum), ``fx`` (function value at the minimum), and ``index``
+            (mesh index of the minimum). ``x`` and ``index`` are ``None`` if
+            no point was evaluated.
         """
         if odatse.mpi.algsize() > 1:
             # gather results
@@ -193,7 +196,9 @@ class Algorithm(AlgorithmBase):
         if odatse.mpi.algrank() == 0:
             self._output_results(results, opt_fx, opt_mesh)
 
-        return {}
+        if opt_mesh is None:
+            return {"x": None, "fx": opt_fx, "index": None}
+        return {"x": opt_mesh[1], "fx": opt_fx, "index": opt_mesh[0]}
 
     # Mapper-specific fields (simple getattr/setattr).
     _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
