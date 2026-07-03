@@ -18,16 +18,19 @@ classifiers = [
 dependencies = [
     "numpy>=1.14",
     "tomli>=1.2 ; python_full_version < '3.11'",
+    "matplotlib>= 3",
 ]
 
 [project.optional-dependencies]
 min_search = ["scipy>=1,<2"]
 bayes = ["physbo>= 2.0.0"]
 exchange = ["mpi4py>= 3.1.0"]
+progress = ["tqdm>= 4"]
 all = [
     "scipy>=1,<2",
     "mpi4py>= 3.1.0",
     "physbo>= 2.0.0",
+    "tqdm>= 4",
 ]
 
 [project.urls]
@@ -36,6 +39,12 @@ Repository = "https://github.com/issp-center-dev/ODAT-SE"
 [project.scripts]
 odatse = "odatse:main"
 odatse_neighborlist = "odatse.util.neighborlist:main"
+odatse_extract_combined = "odatse.scripts.extract_combined:main"
+odatse_plt_1D_histogram = "odatse.scripts.plt_1D_histogram:main"
+odatse_plt_2D_histogram = "odatse.scripts.plt_2D_histogram:main"
+odatse_plt_model_evidence = "odatse.scripts.plt_model_evidence:main"
+odatse_separateT = "odatse.scripts.separateT:main"
+odatse_summarize_each_T = "odatse.scripts.summarize_each_T:main"
 
 [tool.hatch.build.targets.sdist]
 include = ["src/odatse"]

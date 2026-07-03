@@ -2,7 +2,7 @@
 
 export PYTHONUNBUFFERED=1
 
-python3 ../../../script/summarize_each_T.py -i input.toml
+odatse_summarize_each_T -i input.toml
 
-python3 ../../../script/plt_1D_histogram.py --config config.toml
-python3 ../../../script/plt_2D_histogram.py --config config.toml
+odatse_plt_1D_histogram --config config.toml
+odatse_plt_2D_histogram --config config.toml

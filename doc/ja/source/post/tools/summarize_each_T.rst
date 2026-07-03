@@ -1,5 +1,5 @@
-summarize_each_T.py
-===================
+odatse_summarize_each_T
+=======================
 
 NAME
 ----
@@ -11,7 +11,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py [OPTION]...
+   odatse_summarize_each_T [OPTION]...
 
 
 DESCRIPTION
@@ -61,7 +61,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized
+      odatse_summarize_each_T -d output -o summarized
 
    output ディレクトリ内のすべてのプロセスフォルダから result_T*.txt ファイルを処理し、summarized ディレクトリに保存します。
    各ファイルの最後のMCステップのデータが抽出されます。
@@ -70,7 +70,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -i input.toml -o summarized
+      odatse_summarize_each_T -i input.toml -o summarized
 
    input.toml から設定を読み込み(レプリカ数、データディレクトリ)、データを処理して summarized ディレクトリに保存します。
 
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -n 16 -o summarized
+      odatse_summarize_each_T -d output -n 16 -o summarized
 
    各ファイルの最後の16行を抽出します(16レプリカの場合)。
 
@@ -86,7 +86,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized --progress
+      odatse_summarize_each_T -d output -o summarized --progress
 
    処理中にプログレスバーを表示します(tqdmライブラリが必要)。
 

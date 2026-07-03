@@ -1,5 +1,5 @@
-extract_combined.py
-===================
+odatse_extract_combined
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 extract_combined.py [OPTION]... -t tag [FILE]...
+   odatse_extract_combined [OPTION]... -t tag [FILE]...
 
 
 DESCRIPTION
@@ -50,13 +50,13 @@ Basic usage examples are shown below.
 .. code-block:: bash
 
    # Extract lines with the "energy" tag from a specific file
-   python3 extract_combined.py -t energy path/to/combined.txt
+   odatse_extract_combined -t energy path/to/combined.txt
 
    # Extract lines with the "acc" tag from all combined.txt files in a specific directory
-   python3 extract_combined.py -t acc -d ./mcmc_results/
+   odatse_extract_combined -t acc -d ./mcmc_results/
 
    # Process multiple files with a progress bar
-   python3 extract_combined.py -t energy --progress file1.txt file2.txt file3.txt
+   odatse_extract_combined -t energy --progress file1.txt file2.txt file3.txt
 
 NOTES
 -----
@@ -94,7 +94,7 @@ Files in combined format have the following structure:
    <tag1> value5 value6 ...
    ...
 
-Each line begins with a tag in the format ``<tag>``, and ``extract_combined.py`` searches for and extracts lines with matching tags.
+Each line begins with a tag in the format ``<tag>``, and ``odatse_extract_combined`` searches for and extracts lines with matching tags.
 The tag portion is removed from the output file.
 
 General Workflow
@@ -103,7 +103,7 @@ General Workflow
 This script is used when analyzing MCMC simulation results:
 
 1. When MCMC simulation is run with the export_combined_files option enabled, ``combined.txt`` files are generated.
-2. Use ``extract_combined.py`` to extract necessary files.
+2. Use ``odatse_extract_combined`` to extract necessary files.
 3. Analyze or plot the extracted data files with other tools.
 
 When processing multiple simulation results at once, combining the ``-d`` option with the ``--progress`` option is efficient.

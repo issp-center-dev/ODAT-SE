@@ -1,5 +1,5 @@
-plt_1D_histogram.py
-====================
+odatse_plt_1D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_1D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_1D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -83,7 +83,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -o 1dhist file.txt
 
    1dhist/1Dhistogram_file.png が出力される。
 
@@ -91,7 +91,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -d data -o 1dhist
+      $ odatse_plt_1D_histogram -d data -o 1dhist
 
    1dhist ディレクトリに 1Dhistogram_result_T0_NNNN.png 〜 1Dhistogram_result_T10_MMMM.png が出力される。ファイル名の ``summarized`` は ``T_{T}`` または ``beta_{beta}`` に置き換えられる。
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -c x1,x3 -o 1dhist -f png,pdf file.txt
+      $ odatse_plt_1D_histogram -c x1,x3 -o 1dhist -f png,pdf file.txt
 
    1dhist/1Dhistogram_file.png と 1dhist/1Dhistogram_file.pdf が出力される。
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -r 3.0,6.0 -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -r 3.0,6.0 -o 1dhist file.txt
 
 5. オプションの内容を config ファイルに記述して利用する。conf.toml を以下のように用意する。
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py --config conf.toml
+      $ odatse_plt_1D_histogram --config conf.toml
 
    summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、1dhist/1Dhistogram_result_T*.png に出力される。
 
@@ -169,7 +169,7 @@ NOTES
 
   ``1Dhistogram_{入力ファイル名}.{フォーマット}``
 
-* ``summarize_each_T.py`` から出力された、ファイル名に _summarized.txt を含むファイル:
+* ``odatse_summarize_each_T`` から出力された、ファイル名に _summarized.txt を含むファイル:
 
   ``1Dhistogram_{入力ファイル名の_summarizedを T または beta に置換}.{フォーマット}``
 

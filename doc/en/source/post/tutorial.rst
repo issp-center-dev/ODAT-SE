@@ -8,8 +8,8 @@ Prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Python 3.9 or later
-- matplotlib (required for histogram and model evidence plots)
-- Post-processing scripts are included in the ``script/`` directory of ODAT-SE
+- matplotlib (required for histogram and model evidence plots; installed together with ODAT-SE)
+- Post-processing tools are installed together with ODAT-SE as commands prefixed with ``odatse_`` (e.g. ``odatse_extract_combined``)
 
 Workflow Overview
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,7 +70,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
    .. code-block:: bash
 
-      python3 extract_combined.py -t result.txt -d output
+      odatse_extract_combined -t result.txt -d output
 
 .. note::
 
@@ -79,7 +79,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
    .. code-block:: bash
 
-      python3 separateT.py -d output
+      odatse_separateT -d output
 
 
 2. Calculating Model Evidence
@@ -97,7 +97,7 @@ In this example, the search space spans [3.0, 6.0] for each of z1, z2, z3. The n
 
 .. code-block:: bash
 
-   python3 plt_model_evidence.py -V 27.0 -n 70 output/fx.txt
+   odatse_plt_model_evidence -V 27.0 -n 70 output/fx.txt
 
 Model evidence values are written to model_evidence.txt, and a plot against beta is output to model_evidence.png.
 For detailed options, see :doc:`tools/plt_model_evidence`.
@@ -118,7 +118,7 @@ Extract and combine replica configurations at the end of annealing from MCMC ste
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py -d output -o summarized
+   odatse_summarize_each_T -d output -o summarized
 
 Results are written to summarized/result_T{index}_summarized.txt.
 For detailed options, see :doc:`tools/summarize_each_T`.
@@ -135,7 +135,7 @@ To create 1D histograms marginalized along each :math:`z_i`:
 
 .. code-block:: bash
 
-   python3 plt_1D_histogram.py -d summarized -o 1dhist -r 3.0,6.0
+   odatse_plt_1D_histogram -d summarized -o 1dhist -r 3.0,6.0
 
 This creates histograms for each data file in summarized/, with output to 1dhist/.
 For detailed options, see :doc:`tools/plt_1D_histogram`.
@@ -149,7 +149,7 @@ To create 2D marginalized histograms:
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py -d summarized -o 2dhist -r 3.0,6.0
+   odatse_plt_2D_histogram -d summarized -o 2dhist -r 3.0,6.0
 
 This creates 2D histograms for combinations (z1,z2), (z1,z3), (z2,z3), with output to 2dhist/.
 The 2D histograms allow you to examine correlations between parameters.
