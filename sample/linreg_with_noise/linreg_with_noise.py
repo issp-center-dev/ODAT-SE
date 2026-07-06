@@ -18,8 +18,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from odatse.algorithm import choose_algorithm
 
-sys.path.append("../../script")
-from plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
+from odatse.scripts.plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
 
 
 class LinearRegression(odatse.solver.SolverBase):

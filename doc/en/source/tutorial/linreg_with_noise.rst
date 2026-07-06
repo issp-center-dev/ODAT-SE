@@ -185,8 +185,7 @@ The ODAT-SE framework allows users to define custom solvers by inheriting from t
     from matplotlib import pyplot as plt
     from odatse.algorithm import choose_algorithm
 
-    sys.path.append("../../script")
-    from plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
+    from odatse.scripts.plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
 
     class LinearRegression(odatse.solver.SolverBase):
         """Linear regression solver class"""
@@ -218,7 +217,7 @@ The target function is defined in the ``evaluate`` function. Here, we use the qu
 Model Evidence Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the calculation of the model evidence we import functions from the post-processing tool ``plt_model_evidence.py`` (for details, see :doc:`../post/index`). To plot the linear fit together with noise bands, we use the following function (which supports both single coefficient and multiple coefficients, with or without intercept):
+For the calculation of the model evidence we import functions from the post-processing tool ``odatse_plt_model_evidence`` (module ``odatse.scripts.plt_model_evidence``; for details, see :doc:`../post/index`). To plot the linear fit together with noise bands, we use the following function (which supports both single coefficient and multiple coefficients, with or without intercept):
 
 .. code:: python
 

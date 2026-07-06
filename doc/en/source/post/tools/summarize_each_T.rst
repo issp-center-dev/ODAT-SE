@@ -1,5 +1,5 @@
-summarize_each_T.py
-====================
+odatse_summarize_each_T
+=======================
 
 NAME
 ----
@@ -11,7 +11,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py [OPTION]...
+   odatse_summarize_each_T [OPTION]...
 
 
 DESCRIPTION
@@ -61,7 +61,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized
+      odatse_summarize_each_T -d output -o summarized
 
    Processes result_T*.txt files from all process folders in the output directory and saves them to the summarized directory.
    Data from the last MC step of each file is extracted.
@@ -70,7 +70,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -i input.toml -o summarized
+      odatse_summarize_each_T -i input.toml -o summarized
 
    Loads settings from input.toml (number of replicas, data directory), processes the data, and saves it to the summarized directory.
 
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -n 16 -o summarized
+      odatse_summarize_each_T -d output -n 16 -o summarized
 
    Extracts the last 16 lines from each file (for 16 replicas).
 
@@ -86,7 +86,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized --progress
+      odatse_summarize_each_T -d output -o summarized --progress
 
    Displays a progress bar during processing (requires the tqdm library).
 

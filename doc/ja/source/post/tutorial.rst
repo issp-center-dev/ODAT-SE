@@ -8,8 +8,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Python 3.9 以上
-- matplotlib（ヒストグラムや model evidence のプロットに必要）
-- ポスト処理スクリプトは ODAT-SE の ``script/`` ディレクトリに含まれています
+- matplotlib（ヒストグラムや model evidence のプロットに必要。ODAT-SE 本体とともに自動でインストールされます）
+- ポスト処理ツールは ODAT-SE のインストール時に ``odatse_`` で始まるコマンド（``odatse_extract_combined`` など）として導入されます
 
 解析の流れ
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,7 +70,7 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 
    .. code-block:: bash
 
-      python3 extract_combined.py -t result.txt -d output
+      odatse_extract_combined -t result.txt -d output
 
 .. note::
 
@@ -79,7 +79,7 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 
    .. code-block:: bash
 
-      python3 separateT.py -d output
+      odatse_separateT -d output
 
 
 2. model evidence を計算する
@@ -97,7 +97,7 @@ output/fx.txt に出力された分配関数 :math:`\log Z/Z_0` の値を用い�
 
 .. code-block:: bash
 
-   python3 plt_model_evidence.py -V 27.0 -n 70 output/fx.txt
+   odatse_plt_model_evidence -V 27.0 -n 70 output/fx.txt
 
 model evidence の値は model_evidence.txt に書き出されます。また、beta についてプロットした図が model_evidence.png に出力されます。
 オプションの詳細は :doc:`tools/plt_model_evidence` を参照してください。
@@ -118,7 +118,7 @@ output/{rank}/result_T{index}.txt に出力されている MCMC ステップの�
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py -d output -o summarized
+   odatse_summarize_each_T -d output -o summarized
 
 summarized/ 以下に result_T{index}_summarized.txt として書き出されます。
 オプションの詳細は :doc:`tools/summarize_each_T` を参照してください。
@@ -135,7 +135,7 @@ Step 2 で特定した最適な :math:`\beta` 付近の温度点に注目して�
 
 .. code-block:: bash
 
-   python3 plt_1D_histogram.py -d summarized -o 1dhist -r 3.0,6.0
+   odatse_plt_1D_histogram -d summarized -o 1dhist -r 3.0,6.0
 
 summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に出力されます。
 オプションの詳細は :doc:`tools/plt_1D_histogram` を参照してください。
@@ -149,7 +149,7 @@ summarized/ のデータファイルそれぞれについてヒストグラム�
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py -d summarized -o 2dhist -r 3.0,6.0
+   odatse_plt_2D_histogram -d summarized -o 2dhist -r 3.0,6.0
 
 z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元ヒストグラムが作成され、2dhist/ 以下に出力されます。
 2次元ヒストグラムにより、パラメータ間の相関を確認できます。

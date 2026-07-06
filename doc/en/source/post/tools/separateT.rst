@@ -1,5 +1,5 @@
-separateT.py
-============
+odatse_separateT
+================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 separateT.py [OPTION]... [FILE]...
+   odatse_separateT [OPTION]... [FILE]...
 
 
 DESCRIPTION
@@ -50,7 +50,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py output/0/result.txt
+      odatse_separateT output/0/result.txt
 
    output/0/result_T0.txt, output/0/result_T1.txt, ... are created.
 
@@ -58,7 +58,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -d output
+      odatse_separateT -d output
 
    output/0/result.txt, output/1/result.txt, ... will be processed.
 
@@ -66,7 +66,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -t trial.txt -d output
+      odatse_separateT -t trial.txt -d output
 
    Splits output/0/trial.txt, output/1/trial.txt, ...
 
@@ -74,7 +74,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py --progress file1.txt file2.txt file3.txt
+      odatse_separateT --progress file1.txt file2.txt file3.txt
 
    Each file is split by temperature points, and progress is displayed with a progress bar.
 
