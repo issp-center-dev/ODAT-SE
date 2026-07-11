@@ -104,6 +104,9 @@ The following parameters can be set in the ``[algorithm]`` section.
   Format: Integer.
 
   Description: The seed for the pseudo-random number generator used to generate the parameters.
+  For quasi-random sequences, the seed is used for the scrambling of the sequence;
+  when specified, the generated point set becomes reproducible,
+  and is identical regardless of the number of MPI processes.
 
 
 Output files
