@@ -23,10 +23,17 @@ from ._algorithm import AlgorithmBase
 
 class Algorithm(AlgorithmBase):
     """
-    Algorithm class for the data analysis framework.
+    Base class of mapper-type algorithms that evaluate the objective
+    function over a sequence of points supplied by an iterator.
     Inherits from odatse.algorithm.AlgorithmBase.
+
+    The set of points to evaluate is provided by an iterator object
+    (a subclass of odatse.algorithm._iterator.IteratorBase). Subclasses
+    such as mapper_mpi and random_search construct a suitable iterator
+    from the input parameters and assign it to self._iter. Alternatively,
+    a custom point sequence can be supplied programmatically through the
+    iterator parameter of this class.
     """
-    #mesh_list: List[Union[int, float]]
 
     def __init__(self,
                  info: odatse.Info,
@@ -45,8 +52,11 @@ class Algorithm(AlgorithmBase):
             Optional runner object for submitting tasks.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        iterator : Iterator
-            Iterator object.
+        iterator : IteratorBase
+            Iterator that yields (index, coordinates) pairs of the points
+            to evaluate. Subclasses usually build one from the input
+            parameters and set self._iter themselves; pass an iterator
+            here to evaluate a custom point sequence directly.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
