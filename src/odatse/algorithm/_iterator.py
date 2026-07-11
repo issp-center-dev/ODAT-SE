@@ -105,27 +105,6 @@ class ListIterator(IteratorBase):
         return data
 
 
-class DistributedListIterator(IteratorBase):
-    _checkpoint_attrs: list[str] = ["_i", "_data"]
-
-    def __init__(self, data, mpicomm=None):
-        # all ranks have their own chunk of data
-        super().__init__()
-
-        self._data = data
-
-        self._index_start = 0
-        self._index_end = len(self._data)
-        self._i = self._index_start
-
-    def __next__(self):
-        if self._i == self._index_end:
-            raise StopIteration()
-        data = self._data[self._i]
-        self._i += 1
-        return data[0], data[1:]
-
-
 class RandomIterator(IteratorBase):
     _checkpoint_attrs: list[str] = ["_i"]
 
