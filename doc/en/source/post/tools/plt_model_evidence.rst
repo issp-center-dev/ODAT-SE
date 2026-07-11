@@ -1,5 +1,5 @@
-plt_model_evidence.py
-=====================
+odatse_plt_model_evidence
+=========================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_model_evidence.py [OPTION]... -n NDATA FILEs
+   odatse_plt_model_evidence [OPTION]... -n NDATA FILEs
 
 
 DESCRIPTION
@@ -60,7 +60,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 100 fx.txt
+      $ odatse_plt_model_evidence -n 100 fx.txt
 
    Calculates the model evidence for a dataset with 100 data points,
    and outputs model_evidence.txt and model_evidence.png.
@@ -69,7 +69,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
+      $ odatse_plt_model_evidence -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
 
    Calculates the model evidence for three spots (with 50, 100, and 75 data points respectively,
    and relative weights of 0.2, 0.5, and 0.3).
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
+      $ odatse_plt_model_evidence -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
 
    Calculates the model evidence from three data files and determines the mean and standard deviation.
    Outputs the results to evidence_data.txt and generates a plot with error bars in evidence_plot.pdf.

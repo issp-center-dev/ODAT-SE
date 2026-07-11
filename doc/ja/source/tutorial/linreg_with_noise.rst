@@ -185,8 +185,7 @@ ODAT-SEフレームワークでは、ユーザーが ``SolverBase`` クラスを
     from matplotlib import pyplot as plt
     from odatse.algorithm import choose_algorithm
 
-    sys.path.append("../../script")
-    from plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
+    from odatse.scripts.plt_model_evidence import load_data, calc_log_pdb, print_log_pdb, plot_log_pdb
 
     class LinearRegression(odatse.solver.SolverBase):
         """Linear regression solver class"""
@@ -219,7 +218,7 @@ ODAT-SEフレームワークでは、ユーザーが ``SolverBase`` クラスを
 モデルエビデンスの計算
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-モデルエビデンスの計算については、後処理ツール ``plt_model_evidence.py`` から関数をインポートします(詳細は :doc:`../post/index` を参照)。線形フィットとノイズバンドをプロットするには、以下の関数を使用します(単一係数・複数係数、切片あり・なしの両方に対応しています)。
+モデルエビデンスの計算については、後処理ツール ``odatse_plt_model_evidence`` のモジュール ``odatse.scripts.plt_model_evidence`` から関数をインポートします(詳細は :doc:`../post/index` を参照)。線形フィットとノイズバンドをプロットするには、以下の関数を使用します(単一係数・複数係数、切片あり・なしの両方に対応しています)。
 
 .. code:: python
 

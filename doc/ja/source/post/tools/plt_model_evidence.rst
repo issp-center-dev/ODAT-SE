@@ -1,5 +1,5 @@
-plt_model_evidence.py
-=====================
+odatse_plt_model_evidence
+=========================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_model_evidence.py [OPTION]... -n NDATA FILEs
+   odatse_plt_model_evidence [OPTION]... -n NDATA FILEs
 
 
 DESCRIPTION
@@ -60,7 +60,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 100 fx.txt
+      $ odatse_plt_model_evidence -n 100 fx.txt
 
    データ点数100のデータセットについて model evidence を計算し、
    model_evidence.txt と model_evidence.png を出力する。
@@ -69,7 +69,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
+      $ odatse_plt_model_evidence -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
 
    3つのスポット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
    model evidence を計算する。
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_model_evidence.py -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
+      $ odatse_plt_model_evidence -n 100 -o evidence_plot.pdf -f evidence_data.txt fx_1.txt fx_2.txt fx_3.txt
 
    3つのデータファイルから model evidence を計算し、それらの平均と標準偏差を求める。
    結果を evidence_data.txt に出力し、evidence_plot.pdf にエラーバー付きのプロットを生成する。

@@ -1,5 +1,5 @@
-plt_1D_histogram.py
-====================
+odatse_plt_1D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_1D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_1D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -83,7 +83,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -o 1dhist file.txt
 
    1dhist/1Dhistogram_file.png is output.
 
@@ -91,7 +91,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -d data -o 1dhist
+      $ odatse_plt_1D_histogram -d data -o 1dhist
 
    1Dhistogram_result_T0_NNNN.png to 1Dhistogram_result_T10_MMMM.png are output to the 1dhist directory. In the filename, ``summarized`` is replaced with ``T_{T}`` or ``beta_{beta}``.
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -c x1,x3 -o 1dhist -f png,pdf file.txt
+      $ odatse_plt_1D_histogram -c x1,x3 -o 1dhist -f png,pdf file.txt
 
    1dhist/1Dhistogram_file.png and 1dhist/1Dhistogram_file.pdf are output.
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -r 3.0,6.0 -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -r 3.0,6.0 -o 1dhist file.txt
 
 5. Use a config file to describe the options. Prepare conf.toml as follows:
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py --config conf.toml
+      $ odatse_plt_1D_histogram --config conf.toml
 
    Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 1dhist/1Dhistogram_result_T*.png.
 
@@ -169,7 +169,7 @@ Output file naming convention:
   
   ``1Dhistogram_{input_filename}.{format}``
 
-* Files containing _summarized.txt (output from summarize_each_T.py):
+* Files containing _summarized.txt (output from odatse_summarize_each_T):
   
   ``1Dhistogram_{input_filename_with_summarized_replaced_by_T_or_beta}.{format}``
 

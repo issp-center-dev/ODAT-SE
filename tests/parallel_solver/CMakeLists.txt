@@ -82,6 +82,12 @@ add_test(
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/random_search
   )
 
+add_test(
+  NAME parallel_random_search_quasi
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/random_search_quasi
+  )
+
 # The do.sh scripts run "mpirun ... ${PYTHON:-python3}". Point PYTHON at the
 # interpreter CMake resolved (see top-level CMakeLists.txt) so mpirun does not
 # fall back to the system python3, which lacks the installed packages.

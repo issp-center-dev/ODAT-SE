@@ -1,5 +1,5 @@
-plt_2D_histogram.py
-====================
+odatse_plt_2D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_2D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -81,7 +81,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -o 2dhist file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x2.png,
    2dhist/2Dhistogram_file_x1_vs_x3.png,
@@ -91,7 +91,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -d data -o 2dhist
+      $ odatse_plt_2D_histogram -d data -o 2dhist
 
    2Dhistogram_result_T0_NNNN_x1_vs_x2.png to 2Dhistogram_result_T10_MMMM_x2_vs_x3.png are output to the 2dhist directory. In the filename, ``summarized`` is replaced with ``T_{T}`` or ``beta_{beta}``.
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -c x1,x3 -o 2dhist -f png,pdf file.txt
+      $ odatse_plt_2D_histogram -c x1,x3 -o 2dhist -f png,pdf file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x3.png and 2dhist/2Dhistogram_file_x1_vs_x3.pdf are output.
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -r 3.0,6.0 -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -r 3.0,6.0 -o 2dhist file.txt
 
 5. Use a config file to describe the options. Prepare conf.toml as follows:
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py --config conf.toml
+      $ odatse_plt_2D_histogram --config conf.toml
 
    Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*.png.
 
@@ -181,7 +181,7 @@ Output file naming convention:
 
   ``2Dhistogram_{input_filename}_{parameter1}_vs_{parameter2}.{format}``
 
-* Files containing _summarized.txt (output from summarize_each_T.py):
+* Files containing _summarized.txt (output from odatse_summarize_each_T):
 
   ``2Dhistogram_{filename_with_summarized_replaced_by_T_or_beta}_{parameter1}_vs_{parameter2}.{format}``
 

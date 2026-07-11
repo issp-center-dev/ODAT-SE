@@ -1,5 +1,5 @@
-plt_2D_histogram.py
-===================
+odatse_plt_2D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_2D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -81,7 +81,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -o 2dhist file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x2.png,
    2dhist/2Dhistogram_file_x1_vs_x3.png,
@@ -91,7 +91,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -d data -o 2dhist
+      $ odatse_plt_2D_histogram -d data -o 2dhist
 
    2dhist ディレクトリに 2Dhistogram_result_T0_NNNN_x1_vs_x2.png 〜 2Dhistogram_result_T10_MMMM_x2_vs_x3.png が出力される。ファイル名の ``summarized`` は ``T_{T}`` または ``beta_{beta}`` に置き換えられる。
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -c x1,x3 -o 2dhist -f png,pdf file.txt
+      $ odatse_plt_2D_histogram -c x1,x3 -o 2dhist -f png,pdf file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x3.png と 2dhist/2Dhistogram_file_x1_vs_x3.pdf が出力される。
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -r 3.0,6.0 -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -r 3.0,6.0 -o 2dhist file.txt
 
 5. オプションの内容を config ファイルに記述して利用する。conf.toml を以下のように用意する。
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py --config config.toml
+      $ odatse_plt_2D_histogram --config config.toml
 
    summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、2dhist/2Dhistogram_result_T*.png に出力される。
 
@@ -181,7 +181,7 @@ NOTES
 
   ``2Dhistogram_{入力ファイル名}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
 
-* ``summarize_each_T.py`` から出力された、ファイル名に _summarized.txt を含むファイル:
+* ``odatse_summarize_each_T`` から出力された、ファイル名に _summarized.txt を含むファイル:
 
   ``2Dhistogram_{ファイル名の_summarizedを T または beta に置換}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
 

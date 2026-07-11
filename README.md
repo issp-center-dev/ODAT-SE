@@ -55,8 +55,6 @@ It also offers a driver script to solve the problem with predefined optimization
 
 - `src/`
   - source codes
-- `script/`
-  - utility scripts
 - `sample/`
   - sample usages
 - `doc/`
