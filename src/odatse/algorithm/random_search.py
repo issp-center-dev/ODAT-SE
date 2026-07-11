@@ -54,16 +54,18 @@ class Algorithm(MapperMPIAlgorithm):
 
         info_param = info.algorithm.get("param", {})
 
-        if mode == "random":
-            iter = self._random_iterator(info_param, self.rng)
-        elif mode == "quasi-random":
-            seq = info_mode.get("sequence", "sobol")
-            iter = self._quasi_random_iterator(info_param, seq)
+        if odatse.mpi.run_on_algorithm():
+            if mode == "random":
+                iter = self._random_iterator(info_param, self.rng)
+            elif mode == "quasi-random":
+                seq = info_mode.get("sequence", "sobol")
+                iter = self._quasi_random_iterator(info_param, seq)
+            else:
+                raise ValueError("ERROR: algorithm.mode.mode = {} is not supported".format(mode))
+            # delayed setup
+            self._iter = iter
         else:
-            raise ValueError("ERROR: algorithm.mode.mode = {} is not supported".format(mode))
-
-        # delayed setup
-        self._iter = iter
+            self._iter = None
 
     def _random_iterator(self, info_param, rng):
         """
