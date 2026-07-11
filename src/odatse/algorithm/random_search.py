@@ -59,7 +59,8 @@ class Algorithm(MapperMPIAlgorithm):
                 iter = self._random_iterator(info_param, self.rng)
             elif mode == "quasi-random":
                 seq = info_mode.get("sequence", "sobol")
-                iter = self._quasi_random_iterator(info_param, seq)
+                seed = info.algorithm.get("seed", None)
+                iter = self._quasi_random_iterator(info_param, seq, seed)
             else:
                 raise ValueError("ERROR: algorithm.mode.mode = {} is not supported".format(mode))
             # delayed setup
@@ -95,7 +96,23 @@ class Algorithm(MapperMPIAlgorithm):
 
         return RandomIterator(min_list, max_list, num_points, rng)
 
-    def _quasi_random_iterator(self, info_param, seq):
+    def _quasi_random_iterator(self, info_param, seq, seed=None):
+        """
+        Setup a quasi-random (low-discrepancy) point sequence.
+
+        Parameters
+        ----------
+        info_param
+            Dictionary containing parameters for setting up the points.
+        seq : str
+            Sequence type: "sobol", "halton", or "latin".
+        seed : int, optional
+            Seed for the scrambling of the sequence. The sequence is
+            generated on the algorithm-rank-0 process only, so a single
+            integer makes the whole point set reproducible independently
+            of the MPI configuration. If None, the scrambling differs
+            from run to run.
+        """
         from scipy.stats import qmc
 
         if "min_list" not in info_param:
@@ -119,11 +136,11 @@ class Algorithm(MapperMPIAlgorithm):
             d = len(min_list)
 
             if seq == "sobol":
-                sampler = qmc.Sobol(d, scramble=True, optimization=None)
+                sampler = qmc.Sobol(d, scramble=True, optimization=None, seed=seed)
             elif seq == "halton":
-                sampler = qmc.Halton(d, scramble=True, optimization=None)
+                sampler = qmc.Halton(d, scramble=True, optimization=None, seed=seed)
             elif seq == "latin":
-                sampler = qmc.LatinHypercube(d, scramble=True, strength=1, optimization=None)
+                sampler = qmc.LatinHypercube(d, scramble=True, strength=1, optimization=None, seed=seed)
             else:
                 raise ValueError("unknown sequence type {}".format(seq))
 
