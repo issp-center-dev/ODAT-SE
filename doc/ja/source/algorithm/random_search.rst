@@ -103,6 +103,9 @@ quasi-random sequence を使う場合は `scipy <https://scipy.org>`_ をイン�
   形式: 整数型。
 
   説明: パラメータ生成に用いる疑似乱数のシード。
+  quasi-random sequence の場合は数列のスクランブルに用いられ、
+  seed を指定すると生成される点列が再現可能になります。
+  点列は MPI の並列数によらず同一になります。
 
 
 出力ファイル
