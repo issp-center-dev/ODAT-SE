@@ -1,23 +1,19 @@
-"""Tests for the standalone post-processing script script/separateT.py
+"""Tests for the standalone post-processing command odatse.scripts.separateT
 (not the library odatse.util.separateT)."""
 
-import importlib.util
 import os
 import resource
 import sys
 
 import pytest
 
-SCRIPT_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "..", "script", "separateT.py"
-)
+SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
+sys.path.insert(0, SOURCE_PATH)
 
 
 def _load_script():
-    spec = importlib.util.spec_from_file_location("script_separateT", SCRIPT_PATH)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    import odatse.scripts.separateT
+    return odatse.scripts.separateT
 
 
 def _write_result(path, temperatures, steps):
