@@ -6,17 +6,14 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional
+from typing import Optional
 
 from pathlib import Path
-from io import open
 import numpy as np
 import os
-import sys
 import time
 
 import odatse
-import odatse.domain
 from ._algorithm import AlgorithmBase
 
 
@@ -69,7 +66,6 @@ class Algorithm(AlgorithmBase):
         """
         Initialize the algorithm parameters and timer.
         """
-        #self.fx_list = []
         self.results = []
 
         self.opt_fx = np.inf
@@ -92,16 +88,17 @@ class Algorithm(AlgorithmBase):
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-        #iterations = len(self.mesh_list)
-        #istart = len(self.fx_list)
-        istart = 0
-
-        next_checkpoint_step = istart + self.checkpoint_steps
+        next_checkpoint_step = self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
+
+        niter = self._iter.size()
+        # report progress at most ~100 times per rank
+        print_interval = max(1, niter // 100)
 
         for icount, (idx, coord) in enumerate(self._iter):
 
-            print("Iteration : {}/{}".format(icount+1, self._iter.size()))
+            if (icount+1) % print_interval == 0 or icount+1 == niter:
+                print("Iteration : {}/{}".format(icount+1, niter))
             args = (idx, 0)
             x = np.array(coord)
 
@@ -112,8 +109,6 @@ class Algorithm(AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            #self.fx_list.append([mesh[0], fx])
-            #self.fx_list.append([idx, fx])
             self.results.append([idx, coord, fx])
 
             # write to local colormap file
@@ -139,8 +134,6 @@ class Algorithm(AlgorithmBase):
 
         if not np.isinf(self.opt_fx):
             print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
-
-        # self._output_results()
 
         # if Path(self.local_colormap_file).exists():
         #     os.remove(Path(self.local_colormap_file))
