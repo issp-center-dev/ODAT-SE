@@ -13,7 +13,6 @@ import time
 import os
 import pathlib
 import pickle
-import shutil
 import copy
 
 import numpy as np
@@ -107,11 +106,14 @@ class AlgorithmBase(metaclass=ABCMeta):
     def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore the base algorithm state from a checkpoint snapshot.
 
-        Validates the MPI configuration, restores the timer, and checks
-        that algorithm parameters are consistent.  Subclasses should call
+        Validates the MPI configuration, restores the timer, checks that
+        algorithm parameters are consistent, and restores the RNG state.
+        Subclasses should call
         ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``
-        and then handle their own fields (RNG restore, subclass-specific
-        ``_checkpoint_attrs``, continue-mode semantics, etc.).
+        and then handle their own subclass-specific fields
+        (``_checkpoint_attrs``, continue-mode semantics, etc.).  The RNG state
+        saved by ``__getstate__`` for every algorithm is restored here (guarded
+        by ``restore_rng``), so subclasses need not repeat it.
 
         Parameters
         ----------
@@ -127,6 +129,15 @@ class AlgorithmBase(metaclass=ABCMeta):
         assert odatse.mpi.algrank() == data["algrank"]
         self.timer = data["timer"]
         self._check_parameters(data["info"])
+        if restore_rng:
+            # Restore in place rather than rebinding self.rng: collaborators
+            # constructed in __init__ hold a reference to this object (e.g.
+            # the Monte Carlo StateSpace draws its proposals from it, and
+            # MeshGrid may capture it), and __init__ runs before the resume
+            # dispatch in prepare(). Rebinding would leave those collaborators
+            # on the stale un-restored RNG, silently splitting the random
+            # stream after a resume.
+            self.rng.set_state(data["rng"])
 
     @abstractmethod
     def __init__(
@@ -468,10 +479,6 @@ class AlgorithmBase(metaclass=ABCMeta):
             Whether to restore the RNG state.
         """
         data = self._load_data(filename)
-        if not data:
-            raise exception.CheckpointError(
-                f"failed to load checkpoint from {filename}"
-            )
         self._apply_state(data, mode=mode, restore_rng=restore_rng)
 
     # ------------------------------------------------------------------
@@ -597,17 +604,19 @@ class AlgorithmBase(metaclass=ABCMeta):
             ) from e
 
         # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
+        # (os.replace is an atomic O(1) rename on every platform; shutil.move
+        # would fall back to copy+delete on Windows when the target exists)
         for idx in range(ngen-1, 0, -1):
             fn_from = Path(filename + "." + str(idx))
             fn_to = Path(filename + "." + str(idx+1))
             if fn_from.exists():
-                shutil.move(fn_from, fn_to)
-        # Keep the current checkpoint as .1 by *copying* it (not moving), so
-        # that `filename` always points to a complete checkpoint -- there is no
-        # window in which it is missing. Then atomically swap in the new one
-        # with os.replace(), which is the only step that touches `filename`.
+                os.replace(fn_from, fn_to)
+        # Move the current checkpoint aside to .1 with an atomic rename (O(1),
+        # no re-read/re-write of the pickle), then atomically swap in the new
+        # one. There is a tiny window between the two renames in which
+        # `filename` is absent; `_load_data` covers it by falling back to .1.
         if ngen > 0 and Path(filename).exists():
-            shutil.copy2(Path(filename), Path(filename + "." + str(1)))
+            os.replace(Path(filename), Path(filename + "." + str(1)))
         os.replace(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
@@ -643,8 +652,9 @@ class AlgorithmBase(metaclass=ABCMeta):
                 ) from e
             print("load_state: load from {}".format(fn))
         else:
-            print("ERROR: file {} not exist.".format(filename))
-            data = {}
+            raise exception.CheckpointError(
+                f"checkpoint file {filename} does not exist"
+            )
         return data
 
     def _show_parameters(self):

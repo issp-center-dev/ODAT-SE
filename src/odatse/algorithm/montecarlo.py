@@ -332,10 +332,10 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
     def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 
-        Delegates MPI validation, timer restore, and parameter check to the
-        base class, optionally restores the RNG, then applies every field
-        listed in ``montecarlo.AlgorithmBase._checkpoint_attrs``.  Subclasses
-        that need additional fields should override this method, call
+        Delegates MPI validation, timer restore, parameter check, and RNG
+        restore to the base class, then applies every field listed in
+        ``montecarlo.AlgorithmBase._checkpoint_attrs``.  Subclasses that need
+        additional fields should override this method, call
         ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``,
         then handle their own fields.
 
@@ -351,9 +351,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             when *False* a fresh RNG state is kept (``--reset_rand`` mode).
         """
         super()._apply_state(data, mode=mode, restore_rng=restore_rng)
-        if restore_rng:
-            self.rng = np.random.RandomState()
-            self.rng.set_state(data["rng"])
         for attr in AlgorithmBase._checkpoint_attrs:
             setattr(self, attr, data[attr])
 
