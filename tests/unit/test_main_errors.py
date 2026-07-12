@@ -50,3 +50,43 @@ def test_main_converts_input_error_to_exit(monkeypatch):
     with pytest.raises(SystemExit) as excinfo:
         main([])
     assert excinfo.value.code == 1
+
+
+def test_main_reports_rank_local_error_from_owning_rank(monkeypatch, capsys):
+    """A rank-local error (e.g. a CheckpointError re-raised through the
+    consensus protocol on the failing rank) must be reported by the rank that
+    owns it — previously only rank 0 printed, so a failure on any other rank
+    killed the job with no diagnostic text anywhere (issue #60)."""
+    from odatse.exception import CheckpointError
+
+    err = CheckpointError("simulated per-rank failure")
+    err.rank_local = True
+
+    def boom(argv):
+        raise err
+    monkeypatch.setattr(odatse, "initialize", boom)
+    # pretend to be a non-zero rank of a 4-process run
+    monkeypatch.setattr(odatse.mpi, "rank", lambda: 2)
+    monkeypatch.setattr(odatse.mpi, "size", lambda: 4)
+
+    with pytest.raises(SystemExit) as excinfo:
+        main([])
+    assert excinfo.value.code == 1
+    captured = capsys.readouterr()
+    assert "[rank 2]" in captured.err
+    assert "simulated per-rank failure" in captured.err
+
+
+def test_main_global_error_prints_only_on_rank0(monkeypatch, capsys):
+    """Errors raised identically on all ranks (e.g. config errors) keep the
+    rank-0 gate so a bad input file is not reported once per process."""
+    def boom(argv):
+        raise InputError("global config error")
+    monkeypatch.setattr(odatse, "initialize", boom)
+    monkeypatch.setattr(odatse.mpi, "rank", lambda: 2)
+    monkeypatch.setattr(odatse.mpi, "size", lambda: 4)
+
+    with pytest.raises(SystemExit) as excinfo:
+        main([])
+    assert excinfo.value.code == 1
+    assert capsys.readouterr().err == ""

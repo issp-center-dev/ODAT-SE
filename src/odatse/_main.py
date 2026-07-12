@@ -64,6 +64,11 @@ def main(argv: Optional[Sequence[str]] = None):
 
         return alg.main()
     except exception.Error as e:
-        if odatse.mpi.rank() == 0:
+        # rank-local errors (see exception.Error.rank_local) exist only on the
+        # rank that failed, so gating on rank 0 would silence them entirely
+        if e.rank_local:
+            prefix = f"[rank {odatse.mpi.rank()}] " if odatse.mpi.size() > 1 else ""
+            print(f"{prefix}ERROR: {e}", file=sys.stderr)
+        elif odatse.mpi.rank() == 0:
             print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)

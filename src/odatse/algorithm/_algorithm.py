@@ -267,6 +267,10 @@ class AlgorithmBase(metaclass=ABCMeta):
             all_ok = error is None
 
         if error is not None:
+            if isinstance(error, exception.Error):
+                # this rank's own failure: have the CLI boundary report it
+                # from this rank (rank 0 may have no error to print)
+                error.rank_local = True
             raise error
         if not all_ok:
             raise odatse.mpi.OtherAlgorithmProcessError()
