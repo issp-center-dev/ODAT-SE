@@ -49,6 +49,4 @@ ODAT-SEには、逆問題を解くためのアルゴリズムとして以下の6
   pamc
   limitation
   solver_simple
-  linreg_with_noise
-  gpr
   parallel_solver
