@@ -13,7 +13,7 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
 
   Nealder-Mead method.
 
-- ``mapper_mpi``
+- ``mapper``
 
   Entire search over a grid for a given parameter.
 

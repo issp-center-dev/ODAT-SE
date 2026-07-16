@@ -32,3 +32,6 @@ Choose based on the number of parameters and the nature of your objective functi
    * - ``random_search``
      - Quick overview of parameter space
      - Random sampling. Simple and robust
+   * - ``ttopt``
+     - Finding minima in problems with relatively many parameters or with discrete variables
+     - Tensor train optimization. Gradient-free cross approximation. Supports MPI
