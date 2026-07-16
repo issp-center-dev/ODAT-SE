@@ -36,6 +36,14 @@
 
     The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
+  - ``self.work_dir: pathlib.Path`` : An alias of ``self.proc_dir``.
+
+  - ``self.dimension: int`` : The dimension of the input parameter. It is taken from ``info.solver["dimension"]`` if specified, or from ``info.base["dimension"]`` otherwise.
+
+  - ``self.timer: dict`` : A dictionary for recording execution times, with the keys ``"prepare"``, ``"run"``, and ``"post"``.
+
+  - ``self._name: str`` : The name of the solver. It is initialized to an empty string in the base class; set an appropriate name in the constructor. It is referred to through the ``name`` property.
+
   The parameters for the Solver class can be obtained from ``solver`` field of ``info`` object.
   The required parameters should be taken and stored.
 
@@ -61,3 +69,11 @@
     The other is the set number that represents :math:`n`-th iteration.
 
   The ``evaluate`` method returns the value of the objective function as a float number.
+
+  .. note::
+     If ``evaluate`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the objective function value as ``np.nan``.
+     If the search point does not satisfy the constraints (``[runner.limitation]``), the solver is not called and the objective function value becomes ``np.inf``.
+
+  .. note::
+     When the solver parallelization is used (``--nsolve`` greater than 1), ``evaluate`` is called on all MPI ranks in the solver group with the same ``x`` and ``args``.
+     The division of roles among the ranks should be implemented within the solver. See :doc:`../tutorial/parallel_solver` for details.

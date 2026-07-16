@@ -58,11 +58,7 @@ Instance variables set by ``__init__``
 
   - ``self.timer: dict[str, dict]`` : elapsed-time dictionary.
 
-    Sub-dictionaries ``"prepare"``, ``"run"``, and ``"post"`` are pre-created.
-
-      - It is set to ``self.output_dir / str(odatse.mpi.algrank())``.
-      - The directory will be made automatically.
-      - Each process performs an optimization algorithm in this directory.
+    - Sub-dictionaries ``"prepare"``, ``"run"``, and ``"post"`` are pre-created.
 
   - ``self.checkpoint: bool`` : whether checkpointing is enabled.
   - ``self.checkpoint_file: str`` : absolute path to the checkpoint file (default: ``<proc_dir>/status.pickle``).
