@@ -40,6 +40,20 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
 In the following sections, the procedures to run these algorithms are provided.
 In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as some tutorials describing some applications.
 
+Preparation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To run the tutorials, the sample files are required in addition to the installation of ODAT-SE (see :doc:`../start`).
+The sample files are included in the source package.
+Clone the repository and move into the obtained directory as follows:
+
+.. code-block::
+
+    $ git clone https://github.com/issp-center-dev/ODAT-SE.git
+    $ cd ODAT-SE
+
+The steps in each tutorial are assumed to start from this ODAT-SE directory.
+
 .. toctree::
    :maxdepth: 1
 

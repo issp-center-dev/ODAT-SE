@@ -80,11 +80,11 @@ ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソ�
     name = "analytical"
     function_name = "booth"
 
-``src/odatse_main.py`` に渡せば実行可能です。
+``odatse`` コマンドに渡せば実行可能です。
 
 .. code-block::
 
-    $ python3 src/odatse_main.py input.toml
+    $ odatse input.toml
 
     ... skipped ...
 

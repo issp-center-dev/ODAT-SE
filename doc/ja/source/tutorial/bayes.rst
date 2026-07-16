@@ -89,7 +89,7 @@
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 実行すると ``output`` ディレクトリの下に各ランクのフォルダが作成されます。
 以下の様な標準出力がされます。

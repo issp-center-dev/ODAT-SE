@@ -132,7 +132,7 @@
 
 .. code-block::
 
-    $ mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+    $ mpiexec -np 10 odatse input.toml | tee log.txt
 
 ここではプロセス数10のMPI並列を用いた計算を行っています。
 Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 ``mpiexec`` コマンドに ``--oversubscribe`` オプションを追加してください。
@@ -171,7 +171,7 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 
   #!/bin/bash
 
-  mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
+  mpiexec -np 10 --oversubscribe odatse input.toml
 
   echo diff output/best_result.txt ref.txt
   res=0

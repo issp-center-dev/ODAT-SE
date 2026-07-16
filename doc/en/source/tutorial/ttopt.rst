@@ -94,7 +94,7 @@ Run the main program. On a typical PC this finishes in a few seconds.
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 You may also run everything at once with ``do.sh``.
 

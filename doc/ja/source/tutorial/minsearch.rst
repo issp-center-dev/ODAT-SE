@@ -10,7 +10,7 @@ Nelder-Mead法による探索
 
 2. メインプログラムを実行する
 
-   ``src/odatse_main.py`` を用いて計算を実行し、最適化問題を解きます。
+   ``odatse`` コマンドを用いて計算を実行し、最適化問題を解きます。
 
 
 サンプルファイルの場所
@@ -103,7 +103,7 @@ Nelder-Mead法による探索
 
 .. code-block::
 
-    $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+    $ odatse input.toml | tee log.txt
 
 実行すると、以下の様な出力がされます。
 

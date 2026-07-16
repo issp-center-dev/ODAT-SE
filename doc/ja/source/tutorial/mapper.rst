@@ -81,7 +81,7 @@
 
 .. code-block::
 
-    $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+    $ mpiexec -np 4 odatse input.toml | tee log.txt
 
 ここではプロセス数4のMPI並列を用いた計算を行っています。
 実行すると ``output`` ディレクトリとその下に各ランクのフォルダが作成され、ランクごとの計算結果が出力されます。

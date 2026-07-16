@@ -10,7 +10,7 @@ The specific calculation procedure is as follows.
 
 2. Run the main program
 
-   Run the calculation using ``src/odatse_main.py`` to solve the minimization problem.
+   Run the calculation using the ``odatse`` command to solve the minimization problem.
 
 
 Location of the sample files
@@ -105,7 +105,7 @@ Then, run the main program. The computation time takes only a few seconds on a n
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 The standard output will be seen as follows.
 
