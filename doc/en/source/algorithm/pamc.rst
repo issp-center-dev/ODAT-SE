@@ -173,6 +173,7 @@ Otherwise, continuous space is used.
   Format: Integer (default: 1)
 
   Description: The number of replicas in a MPI process.
+  The total number of replicas (population size) is given by "number of MPI processes × ``nreplica_per_proc``".
 
 - ``resampling_interval``
 

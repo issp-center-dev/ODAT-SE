@@ -172,6 +172,9 @@ Otherwise, continuous space is used.
   Format: Integer (default: 1)
 
   Description: The number of replicas in a MPI process.
+  The total number of replicas is given by "number of MPI processes × ``nreplica_per_proc``".
+  In the replica exchange Monte Carlo method, one temperature point is assigned to each replica, and therefore the number of temperature points generated between ``Tmin`` and ``Tmax`` equals the total number of replicas.
+  To use more temperature points, increase the number of MPI processes or ``nreplica_per_proc``.
 
 - ``separate_T``
 

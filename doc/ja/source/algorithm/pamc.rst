@@ -168,6 +168,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
   形式: 整数。 (default: 1)
 
   説明: ひとつのMPI プロセスが担当するレプリカの数。
+  総レプリカ数（ポピュレーションサイズ）は「MPI プロセス数 × ``nreplica_per_proc``」で与えられます。
 
 - ``resampling_interval``
 
