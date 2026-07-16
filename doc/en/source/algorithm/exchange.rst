@@ -190,6 +190,10 @@ Otherwise, continuous space is used.
   Description: Whether to write the contents of ``trial.txt`` and ``result.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
   Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
 
+.. note::
+   **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
+   It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.
+
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

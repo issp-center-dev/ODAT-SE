@@ -97,6 +97,17 @@ USAGE
 
       mpiexec -np 8 odatse --nalg 2 --nsolve 4 input.toml
 
+ENVIRONMENT
+-----------
+
+**ODATSE_NOMPI**
+    When set to a value other than ``0``, run with MPI disabled without loading mpi4py.
+    Use this to run without MPI (without importing mpi4py) in an environment where mpi4py is installed.
+
+.. code-block:: bash
+
+   ODATSE_NOMPI=1 odatse input.toml
+
 SEE ALSO
 --------
 

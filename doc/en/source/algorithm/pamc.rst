@@ -214,6 +214,10 @@ About the number of steps
 Specify just two of ``numstep``, ``numsteps_annealing``, and ``Tnum``.
 The value of the remaining one will be determined automatically.
 
+.. note::
+   **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
+   It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.
+
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

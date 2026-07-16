@@ -97,6 +97,17 @@ USAGE
 
       mpiexec -np 8 odatse --nalg 2 --nsolve 4 input.toml
 
+ENVIRONMENT
+-----------
+
+**ODATSE_NOMPI**
+    ``0`` 以外の値を設定すると、mpi4py の読み込みを行わず、MPI を無効化した状態で実行する。
+    mpi4py がインストールされている環境で、MPI を使わずに（mpi4py をロードせずに）実行したい場合に使用する。
+
+.. code-block:: bash
+
+   ODATSE_NOMPI=1 odatse input.toml
+
 SEE ALSO
 --------
 
