@@ -2,6 +2,24 @@
 Error Handling
 ================================
 
+``ModuleNotFoundError: No module named 'scipy'`` etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some algorithms depend on optional packages, and a ``ModuleNotFoundError`` is raised at run time if they are not installed.
+
+- ``scipy`` : required by ``minsearch`` (Nelder-Mead method)
+- ``physbo`` : required by ``bayes`` (Bayesian optimization)
+- ``mpi4py`` : required for MPI parallel execution via ``mpiexec``
+
+Install the package shown in the error message individually, or install all the optional packages at once:
+
+.. code-block:: bash
+
+    $ python3 -m pip install 'ODAT-SE[all]'
+
+See the prerequisites section of :doc:`../start` for details.
+
+
 ``RuntimeError`` from the solver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

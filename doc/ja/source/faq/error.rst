@@ -2,6 +2,24 @@
 エラー対処
 ========================================
 
+``ModuleNotFoundError: No module named 'scipy'`` などが出ます
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+一部のアルゴリズムは Optional なパッケージに依存しており、未インストールの場合は実行時に ``ModuleNotFoundError`` が発生します。
+
+- ``scipy`` : ``minsearch`` (Nelder-Mead法) で必要
+- ``physbo`` : ``bayes`` (ベイズ最適化) で必要
+- ``mpi4py`` : ``mpiexec`` による MPI 並列実行で必要
+
+エラーメッセージに表示されたパッケージを個別にインストールするか、Optional なパッケージを一括でインストールしてください。
+
+.. code-block:: bash
+
+    $ python3 -m pip install 'ODAT-SE[all]'
+
+詳細は :doc:`../start` の必要パッケージの項を参照してください。
+
+
 ソルバーで ``RuntimeError`` が出ます
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
