@@ -53,6 +53,4 @@ In addition, the usage of ``[runner.limitation]`` to apply limitations to the se
    pamc
    limitation
    solver_simple
-   linreg_with_noise
-   gpr
    parallel_solver
