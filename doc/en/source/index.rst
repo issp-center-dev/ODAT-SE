@@ -31,6 +31,8 @@ Related Resources
   Browse samples for TRHEPD, SXRD, LEED, and XAFS, as well as solver templates.
 - :doc:`Customization Guide <customize/index>`
   Start here if you want to develop your own algorithms or direct problem solvers.
+- `API Reference <../api/index.html>`_
+  Browse the specifications of all public APIs generated automatically from docstrings.
 
 More Information
 ----------------

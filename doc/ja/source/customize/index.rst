@@ -31,6 +31,10 @@ APIの詳細を説明します。
 :doc:`usage`
     カスタム Solver / Algorithm を組み合わせて実行する際のコード例です。
 
+`API リファレンス <../../api/index.html>`_
+    ソースコードの docstring から自動生成された全公開 API のリファレンスです。
+    本章で扱わないモジュール (``odatse.util.*``, ``odatse.domain.*``, ``odatse.mpi`` など) の仕様はこちらを参照してください。
+
 .. toctree::
    :maxdepth: 1
    :hidden:

@@ -32,6 +32,10 @@ then provides API details.
 :doc:`usage`
     Code example for combining custom Solver / Algorithm and running them.
 
+`API Reference <../../api/index.html>`_
+    Reference of all public APIs, generated automatically from the docstrings in the source code.
+    Consult it for the modules not covered in this chapter (``odatse.util.*``, ``odatse.domain.*``, ``odatse.mpi``, etc.).
+
 .. toctree::
    :maxdepth: 1
    :hidden:
