@@ -2,11 +2,12 @@
 マニュアル
 ================
 
-ODAT-SE の入出力仕様、アルゴリズム、ソルバーについて解説します。
+ODAT-SE のコマンド、入出力仕様、アルゴリズム、ソルバーについて解説します。
 
 .. toctree::
    :maxdepth: 2
 
+   command
    /input/index
    /output
    /algorithm/index

@@ -79,42 +79,15 @@ See :doc:`algorithm/index` for the predefined ``Algorithm`` and :doc:`solver/ind
 Command-line options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``odatse`` command provides options to control the execution mode.
+The ``odatse`` command provides options to control the execution mode (such as ``--resume`` to restart from a checkpoint and ``--cont`` to extend a finished calculation) and options to control the assignment of MPI processes (``--nalg``, ``--nsolve``).
 
-- ``--init``
-
-  Starts a fresh calculation. This is the default behavior.
-
-- ``--resume``
-
-  Restores the interrupted state from checkpoint files and resumes the run.
-
-- ``--cont``
-
-  Continues a previous calculation and extends it from the saved state.
-
-- ``--reset_rand``
-
-  Used together with ``--resume`` or ``--cont`` to start with a new random number sequence.
-
-- ``--nalg``
-
-  Number of MPI processes for the search algorithm layer. Combined with ``--nsolve``, it partitions the MPI communicator (``nalg × nsolve`` must equal the total number of processes). If omitted, it is derived from the total process count and ``--nsolve``.
-
-- ``--nsolve``
-
-  Number of MPI processes per solver group. See ``--nalg``. If both are omitted, all processes are assigned to the algorithm layer (``nsolve = 1``).
-
-- ``--version``
-
-  Prints the version and exits.
-
-Examples:
+Example:
 
 .. code-block:: bash
 
   $ odatse --resume input.toml
-  $ odatse --cont --reset_rand input.toml
+
+See :doc:`manual/command` for the complete list and the details of the options.
 
 Wrapper packages for using direct problem solvers for two-dimensional material structure analysis from ODAT-SE are provided as separate modules.
 To perform these analyses, you need to install the wrapper package and the direct problem solver itself.
