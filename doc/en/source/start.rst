@@ -8,12 +8,14 @@ Prerequisites
   - The following Python packages are required:
     - tomli >= 1.2 : For reading configuration files in TOML format
     - numpy >= 1.14 : For numerical calculations
+    - matplotlib >= 3 : For visualizing calculation results and plotting in the post-processing tools
 
   - Optional packages (required for specific optimization methods):
 
     - mpi4py : For MPI parallelization in algorithms such as ``mapper``, ``random_search``, ``exchange``, and ``pamc``
     - scipy : For optimization using the Nelder-Mead method
     - physbo (>=2.0) : For Bayesian optimization
+    - tqdm : For showing progress bars in the post-processing tools
 
 
 How to download and install
