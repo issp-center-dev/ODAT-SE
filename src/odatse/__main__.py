@@ -8,4 +8,5 @@
 
 import odatse
 
-odatse.main()
+if __name__ == "__main__":
+    odatse.main()
