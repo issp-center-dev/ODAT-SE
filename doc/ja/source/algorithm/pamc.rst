@@ -186,6 +186,14 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
   形式: 真偽値。 (default: true)
 
   説明: Monte Carlo ステップのログを温度ごとに分割して出力するかどうか。
+  ``export_combined_files`` が true の場合は無効になります。
+
+- ``export_combined_files``
+
+  形式: 真偽値。 (default: false)
+
+  説明: ``trial.txt``, ``result.txt``, ``weight.txt`` の内容を、プロセスごとの個別ファイルの代わりに単一の結合ファイル ``combined.txt`` にまとめて出力するかどうか。
+  結合ファイルからの個別ファイルの抽出には ``odatse_extract_combined`` ツールを使用します (:doc:`../post/tools/extract_combined` 参照)。
 
 - ``anneal_from_beta0``
 

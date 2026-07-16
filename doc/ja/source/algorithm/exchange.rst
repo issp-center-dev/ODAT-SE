@@ -168,6 +168,20 @@ MPI並列を利用する場合は、あらかじめ `mpi4py <https://mpi4py.read
 
   説明: ひとつのMPI プロセスが担当するレプリカの数。
 
+- ``separate_T``
+
+  形式: 真偽値。 (default: true)
+
+  説明: Monte Carlo ステップのログを温度ごとに分割したファイル (``result_T*.txt``) に出力するかどうか。
+  ``export_combined_files`` が true の場合は無効になります。
+
+- ``export_combined_files``
+
+  形式: 真偽値。 (default: false)
+
+  説明: ``trial.txt`` や ``result.txt`` の内容を、プロセスごとの個別ファイルの代わりに単一の結合ファイル ``combined.txt`` にまとめて出力するかどうか。
+  結合ファイルからの個別ファイルの抽出には ``odatse_extract_combined`` ツールを使用します (:doc:`../post/tools/extract_combined` 参照)。
+
 アルゴリズム補助ファイル
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

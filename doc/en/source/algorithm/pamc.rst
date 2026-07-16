@@ -191,6 +191,14 @@ Otherwise, continuous space is used.
   Format: Boolean (default: true)
 
   Description: Whether to write log files of Monte Carlo steps separately for each temperature.
+  This option is ignored when ``export_combined_files`` is true.
+
+- ``export_combined_files``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to write the contents of ``trial.txt``, ``result.txt``, and ``weight.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
+  Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
 
 - ``anneal_from_beta0``
 

@@ -173,6 +173,20 @@ Otherwise, continuous space is used.
 
   Description: The number of replicas in a MPI process.
 
+- ``separate_T``
+
+  Format: Boolean (default: true)
+
+  Description: Whether to write log files of Monte Carlo steps separately for each temperature (``result_T*.txt``).
+  This option is ignored when ``export_combined_files`` is true.
+
+- ``export_combined_files``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to write the contents of ``trial.txt`` and ``result.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
+  Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
+
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
