@@ -68,17 +68,39 @@ It has subsections ``param`` and ``minimize``.
 ``[algorithm.minimize]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Set the hyperparameters for the Nelder-Mead method.
+Set the optimization method and its hyperparameters.
 See the documentation of `scipy.optimize.minimize`_ for details.
+
+All parameters other than ``method`` and ``initial_scale_list`` are passed
+verbatim to the ``options`` argument of `scipy.optimize.minimize`_.
+If a parameter name not accepted by the selected method is given,
+the program stops with an error before the optimization starts.
+The default values of ``xatol``, ``fatol``, ``maxiter``, and ``maxfev``
+listed below apply only when ``method`` is "Nelder-Mead".
+
+- ``method``
+
+  Format: String (default: "Nelder-Mead")
+
+  Description:
+  Name of the optimization method, passed as-is to the ``method`` argument of `scipy.optimize.minimize`_.
+  Examples: "Nelder-Mead", "Powell", "COBYLA".
+  Note that for gradient-based methods (BFGS, CG, ...) the gradient is evaluated by numerical differentiation,
+  which costs dimension+1 solver evaluations per gradient evaluation.
+  The search region (``min_list`` / ``max_list``) is passed as the ``bounds`` argument of scipy
+  for methods that support it (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA).
+  For the Nelder-Mead method, out-of-range points are handled as before
+  by treating the objective function value as infinity.
 
 - ``initial_scale_list``
 
-  Format: List of float. The length should match the value of dimension. 
+  Format: List of float. The length should match the value of dimension.
 
   Description:
   The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
   The ``initial_simplex`` is given by the sum of ``initial_list`` and the dimension of the ``initial_list`` plus one component of the ``initial_scale_list``.
   If not defined, scales at each dimension are set to 0.25.
+  Used only when ``method`` is "Nelder-Mead".
 
 - ``xatol``
 

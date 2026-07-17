@@ -65,8 +65,28 @@ ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数�
 ``[algorithm.minimize]`` セクション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Nelder-Mead 法のハイパーパラメータを設定します。
+最適化手法とそのハイパーパラメータを設定します。
 詳細は `scipy.optimize.minimize`_ のドキュメントを参照してください。
+
+``method`` と ``initial_scale_list`` 以外のパラメータは、そのまま
+`scipy.optimize.minimize`_ の ``options`` 引数に渡されます。
+選択した手法が受け付けないパラメータ名が指定された場合は、
+最適化を開始する前にエラーで終了します。
+以下に挙げる ``xatol``, ``fatol``, ``maxiter``, ``maxfev`` のデフォルト値は
+``method`` が "Nelder-Mead" の場合にのみ適用されます。
+
+- ``method``
+
+  形式: string型 (default: "Nelder-Mead")
+
+  説明: 最適化手法の名前。 `scipy.optimize.minimize`_ の ``method`` 引数にそのまま渡されます。
+  例: "Nelder-Mead", "Powell", "COBYLA" など。
+  勾配を必要とする手法 (BFGS, CG など) では、勾配が数値差分で評価されるため
+  1回の勾配評価あたり次元数+1回のソルバー実行が発生することに注意してください。
+  また、探索範囲 (``min_list`` / ``max_list``) は、bounds に対応した手法
+  (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA) では
+  scipy の ``bounds`` 引数として渡されます。
+  Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限大とみなす方法で処理されます。
 
 - ``initial_scale_list``
 
@@ -75,6 +95,7 @@ Nelder-Mead 法のハイパーパラメータを設定します。
   説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分。
   ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできるdimension 個の点を 合わせたものが ``initial_simplex`` として使われます。
   定義しなかった場合、各次元に 0.25 が設定されます。
+  ``method`` が "Nelder-Mead" の場合のみ使用されます。
 
 - ``xatol``
 

@@ -8,10 +8,11 @@
 
 from typing import Union, Optional, TYPE_CHECKING
 import time
+import warnings
 
 import numpy as np
 import scipy
-from scipy.optimize import minimize
+from scipy.optimize import minimize, OptimizeResult, OptimizeWarning
 
 import odatse
 import odatse.domain
@@ -23,8 +24,22 @@ if TYPE_CHECKING:
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
     """
-    Algorithm class for performing minimization using the Nelder-Mead method.
+    Algorithm class for performing minimization using scipy.optimize.minimize.
+
+    The optimization method is selected by the ``method`` parameter in the
+    ``[algorithm.minimize]`` section (default: "Nelder-Mead"). All other
+    entries of the section except ODAT-SE-specific keys are passed through
+    to scipy.optimize.minimize as its ``options`` argument.
     """
+
+    # methods for which ODAT-SE passes bounds= to scipy.optimize.minimize.
+    # Nelder-Mead is deliberately excluded to keep the legacy behavior of
+    # returning +inf for out-of-range points unchanged.
+    _BOUNDS_METHODS = {"powell", "l-bfgs-b", "tnc", "slsqp", "trust-constr", "cobyla", "cobyqa"}
+
+    # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
+    # forwarded to scipy.optimize.minimize as options
+    _ODATSE_KEYS = {"method", "initial_scale_list"}
 
     # inputs
     label_list: np.ndarray
@@ -33,17 +48,19 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     max_list: np.ndarray
     unit_list: np.ndarray
 
+    # optimization method and its options
+    method: str
+    minimize_options: dict
+
     # hyperparameters of Nelder-Mead
     initial_simplex_list: list[list[float]]
-    xtol: float
-    ftol: float
 
     # results
     xopt: np.ndarray
     fopt: float
-    itera: int
-    funcalls: int
-    allvecs: list[np.ndarray]
+    itera: Optional[int]
+    funcalls: Optional[int]
+    allvecs: Optional[list[np.ndarray]]
 
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
@@ -87,13 +104,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             self.initial_list = []
 
         info_minimize = info.algorithm.get("minimize", {})
+        self.method = str(info_minimize.get("method", "Nelder-Mead"))
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
-        self.xtol = info_minimize.get("xatol", 0.0001)
-        self.ftol = info_minimize.get("fatol", 0.0001)
-        self.maxiter = info_minimize.get("maxiter", 10000)
-        self.maxfev = info_minimize.get("maxfev", 100000)
+
+        # forward all remaining entries verbatim to scipy.optimize.minimize
+        # as its options argument; unknown option names are detected by scipy
+        # and turned into an error in _run() before the optimization starts
+        self.minimize_options = {
+            k: v for k, v in info_minimize.items() if k not in self._ODATSE_KEYS
+        }
 
         self._show_parameters()
 
@@ -128,9 +149,18 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             def _cb(intermediate_result):
                 """
                 Callback function for scipy.optimize.minimize.
+
+                The parameter must be named intermediate_result so that scipy
+                passes an OptimizeResult where supported. Methods that do not
+                support the new-style callback (e.g. COBYLA, SLSQP, TNC) still
+                pass the raw parameter vector, so handle both.
                 """
-                x = intermediate_result.x
-                fun = intermediate_result.fun
+                if isinstance(intermediate_result, OptimizeResult):
+                    x = intermediate_result.x
+                    fun = intermediate_result.fun
+                else:
+                    x = intermediate_result
+                    fun = _f_calc(x, 1)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
         else:
@@ -141,6 +171,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fun = _f_calc(x, 1)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+
+        # for methods that support it, let scipy keep the search within the
+        # region via bounds=. the range check in _f_calc then allows points
+        # exactly on the boundary, which such methods evaluate legitimately.
+        use_bounds = self.method.lower() in self._BOUNDS_METHODS
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
@@ -158,9 +193,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             float
                 Objective function value.
             """
-            # check if within region -> boundary option in minimize
-            # note: 'bounds' option supported in scipy >= 1.7.0
-            in_range = np.all((min_list < x_list) & (x_list < max_list))
+            # check if within region; kept as a safety net even when bounds=
+            # is passed to minimize
+            if use_bounds:
+                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
+            else:
+                in_range = np.all((min_list < x_list) & (x_list < max_list))
             if not in_range:
                 print("Warning: out of range: {}".format(x_list))
                 return float("inf")
@@ -184,30 +222,53 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fev_history.append([step[0], *x_scaled, y])
             return y
 
+        options = dict(self.minimize_options)
+        options.setdefault("disp", True)
+        if self.method.lower() == "nelder-mead":
+            # keep the historical defaults of the Nelder-Mead implementation;
+            # user-specified values in [algorithm.minimize] take precedence
+            options.setdefault("xatol", 0.0001)
+            options.setdefault("fatol", 0.0001)
+            options.setdefault("maxiter", 10000)
+            options.setdefault("maxfev", 100000)
+            options.setdefault("initial_simplex", self.initial_simplex_list)
+            options.setdefault("return_all", True)
+
+        minimize_kwargs = {}
+        if use_bounds:
+            minimize_kwargs["bounds"] = list(zip(min_list, max_list))
+
         time_sta = time.perf_counter()
-        optres = minimize(
-            _f_calc,
-            self.initial_list,
-            method="Nelder-Mead",
-            args=(0,),
-            # bounds=[(a,b) for a,b in zip(min_list, max_list)],
-            options={
-                "xatol": self.xtol,
-                "fatol": self.ftol,
-                "return_all": True,
-                "disp": True,
-                "maxiter": self.maxiter,
-                "maxfev": self.maxfev,
-                "initial_simplex": self.initial_simplex_list,
-            },
-            callback=_cb,
-        )
+        try:
+            with warnings.catch_warnings():
+                # scipy only warns on option names the method does not accept
+                # and silently ignores them; promote the warning to an error
+                # so that e.g. a misspelled tolerance aborts immediately
+                # instead of running a lengthy optimization with defaults
+                warnings.filterwarnings(
+                    "error", message="Unknown solver options", category=OptimizeWarning
+                )
+                optres = minimize(
+                    _f_calc,
+                    self.initial_list,
+                    method=self.method,
+                    args=(0,),
+                    options=options,
+                    callback=_cb,
+                    **minimize_kwargs,
+                )
+        except OptimizeWarning as w:
+            raise RuntimeError(
+                f"{w}: check the [algorithm.minimize] section of the input file "
+                f"against the options accepted by scipy.optimize.minimize "
+                f"for method '{self.method}'"
+            ) from w
 
         self.xopt = optres.x
         self.fopt = optres.fun
-        self.itera = optres.nit
-        self.funcalls = optres.nfev
-        self.allvecs = optres.allvecs
+        self.itera = getattr(optres, "nit", None)
+        self.funcalls = getattr(optres, "nfev", None)
+        self.allvecs = getattr(optres, "allvecs", None)
         time_end = time.perf_counter()
         self.timer["run"]["min_search"] = time_end - time_sta
 
@@ -223,6 +284,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _prepare(self):
         """
         Prepare the initial simplex for the Nelder-Mead algorithm.
+
+        The simplex is only passed to scipy when method is Nelder-Mead;
+        for other methods it is built but unused.
         """
         # make initial simplex
         #   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]
@@ -251,8 +315,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             fp.write(f"fx = {self.fopt}\n")
             for x, y in zip(label_list, self.xopt):
                 fp.write(f"{x} = {y}\n")
-            fp.write(f"iterations = {self.itera}\n")
-            fp.write(f"function_evaluations = {self.funcalls}\n")
+            # some methods (e.g. COBYLA) do not report these quantities
+            if self.itera is not None:
+                fp.write(f"iterations = {self.itera}\n")
+            if self.funcalls is not None:
+                fp.write(f"function_evaluations = {self.funcalls}\n")
 
     def _post(self):
         """
