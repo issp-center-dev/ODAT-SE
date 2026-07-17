@@ -9,10 +9,11 @@ import odatse.solver.function
 import odatse.algorithm.min_search as min_search
 
 
-def _run_minsearch(workdir, unit_list, record, minimize=None):
-    def fn(x):
-        record.append(np.array(x, copy=True))
-        return float(np.sum(x * x))
+def _run_minsearch(workdir, unit_list, record, minimize=None, run=True, fn=None):
+    if fn is None:
+        def fn(x):
+            record.append(np.array(x, copy=True))
+            return float(np.sum(x * x))
 
     inp = {
         "base": {"dimension": 2, "output_dir": str(workdir / "output")},
@@ -38,7 +39,8 @@ def _run_minsearch(workdir, unit_list, record, minimize=None):
     # under mpirun only walker 0 gets the configured initial_list; the other
     # ranks draw a random initial point, so capture this rank's actual one
     x0 = np.array(alg.initial_list, dtype=float, copy=True)
-    alg.main()
+    if run:
+        alg.main()
     return x0, alg
 
 
@@ -138,3 +140,78 @@ def test_invalid_method_raises(tmp_path, monkeypatch):
     with pytest.raises(ValueError):
         _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
                        minimize={"method": "no-such-method"})
+
+
+def test_basinhopping_converges(tmp_path, monkeypatch):
+    """basinhopping with a Nelder-Mead local minimizer finds the global
+    minimum of a double-well function whose nearest local minimum from the
+    initial point is not the global one."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+
+    def double_well(x):
+        # wells at x0 = +/-2 with f(+2) = -1 (local) and f(-2) = -3 (global);
+        # the initial point [2, 2] sits in the +2 well
+        record.append(np.array(x, copy=True))
+        return float(((x[0] ** 2 - 4) ** 2) / 8.0 + 0.5 * x[0] - 2.0 + x[1] ** 2)
+
+    x0, alg = _run_minsearch(
+        tmp_path, unit_list=[1.0, 1.0], record=record, fn=double_well,
+        minimize={"maxiter": 500, "maxfev": 2000,
+                  "basinhopping": {"niter": 20, "stepsize": 2.0, "T": 1.0}})
+    assert alg.basinhopping_params == {"niter": 20, "stepsize": 2.0, "T": 1.0}
+    # basinhopping keys must not leak into the minimize options
+    assert set(alg.minimize_options) == {"maxiter", "maxfev"}
+    # global minimum is near x = (-2 - eps, 0), f ~ -3; the +2 well only
+    # reaches f ~ -1, so f < -2 shows the hop out of the initial well
+    assert alg.fopt < -2.0
+    # per-hop history is recorded and written out; scipy runs niter + 1
+    # local minimizations (the extra one from the initial point)
+    assert len(alg.hop_history) == 21
+    assert list(tmp_path.glob("**/BasinHoppingData.txt"))
+
+
+def test_basinhopping_flag_true(tmp_path, monkeypatch):
+    """basinhopping = true (bare boolean) enables basinhopping with scipy
+    default parameters."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                            minimize={"basinhopping": True}, run=False)
+    assert alg.basinhopping_params == {}
+    assert "basinhopping" not in alg.minimize_options
+
+
+def test_basinhopping_hops_stay_in_range(tmp_path, monkeypatch):
+    """Even with a stepsize far larger than the search region, hops are
+    clipped into [min_list, max_list]."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    _, alg = _run_minsearch(
+        tmp_path, unit_list=[1.0, 1.0], record=record,
+        minimize={"maxiter": 200, "maxfev": 1000,
+                  "basinhopping": {"niter": 5, "stepsize": 100.0}})
+    for hop in alg.hop_history:
+        x = np.array(hop[1:3])
+        assert np.all((x >= alg.min_list) & (x <= alg.max_list))
+
+
+def test_basinhopping_unknown_param_raises(tmp_path, monkeypatch):
+    """An argument scipy.optimize.basinhopping does not accept must abort
+    with a message pointing at the input file section."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    with pytest.raises(RuntimeError, match="basinhopping"):
+        _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                       minimize={"basinhopping": {"no_such_param": 1}})
+
+
+def test_basinhopping_reserved_param_raises(tmp_path, monkeypatch):
+    """Arguments managed by ODAT-SE (take_step, seed, ...) cannot be set
+    from the input file."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    with pytest.raises(ValueError, match="managed by ODAT-SE"):
+        _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                       minimize={"basinhopping": {"take_step": "foo"}},
+                       run=False)

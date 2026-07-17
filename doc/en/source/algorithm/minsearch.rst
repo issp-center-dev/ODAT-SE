@@ -2,7 +2,8 @@
 Nelder-Mead method ``minsearch``
 ================================
 
-.. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
+.. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+.. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
 When ``minsearch`` is selcted, the optimization by the `Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, assuming the dimension of the parameter space is :math:`D`, the optimal solution is searched by systematically moving pairs of :math:`D+1` coordinate points according to the value of the objective function at each point.
 
@@ -124,7 +125,40 @@ listed below apply only when ``method`` is "Nelder-Mead".
 
   Format: Integer (default: 100000)
 
-  Description: Maximum number of times to evaluate the objective function. 
+  Description: Maximum number of times to evaluate the objective function.
+
+- ``basinhopping``
+
+  Format: Boolean or table (default: false)
+
+  Description:
+  Enables global optimization by `scipy.optimize.basinhopping`_ (basin hopping),
+  with the method specified by ``method`` used as the local minimizer of each hop.
+  ``basinhopping = true`` runs with the scipy default parameters.
+  Defining a ``[algorithm.minimize.basinhopping]`` sub-table also enables it;
+  its entries (``niter``, ``stepsize``, ``T``, ...) are passed verbatim as
+  arguments of `scipy.optimize.basinhopping`_.
+  If an argument name not accepted by scipy is given, the program stops with
+  an error before the optimization starts.
+  Arguments managed by ODAT-SE (``take_step``, ``seed``, ...) cannot be set.
+
+  Random hops are clipped into the search region (``min_list`` / ``max_list``).
+  The random numbers are initialized from ``seed`` in the ``[algorithm]`` section.
+  Note that the local optimization runs ``niter`` + 1 times in total, so the
+  total number of solver evaluations is roughly
+  (``niter`` + 1) x (evaluations per local optimization).
+  When enabled, ``initial_scale_list`` (the initial simplex) is not used.
+
+  Example:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "Nelder-Mead"
+
+      [algorithm.minimize.basinhopping]
+      niter = 50
+      stepsize = 0.5
 
 
 Output files
@@ -155,6 +189,15 @@ The following is an example of the output.
 
 Records every call of the objective function during the optimization.
 Each line contains the call number, the values of the variables, and the value of the objective function, in that order.
+
+``BasinHoppingData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Written only when ``basinhopping`` is enabled.
+For each local optimization (one from the initial point plus ``niter`` hops),
+it outputs the hop number, the values of the variables at the local minimum,
+the value of the objective function, and whether the hop was accepted (1/0),
+in that order.
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

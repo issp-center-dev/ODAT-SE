@@ -12,7 +12,7 @@ import warnings
 
 import numpy as np
 import scipy
-from scipy.optimize import minimize, OptimizeResult, OptimizeWarning
+from scipy.optimize import minimize, basinhopping, OptimizeResult, OptimizeWarning
 
 import odatse
 import odatse.domain
@@ -20,6 +20,27 @@ from odatse.util.version import parse_version
 
 if TYPE_CHECKING:
     from mpi4py import MPI
+
+
+class _ClippedRandomDisplacement:
+    """Random displacement for basinhopping, clipped to the search region.
+
+    The default take_step of scipy's basinhopping may propose points outside
+    [min_list, max_list], which would only waste solver evaluations on the
+    inf-penalty. Clipping keeps every hop inside the region. The ``stepsize``
+    attribute is exposed so that basinhopping's adaptive stepsize adjustment
+    keeps working.
+    """
+
+    def __init__(self, rng, stepsize, min_list, max_list):
+        self.rng = rng
+        self.stepsize = stepsize
+        self.min_list = min_list
+        self.max_list = max_list
+
+    def __call__(self, x):
+        x = x + self.rng.uniform(-self.stepsize, self.stepsize, np.shape(x))
+        return np.clip(x, self.min_list, self.max_list)
 
 
 class Algorithm(odatse.algorithm.AlgorithmBase):
@@ -30,6 +51,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     ``[algorithm.minimize]`` section (default: "Nelder-Mead"). All other
     entries of the section except ODAT-SE-specific keys are passed through
     to scipy.optimize.minimize as its ``options`` argument.
+
+    Setting ``basinhopping`` (a boolean, or a ``[algorithm.minimize.basinhopping]``
+    table whose entries are passed to scipy.optimize.basinhopping) switches to
+    global optimization by basin hopping, with the configured method serving
+    as the local minimizer.
     """
 
     # methods for which ODAT-SE passes bounds= to scipy.optimize.minimize.
@@ -39,7 +65,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
     # forwarded to scipy.optimize.minimize as options
-    _ODATSE_KEYS = {"method", "initial_scale_list"}
+    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping"}
+
+    # basinhopping arguments managed by ODAT-SE itself; rejected if the user
+    # sets them in [algorithm.minimize.basinhopping]
+    _BH_RESERVED = {"minimizer_kwargs", "take_step", "accept_test", "callback", "seed", "rng"}
 
     # inputs
     label_list: np.ndarray
@@ -51,6 +81,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     # optimization method and its options
     method: str
     minimize_options: dict
+    # None: plain minimize; dict (possibly empty): basinhopping parameters
+    basinhopping_params: Optional[dict]
 
     # hyperparameters of Nelder-Mead
     initial_simplex_list: list[list[float]]
@@ -64,6 +96,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
+    hop_history: list[list[Union[int, float]]]
 
     def __init__(
         self,
@@ -108,6 +141,29 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
+
+        # basinhopping = true enables scipy.optimize.basinhopping with its
+        # default parameters; a [algorithm.minimize.basinhopping] table both
+        # enables it and forwards its entries as basinhopping arguments
+        bh = info_minimize.get("basinhopping", False)
+        if bh is False or bh is None:
+            self.basinhopping_params = None
+        elif bh is True:
+            self.basinhopping_params = {}
+        elif isinstance(bh, dict):
+            self.basinhopping_params = dict(bh)
+        else:
+            raise ValueError(
+                "algorithm.minimize.basinhopping must be a boolean or a table, "
+                f"not {type(bh).__name__}"
+            )
+        if self.basinhopping_params is not None:
+            reserved = self._BH_RESERVED & set(self.basinhopping_params)
+            if reserved:
+                raise ValueError(
+                    "algorithm.minimize.basinhopping parameters {} are managed "
+                    "by ODAT-SE and cannot be set in the input file".format(sorted(reserved))
+                )
 
         # forward all remaining entries verbatim to scipy.optimize.minimize
         # as its options argument; unknown option names are detected by scipy
@@ -222,8 +278,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fev_history.append([step[0], *x_scaled, y])
             return y
 
+        use_basinhopping = self.basinhopping_params is not None
+
         options = dict(self.minimize_options)
-        options.setdefault("disp", True)
         if self.method.lower() == "nelder-mead":
             # keep the historical defaults of the Nelder-Mead implementation;
             # user-specified values in [algorithm.minimize] take precedence
@@ -231,12 +288,31 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             options.setdefault("fatol", 0.0001)
             options.setdefault("maxiter", 10000)
             options.setdefault("maxfev", 100000)
-            options.setdefault("initial_simplex", self.initial_simplex_list)
-            options.setdefault("return_all", True)
+            if not use_basinhopping:
+                # a fixed initial simplex makes scipy ignore its x0 argument,
+                # which would restart every basinhopping hop from the same
+                # simplex; only usable for a single local optimization
+                options.setdefault("initial_simplex", self.initial_simplex_list)
+                options.setdefault("return_all", True)
+        if use_basinhopping:
+            # per-hop convergence messages of the local minimizer are noisy;
+            # progress is reported per hop by basinhopping itself
+            options.setdefault("disp", False)
+        else:
+            options.setdefault("disp", True)
 
         minimize_kwargs = {}
         if use_bounds:
             minimize_kwargs["bounds"] = list(zip(min_list, max_list))
+
+        hop_history = []
+
+        def _bh_cb(x, f, accept):
+            """
+            Per-hop callback function for scipy.optimize.basinhopping.
+            """
+            print("hop: x={}, fun={}, accept={}".format(x, f, accept))
+            hop_history.append([len(hop_history), *x, f, int(accept)])
 
         time_sta = time.perf_counter()
         try:
@@ -248,15 +324,47 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 warnings.filterwarnings(
                     "error", message="Unknown solver options", category=OptimizeWarning
                 )
-                optres = minimize(
-                    _f_calc,
-                    self.initial_list,
-                    method=self.method,
-                    args=(0,),
-                    options=options,
-                    callback=_cb,
-                    **minimize_kwargs,
-                )
+                if use_basinhopping:
+                    bh_params = dict(self.basinhopping_params)
+                    bh_params.setdefault("disp", True)
+                    take_step = _ClippedRandomDisplacement(
+                        self.rng, bh_params.pop("stepsize", 0.5), min_list, max_list
+                    )
+                    try:
+                        optres = basinhopping(
+                            _f_calc,
+                            self.initial_list,
+                            minimizer_kwargs={
+                                "method": self.method,
+                                "args": (0,),
+                                "options": options,
+                                "callback": _cb,
+                                **minimize_kwargs,
+                            },
+                            take_step=take_step,
+                            callback=_bh_cb,
+                            # self.rng is a RandomState; the deprecated seed
+                            # path accepts it on scipy >= 1.15 while rng= does
+                            # not, and older scipy has only seed
+                            seed=self.rng,
+                            **bh_params,
+                        )
+                    except TypeError as e:
+                        raise RuntimeError(
+                            f"{e}: check the [algorithm.minimize.basinhopping] "
+                            f"section of the input file against the arguments "
+                            f"accepted by scipy.optimize.basinhopping"
+                        ) from e
+                else:
+                    optres = minimize(
+                        _f_calc,
+                        self.initial_list,
+                        method=self.method,
+                        args=(0,),
+                        options=options,
+                        callback=_cb,
+                        **minimize_kwargs,
+                    )
         except OptimizeWarning as w:
             raise RuntimeError(
                 f"{w}: check the [algorithm.minimize] section of the input file "
@@ -274,6 +382,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self.iter_history = iter_history
         self.fev_history = fev_history
+        self.hop_history = hop_history
 
         self._output_results()
 
@@ -310,6 +419,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             fp.write("#No " + " ".join(label_list) + "\n")
             for i, v in enumerate(self.fev_history):
                 fp.write(" ".join(map(str,v)) + "\n")
+
+        if self.hop_history:
+            with open("BasinHoppingData.txt", "w") as fp:
+                fp.write("#hop " + " ".join(label_list) + " R-factor accept\n")
+                for v in self.hop_history:
+                    fp.write(" ".join(map(str, v)) + "\n")
 
         with open("res.txt", "w") as fp:
             fp.write(f"fx = {self.fopt}\n")

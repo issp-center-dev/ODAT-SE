@@ -2,7 +2,8 @@
 Nelder-Mead 法 ``minsearch``
 ===============================
 
-.. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html
+.. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+.. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
 ``minsearch`` は `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex 法) によって最適化を行います。
 Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
@@ -121,6 +122,36 @@ ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数�
 
   説明: 目的関数を評価する回数の最大値
 
+- ``basinhopping``
+
+  形式: bool型 または テーブル (default: false)
+
+  説明: `scipy.optimize.basinhopping`_ による大域最適化(ベイスンホッピング法)を有効にします。
+  ``method`` で指定した手法が各ホップの局所最適化に使われます。
+  ``basinhopping = true`` とした場合は scipy のデフォルトパラメータで実行されます。
+  サブテーブル ``[algorithm.minimize.basinhopping]`` を定義した場合も有効化され、
+  その中のパラメータ (``niter``, ``stepsize``, ``T`` など) はそのまま
+  `scipy.optimize.basinhopping`_ の引数として渡されます。
+  受け付けられないパラメータ名が指定された場合は、最適化を開始する前にエラーで終了します。
+  ``take_step``, ``seed`` など ODAT-SE が管理する引数は指定できません。
+
+  ランダムなホップは探索範囲 (``min_list`` / ``max_list``) の内側に収まるように
+  クリップされます。乱数は ``[algorithm]`` セクションの ``seed`` から初期化されます。
+  局所最適化が合計 ``niter`` + 1 回実行されるため、ソルバーの総評価回数は
+  おおよそ (``niter`` + 1) × (局所最適化 1 回あたりの評価回数) となる点に注意してください。
+  有効時には ``initial_scale_list`` (初期 simplex) は使用されません。
+
+  設定例:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "Nelder-Mead"
+
+      [algorithm.minimize.basinhopping]
+      niter = 50
+      stepsize = 0.5
+
 
 出力ファイル
 ~~~~~~~~~~~~~~~~~
@@ -149,6 +180,14 @@ ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数�
 
 最適化の途中で目的関数が呼び出されるたびに、その情報を記録します。
 各行には、呼び出し番号、変数の値、目的関数の値がこの順に出力されます。
+
+``BasinHoppingData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``basinhopping`` が有効な場合のみ出力されます。
+局所最適化 1 回ごと(初期点からの 1 回 + ``niter`` 回のホップ)に、
+ホップ番号、局所最適化で得られた変数の値、目的関数の値、
+そのホップが受理されたかどうか (1/0) をこの順に出力します。
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
