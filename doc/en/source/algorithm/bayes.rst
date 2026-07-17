@@ -39,6 +39,24 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Description: The path to a reference file that contains information about the mesh data.
 
+- ``comments``
+
+  Format: String (default: "#")
+
+  Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+
+- ``delimiter``
+
+  Format: String (default: whitespace)
+
+  Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+- ``skiprows``
+
+  Format: Integer (default: 0)
+
+  Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
+
 - ``min_list``
 
   Format: List of float. The length should match the value of dimension.

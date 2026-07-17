@@ -26,8 +26,6 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``pamc`` :  Population Annealing Monte Carlo method
 
-  - ``bayes`` :  Bayesian optimization
-
 - ``seed``
 
   Format: Integer

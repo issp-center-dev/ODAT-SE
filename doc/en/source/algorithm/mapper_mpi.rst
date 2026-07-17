@@ -17,6 +17,15 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+``[algorithm]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``colormap``
+
+  Format: String (default: "ColorMap.txt")
+
+  Description: Name of the file to which the search results (the coordinates and the objective function values of the mesh points) are written.
+
 .. _mapper_input_param:
 
 ``[algorithm.param]`` section
@@ -34,6 +43,24 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
   Format: String
 
   Description: Path to the mesh definition file.
+
+- ``comments``
+
+  Format: String (default: "#")
+
+  Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+
+- ``delimiter``
+
+  Format: String (default: whitespace)
+
+  Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+- ``skiprows``
+
+  Format: Integer (default: 0)
+
+  Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
 
 - ``min_list``
 
@@ -86,6 +113,7 @@ Output file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This file contains the candidate parameters for each mesh and the function value at that time.
+The file name can be changed by the ``colormap`` parameter in the ``[algorithm]`` section.
 The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
 
 Below, output example is shown.

@@ -17,6 +17,15 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 入力パラメータ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+``[algorithm]`` セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``colormap``
+
+  形式: string型。 (default: "ColorMap.txt")
+
+  説明: 探索結果（各メッシュ点の座標と目的関数値）を出力するファイルの名前。
+
 .. _mapper_input_param:
 
 ``[algorithm.param]`` セクション
@@ -35,6 +44,24 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
   形式: string型
 
   説明: メッシュ定義ファイルへのパス。
+
+- ``comments``
+
+  形式: string型。 (default: "#")
+
+  説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。
+
+- ``delimiter``
+
+  形式: string型。 (default: 空白文字)
+
+  説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は ``","`` を指定します。
+
+- ``skiprows``
+
+  形式: 整数。 (default: 0)
+
+  説明: メッシュ定義ファイルの先頭から読み飛ばす行数。ヘッダ行をスキップする場合に指定します。
 
 - ``min_list``
 
@@ -89,6 +116,7 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 各メッシュでの候補パラメータと、その点での目的関数の値が記載されたファイルです。
+ファイル名は ``[algorithm]`` セクションの ``colormap`` パラメータで変更できます。
 メッシュデータは、入力ファイルの ``[solver.param]`` セクションにある ``string_list`` で定義された変数の順番で記載され、最後に目的関数の値が記載されます。
 
 以下、出力例です。

@@ -74,6 +74,24 @@ Otherwise, continuous space is used.
 
     Description: Path to the mesh definition file. See *Reference file* below for the format.
 
+  - ``comments``
+
+    Format: String (default: "#")
+
+    Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+
+  - ``delimiter``
+
+    Format: String (default: whitespace)
+
+    Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+  - ``skiprows``
+
+    Format: Integer (default: 0)
+
+    Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
+
   - ``neighborlist_path``
 
     Format: string
