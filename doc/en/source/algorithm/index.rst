@@ -13,6 +13,9 @@ Click each item for detailed usage, including input parameters and output files.
 :doc:`minsearch`
     Performs optimization using the Nelder-Mead method (simplex method). A derivative-free direct search method that converges quickly for a small number of parameters. Requires scipy.
 
+:doc:`global_search`
+    Performs global optimization using the routines of scipy.optimize. Currently differential evolution is available, with MPI-parallel evaluation of the candidate points within each generation. Requires scipy.
+
 :doc:`mapper_mpi`
     Divides the parameter space into a grid and evaluates :math:`f(x)` at all grid points. Supports MPI parallelization and is suitable for obtaining an overview of the parameter space.
 
@@ -34,6 +37,7 @@ Click each item for detailed usage, including input parameters and output files.
    :hidden:
 
    minsearch
+   global_search
    mapper_mpi
    random_search
    bayes
