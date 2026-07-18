@@ -4,6 +4,45 @@
 各種 ``Solver``, ``Algorithm`` が出力するファイルについては、 :doc:`solver/index` および :doc:`algorithm/index` を参照してください。
 
 
+アルゴリズム別出力ファイル早見表
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+各アルゴリズムが出力する主なファイルの一覧です。
+``RANK/`` は MPI ランクごとのサブフォルダ（``output_dir/0/`` など）を表します。
+``#`` は温度点のインデックスです。各ファイルの列の意味などの詳細は、各アルゴリズムのページの「出力ファイル」の節を参照してください。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 45 35
+
+   * - アルゴリズム
+     - 主な出力ファイル
+     - 内容
+   * - :doc:`minsearch <algorithm/minsearch>`
+     - ``res.txt``, ``RANK/SimplexData.txt``, ``RANK/History_FunctionCall.txt``
+     - 最適化結果、シンプレックスの探索経路、関数評価の履歴
+   * - :doc:`mapper <algorithm/mapper_mpi>`
+     - ``ColorMap.txt``
+     - 各格子点の座標と目的関数値（ファイル名は ``colormap`` で変更可能）
+   * - :doc:`random_search <algorithm/random_search>`
+     - ``ColorMap.txt``
+     - 各サンプル点の座標と目的関数値
+   * - :doc:`bayes <algorithm/bayes>`
+     - ``BayesData.txt``
+     - 各ステップの推定最適値と評価点の履歴
+   * - :doc:`ttopt <algorithm/ttopt>`
+     - ``res.txt``, ``ttopt_hyperparameters.txt``, ``ttopt_history.txt``, ``ttopt_eval_history.txt``
+     - 最適化結果、ハイパーパラメータ、最良値の更新履歴、評価履歴（オプション）
+   * - :doc:`exchange <algorithm/exchange>`
+     - ``RANK/trial.txt``, ``RANK/result.txt``, ``RANK/result_T#.txt``, ``best_result.txt``, ``fx.txt``
+     - 提案・採択されたサンプル、温度別ログ、最良解、温度ごとの統計量
+   * - :doc:`pamc <algorithm/pamc>`
+     - ``RANK/trial_T#.txt``, ``RANK/trial.txt``, ``RANK/result_T#.txt``, ``RANK/result.txt``, ``RANK/weight.txt``, ``best_result.txt``, ``fx.txt``, ``pr.txt``
+     - 提案・採択されたサンプル（温度別/全体）、レプリカの重み、最良解、温度ごとの統計量、分配関数比
+
+このほかに、すべてのアルゴリズムに共通するファイル（``time.log``, ``runner.log``, ``status.pickle``）が以下のとおり出力されます。
+
+
 共通ファイル
 ~~~~~~~~~~~~~~~~~~
 

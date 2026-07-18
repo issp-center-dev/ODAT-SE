@@ -3,6 +3,44 @@ Output files
 
 See :doc:`solver/index` and :doc:`algorithm/index` for the output files of each ``Solver`` and ``Algorithm``.
 
+Quick reference of output files by algorithm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The main files produced by each algorithm are listed below.
+``RANK/`` denotes the per-MPI-rank subfolder (such as ``output_dir/0/``), and ``#`` is the index of a temperature point.
+See the "Output files" section of each algorithm page for the details such as the meaning of the columns.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 45 35
+
+   * - Algorithm
+     - Main output files
+     - Contents
+   * - :doc:`minsearch <algorithm/minsearch>`
+     - ``res.txt``, ``RANK/SimplexData.txt``, ``RANK/History_FunctionCall.txt``
+     - Optimization result, simplex search path, history of function evaluations
+   * - :doc:`mapper <algorithm/mapper_mpi>`
+     - ``ColorMap.txt``
+     - Coordinates and objective function values of the grid points (the file name can be changed by ``colormap``)
+   * - :doc:`random_search <algorithm/random_search>`
+     - ``ColorMap.txt``
+     - Coordinates and objective function values of the sampled points
+   * - :doc:`bayes <algorithm/bayes>`
+     - ``BayesData.txt``
+     - History of the estimated optimum and the evaluated points at each step
+   * - :doc:`ttopt <algorithm/ttopt>`
+     - ``res.txt``, ``ttopt_hyperparameters.txt``, ``ttopt_history.txt``, ``ttopt_eval_history.txt``
+     - Optimization result, hyperparameters, history of the best value, evaluation history (optional)
+   * - :doc:`exchange <algorithm/exchange>`
+     - ``RANK/trial.txt``, ``RANK/result.txt``, ``RANK/result_T#.txt``, ``best_result.txt``, ``fx.txt``
+     - Proposed and accepted samples, per-temperature logs, best solution, per-temperature statistics
+   * - :doc:`pamc <algorithm/pamc>`
+     - ``RANK/trial_T#.txt``, ``RANK/trial.txt``, ``RANK/result_T#.txt``, ``RANK/result.txt``, ``RANK/weight.txt``, ``best_result.txt``, ``fx.txt``, ``pr.txt``
+     - Proposed and accepted samples (per temperature / all), replica weights, best solution, per-temperature statistics, partition function ratios
+
+In addition, the files common to all algorithms (``time.log``, ``runner.log``, ``status.pickle``) are written as described below.
+
 Common file
 ~~~~~~~~~~~~~~~~~~
 
