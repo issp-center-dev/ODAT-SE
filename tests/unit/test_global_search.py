@@ -147,6 +147,50 @@ def test_shgo_unknown_param_raises(tmp_path, monkeypatch):
                                                  "no_such_param": 1})
 
 
+def test_direct_converges(tmp_path, monkeypatch):
+    """direct finds the minimum of a quadratic function. It runs entirely
+    on rank 0; under MPI the other ranks stay idle but still receive the
+    broadcast result."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record,
+        global_search_params={"method": "direct", "maxfun": 2000})
+    assert alg.method == "direct"
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-2)
+    assert alg.fopt < 1e-3
+    if odatse.mpi.algrank() == 0:
+        assert list(tmp_path.glob("**/IterationData.txt"))
+        content = (tmp_path / "output" / "res.txt").read_text()
+        assert content.startswith("fx = ")
+        assert "None" not in content
+
+
+def test_direct_multimodal(tmp_path, monkeypatch):
+    """direct reaches the global minimum of the double-well function."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+
+    def double_well(x):
+        record.append(np.array(x, copy=True))
+        return float(((x[0] ** 2 - 4) ** 2) / 8.0 + 0.5 * x[0] - 2.0 + x[1] ** 2)
+
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record, fn=double_well,
+        global_search_params={"method": "direct", "maxfun": 2000})
+    assert alg.fopt < -2.0
+    assert alg.xopt[0] < 0.0
+
+
+def test_direct_unknown_param_raises(tmp_path, monkeypatch):
+    """fail-fast also applies to the direct argument list."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises((RuntimeError, SystemExit)):
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           global_search_params={"method": "direct",
+                                                 "no_such_param": 1})
+
+
 def test_method_aliases(tmp_path, monkeypatch):
     """"DE" (default), "de" and "differential_evolution" all select the DE
     routine."""
@@ -166,13 +210,14 @@ def test_unknown_method_raises(tmp_path, monkeypatch):
                            run=False)
 
 
-def test_not_implemented_method_raises(tmp_path, monkeypatch):
-    """direct is recognized but not implemented yet."""
+def test_all_methods_recognized(tmp_path, monkeypatch):
+    """Every documented method name resolves without NotImplementedError."""
     monkeypatch.chdir(tmp_path)
-    for m in ("direct",):
-        with pytest.raises(NotImplementedError):
-            _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
-                               global_search_params={"method": m}, run=False)
+    for m, resolved in (("DE", "differential_evolution"),
+                        ("shgo", "shgo"), ("direct", "direct")):
+        alg = _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                                 global_search_params={"method": m}, run=False)
+        assert alg.method == resolved
 
 
 def test_unknown_param_raises(tmp_path, monkeypatch):

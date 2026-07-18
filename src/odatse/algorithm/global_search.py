@@ -12,6 +12,11 @@ import time
 import numpy as np
 from scipy.optimize import differential_evolution, shgo
 
+try:
+    from scipy.optimize import direct
+except ImportError:  # scipy < 1.9
+    direct = None
+
 import odatse
 import odatse.domain
 
@@ -28,8 +33,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     * "DE" / "differential_evolution": scipy.optimize.differential_evolution
     * "shgo": scipy.optimize.shgo
-
-    Planned: "direct".
+    * "direct": scipy.optimize.direct
 
     All other entries of the section are passed verbatim as arguments of the
     selected scipy routine; argument names the routine does not accept abort
@@ -53,7 +57,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     }
 
     # methods implemented so far
-    _IMPLEMENTED = {"differential_evolution", "shgo"}
+    _IMPLEMENTED = {"differential_evolution", "shgo", "direct"}
 
     # arguments of the scipy routines managed by ODAT-SE itself; rejected if
     # the user sets them in [algorithm.global_search]
@@ -130,7 +134,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if self.method not in self._IMPLEMENTED:
             raise NotImplementedError(
                 f"algorithm.global_search.method '{method}' is not implemented yet; "
-                f"currently implemented: DE (differential_evolution)"
+                f"currently implemented: DE (differential_evolution), shgo, direct"
+            )
+        if self.method == "direct" and direct is None:
+            raise RuntimeError(
+                "algorithm.global_search.method 'direct' requires scipy >= 1.9"
             )
 
         # forward all remaining entries verbatim as arguments of the scipy
@@ -288,9 +296,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             Per-iteration callback for the scipy routines.
 
             differential_evolution calls it per generation as
-            (xk, convergence); shgo calls it per iteration as (xk). The
-            old-style signatures are used because they are supported by
-            every scipy version in the supported range.
+            (xk, convergence); shgo and direct call it per iteration as
+            (xk). The old-style signatures are used because they are
+            supported by every scipy version in the supported range.
             """
             fun = f_cache.get(np.asarray(xk, dtype=float).tobytes(), float("nan"))
             row = [len(iter_history), *xk, fun]
@@ -334,6 +342,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             _f_calc,
                             bounds,
                             workers=_workers,
+                            callback=_cb,
+                            **params,
+                        )
+                    elif self.method == "direct":
+                        # direct is deterministic and does not support
+                        # parallel evaluation; it runs entirely on rank 0
+                        # while the other ranks stay idle in the server loop
+                        if nprocs > 1:
+                            print("Warning: method 'direct' does not support "
+                                  "parallel evaluation; algorithm ranks > 0 "
+                                  "stay idle")
+                        optres = direct(
+                            _f_calc,
+                            bounds,
                             callback=_cb,
                             **params,
                         )

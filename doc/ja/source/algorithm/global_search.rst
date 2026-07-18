@@ -4,10 +4,11 @@
 
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 .. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
+.. _scipy.optimize.direct: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html
 
 ``global_search`` は scipy.optimize の大域最適化ルーチンを用いて
 :math:`f(x)` の最小化を行います。
-現在は以下の手法が利用できます (direct は今後対応予定)。
+現在は以下の手法が利用できます。
 
 - 差分進化法 (differential evolution, `scipy.optimize.differential_evolution`_):
   個体群(population)を維持し、個体間の差分ベクトルから新しい候補点を生成する
@@ -16,6 +17,9 @@
   サンプリング点から単体複体を構成し、その位相構造に基づいて局所最適化の
   開始点を系統的に選ぶ決定論的手法です。発見した **すべての局所解のリスト** を
   出力できるのが特徴です。
+- direct (DIviding RECTangles, `scipy.optimize.direct`_):
+  探索領域を超矩形に分割し、有望かつ大きい矩形を優先的に細分化していく
+  決定論的手法です。乱数を使用せず、完全な再現性があります。
 
 探索範囲は ``[algorithm.param]`` の ``min_list`` / ``max_list`` で規定され、
 scipy の ``bounds`` 引数として渡されます。初期値 (``initial_list``) は使用しません。
@@ -34,6 +38,9 @@ shgo ではサンプリング段階の評価点が、まとめて各ランクに
 総評価回数はおおよそ (``maxiter`` + 1) × ``popsize`` × 次元数が上限になります
 (収束判定により早く終了する場合があります)。
 shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行されます。
+
+direct は並列評価に対応していないため、ランク 0 上で逐次実行されます
+(他のランクは待機します。各点内のソルバー並列 ``nsolve`` は有効です)。
 
 前準備
 ~~~~~~
@@ -87,8 +94,8 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
   形式: string型 (default: "DE")
 
   説明: 最適化手法の名前(大文字小文字は区別しません)。
-  "DE" または "differential_evolution" で差分進化法、"shgo" で shgo を
-  選択します。"direct" は今後対応予定です。
+  "DE" または "differential_evolution" で差分進化法、"shgo" で shgo、
+  "direct" で direct を選択します。
 
 - その他のパラメータ
 
@@ -104,6 +111,8 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
     ``[algorithm.global_search.minimizer_kwargs]`` はそれぞれ scipy の
     ``options`` / ``minimizer_kwargs`` 引数として渡されます。
     shgo は決定論的で乱数を使用しません。
+  - direct: ``maxfun``, ``maxiter``, ``eps``, ``locally_biased``,
+    ``len_tol``, ``vol_tol`` など。direct も決定論的で乱数を使用しません。
 
 設定例:
 
@@ -133,6 +142,8 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
   SLSQP で、勾配は数値差分により評価されます。
 - shgo の並列評価 (``workers``) は scipy >= 1.11 が必要です。
   それ未満のバージョンでは開始前にエラーで停止します。
+- direct は scipy >= 1.9 が必要です。また、最適点近傍の精密化が遅いため、
+  direct で当たりをつけてから minsearch で磨く使い方が有効です。
 - ``[runner.limitation]`` による制約条件は、制約を満たさない点の目的関数値を
   無限大とみなす方法で処理されます。
 - リスタート(チェックポイント)には対応していません。
@@ -146,7 +157,7 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
 反復ごとの最良点の情報を出力します(ランク 0 のみ)。
 差分進化法では ``GenerationData.txt`` に、世代番号、最良点の変数の値、
 目的関数の値、収束度 (convergence) がこの順に出力されます。
-shgo では ``IterationData.txt`` に、反復番号、最良点の変数の値、
+shgo / direct では ``IterationData.txt`` に、反復番号、最良点の変数の値、
 目的関数の値がこの順に出力されます。
 
 ``LocalMinimaData.txt``

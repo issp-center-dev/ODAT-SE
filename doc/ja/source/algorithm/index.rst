@@ -15,7 +15,7 @@ ODAT-SE では以下の探索アルゴリズムが利用できます。
     Nelder-Mead法（シンプレックス法）による最適化を行います。勾配を使わない直接探索法で、少数のパラメータに対して高速に収束します。scipy を利用します。
 
 :doc:`global_search`
-    scipy.optimize の大域最適化ルーチンによる探索を行います。差分進化法 (differential evolution) と shgo が利用でき、候補点の評価を MPI により並列化できます。scipy を利用します。
+    scipy.optimize の大域最適化ルーチンによる探索を行います。差分進化法 (differential evolution)、shgo、direct が利用でき、候補点の評価を MPI により並列化できます(direct を除く)。scipy を利用します。
 
 :doc:`mapper_mpi`
     パラメータ空間をグリッド状に分割し、すべての格子点で :math:`f(x)` を評価します。MPI による並列化に対応しており、パラメータ空間の全体像を把握するのに適しています。

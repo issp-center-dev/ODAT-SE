@@ -4,10 +4,11 @@ Global optimization ``global_search``
 
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 .. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
+.. _scipy.optimize.direct: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html
 
 ``global_search`` minimizes :math:`f(x)` using the global optimization
 routines of scipy.optimize.
-The following methods are currently available (direct is planned):
+The following methods are currently available:
 
 - Differential evolution (`scipy.optimize.differential_evolution`_):
   an evolutionary algorithm that maintains a population of candidate
@@ -19,6 +20,10 @@ The following methods are currently available (direct is planned):
   points and systematically selects starting points of local optimizations
   from its topological structure. It can report the list of **all local
   minima** found.
+- direct (DIviding RECTangles, `scipy.optimize.direct`_):
+  a deterministic method that partitions the search region into
+  hyperrectangles and preferentially subdivides those that are promising
+  and large. It uses no random numbers and is fully reproducible.
 
 The search region is defined by ``min_list`` / ``max_list`` of
 ``[algorithm.param]`` and passed as the ``bounds`` argument of scipy.
@@ -40,6 +45,10 @@ generation is ``popsize`` x dimension, and the total is roughly bounded by
 (``maxiter`` + 1) x ``popsize`` x dimension (the run may stop earlier upon
 convergence). The local refinements of shgo (its internal local
 optimizations) run serially on rank 0.
+
+direct does not support parallel evaluation and runs serially on rank 0
+(the other ranks stay idle; the solver-side parallelism ``nsolve`` within
+each point remains effective).
 
 Preparation
 ~~~~~~~~~~~
@@ -97,7 +106,7 @@ be set.
 
   Description: Name of the optimization method (case-insensitive).
   "DE" or "differential_evolution" selects differential evolution;
-  "shgo" selects shgo. "direct" is planned.
+  "shgo" selects shgo; "direct" selects direct.
 
 - other parameters
 
@@ -113,6 +122,9 @@ be set.
     ``[algorithm.global_search.minimizer_kwargs]`` are passed as the
     ``options`` / ``minimizer_kwargs`` arguments of scipy, respectively.
     shgo is deterministic and does not use random numbers.
+  - direct: ``maxfun``, ``maxiter``, ``eps``, ``locally_biased``,
+    ``len_tol``, ``vol_tol``, ... direct is also deterministic and does
+    not use random numbers.
 
 Example:
 
@@ -144,6 +156,9 @@ Remarks
   differentiation.
 - The parallel evaluation of shgo (``workers``) requires scipy >= 1.11;
   older versions stop with an error before the optimization starts.
+- direct requires scipy >= 1.9. Since its refinement near the optimum is
+  slow, a useful workflow is to locate the basin with direct and then
+  refine with minsearch.
 - Constraints given by ``[runner.limitation]`` are handled by treating the
   objective function value of violating points as infinity.
 - Restarting (checkpointing) is not supported.
@@ -158,8 +173,9 @@ Records the best point of each iteration (rank 0 only).
 For differential evolution, ``GenerationData.txt`` contains the generation
 number, the values of the variables of the best point, the value of the
 objective function, and the convergence measure, in that order.
-For shgo, ``IterationData.txt`` contains the iteration number, the values of
-the variables of the best point, and the value of the objective function.
+For shgo and direct, ``IterationData.txt`` contains the iteration number,
+the values of the variables of the best point, and the value of the
+objective function.
 
 ``LocalMinimaData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
