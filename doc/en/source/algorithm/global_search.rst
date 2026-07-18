@@ -3,17 +3,23 @@ Global optimization ``global_search``
 =========================================
 
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
+.. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
 
 ``global_search`` minimizes :math:`f(x)` using the global optimization
 routines of scipy.optimize.
-Currently differential evolution
-(`scipy.optimize.differential_evolution`_) is available
-(shgo and direct are planned).
+The following methods are currently available (direct is planned):
 
-Differential evolution is an evolutionary algorithm that maintains a
-population of candidate solutions and generates new candidates from
-difference vectors between population members. It is derivative-free and
-robust for multimodal problems.
+- Differential evolution (`scipy.optimize.differential_evolution`_):
+  an evolutionary algorithm that maintains a population of candidate
+  solutions and generates new candidates from difference vectors between
+  population members. It is derivative-free and robust for multimodal
+  problems.
+- shgo (simplicial homology global optimization, `scipy.optimize.shgo`_):
+  a deterministic method that builds a simplicial complex over sampling
+  points and systematically selects starting points of local optimizations
+  from its topological structure. It can report the list of **all local
+  minima** found.
+
 The search region is defined by ``min_list`` / ``max_list`` of
 ``[algorithm.param]`` and passed as the ``bounds`` argument of scipy.
 The initial value (``initial_list``) is not used.
@@ -23,15 +29,17 @@ MPI parallelization
 
 Under MPI, algorithm rank 0 drives the optimizer while the other ranks act
 as evaluation servers. For differential evolution, the candidate points of a
-whole generation are distributed to the ranks at once, and each rank
-evaluates its share with its own solver group. The point-level parallelism
-(number of algorithm ranks) composes with the solver-side parallelism
-(``nsolve``), giving two levels of parallelization.
+whole generation are distributed to the ranks at once; for shgo, the
+evaluation points of the sampling phase are. Each rank evaluates its share
+with its own solver group. The point-level parallelism (number of algorithm
+ranks) composes with the solver-side parallelism (``nsolve``), giving two
+levels of parallelization.
 
-The number of objective function evaluations per generation is
-``popsize`` x dimension, and the total is roughly bounded by
+For differential evolution, the number of objective function evaluations per
+generation is ``popsize`` x dimension, and the total is roughly bounded by
 (``maxiter`` + 1) x ``popsize`` x dimension (the run may stop earlier upon
-convergence).
+convergence). The local refinements of shgo (its internal local
+optimizations) run serially on rank 0.
 
 Preparation
 ~~~~~~~~~~~
@@ -87,19 +95,24 @@ be set.
 
   Format: String (default: "DE")
 
-  Description: Name of the optimization method. "DE" or
-  "differential_evolution" (case-insensitive) selects differential
-  evolution. "shgo" and "direct" are planned.
+  Description: Name of the optimization method (case-insensitive).
+  "DE" or "differential_evolution" selects differential evolution;
+  "shgo" selects shgo. "direct" is planned.
 
 - other parameters
 
-  Arguments of `scipy.optimize.differential_evolution`_
-  (``popsize``, ``maxiter``, ``tol``, ``mutation``, ``recombination``,
-  ``strategy``, ``polish``, ...) can be given directly.
+  Arguments of the selected scipy routine can be given directly.
   See the scipy documentation for details.
 
-  The random numbers are initialized from ``seed`` in the ``[algorithm]``
-  section (the random number sequence of algorithm rank 0 is used).
+  - Differential evolution: ``popsize``, ``maxiter``, ``tol``,
+    ``mutation``, ``recombination``, ``strategy``, ``polish``, ...
+    The random numbers are initialized from ``seed`` in the ``[algorithm]``
+    section (the random number sequence of algorithm rank 0 is used).
+  - shgo: ``n``, ``iters``, ``sampling_method``, ...
+    The sub-tables ``[algorithm.global_search.options]`` and
+    ``[algorithm.global_search.minimizer_kwargs]`` are passed as the
+    ``options`` / ``minimizer_kwargs`` arguments of scipy, respectively.
+    shgo is deterministic and does not use random numbers.
 
 Example:
 
@@ -121,11 +134,16 @@ Example:
 Remarks
 ~~~~~~~~~~~~~~~~~
 
-- When ``polish`` (default: true) is enabled, a local optimization by
-  L-BFGS-B runs after differential evolution finishes. It runs serially on
+- When ``polish`` (default: true) is enabled for differential evolution, a
+  local optimization by L-BFGS-B runs after it finishes. It runs serially on
   rank 0 and evaluates gradients by numerical differentiation
   (dimension+1 solver evaluations per gradient). Consider ``polish = false``
   when solver evaluations are expensive.
+- The local refinements of shgo also run serially on rank 0. Its default
+  local minimizer is SLSQP, whose gradients are evaluated by numerical
+  differentiation.
+- The parallel evaluation of shgo (``workers``) requires scipy >= 1.11;
+  older versions stop with an error before the optimization starts.
 - Constraints given by ``[runner.limitation]`` are handled by treating the
   objective function value of violating points as infinity.
 - Restarting (checkpointing) is not supported.
@@ -133,13 +151,23 @@ Remarks
 Output files
 ~~~~~~~~~~~~~~~~~
 
-``GenerationData.txt``
+``GenerationData.txt`` / ``IterationData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Records the best point of each iteration (rank 0 only).
+For differential evolution, ``GenerationData.txt`` contains the generation
+number, the values of the variables of the best point, the value of the
+objective function, and the convergence measure, in that order.
+For shgo, ``IterationData.txt`` contains the iteration number, the values of
+the variables of the best point, and the value of the objective function.
+
+``LocalMinimaData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Records the best point of each generation (rank 0 only).
-Each line contains the generation number, the values of the variables of the
-best point, the value of the objective function, and the convergence
-measure, in that order.
+Written only for shgo (rank 0 only).
+Lists all local minima found: the index, the values of the variables, and
+the value of the objective function, sorted in ascending order of the
+objective function.
 
 ``History_FunctionCall.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

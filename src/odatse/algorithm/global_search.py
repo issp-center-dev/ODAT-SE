@@ -10,7 +10,7 @@ from typing import Union, Optional, TYPE_CHECKING
 import time
 
 import numpy as np
-from scipy.optimize import differential_evolution
+from scipy.optimize import differential_evolution, shgo
 
 import odatse
 import odatse.domain
@@ -27,8 +27,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     ``[algorithm.global_search]`` section. Currently implemented:
 
     * "DE" / "differential_evolution": scipy.optimize.differential_evolution
+    * "shgo": scipy.optimize.shgo
 
-    Planned: "shgo", "direct".
+    Planned: "direct".
 
     All other entries of the section are passed verbatim as arguments of the
     selected scipy routine; argument names the routine does not accept abort
@@ -52,7 +53,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     }
 
     # methods implemented so far
-    _IMPLEMENTED = {"differential_evolution"}
+    _IMPLEMENTED = {"differential_evolution", "shgo"}
 
     # arguments of the scipy routines managed by ODAT-SE itself; rejected if
     # the user sets them in [algorithm.global_search]
@@ -77,6 +78,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     itera: Optional[int]
     funcalls: Optional[int]
     success: bool
+    # all local minima found (shgo only)
+    xl: Optional[np.ndarray]
+    funl: Optional[np.ndarray]
 
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
@@ -199,6 +203,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             step[0] += 1
             y = run.submit(x_scaled, (step[0], 0))
             fev_history.append([step[0], *x_scaled, y])
+            # cache rank-local evaluations too (e.g. local refinements that
+            # bypass the workers hook), so the iteration callback can report f
+            f_cache[np.asarray(x_list, dtype=float).tobytes()] = y
             return y
 
         def _evaluate_chunk(xs: np.ndarray):
@@ -244,7 +251,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             algorithm rank evaluates with its own identical _f_calc, so the
             objective never needs to be shipped over MPI.
             """
-            xs = np.atleast_2d(np.asarray(list(iterable), dtype=float))
+            points = list(iterable)
+            if len(points) == 0:
+                # e.g. shgo maps over an evaluation pool that can be empty
+                return []
+            xs = np.atleast_2d(np.asarray(points, dtype=float))
             vals = _evaluate_points(xs)
             for x, v in zip(xs, vals):
                 f_cache[x.tobytes()] = v
@@ -274,23 +285,28 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         def _cb(xk, convergence=None):
             """
-            Per-generation callback for differential_evolution.
+            Per-iteration callback for the scipy routines.
 
-            The old-style signature (xk, convergence) is used because it is
-            supported by every scipy version in the supported range.
+            differential_evolution calls it per generation as
+            (xk, convergence); shgo calls it per iteration as (xk). The
+            old-style signatures are used because they are supported by
+            every scipy version in the supported range.
             """
             fun = f_cache.get(np.asarray(xk, dtype=float).tobytes(), float("nan"))
-            conv = float(convergence) if convergence is not None else float("nan")
-            print("generation {}: best x={}, fun={}, convergence={}".format(
-                len(iter_history), xk, fun, conv))
-            iter_history.append([len(iter_history), *xk, fun, conv])
+            row = [len(iter_history), *xk, fun]
+            if convergence is not None:
+                row.append(float(convergence))
+            print("iteration {}: best x={}, fun={}".format(len(iter_history), xk, fun))
+            iter_history.append(row)
 
         params = dict(self.opt_params)
-        # deferred updating evaluates a whole generation at a time, which the
-        # parallel evaluation requires; it is also scipy's own fallback when
-        # workers is set, so make it the default to keep serial and parallel
-        # runs identical (a user-specified value still takes precedence)
-        params.setdefault("updating", "deferred")
+        if self.method == "differential_evolution":
+            # deferred updating evaluates a whole generation at a time, which
+            # the parallel evaluation requires; it is also scipy's own
+            # fallback when workers is set, so make it the default to keep
+            # serial and parallel runs identical (a user-specified value
+            # still takes precedence)
+            params.setdefault("updating", "deferred")
 
         bounds = list(zip(min_list, max_list))
 
@@ -298,17 +314,31 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if rank == 0:
             try:
                 try:
-                    optres = differential_evolution(
-                        _f_calc,
-                        bounds,
-                        workers=_workers,
-                        # self.rng is a RandomState; the seed path accepts it
-                        # across all supported scipy versions, while the new
-                        # rng= argument of scipy >= 1.15 does not
-                        seed=self.rng,
-                        callback=_cb,
-                        **params,
-                    )
+                    if self.method == "differential_evolution":
+                        optres = differential_evolution(
+                            _f_calc,
+                            bounds,
+                            workers=_workers,
+                            # self.rng is a RandomState; the seed path accepts
+                            # it across all supported scipy versions, while
+                            # the new rng= argument of scipy >= 1.15 does not
+                            seed=self.rng,
+                            callback=_cb,
+                            **params,
+                        )
+                    elif self.method == "shgo":
+                        # shgo is deterministic and takes no seed; workers
+                        # parallelizes the sampling-phase evaluations, while
+                        # the local refinements run serially through _f_calc
+                        optres = shgo(
+                            _f_calc,
+                            bounds,
+                            workers=_workers,
+                            callback=_cb,
+                            **params,
+                        )
+                    else:  # pragma: no cover - guarded in __init__
+                        raise RuntimeError(f"method {self.method} not implemented")
                 except TypeError as e:
                     raise RuntimeError(
                         f"{e}: check the [algorithm.global_search] section of "
@@ -329,6 +359,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 getattr(optres, "nit", None),
                 getattr(optres, "nfev", None),
                 bool(optres.success),
+                # shgo also reports all local minima found
+                getattr(optres, "xl", None),
+                getattr(optres, "funl", None),
             )
         else:
             finished = _serve_evaluations()
@@ -341,7 +374,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         if nprocs > 1:
             result = comm.bcast(result, root=0)
-        self.xopt, self.fopt, self.itera, self.funcalls, self.success = result
+        (self.xopt, self.fopt, self.itera, self.funcalls, self.success,
+         self.xl, self.funl) = result
 
         time_end = time.perf_counter()
         self.timer["run"]["global_search"] = time_end - time_sta
@@ -367,10 +401,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fp.write(" ".join(map(str, v)) + "\n")
 
         if odatse.mpi.algrank() == 0:
-            with open("GenerationData.txt", "w") as fp:
-                fp.write("#gen " + " ".join(label_list) + " R-factor convergence\n")
+            if self.method == "differential_evolution":
+                iter_file, iter_header = "GenerationData.txt", "#gen {} R-factor convergence\n"
+            else:
+                iter_file, iter_header = "IterationData.txt", "#iter {} R-factor\n"
+            with open(iter_file, "w") as fp:
+                fp.write(iter_header.format(" ".join(label_list)))
                 for v in self.iter_history:
                     fp.write(" ".join(map(str, v)) + "\n")
+
+            if self.xl is not None and self.funl is not None:
+                with open("LocalMinimaData.txt", "w") as fp:
+                    fp.write("#no " + " ".join(label_list) + " R-factor\n")
+                    for i, (x, f) in enumerate(zip(self.xl, self.funl)):
+                        fp.write(str(i) + " " + " ".join(map(str, x)) + " " + str(f) + "\n")
 
             with open("res.txt", "w") as fp:
                 fp.write(f"fx = {self.fopt}\n")

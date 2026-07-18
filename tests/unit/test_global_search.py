@@ -96,6 +96,57 @@ def test_unit_scaling(tmp_path, monkeypatch):
     assert np.all(np.abs(pts) <= 2.5 + 1e-12)
 
 
+def test_shgo_converges(tmp_path, monkeypatch):
+    """shgo finds the minimum of a quadratic function and reports the list
+    of local minima."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record,
+        global_search_params={"method": "shgo", "n": 32})
+    assert alg.method == "shgo"
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+    assert alg.fopt < 1e-4
+    assert alg.xl is not None and len(alg.xl) >= 1
+    if odatse.mpi.algrank() == 0:
+        assert list(tmp_path.glob("**/LocalMinimaData.txt"))
+        assert list(tmp_path.glob("**/IterationData.txt"))
+        content = (tmp_path / "output" / "res.txt").read_text()
+        assert content.startswith("fx = ")
+
+
+def test_shgo_multimodal(tmp_path, monkeypatch):
+    """shgo reaches the global minimum of the double-well function and
+    enumerates both wells as local minima."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+
+    def double_well(x):
+        record.append(np.array(x, copy=True))
+        return float(((x[0] ** 2 - 4) ** 2) / 8.0 + 0.5 * x[0] - 2.0 + x[1] ** 2)
+
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record, fn=double_well,
+        global_search_params={"method": "shgo", "n": 64})
+    assert alg.fopt < -2.0
+    assert alg.xopt[0] < 0.0
+    # both wells (x1 ~ -2 and x1 ~ +2) should be found as local minima
+    assert len(alg.xl) >= 2
+    signs = {np.sign(x[0]) for x in alg.xl}
+    assert signs == {-1.0, 1.0}
+    # the local minima list is sorted, funl[0] is the global minimum
+    np.testing.assert_allclose(alg.funl[0], alg.fopt)
+
+
+def test_shgo_unknown_param_raises(tmp_path, monkeypatch):
+    """fail-fast also applies to the shgo argument list."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises((RuntimeError, SystemExit)):
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           global_search_params={"method": "shgo",
+                                                 "no_such_param": 1})
+
+
 def test_method_aliases(tmp_path, monkeypatch):
     """"DE" (default), "de" and "differential_evolution" all select the DE
     routine."""
@@ -116,9 +167,9 @@ def test_unknown_method_raises(tmp_path, monkeypatch):
 
 
 def test_not_implemented_method_raises(tmp_path, monkeypatch):
-    """shgo / direct are recognized but not implemented yet."""
+    """direct is recognized but not implemented yet."""
     monkeypatch.chdir(tmp_path)
-    for m in ("shgo", "direct"):
+    for m in ("direct",):
         with pytest.raises(NotImplementedError):
             _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                                global_search_params={"method": m}, run=False)

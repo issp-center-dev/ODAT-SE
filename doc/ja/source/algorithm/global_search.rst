@@ -3,15 +3,20 @@
 =========================================
 
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
+.. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
 
 ``global_search`` は scipy.optimize の大域最適化ルーチンを用いて
 :math:`f(x)` の最小化を行います。
-現在は差分進化法 (differential evolution,
-`scipy.optimize.differential_evolution`_) が利用できます
-(shgo, direct は今後対応予定)。
+現在は以下の手法が利用できます (direct は今後対応予定)。
 
-差分進化法は個体群(population)を維持し、個体間の差分ベクトルから新しい候補点を
-生成する進化計算法です。微分を必要とせず、多峰性の問題に対してロバストです。
+- 差分進化法 (differential evolution, `scipy.optimize.differential_evolution`_):
+  個体群(population)を維持し、個体間の差分ベクトルから新しい候補点を生成する
+  進化計算法です。微分を必要とせず、多峰性の問題に対してロバストです。
+- shgo (simplicial homology global optimization, `scipy.optimize.shgo`_):
+  サンプリング点から単体複体を構成し、その位相構造に基づいて局所最適化の
+  開始点を系統的に選ぶ決定論的手法です。発見した **すべての局所解のリスト** を
+  出力できるのが特徴です。
+
 探索範囲は ``[algorithm.param]`` の ``min_list`` / ``max_list`` で規定され、
 scipy の ``bounds`` 引数として渡されます。初期値 (``initial_list``) は使用しません。
 
@@ -19,14 +24,16 @@ MPI 並列
 ~~~~~~~~~~~~~~~~~
 
 MPI 実行時には、アルゴリズムランク 0 が最適化ルーチンを駆動し、
-他のランクは評価サーバーとして動作します。差分進化法では 1 世代分の候補点が
-まとめて各ランクに分配され、各ランクは自身のソルバーグループで評価を行います。
+他のランクは評価サーバーとして動作します。差分進化法では 1 世代分の候補点が、
+shgo ではサンプリング段階の評価点が、まとめて各ランクに分配され、
+各ランクは自身のソルバーグループで評価を行います。
 点レベルの並列度(アルゴリズムランク数)とソルバー内並列度 (``nsolve``) を
 組み合わせた 2 階層の並列化が可能です。
 
-1 世代あたりの目的関数の評価回数は ``popsize`` × 次元数であり、
+差分進化法の 1 世代あたりの目的関数の評価回数は ``popsize`` × 次元数であり、
 総評価回数はおおよそ (``maxiter`` + 1) × ``popsize`` × 次元数が上限になります
 (収束判定により早く終了する場合があります)。
+shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行されます。
 
 前準備
 ~~~~~~
@@ -79,18 +86,24 @@ MPI 実行時には、アルゴリズムランク 0 が最適化ルーチンを�
 
   形式: string型 (default: "DE")
 
-  説明: 最適化手法の名前。"DE" または "differential_evolution" で差分進化法を
-  選択します(大文字小文字は区別しません)。"shgo", "direct" は今後対応予定です。
+  説明: 最適化手法の名前(大文字小文字は区別しません)。
+  "DE" または "differential_evolution" で差分進化法、"shgo" で shgo を
+  選択します。"direct" は今後対応予定です。
 
 - その他のパラメータ
 
-  `scipy.optimize.differential_evolution`_ の引数
-  (``popsize``, ``maxiter``, ``tol``, ``mutation``, ``recombination``,
-  ``strategy``, ``polish`` など)をそのまま指定できます。
+  選択した scipy 関数の引数をそのまま指定できます。
   詳細は scipy のドキュメントを参照してください。
 
-  乱数は ``[algorithm]`` セクションの ``seed`` から初期化されます
-  (アルゴリズムランク 0 の乱数系列が使用されます)。
+  - 差分進化法: ``popsize``, ``maxiter``, ``tol``, ``mutation``,
+    ``recombination``, ``strategy``, ``polish`` など。
+    乱数は ``[algorithm]`` セクションの ``seed`` から初期化されます
+    (アルゴリズムランク 0 の乱数系列が使用されます)。
+  - shgo: ``n``, ``iters``, ``sampling_method`` など。
+    サブテーブル ``[algorithm.global_search.options]`` および
+    ``[algorithm.global_search.minimizer_kwargs]`` はそれぞれ scipy の
+    ``options`` / ``minimizer_kwargs`` 引数として渡されます。
+    shgo は決定論的で乱数を使用しません。
 
 設定例:
 
@@ -112,10 +125,14 @@ MPI 実行時には、アルゴリズムランク 0 が最適化ルーチンを�
 注意点
 ~~~~~~~~~~~~~~~~~
 
-- ``polish`` (default: true) が有効な場合、差分進化法の終了後に L-BFGS-B 法による
+- 差分進化法で ``polish`` (default: true) が有効な場合、終了後に L-BFGS-B 法による
   局所最適化が実行されます。この局所最適化はランク 0 上で逐次実行され、
   勾配は数値差分により評価されます(勾配 1 回あたり次元数+1 回のソルバー実行)。
   ソルバーの評価コストが大きい場合は ``polish = false`` も検討してください。
+- shgo の局所精錬もランク 0 上で逐次実行されます。デフォルトの局所最適化手法は
+  SLSQP で、勾配は数値差分により評価されます。
+- shgo の並列評価 (``workers``) は scipy >= 1.11 が必要です。
+  それ未満のバージョンでは開始前にエラーで停止します。
 - ``[runner.limitation]`` による制約条件は、制約を満たさない点の目的関数値を
   無限大とみなす方法で処理されます。
 - リスタート(チェックポイント)には対応していません。
@@ -123,12 +140,21 @@ MPI 実行時には、アルゴリズムランク 0 が最適化ルーチンを�
 出力ファイル
 ~~~~~~~~~~~~~~~~~
 
-``GenerationData.txt``
+``GenerationData.txt`` / ``IterationData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+反復ごとの最良点の情報を出力します(ランク 0 のみ)。
+差分進化法では ``GenerationData.txt`` に、世代番号、最良点の変数の値、
+目的関数の値、収束度 (convergence) がこの順に出力されます。
+shgo では ``IterationData.txt`` に、反復番号、最良点の変数の値、
+目的関数の値がこの順に出力されます。
+
+``LocalMinimaData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-世代ごとの最良点の情報を出力します(ランク 0 のみ)。
-各行には、世代番号、最良点の変数の値、目的関数の値、収束度 (convergence) が
-この順に出力されます。
+shgo の場合のみ出力されます(ランク 0 のみ)。
+発見されたすべての局所解について、番号、変数の値、目的関数の値を
+目的関数の値の昇順で出力します。
 
 ``History_FunctionCall.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
