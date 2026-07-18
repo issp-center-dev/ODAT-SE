@@ -76,6 +76,52 @@ ODAT-SE モジュールをアンインストールするには、以下のコマ
 定義済みの ``Algorithm`` については :doc:`algorithm/index` を、
 ``Solver`` については :doc:`solver/index` を参照してください。
 
+クイックスタート
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+インストール後の動作確認を兼ねて、解析関数の最小化を実行してみます。
+以下の内容で ``input.toml`` を作成します（サンプルファイルのダウンロードは不要です）。
+
+.. code-block:: toml
+
+    [base]
+    dimension = 2
+    output_dir = "output"
+
+    [solver]
+    name = "analytical"
+    function_name = "himmelblau"
+
+    [algorithm]
+    name = "minsearch"
+    seed = 12345
+
+    [algorithm.param]
+    min_list = [-6.0, -6.0]
+    max_list = [ 6.0,  6.0]
+    initial_list = [0, 0]
+
+同じディレクトリで次を実行します。計算は数秒で終わります。
+
+.. code-block:: bash
+
+    $ odatse input.toml
+
+``output/res.txt`` に最適化結果が出力されます。
+
+.. code-block::
+
+    fx = 4.2278370361994904e-08
+    x1 = 2.9999669562950175
+    x2 = 1.9999973389336225
+
+Himmelblau 関数の最小値の一つ :math:`(3, 2)` （関数値 :math:`0`）が正しく求められています。
+より詳しい説明や他のアルゴリズムの使い方は :doc:`tutorial/index` を参照してください。
+
+.. note::
+   ``minsearch`` の実行には scipy が必要です（``pip install 'ODAT-SE[all]'`` に含まれます）。
+   ``ModuleNotFoundError`` が出る場合は :doc:`faq/error` を参照してください。
+
 コマンドラインオプション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

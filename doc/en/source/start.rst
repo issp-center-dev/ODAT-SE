@@ -76,6 +76,52 @@ In ODAT-SE, the analysis is carried out by using a predefined optimization algor
 
 See :doc:`algorithm/index` for the predefined ``Algorithm`` and :doc:`solver/index` for the ``Solver``.
 
+Quick start
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As a check that the installation works, let us minimize an analytical function.
+Create ``input.toml`` with the following contents (no sample files need to be downloaded):
+
+.. code-block:: toml
+
+    [base]
+    dimension = 2
+    output_dir = "output"
+
+    [solver]
+    name = "analytical"
+    function_name = "himmelblau"
+
+    [algorithm]
+    name = "minsearch"
+    seed = 12345
+
+    [algorithm.param]
+    min_list = [-6.0, -6.0]
+    max_list = [ 6.0,  6.0]
+    initial_list = [0, 0]
+
+Run the following command in the same directory. The calculation finishes in a few seconds.
+
+.. code-block:: bash
+
+    $ odatse input.toml
+
+The optimization result is written to ``output/res.txt``:
+
+.. code-block::
+
+    fx = 4.2278370361994904e-08
+    x1 = 2.9999669562950175
+    x2 = 1.9999973389336225
+
+One of the minima of the Himmelblau function, :math:`(3, 2)` (with the function value :math:`0`), is obtained correctly.
+See :doc:`tutorial/index` for detailed explanations and the usage of the other algorithms.
+
+.. note::
+   ``minsearch`` requires scipy (included in ``pip install 'ODAT-SE[all]'``).
+   If you get a ``ModuleNotFoundError``, see :doc:`faq/error`.
+
 Command-line options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
