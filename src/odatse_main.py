@@ -8,6 +8,8 @@
 
 if __name__ == "__main__":
     # sys.path[0] is this directory (this project's src)
+    import sys
+
     import odatse
 
-    odatse.main()
+    sys.exit(odatse.cli())
