@@ -13,7 +13,7 @@ from ._info import Info
 from . import solver
 from ._runner import Runner
 from . import algorithm
-from ._main import main
+from ._main import main, cli
 from ._initialize import initialize
 
 __version__ = "3.3-dev"
