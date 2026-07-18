@@ -26,7 +26,7 @@ APIの詳細を説明します。
     ``Algorithm`` クラスの API リファレンスです。独自の探索アルゴリズムを定義する方法を解説します。
 
 :doc:`common`
-    ``Info``, ``Runner``, ``Mapping``, ``Limitation`` など、Solver と Algorithm に共通するクラスの説明です。
+    ``Info``, ``Runner``, ``Mapping``, ``Limitation`` などの共通クラスと、初期化関数 ``odatse.initialize``, MPI アクセサ ``odatse.mpi`` の説明です。
 
 :doc:`usage`
     カスタム Solver / Algorithm を組み合わせて実行する際のコード例です。

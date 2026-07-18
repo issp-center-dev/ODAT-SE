@@ -109,3 +109,35 @@ Runner クラスの引数のデフォルト値となります。
 
 要素 ``A``, ``b`` はコンストラクタの引数に指定するか、 ``from_dict`` クラスメソッドに辞書の形式で与えます。
 ODAT-SEの入力ファイルに指定する場合、パラメータの指定方法は「入力ファイル」の limitation セクションを参照してください。
+
+
+``odatse.initialize``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``initialize(argv=None) -> (Info, str)`` は、コマンドライン引数の解釈と入力ファイルの読み込みをまとめて行う初期化関数です。
+``odatse`` コマンドと同じ引数（入力ファイルのパス、 ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve`` 。詳細は :doc:`../manual/command` を参照）を解釈し、 ``Info`` のインスタンスと実行モード文字列 ``run_mode`` の組を返します。内部で ``odatse.mpi.setup()`` も呼び出します。
+
+- ``argv`` を省略した場合（ ``None`` ）は ``sys.argv[1:]`` が解釈されます。
+  独自の引数処理を持つスクリプトに組み込む場合は、 ``argv`` に明示的にリストを渡すことで ``sys.argv`` に依存せずに初期化できます。
+
+  .. code-block:: python
+
+      info, run_mode = odatse.initialize(["input.toml", "--resume"])
+
+- ``run_mode`` は ``"initial"``, ``"resume"``, ``"continue"`` のいずれか（ ``--reset_rand`` 指定時は ``"-resetrand"`` が付加）です。
+  ``Algorithm`` のコンストラクタの ``run_mode`` 引数にそのまま渡すことで、リスタート機能が独自スクリプトでも有効になります。
+
+
+``odatse.mpi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+MPI コミュニケータへのアクセスを提供するモジュールです。
+mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOMPI`` が設定された場合は、非 MPI のスタブとして動作します。
+二層並列（アルゴリズム層 × ソルバーグループ）の詳細は :doc:`../tutorial/parallel_solver` を参照してください。
+
+- ``setup(nalg=None, nsolve=None)`` : コミュニケータを分割します。 ``Solver`` / ``Algorithm`` の構築前に一度だけ呼ぶ必要があります（ ``odatse.initialize()`` を使う場合は内部で呼ばれます）。
+- ``comm()`` / ``size()`` / ``rank()`` : 全体のコミュニケータとそのサイズ・ランク。
+- ``algcomm()`` / ``algsize()`` / ``algrank()`` : アルゴリズム層のコミュニケータとそのサイズ・ランク。
+- ``solcomm()`` / ``solsize()`` / ``solrank()`` : ソルバーグループのコミュニケータとそのサイズ・ランク。
+- ``run_on_algorithm()`` : 呼び出したプロセスがアルゴリズム層に属するかどうか。
+- ``enabled()`` : MPI が利用可能かどうか（ ``ODATSE_NOMPI`` 設定時は ``False`` ）。
