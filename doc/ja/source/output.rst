@@ -34,13 +34,14 @@
      - ``res.txt``, ``ttopt_hyperparameters.txt``, ``ttopt_history.txt``, ``ttopt_eval_history.txt``
      - 最適化結果、ハイパーパラメータ、最良値の更新履歴、評価履歴（オプション）
    * - :doc:`exchange <algorithm/exchange>`
-     - ``RANK/trial.txt``, ``RANK/result.txt``, ``RANK/result_T#.txt``, ``best_result.txt``, ``fx.txt``
+     - ``RANK/trial.txt``, ``RANK/result.txt``, ``result_T#.txt``, ``best_result.txt``, ``fx.txt``
      - 提案・採択されたサンプル、温度別ログ、最良解、温度ごとの統計量
    * - :doc:`pamc <algorithm/pamc>`
      - ``RANK/trial_T#.txt``, ``RANK/trial.txt``, ``RANK/result_T#.txt``, ``RANK/result.txt``, ``RANK/weight.txt``, ``best_result.txt``, ``fx.txt``, ``pr.txt``
      - 提案・採択されたサンプル（温度別/全体）、レプリカの重み、最良解、温度ごとの統計量、分配関数比
 
-このほかに、すべてのアルゴリズムに共通するファイル（``time.log``, ``runner.log``, ``status.pickle``）が以下のとおり出力されます。
+このほかに、アルゴリズムに依らない共通ファイルとして ``time.log`` が出力されます。
+また、設定に応じて ``runner.log`` （``runner.log.interval`` が正の整数の場合）および ``status.pickle`` （チェックポイント機能が有効な場合）も出力されます。詳細は以下のとおりです。
 
 
 共通ファイル
