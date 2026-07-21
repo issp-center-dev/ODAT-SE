@@ -88,14 +88,16 @@ class Algorithm(AlgorithmBase):
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-        next_checkpoint_step = self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
-
         niter = self._iter.size()
+        # nonzero on checkpoint resume: points already evaluated on this rank
+        istart = self._iter.position()
         # report progress at most ~100 times per rank
         print_interval = max(1, -(-niter // 100))
 
-        for icount, (idx, coord) in enumerate(self._iter):
+        next_checkpoint_step = istart + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
+
+        for icount, (idx, coord) in enumerate(self._iter, start=istart):
 
             if (icount+1) % print_interval == 0 or icount+1 == niter:
                 print("Iteration : {}/{}".format(icount+1, niter))

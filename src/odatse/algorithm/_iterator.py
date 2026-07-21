@@ -22,6 +22,7 @@ class IteratorBase(object):
 
         self._index_start = 0
         self._index_end = 0
+        self._i = 0
 
     def _save_state(self) -> dict:
         """Return a snapshot of the iterator position as a plain dict."""
@@ -47,6 +48,10 @@ class IteratorBase(object):
 
     def size(self):
         return self._index_end - self._index_start
+
+    def position(self):
+        """Number of points already consumed on this rank."""
+        return self._i - self._index_start
 
 
 class MeshIterator(IteratorBase):
