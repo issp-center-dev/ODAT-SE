@@ -72,7 +72,8 @@ It has subsections ``param`` and ``minimize``.
 Set the optimization method and its hyperparameters.
 See the documentation of `scipy.optimize.minimize`_ for details.
 
-All parameters other than ``method`` and ``initial_scale_list`` are passed
+All parameters other than the ODAT-SE-specific keys ``method``,
+``initial_scale_list``, and ``basinhopping`` (described below) are passed
 verbatim to the ``options`` argument of `scipy.optimize.minimize`_.
 If a parameter name not accepted by the selected method is given,
 the program stops with an error before the optimization starts.

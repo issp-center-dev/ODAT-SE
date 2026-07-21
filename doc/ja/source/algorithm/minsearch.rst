@@ -69,7 +69,8 @@ ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数�
 最適化手法とそのハイパーパラメータを設定します。
 詳細は `scipy.optimize.minimize`_ のドキュメントを参照してください。
 
-``method`` と ``initial_scale_list`` 以外のパラメータは、そのまま
+ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
+``basinhopping``(後述)以外のパラメータは、そのまま
 `scipy.optimize.minimize`_ の ``options`` 引数に渡されます。
 選択した手法が受け付けないパラメータ名が指定された場合は、
 最適化を開始する前にエラーで終了します。

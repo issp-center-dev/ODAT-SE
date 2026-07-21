@@ -231,6 +231,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # for methods that support it, let scipy keep the search within the
         # region via bounds=. the range check in _f_calc then allows points
         # exactly on the boundary, which such methods evaluate legitimately.
+        # On older scipy where the method predates bounds support (e.g.
+        # Powell < 1.5, COBYLA < 1.11), scipy itself ignores bounds= with a
+        # RuntimeWarning ("Method X cannot handle bounds."); that warning is
+        # not escalated by the OptimizeWarning filter below, and the range
+        # check in _f_calc remains as the inf-penalty safety net.
         use_bounds = self.method.lower() in self._BOUNDS_METHODS
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
