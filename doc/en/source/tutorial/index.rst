@@ -11,7 +11,7 @@ In ODAT-SE, the algorithms for solving the inverse problem can be selected from 
 
 - ``minsearch``
 
-  Nealder-Mead method.
+  Nelder-Mead method.
 
 - ``mapper``
 

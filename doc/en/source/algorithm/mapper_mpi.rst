@@ -2,7 +2,7 @@
 Direct parallel search ``mapper``
 ===================================
 
-``mapper_mpi`` is an algorithm to search for the minimum value by computing :math:`f(x)` on all the candidate points in the parameter space prepared in advance.
+``mapper`` is an algorithm to search for the minimum value by computing :math:`f(x)` on all the candidate points in the parameter space prepared in advance.
 In the case of MPI execution, the set of candidate points is divided into equal parts and automatically assigned to each process to perform trivial parallel computation.
 
 Preparation
