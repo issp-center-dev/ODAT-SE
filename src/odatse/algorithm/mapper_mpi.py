@@ -43,11 +43,9 @@ class Algorithm(MapperMPIAlgorithm):
         if odatse.mpi.run_on_algorithm():
             info_param = info.algorithm.get("param", {})
             if "mesh_path" in info_param:
-                iter = self._read_mesh_file(info_param)
+                self._iter = self._read_mesh_file(info_param)
             else:
-                iter = self._find_mesh_info(info_param)
-            # delayed setup
-            self._iter = iter
+                self._iter = self._find_mesh_info(info_param)
         else:
             self._iter = None
 

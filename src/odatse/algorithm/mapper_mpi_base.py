@@ -93,7 +93,7 @@ class Algorithm(AlgorithmBase):
 
         niter = self._iter.size()
         # report progress at most ~100 times per rank
-        print_interval = max(1, niter // 100)
+        print_interval = max(1, -(-niter // 100))
 
         for icount, (idx, coord) in enumerate(self._iter):
 
