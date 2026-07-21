@@ -1,18 +1,23 @@
-===============================
-Nelder-Mead 法 ``minsearch``
-===============================
+==========================================
+scipy.optimize による最適化 ``minsearch``
+==========================================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 .. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
-``minsearch`` は `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex 法) によって最適化を行います。
+``minsearch`` は SciPy の `scipy.optimize.minimize`_ 関数を用いて最適化を行います。
+最適化手法は ``[algorithm.minimize]`` セクションの ``method`` パラメータで選択します。
+デフォルトは `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
+(a.k.a. downhill simplex 法) で、 `scipy.optimize.minimize`_ が受け付ける
+その他の手法 (Powell, COBYLA など) も選択できます。
 Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
 
 重要なハイパーパラメータとして、座標の初期値があります。
-局所最適解にトラップされるという問題があるので、初期値を変えた計算を何回か繰り返して結果を確認することをおすすめします。
-
-ODAT-SEは、SciPy の ``scipy.optimize.minimize(method="Nelder-Mead")`` 関数を用いています。
-詳しくは `公式ドキュメント <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ をご参照ください。
+これらの局所最適化手法には局所最適解にトラップされるという問題があるので、
+初期値を変えた計算を何回か繰り返して結果を確認するか、オプションの
+ベイスンホッピング法 (`scipy.optimize.basinhopping`_) による大域最適化
+(ランダムなホップと ``method`` で選んだ手法による局所最適化を繰り返す方法。
+後述の ``basinhopping`` パラメータを参照) の利用をおすすめします。
 
 
 前準備
@@ -209,4 +214,5 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 リスタート
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Nelder-Mead法による最適値探索はリスタートに対応していません。
+``minsearch`` アルゴリズムはリスタートに対応していません
+(選択した手法や basinhopping の有無によりません)。

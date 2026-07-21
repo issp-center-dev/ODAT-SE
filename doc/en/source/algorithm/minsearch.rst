@@ -1,17 +1,28 @@
-================================
-Nelder-Mead method ``minsearch``
-================================
+=============================================
+Optimization by scipy.optimize ``minsearch``
+=============================================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 .. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
-When ``minsearch`` is selcted, the optimization by the `Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_ (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, assuming the dimension of the parameter space is :math:`D`, the optimal solution is searched by systematically moving pairs of :math:`D+1` coordinate points according to the value of the objective function at each point.
+``minsearch`` performs optimization using SciPy's `scipy.optimize.minimize`_ function.
+The optimization method is selected by the ``method`` parameter of the
+``[algorithm.minimize]`` section. The default is the
+`Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
+(a.k.a. downhill simplex method), and the other methods accepted by
+`scipy.optimize.minimize`_ (Powell, COBYLA, ...) can also be chosen.
+In the Nelder-Mead method, assuming the dimension of the parameter space is
+:math:`D`, the optimal solution is searched by systematically moving pairs of
+:math:`D+1` coordinate points according to the value of the objective function
+at each point.
 
 An important hyperparameter is the initial value of the coordinates.
-Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.
-
-In ODAT-SE, the Scipy's function ``scipy.optimize.minimize(method="Nelder-Mead")`` is used.
-For details, see `the official document <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ .
+Since these local optimization methods have the problem of being trapped in a
+local optimum, it is recommended to repeat the calculation with different
+initial values several times to check the results, or to enable the optional
+global optimization by basin hopping (`scipy.optimize.basinhopping`_), which
+repeats a random hop followed by a local optimization with the selected method
+(see the ``basinhopping`` parameter below).
 
 
 Preparation
@@ -54,7 +65,7 @@ It has subsections ``param`` and ``minimize``.
 
   Description:
   Minimum value of each parameter.
-  When a parameter falls below this value during the Nelson-Mead method,
+  When a parameter falls below this value during the optimization,
   the solver is not evaluated and the value is considered infinite.
 
 - ``max_list``
@@ -63,7 +74,7 @@ It has subsections ``param`` and ``minimize``.
 
   Description:
   Maximum value of each parameter.
-  When a parameter exceeds this value during the Nelson-Mead method,
+  When a parameter exceeds this value during the optimization,
   the solver is not evaluated and the value is considered infinite.
 
 ``[algorithm.minimize]`` section
@@ -217,4 +228,5 @@ The following is an example of the output.
 
 Restart
 ~~~~~~~~~~~
-The restarting is not supported for the optimization by the Nelder-Mead method.
+Restarting is not supported by the ``minsearch`` algorithm,
+regardless of the selected method and whether basin hopping is enabled.
