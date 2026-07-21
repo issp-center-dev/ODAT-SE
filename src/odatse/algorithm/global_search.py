@@ -318,6 +318,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         bounds = list(zip(min_list, max_list))
 
+        # inject the MPI map only when there are ranks to distribute to:
+        # passing workers= unconditionally would make even serial runs
+        # require a scipy version that supports the keyword (shgo gained it
+        # in 1.11). Serial DE results stay identical either way because
+        # updating='deferred' evaluates the population in the same order as
+        # the workers hook does.
+        workers_kwargs = {"workers": _workers} if nprocs > 1 else {}
+
         time_sta = time.perf_counter()
         if rank == 0:
             try:
@@ -326,12 +334,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         optres = differential_evolution(
                             _f_calc,
                             bounds,
-                            workers=_workers,
                             # self.rng is a RandomState; the seed path accepts
                             # it across all supported scipy versions, while
                             # the new rng= argument of scipy >= 1.15 does not
                             seed=self.rng,
                             callback=_cb,
+                            **workers_kwargs,
                             **params,
                         )
                     elif self.method == "shgo":
@@ -341,8 +349,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         optres = shgo(
                             _f_calc,
                             bounds,
-                            workers=_workers,
                             callback=_cb,
+                            **workers_kwargs,
                             **params,
                         )
                     elif self.method == "direct":

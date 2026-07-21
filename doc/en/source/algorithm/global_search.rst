@@ -154,8 +154,9 @@ Remarks
 - The local refinements of shgo also run serially on rank 0. Its default
   local minimizer is SLSQP, whose gradients are evaluated by numerical
   differentiation.
-- The parallel evaluation of shgo (``workers``) requires scipy >= 1.11;
-  older versions stop with an error before the optimization starts.
+- The parallel evaluation of shgo (``workers``) requires scipy >= 1.11
+  (serial runs have no such restriction); running under MPI with an older
+  version stops with an error before the optimization starts.
 - direct requires scipy >= 1.9. Since its refinement near the optimum is
   slow, a useful workflow is to locate the basin with direct and then
   refine with minsearch.

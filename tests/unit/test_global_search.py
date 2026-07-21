@@ -8,6 +8,12 @@ import odatse
 import odatse.solver.function
 import odatse.algorithm.global_search as global_search
 
+# scipy.optimize.direct only exists in scipy >= 1.9; the algorithm module
+# guards its import and keeps DE / shgo usable without it
+requires_direct = pytest.mark.skipif(
+    global_search.direct is None,
+    reason="scipy.optimize.direct requires scipy >= 1.9")
+
 
 def _run_global_search(workdir, unit_list, record, global_search_params=None,
                        run=True, fn=None):
@@ -147,6 +153,7 @@ def test_shgo_unknown_param_raises(tmp_path, monkeypatch):
                                                  "no_such_param": 1})
 
 
+@requires_direct
 def test_direct_converges(tmp_path, monkeypatch):
     """direct finds the minimum of a quadratic function. It runs entirely
     on rank 0; under MPI the other ranks stay idle but still receive the
@@ -166,6 +173,7 @@ def test_direct_converges(tmp_path, monkeypatch):
         assert "None" not in content
 
 
+@requires_direct
 def test_direct_multimodal(tmp_path, monkeypatch):
     """direct reaches the global minimum of the double-well function."""
     monkeypatch.chdir(tmp_path)
@@ -182,6 +190,7 @@ def test_direct_multimodal(tmp_path, monkeypatch):
     assert alg.xopt[0] < 0.0
 
 
+@requires_direct
 def test_direct_unknown_param_raises(tmp_path, monkeypatch):
     """fail-fast also applies to the direct argument list."""
     monkeypatch.chdir(tmp_path)
@@ -213,8 +222,10 @@ def test_unknown_method_raises(tmp_path, monkeypatch):
 def test_all_methods_recognized(tmp_path, monkeypatch):
     """Every documented method name resolves without NotImplementedError."""
     monkeypatch.chdir(tmp_path)
-    for m, resolved in (("DE", "differential_evolution"),
-                        ("shgo", "shgo"), ("direct", "direct")):
+    methods = [("DE", "differential_evolution"), ("shgo", "shgo")]
+    if global_search.direct is not None:
+        methods.append(("direct", "direct"))
+    for m, resolved in methods:
         alg = _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                                  global_search_params={"method": m}, run=False)
         assert alg.method == resolved
