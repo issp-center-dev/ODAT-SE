@@ -24,6 +24,8 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``bayes`` :  Bayesian optimization
 
+  - ``ttopt`` :  Optimization based on the tensor-train decomposition
+
 - ``seed``
 
   Format: Integer
