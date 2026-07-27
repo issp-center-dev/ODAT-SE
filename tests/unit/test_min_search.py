@@ -198,12 +198,38 @@ def test_basinhopping_hops_stay_in_range(tmp_path, monkeypatch):
 
 def test_basinhopping_unknown_param_raises(tmp_path, monkeypatch):
     """An argument scipy.optimize.basinhopping does not accept must abort
-    with a message pointing at the input file section."""
+    at construction time, before any solver evaluation, with a message
+    pointing at the input file section (issue #76)."""
     monkeypatch.chdir(tmp_path)
     record = []
-    with pytest.raises(RuntimeError, match="basinhopping"):
+    with pytest.raises(ValueError, match="basinhopping"):
         _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
-                       minimize={"basinhopping": {"no_such_param": 1}})
+                       minimize={"basinhopping": {"no_such_param": 1}},
+                       run=False)
+    # nothing was evaluated
+    assert record == []
+
+
+def test_basinhopping_runtime_typeerror_propagates(tmp_path, monkeypatch):
+    """A TypeError raised by the objective function during the basinhopping
+    run must propagate unchanged instead of being misreported as an
+    input-configuration error (issue #76)."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    calls = [0]
+
+    def broken(x):
+        calls[0] += 1
+        if calls[0] > 5:
+            raise TypeError("broken objective")
+        record.append(np.array(x, copy=True))
+        return float(np.sum(x * x))
+
+    with pytest.raises(TypeError, match="broken objective"):
+        _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                       fn=broken,
+                       minimize={"maxiter": 100, "maxfev": 500,
+                                 "basinhopping": {"niter": 5}})
 
 
 def test_basinhopping_reserved_param_raises(tmp_path, monkeypatch):

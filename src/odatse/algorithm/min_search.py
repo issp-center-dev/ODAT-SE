@@ -7,6 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import Union, Optional, TYPE_CHECKING
+import inspect
 import time
 import warnings
 
@@ -163,6 +164,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 raise ValueError(
                     "algorithm.minimize.basinhopping parameters {} are managed "
                     "by ODAT-SE and cannot be set in the input file".format(sorted(reserved))
+                )
+            # validate the argument names against the signature of the
+            # installed scipy before anything runs, instead of catching
+            # TypeError around the optimizer call: a TypeError raised at
+            # runtime (by the solver, a callback, ...) must not be
+            # misreported as an input-file mistake
+            accepted = set(inspect.signature(basinhopping).parameters)
+            unknown = set(self.basinhopping_params) - accepted
+            if unknown:
+                raise ValueError(
+                    "algorithm.minimize.basinhopping parameters {} are not accepted "
+                    "by scipy.optimize.basinhopping of the installed scipy version; "
+                    "accepted arguments are {}".format(
+                        sorted(unknown), sorted(accepted - {"func", "x0"} - self._BH_RESERVED))
                 )
 
         # forward all remaining entries verbatim to scipy.optimize.minimize
@@ -330,36 +345,32 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     "error", message="Unknown solver options", category=OptimizeWarning
                 )
                 if use_basinhopping:
+                    # argument names were validated against the basinhopping
+                    # signature in __init__, so a TypeError here is a genuine
+                    # runtime failure and propagates unchanged
                     bh_params = dict(self.basinhopping_params)
                     bh_params.setdefault("disp", True)
                     take_step = _ClippedRandomDisplacement(
                         self.rng, bh_params.pop("stepsize", 0.5), min_list, max_list
                     )
-                    try:
-                        optres = basinhopping(
-                            _f_calc,
-                            self.initial_list,
-                            minimizer_kwargs={
-                                "method": self.method,
-                                "args": (0,),
-                                "options": options,
-                                "callback": _cb,
-                                **minimize_kwargs,
-                            },
-                            take_step=take_step,
-                            callback=_bh_cb,
-                            # self.rng is a RandomState; the deprecated seed
-                            # path accepts it on scipy >= 1.15 while rng= does
-                            # not, and older scipy has only seed
-                            seed=self.rng,
-                            **bh_params,
-                        )
-                    except TypeError as e:
-                        raise RuntimeError(
-                            f"{e}: check the [algorithm.minimize.basinhopping] "
-                            f"section of the input file against the arguments "
-                            f"accepted by scipy.optimize.basinhopping"
-                        ) from e
+                    optres = basinhopping(
+                        _f_calc,
+                        self.initial_list,
+                        minimizer_kwargs={
+                            "method": self.method,
+                            "args": (0,),
+                            "options": options,
+                            "callback": _cb,
+                            **minimize_kwargs,
+                        },
+                        take_step=take_step,
+                        callback=_bh_cb,
+                        # self.rng is a RandomState; the deprecated seed
+                        # path accepts it on scipy >= 1.15 while rng= does
+                        # not, and older scipy has only seed
+                        seed=self.rng,
+                        **bh_params,
+                    )
                 else:
                     optres = minimize(
                         _f_calc,
