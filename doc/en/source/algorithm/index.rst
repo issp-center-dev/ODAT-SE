@@ -13,7 +13,7 @@ Click each item for detailed usage, including input parameters and output files.
 :doc:`minsearch`
     Performs optimization using the Nelder-Mead method (simplex method). A derivative-free direct search method that converges quickly for a small number of parameters. Requires scipy.
 
-:doc:`mapper_mpi`
+:doc:`mapper <mapper_mpi>`
     Divides the parameter space into a grid and evaluates :math:`f(x)` at all grid points. Supports MPI parallelization and is suitable for obtaining an overview of the parameter space.
 
 :doc:`random_search`
