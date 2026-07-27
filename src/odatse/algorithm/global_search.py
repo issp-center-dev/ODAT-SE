@@ -7,6 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import Union, Optional, TYPE_CHECKING
+import inspect
 import time
 
 import numpy as np
@@ -142,14 +143,32 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             )
 
         # forward all remaining entries verbatim as arguments of the scipy
-        # routine; unknown argument names raise TypeError there, which is
-        # turned into an error before the optimization starts in _run()
+        # routine
         self.opt_params = {k: v for k, v in info_gs.items() if k != "method"}
         reserved = self._RESERVED & set(self.opt_params)
         if reserved:
             raise ValueError(
                 "algorithm.global_search parameters {} are managed by ODAT-SE "
                 "and cannot be set in the input file".format(sorted(reserved))
+            )
+        # validate the argument names against the signature of the installed
+        # scipy before anything runs, instead of catching TypeError around
+        # the optimizer call: a TypeError raised at runtime (by the solver,
+        # a callback, ...) must not be misreported as an input-file mistake
+        scipy_func = {
+            "differential_evolution": differential_evolution,
+            "shgo": shgo,
+            "direct": direct,
+        }[self.method]
+        accepted = set(inspect.signature(scipy_func).parameters)
+        unknown = set(self.opt_params) - accepted
+        if unknown:
+            raise ValueError(
+                "algorithm.global_search parameters {} are not accepted by "
+                "scipy.optimize.{} of the installed scipy version; accepted "
+                "arguments are {}".format(
+                    sorted(unknown), self.method,
+                    sorted(accepted - {"func", "bounds"} - self._RESERVED))
             )
 
         self._show_parameters()
@@ -328,53 +347,49 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         time_sta = time.perf_counter()
         if rank == 0:
+            # argument names were validated against the scipy signature in
+            # __init__, so a TypeError here is a genuine runtime failure and
+            # propagates unchanged (issue #76)
             try:
-                try:
-                    if self.method == "differential_evolution":
-                        optres = differential_evolution(
-                            _f_calc,
-                            bounds,
-                            # self.rng is a RandomState; the seed path accepts
-                            # it across all supported scipy versions, while
-                            # the new rng= argument of scipy >= 1.15 does not
-                            seed=self.rng,
-                            callback=_cb,
-                            **workers_kwargs,
-                            **params,
-                        )
-                    elif self.method == "shgo":
-                        # shgo is deterministic and takes no seed; workers
-                        # parallelizes the sampling-phase evaluations, while
-                        # the local refinements run serially through _f_calc
-                        optres = shgo(
-                            _f_calc,
-                            bounds,
-                            callback=_cb,
-                            **workers_kwargs,
-                            **params,
-                        )
-                    elif self.method == "direct":
-                        # direct is deterministic and does not support
-                        # parallel evaluation; it runs entirely on rank 0
-                        # while the other ranks stay idle in the server loop
-                        if nprocs > 1:
-                            print("Warning: method 'direct' does not support "
-                                  "parallel evaluation; algorithm ranks > 0 "
-                                  "stay idle")
-                        optres = direct(
-                            _f_calc,
-                            bounds,
-                            callback=_cb,
-                            **params,
-                        )
-                    else:  # pragma: no cover - guarded in __init__
-                        raise RuntimeError(f"method {self.method} not implemented")
-                except TypeError as e:
-                    raise RuntimeError(
-                        f"{e}: check the [algorithm.global_search] section of "
-                        f"the input file against the arguments accepted by "
-                        f"scipy.optimize.{self.method}"
-                    ) from e
+                if self.method == "differential_evolution":
+                    optres = differential_evolution(
+                        _f_calc,
+                        bounds,
+                        # self.rng is a RandomState; the seed path accepts
+                        # it across all supported scipy versions, while
+                        # the new rng= argument of scipy >= 1.15 does not
+                        seed=self.rng,
+                        callback=_cb,
+                        **workers_kwargs,
+                        **params,
+                    )
+                elif self.method == "shgo":
+                    # shgo is deterministic and takes no seed; workers
+                    # parallelizes the sampling-phase evaluations, while
+                    # the local refinements run serially through _f_calc
+                    optres = shgo(
+                        _f_calc,
+                        bounds,
+                        callback=_cb,
+                        **workers_kwargs,
+                        **params,
+                    )
+                elif self.method == "direct":
+                    # direct is deterministic and does not support
+                    # parallel evaluation; it runs entirely on rank 0
+                    # while the other ranks stay idle in the server loop
+                    if nprocs > 1:
+                        print("Warning: method 'direct' does not support "
+                              "parallel evaluation; algorithm ranks > 0 "
+                              "stay idle")
+                    optres = direct(
+                        _f_calc,
+                        bounds,
+                        callback=_cb,
+                        **params,
+                    )
+                else:  # pragma: no cover - guarded in __init__
+                    raise RuntimeError(f"method {self.method} not implemented")
             except BaseException:
                 # release the evaluation servers before propagating, so that
                 # every rank reaches the consensus collective in run()

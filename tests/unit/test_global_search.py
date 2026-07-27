@@ -147,10 +147,11 @@ def test_shgo_multimodal(tmp_path, monkeypatch):
 def test_shgo_unknown_param_raises(tmp_path, monkeypatch):
     """fail-fast also applies to the shgo argument list."""
     monkeypatch.chdir(tmp_path)
-    with pytest.raises((RuntimeError, SystemExit)):
+    with pytest.raises(ValueError, match="shgo"):
         _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                            global_search_params={"method": "shgo",
-                                                 "no_such_param": 1})
+                                                 "no_such_param": 1},
+                           run=False)
 
 
 @requires_direct
@@ -194,10 +195,11 @@ def test_direct_multimodal(tmp_path, monkeypatch):
 def test_direct_unknown_param_raises(tmp_path, monkeypatch):
     """fail-fast also applies to the direct argument list."""
     monkeypatch.chdir(tmp_path)
-    with pytest.raises((RuntimeError, SystemExit)):
+    with pytest.raises(ValueError, match="direct"):
         _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                            global_search_params={"method": "direct",
-                                                 "no_such_param": 1})
+                                                 "no_such_param": 1},
+                           run=False)
 
 
 def test_method_aliases(tmp_path, monkeypatch):
@@ -233,15 +235,52 @@ def test_all_methods_recognized(tmp_path, monkeypatch):
 
 def test_unknown_param_raises(tmp_path, monkeypatch):
     """An argument scipy.optimize.differential_evolution does not accept
-    must abort with a message pointing at the input file section.
-
-    Under MPI, rank 0 raises RuntimeError while the other ranks exit
-    silently with SystemExit(0): main() catches OtherAlgorithmProcessError
-    and leaves the error reporting to the failing rank."""
+    must abort at construction time, before any solver evaluation, with a
+    message pointing at the input file section (issue #76)."""
     monkeypatch.chdir(tmp_path)
-    with pytest.raises((RuntimeError, SystemExit)):
+    record = []
+    with pytest.raises(ValueError, match="global_search"):
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=record,
+                           global_search_params={"no_such_param": 1},
+                           run=False)
+    assert record == []
+
+
+def test_runtime_typeerror_propagates(tmp_path, monkeypatch):
+    """A TypeError raised by the objective function during the optimization
+    must propagate unchanged instead of being misreported as an
+    input-configuration error (issue #76).
+
+    Note that scipy's differential_evolution itself wraps exceptions from
+    the population evaluation into a RuntimeError about the map-like
+    callable, chaining the original via __cause__; what matters here is
+    that the original TypeError stays in the chain and that ODAT-SE no
+    longer replaces it with a message blaming [algorithm.global_search].
+    Under MPI, ranks other than the failing one and rank 0 exit silently
+    with SystemExit(0)."""
+    monkeypatch.chdir(tmp_path)
+    calls = [0]
+
+    def broken(x):
+        calls[0] += 1
+        if calls[0] > 5:
+            raise TypeError("broken objective")
+        return float(np.sum(x * x))
+
+    with pytest.raises((TypeError, RuntimeError, SystemExit)) as excinfo:
         _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
-                           global_search_params={"no_such_param": 1})
+                           fn=broken,
+                           global_search_params={"maxiter": 10, "popsize": 6})
+    if not isinstance(excinfo.value, SystemExit):
+        # the original TypeError must be preserved in the exception chain
+        chain, e = [], excinfo.value
+        while e is not None:
+            chain.append(e)
+            e = e.__cause__
+        assert any(isinstance(c, TypeError) and "broken objective" in str(c)
+                   for c in chain)
+        # and no exception in the chain may misdirect to the input file
+        assert all("global_search" not in str(c) for c in chain)
 
 
 def test_reserved_param_raises(tmp_path, monkeypatch):
