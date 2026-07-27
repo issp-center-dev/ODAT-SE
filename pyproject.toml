@@ -37,7 +37,7 @@ all = [
 Repository = "https://github.com/issp-center-dev/ODAT-SE"
 
 [project.scripts]
-odatse = "odatse:main"
+odatse = "odatse:cli"
 odatse_neighborlist = "odatse.util.neighborlist:main"
 odatse_extract_combined = "odatse.scripts.extract_combined:main"
 odatse_plt_1D_histogram = "odatse.scripts.plt_1D_histogram:main"

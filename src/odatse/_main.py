@@ -39,18 +39,23 @@ def choose_solver(info):
     raise exception.InputError(f"Unknown solver ({solvername})")
 
 
-def main(argv: Optional[Sequence[str]] = None):
+def main(argv: Optional[Sequence[str]] = None) -> dict:
     """
-    Command-line entry point for the data-analysis software.
+    Run an analysis specified by command-line style arguments.
 
-    Parses command-line arguments, loads the input file, selects the algorithm
-    and solver, and executes the analysis.
+    Parses the arguments, loads the input file, selects the algorithm and
+    solver, executes the analysis, and returns the result of
+    ``Algorithm.main()`` so that programmatic callers can use it as
+    ``result = odatse.main(argv)``.
 
     This is the top-level boundary: user-facing errors
     (``odatse.exception.Error``) are reported and converted to a non-zero exit
-    status. To handle these as exceptions instead, compose the lower-level API
-    (``odatse.initialize`` / ``odatse.algorithm.choose_algorithm`` /
-    ``Algorithm``) directly.
+    status via ``sys.exit(1)``. To handle these as exceptions instead, compose
+    the lower-level API (``odatse.initialize`` /
+    ``odatse.algorithm.choose_algorithm`` / ``Algorithm``) directly.
+
+    Note: do not use this function as a console-script entry point; use
+    ``cli()``, which converts the result to an exit status.
     """
     try:
         info, run_mode = odatse.initialize(argv)
@@ -72,3 +77,16 @@ def main(argv: Optional[Sequence[str]] = None):
         elif odatse.mpi.rank() == 0:
             print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def cli(argv: Optional[Sequence[str]] = None) -> int:
+    """
+    Console-script entry point for the ``odatse`` command.
+
+    Runs :func:`main` and returns exit status 0 on success, discarding the
+    result object (``sys.exit()`` would interpret a non-integer return value
+    as a failure). Errors are reported inside :func:`main` and terminate the
+    process with exit status 1.
+    """
+    main(argv)
+    return 0
