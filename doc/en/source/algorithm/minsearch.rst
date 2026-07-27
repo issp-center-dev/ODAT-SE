@@ -1,11 +1,12 @@
-=============================================
-Optimization by scipy.optimize ``minsearch``
-=============================================
+============================================================
+Optimization by local optimization algorithms ``minsearch``
+============================================================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 .. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
-``minsearch`` performs optimization using SciPy's `scipy.optimize.minimize`_ function.
+``minsearch`` performs optimization by local optimization algorithms.
+It is implemented on top of SciPy's `scipy.optimize.minimize`_ function.
 The optimization method is selected by the ``method`` parameter of the
 ``[algorithm.minimize]`` section. The default is the
 `Nelder-Mead method <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_

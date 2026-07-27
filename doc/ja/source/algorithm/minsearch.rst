@@ -1,11 +1,12 @@
-==========================================
-scipy.optimize による最適化 ``minsearch``
-==========================================
+======================================================
+局所最適化アルゴリズムによる最適値探索 ``minsearch``
+======================================================
 
 .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 .. _scipy.optimize.basinhopping: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html
 
-``minsearch`` は SciPy の `scipy.optimize.minimize`_ 関数を用いて最適化を行います。
+``minsearch`` は局所最適化アルゴリズムによって最適値探索を行います。
+実装には SciPy の `scipy.optimize.minimize`_ 関数を用いています。
 最適化手法は ``[algorithm.minimize]`` セクションの ``method`` パラメータで選択します。
 デフォルトは `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
 (a.k.a. downhill simplex 法) で、 `scipy.optimize.minimize`_ が受け付ける
