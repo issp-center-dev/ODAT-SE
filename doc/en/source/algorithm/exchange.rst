@@ -74,6 +74,24 @@ Otherwise, continuous space is used.
 
     Description: Path to the mesh definition file. See *Reference file* below for the format.
 
+  - ``comments``
+
+    Format: String (default: "#")
+
+    Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+
+  - ``delimiter``
+
+    Format: String (default: whitespace)
+
+    Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+  - ``skiprows``
+
+    Format: Integer (default: 0)
+
+    Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
+
   - ``neighborlist_path``
 
     Format: string
@@ -172,6 +190,27 @@ Otherwise, continuous space is used.
   Format: Integer (default: 1)
 
   Description: The number of replicas in a MPI process.
+  The total number of replicas is given by "number of MPI processes × ``nreplica_per_proc``".
+  In the replica exchange Monte Carlo method, one temperature point is assigned to each replica, and therefore the number of temperature points generated between ``Tmin`` and ``Tmax`` equals the total number of replicas.
+  To use more temperature points, increase the number of MPI processes or ``nreplica_per_proc``.
+
+- ``separate_T``
+
+  Format: Boolean (default: true)
+
+  Description: Whether to write log files of Monte Carlo steps separately for each temperature (``result_T*.txt``).
+  This option is ignored when ``export_combined_files`` is true.
+
+- ``export_combined_files``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to write the contents of ``trial.txt`` and ``result.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
+  Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
+
+.. note::
+   **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
+   It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.
 
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

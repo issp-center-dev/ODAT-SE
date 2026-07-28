@@ -56,11 +56,7 @@ wrapper であり、サブクラスでオーバーライドしては **いけま
 
   - ``self.timer: dict[str, dict]`` : 実行時間を保存するための辞書。
 
-      - ``self.output_dir / str(odatse.mpi.algrank())``
-      - ディレクトリが存在しない場合、自動的に作成されます
-      - 各プロセスで最適化アルゴリズムはこのディレクトリで実行されます
-
-    ``"prepare"``、``"run"``、``"post"`` の空の辞書が事前に作成されます。
+    - ``"prepare"``、``"run"``、``"post"`` の空の辞書が事前に作成されます。
 
   - ``self.checkpoint: bool`` : チェックポイント機能の有効/無効。
   - ``self.checkpoint_file: str`` : チェックポイントファイルの絶対パス（デフォルト: ``<proc_dir>/status.pickle``）。

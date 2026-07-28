@@ -45,3 +45,29 @@
 
     # (4)
     result = algorithm.main()
+
+
+コマンドライン引数を扱う場合
+--------------------------------
+
+``odatse`` コマンドと同じ引数体系（ ``--resume`` によるリスタートや ``--nalg`` / ``--nsolve`` による MPI 分割）を独自スクリプトでも利用する場合は、手順 (2), (3) の初期化を ``odatse.initialize()`` で行うのが便利です（ :doc:`common` 参照）。
+
+.. code-block:: python
+
+    import odatse
+
+    # (1) ユーザ定義クラス（省略）
+
+    # (2)(3) コマンドライン引数の解釈と初期化
+    #        (odatse.mpi.setup() は内部で呼ばれます)
+    info, run_mode = odatse.initialize()
+
+    solver = Solver(info)
+    runner = odatse.Runner(solver, info)
+    algorithm = Algorithm(info, runner, run_mode=run_mode)
+
+    # (4)
+    result = algorithm.main()
+
+``run_mode`` を ``Algorithm`` のコンストラクタに渡すことで、チェックポイントからの再開（ ``--resume`` ）や継続実行（ ``--cont`` ）が独自スクリプトでも機能します。
+``sys.argv`` に依存したくない場合は、 ``odatse.initialize(["input.toml"])`` のように引数リストを明示的に渡してください。

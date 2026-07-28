@@ -13,7 +13,7 @@ Click each item for detailed usage, including input parameters and output files.
 :doc:`minsearch`
     Performs optimization using the Nelder-Mead method (simplex method). A derivative-free direct search method that converges quickly for a small number of parameters. Requires scipy.
 
-:doc:`mapper_mpi`
+:doc:`mapper <mapper_mpi>`
     Divides the parameter space into a grid and evaluates :math:`f(x)` at all grid points. Supports MPI parallelization and is suitable for obtaining an overview of the parameter space.
 
 :doc:`random_search`
@@ -21,6 +21,9 @@ Click each item for detailed usage, including input parameters and output files.
 
 :doc:`bayes`
     Searches using Bayesian optimization. Builds a surrogate model of :math:`f(x)` using Gaussian process regression and selects the next evaluation point based on an acquisition function. Can efficiently find optimal solutions with a small number of evaluations. Requires physbo.
+
+:doc:`ttopt`
+    Searches using tensor train optimization. Models the objective function as a large tensor and finds minima by a gradient-free method based on cross approximation. Supports MPI parallelization.
 
 :doc:`exchange`
     Searches using the replica exchange Monte Carlo method (parallel tempering). By exchanging configurations between replicas at different temperatures, it avoids being trapped in local minima. Requires mpi4py.

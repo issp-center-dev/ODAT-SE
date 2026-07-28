@@ -27,10 +27,14 @@ then provides API details.
     API reference for the ``Algorithm`` class. How to define custom search algorithms.
 
 :doc:`common`
-    Explanation of classes shared by Solver and Algorithm: ``Info``, ``Runner``, ``Mapping``, ``Limitation``.
+    Explanation of the shared classes ``Info``, ``Runner``, ``Mapping``, and ``Limitation``, the initialization function ``odatse.initialize``, and the MPI accessors ``odatse.mpi``.
 
 :doc:`usage`
     Code example for combining custom Solver / Algorithm and running them.
+
+`API Reference <../../api/index.html>`_
+    Reference of all public APIs, generated automatically from the docstrings in the source code.
+    Consult it for the modules not covered in this chapter (``odatse.util.*``, ``odatse.domain.*``, ``odatse.mpi``, etc.).
 
 .. toctree::
    :maxdepth: 1

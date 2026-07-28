@@ -18,13 +18,13 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``random_search`` : Random search
 
+  - ``bayes`` : Bayesian optimization
+
+  - ``ttopt`` :  Optimization based on the tensor-train decomposition
+
   - ``exchange`` :  Replica Exchange Monte Carlo method
 
   - ``pamc`` :  Population Annealing Monte Carlo method
-
-  - ``bayes`` :  Bayesian optimization
-
-  - ``ttopt`` :  Optimization based on the tensor-train decomposition
 
 - ``seed``
 

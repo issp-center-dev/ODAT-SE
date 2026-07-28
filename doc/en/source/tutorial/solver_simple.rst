@@ -79,11 +79,11 @@ For example, to optimize it by the Nelder-Mead method, pass the following input 
     name = "analytical"
     function_name = "booth"
 
-to ``src/odatse_main.py`` script as follows:
+to the ``odatse`` command as follows:
 
 .. code-block:: bash
 
-    $ python3 src/odatse_main.py input.toml
+    $ odatse input.toml
 
     ... skipped ...
 

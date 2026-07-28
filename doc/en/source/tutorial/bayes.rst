@@ -88,7 +88,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 By executing the program, a directory with the name ``0`` is created under ``output`` directory, and the results are written in it.
 The following standard output will be shown:

@@ -117,7 +117,7 @@ Then, execute the main program as follows. The calculation will end in about 20 
 
 .. code-block::
 
-   $ mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ mpiexec -np 10 odatse input.toml | tee log.txt
 
 In this case, a calculation with 10 MPI parallel processes is performed.
 When using OpenMPI, if the number of processes to be used is greater than the number of available cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.
@@ -156,7 +156,7 @@ Additionally, in ``do.sh``, the difference between ``best_result.txt`` and ``ref
 
   #!/bin/bash
 
-  mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
+  mpiexec -np 10 --oversubscribe odatse input.toml
 
   echo diff output/best_result.txt ref.txt
   res=0

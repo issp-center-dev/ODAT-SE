@@ -93,7 +93,7 @@
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 一括で実行する場合は ``do.sh`` を用いても構いません。
 

@@ -39,6 +39,24 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Description: The path to a reference file that contains information about the mesh data.
 
+- ``comments``
+
+  Format: String (default: "#")
+
+  Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+
+- ``delimiter``
+
+  Format: String (default: whitespace)
+
+  Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+- ``skiprows``
+
+  Format: Integer (default: 0)
+
+  Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
+
 - ``min_list``
 
   Format: List of float. The length should match the value of dimension.
@@ -191,7 +209,7 @@ Selecting the former is called "exploition," while selecting the latter is calle
 The definition of "score" defines how to choose between them.
 
 In ODAT-SE, we use `PHYSBO`_ as a library for Bayesian optimization.
-PHYSBO, like ``mapper_mpi``, computes a "score" for a predetermined set of candidate points, and proposes an optimal solution.
+PHYSBO, like ``mapper``, computes a "score" for a predetermined set of candidate points, and proposes an optimal solution.
 MPI parallel execution is possible by dividing the set of candidate points.
 In addition, we use a kernel that allows us to evaluate the model function and thus calculate the "score" with a linear amount of computation with respect to the number of training data points :math:`N`.
 In PHYSBO, "expected improvement (EI)", "probability of improvement (PI)", and "Thompson sampling (TS)" are available as "score" functions.
