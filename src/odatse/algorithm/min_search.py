@@ -7,11 +7,13 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import Union, Optional, TYPE_CHECKING
+import inspect
 import time
+import warnings
 
 import numpy as np
 import scipy
-from scipy.optimize import minimize
+from scipy.optimize import minimize, basinhopping, OptimizeResult, OptimizeWarning
 
 import odatse
 import odatse.domain
@@ -21,10 +23,54 @@ if TYPE_CHECKING:
     from mpi4py import MPI
 
 
+class _ClippedRandomDisplacement:
+    """Random displacement for basinhopping, clipped to the search region.
+
+    The default take_step of scipy's basinhopping may propose points outside
+    [min_list, max_list], which would only waste solver evaluations on the
+    inf-penalty. Clipping keeps every hop inside the region. The ``stepsize``
+    attribute is exposed so that basinhopping's adaptive stepsize adjustment
+    keeps working.
+    """
+
+    def __init__(self, rng, stepsize, min_list, max_list):
+        self.rng = rng
+        self.stepsize = stepsize
+        self.min_list = min_list
+        self.max_list = max_list
+
+    def __call__(self, x):
+        x = x + self.rng.uniform(-self.stepsize, self.stepsize, np.shape(x))
+        return np.clip(x, self.min_list, self.max_list)
+
+
 class Algorithm(odatse.algorithm.AlgorithmBase):
     """
-    Algorithm class for performing minimization using the Nelder-Mead method.
+    Algorithm class for performing minimization using scipy.optimize.minimize.
+
+    The optimization method is selected by the ``method`` parameter in the
+    ``[algorithm.minimize]`` section (default: "Nelder-Mead"). All other
+    entries of the section except ODAT-SE-specific keys are passed through
+    to scipy.optimize.minimize as its ``options`` argument.
+
+    Setting ``basinhopping`` (a boolean, or a ``[algorithm.minimize.basinhopping]``
+    table whose entries are passed to scipy.optimize.basinhopping) switches to
+    global optimization by basin hopping, with the configured method serving
+    as the local minimizer.
     """
+
+    # methods for which ODAT-SE passes bounds= to scipy.optimize.minimize.
+    # Nelder-Mead is deliberately excluded to keep the legacy behavior of
+    # returning +inf for out-of-range points unchanged.
+    _BOUNDS_METHODS = {"powell", "l-bfgs-b", "tnc", "slsqp", "trust-constr", "cobyla", "cobyqa"}
+
+    # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
+    # forwarded to scipy.optimize.minimize as options
+    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping"}
+
+    # basinhopping arguments managed by ODAT-SE itself; rejected if the user
+    # sets them in [algorithm.minimize.basinhopping]
+    _BH_RESERVED = {"minimizer_kwargs", "take_step", "accept_test", "callback", "seed", "rng"}
 
     # inputs
     label_list: np.ndarray
@@ -33,20 +79,25 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     max_list: np.ndarray
     unit_list: np.ndarray
 
+    # optimization method and its options
+    method: str
+    minimize_options: dict
+    # None: plain minimize; dict (possibly empty): basinhopping parameters
+    basinhopping_params: Optional[dict]
+
     # hyperparameters of Nelder-Mead
     initial_simplex_list: list[list[float]]
-    xtol: float
-    ftol: float
 
     # results
     xopt: np.ndarray
     fopt: float
-    itera: int
-    funcalls: int
-    allvecs: list[np.ndarray]
+    itera: Optional[int]
+    funcalls: Optional[int]
+    allvecs: Optional[list[np.ndarray]]
 
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
+    hop_history: list[list[Union[int, float]]]
 
     def __init__(
         self,
@@ -87,13 +138,54 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             self.initial_list = []
 
         info_minimize = info.algorithm.get("minimize", {})
+        self.method = str(info_minimize.get("method", "Nelder-Mead"))
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
-        self.xtol = info_minimize.get("xatol", 0.0001)
-        self.ftol = info_minimize.get("fatol", 0.0001)
-        self.maxiter = info_minimize.get("maxiter", 10000)
-        self.maxfev = info_minimize.get("maxfev", 100000)
+
+        # basinhopping = true enables scipy.optimize.basinhopping with its
+        # default parameters; a [algorithm.minimize.basinhopping] table both
+        # enables it and forwards its entries as basinhopping arguments
+        bh = info_minimize.get("basinhopping", False)
+        if bh is False or bh is None:
+            self.basinhopping_params = None
+        elif bh is True:
+            self.basinhopping_params = {}
+        elif isinstance(bh, dict):
+            self.basinhopping_params = dict(bh)
+        else:
+            raise ValueError(
+                "algorithm.minimize.basinhopping must be a boolean or a table, "
+                f"not {type(bh).__name__}"
+            )
+        if self.basinhopping_params is not None:
+            reserved = self._BH_RESERVED & set(self.basinhopping_params)
+            if reserved:
+                raise ValueError(
+                    "algorithm.minimize.basinhopping parameters {} are managed "
+                    "by ODAT-SE and cannot be set in the input file".format(sorted(reserved))
+                )
+            # validate the argument names against the signature of the
+            # installed scipy before anything runs, instead of catching
+            # TypeError around the optimizer call: a TypeError raised at
+            # runtime (by the solver, a callback, ...) must not be
+            # misreported as an input-file mistake
+            accepted = set(inspect.signature(basinhopping).parameters)
+            unknown = set(self.basinhopping_params) - accepted
+            if unknown:
+                raise ValueError(
+                    "algorithm.minimize.basinhopping parameters {} are not accepted "
+                    "by scipy.optimize.basinhopping of the installed scipy version; "
+                    "accepted arguments are {}".format(
+                        sorted(unknown), sorted(accepted - {"func", "x0"} - self._BH_RESERVED))
+                )
+
+        # forward all remaining entries verbatim to scipy.optimize.minimize
+        # as its options argument; unknown option names are detected by scipy
+        # and turned into an error in _run() before the optimization starts
+        self.minimize_options = {
+            k: v for k, v in info_minimize.items() if k not in self._ODATSE_KEYS
+        }
 
         self._show_parameters()
 
@@ -128,9 +220,18 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             def _cb(intermediate_result):
                 """
                 Callback function for scipy.optimize.minimize.
+
+                The parameter must be named intermediate_result so that scipy
+                passes an OptimizeResult where supported. Methods that do not
+                support the new-style callback (e.g. COBYLA, SLSQP, TNC) still
+                pass the raw parameter vector, so handle both.
                 """
-                x = intermediate_result.x
-                fun = intermediate_result.fun
+                if isinstance(intermediate_result, OptimizeResult):
+                    x = intermediate_result.x
+                    fun = intermediate_result.fun
+                else:
+                    x = intermediate_result
+                    fun = _f_calc(x, 1)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
         else:
@@ -141,6 +242,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fun = _f_calc(x, 1)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+
+        # for methods that support it, let scipy keep the search within the
+        # region via bounds=. the range check in _f_calc then allows points
+        # exactly on the boundary, which such methods evaluate legitimately.
+        # On older scipy where the method predates bounds support (e.g.
+        # Powell < 1.5, COBYLA < 1.11), scipy itself ignores bounds= with a
+        # RuntimeWarning ("Method X cannot handle bounds."); that warning is
+        # not escalated by the OptimizeWarning filter below, and the range
+        # check in _f_calc remains as the inf-penalty safety net.
+        use_bounds = self.method.lower() in self._BOUNDS_METHODS
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
@@ -158,9 +269,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             float
                 Objective function value.
             """
-            # check if within region -> boundary option in minimize
-            # note: 'bounds' option supported in scipy >= 1.7.0
-            in_range = np.all((min_list < x_list) & (x_list < max_list))
+            # check if within region; kept as a safety net even when bounds=
+            # is passed to minimize
+            if use_bounds:
+                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
+            else:
+                in_range = np.all((min_list < x_list) & (x_list < max_list))
             if not in_range:
                 print("Warning: out of range: {}".format(x_list))
                 return float("inf")
@@ -184,35 +298,107 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fev_history.append([step[0], *x_scaled, y])
             return y
 
+        use_basinhopping = self.basinhopping_params is not None
+
+        options = dict(self.minimize_options)
+        if self.method.lower() == "nelder-mead":
+            # keep the historical defaults of the Nelder-Mead implementation;
+            # user-specified values in [algorithm.minimize] take precedence
+            options.setdefault("xatol", 0.0001)
+            options.setdefault("fatol", 0.0001)
+            options.setdefault("maxiter", 10000)
+            options.setdefault("maxfev", 100000)
+            if not use_basinhopping:
+                # a fixed initial simplex makes scipy ignore its x0 argument,
+                # which would restart every basinhopping hop from the same
+                # simplex; only usable for a single local optimization
+                options.setdefault("initial_simplex", self.initial_simplex_list)
+                options.setdefault("return_all", True)
+        if use_basinhopping:
+            # per-hop convergence messages of the local minimizer are noisy;
+            # progress is reported per hop by basinhopping itself
+            options.setdefault("disp", False)
+        else:
+            options.setdefault("disp", True)
+
+        minimize_kwargs = {}
+        if use_bounds:
+            minimize_kwargs["bounds"] = list(zip(min_list, max_list))
+
+        hop_history = []
+
+        def _bh_cb(x, f, accept):
+            """
+            Per-hop callback function for scipy.optimize.basinhopping.
+            """
+            print("hop: x={}, fun={}, accept={}".format(x, f, accept))
+            hop_history.append([len(hop_history), *x, f, int(accept)])
+
         time_sta = time.perf_counter()
-        optres = minimize(
-            _f_calc,
-            self.initial_list,
-            method="Nelder-Mead",
-            args=(0,),
-            # bounds=[(a,b) for a,b in zip(min_list, max_list)],
-            options={
-                "xatol": self.xtol,
-                "fatol": self.ftol,
-                "return_all": True,
-                "disp": True,
-                "maxiter": self.maxiter,
-                "maxfev": self.maxfev,
-                "initial_simplex": self.initial_simplex_list,
-            },
-            callback=_cb,
-        )
+        try:
+            with warnings.catch_warnings():
+                # scipy only warns on option names the method does not accept
+                # and silently ignores them; promote the warning to an error
+                # so that e.g. a misspelled tolerance aborts immediately
+                # instead of running a lengthy optimization with defaults
+                warnings.filterwarnings(
+                    "error", message="Unknown solver options", category=OptimizeWarning
+                )
+                if use_basinhopping:
+                    # argument names were validated against the basinhopping
+                    # signature in __init__, so a TypeError here is a genuine
+                    # runtime failure and propagates unchanged
+                    bh_params = dict(self.basinhopping_params)
+                    bh_params.setdefault("disp", True)
+                    take_step = _ClippedRandomDisplacement(
+                        self.rng, bh_params.pop("stepsize", 0.5), min_list, max_list
+                    )
+                    optres = basinhopping(
+                        _f_calc,
+                        self.initial_list,
+                        minimizer_kwargs={
+                            "method": self.method,
+                            "args": (0,),
+                            "options": options,
+                            "callback": _cb,
+                            **minimize_kwargs,
+                        },
+                        take_step=take_step,
+                        callback=_bh_cb,
+                        # self.rng is a RandomState; the deprecated seed
+                        # path accepts it on scipy >= 1.15 while rng= does
+                        # not, and older scipy has only seed
+                        seed=self.rng,
+                        **bh_params,
+                    )
+                else:
+                    optres = minimize(
+                        _f_calc,
+                        self.initial_list,
+                        method=self.method,
+                        args=(0,),
+                        options=options,
+                        callback=_cb,
+                        **minimize_kwargs,
+                    )
+        except OptimizeWarning as w:
+            raise RuntimeError(
+                f"{w}: check the [algorithm.minimize] section of the input file "
+                f"against the options accepted by scipy.optimize.minimize "
+                f"for method '{self.method}'"
+            ) from w
 
         self.xopt = optres.x
         self.fopt = optres.fun
-        self.itera = optres.nit
-        self.funcalls = optres.nfev
-        self.allvecs = optres.allvecs
+        self.itera = getattr(optres, "nit", None)
+        self.funcalls = getattr(optres, "nfev", None)
+        self.allvecs = getattr(optres, "allvecs", None)
         time_end = time.perf_counter()
         self.timer["run"]["min_search"] = time_end - time_sta
 
         self.iter_history = iter_history
         self.fev_history = fev_history
+        self.hop_history = hop_history
 
         self._output_results()
 
@@ -223,6 +409,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _prepare(self):
         """
         Prepare the initial simplex for the Nelder-Mead algorithm.
+
+        The simplex is only passed to scipy when method is Nelder-Mead;
+        for other methods it is built but unused.
         """
         # make initial simplex
         #   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]
@@ -247,12 +436,21 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             for i, v in enumerate(self.fev_history):
                 fp.write(" ".join(map(str,v)) + "\n")
 
+        if self.hop_history:
+            with open("BasinHoppingData.txt", "w") as fp:
+                fp.write("#hop " + " ".join(label_list) + " R-factor accept\n")
+                for v in self.hop_history:
+                    fp.write(" ".join(map(str, v)) + "\n")
+
         with open("res.txt", "w") as fp:
             fp.write(f"fx = {self.fopt}\n")
             for x, y in zip(label_list, self.xopt):
                 fp.write(f"{x} = {y}\n")
-            fp.write(f"iterations = {self.itera}\n")
-            fp.write(f"function_evaluations = {self.funcalls}\n")
+            # some methods (e.g. COBYLA) do not report these quantities
+            if self.itera is not None:
+                fp.write(f"iterations = {self.itera}\n")
+            if self.funcalls is not None:
+                fp.write(f"function_evaluations = {self.funcalls}\n")
 
     def _post(self):
         """

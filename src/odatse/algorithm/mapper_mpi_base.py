@@ -6,27 +6,31 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional
+from typing import Optional
 
 from pathlib import Path
-from io import open
 import numpy as np
 import os
-import sys
 import time
 
 import odatse
-import odatse.domain
 from ._algorithm import AlgorithmBase
 
 
 
 class Algorithm(AlgorithmBase):
     """
-    Algorithm class for the data analysis framework.
+    Base class of mapper-type algorithms that evaluate the objective
+    function over a sequence of points supplied by an iterator.
     Inherits from odatse.algorithm.AlgorithmBase.
+
+    The set of points to evaluate is provided by an iterator object
+    (a subclass of odatse.algorithm._iterator.IteratorBase). Subclasses
+    such as mapper_mpi and random_search construct a suitable iterator
+    from the input parameters and assign it to self._iter. Alternatively,
+    a custom point sequence can be supplied programmatically through the
+    iterator parameter of this class.
     """
-    #mesh_list: List[Union[int, float]]
 
     def __init__(self,
                  info: odatse.Info,
@@ -45,8 +49,11 @@ class Algorithm(AlgorithmBase):
             Optional runner object for submitting tasks.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        iterator : Iterator
-            Iterator object.
+        iterator : IteratorBase
+            Iterator that yields (index, coordinates) pairs of the points
+            to evaluate. Subclasses usually build one from the input
+            parameters and set self._iter themselves; pass an iterator
+            here to evaluate a custom point sequence directly.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
@@ -59,7 +66,6 @@ class Algorithm(AlgorithmBase):
         """
         Initialize the algorithm parameters and timer.
         """
-        #self.fx_list = []
         self.results = []
 
         self.opt_fx = np.inf
@@ -82,16 +88,19 @@ class Algorithm(AlgorithmBase):
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-        #iterations = len(self.mesh_list)
-        #istart = len(self.fx_list)
-        istart = 0
+        niter = self._iter.size()
+        # nonzero on checkpoint resume: points already evaluated on this rank
+        istart = self._iter.position()
+        # report progress at most ~100 times per rank
+        print_interval = max(1, -(-niter // 100))
 
         next_checkpoint_step = istart + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
-        for icount, (idx, coord) in enumerate(self._iter):
+        for icount, (idx, coord) in enumerate(self._iter, start=istart):
 
-            print("Iteration : {}/{}".format(icount+1, self._iter.size()))
+            if (icount+1) % print_interval == 0 or icount+1 == niter:
+                print("Iteration : {}/{}".format(icount+1, niter))
             args = (idx, 0)
             x = np.array(coord)
 
@@ -102,8 +111,6 @@ class Algorithm(AlgorithmBase):
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            #self.fx_list.append([mesh[0], fx])
-            #self.fx_list.append([idx, fx])
             self.results.append([idx, coord, fx])
 
             # write to local colormap file
@@ -129,8 +136,6 @@ class Algorithm(AlgorithmBase):
 
         if not np.isinf(self.opt_fx):
             print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
-
-        # self._output_results()
 
         # if Path(self.local_colormap_file).exists():
         #     os.remove(Path(self.local_colormap_file))

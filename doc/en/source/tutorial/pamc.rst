@@ -102,7 +102,7 @@ Then, run the main program. It will take a few secondes on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 odatse input.toml | tee log.txt
 
 Here, the calculation is performed using MPI parallel with 4 processes.
 If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.

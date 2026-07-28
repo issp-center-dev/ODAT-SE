@@ -121,3 +121,35 @@ It is taken as a default to the argument of Runner class.
 
 The coefficients ``A`` and ``b`` should be given as constructor arguments, or passed as dictionary elements through the ``from_dict`` class method.
 In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.
+
+
+``odatse.initialize``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``initialize(argv=None) -> (Info, str)`` is an initialization function that parses command-line style arguments and loads the input file in one step.
+It interprets the same arguments as the ``odatse`` command (the path to the input file and ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve``; see :doc:`../manual/command` for details), and returns a pair of an ``Info`` instance and a run-mode string ``run_mode``. It also calls ``odatse.mpi.setup()`` internally.
+
+- When ``argv`` is omitted (``None``), ``sys.argv[1:]`` is interpreted.
+  When embedding odatse in a script that has its own argument handling, pass an explicit list as ``argv`` to initialize without depending on ``sys.argv``.
+
+  .. code-block:: python
+
+      info, run_mode = odatse.initialize(["input.toml", "--resume"])
+
+- ``run_mode`` is one of ``"initial"``, ``"resume"``, and ``"continue"`` (with the suffix ``"-resetrand"`` appended when ``--reset_rand`` is specified).
+  Passing it to the ``run_mode`` argument of the ``Algorithm`` constructor enables the restart features also in your own scripts.
+
+
+``odatse.mpi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A module that provides access to the MPI communicators.
+It works as a non-MPI stub when mpi4py is not installed or when the environment variable ``ODATSE_NOMPI`` is set.
+See :doc:`../tutorial/parallel_solver` for the details of the two-level parallelization (algorithm layer × solver groups).
+
+- ``setup(nalg=None, nsolve=None)`` : Splits the communicators. It must be called exactly once before constructing ``Solver`` / ``Algorithm`` (called internally when ``odatse.initialize()`` is used).
+- ``comm()`` / ``size()`` / ``rank()`` : The global communicator and its size and rank.
+- ``algcomm()`` / ``algsize()`` / ``algrank()`` : The communicator of the algorithm layer and its size and rank.
+- ``solcomm()`` / ``solsize()`` / ``solrank()`` : The communicator of the solver group and its size and rank.
+- ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
+- ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).

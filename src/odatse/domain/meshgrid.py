@@ -30,8 +30,6 @@ class MeshGrid(DomainBase):
         info: odatse.Info = None,
         *,
         param: dict[str, Any] = None,
-        mesh: bool = True,
-        rng: np.random.RandomState = None,
     ):
         """
         Initialize the MeshGrid object.
@@ -42,10 +40,6 @@ class MeshGrid(DomainBase):
             Information object containing algorithm parameters.
         param : dict, optional
             Dictionary containing parameters for setting up the grid.
-        mesh : bool, optional
-            Whether to use mesh grid or points.
-        rng : np.random.RandomState, optional
-            Random number generator.
         """
         super().__init__(info)
 
@@ -55,11 +49,11 @@ class MeshGrid(DomainBase):
 
         if info:
             if "param" in info.algorithm:
-                self._setup(info.algorithm["param"], rng, mesh=mesh)
+                self._setup(info.algorithm["param"])
             else:
                 raise ValueError("ERROR: algorithm.param not defined")
         elif param:
-            self._setup(param, rng, mesh=mesh)
+            self._setup(param)
         else:
             pass
 
@@ -76,7 +70,7 @@ class MeshGrid(DomainBase):
         else:
             self.grid_local = []
 
-    def _setup(self, info_param, rng: np.random.RandomState, mesh: bool = True):
+    def _setup(self, info_param):
         """
         Setup the grid based on provided parameters.
 
@@ -84,17 +78,11 @@ class MeshGrid(DomainBase):
         ----------
         info_param
             Dictionary containing parameters for setting up the grid.
-        rng : np.random.RandomState, optional
-            Random number generator.
-        mesh : bool, optional
-            Whether to use mesh grid or points.
         """
         if "mesh_path" in info_param:
             self._setup_from_file(info_param)
-        elif mesh:
-            self._setup_grid(info_param)
         else:
-            self._setup_random(info_param, rng)
+            self._setup_grid(info_param)
 
     def _setup_from_file(self, info_param):
         """
@@ -168,38 +156,6 @@ class MeshGrid(DomainBase):
             )
         ]
         self.do_split()
-
-    def _setup_random(self, info_param, rng: np.random.RandomState):
-        if "min_list" not in info_param:
-            raise ValueError("ERROR: algorithm.param.min_list is not defined in the input")
-        min_list = np.array(info_param["min_list"], dtype=float)
-
-        if "max_list" not in info_param:
-            raise ValueError("ERROR: algorithm.param.max_list is not defined in the input")
-        max_list = np.array(info_param["max_list"], dtype=float)
-
-        if "num_points" not in info_param:
-            raise ValueError("ERROR: algorithm.param.num_points is not defined in the input")
-        num_points = info_param["num_points"]
-
-        if len(min_list) != len(max_list):
-            raise ValueError("ERROR: lengths of min_list and max_list do not match")
-        if num_points <= 0:
-            raise ValueError("ERROR: num_points must be positive")
-
-        if odatse.mpi.run_on_algorithm():
-            # generate random numbers on rank0 and distribute
-            if odatse.mpi.algrank() == 0:
-                data = [[idx, *v] for idx, *v in enumerate(
-                    rng.uniform(min_list, max_list, size=(num_points, len(min_list))) )]
-            else:
-                data = None
-            data = odatse.mpi.algcomm().bcast(data, root=0)
-
-            self.grid = data
-            self.grid_local = np.array_split(data, odatse.mpi.algsize())[odatse.mpi.algrank()]
-        else:
-            pass
 
     def store_file(self, store_path, *, header=""):
         """
