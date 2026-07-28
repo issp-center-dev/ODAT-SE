@@ -14,6 +14,8 @@
 
   - ``minsearch``: Nelder-Mead法による最小値探索
 
+  - ``global_search``: scipy.optimize の大域最適化ルーチン(差分進化法, shgo, direct)による探索
+
   - ``mapper``: グリッド探索
 
   - ``random_search``: ランダム探索
