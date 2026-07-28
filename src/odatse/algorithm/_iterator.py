@@ -22,6 +22,7 @@ class IteratorBase(object):
 
         self._index_start = 0
         self._index_end = 0
+        self._i = 0
 
     def _save_state(self) -> dict:
         """Return a snapshot of the iterator position as a plain dict."""
@@ -47,6 +48,10 @@ class IteratorBase(object):
 
     def size(self):
         return self._index_end - self._index_start
+
+    def position(self):
+        """Number of points already consumed on this rank."""
+        return self._i - self._index_start
 
 
 class MeshIterator(IteratorBase):
@@ -103,27 +108,6 @@ class ListIterator(IteratorBase):
             data = self.mpicomm.scatter(data_block, root=0)
             data = [[int(idx), *v] for idx, *v in data]
         return data
-
-
-class DistributedListIterator(IteratorBase):
-    _checkpoint_attrs: list[str] = ["_i", "_data"]
-
-    def __init__(self, data, mpicomm=None):
-        # all ranks have their own chunk of data
-        super().__init__()
-
-        self._data = data
-
-        self._index_start = 0
-        self._index_end = len(self._data)
-        self._i = self._index_start
-
-    def __next__(self):
-        if self._i == self._index_end:
-            raise StopIteration()
-        data = self._data[self._i]
-        self._i += 1
-        return data[0], data[1:]
 
 
 class RandomIterator(IteratorBase):

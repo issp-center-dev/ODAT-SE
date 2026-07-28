@@ -6,18 +6,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional, TYPE_CHECKING
-
 from pathlib import Path
-from io import open
 import numpy as np
-import os
-import time
 
 import odatse
-import odatse.domain
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
-from ._iterator import MeshIterator, ListIterator, DistributedListIterator
+from ._iterator import MeshIterator, ListIterator
 
 
 class Algorithm(MapperMPIAlgorithm):
@@ -25,13 +19,11 @@ class Algorithm(MapperMPIAlgorithm):
     Algorithm class for mapping the objective function over a set of points.
     Inherits from odatse.algorithm.mapper_mpi_base.Algorithm.
     """
-    mesh_list: list[Union[int, float]]
 
     def __init__(
         self,
         info: odatse.Info,
         runner: odatse.Runner = None,
-        domain=None,
         run_mode: str = "initial",
     ) -> None:
         """
@@ -43,24 +35,17 @@ class Algorithm(MapperMPIAlgorithm):
             Information object containing algorithm parameters.
         runner : Runner
             Optional runner object for submitting tasks.
-        domain :
-            Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
         if odatse.mpi.run_on_algorithm():
-            if domain:
-                iter = DistributedListIterator(domain.grid_local)
+            info_param = info.algorithm.get("param", {})
+            if "mesh_path" in info_param:
+                self._iter = self._read_mesh_file(info_param)
             else:
-                info_param = info.algorithm.get("param", {})
-                if "mesh_path" in info_param:
-                    iter = self._read_mesh_file(info_param)
-                else:
-                    iter = self._find_mesh_info(info_param)
-            # delayed setup
-            self._iter = iter
+                self._iter = self._find_mesh_info(info_param)
         else:
             self._iter = None
 
