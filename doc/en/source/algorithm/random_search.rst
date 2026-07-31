@@ -151,7 +151,11 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 
 - ``"continue"``
 
-  The continue mode is not supported. For the pseudo-random sequence, the calculation can be continued by starting with a different seed number.
+  The program execution is continued from the state of the previous run, with the number of sample points extended to the ``num_points`` of the new input.
+  The previously evaluated points are reused, and only the additional points are evaluated.
+  The continue mode is available for the pseudo-random sequence (``random``) and for the ``sobol`` and ``halton`` quasi-random sequences, whose point sets are nested: the first :math:`N` points of a longer sequence are exactly the points of the shorter one.
+  It is not available for the ``latin`` sequence, because a Latin hypercube design is not nested; a run with the ``latin`` sequence must be started anew.
+  The search mode, the sequence type, and ``min_list`` / ``max_list`` must be kept the same as in the previous run.
 
 
 Algorithm description

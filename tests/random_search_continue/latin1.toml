@@ -1,0 +1,22 @@
+[base]
+dimension = 2
+output_dir = "output_latin"
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
+
+[algorithm]
+name = "random_search"
+checkpoint = true
+checkpoint_steps = 100
+seed = 12345
+
+[algorithm.mode]
+mode = "quasi-random"
+sequence = "latin"
+
+[algorithm.param]
+min_list = [-2.0, -2.0]
+max_list = [2.0, 2.0]
+num_points = 8
