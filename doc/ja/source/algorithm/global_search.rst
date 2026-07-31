@@ -5,6 +5,7 @@
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 .. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
 .. _scipy.optimize.direct: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html
+.. _scipy.optimize.dual_annealing: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.dual_annealing.html
 
 ``global_search`` は scipy.optimize の大域最適化ルーチンを用いて
 :math:`f(x)` の最小化を行います。
@@ -20,6 +21,9 @@
 - direct (DIviding RECTangles, `scipy.optimize.direct`_):
   探索領域を超矩形に分割し、有望かつ大きい矩形を優先的に細分化していく
   決定論的手法です。乱数を使用せず、完全な再現性があります。
+- dual annealing (`scipy.optimize.dual_annealing`_):
+  一般化シミュレーテッドアニーリング (GSA) に基づく確率的手法です。
+  焼きなましによる大域探索に、受理された点からの局所最適化を組み合わせます。
 
 探索範囲は ``[algorithm.param]`` の ``min_list`` / ``max_list`` で規定され、
 scipy の ``bounds`` 引数として渡されます。初期値 (``initial_list``) は使用しません。
@@ -39,7 +43,8 @@ shgo ではサンプリング段階の評価点が、まとめて各ランクに
 (収束判定により早く終了する場合があります)。
 shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行されます。
 
-direct は並列評価に対応していないため、ランク 0 上で逐次実行されます
+direct と dual annealing は並列評価に対応していないため、ランク 0 上で
+逐次実行されます
 (他のランクは待機します。各点内のソルバー並列 ``nsolve`` は有効です)。
 
 前準備
@@ -95,7 +100,7 @@ direct は並列評価に対応していないため、ランク 0 上で逐次�
 
   説明: 最適化手法の名前(大文字小文字は区別しません)。
   "DE" または "differential_evolution" で差分進化法、"shgo" で shgo、
-  "direct" で direct を選択します。
+  "direct" で direct、"dual_annealing" で dual annealing を選択します。
 
 - その他のパラメータ
 
@@ -113,6 +118,12 @@ direct は並列評価に対応していないため、ランク 0 上で逐次�
     shgo は決定論的で乱数を使用しません。
   - direct: ``maxfun``, ``maxiter``, ``eps``, ``locally_biased``,
     ``len_tol``, ``vol_tol`` など。direct も決定論的で乱数を使用しません。
+  - dual annealing: ``maxiter``, ``maxfun``, ``initial_temp``,
+    ``restart_temp_ratio``, ``visit``, ``accept``, ``no_local_search``,
+    ``x0`` など。サブテーブル
+    ``[algorithm.global_search.minimizer_kwargs]`` は局所最適化に渡す
+    ``minimizer_kwargs`` 引数となります。乱数は ``[algorithm]`` セクションの
+    ``seed`` から初期化されます。
 
 設定例:
 
@@ -145,6 +156,11 @@ direct は並列評価に対応していないため、ランク 0 上で逐次�
   それ未満のバージョンで MPI 並列実行した場合は開始前にエラーで停止します。
 - direct は scipy >= 1.9 が必要です。また、最適点近傍の精密化が遅いため、
   direct で当たりをつけてから minsearch で磨く使い方が有効です。
+- dual annealing はデフォルトで焼きなまし中に局所最適化 (L-BFGS-B 法) を
+  実行します。勾配は数値差分により評価されるため、ソルバーの評価コストが
+  大きい場合は評価回数が増大します。``no_local_search = true`` とすると
+  局所最適化を行わない古典的な焼きなましになります。
+  ``maxfun`` (デフォルト: 1e7) で総評価回数を制限できます。
 - ``[runner.limitation]`` による制約条件は、制約を満たさない点の目的関数値を
   無限大とみなす方法で処理されます。
 - リスタート(チェックポイント)には対応していません。
@@ -152,14 +168,17 @@ direct は並列評価に対応していないため、ランク 0 上で逐次�
 出力ファイル
 ~~~~~~~~~~~~~~~~~
 
-``GenerationData.txt`` / ``IterationData.txt``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``GenerationData.txt`` / ``IterationData.txt`` / ``MinimumData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 反復ごとの最良点の情報を出力します(ランク 0 のみ)。
 差分進化法では ``GenerationData.txt`` に、世代番号、最良点の変数の値、
 目的関数の値、収束度 (convergence) がこの順に出力されます。
 shgo / direct では ``IterationData.txt`` に、反復番号、最良点の変数の値、
 目的関数の値がこの順に出力されます。
+dual annealing では ``MinimumData.txt`` に、より良い最小値が見つかるたびに、
+番号、変数の値、目的関数の値、context (0: 焼きなまし中に発見、
+1: 局所最適化中に発見、2: dual annealing 過程で発見) がこの順に出力されます。
 
 ``LocalMinimaData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -202,6 +202,55 @@ def test_direct_unknown_param_raises(tmp_path, monkeypatch):
                            run=False)
 
 
+def test_dual_annealing_converges(tmp_path, monkeypatch):
+    """dual_annealing finds the minimum of a quadratic function. Like
+    direct it runs entirely on rank 0; under MPI the other ranks stay idle
+    but still receive the broadcast result."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record,
+        global_search_params={"method": "dual_annealing", "maxiter": 20,
+                              "maxfun": 2000})
+    assert alg.method == "dual_annealing"
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+    assert alg.fopt < 1e-4
+    if odatse.mpi.algrank() == 0:
+        assert len(alg.iter_history) > 0
+        assert list(tmp_path.glob("**/MinimumData.txt"))
+        content = (tmp_path / "output" / "res.txt").read_text()
+        assert content.startswith("fx = ")
+        assert "None" not in content
+
+
+def test_dual_annealing_multimodal(tmp_path, monkeypatch):
+    """dual_annealing reaches the global minimum of the double-well
+    function."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+
+    def double_well(x):
+        record.append(np.array(x, copy=True))
+        return float(((x[0] ** 2 - 4) ** 2) / 8.0 + 0.5 * x[0] - 2.0 + x[1] ** 2)
+
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record, fn=double_well,
+        global_search_params={"method": "dual_annealing", "maxiter": 50,
+                              "maxfun": 4000})
+    assert alg.fopt < -2.0
+    assert alg.xopt[0] < 0.0
+
+
+def test_dual_annealing_unknown_param_raises(tmp_path, monkeypatch):
+    """fail-fast also applies to the dual_annealing argument list."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match="dual_annealing"):
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           global_search_params={"method": "dual_annealing",
+                                                 "no_such_param": 1},
+                           run=False)
+
+
 def test_method_aliases(tmp_path, monkeypatch):
     """"DE" (default), "de" and "differential_evolution" all select the DE
     routine."""
@@ -224,7 +273,8 @@ def test_unknown_method_raises(tmp_path, monkeypatch):
 def test_all_methods_recognized(tmp_path, monkeypatch):
     """Every documented method name resolves without NotImplementedError."""
     monkeypatch.chdir(tmp_path)
-    methods = [("DE", "differential_evolution"), ("shgo", "shgo")]
+    methods = [("DE", "differential_evolution"), ("shgo", "shgo"),
+               ("dual_annealing", "dual_annealing")]
     if global_search.direct is not None:
         methods.append(("direct", "direct"))
     for m, resolved in methods:

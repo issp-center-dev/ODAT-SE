@@ -14,7 +14,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``minsearch`` : Minimum value search using Nelder-Mead method
 
-  - ``global_search`` : Global optimization using the scipy.optimize routines (differential evolution, shgo, direct)
+  - ``global_search`` : Global optimization using the scipy.optimize routines (differential evolution, shgo, direct, dual annealing)
 
   - ``mapper`` : Grid search
 

@@ -11,7 +11,7 @@ import inspect
 import time
 
 import numpy as np
-from scipy.optimize import differential_evolution, shgo
+from scipy.optimize import differential_evolution, shgo, dual_annealing
 
 try:
     from scipy.optimize import direct
@@ -35,6 +35,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     * "DE" / "differential_evolution": scipy.optimize.differential_evolution
     * "shgo": scipy.optimize.shgo
     * "direct": scipy.optimize.direct
+    * "dual_annealing": scipy.optimize.dual_annealing
 
     All other entries of the section are passed verbatim as arguments of the
     selected scipy routine; argument names the routine does not accept abort
@@ -46,7 +47,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     a time) to all algorithm ranks; the other ranks run an evaluation-server
     loop, evaluating their share of the points with their own solver group.
     This composes with solver-side parallelism (``nsolve``): the total
-    parallelism is algsize (points) x nsolve (per point).
+    parallelism is algsize (points) x nsolve (per point). The direct and
+    dual_annealing methods do not support parallel evaluation and run
+    entirely on rank 0.
     """
 
     # method name aliases (case-insensitive) -> scipy routine name
@@ -55,10 +58,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         "differential_evolution": "differential_evolution",
         "shgo": "shgo",
         "direct": "direct",
+        "dual_annealing": "dual_annealing",
     }
 
     # methods implemented so far
-    _IMPLEMENTED = {"differential_evolution", "shgo", "direct"}
+    _IMPLEMENTED = {"differential_evolution", "shgo", "direct", "dual_annealing"}
 
     # arguments of the scipy routines managed by ODAT-SE itself; rejected if
     # the user sets them in [algorithm.global_search]
@@ -129,13 +133,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if key not in self._METHOD_ALIASES:
             raise ValueError(
                 f"algorithm.global_search.method '{method}' is unknown; "
-                f"available: DE (differential_evolution), shgo, direct"
+                f"available: DE (differential_evolution), shgo, direct, "
+                f"dual_annealing"
             )
         self.method = self._METHOD_ALIASES[key]
         if self.method not in self._IMPLEMENTED:
             raise NotImplementedError(
                 f"algorithm.global_search.method '{method}' is not implemented yet; "
-                f"currently implemented: DE (differential_evolution), shgo, direct"
+                f"currently implemented: DE (differential_evolution), shgo, direct, "
+                f"dual_annealing"
             )
         if self.method == "direct" and direct is None:
             raise RuntimeError(
@@ -159,6 +165,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             "differential_evolution": differential_evolution,
             "shgo": shgo,
             "direct": direct,
+            "dual_annealing": dual_annealing,
         }[self.method]
         accepted = set(inspect.signature(scipy_func).parameters)
         unknown = set(self.opt_params) - accepted
@@ -326,6 +333,19 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             print("iteration {}: best x={}, fun={}".format(len(iter_history), xk, fun))
             iter_history.append(row)
 
+        def _cb_da(x, f, context):
+            """
+            Callback for dual_annealing, invoked each time a new best
+            minimum is found, as (x, f, context) with context 0 (found
+            during annealing), 1 (found during local search) or 2 (found
+            in the dual annealing process). f comes with the callback, so
+            no f_cache lookup is needed.
+            """
+            row = [len(iter_history), *x, float(f), int(context)]
+            print("minimum {}: x={}, fun={}, context={}".format(
+                len(iter_history), x, f, context))
+            iter_history.append(row)
+
         params = dict(self.opt_params)
         if self.method == "differential_evolution":
             # deferred updating evaluates a whole generation at a time, which
@@ -388,6 +408,26 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         callback=_cb,
                         **params,
                     )
+                elif self.method == "dual_annealing":
+                    # dual_annealing runs a single sequential annealing
+                    # chain and does not support parallel evaluation; it
+                    # runs entirely on rank 0 while the other ranks stay
+                    # idle in the server loop
+                    if nprocs > 1:
+                        print("Warning: method 'dual_annealing' does not "
+                              "support parallel evaluation; algorithm ranks "
+                              "> 0 stay idle")
+                    optres = dual_annealing(
+                        _f_calc,
+                        bounds,
+                        # as for differential_evolution: the seed path
+                        # accepts the RandomState across all supported
+                        # scipy versions, while the new rng= argument of
+                        # scipy >= 1.15 does not
+                        seed=self.rng,
+                        callback=_cb_da,
+                        **params,
+                    )
                 else:  # pragma: no cover - guarded in __init__
                     raise RuntimeError(f"method {self.method} not implemented")
             except BaseException:
@@ -448,6 +488,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         if odatse.mpi.algrank() == 0:
             if self.method == "differential_evolution":
                 iter_file, iter_header = "GenerationData.txt", "#gen {} R-factor convergence\n"
+            elif self.method == "dual_annealing":
+                # rows are recorded when a new best minimum is found, not
+                # per iteration
+                iter_file, iter_header = "MinimumData.txt", "#no {} R-factor context\n"
             else:
                 iter_file, iter_header = "IterationData.txt", "#iter {} R-factor\n"
             with open(iter_file, "w") as fp:
