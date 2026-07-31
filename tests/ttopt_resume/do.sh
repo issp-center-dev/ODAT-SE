@@ -30,8 +30,12 @@ CMD="${PYTHON:-python3} ../../src/odatse_main.py"
 # CMD="mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py"
 
 # --- Part 1: initial run, interrupted by timeout ---
+# The timeout must fire after the first checkpoint (~8 s: end of the first
+# double sweep) but before the run completes (~10 s). 9.5 s sits in the
+# middle of that window; 8 s was right at its lower edge and failed
+# intermittently.
 rm -rf output1
-time ${TIMEOUT} 8s $CMD input1.toml
+time ${TIMEOUT} 9.5s $CMD input1.toml
 
 # Verify that a checkpoint file was created before the timeout fired
 if [ ! -f output1/0/status.pickle ]; then
