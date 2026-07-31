@@ -32,6 +32,11 @@ class Algorithm(AlgorithmBase):
     iterator parameter of this class.
     """
 
+    # Whether --cont is supported. Subclasses whose iterator can be extended
+    # with additional points (see random_search) set this to True; for the
+    # fixed-mesh mapper there is no meaningful way to extend a run.
+    _continuable: bool = False
+
     def __init__(self,
                  info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
@@ -134,6 +139,11 @@ class Algorithm(AlgorithmBase):
         # close local colormap file
         fp.close()
 
+        # final checkpoint: record the completed state so that the run can be
+        # extended afterwards with --cont (for algorithms that support it)
+        if self.checkpoint:
+            self._save_state(self.checkpoint_file)
+
         if not np.isinf(self.opt_fx):
             print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
@@ -230,13 +240,15 @@ class Algorithm(AlgorithmBase):
         data : dict
             Snapshot previously produced by ``__getstate__``.
         mode : str
-            ``"resume"`` is the only supported mode; ``"continue"`` raises
-            ``RuntimeError`` because mapper has no concept of extending a run.
+            ``"resume"``, or ``"continue"`` when the subclass declares
+            ``_continuable = True`` (the subclass is then responsible for
+            extending the iterator after this method returns); otherwise
+            ``"continue"`` raises ``RuntimeError``.
         restore_rng : bool
             Forwarded to the base class and to the iterator's state restore
             (e.g. RandomIterator restores its RNG state when this is True).
         """
-        if mode == "continue":
+        if mode == "continue" and not self._continuable:
             raise RuntimeError("continue mode is not supported for mapper")
         super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         for attr in Algorithm._checkpoint_attrs:

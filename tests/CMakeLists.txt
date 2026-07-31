@@ -29,6 +29,12 @@ add_test(
   )
 
 add_test(
+  NAME random_search_continue
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/random_search_continue
+  )
+
+add_test(
   NAME minsearch
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/minsearch

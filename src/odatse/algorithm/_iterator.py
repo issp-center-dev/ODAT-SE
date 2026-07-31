@@ -29,9 +29,15 @@ class IteratorBase(object):
         return {attr: getattr(self, attr) for attr in type(self)._checkpoint_attrs}
 
     def _restore_state(self, d: dict) -> None:
-        """Restore the iterator position from a snapshot dict."""
+        """Restore the iterator position from a snapshot dict.
+
+        Attributes missing from the snapshot are left at the values computed
+        by the constructor, so that checkpoints written by older versions
+        (with a shorter ``_checkpoint_attrs`` list) can still be resumed.
+        """
         for attr in type(self)._checkpoint_attrs:
-            setattr(self, attr, d[attr])
+            if attr in d:
+                setattr(self, attr, d[attr])
 
     def __iter__(self):
         return self
@@ -109,9 +115,35 @@ class ListIterator(IteratorBase):
             data = [[int(idx), *v] for idx, *v in data]
         return data
 
+    def _restore_state(self, d: dict) -> None:
+        super()._restore_state(d)
+        # The constructor may have generated a point set of a different size
+        # (e.g. continue mode with a larger num_points); keep the end of the
+        # index range consistent with the restored data.
+        self._index_end = len(self._data)
+
+    def _extend(self, data) -> None:
+        """Append additional points for continue mode.
+
+        Rank 0 passes the additional ``[tag, *coords]`` rows; the other ranks
+        pass None. The rows are scattered across the ranks in the same way as
+        in the constructor and appended to this rank's share, so iteration
+        continues with the new points only.
+        """
+        if self._i != self._index_end:
+            raise RuntimeError(
+                "cannot continue: the checkpoint does not correspond to a "
+                "completed run; resume it to completion first (--resume)")
+        ext = self._setup(data)
+        self._data = list(self._data) + [[int(idx), *v] for idx, *v in ext]
+        self._index_end = len(self._data)
+
 
 class RandomIterator(IteratorBase):
-    _checkpoint_attrs: list[str] = ["_i"]
+    # _count and the index range are checkpointed so that a run started in
+    # continue mode (whose range is the extension segment, not the default
+    # division of [0, count)) can itself be resumed.
+    _checkpoint_attrs: list[str] = ["_i", "_count", "_index_start", "_index_end"]
 
     def __init__(self, xmin, xmax, count, rng):
         super().__init__()
@@ -145,3 +177,28 @@ class RandomIterator(IteratorBase):
         super()._restore_state(d)
         self._rng = np.random.RandomState()
         self._rng.set_state(d["rng_state"])
+
+    def _extend(self, new_count) -> None:
+        """Switch to this rank's share of the additional points (continue mode).
+
+        The previously evaluated points keep their tags [0, count); the
+        additional new_count - count points are divided among the ranks
+        independently and tagged [count, new_count), so tags stay unique.
+        Coordinates are drawn from the restored RNG state, continuing the
+        random stream of the previous run.
+        """
+        add = new_count - self._count
+        if add < 0:
+            raise RuntimeError(
+                "cannot continue: num_points ({}) is smaller than in the "
+                "previous run ({})".format(new_count, self._count))
+        if self._i != self._index_end:
+            raise RuntimeError(
+                "cannot continue: the checkpoint does not correspond to a "
+                "completed run; resume it to completion first (--resume)")
+        v, r = divmod(add, self.mpisize)
+        ns = [v + 1 if i < r else v for i in range(self.mpisize)]
+        self._index_start = self._count + sum(ns[0:self.mpirank])
+        self._index_end = self._index_start + ns[self.mpirank]
+        self._i = self._index_start
+        self._count = new_count
