@@ -150,6 +150,9 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 
   The program execution is resumed from the latest checkpoint.
   The conditions such as the number of MPI processes should be kept the same.
+  Changing the number of search points is an error, because resuming continues
+  the run the checkpoint was written for. Use ``--cont`` to add points, or
+  ``--init`` to start a separate calculation.
 
 - ``"continue"``
 

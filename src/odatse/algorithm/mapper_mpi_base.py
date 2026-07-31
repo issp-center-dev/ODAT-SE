@@ -253,4 +253,4 @@ class Algorithm(AlgorithmBase):
         super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         for attr in Algorithm._checkpoint_attrs:
             setattr(self, attr, data[attr])
-        self._iter._restore_state(data)
+        self._iter._restore_state(data, mode=mode)
