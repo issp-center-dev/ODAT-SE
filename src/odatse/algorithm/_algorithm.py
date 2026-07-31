@@ -158,6 +158,13 @@ class AlgorithmBase(metaclass=ABCMeta):
         run_mode : str
             Mode in which the algorithm should run.
         """
+        # Start of the "init" phase: prefer the timestamp recorded by
+        # odatse.initialize() so that argument parsing, input loading and
+        # solver construction are included; fall back to the construction
+        # time of this object when the caller did not use initialize().
+        # The phase is closed at the beginning of _main_algorithm().
+        start_time = getattr(info, "_start_time", None)
+        self._init_time_sta = start_time if start_time is not None else time.perf_counter()
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
@@ -486,6 +493,11 @@ class AlgorithmBase(metaclass=ABCMeta):
     # ------------------------------------------------------------------
 
     def _main_algorithm(self):
+        # Close the "init" phase opened in __init__. On resume/continue this
+        # value is later overwritten by the timer restored from the checkpoint
+        # (in _apply_state), preserving the original run's value.
+        self.timer["init"]["total"] = time.perf_counter() - self._init_time_sta
+
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()

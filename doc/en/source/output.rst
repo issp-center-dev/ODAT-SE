@@ -49,12 +49,14 @@ Common file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The total time taken for the calculation for each MPI rank is outputted.
 These files will be output under the subfolders of each rank respectively.
-The time taken to pre-process the calculation, the time taken to compute, and the time taken to post-process the calculation are listed in the ``prepare`` , ``run`` , and ``post`` sections.
+The time taken to initialize the calculation, to pre-process the calculation, to compute, and to post-process the calculation are listed in the ``init`` , ``prepare`` , ``run`` , and ``post`` sections.
 
 The following is an example of the output.
 
 .. code-block::
 
+    #init
+     total = 0.012259232999995909
     #prepare
      total = 0.007259890999989693
     #run
@@ -64,7 +66,7 @@ The following is an example of the output.
     #post
      total = 0.000595873999941432
 
-The ``prepare`` section shows the time spent on initialization, ``run`` shows the main calculation processing time, and ``post`` shows the post-processing time.
+The ``init`` section shows the time spent before the algorithm starts (parsing the input file and constructing the solver and the algorithm), ``prepare`` shows the time spent on the preparation step of the algorithm, ``run`` shows the main calculation processing time, and ``post`` shows the post-processing time.
 The items within the ``run`` section may vary depending on the execution environment and settings.
 
 

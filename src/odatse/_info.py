@@ -26,6 +26,11 @@ class Info:
     solver: dict
     runner: dict
 
+    # perf_counter() timestamp recorded by odatse.initialize(), used as the
+    # start of the "init" phase in time.log. None when the Info object is
+    # constructed directly without going through initialize().
+    _start_time: Optional[float] = None
+
     def __init__(self, d: Optional[MutableMapping] = None):
         """
         Initialize the Info object.

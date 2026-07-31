@@ -133,8 +133,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         run_mode : str, optional
             Mode in which to run the algorithm, by default "initial".
         """
-        time_sta = time.perf_counter()
-
         info_pamc = info.algorithm["pamc"]
         nwalkers = info_pamc.get("nreplica_per_proc", 1)
 
@@ -157,9 +155,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         self.anneal_from_beta0 = self.betas[0] > 0.0 and info_pamc.get(
             "anneal_from_beta0", False
         )
-
-        time_end = time.perf_counter()
-        self.timer["init"]["total"] = time_end - time_sta
 
     def _initialize(self) -> None:
         super()._initialize()
