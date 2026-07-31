@@ -42,7 +42,7 @@ The following ``input.toml`` is an input file for the main program.
   [algorithm.param]
   max_list = [6.0, 6.0]
   min_list = [-6.0, -6.0]
-  unit_list = [0.3, 0.3]
+  step_list = [0.3, 0.3]
 
   [algorithm.exchange]
   Tmin = 1.0
@@ -68,20 +68,20 @@ The following ``input.toml`` is an input file for the main program.
 ``[algorithm]`` section is the section to set the search algorithm.
 
 - ``name`` is the name of the search algorithm. In this case, specify ``"exchange"`` for the replica exchange Monte Carlo method.
-  
+
 - ``seed`` is the seed given to the pseudo-random number generator.
 
 ``[algorithm.param]`` sub-section specifies the range of parameters to be optimized.
 
 - ``min_list`` and ``max_list`` specifies the lower bound and upper bound of the parameter space, respectively.
 
-- ``unit_list`` is step length in one MC update (deviation of Gaussian distribution).
-  
+- ``step_list`` is step length in one MC update (deviation of Gaussian distribution).
+
 ``[algorithm.exchange]`` sub-section specifies the hyperparameters of the replica exchange Monte Carlo method.
 
 - ``numsteps`` is the number of Monte Carlo updates.
 
-- ``numsteps_exchange`` specifies the number of times to attempt temperature exchange.
+- ``numsteps_exchange`` specifies the number of Monte Carlo updates between attempts of temperature exchange.
 
 - ``Tmin`` and ``Tmax`` are the lower and upper limits of the temperature, respectively.
 
@@ -99,7 +99,7 @@ For details, see the ``[limitation]`` section in the input file in the manual.
 In this case, the following constraint is imposed:
 
 .. math::
-  
+
   x_{1} - x_{2} > 0 \\
   x_{1} + x_{2} - 1 > 0
 
@@ -126,7 +126,7 @@ After executed, the ``output`` folder is generated, and there a subfolder for ea
 Each subfolder contains the results of the calculation.
 ``trial.txt`` file, which contains the parameters and objective function values evaluated at each Monte Carlo step, and ``result.txt`` file, which contains the parameters actually adopted, are created.
 
-Both files have the same format, with the first two columns being the step number and the walker number within the process, the next being the temperature, the third being the value of the objective function, and the fourth and subsequent being the parameters.
+Both files have the same format: the first column is the step number, the second is the walker number within the process, the third is the temperature, the fourth is the value of the objective function, and the fifth and subsequent columns are the parameters.
 The following is the beginning of the ``output/0/result.txt`` file:
 
 .. code-block::
@@ -156,18 +156,31 @@ Additionally, in ``do.sh``, the difference between ``best_result.txt`` and ``ref
 
   #!/bin/bash
 
-  mpiexec -np 10 --oversubscribe odatse input.toml
+  set -e
 
-  echo diff output/best_result.txt ref.txt
+  export PYTHONUNBUFFERED=1
+  export OMPI_MCA_rmaps_base_oversubscribe=1
+
+  mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml
+
+  resfile=output/best_result.txt
+
+  echo ${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt
   res=0
-  diff output/best_result.txt ref.txt || res=$?
+  ${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
   if [ $res -eq 0 ]; then
     echo TEST PASS
     true
   else
-    echo TEST FAILED: best_result.txt and ref.txt differ
+    echo TEST FAILED: $resfile and ref.txt differ
     false
   fi
+
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1 --layout 2,3 --tlist 9,7,5,3,1,0
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1 --layout 2,3 --tlist 9,7,5,3,1,0 --format pdf
+
+  echo "done."
 
 Visualization of the calculation result
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
