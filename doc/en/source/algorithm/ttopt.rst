@@ -155,7 +155,7 @@ Each row is one actually evaluated candidate with its coordinates and ``f(x)`` (
 ``time.log``
 ^^^^^^^^^^^^
 
-Total timing for the algorithm is written per rank to ``OUTPUT/<rank>/time.log``.
+Total timing for the algorithm is written to ``OUTPUT/0/time.log`` by the rank-0 process of the algorithm layer only.
 
 Algorithm Description
 ~~~~~~~~~~~~~~~~~~~~~
@@ -169,6 +169,40 @@ The TTOpt algorithm decomposes this high-dimensional tensor into a network of 3-
 The algorithm is designed such that only a small part of the whole large tensor needs to be explicitly computed. Thus, this approach is advantageous when the objective function is computationally costly or when the search space is very large. Furthermore, by representing the data in MPS form, we can avoid having to form exponentially large matrices in the optimization process.
 
 For this algorithm, execution using multiple MPI processes is possible. When MPI is used, evaluation of the objective function values at the sampled points is divided across the different ranks.
+
+Restart
+~~~~~~~~~~~~~~~~~
+
+When ``algorithm.checkpoint`` is set to true, the intermediate state is stored
+to ``status.pickle`` at the following occasions:
+
+#. a double sweep (right-to-left followed by left-to-right) has completed and
+   the ``checkpoint_steps`` or ``checkpoint_interval`` condition is met.
+#. the run ends because ``max_f_eval`` has been reached (the final state).
+
+``run_mode`` corresponds to the ``--init``, ``--resume``, and ``--cont`` options
+of the ``odatse`` command.
+
+- ``"initial"``
+
+  Run from the beginning.
+
+- ``"resume"``
+
+  Restart an interrupted calculation from the checkpoint.
+
+- ``"continue"``
+
+  Extend a finished calculation. For TTOpt it behaves exactly as ``"resume"``:
+  the evaluation budget ``max_f_eval`` is not checkpointed and is re-read from
+  the input file on every run, so raising ``max_f_eval`` and restarting
+  continues the search from the stored state.
+
+.. note::
+   The result of an extended run is identical to that of a single run started
+   with the larger ``max_f_eval``. Some evaluations are repeated on restart, but
+   the cache of evaluated values is part of the checkpoint, so the solver is not
+   called again for them.
 
 References
 ^^^^^^^^^^
