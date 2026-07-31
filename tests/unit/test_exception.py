@@ -12,7 +12,7 @@ from odatse.exception import Error, InputError
 def test_input_error_str_carries_message():
     """str(exc) must return the message (regression: __init__ used to skip
     super().__init__, leaving args empty and str(exc) == '')."""
-    msg = "ERROR: section base does not appear in input"
+    msg = "section base does not appear in input"
     exc = InputError(msg)
     assert str(exc) == msg
     assert exc.args == (msg,)

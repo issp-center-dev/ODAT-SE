@@ -457,6 +457,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _run(self) -> None:
         # The checkpoint was already loaded by prepare() and applied at the end
         # of _prepare(); no second load here.
+        if self.f_eval_count >= self.max_f_eval:
+            # Restarting a run whose budget is already spent: without this the
+            # loop below would evaluate one more index before noticing, which
+            # both exceeds max_f_eval and changes the reported optimum.
+            return
+
         next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 

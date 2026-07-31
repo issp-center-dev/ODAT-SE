@@ -166,3 +166,21 @@ def test_sweep_pos_defaults_when_absent_from_old_checkpoint():
     snap.pop("sweep_pos")
     alg._apply_state(snap, restore_rng=False)
     assert alg.sweep_pos == (0, 0)
+
+
+def test_run_returns_immediately_when_the_budget_is_already_spent():
+    """Restarting a finished run must do nothing.
+
+    The final state is now checkpointed, so --resume/--cont of a completed run
+    reaches _run() with f_eval_count >= max_f_eval. Without the guard the loop
+    evaluated one more index before noticing, which exceeded max_f_eval and
+    changed the reported optimum (--cont with an unchanged max_f_eval visibly
+    moved fx)."""
+    alg = _bare()
+    alg.f_eval_count = 100
+    alg.max_f_eval = 100
+    # any evaluation would need these; reaching them means the guard failed
+    alg.runner = None
+    alg.checkpoint = False
+
+    alg._run()  # must return without raising
