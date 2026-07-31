@@ -95,8 +95,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         run_mode : str, optional
             Mode to run the algorithm in, by default "initial".
         """
-        time_sta = time.perf_counter()
-
         info_exchange = info.algorithm["exchange"]
         nwalkers = info_exchange.get("nreplica_per_proc", 1)
 
@@ -116,9 +114,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         self.export_combined_files = info_exchange.get("export_combined_files", False)
         self.separate_T = info_exchange.get("separate_T", True)
-
-        time_end = time.perf_counter()
-        self.timer["init"]["total"] = time_end - time_sta
 
     def _initialize(self) -> None:
         """

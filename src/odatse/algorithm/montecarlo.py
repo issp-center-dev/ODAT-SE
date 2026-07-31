@@ -127,7 +127,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         >>> runner = odatse.Runner()
         >>> algorithm = AlgorithmBase(info, runner, nwalkers=100)
         """
-        time_sta = time.perf_counter()
         super().__init__(info=info, runner=runner, run_mode=run_mode)
         self.nwalkers = nwalkers
 
@@ -159,8 +158,6 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         else:
             self.statespace = DiscreteStateSpace(self.domain, info_param, rng=self.rng)
 
-        time_end = time.perf_counter()
-        self.timer["init"]["total"] = time_end - time_sta
         self.Tindex = 0
         self.input_as_beta = False
 

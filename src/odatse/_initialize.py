@@ -27,6 +27,12 @@ def initialize(argv: Optional[Sequence[str]] = None):
         an Info object having parameter values, and a run_mode string
     """
     import argparse
+    import time
+
+    # Record the start of the "init" phase for time.log. Everything from here
+    # up to Algorithm.main() (argument parsing, input loading, solver and
+    # algorithm construction) is attributed to "init".
+    time_sta = time.perf_counter()
 
     parser = argparse.ArgumentParser(
         description="Open framework for data analysis"
@@ -62,5 +68,6 @@ def initialize(argv: Optional[Sequence[str]] = None):
         run_mode = "initial"  # default
 
     info = odatse.Info.from_file(args.inputfile)
+    info._start_time = time_sta
 
     return info, run_mode
