@@ -222,7 +222,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         oks = np.array([numsteps, numsteps_annealing, numT]) > 0
         if np.count_nonzero(oks) != 2:
-            msg = "ERROR: Two of 'numsteps', 'numsteps_annealing', "
+            msg = "Two of 'numsteps', 'numsteps_annealing', "
             msg += "and 'Tnum' should be positive in the input file\n"
             msg += f"  numsteps = {numsteps}\n"
             msg += f"  numsteps_annealing = {numsteps_annealing}\n"

@@ -62,7 +62,7 @@ class Info:
         for section in ["base", "algorithm", "solver"]:
             if section not in d:
                 raise exception.InputError(
-                    f"ERROR: section {section} does not appear in input"
+                    f"section {section} does not appear in input"
                 )
         self._cleanup()
         self.base = d["base"]
