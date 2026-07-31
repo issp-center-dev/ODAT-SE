@@ -42,6 +42,8 @@ wrapper であり、サブクラスでオーバーライドしては **いけま
 
   - ``self.rng: np.random.RandomState`` : 擬似乱数生成器
 
+  - ``self.dimension: int`` : パラメータ空間の次元数。
+
   - ``self.label_list: list[str]`` : 各パラメータ軸の名前。
 
   - ``self.root_dir: pathlib.Path`` : ルートディレクトリ（``info.base["root_dir"]``）。
@@ -60,7 +62,7 @@ wrapper であり、サブクラスでオーバーライドしては **いけま
 
   - ``self.checkpoint: bool`` : チェックポイント機能の有効/無効。
   - ``self.checkpoint_file: str`` : チェックポイントファイルの絶対パス（デフォルト: ``<proc_dir>/status.pickle``）。
-  - ``self.checkpoint_steps: int`` : この ステップ数ごとにチェックポイントを保存します。
+  - ``self.checkpoint_steps: int`` : このステップ数ごとにチェックポイントを保存します。
   - ``self.checkpoint_interval: float`` : この秒数ごとにチェックポイントを保存します。
 
   - ``self.mode: str`` : 実行モード文字列（``"initial"``、``"resume"``、``"continue"``、または ``"-resetrand"`` サフィックス付き）。

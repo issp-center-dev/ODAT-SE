@@ -89,15 +89,26 @@ The standard output will be seen like this.
 
 .. code-block::
 
-    Make ColorMap
-    Iteration : 1/240
-    Iteration : 2/240
+    name            : mapper
+    seed            : 12345
+    param.max_list  : [6.0, 6.0]
+    param.min_list  : [-6.0, -6.0]
+    param.num_list  : [31, 31]
     Iteration : 3/240
-    Iteration : 4/240
-    Iteration : 5/240
+    Iteration : 3/241
+    Iteration : 3/240
+    Iteration : 3/240
     Iteration : 6/240
-    Iteration : 7/240
+    Iteration : 6/241
     ...
+    [3] minimum_value: 1.95200000e-01 at 721 (mesh [-2.8, 3.200000000000001])
+    complete main process : rank 00000003/00000004
+    end of run
+    Make ColorMap
+
+The 961 grid points are distributed over 4 processes, so each rank handles 240 or 241 points.
+The progress is reported every few points, and since the output of the ranks is interleaved,
+the order of the lines varies from run to run.
 
 Finally, the function values calculated for all the points on the grid will be written to ``output/ColorMap.txt``.
 In this case, the following results will be obtained.
@@ -128,7 +139,7 @@ A program ``plot_colormap_2d.py`` is prepared to generate such a plot of the two
 
    $ python3 plot_colormap_2d.py
 
-By executing the above command, ``ColorMapFig.png`` is generated in which the functional value evaluated at each grid point is shown as a color map on top of the contour of Himmelblau function.
+By executing the above command, ``output/ColorMapFig.pdf`` is generated in which the functional value evaluated at each grid point is shown as a color map on top of the contour of Himmelblau function.
 
 .. figure:: ../../../common/img/res_mapper.*
 

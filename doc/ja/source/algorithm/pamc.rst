@@ -548,7 +548,7 @@ Annealed Importance Sampling (AIS) [1]
 
    \begin{split}
    \frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
-   &= 
+   &=
    \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
    \prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
    &=

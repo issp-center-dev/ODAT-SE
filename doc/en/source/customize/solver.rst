@@ -3,7 +3,7 @@
 
 ``Solver`` is a class that describes the direct problem, providing a method ``evaluate`` that returns the value of the objective function from the input parameters.
 
-- ``Solver`` is define as a derived class of ``odatse.solver.SolverBase``.
+- ``Solver`` is defined as a derived class of ``odatse.solver.SolverBase``.
 
   .. code-block:: python
 
@@ -22,7 +22,7 @@
          super().__init__(info)
 
   It is required to call the constructor of the base class with the info object.
-  There the following instance variables are introduced:
+  The following instance variables are set by the constructor of the base class:
 
   - ``self.root_dir: pathlib.Path`` : Root directory
 
@@ -56,7 +56,7 @@
      def evaluate(self, x, args=()) -> float:
          pass
 
-  This method evaluates the objective function at a given parameter value `x` and returns the result. It takes the following arguments:
+  This method evaluates the objective function at a given parameter value ``x`` and returns the result. It takes the following arguments:
 
   - ``x: np.ndarray``
 

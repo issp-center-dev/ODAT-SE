@@ -20,7 +20,7 @@ This directory includes the following files:
   Script files for running this tutorial
 
 In addition, ``plot_himmel.py`` in ``sample`` directory is used to visualize the result.
-  
+
 
 Input files
 ~~~~~~~~~~~~~~~~~~~
@@ -65,7 +65,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 - ``min_list`` and ``max_list`` specify the minimum and maximum values of the search grid, respectively.
 
 - ``num_list`` specifies the number of grid points along each parameter.
-  
+
 ``[algorithm.bayes]`` section sets the parameters for Bayesian optimization.
 
 - ``random_max_num_probes`` specifies the number of random searches before Bayesian optimization.

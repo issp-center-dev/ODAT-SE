@@ -79,7 +79,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 - When ``Tlogspace`` is ``true``, the temperature points are distributed uniformly in the logarithmic space.
 
 - ``nreplica_per_proc`` specifies the number of replicas that one MPI process handles.
-  
+
 
 Calculation
 ~~~~~~~~~~~~
@@ -138,7 +138,7 @@ Note that the Himmelblau function has four global minima; in this run, the solut
 
 In ODAT-SE, one replica holds samples at different temperatures because of the temperature exchanges. The ``result.txt`` in each rank folder records the data sampled by each replica.
 The data reorganized for each temperature point is written to ``output/result_T%.txt``, where ``%`` is the index of the temperature point.
-The first column is the step, the second column is the rank, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
+The first column is the step, the second column is the global walker (replica) index, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
 Example:
 
 .. code-block::

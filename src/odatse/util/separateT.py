@@ -122,8 +122,8 @@ def _compute_temperature_statistics(
 
     Parameters
     ----------
-    samples : list of (step, fx, x)
-        Raw MC samples in the order they were recorded.
+    samples : list of (int, float, numpy.ndarray)
+        Raw ``(step, fx, x)`` MC samples in the order they were recorded.
     thermalization_steps : int
         Steps with ``step < thermalization_steps`` are discarded as thermalisation.
     dbeta : float

@@ -13,8 +13,8 @@
 
   - Optional なパッケージ（特定の最適化手法を使用する場合に必要）
 
-    - mpi4py (``mapper``, ``random_search``, ``exchange``, ``pamc`` などのMPI並列利用時) : 並列計算による高速化のため
-    - scipy (Nelder-Mead法利用時) : Nelder-Mead法による最適化のため
+    - mpi4py (``mapper``, ``random_search``, ``exchange``, ``pamc``, ``global_search`` などのMPI並列利用時) : 並列計算による高速化のため
+    - scipy (``minsearch``, ``global_search`` 利用時) : Nelder-Mead法などの局所最適化および大域最適化のため
     - physbo (ベイズ最適化利用時, ver. 2.0以上) : ベイズ最適化のため
     - tqdm (ポスト処理ツールでプログレスバーを表示する場合) : 進捗表示のため
 
@@ -101,6 +101,12 @@ ODAT-SE モジュールをアンインストールするには、以下のコマ
     max_list = [ 6.0,  6.0]
     initial_list = [0, 0]
 
+.. note::
+   ``minsearch`` の実行には scipy が必要です。
+   ``python3 -m pip install ODAT-SE`` だけでは scipy はインストールされないため、
+   ``python3 -m pip install 'ODAT-SE[min_search]'`` （または ``'ODAT-SE[all]'``）でインストールしてください。
+   ``ModuleNotFoundError`` が出る場合は :doc:`faq/error` を参照してください。
+
 同じディレクトリで次を実行します。計算は数秒で終わります。
 
 .. code-block:: bash
@@ -117,10 +123,6 @@ ODAT-SE モジュールをアンインストールするには、以下のコマ
 
 Himmelblau 関数の最小値の一つ :math:`(3, 2)` （関数値 :math:`0`）が正しく求められています。
 より詳しい説明や他のアルゴリズムの使い方は :doc:`tutorial/index` を参照してください。
-
-.. note::
-   ``minsearch`` の実行には scipy が必要です（``pip install 'ODAT-SE[all]'`` に含まれます）。
-   ``ModuleNotFoundError`` が出る場合は :doc:`faq/error` を参照してください。
 
 コマンドラインオプション
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -164,9 +166,10 @@ MPI並列計算
 ODAT-SEは、MPIを用いた並列計算をサポートしています。MPIを使用することで、複数のプロセスを用いて計算を高速化できます。
 
 - ``mapper`` 、 ``random_search`` 、 ``exchange`` 、 ``pamc`` はMPI並列計算による高速化が可能です
+- ``global_search`` は差分進化法と shgo で候補点の評価を MPI 並列化できます (direct を除く)
 - ``bayes`` は ``mpi4py`` が利用可能な環境では MPI 並列計算に対応します
 - 並列実行時は、各プロセスがそれぞれ独自の乱数系列を持ちます (``seed`` と ``seed_delta`` パラメータ参照)
-- チェックポイントファイルは各プロセスごとに作成されます
+- チェックポイント機能に対応したアルゴリズムでは、チェックポイントファイルがアルゴリズム側のランクごとに作成されます
 
 実行例:
 

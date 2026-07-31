@@ -417,7 +417,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initialized state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
   #. at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.
   #. at the end of the execution.
@@ -488,7 +488,7 @@ It turns out that :math:`\tilde{f}_n(x_n)` is the marginal distribution of :math
 
    \tilde{f}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{f}(x_0, x_1, \dots, x_n),
 
-from 
+from
 
 .. math::
 
@@ -521,12 +521,12 @@ Then, instead of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x
 
 by using the following the following scheme:
 
-1. Generete :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
+1. Generate :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
 
 2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`T_{i+1}(x_i, x_{i+1})`
 
 
-By using the reweighting method (or importance sampling method), 
+By using the reweighting method (or importance sampling method),
 :math:`\langle A \rangle_n` is rewritten as
 
 .. math::
@@ -539,14 +539,14 @@ By using the reweighting method (or importance sampling method),
    &= \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
    \end{split}.
 
-Because the ratio between :math:`\tilde{f}` and :math:`\tilde{g}` is 
+Because the ratio between :math:`\tilde{f}` and :math:`\tilde{g}` is
 
 .. math::
 
 
    \begin{split}
    \frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
-   &= 
+   &=
    \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
    \prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
    &=

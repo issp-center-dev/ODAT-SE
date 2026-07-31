@@ -33,7 +33,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory from which to retrieve data files (when ``FILE`` is not specified).
-			
+
 **-t FILE_TYPE, \-\-file_type FILE_TYPE**
     Specifies the target filename when running with a directory specified. Default is result.txt.
 

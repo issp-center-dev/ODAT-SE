@@ -100,14 +100,14 @@ This script performs the following data conversions:
 
 1. Input data format:
 
-   If the input parameter has been given by the temperature Tmin and Tmax, 
-   
+   If the input parameter has been given by the temperature Tmin and Tmax,
+
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
 
-   If the input parameter has been given by the inverse temperature bmin and bmax, 
-   
+   If the input parameter has been given by the inverse temperature bmin and bmax,
+
    .. code-block:: text
 
       step walker_id beta fx x1 ... xN weight ancestor
@@ -154,7 +154,7 @@ This script processes data in the following steps:
 2. Create output directory (if it doesn't exist)
 3. Pattern matching of input files (DATA_DIRECTORY/\*/result_T*.txt)
 4. Process each file:
-   
+
    a. Read file line by line
    b. Extract the last n lines if the number of replicas is specified
    c. Extract lines from the last step if the number of replicas is not specified

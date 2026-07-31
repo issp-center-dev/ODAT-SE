@@ -12,8 +12,8 @@ Prerequisites
 
   - Optional packages (required for specific optimization methods):
 
-    - mpi4py : For MPI parallelization in algorithms such as ``mapper``, ``random_search``, ``exchange``, and ``pamc``
-    - scipy : For optimization using the Nelder-Mead method
+    - mpi4py : For MPI parallelization in algorithms such as ``mapper``, ``random_search``, ``exchange``, ``pamc``, and ``global_search``
+    - scipy : For ``minsearch`` (local optimization such as the Nelder-Mead method) and ``global_search`` (global optimization)
     - physbo (>=2.0) : For Bayesian optimization
     - tqdm : For showing progress bars in the post-processing tools
 
@@ -101,6 +101,12 @@ Create ``input.toml`` with the following contents (no sample files need to be do
     max_list = [ 6.0,  6.0]
     initial_list = [0, 0]
 
+.. note::
+   ``minsearch`` requires scipy.
+   ``python3 -m pip install ODAT-SE`` alone does not install scipy, so use
+   ``python3 -m pip install 'ODAT-SE[min_search]'`` (or ``'ODAT-SE[all]'``) instead.
+   If you get a ``ModuleNotFoundError``, see :doc:`faq/error`.
+
 Run the following command in the same directory. The calculation finishes in a few seconds.
 
 .. code-block:: bash
@@ -117,10 +123,6 @@ The optimization result is written to ``output/res.txt``:
 
 One of the minima of the Himmelblau function, :math:`(3, 2)` (with the function value :math:`0`), is obtained correctly.
 See :doc:`tutorial/index` for detailed explanations and the usage of the other algorithms.
-
-.. note::
-   ``minsearch`` requires scipy (included in ``pip install 'ODAT-SE[all]'``).
-   If you get a ``ModuleNotFoundError``, see :doc:`faq/error`.
 
 Command-line options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,9 +165,10 @@ MPI Parallel Computation
 ODAT-SE supports parallel computation using MPI. Using MPI, you can speed up calculations by utilizing multiple processes.
 
 - ``mapper``, ``random_search``, ``exchange``, and ``pamc`` can benefit from MPI parallelization
+- ``global_search`` can evaluate candidate points in parallel with MPI for differential evolution and shgo (but not for direct)
 - ``bayes`` can also use MPI parallel execution when ``mpi4py`` is available
 - During parallel execution, each process has its own random number sequence (see ``seed`` and ``seed_delta`` parameters)
-- Checkpoint files are created for each process
+- For algorithms that support checkpointing, a checkpoint file is created for each rank of the algorithm layer
 
 Execution example:
 

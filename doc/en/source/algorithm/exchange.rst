@@ -274,10 +274,10 @@ The remaining columns are the coordinates.
 Example::
 
     # step walker T fx z1 z2
-    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    1 0 0.004999999999999999 0.0758494287185766 2.811346329442423 3.691101784194861 
-    2 0 0.004999999999999999 0.08566823949124412 3.606664760390988 3.2093903670436497 
-    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154 
+    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    1 0 0.004999999999999999 0.0758494287185766 2.811346329442423 3.691101784194861
+    2 0 0.004999999999999999 0.08566823949124412 3.606664760390988 3.2093903670436497
+    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
 
 
 ``RANK/result.txt``
@@ -288,10 +288,10 @@ This has the same format as ``trial.txt``.
 .. code-block::
 
     # step walker T fx z1 z2
-    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    1 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    2 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154 
+    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    1 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    2 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
 
 
 ``best_result.txt``
@@ -367,7 +367,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initialized state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
   #. the specified number of steps has been done, or the specified period of time has passed.
   #. at the end of the execution.
@@ -395,7 +395,7 @@ The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by mov
 For the weight function, the Boltzmann factor :math:`W(\vec{x}) = e^{-f(\vec{x})/T}` is generally adopted, where :math:`T>0` is the "temperature."
 It is impossible in the many cases, unfortunately, to sample walkers according to :math:`W` directly.
 Insteadly, the MCMC method moves walkers slightly and generates a time series :math:`\{\vec{x}_t\}` such that the distribution of the walkers obeys :math:`W` .
-Let us call the transision probability from :math:`\vec{x}` to :math:`\vec{x}'` as :math:`p(\vec{x}' | \vec{x})`.
+Let us call the transition probability from :math:`\vec{x}` to :math:`\vec{x}'` as :math:`p(\vec{x}' | \vec{x})`.
 When :math:`p` is determined by the following condition ("the balance condition")
 
 .. math::
@@ -413,7 +413,7 @@ Practically, the stronger condition ("the detailed balance condition")
 is usually imposed.
 The detailed balance condition returns to the balance condition by taking the summation of :math:`\vec{x}`.
 
-ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
+ODAT-SE adopts the Metropolis-Hastings (MH) method for solving the detailed balance condition.
 The MH method splits the transition process into the suggestion process and the acceptance process.
 
 1. Generate a candidate :math:`\vec{x}` with the suggestion probability :math:`P(\vec{x} | \vec{x}_t)`.
@@ -425,7 +425,7 @@ The MH method splits the transition process into the suggestion process and the 
    - If accepted, let :math:`\vec{x}_{t+1}` be `\vec{x}`.
    - Otherwise, let :math:`\vec{x}_{t+1}` be `\vec{x}_t`.
 
-The whole transision probability is the product of these two ones, :math:`p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)`.
+The whole transition probability is the product of these two ones, :math:`p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)`.
 The acceptance probability :math:`Q(\vec{x} | \vec{x}_t)` is defined as
 
 .. math::

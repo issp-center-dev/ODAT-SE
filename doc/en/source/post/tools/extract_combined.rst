@@ -29,16 +29,16 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 
 **FILE**
     Specifies the MCMC log file(s) (combined.txt). Multiple files can be specified.
-    
+
 **-t TAG, \-\-tag TAG**
     Specifies the tag to extract. This is a required parameter. The tag is a string.
-    
+
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory to get data files from (when ``FILE`` is not specified).
-			
+
 **\-\-progress**
     Displays a progress bar during execution. Requires the tqdm library. If tqdm is not installed, the name of the file being processed will be displayed instead.
-    
+
 **-h, \-\-help**
     Displays help message and exits the program.
 
@@ -64,14 +64,14 @@ NOTES
 Usage Notes
 ~~~~~~~~~~~
 
-1. **Exact Tag Matching**: 
+1. **Exact Tag Matching**:
    Tags must match exactly. If you specify the "energy" tag, only lines starting with "``<energy>``" will be extracted.
    Lines with "``<Energy>``" or "``<energy_value>``" will not be matched. A space must follow the tag.
 
-2. **Output File Overwriting**: 
+2. **Output File Overwriting**:
    If a file with the same name already exists, it will be overwritten without warning. It is recommended to back up important files beforehand.
 
-3. **Processing Large Files**: 
+3. **Processing Large Files**:
    The script processes files line by line, so memory consumption is kept low even for very large files.
    When processing large files, you can use the ``--progress`` option to monitor progress.
 

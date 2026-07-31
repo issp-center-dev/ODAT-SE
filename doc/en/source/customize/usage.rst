@@ -2,11 +2,11 @@ Usage
 ================================
 
 The following flow solves the optimization problem.
-The number of flow corresponds the comment in the program example.
+The numbers of the steps correspond to the comments in the program example below.
 
 1. Define your ``Algorithm`` and/or ``Solver``.
 
-   - Classes that ODAT-SE provides are available, of course.
+   - The classes provided by ODAT-SE can also be used.
 
 2. Prepare the input parameter, ``info: odatse.Info``.
 

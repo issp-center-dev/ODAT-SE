@@ -28,7 +28,7 @@ Nelder-Mead法による探索
   本チュートリアルを一括計算するために準備されたスクリプト
 
 また、計算結果を可視化するために ``sample`` フォルダ内の ``plot_himmel.py`` を利用します。
-  
+
 
 入力ファイルの説明
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +48,7 @@ Nelder-Mead法による探索
     [runner]
     [runner.log]
     interval = 20
-    
+
     [algorithm]
     name = "minsearch"
     seed = 12345
@@ -64,7 +64,7 @@ Nelder-Mead法による探索
 - ``dimension`` は最適化したい変数の個数です。Himmelblau関数は 2変数関数ですので、今の場合は ``2`` を指定します。
 
 - ``output_dir`` は出力先のディレクトリを指定します。
-  
+
 ``[solver]`` セクションではメインプログラムの内部で使用するソルバーとその設定を指定します。
 
 - ``name`` は使用するソルバーの名前です。このチュートリアルでは ``analytical`` ソルバーに含まれる解析関数の解析を行います。
@@ -73,14 +73,14 @@ Nelder-Mead法による探索
 
 ``[runner]`` セクションでは、逆問題解析アルゴリズムからソルバーの呼び出しに関する設定を行います。
 
-- ``[runner.log]`` の ``interval`` は、ログ出力の頻度を指定します。 ``interval`` 回の繰り返し毎にログを出力します。
-  
+- ``[runner.log]`` の ``interval`` は、ソルバー呼び出しのログをファイルへ書き出す間隔（バッファ件数）を指定します。呼び出しはすべて記録され、``interval`` 件たまるごとにまとめて書き出されます。
+
 ``[algorithm]`` セクションでは、使用するアルゴリスムとその設定をします。
 
 - ``name`` は使用するアルゴリズムの名前です。このチュートリアルでは、Nelder-Mead法 を用いた解析を行うので、 ``minsearch`` を指定します。
 
 - ``seed`` は乱数の初期値を指定します。
-  
+
 ``[algorithm.param]`` セクションでは、探索するパラメータの範囲や初期値を指定します。
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
@@ -109,23 +109,22 @@ Nelder-Mead法による探索
 
 .. code-block::
 
+    name            : minsearch
+    seed            : 12345
+    param.max_list  : [6.0, 6.0]
+    param.min_list  : [-6.0, -6.0]
+    param.initial_list: [0, 0]
+    eval: x=[0.375 0.375], fun=151.96923828125
+    eval: x=[0.0625 0.9375], fun=137.88186645507812
+    eval: x=[0.65625 1.46875], fun=100.34764289855957
+    eval: x=[0.328125 2.859375], fun=66.79089844226837
+    ...
+    eval: x=[2.99996696 1.99999734], fun=4.2278370361994904e-08
     Optimization terminated successfully.
              Current function value: 0.000000
              Iterations: 40
              Function evaluations: 79
-    iteration: 40
-    len(allvecs): 41
-    step: 0
-    allvecs[step]: [0. 0.]
-    step: 1
-    allvecs[step]: [0.375 0.375]
-    step: 2
-    allvecs[step]: [0.0625 0.9375]
-    step: 3
-    allvecs[step]: [0.65625 1.46875]
-    step: 4
-    allvecs[step]: [0.328125 2.859375]
-    ...
+    end of run
 
 ``x1``, ``x2`` に各ステップでの候補パラメータと、その時の関数値が出力されます。
 最終的に推定されたパラメータは ``output/res.txt`` に出力されます。今の場合、
@@ -143,7 +142,7 @@ Nelder-Mead法による探索
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Nelder-Mead法による解の探索の経路は ``output/0/SimplexData.txt`` に出力されています。
-これをプロットするツールが ``sample/plot_himmel.py`` に用意されています。
+これをプロットするツールが ``sample/analytical/plot_himmel.py`` に用意されています。
 
 .. code-block::
 
