@@ -5,9 +5,15 @@
 # Problem: evaluate Himmelblau function in all solver processes and take the average
 #
 
+# Prefer the source tree over any installed odatse package, so that the tests
+# always exercise the working copy. The path must be absolute because odatse
+# changes the working directory during a run.
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src")))
+
 from typing import Optional, Sequence
 
-import os, time, argparse
+import time, argparse
 import numpy as np
 from mpi4py import MPI
 import odatse
