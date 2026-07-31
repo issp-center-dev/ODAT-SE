@@ -20,13 +20,9 @@
 #
 # Pass condition : output1/res.txt == output2/res.txt
 
-if [ "$(uname)" = "Darwin" ]; then
-  which gtimeout > /dev/null 2>&1 || { echo "gtimeout is not installed"; echo "Please install gtimeout using 'brew install coreutils'"; exit 1; }
-  TIMEOUT="gtimeout"
-else
-  which timeout > /dev/null 2>&1 || { echo "timeout is not installed"; exit 1; }
-  TIMEOUT="timeout"
-fi
+# Use a Python replacement for timeout(1), which is not available on macOS
+# without GNU coreutils
+TIMEOUT="${PYTHON:-python3} ../test_utilities/timeout.py"
 
 export PYTHONUNBUFFERED=1
 
