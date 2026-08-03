@@ -105,7 +105,7 @@ Nelder-Mead法による探索
 
     $ odatse input.toml | tee log.txt
 
-実行すると、以下の様な出力がされます。
+実行すると、以下のような出力がされます。
 
 .. code-block::
 

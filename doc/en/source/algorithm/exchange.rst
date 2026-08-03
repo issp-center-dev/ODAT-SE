@@ -241,7 +241,7 @@ Below, a sample file is shown.
 Neighborhood-list file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before searching in the discrete space by Markov Chain Monte Carlo method,
+Before searching in the discrete space by Markov chain Monte Carlo method,
 we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
 A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
@@ -457,7 +457,7 @@ The third process of the above procedure ensures that walkers can climb over the
 Replica exchange Monte Carlo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The "temperature" :math:`T` is one of the most important hyper parameters in the MCMC sampling.
+The "temperature" :math:`T` is one of the most important hyperparameters in the MCMC sampling.
 The MCMC sampling can climb over the hill with a height of :math:`T` but cannot easily escape from the deeper valley than :math:`T`.
 It is why we should increase the temperature in order to avoid stuck to local minima.
 On the other hand, since walkers cannot see the smaller valleys than :math:`T`, the precision of the obtained result :math:`\min f(\vec{x})` becomes about :math:`T`, and it is necessary to decrease the temperature in order to achieve more precise result.

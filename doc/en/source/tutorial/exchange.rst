@@ -68,7 +68,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``step_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
 
-``[algorithm.exchange]`` section sets the hyper parameters for RXMC.
+``[algorithm.exchange]`` section sets the hyperparameters for RXMC.
 
 - ``numsteps`` is the number of Monte Carlo steps.
 

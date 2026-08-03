@@ -79,7 +79,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 ``[algorithm.bayes]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The hyper parameters are defined.
+The hyperparameters are defined.
 
 - ``random_max_num_probes``
 

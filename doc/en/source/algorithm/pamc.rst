@@ -265,7 +265,7 @@ Below, a sample file is shown.
 Neighborhood-list file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before searching in the discrete space by Markov Chain Monte Carlo method,
+Before searching in the discrete space by Markov chain Monte Carlo method,
 we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
 A neighborhood-list file defines the list of neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
