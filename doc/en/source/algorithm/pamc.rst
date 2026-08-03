@@ -32,7 +32,7 @@ Otherwise, continuous space is used.
 
     Description:
     Initial value of parameters.
-    If not defined, these will be initialize randomly.
+    If not defined, these will be initialized randomly.
 
   - ``min_list``
 
@@ -294,7 +294,7 @@ The second column (``walker``) is the index of the walker in the process.
 The third column (``beta``) is the inverse temperature of the replica.
 The fourth column (``fx``) is the value of the solver.
 The fifth - (4+dimension)-th columns are the coordinates.
-The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynsky weight and the grand-ancestor of the replica.
+The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynski weight and the grand-ancestor of the replica.
 
 Example::
 
@@ -443,7 +443,7 @@ Goal
 ^^^^^
 
 When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`f_i(x)`
-(e.g., the Bolzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
+(e.g., the Boltzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
 the expectation value of :math:`A` is defined as
 
 .. math::
@@ -519,7 +519,7 @@ Then, instead of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x
    \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n),
 
 
-by using the following the following scheme:
+by using the following scheme:
 
 1. Generate :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
 

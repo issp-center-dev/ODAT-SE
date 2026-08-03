@@ -35,7 +35,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
   Description:
   A parameter to specify seeds of the pseudo-random number generator used for random generation of initial values, Monte Carlo updates, etc.
   For each algorithm process, the value of ``seed + algrank * seed_delta`` is given as seeds, where ``algrank`` is the process rank in the algorithm layer (independent of the solver parallelism ``nsolve``).
-  If omitted, the initialization is done by  `the Numpy's prescribed method <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_.
+  If omitted, the initialization is done by `NumPy's prescribed method <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_.
 
 - ``seed_delta``
 

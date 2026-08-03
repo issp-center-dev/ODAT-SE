@@ -10,7 +10,7 @@ It has three subsections, ``mapping``, ``limitation``, and ``log`` .
   Format: Boolean (default: false)
 
   Description:
-  A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
+  A parameter to specify whether a RuntimeError occurred within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
 
 
 ``[runner.mapping]`` section

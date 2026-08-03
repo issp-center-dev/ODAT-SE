@@ -35,7 +35,7 @@
 
   説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。
         各アルゴリズムプロセスに対して、 ``seed + algrank * seed_delta`` の値が実際の種として用いられます( ``algrank`` はアルゴリズム層でのプロセスランクで、ソルバー並列数 ``nsolve`` に依存しません)。
-        省略した場合は `Numpy の規定の方法 <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_ で初期化されます。
+        省略した場合は `Numpy の既定の方法 <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_ で初期化されます。
 
 
 - ``seed_delta``

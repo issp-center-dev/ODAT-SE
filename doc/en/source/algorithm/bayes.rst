@@ -65,7 +65,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
 - ``max_list``
 
-  Format: List of float.The length should match the value of dimension.
+  Format: List of float. The length should match the value of dimension.
 
   Description: The maximum value the parameter can take.
 
@@ -73,7 +73,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description: The number of grids the parametar can take at each dimension.
+  Description: The number of grids the parameter can take at each dimension.
 
 
 ``[algorithm.bayes]`` section
@@ -179,7 +179,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution is resumed from the latest checkpoint.
   The conditions such as the number of MPI processes should be kept the same.
 
-  It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
+  It is noted that the results obtained from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
 
 - ``"continue"``
 

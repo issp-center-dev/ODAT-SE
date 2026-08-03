@@ -90,7 +90,7 @@ First, move to the folder where the sample file is located. (Hereinafter, it is 
 
    $ cd sample/analytical/exchange
 
-Then, run the main program. It will take a few secondes on a normal PC.
+Then, run the main program. It will take a few seconds on a normal PC.
 
 .. code-block::
 

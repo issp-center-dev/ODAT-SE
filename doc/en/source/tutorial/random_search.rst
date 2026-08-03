@@ -77,7 +77,7 @@ First, move to the folder where the sample files are located. (We assume that yo
 
   $ cd sample/analytical/random_search
 
-The, run the main program. The computation time takes only a few seconds on a normal PC.
+Then, run the main program. The computation time takes only a few seconds on a normal PC.
 
 .. code-block::
 

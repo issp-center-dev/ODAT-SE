@@ -66,7 +66,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
-- ``name`` is the name of the algorithm you want to use In this tutorial we will use the population annealing Monte Carlo (PAMC) algorithm, so specify ``pamc``.
+- ``name`` is the name of the algorithm you want to use. In this tutorial we will use the population annealing Monte Carlo (PAMC) algorithm, so specify ``pamc``.
 
 - ``seed`` is the seed that a pseudo-random number generator uses.
 
@@ -98,7 +98,7 @@ First, move to the folder where the sample file is located. (Hereinafter, it is 
 
    $ cd sample/analytical/pamc
 
-Then, run the main program. It will take a few secondes on a normal PC.
+Then, run the main program. It will take a few seconds on a normal PC.
 
 .. code-block::
 
@@ -108,7 +108,7 @@ Here, the calculation is performed using MPI parallel with 4 processes.
 If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.
 
 When executed, a folder for each MPI rank will be created under the directory ``output``, and ``trial_TXXX.txt`` files containing the parameters evaluated in each Monte Carlo step and the value of the objective function at each temperature (``XXX`` is the index of points), and ``result_TXXX.txt`` files containing the parameters actually adopted will be created.
-These files are concatnated into ``result.txt`` and ``trial.txt``.
+These files are concatenated into ``result.txt`` and ``trial.txt``.
 
 These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the (inversed) temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
 The final two columns are the weight of walker (Neal-Jarzynski weight) and the index of the grand ancestor (the replica index at the beginning of the calculation).

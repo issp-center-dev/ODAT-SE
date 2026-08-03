@@ -70,7 +70,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
 - ``max_list``
 
-  Format: List of float.The length should match the value of dimension.
+  Format: List of float. The length should match the value of dimension.
 
   Description: The maximum value the parameter can take.
 
@@ -78,7 +78,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description:  The number of grids the parametar can take at each dimension.
+  Description:  The number of grids the parameter can take at each dimension.
 
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +114,7 @@ Output file
 
 This file contains the candidate parameters for each mesh and the function value at that time.
 The file name can be changed by the ``colormap`` parameter in the ``[algorithm]`` section.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
+The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the function value is listed last.
 
 Below, output example is shown.
 
@@ -141,7 +141,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initial state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
   #. the specified number of grid points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.

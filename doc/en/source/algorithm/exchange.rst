@@ -31,7 +31,7 @@ Otherwise, continuous space is used.
     Format: List of float. Length should be equal to ``dimension``.
 
     Description: Initial value of parameters.
-    If not defined, these will be initialize randomly.
+    If not defined, these will be initialized randomly.
 
   - ``min_list``
 
@@ -394,7 +394,7 @@ Markov chain Monte Carlo
 The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers :math:`\vec{x}` stochastically according to the weight function :math:`W(\vec{x})`.
 For the weight function, the Boltzmann factor :math:`W(\vec{x}) = e^{-f(\vec{x})/T}` is generally adopted, where :math:`T>0` is the "temperature."
 It is impossible in the many cases, unfortunately, to sample walkers according to :math:`W` directly.
-Insteadly, the MCMC method moves walkers slightly and generates a time series :math:`\{\vec{x}_t\}` such that the distribution of the walkers obeys :math:`W` .
+Instead, the MCMC method moves walkers slightly and generates a time series :math:`\{\vec{x}_t\}` such that the distribution of the walkers obeys :math:`W` .
 Let us call the transition probability from :math:`\vec{x}` to :math:`\vec{x}'` as :math:`p(\vec{x}' | \vec{x})`.
 When :math:`p` is determined by the following condition ("the balance condition")
 
@@ -452,7 +452,7 @@ the procedure of MCMC with the MH algorithm is the following:
 4. Repeat 1-3.
 
 The solution is given as the point giving the minimum value of :math:`f(\vec{x})`.
-The third process of the above procedure endures that walkers can climb over the hill with a height of :math:`\Delta f \sim T`, the MCMC sampling can escape from local minima.
+The third process of the above procedure ensures that walkers can climb over the hill with a height of :math:`\Delta f \sim T`, the MCMC sampling can escape from local minima.
 
 Replica exchange Monte Carlo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -451,7 +451,7 @@ walker のインデックス (``walker``)、大祖先の id (``idnum``)、ソル
    = \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
    = \int \mathrm{d}xA(x)\tilde{f}_i(x)
 
-とかけます。
+と書けます。
 ここで :math:`Z = \int \mathrm{d} x f_i(x)` は規格化因子(分配関数)で、 :math:`\tilde{f}(x) = f(x)/Z` は配位 :math:`x` の確率密度です。
 
 目的は複数の分布パラメータについてこの期待値および規格化因子(の比)を数値的に求めることです。
@@ -565,7 +565,7 @@ Annealed Importance Sampling (AIS) [1]
    \frac{Z_0}{Z_n} w_n(x_0, x_1, \dots, x_n)
    \end{split}
 
-とかけるので、期待値は
+と書けるので、期待値は
 
 .. math::
 
@@ -594,7 +594,7 @@ population annealing (PA) [2]
 AIS を使うと各 :math:`\beta` に対する期待値を重み付き平均という形で計算できますが、
 :math:`\beta` の幅が大きくなると重み :math:`w` の分散が大きくなってしまいます。
 そのため、適当な周期で確率 :math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` に従いレプリカをリサンプリングし、
-レプリカに割当られた重みをリセット :math:`(w=1)` します。
+レプリカに割り当てられた重みをリセット :math:`(w=1)` します。
 
 PAMC のアルゴリズムは次の擬似コードで示されます:
 
