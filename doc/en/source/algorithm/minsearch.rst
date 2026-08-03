@@ -13,9 +13,9 @@ The optimization method is selected by the ``method`` parameter of the
 (a.k.a. downhill simplex method), and the other methods accepted by
 `scipy.optimize.minimize`_ (Powell, COBYLA, ...) can also be chosen.
 In the Nelder-Mead method, assuming the dimension of the parameter space is
-:math:`D`, the optimal solution is searched by systematically moving pairs of
-:math:`D+1` coordinate points according to the value of the objective function
-at each point.
+:math:`D`, the optimal solution is searched by systematically moving a set of
+:math:`D+1` coordinate points (the vertices of a simplex) according to the
+value of the objective function at each point.
 
 An important hyperparameter is the initial value of the coordinates.
 Since these local optimization methods have the problem of being trapped in a
@@ -29,7 +29,7 @@ repeats a random hop followed by a local optimization with the selected method
 Preparation
 ~~~~~~~~~~~
 
-You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_ .
+You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_.
 
 .. code-block::
 
@@ -57,9 +57,9 @@ It has subsections ``param`` and ``minimize``.
 
   Description:
   Units for each parameter.
-  In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+  In the search algorithm, each parameter is divided by each of these values to perform simple nondimensionalization and normalization.
   If not defined, the value is 1.0 for all dimensions.
-	
+
 - ``min_list``
 
   Format: List of float. Length should be equal to ``dimension``.
@@ -112,7 +112,7 @@ listed below apply only when ``method`` is "Nelder-Mead".
 
   Description:
   The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
-  The ``initial_simplex`` is given by the sum of ``initial_list`` and the dimension of the ``initial_list`` plus one component of the ``initial_scale_list``.
+  The ``initial_simplex`` consists of ``initial_list`` together with the ``dimension`` points obtained by adding each single component of ``initial_scale_list`` to ``initial_list``.
   If not defined, scales at each dimension are set to 0.25.
   Used only when ``method`` is "Nelder-Mead".
 

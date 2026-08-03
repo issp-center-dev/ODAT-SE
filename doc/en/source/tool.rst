@@ -35,7 +35,7 @@ The following command-line options are available.
 
   - Length scale for each dimension of coordinate (default: 1.0 for all dims)
 
-    - Put values splitted by whitespaces and quote the whole
+    - Put values separated by whitespaces and quote the whole
     - Example: ``-u "2.0 1.0 3.0"`` (For 3D space, apply scale 2.0 for x-axis, 1.0 for y-axis, and 3.0 for z-axis)
 
   - Each dimension of coordinate is divided by the corresponding ``unit``.

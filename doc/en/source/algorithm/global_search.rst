@@ -41,10 +41,15 @@ ranks) composes with the solver-side parallelism (``nsolve``), giving two
 levels of parallelization.
 
 For differential evolution, the number of objective function evaluations per
-generation is ``popsize`` x dimension, and the total is roughly bounded by
-(``maxiter`` + 1) x ``popsize`` x dimension (the run may stop earlier upon
-convergence). The local refinements of shgo (its internal local
-optimizations) run serially on rank 0.
+generation is ``popsize`` x dimension, and the total for the evolutionary
+stage is roughly bounded by (``maxiter`` + 1) x ``popsize`` x dimension (the
+run may stop earlier upon convergence). This estimate assumes the default
+construction of the initial population; it does not hold when an initial
+population is supplied via ``init`` or when some dimensions have equal lower
+and upper bounds. It also excludes the evaluations of the final polishing
+stage (``polish``), which is enabled by default.
+The local refinements of shgo (its internal local optimizations) run serially
+on rank 0.
 
 direct does not support parallel evaluation and runs serially on rank 0
 (the other ranks stay idle; the solver-side parallelism ``nsolve`` within
@@ -53,7 +58,7 @@ each point remains effective).
 Preparation
 ~~~~~~~~~~~
 
-You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_ .
+You will need to install `scipy <https://docs.scipy.org/doc/scipy/reference>`_.
 
 .. code-block::
 
@@ -86,7 +91,7 @@ It has subsections ``param`` and ``global_search``.
   Description:
   Units for each parameter.
   In the search algorithm, each parameter is divided by each of these values
-  to perform a simple dimensionless and normalization.
+  to perform simple nondimensionalization and normalization.
   If not defined, the value is 1.0 for all dimensions.
 
 ``[algorithm.global_search]`` section
@@ -162,7 +167,7 @@ Remarks
   refine with minsearch.
 - Constraints given by ``[runner.limitation]`` are handled by treating the
   objective function value of violating points as infinity.
-- Restarting (checkpointing) is not supported.
+- Restarting (checkpointing) is not supported (see the "Restart" section below).
 
 Output files
 ~~~~~~~~~~~~~~~~~

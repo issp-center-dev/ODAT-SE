@@ -90,3 +90,46 @@ def test_main_global_error_prints_only_on_rank0(monkeypatch, capsys):
         main([])
     assert excinfo.value.code == 1
     assert capsys.readouterr().err == ""
+
+
+def test_missing_section_message_has_no_error_prefix():
+    """The exception text must not carry its own ``ERROR: `` prefix: the CLI
+    boundary adds one, so a prefixed message printed ``ERROR: ERROR: ...``."""
+    with pytest.raises(InputError) as excinfo:
+        odatse.Info({"base": {"dimension": 2}})
+    msg = str(excinfo.value)
+    assert not msg.startswith("ERROR:")
+    assert msg == "section algorithm does not appear in input"
+
+
+def test_cli_prints_exactly_one_error_prefix(monkeypatch, capsys):
+    """Regression for the duplicated prefix: the CLI must emit ``ERROR: ``
+    exactly once for a domain error."""
+    def boom(argv):
+        odatse.Info({"base": {"dimension": 2}})
+    monkeypatch.setattr(odatse, "initialize", boom)
+
+    with pytest.raises(SystemExit) as excinfo:
+        main([])
+    assert excinfo.value.code == 1
+    err = capsys.readouterr().err
+    if odatse.mpi.rank() != 0:
+        # a config error is raised identically on every rank, so only rank 0
+        # reports it (see test_main_global_error_prints_only_on_rank0)
+        assert err == ""
+        return
+    assert err.count("ERROR:") == 1
+    assert err.strip() == "ERROR: section algorithm does not appear in input"
+
+
+def test_pamc_step_config_error_has_no_error_prefix():
+    """Same contract for the other message that used to carry the prefix."""
+    from odatse.algorithm.pamc import Algorithm as PAMCAlgorithm
+
+    # bare instance: _find_scheduling is exercised in isolation, as in
+    # tests/unit/test_pamc_scheduling.py
+    alg = PAMCAlgorithm.__new__(PAMCAlgorithm)
+    with pytest.raises(InputError) as excinfo:
+        alg._find_scheduling({"numsteps": 0, "numsteps_annealing": 0, "Tnum": 0})
+    assert not str(excinfo.value).startswith("ERROR:")
+    assert str(excinfo.value).startswith("Two of 'numsteps'")

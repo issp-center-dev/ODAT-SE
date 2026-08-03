@@ -8,14 +8,18 @@ export OMPI_MCA_rmaps_base_oversubscribe=1
 mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml
 
 
-echo diff output/best_result.txt ref.txt
+resfile=output/best_result.txt
+
+# Compare with the reference within a tolerance: an exact diff is too strict
+# because the last digits vary with the numpy/scipy/MPI build.
+echo ${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt
 res=0
-diff output/best_result.txt ref.txt || res=$?
+${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
 else
-  echo TEST FAILED: best_result.txt and ref.txt differ
+  echo TEST FAILED: $resfile and ref.txt differ
   false
 fi
 

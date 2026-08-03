@@ -8,6 +8,7 @@
 
 import numpy as np
 from odatse import mpi
+from odatse import exception
 
 
 class IteratorBase(object):
@@ -23,21 +24,45 @@ class IteratorBase(object):
         self._index_start = 0
         self._index_end = 0
         self._i = 0
+        # size of the whole point set this iterator was built for; used to
+        # detect a resume whose input asks for a different number of points
+        self._total_points = 0
 
     def _save_state(self) -> dict:
         """Return a snapshot of the iterator position as a plain dict."""
-        return {attr: getattr(self, attr) for attr in type(self)._checkpoint_attrs}
+        state = {attr: getattr(self, attr) for attr in type(self)._checkpoint_attrs}
+        state["_total_points"] = self._total_points
+        return state
 
-    def _restore_state(self, d: dict) -> None:
+    def _restore_state(self, d: dict, mode: str = "resume") -> None:
         """Restore the iterator position from a snapshot dict.
 
         Attributes missing from the snapshot are left at the values computed
         by the constructor, so that checkpoints written by older versions
         (with a shorter ``_checkpoint_attrs`` list) can still be resumed.
+
+        In ``"resume"`` mode the point set must be the one the checkpoint was
+        written for. The index range is derived from the configured number of
+        points and is either not checkpointed or overwritten here, so resuming
+        against a different point set would evaluate a set of points that
+        matches neither input.
         """
+        total_now = self._total_points
+        total_saved = d.get("_total_points", total_now)
+        if mode == "resume" and total_now != total_saved:
+            # InputError so the CLI reports it as a single ERROR: line on
+            # rank 0 rather than a traceback per rank: the input file, not
+            # the calculation, is what needs fixing
+            raise exception.InputError(
+                "cannot resume: the number of search points changed "
+                "({} -> {}); resume continues the run the checkpoint was "
+                "written for. Use --cont to extend a completed run, or "
+                "--init to start again.".format(total_saved, total_now))
+
         for attr in type(self)._checkpoint_attrs:
             if attr in d:
                 setattr(self, attr, d[attr])
+        self._total_points = total_saved
 
     def __iter__(self):
         return self
@@ -71,7 +96,8 @@ class MeshIterator(IteratorBase):
         #self._stride = np.cumprod([1]+xnum[::-1])[::-1][1:]  # row major
         self._stride = np.cumprod([1]+xnum)[:-1]  # column major
 
-        self._set_index_range(np.prod(xnum))
+        self._total_points = int(np.prod(xnum))
+        self._set_index_range(self._total_points)
         self._i = self._index_start
 
     def __next__(self):
@@ -97,6 +123,11 @@ class ListIterator(IteratorBase):
         self._index_start = 0
         self._index_end = len(self._data)
         self._i = self._index_start
+        self._total_points = self._count_all(len(self._data))
+
+    def _count_all(self, n: int) -> int:
+        """Total number of points over all ranks (only rank 0 gets the list)."""
+        return int(self.mpicomm.allreduce(n)) if self.mpisize > 1 else n
 
     def __next__(self):
         if self._i == self._index_end:
@@ -115,8 +146,8 @@ class ListIterator(IteratorBase):
             data = [[int(idx), *v] for idx, *v in data]
         return data
 
-    def _restore_state(self, d: dict) -> None:
-        super()._restore_state(d)
+    def _restore_state(self, d: dict, mode: str = "resume") -> None:
+        super()._restore_state(d, mode=mode)
         # The constructor may have generated a point set of a different size
         # (e.g. continue mode with a larger num_points); keep the end of the
         # index range consistent with the restored data.
@@ -137,6 +168,7 @@ class ListIterator(IteratorBase):
         ext = self._setup(data)
         self._data = list(self._data) + [[int(idx), *v] for idx, *v in ext]
         self._index_end = len(self._data)
+        self._total_points = self._count_all(len(self._data))
 
 
 class RandomIterator(IteratorBase):
@@ -153,6 +185,7 @@ class RandomIterator(IteratorBase):
         self._xmax = np.array(xmax)
         self._count = count
 
+        self._total_points = int(count)
         self._set_index_range(self._count)
         self._i = self._index_start
 
@@ -173,8 +206,8 @@ class RandomIterator(IteratorBase):
         state["rng_state"] = self._rng.get_state()
         return state
 
-    def _restore_state(self, d: dict) -> None:
-        super()._restore_state(d)
+    def _restore_state(self, d: dict, mode: str = "resume") -> None:
+        super()._restore_state(d, mode=mode)
         self._rng = np.random.RandomState()
         self._rng.set_state(d["rng_state"])
 
@@ -202,3 +235,4 @@ class RandomIterator(IteratorBase):
         self._index_end = self._index_start + ns[self.mpirank]
         self._i = self._index_start
         self._count = new_count
+        self._total_points = new_count

@@ -7,7 +7,9 @@ Tutorials
 ==================================
 
 In these tutorials, how to perform inverse problem analyses using ODAT-SE is explained by examples taken from minimization of analytical functions.
-In ODAT-SE, the algorithms for solving the inverse problem can be selected from the following algorithms:
+The following algorithms are covered in these tutorials.
+``global_search`` (global optimization with scipy.optimize) is also available;
+see :doc:`../algorithm/index` for the complete list of the algorithms.
 
 - ``minsearch``
 
@@ -53,6 +55,11 @@ Clone the repository and move into the obtained directory as follows:
     $ cd ODAT-SE
 
 The steps in each tutorial are assumed to start from this ODAT-SE directory.
+
+.. note::
+   To run the tutorials that use MPI parallelization (``mapper``, ``exchange``, ``pamc``, and so on),
+   ``mpi4py`` (``python3 -m pip install 'ODAT-SE[all]'``) is required in addition to a working
+   MPI implementation providing the ``mpiexec`` / ``mpirun`` command.
 
 .. toctree::
    :maxdepth: 1

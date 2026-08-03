@@ -5,6 +5,13 @@ Troubleshooting
 This page collects typical errors and their remedies, organized by symptom.
 For installation problems, see :doc:`install`. For tuning when the search does not progress well, see :doc:`montecarlo`.
 
+The headings below show the body of the error message.
+Errors that ODAT-SE raises for invalid input and the like (the ``odatse.exception.Error`` family)
+are printed to standard error by the ``odatse`` command with an ``ERROR:`` prefix
+(and further prefixed with ``[rank N]`` for an error raised on one specific rank under MPI).
+Other exceptions (``ModuleNotFoundError``, ``ValueError``, ``RuntimeError``, ...) propagate
+as ordinary Python tracebacks.
+
 Errors at startup
 ================================
 
@@ -13,7 +20,7 @@ Errors at startup
 
 Some algorithms depend on optional packages, and a ``ModuleNotFoundError`` is raised at run time if they are not installed.
 
-- ``scipy`` : required by ``minsearch`` (Nelder-Mead method)
+- ``scipy`` : required by ``minsearch`` (local optimization such as the Nelder-Mead method) and ``global_search`` (global optimization)
 - ``physbo`` : required by ``bayes`` (Bayesian optimization)
 - ``mpi4py`` : required for MPI parallel execution via ``mpiexec``
 
@@ -34,7 +41,7 @@ The cause (missing file, line number of the syntax error, etc.) is shown in the 
 The path of the input file is interpreted relative to the directory in which the ``odatse`` command is executed.
 
 
-``ERROR: section [...] does not appear in input``
+``section [...] does not appear in input``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A required section is missing from the input file.
@@ -105,6 +112,8 @@ How to restart from a checkpoint?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If a long calculation is interrupted, it can be restarted from the middle using the checkpointing feature.
+Checkpointing is supported by ``exchange``, ``pamc``, ``mapper``, ``random_search``, ``bayes``, and ``ttopt``
+(``minsearch`` and ``global_search`` write no checkpoint even with ``checkpoint = true``).
 
 First, run with checkpointing enabled:
 
@@ -122,6 +131,8 @@ If the calculation is interrupted, run again with the ``--resume`` option and th
     $ odatse --resume input.toml
 
 Without the option, the calculation starts from the beginning (same as the default ``--init``). To extend a finished calculation, use ``--cont``.
+``--cont`` is supported by ``exchange``, ``pamc``, ``bayes``, ``ttopt``, and ``random_search``.
+``mapper`` supports ``--resume`` only, because its search points are fixed by the grid, and raises an error when ``--cont`` is given.
 See :doc:`../manual/command` for the details of the command-line options.
 
 
@@ -130,6 +141,7 @@ See :doc:`../manual/command` for the details of the command-line options.
 
 You tried to restart with ``--resume`` but the checkpoint file is not found. Check the following:
 
-- The original calculation was run with ``checkpoint = true``.
+- The original calculation was run with ``checkpoint = true``, and the algorithm supports checkpointing.
 - You are running in the same directory with the same input file (the same ``output_dir``) as the original calculation.
+- You are running with the same MPI process layout (including ``--nalg`` / ``--nsolve``) as the original calculation.
 - The calculation was not interrupted before the first checkpoint was saved (i.e., before the first ``checkpoint_steps`` steps or ``checkpoint_interval`` seconds).

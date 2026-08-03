@@ -41,6 +41,7 @@ def _snapshot(n_q_dims, rng_state):
         "fopt_history": [],
         "poi": [None],
         "tt_ranks": np.array([1, 1]),
+        "sweep_pos": (1, 3),
         "cache": {},
         "cache_hits": 3,
     }
@@ -129,3 +130,57 @@ def test_load_state_missing_file_raises_checkpoint_error(tmp_path):
     alg = _bare()
     with pytest.raises(CheckpointError):
         alg._load_state(str(tmp_path / "does_not_exist.pickle"))
+
+
+def test_load_state_accepts_continue_mode(tmp_path):
+    """TTOpt does not distinguish resume from continue: max_f_eval is re-read
+    from the input file and is deliberately not checkpointed, so raising it and
+    restarting extends the search in either mode. Regression: ``--cont`` used to
+    read the checkpoint and then take the fresh-run branch of _prepare(),
+    silently starting a new search instead of continuing."""
+    alg = _bare()
+    fn = str(tmp_path / "status.pickle")
+    snap = _snapshot(n_q_dims=1, rng_state=np.random.RandomState(0).get_state())
+    alg._save_data(snap, filename=fn)
+
+    alg._load_state(fn, mode="continue")
+    assert alg._resume_data is not None
+
+
+def test_sweep_pos_is_restored():
+    """A checkpoint may now be written mid-sweep, so _run() must be able to
+    restart at the exact position the previous run stopped at."""
+    alg = _bare()
+    alg.n_q_dims = 1
+    snap = _snapshot(n_q_dims=1, rng_state=np.random.RandomState(0).get_state())
+    alg._apply_state(snap, restore_rng=False)
+    assert alg.sweep_pos == (1, 3)
+
+
+def test_sweep_pos_defaults_when_absent_from_old_checkpoint():
+    """Checkpoints written before sweep_pos was tracked were only ever saved at
+    a double-sweep boundary, so (0, 0) is the correct fallback."""
+    alg = _bare()
+    alg.n_q_dims = 1
+    snap = _snapshot(n_q_dims=1, rng_state=np.random.RandomState(0).get_state())
+    snap.pop("sweep_pos")
+    alg._apply_state(snap, restore_rng=False)
+    assert alg.sweep_pos == (0, 0)
+
+
+def test_run_returns_immediately_when_the_budget_is_already_spent():
+    """Restarting a finished run must do nothing.
+
+    The final state is now checkpointed, so --resume/--cont of a completed run
+    reaches _run() with f_eval_count >= max_f_eval. Without the guard the loop
+    evaluated one more index before noticing, which exceeded max_f_eval and
+    changed the reported optimum (--cont with an unchanged max_f_eval visibly
+    moved fx)."""
+    alg = _bare()
+    alg.f_eval_count = 100
+    alg.max_f_eval = 100
+    # any evaluation would need these; reaching them means the guard failed
+    alg.runner = None
+    alg.checkpoint = False
+
+    alg._run()  # must return without raising

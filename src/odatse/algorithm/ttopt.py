@@ -183,6 +183,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         "fopt_history",
         "poi",
         "tt_ranks",
+        "sweep_pos",
         "cache",
         "cache_hits",
     ]
@@ -300,6 +301,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.f_eval_count_history = []
         self.xopt_history = []
         self.fopt_history = []
+        # (sweep index, position within that sweep) at which _run() should
+        # (re)start.  A checkpoint may be written mid-sweep, where poi/tt_ranks
+        # are only consistent for exactly this position.
+        self.sweep_pos = (0, 0)
         if odatse.mpi.algrank() == 0 and getattr(self, "_eval_hist_file", None) is not None:
             self._eval_hist_file.close()
         self._eval_hist_file: Optional[IO[str]] = None
@@ -427,7 +432,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self._setup_structure()
         self._init_counters()
 
-        if self.mode.startswith("resume"):
+        if self.mode.startswith(("resume", "continue")):
             self._apply_state(
                 self._resume_data, restore_rng=self._resume_restore_rng
             )
@@ -452,6 +457,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     def _run(self) -> None:
         # The checkpoint was already loaded by prepare() and applied at the end
         # of _prepare(); no second load here.
+        if self.f_eval_count >= self.max_f_eval:
+            # Restarting a run whose budget is already spent: without this the
+            # loop below would evaluate one more index before noticing, which
+            # both exceeds max_f_eval and changes the reported optimum.
+            return
+
         next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
@@ -460,9 +471,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             (True, list(range(self.n_q_dims - 1, -1, -1))),
             (False, list(range(0, self.n_q_dims))),
         ]
+        # On resume the checkpoint may have been written mid-sweep, so the first
+        # pass restarts exactly where the previous run stopped.
+        resume_s, resume_k = self.sweep_pos
+        first_pass = True
         while True:
-            for r2l, sweep_range in sweeps:
-                for i in sweep_range:
+            for s, (r2l, sweep_range) in enumerate(sweeps):
+                if first_pass and s < resume_s:
+                    continue
+                k_start = resume_k if (first_pass and s == resume_s) else 0
+                for k in range(k_start, len(sweep_range)):
+                    i = sweep_range[k]
                     todo_q_pois = fuse_pois(
                         self.grids[i],
                         self.poi[i],
@@ -486,8 +505,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     self.f_eval_count_history.append(self.f_eval_count)
                     self.xopt_history.append(self.xopt)
                     self.fopt_history.append(self.fopt)
-                    if self.f_eval_count >= self.max_f_eval:
-                        return
+                    budget_exhausted = self.f_eval_count >= self.max_f_eval
                     # map the values so that they are all positive, in a way that the maximal modulus element is also the minimum
                     z = np.exp(
                         self.fopt - f_vals
@@ -538,9 +556,27 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             self.tt_ranks[i + 1] = next_poi.shape[0]
                             self.poi[i + 1] = next_poi
 
+                    # poi/tt_ranks are now fully updated for index k, so the
+                    # state is consistent and the next run must restart at k+1.
+                    if k + 1 < len(sweep_range):
+                        self.sweep_pos = (s, k + 1)
+                    elif s + 1 < len(sweeps):
+                        self.sweep_pos = (s + 1, 0)
+                    else:
+                        self.sweep_pos = (0, 0)
+
+                    if budget_exhausted:
+                        # Save the final state so that a finished run can be
+                        # extended later by raising max_f_eval and restarting
+                        # with --resume/--cont.  Without this, a run that stops
+                        # before the first sweep boundary leaves no checkpoint.
+                        if self.checkpoint:
+                            self._save_state(self.checkpoint_file)
+                        return
+
+            first_pass = False
+
             # Checkpoint after each complete double sweep (r2l + l2r).
-            # Saving mid-sweep would leave poi/tt_ranks in a partially updated
-            # state, so we always wait for the sweep boundary.
             if self.checkpoint:
                 time_now = time.time()
                 if self.f_eval_count >= next_checkpoint_step or time_now >= next_checkpoint_time:
@@ -571,7 +607,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         data : dict
             Snapshot previously produced by ``__getstate__``.
         mode : str
-            ``"resume"`` (the only mode TTOpt supports).
+            ``"resume"`` or ``"continue"``; TTOpt treats them identically.
         restore_rng : bool
             When *True*, restore the RNG state from *data*.
         """
@@ -583,6 +619,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 "Check that p_points and q_points match the original run."
             )
         for attr in Algorithm._checkpoint_attrs:
+            if attr == "sweep_pos" and attr not in data:
+                # checkpoint written before sweep_pos was tracked: those were
+                # only ever saved at a double-sweep boundary
+                self.sweep_pos = (0, 0)
+                continue
             setattr(self, attr, data[attr])
 
     def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
@@ -597,7 +638,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         filename : str
             Path to the checkpoint file.
         mode : str, optional
-            Loading mode (currently only ``"resume"`` is supported for TTOpt).
+            ``"resume"`` or ``"continue"``.  TTOpt does not distinguish between
+            them: the evaluation budget ``max_f_eval`` is re-read from the input
+            file on every run and is deliberately not checkpointed, while
+            ``f_eval_count`` is.  Raising ``max_f_eval`` and restarting therefore
+            extends the search in either mode.
         restore_rng : bool, optional
             Whether the RNG state should be restored when the snapshot is
             applied.

@@ -16,7 +16,7 @@ This directory includes the following files:
 - ``plot_result_2d.py``
 
   Program to visualize the results
-  
+
 - ``do.sh``
 
   Script files for running this tutorial

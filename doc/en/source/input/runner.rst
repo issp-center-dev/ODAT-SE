@@ -155,7 +155,7 @@ If neither ``co_a`` nor ``co_b`` is defined, no constraint equation will be appl
 ``[runner.log]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Setting parametrs related to logging of solver calls.
+Setting parameters related to logging of solver calls.
 
 - ``filename``
 

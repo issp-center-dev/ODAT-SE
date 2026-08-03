@@ -141,7 +141,7 @@ Below, a sample file is shown.
 Output files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``BayesData.txt`` 
+``BayesData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^
 
 At each step of the optimization process, the values of the parameters and the corresponding objective functions are listed in the order of the optimal parameters so far and the searched parameters at that step.
@@ -168,7 +168,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   First, it performs the random sampling for the number of times specified by ``random_max_num_probes`` parameter.
   Then, it performs the Bayes optimization for the number of times specified by ``bayes_max_num_probes``.
 
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
   #. when the random sampling is finished.
   #. during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.
@@ -192,12 +192,12 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 Algorithm Description
 ~~~~~~~~~~~~~~~~~~~~~~
 
-`Bayesian optimization (BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function. 
+`Bayesian optimization (BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function.
 
 In BO, the objective function :math:`f(\vec{x})` is approximated by a model function (often a Gaussian process) :math:`g(\vec{x})` that is quick to evaluate and easy to optimize.
 The :math:`g` is trained to reproduce well the value of the objective function :math:`\{\vec{x}_i\}_{i=1}^N` at some suitably predetermined points (training data set) :math:`\{f(\vec{x}_i)\}_{i=1}^N`.
 
-At each point in the parameter space, we propose the following candidate points for computation :math:`\vec{x}_{N+1}`, where the expected value of the trained :math:`g(\vec{x})` value and the "score" (acquition function) obtained from the error are optimal.
+At each point in the parameter space, we propose the following candidate points for computation :math:`\vec{x}_{N+1}`, where the expected value of the trained :math:`g(\vec{x})` value and the "score" (acquisition function) obtained from the error are optimal.
 The training is done by evaluating :math:`f(\vec{x}_{N+1})`, adding it to the training dataset, and retraining :math:`g`.
 After repeating these searches, the best value of the objective function as the optimal solution will be returned.
 
@@ -205,7 +205,7 @@ A point that gives a better expected value with a smaller error is likely to be 
 but it does not contribute much to improving the accuracy of the model function because it is considered to already have enough information.
 On the other hand, a point with a large error may not be the correct answer,
 but it is a place with little information and is considered to be beneficial for updating the model function.
-Selecting the former is called "exploition," while selecting the latter is called "exploration," and it is important to balance both.
+Selecting the former is called "exploitation," while selecting the latter is called "exploration," and it is important to balance both.
 The definition of "score" defines how to choose between them.
 
 In ODAT-SE, we use `PHYSBO`_ as a library for Bayesian optimization.

@@ -65,7 +65,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 
   形式: 実数型のリスト。長さはdimensionの値と一致させます。
 
-  説明: パラメータが取りうる最大値。  
+  説明: パラメータが取りうる最大値。
           最適化中にこの値を上回るパラメータが出現した場合、
           ソルバーは評価されずに、値が無限大だとみなされます。
 
@@ -101,7 +101,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   形式: 実数型のリスト。長さはdimensionの値と一致させます。
 
   説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分。
-  ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできるdimension 個の点を 合わせたものが ``initial_simplex`` として使われます。
+  ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできる dimension 個の点を合わせたものが ``initial_simplex`` として使われます。
   定義しなかった場合、各次元に 0.25 が設定されます。
   ``method`` が "Nelder-Mead" の場合のみ使用されます。
 

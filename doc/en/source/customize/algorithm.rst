@@ -40,7 +40,7 @@ Instance variables set by ``__init__``
 
   Reads the common parameters from ``info`` and sets the following instance variables:
 
-    - ``self.rng: np.random.RandomState`` : pseudo random number generator
+  - ``self.rng: np.random.RandomState`` : pseudo random number generator
 
   - ``self.dimension: int`` : dimension of the parameter space.
 
@@ -166,7 +166,7 @@ Must not use the runner (the initial evaluation should be done in ``_run()``).
 
     def _prepare(self) -> None:
         # Called after the checkpoint dispatch and before the main loop.
-        # Good place to initialise timers or open output files.
+        # Good place to initialize timers or open output files.
         self.timer["run"]["submit"] = 0.0
 
 Called after ``_initialize()`` or ``_load_state()`` and before ``_run()``.

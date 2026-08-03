@@ -40,10 +40,10 @@
   - 先頭の ``~`` はホームディレクトリに展開されます
   - 具体的には次のコードが実行されます
 
-  .. code-block:: python
+    .. code-block:: python
 
-    p = pathlib.Path(base.get("root_dir", "."))
-    base["root_dir"] = p.expanduser().absolute()
+      p = pathlib.Path(base.get("root_dir", "."))
+      base["root_dir"] = p.expanduser().absolute()
 
 - 出力ディレクトリ ``output_dir``
 

@@ -17,7 +17,7 @@
 4. ``algorithm.main()`` を実行する
 
 
-プログラム例 
+プログラム例
 
 .. code-block:: python
 

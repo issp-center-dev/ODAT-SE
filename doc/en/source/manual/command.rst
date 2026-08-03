@@ -40,6 +40,8 @@ The available command-line options are listed below.
 **--cont**
     Take over the results of a finished calculation and continue from where it ended.
     Use this to extend a calculation with more steps or more temperature points.
+    As with ``--resume``, the preceding calculation must have been run with the checkpoint
+    feature enabled (``checkpoint = true``) so that a checkpoint file of the final state exists.
 
     .. note::
        ``--init`` / ``--resume`` / ``--cont`` are mutually exclusive.
@@ -90,6 +92,9 @@ USAGE
    .. code-block:: bash
 
       odatse --cont --reset_rand input.toml
+
+   Examples 3 and 4 assume that the preceding calculation was run with
+   ``checkpoint = true`` and that its checkpoint file is still available.
 
 5. Split 8 processes into 2 algorithm processes × 4 solver processes
 
