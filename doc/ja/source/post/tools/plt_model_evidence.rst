@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   odatse_plt_model_evidence [OPTION]... -n NDATA FILEs
+   odatse_plt_model_evidence [OPTION]... -n NDATA FILE...
 
 
 DESCRIPTION
@@ -36,7 +36,7 @@ PAMC の出力ファイル FILE から beta および分配関数の値を取り
     データセット間の相対重みをカンマ区切りの数値で指定する。重みは和が 1.0 になるように自動で規格化される。重みの数値の個数とデータ点の個数は一致させる必要がある。
 
 **-V VOLUME, --Volume VOLUME**
-    事前確率分布の normalization (定義域の体積 :math:`V_\Omega`) を指定する。デフォルトは 1.0。
+    事前確率分布の規格化因子 (定義域の体積 :math:`V_\Omega`) を指定する。デフォルトは 1.0。
 
 **-f RESULT, --result RESULT**
     model evidence の値を出力するファイル名。デフォルトは model_evidence.txt 。
@@ -71,7 +71,7 @@ USAGE
 
       $ odatse_plt_model_evidence -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
 
-   3つのスポット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
+   3つのデータセット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
    model evidence を計算する。
 
 3. 複数のデータファイルを使用する場合

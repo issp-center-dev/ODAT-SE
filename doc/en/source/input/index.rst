@@ -2,7 +2,7 @@
 Input file
 ================================
 
-As the input file format, `TOML <https://toml.io/ja/>`_ format is used.
+As the input file format, `TOML <https://toml.io/en/>`_ format is used.
 The input file consists of the following four sections.
 
 - ``base``
@@ -76,6 +76,6 @@ The ``name`` determines the type of solver. Each parameter is defined for each s
   Format: Integer (default: ``base.dimension``)
 
   Description:
-  Number of input parameters for Solvers
+  Number of input parameters for the solver
 
 See :doc:`/solver/index` for details of the various solvers and their input/output files.

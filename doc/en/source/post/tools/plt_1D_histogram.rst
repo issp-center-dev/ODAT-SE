@@ -87,7 +87,7 @@ USAGE
 
    1dhist/1Dhistogram_file.png is output.
 
-2. When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 1dhist directory.
+2. Input data files result_T0_summarized.txt to result_T10_summarized.txt are prepared in the data directory, and the output destination is set to the 1dhist directory.
 
    .. code-block:: bash
 

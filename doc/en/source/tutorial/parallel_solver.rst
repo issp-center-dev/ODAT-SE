@@ -102,7 +102,7 @@ workers to leave their loop.
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-As a toy problem we look for the integer seed in ``{1, …, 20}`` that minimises
+As a toy problem we look for the integer seed in ``{1, …, 20}`` that minimizes
 the average largest singular value of ``nmats`` random matrices of size
 ``matsize × matsize``. The solver is a subclass of ``odatse.solver.SolverBase``
 (the full script is ``sample/parallel_solver/parallel_solver.py``):

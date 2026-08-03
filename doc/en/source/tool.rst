@@ -57,7 +57,7 @@ The following command-line options are available.
 - ``--check-allpairs``
 
   - Calculate distances of all pairs
-  - This is for debug
+  - This is for debugging
 
 MPI Parallel Computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

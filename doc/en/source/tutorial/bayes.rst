@@ -1,14 +1,14 @@
 Search by Bayesian optimization
 =================================
 
-This tutorial describes how to estimate the minimization problem of Himmelblau function by using Bayesian optimization (BO).
+This tutorial describes how to solve the minimization problem of the Himmelblau function by using Bayesian optimization (BO).
 ODAT-SE uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.
-PHYSBO package should be installed beforehand.
+The PHYSBO package should be installed beforehand.
 
 Sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/bayes`` .
+Sample files are available from ``sample/analytical/bayes``.
 This directory includes the following files:
 
 - ``input.toml``
@@ -17,7 +17,7 @@ This directory includes the following files:
 
 - ``do.sh``
 
-  Script files for running this tutorial
+  Script for running this tutorial
 
 In addition, ``plot_himmel.py`` in the ``sample/analytical`` directory is used to visualize the result.
 
@@ -78,7 +78,7 @@ For details on other parameters that can be specified in the input file, see the
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are in the root directory of ODAT-SE.)
 
 .. code-block::
 
@@ -119,7 +119,7 @@ The following standard output will be shown:
 A list of the hyperparameters is shown first, followed by the evaluated function value ``f(x)``, the grid index (``action``), and the best value found so far at each step.
 The final estimated parameters are output to ``output/BayesData.txt``.
 
-In this case, ``BayesData.txt`` can be seen as the following
+In this case, ``BayesData.txt`` looks as follows
 
 .. code-block::
 
@@ -160,7 +160,7 @@ You can see at what step the parameter gave the minimum score by looking at ``Ba
    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --format="-o" --output=output/res.pdf output/BayesData.txt
    $ python3 ../plot_himmel.py --xcol=4 --ycol=5 --format="o" --output=output/actions.pdf output/BayesData.txt
 
-By executing the above commands, ``output/actions.pdf`` and ``output/res.pdf`` will be created that plots the grid points evaluated during the Bayes optimization process, and the sequence of the points that yield the least scores, respectively, on top of the contour of Himmelblau function.
+By executing the above commands, ``output/actions.pdf`` and ``output/res.pdf`` will be created; they plot, on top of the contours of the Himmelblau function, the grid points evaluated during the Bayesian optimization and the sequence of points that yielded the best scores, respectively.
 
 .. figure:: ../../../common/img/res_bayes_plot.*
 

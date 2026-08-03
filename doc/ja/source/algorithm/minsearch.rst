@@ -9,7 +9,7 @@
 実装には SciPy の `scipy.optimize.minimize`_ 関数を用いています。
 最適化手法は ``[algorithm.minimize]`` セクションの ``method`` パラメータで選択します。
 デフォルトは `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
-(a.k.a. downhill simplex 法) で、 `scipy.optimize.minimize`_ が受け付ける
+(downhill simplex 法とも呼ばれます) で、 `scipy.optimize.minimize`_ が受け付ける
 その他の手法 (Powell, COBYLA など) も選択できます。
 Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
 

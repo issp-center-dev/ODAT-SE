@@ -1,12 +1,12 @@
 Search by replica exchange Monte Carlo
 ========================================
 
-This tutorial describes how to estimate the minimization problem of Himmelblau function by using the replica exchange Monte Carlo method (RXMC).
+This tutorial describes how to solve the minimization problem of the Himmelblau function by using the replica exchange Monte Carlo method (RXMC).
 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/exchange`` .
+Sample files are available from ``sample/analytical/exchange``.
 This directory includes the following files:
 
 - ``input.toml``
@@ -15,7 +15,7 @@ This directory includes the following files:
 
 - ``do.sh``
 
-  Script files for running this tutorial
+  Script for running this tutorial
 
 
 Input files
@@ -54,7 +54,7 @@ For details, see the input file section of the manual.
 In the following, we will briefly describe this input file.
 For details, see the manual of :doc:`../algorithm/exchange`.
 
-The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
+The contents of the ``[base]`` and ``[solver]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
@@ -66,7 +66,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``step_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
+- ``step_list`` is the step length of one Monte Carlo update (standard deviation of the Gaussian distribution).
 
 ``[algorithm.exchange]`` section sets the hyperparameters for RXMC.
 
@@ -84,7 +84,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are in the root directory of ODAT-SE.)
 
 .. code-block::
 
@@ -157,13 +157,13 @@ Visualization
 ~~~~~~~~~~~~~~~~~~~
 
 By plotting ``output/result_T%.txt``, you can estimate regions where the parameters with small function values are located.
-By executing the following command, the figures of two-dimensional plot ``res_T%.png`` will be generated.
+By executing the following command, the two-dimensional plots ``res_T%.png`` will be generated.
 
 .. code-block::
 
    $ python3 ../plot_himmel.py --xcol=3 --ycol=4 --skip=20 --format="o" --output=output/res_T0.png output/result_T0.txt
 
-Looking at the resulting diagram, we can see that the samples are concentrated near the minima of ``f(x)``. By changing the index of the temperature, the sampling points scatters over the region at high temperature, while they tend to concentrate on the minima at low temperature.
+Looking at the resulting diagram, we can see that the samples are concentrated near the minima of ``f(x)``. By changing the index of the temperature, the sampling points scatter over the region at high temperature, while they tend to concentrate on the minima at low temperature.
 
 .. figure:: ../../../common/img/res_exchange.*
 

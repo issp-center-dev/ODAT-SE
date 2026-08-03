@@ -41,7 +41,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, the name of the file being processed will be displayed as a message instead.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----

@@ -10,7 +10,7 @@ Location of the sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The sample files are located in ``sample/analytical/random_search``.
-The following files are stored in the folder
+The following files are stored in the folder.
 
 - ``input.toml``
 
@@ -58,7 +58,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
-- ``name`` is the name of the algorithm you want to use. In this tutorial we will use ``random_search`` since we will be using random-search method.
+- ``name`` is the name of the algorithm you want to use. In this tutorial we will use ``random_search`` since we will be using the random-search method.
 
 In ``[algorithm.param]`` section, the parameters for the search are specified.
 
@@ -83,7 +83,7 @@ Then, run the main program. The computation time takes only a few seconds on a n
 
   $ mpiexec -np 4 odatse input.toml | tee log.txt
 
-Here, the calculation using MPI parallel with 4 processes will be done.
+Here, the calculation is performed using MPI parallelization with 4 processes.
 When executed, a folder for each rank will be created under ``output`` directory, and the calculation results of each rank will be written.
 The standard output will be seen like this.
 
@@ -122,14 +122,14 @@ The first and second columns contain the values of ``x1`` and ``x2``, and the th
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By plotting ``ColorMap.txt``, we can estimate the region where the small function values are located.
+By plotting ``ColorMap.txt``, we can estimate the region where the function values are small.
 A program ``plot_colormap_2d.py`` is prepared to generate such a plot of the two-dimensional space.
 
 .. code-block::
 
   $ python3 plot_colormap_2d.py
 
-By executing the above command, ``output/ColorMapFig.pdf`` is generated in which the functional value evaluated at each point is shown as a color map on top of the contour of Himmelblau function.
+By executing the above command, ``output/ColorMapFig.pdf`` is generated in which the function value evaluated at each point is shown as a color map on top of the contour of Himmelblau function.
 
 .. figure:: ../../../common/img/res_random_search.*
 

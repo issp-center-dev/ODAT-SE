@@ -26,7 +26,7 @@
 
   - ``self.root_dir: pathlib.Path`` : Root directory
 
-    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``odatse`` is executed. It can be referred as a root location when the external programs or data files are read.
+    This parameter is taken from ``info.base["root_dir"]``, and represents the directory in which ``odatse`` is executed. It can be used as the base location when external programs or data files are read.
 
   - ``self.output_dir: pathlib.Path`` : Output directory
 
@@ -44,7 +44,7 @@
 
   - ``self._name: str`` : The name of the solver. It is initialized to an empty string in the base class; set an appropriate name in the constructor. It is referred to through the ``name`` property.
 
-  The parameters for the Solver class can be obtained from ``solver`` field of ``info`` object.
+  The parameters for the Solver class can be obtained from the ``solver`` field of the ``info`` object.
   The required parameters should be taken and stored.
 
 - ``evaluate`` method
@@ -60,15 +60,15 @@
 
   - ``x: np.ndarray``
 
-    The parameter value in :math:`N` dimensional vector of numpy.ndarray type.
+    The parameter value as an :math:`N`-dimensional vector of type ``numpy.ndarray``.
 
   - ``args: Tuple = ()``
 
     The additional arguments passed from the Algorithm in the form of a Tuple of two integers.
-    One is the step count that corresponds to the Monte Carlo steps for MC type algorithms, or the index of the grid point for grid search algorithm.
-    The other is the set number that represents :math:`n`-th iteration.
+    One is the step count that corresponds to the Monte Carlo steps for MC type algorithms, or the index of the grid point for the grid search algorithm.
+    The other is the set number that represents the :math:`n`-th iteration.
 
-  The ``evaluate`` method returns the value of the objective function as a float number.
+  The ``evaluate`` method returns the value of the objective function as a float.
 
   .. note::
      If ``evaluate`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the objective function value as ``np.nan``.

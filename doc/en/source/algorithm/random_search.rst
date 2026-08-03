@@ -4,8 +4,8 @@ Random search ``random_search``
 
 ``random_search`` is an algorithm to search for the minimum value by computing :math:`f(x)` on random points in the parameter space.
 This algorithm is effective when it is difficult to use other methods such as grid search for high-dimensional problems.
-The random search is compatible with MPI. The sampling points are evaluated in an trivially parallel way over MPI processes.
-In addition to pseudo-random sequence, quasi-random (low-discrepancy) sequences such as Sobol sequence are available.
+The random search is compatible with MPI. The sampling points are evaluated in a trivially parallel way over MPI processes.
+In addition to pseudo-random sequences, quasi-random (low-discrepancy) sequences such as the Sobol sequence are available.
 
 Preparation
 ~~~~~~~~~~~~
@@ -16,7 +16,7 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 
   $ python3 -m pip install mpi4py
 
-For quasi-random sequence, you need to install `scipy <https://scipy.org>`_.
+For quasi-random sequences, you need to install `scipy <https://scipy.org>`_.
 
 .. code-block::
 
@@ -94,7 +94,7 @@ In this section, the search parameter space is defined.
 
   Description:
   Units for each parameter.
-  In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+  In the search algorithm, each parameter is divided by each of these values to perform simple nondimensionalization and normalization.
   If not defined, the value is 1.0 for all dimensions.
 
 The following parameters can be set in the ``[algorithm]`` section.
@@ -139,7 +139,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initial state.
-  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
   #. the specified number of sample points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.

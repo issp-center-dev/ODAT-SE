@@ -25,7 +25,7 @@ The following files are stored in the folder.
 
 - ``do.sh``
 
-  Script prepared for doing all calculation of this tutorial
+  Script prepared for running all the calculations of this tutorial.
 
 In addition, ``plot_himmel.py`` in the ``sample/analytical`` folder is used to visualize the result.
 
@@ -89,7 +89,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
 
 - ``initial_list`` specifies the initial values.
 
-Other parameters, such as convergence judgments used in the Nelder-Mead method, can be done in the ``[algorithm]`` section, although they are omitted here because the default values are used.
+Other parameters, such as the convergence criteria used in the Nelder-Mead method, can be set in the ``[algorithm.minimize]`` section, although they are omitted here because the default values are used.
 See the input file chapter for details.
 
 Calculation execution
@@ -128,8 +128,8 @@ The standard output will be seen as follows.
              Function evaluations: 79
     end of run
 
-The ``x1`` and ``x2`` are the candidate parameters at each step and the function value at that point.
-The final estimated parameters is written to ``output/res.txt``.
+``x`` and ``fun`` in the ``eval`` lines are the candidate parameters at each step and the function value at that point.
+The final estimated parameters are written to ``output/res.txt``.
 In the current case, the following result will be obtained:
 
 .. code-block::
@@ -143,7 +143,7 @@ It is seen that one of the minima is obtained.
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The steps taken during the search by the Nelder-Mead method is written in ``output/0/SimplexData.txt``. A tool to plot the path is prepared as ``sample/analytical/plot_himmel.py``.
+The steps taken during the search by the Nelder-Mead method are written in ``output/0/SimplexData.txt``. A tool to plot the path is prepared as ``sample/analytical/plot_himmel.py``.
 
 .. code-block::
 
@@ -153,6 +153,6 @@ By executing the above command, ``output/res.pdf`` will be generated.
 
 .. figure:: ../../../common/img/res_minsearch.*
 
-   The path taken during the minimum search by the Nelder-Mead method is drawn by the blue line. The black curves show contour of Himmelblau function.
+   The path taken during the minimum search by the Nelder-Mead method is drawn by the blue line. The black curves show the contours of the Himmelblau function.
 
-The path of the minimum search by the Nelder-Mead method is drawn on top of the contour plot of Himmelblau function. Starting from the initial value at ``(0, 0)``, the path reaches to one of the minima, ``(3, 2)``.
+The path of the minimum search by the Nelder-Mead method is drawn on top of the contour plot of Himmelblau function. Starting from the initial value at ``(0, 0)``, the path reaches one of the minima, ``(3, 2)``.

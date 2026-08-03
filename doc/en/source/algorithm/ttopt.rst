@@ -140,7 +140,7 @@ After the run, rank 0 writes the global best solution (best across ranks when MP
 ``ttopt_eval_history.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Created only if ``save_eval_history`` is ``True``: ``OUTPUT/ttopt_eval_history.txt``.
+Created only if ``save_eval_history`` is ``true``: ``OUTPUT/ttopt_eval_history.txt``.
 Each row is one actually evaluated candidate with its coordinates and ``f(x)`` (leading ``#`` lines give column labels; parameter names follow ``label_list`` when set).
 
 .. code-block::
@@ -175,7 +175,7 @@ Restart
 ~~~~~~~~~~~~~~~~~
 
 When ``algorithm.checkpoint`` is set to true, the intermediate state is stored
-to ``status.pickle`` at the following occasions:
+to ``status.pickle`` on the following occasions:
 
 #. a double sweep (right-to-left followed by left-to-right) has completed and
    the ``checkpoint_steps`` or ``checkpoint_interval`` condition is met.

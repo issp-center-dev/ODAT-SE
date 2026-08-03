@@ -52,7 +52,7 @@ The following command line options are available:
     Displays a progress bar during execution. The tqdm library is required for display.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -100,19 +100,19 @@ This script performs the following data conversions:
 
 1. Input data format:
 
-   If the input parameter has been given by the temperature Tmin and Tmax,
+   If the input parameters were given as the temperatures ``Tmin`` and ``Tmax``,
 
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
 
-   If the input parameter has been given by the inverse temperature bmin and bmax,
+   If the input parameters were given as the inverse temperatures ``bmin`` and ``bmax``,
 
    .. code-block:: text
 
       step walker_id beta fx x1 ... xN weight ancestor
 
-   The item types of columns are shown in the header part as comments.
+   The column types are shown in the header as comments.
 
 2. Output data format:
 

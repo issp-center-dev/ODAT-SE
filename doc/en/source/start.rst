@@ -139,23 +139,29 @@ Example:
 
 See :doc:`manual/command` for the complete list and the details of the options.
 
+Related packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Wrapper packages for using direct problem solvers for two-dimensional material structure analysis from ODAT-SE are provided as separate modules.
 To perform these analyses, you need to install the wrapper package and the direct problem solver itself.
 At present, the following wrapper packages are available:
 
 - `odatse-STR <https://github.com/2DMAT/odatse-STR>`_ -- Total Reflection High-energy Positron Diffraction (TRHEPD)
+
   A high-precision method for surface structure analysis.
 
 - `odatse-SXRD <https://github.com/2DMAT/odatse-SXRD>`_ -- Surface X-ray Diffraction (SXRD)
+
   An X-ray diffraction method for investigating atomic arrangements at surfaces and interfaces.
 
 - `odatse-LEED <https://github.com/2DMAT/odatse-LEED>`_ -- Low-energy Electron Diffraction (LEED)
+
   An electron diffraction method for studying crystal structures of solid surfaces.
 
 If you want to prepare the ``Algorithm`` or ``Solver`` by yourself, use the ODAT-SE package.
 See :doc:`customize/index` for details.
 
-The program can be executed without installing ``odatse`` command; instead, run ``src/odatse_main.py`` script directly as follows. It would be convenient when you are rewriting programs.
+The program can be executed without installing the ``odatse`` command; instead, run the ``src/odatse_main.py`` script directly as follows. This is convenient when you are modifying the program.
 
 .. code-block:: bash
 

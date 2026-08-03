@@ -17,7 +17,7 @@ see :doc:`../algorithm/index` for the complete list of the algorithms.
 
 - ``mapper``
 
-  Entire search over a grid for a given parameter.
+  Exhaustive search over a grid of the given parameters.
 
 - ``random_search``
 
@@ -29,7 +29,7 @@ see :doc:`../algorithm/index` for the complete list of the algorithms.
 
 - ``ttopt``
 
-   Tensor train optimization.
+  Tensor train optimization.
 
 - ``exchange``
 
@@ -40,7 +40,7 @@ see :doc:`../algorithm/index` for the complete list of the algorithms.
   Sampling by the population annealing Monte Carlo method.
 
 In the following sections, the procedures to run these algorithms are provided.
-In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as some tutorials describing some applications.
+In addition, the usage of ``[runner.limitation]`` to apply limitations to the search region will be described. At the end of the section, a description of how to implement a direct problem solver is provided, as well as tutorials describing some applications.
 
 Preparation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

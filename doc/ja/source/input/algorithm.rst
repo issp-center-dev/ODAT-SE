@@ -20,7 +20,7 @@
 
   - ``random_search``: ランダム探索
 
-  - ``bayes``:  ベイズ最適化
+  - ``bayes``: ベイズ最適化
 
   - ``ttopt``:  テンソル列 (tensor train) 分解に基づく最適化
 

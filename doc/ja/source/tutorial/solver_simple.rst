@@ -16,7 +16,7 @@ ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソ�
     function_name = "himmelblau"
 
 とします。
-利用可能な関数の詳細は :doc:`analytical ソルバーのリファレンス <../solver/index>` を参照してください。
+利用可能な関数の詳細は :doc:`analytical ソルバーのリファレンス <../solver/analytical>` を参照してください。
 
 順問題ソルバーの追加
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -120,13 +120,13 @@ listed below apply only when ``method`` is "Nelder-Mead".
 
   Format: Float (default: 1e-4)
 
-  Description: Parameters used to determine convergence of the Nelder-Mead method.
+  Description: Parameter used to determine convergence of the Nelder-Mead method.
 
 - ``fatol``
 
   Format: Float (default: 1e-4)
 
-  Description: Parameters used to determine convergence of the Nelder-Mead method.
+  Description: Parameter used to determine convergence of the Nelder-Mead method.
 
 - ``maxiter``
 

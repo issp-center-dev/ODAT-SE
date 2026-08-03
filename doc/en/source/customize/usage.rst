@@ -8,9 +8,9 @@ The numbers of the steps correspond to the comments in the program example below
 
    - The classes provided by ODAT-SE can also be used.
 
-2. Prepare the input parameter, ``info: odatse.Info``.
+2. Prepare the input parameters as ``info: odatse.Info``.
 
-   - ``Info`` class has a class method to read input files in TOML format.
+   - The ``Info`` class has a class method that reads input files in TOML format.
      It is also possible to prepare a set of parameters as a dict and to pass it to the constructor of ``Info`` class.
 
 3. Call ``odatse.mpi.setup()`` (it partitions the MPI communicator and is required before constructing the solver/algorithm; ``odatse.initialize()`` does this automatically), then instantiate ``solver: Solver``, ``runner: odatse.Runner``, and ``algorithm: Algorithm``.

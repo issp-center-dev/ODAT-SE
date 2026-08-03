@@ -48,7 +48,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Format: String (default: "#")
 
-  Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+  Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
 
 - ``delimiter``
 
@@ -88,8 +88,8 @@ Mesh definition file
 
 Define the grid space to be explored in this file.
 1 + ``dimension`` columns are required.
-The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
-The lines starting from ``#`` are ignored as comments.
+The first column is the index of the mesh, and the second and subsequent columns are the values of the parameters.
+Lines starting with ``#`` are ignored as comments.
 
 A sample file for two dimensions is shown below.
 
@@ -112,11 +112,11 @@ Output file
 ``ColorMap.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This file contains the candidate parameters for each mesh and the function value at that time.
+This file contains the candidate parameters for each mesh and the corresponding function value.
 The file name can be changed by the ``colormap`` parameter in the ``[algorithm]`` section.
 The mesh data is listed in the order of the variables defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default), and the function value is listed last.
 
-Below, output example is shown.
+An example of the output is shown below.
 
 .. code-block::
 
@@ -141,7 +141,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initial state.
-  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
   #. the specified number of grid points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.

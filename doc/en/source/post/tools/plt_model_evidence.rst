@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   odatse_plt_model_evidence [OPTION]... -n NDATA FILEs
+   odatse_plt_model_evidence [OPTION]... -n NDATA FILE...
 
 
 DESCRIPTION
@@ -33,7 +33,7 @@ When multiple FILEs are specified, the average and standard deviation of their m
     Specifies the number of data points for each dataset as comma-separated integers. This is a required parameter. Examples: "100" (one dataset with 100 points), "50,100,75" (three datasets with 50, 100, and 75 points respectively)
 
 **-w WEIGHT, \-\-weight WEIGHT**
-    Specifies the relative weights between datasets as comma-separated values. Weights are automatically normalized to sum to 1.0. The number of weight values must match the number of data points.
+    Specifies the relative weights between datasets as comma-separated values. Weights are automatically normalized to sum to 1.0. The number of weight values must match the number of datasets.
 
 **-V VOLUME, \-\-Volume VOLUME**
     Specifies the normalization of the prior probability distribution (volume of the domain :math:`V_\Omega`). Default is 1.0.
@@ -51,7 +51,7 @@ When multiple FILEs are specified, the average and standard deviation of their m
     Sets the tightness for the ``--auto-focus`` option. It should be a float between 0 and 1 (lower is tighter), and when ``--auto-focus`` is not set, this argument does nothing. The default value is 0.5.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -187,4 +187,4 @@ Error Handling
 * If the data format is invalid: An error occurs in numpy.loadtxt
 * If the lengths of NDATA and WEIGHT do not match, or if a data count or weight is not positive: the program prints an error message and exits
 
-In particular, the number of data points list and their weights must always match.
+In particular, the list of data-point counts and the list of weights must always have the same length.

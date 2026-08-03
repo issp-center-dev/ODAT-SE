@@ -50,7 +50,7 @@ Common file
 
 ``time.log``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The total time taken for the calculation is outputted.
+The total time taken for the calculation is written.
 Only the rank-0 process of the algorithm layer writes this file, so it is placed at ``output_dir/0/time.log``.
 The time taken to initialize the calculation, to pre-process it, to compute, and to post-process it is listed in the ``init``, ``prepare``, ``run``, and ``post`` sections.
 
@@ -75,7 +75,7 @@ The items within the ``run`` section depend on the algorithm, the execution envi
 
 ``runner.log``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The log information about solver calls is outputted.
+The log information about solver calls is written.
 It is written for each rank of the algorithm layer, under its subfolder
 (when solver-level parallelism is used, the solver worker processes do not write it).
 The output is only available when the ``runner.log.interval`` parameter is a positive integer in the input.
