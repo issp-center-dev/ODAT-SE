@@ -96,23 +96,27 @@ The following standard output will be shown:
 .. code-block::
 
   # parameter
-  random_max_num_probes = 10
-  bayes_max_num_probes = 20
+  random_max_num_probes = 20
+  bayes_max_num_probes = 40
   score = TS
   interval = 5
   num_rand_basis = 5000
-  value_01 =  5.10000
-  value_02 =  4.90000
-  R-factor = 0.037237314010261195
-  0001-th step: f(x) = -0.037237 (action=150)
-     current best f(x) = -0.037237 (best action=150)
+  name            : bayes
+  seed            : 12345
+  param.min_list  : [-6.0, -6.0]
+  param.max_list  : [6.0, 6.0]
+  param.num_list  : [61, 61]
+  bayes.random_max_num_probes: 20
+  bayes.bayes_max_num_probes: 40
+  0001-th step: f(x) = -113.219200 (action=1604)
+     current best f(x) = -113.219200 (best action=1604)
 
-  value_01 =  4.30000
-  value_02 =  3.50000
+  0002-th step: f(x) = -263.123200 (action=3271)
+     current best f(x) = -113.219200 (best action=1604)
+
   ...
 
-A list of hyperparameters, followed by candidate parameters at each step and the corresponding function values are shown first.
-It also outputs the grid index (``action``) and ``f(x)`` of the best value at that time.
+A list of the hyperparameters is shown first, followed by the evaluated function value ``f(x)``, the grid index (``action``), and the best value found so far at each step.
 The final estimated parameters are output to ``output/BayesData.txt``.
 
 In this case, ``BayesData.txt`` can be seen as the following
