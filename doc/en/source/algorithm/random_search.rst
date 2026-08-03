@@ -116,7 +116,7 @@ Output files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This file contains the candidate parameters for each sample point and the objective function value at that point.
-The data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the objective function is listed last.
+The data is listed in the order of the variables defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default), and the value of the objective function is listed last.
 
 Below, an output example is shown.
 

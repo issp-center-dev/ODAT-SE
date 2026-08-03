@@ -121,7 +121,7 @@ Mesh definition file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Define the grid space to be explored in this file.
-The first column is the index of the mesh, and the second and subsequent columns are the values of variables defined in ``string_list`` in the ``[solver.param]`` section.
+The first column is the index of the mesh, and the second and subsequent columns are the values of the variables in the order defined by ``label_list`` in the ``[algorithm]`` section (``x1``, ``x2``, ... by default).
 
 Below, a sample file is shown.
 

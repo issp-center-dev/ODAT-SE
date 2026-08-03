@@ -182,7 +182,7 @@ Output files
 
 Outputs information about the process of finding the minimum value.
 The first line is a header, the second and subsequent lines are step,
-the values of variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file,
+the values of the variables in the order defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default),
 and finally the value of the function.
 
 The following is an example of the output.
@@ -216,7 +216,7 @@ in that order.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The value of the final objective function and the value of the parameters at that time are described.
-The objective function is listed first, followed by the values of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, in that order.
+The objective function is listed first, followed by the values of the variables in the order defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default).
 
 The following is an example of the output.
 

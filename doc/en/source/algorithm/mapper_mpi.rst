@@ -114,7 +114,7 @@ Output file
 
 This file contains the candidate parameters for each mesh and the function value at that time.
 The file name can be changed by the ``colormap`` parameter in the ``[algorithm]`` section.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the function value is listed last.
+The mesh data is listed in the order of the variables defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default), and the function value is listed last.
 
 Below, output example is shown.
 
