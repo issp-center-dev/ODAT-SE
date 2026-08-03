@@ -19,7 +19,7 @@ This directory includes the following files:
 
   Script files for running this tutorial
 
-In addition, ``plot_himmel.py`` in ``sample`` directory is used to visualize the result.
+In addition, ``plot_himmel.py`` in the ``sample/analytical`` directory is used to visualize the result.
 
 
 Input files
@@ -52,7 +52,7 @@ For details, see :ref:`the manual of bayes <bayes_input>`.
     bayes_max_num_probes = 40
 
 
-The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
+The contents of the ``[base]`` and ``[solver]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 

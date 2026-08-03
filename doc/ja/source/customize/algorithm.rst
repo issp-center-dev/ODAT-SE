@@ -330,7 +330,7 @@ runner を使用しないでください（初期評価は ``_run()`` で行い�
 
   - ``Info`` 型の引数の場合、 ``Info.algorithm.param`` から探索範囲の最小値・最大値・単位や初期値を取得します。
   - dict 型の引数の場合は ``Info.algorithm.param`` 相当の内容を辞書形式で受け取ります。
-  - 詳細は :ref:`min_search の入力ファイル <minsearch_input_param>` を参照してください。
+  - 詳細は :ref:`minsearch の入力ファイル <minsearch_input_param>` を参照してください。
 
 - ``initialize(self, rng, limitation, num_walkers)`` を呼んで初期値の設定を行います。
   引数は乱数発生器 ``rng``、制約条件 ``limitation``、walker の数 ``num_walkers`` です。

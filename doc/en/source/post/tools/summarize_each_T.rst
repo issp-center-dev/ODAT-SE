@@ -164,7 +164,7 @@ This script processes data in the following steps:
 Performance and Considerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* The `\-\-progress` option can be used to visualize progress when processing many files at once.
+* The ``--progress`` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
 * Each per-temperature output file is truncated on its first write within a run and appended to for the remaining input files, so re-running the tool overwrites the previous output rather than duplicating it.
 * If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.

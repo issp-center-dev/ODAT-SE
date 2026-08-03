@@ -108,10 +108,11 @@ combined形式のファイルは以下のような構造を持つ:
 複数のシミュレーション結果を一括処理する場合は、 ``-d`` オプションと ``--progress`` オプションを組み合わせると効率的。
 
 MCMCシミュレーションで一般的に使用されるタグの例:
- * ``trial.txt``: Monte Carlo の tiral step のログ
- * ``result.txt``: Monte Carlo の各ステップのログ
- * ``weight.txt``: PAMC計算でのウェイト値
- * ``time.txt``: 計算時間
+
+* ``trial.txt``: モンテカルロ法の trial step のログ
+* ``result.txt``: モンテカルロ法の各ステップのログ
+* ``weight.txt``: PAMC計算でのウェイト値
+* ``time.txt``: 計算時間
 
 
 エラー処理と出力

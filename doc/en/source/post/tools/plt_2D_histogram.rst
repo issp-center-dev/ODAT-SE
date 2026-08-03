@@ -24,7 +24,7 @@ Field names can be specified with the field_list option, or you can use paramete
 
 If FILE is not specified, files named result_*_summarized.txt in the directory specified by the data_dir option will be used as data files.
 
-The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--column x1,x2,x3`` will create histograms marginalized to the ``x1 vs x2`` axis, ``x1 vs x3`` axis, and ``x2 vs x3`` axis.
+The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--columns x1,x2,x3`` will create histograms marginalized to the ``x1 vs x2`` axis, ``x1 vs x3`` axis, and ``x2 vs x3`` axis.
 
 The histogram range can be specified with the range option. In that case, the same range will be used for all axes being displayed. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 

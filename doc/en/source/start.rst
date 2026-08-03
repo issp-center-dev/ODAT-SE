@@ -6,6 +6,7 @@ Prerequisites
 - Python3 (>=3.9)
 
   - The following Python packages are required:
+
     - tomli >= 1.2 : For reading configuration files in TOML format
     - numpy >= 1.14 : For numerical calculations
     - matplotlib >= 3 : For visualizing calculation results and plotting in the post-processing tools
@@ -38,6 +39,7 @@ You can install the ODAT-SE python package and the ``odatse`` command following 
 
 
   - The ``pip`` version must be 19 or higher (can be updated with ``python3 -m pip install -U pip``).
+
 - Download the sample files
 
   -  Sample files are included in the source code.

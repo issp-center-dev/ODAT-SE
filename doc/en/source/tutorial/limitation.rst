@@ -63,7 +63,7 @@ The following ``input.toml`` is an input file for the main program.
 
 - ``dimension`` is the number of variables to be optimized, and in this case, it is 2.
 
-- ``output`` is the name of directory for the output files.
+- ``output_dir`` is the name of the directory for the output files.
 
 ``[algorithm]`` section is the section to set the search algorithm.
 

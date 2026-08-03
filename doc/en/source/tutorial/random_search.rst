@@ -63,7 +63,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 In ``[algorithm.param]`` section, the parameters for the search are specified.
 
 - ``min_list`` and ``max_list`` are the minimum and the maximum values of each parameter.
-- ``num_points`` specifies the number of points along each parameter.
+- ``num_points`` specifies the total number of points to be generated.
 
 In this example, 100 points of parameters :math:`(x_1, x_2)` are generated randomly in the range :math:`-6.0 \leq x_1 \leq 6.0`, :math:`-6.0 \leq x_2 \leq 6.0` and the function values are evaluated.
 
@@ -129,7 +129,7 @@ A program ``plot_colormap_2d.py`` is prepared to generate such a plot of the two
 
   $ python3 plot_colormap_2d.py
 
-By executing the above command, ``ColorMapFig.png`` is generated in which the functional value evaluated at each point is shown as a color map on top of the contour of Himmelblau function.
+By executing the above command, ``output/ColorMapFig.pdf`` is generated in which the functional value evaluated at each point is shown as a color map on top of the contour of Himmelblau function.
 
 .. figure:: ../../../common/img/res_random_search.*
 

@@ -15,7 +15,7 @@ Preparation
 Input Parameters
 ~~~~~~~~~~~~~~~~
 
-[``algorithm.param``] section
+``[algorithm.param]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``min_list``
@@ -30,7 +30,7 @@ Input Parameters
 
   Description: The maximum value that each parameter can take.
 
-[``algorithm.ttopt``] section
+``[algorithm.ttopt]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following hyperparameters are supported:
@@ -39,7 +39,7 @@ The following hyperparameters are supported:
 
   Format: Integer or list of integer. The length should match the value of dimension.
 
-  Description: Bond dimension along each dimension. Each parameter is discretized into :math:`N_i = P_i^{q_i}` uniformly spaced points, which are represented by :math:`P_i` values taken by :math:`q_i` tensor legs. If an integer is provided, the same value is used for all dimensions. The default value is 2.
+  Description: Number of values :math:`P_i` taken by each tensor leg along each dimension. Each parameter is discretized into :math:`N_i = P_i^{q_i}` uniformly spaced points, which are represented by :math:`P_i` values taken by :math:`q_i` tensor legs. If an integer is provided, the same value is used for all dimensions. The default value is 2.
 
 - ``q_points``
 
@@ -79,9 +79,9 @@ The following hyperparameters are supported:
 
 - ``save_eval_history``
 
-  Format: Boolean (default: ``True``)
+  Format: Boolean (default: ``true``)
 
-  Description: If ``True``, each evaluated candidate is appended to ``ttopt_eval_history.txt`` (MPI rank 0 only). Rows are flushed to disk whenever the in-memory buffer reaches ``eval_history_buffer_rows`` evaluations.
+  Description: If ``true``, each evaluated candidate is appended to ``ttopt_eval_history.txt`` (MPI rank 0 only). Rows are flushed to disk whenever the in-memory buffer reaches ``eval_history_buffer_rows`` evaluations.
 
 - ``eval_history_buffer_rows``
 
@@ -90,11 +90,12 @@ The following hyperparameters are supported:
   Description: Frequency :math:`N_{\mathrm{flush}}` of writing to ``ttopt_eval_history.txt``. :math:`N_{\mathrm{flush}}` evaluations are written together.
 
 Output Files
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 ``ttopt_hyperparameters.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 At the end of the preparation phase (``prepare``), rank 0 writes the main hyperparameters, one field per line:
+
 .. code-block::
 
     nprocs = 1
@@ -163,7 +164,7 @@ Algorithm Description
 Tensor Train Optimization (TTOpt) [1] is a method for finding the optimum of a discrete function and its location in the parameter space. It can be easily adapted to continuous optimization problems and is able to handle high-dimensional problems and functions whose parameters are a combination of discrete and continuous quantities.
 
 TTOpt is a gradient-free optimization scheme based on repeated cross-approximation of a large tensor whose elements correspond to values of the objective function :math:`f(x_1, x_2, ..., x_n)` indexed by parameter combinations :math:`(x_1, x_2, ..., x_n)`. The cross-approximation is computed using approximate maximum-volume submatrices.
-Each parameter :math:`x_i` is discretized into :math:`N_i = P_i^{q_i}` uniformly spaced points, which are represented by :math:`P_i` values taken by :math:`q_i` tensor legs. This way, the objective function is represented as a :math:`\prod_i q_i`-rank tensor.
+Each parameter :math:`x_i` is discretized into :math:`N_i = P_i^{q_i}` uniformly spaced points, which are represented by :math:`P_i` values taken by :math:`q_i` tensor legs. This way, the objective function is represented as a :math:`\sum_i q_i`-rank tensor.
 The TTOpt algorithm decomposes this high-dimensional tensor into a network of 3-rank tensors (MPS, tensor train).
 
 The algorithm is designed such that only a small part of the whole large tensor needs to be explicitly computed. Thus, this approach is advantageous when the objective function is computationally costly or when the search space is very large. Furthermore, by representing the data in MPS form, we can avoid having to form exponentially large matrices in the optimization process.

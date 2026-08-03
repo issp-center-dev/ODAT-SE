@@ -13,9 +13,9 @@ This directory includes the following files:
 
   The input file of odatse
 
-- ``plot_result_2d.py``
+- ``plot_result_2d.py``, ``plot_result_2dmap.py``
 
-  Program to visualize the results
+  Programs to visualize the results
 
 - ``do.sh``
 

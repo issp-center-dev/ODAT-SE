@@ -88,7 +88,7 @@ where :math:`M` is the number of constraint equations (arbitrary).
 
 - ``co_b``
 
-  Format: List of float, or a string (default: ``[]``)
+  Format: List of lists of float (a column vector), or a string (default: ``[]``)
 
   Description:
   :math:`M` dimensional vector :math:`b` for the constraint equations.
@@ -97,11 +97,11 @@ where :math:`M` is the number of constraint equations (arbitrary).
 
 For example, both ::
 
-  A = [[1,1], [0,1]]
+  co_a = [[1,1], [0,1]]
 
 and ::
 
-  A = """
+  co_a = """
   1 1
   0 1
   """
@@ -168,7 +168,7 @@ Setting parameters related to logging of solver calls.
   Format: Integer (default: 0)
 
   Description:
-  The log will be written out every time solver is called ``interval`` times.
+  Every solver call is recorded; this value specifies how many entries are buffered before they are flushed to the log file.
   If the value is less than or equal to 0, no log will be written.
 
 - ``write_result``

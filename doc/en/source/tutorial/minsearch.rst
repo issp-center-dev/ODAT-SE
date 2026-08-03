@@ -27,7 +27,7 @@ The following files are stored in the folder.
 
   Script prepared for doing all calculation of this tutorial
 
-In addition, ``plot_himmel.py`` in the ``sample`` folder is used to visualize the result.
+In addition, ``plot_himmel.py`` in the ``sample/analytical`` folder is used to visualize the result.
 
 
 Input file

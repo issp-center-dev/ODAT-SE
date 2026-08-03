@@ -229,7 +229,7 @@ Otherwise, continuous space is used.
 About the number of steps
 """""""""""""""""""""""""""""
 
-Specify just two of ``numstep``, ``numsteps_annealing``, and ``Tnum``.
+Specify just two of ``numsteps``, ``numsteps_annealing``, and ``Tnum``.
 The value of the remaining one will be determined automatically.
 
 .. note::
@@ -316,7 +316,7 @@ This is a combination of all the ``trial_T#.txt`` in one.
 ``RANK/result_T#.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 This file stores the sampled parameters and the corresponding value returned from the solver for each replica and each temperature.
-This has the same format as ``trial.txt``.
+This has the same format as ``trial_T#.txt``.
 
 .. code-block::
 

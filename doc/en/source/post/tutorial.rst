@@ -65,7 +65,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
 .. note::
 
-   If export_combined_files is set to True, logs are consolidated in combined.txt.
+   If ``export_combined_files`` is set to ``true``, logs are consolidated in ``combined.txt``.
    Use :doc:`tools/extract_combined` to extract result.txt.
 
    .. code-block:: bash
@@ -74,7 +74,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
 .. note::
 
-   If separate_T is False, logs are output to result.txt.
+   If ``separate_T`` is ``false``, logs are output to ``result.txt``.
    Use :doc:`tools/separateT` to split into files by temperature point.
 
    .. code-block:: bash
@@ -127,7 +127,7 @@ For detailed options, see :doc:`tools/summarize_each_T`.
 4. Creating 1D and 2D Marginalized Histograms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Plot weighted posterior probability distributions :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}` using replica configuration data.
+Plot weighted posterior probability distributions :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i;\beta) P(z_i)}{P(D;\beta)}` using replica configuration data.
 
 Focus on temperature points near the optimal :math:`\beta` identified in Step 2 to examine the parameter distributions.
 

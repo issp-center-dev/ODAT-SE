@@ -52,7 +52,7 @@
     bayes_max_num_probes = 40
 
 
-``[base]``, ``[solver]``, ``[runner]`` のセクションについては Nelder-Mead法による探索(``minsearch``)の場合と同じです。
+``[base]``, ``[solver]`` のセクションについては Nelder-Mead法による探索(``minsearch``)の場合と同じです。
 
 ``[algorithm]`` セクションでは、使用するアルゴリスムとその設定をします。
 

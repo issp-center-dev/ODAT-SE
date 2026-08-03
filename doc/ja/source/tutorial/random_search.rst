@@ -61,7 +61,7 @@
 
 - ``seed`` はパラメータ生成に用いる疑似乱数のシードを指定します。
 
-``[algorithm.param]`` セクションで探索するパラメータのグリッドを指定します。
+``[algorithm.param]`` セクションで探索するパラメータの範囲を指定します。
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
 
@@ -132,7 +132,7 @@
 
     $ python3 plot_colormap_2d.py
 
-上記を実行すると ``ColorMapFig.png`` が作成され、Himmelblau関数の関数値を表す等高線の上に、各点で評価した関数値がカラーマップとしてプロットされます。
+上記を実行すると ``output/ColorMapFig.pdf`` が作成され、Himmelblau関数の関数値を表す等高線の上に、各点で評価した関数値がカラーマップとしてプロットされます。
 
 .. figure:: ../../../common/img/res_random_search.*
 

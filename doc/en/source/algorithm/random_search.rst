@@ -141,7 +141,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program is started from the initial state.
   If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
 
-  #. the specified number of grid points has been evaluated, or the specified period of time has passed.
+  #. the specified number of sample points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``

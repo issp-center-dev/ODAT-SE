@@ -422,8 +422,8 @@ The MH method splits the transition process into the suggestion process and the 
 
 2. Accept the candidate :math:`\vec{x}` with the acceptance probability :math:`Q(\vec{x} | \vec{x}_t)`.
 
-   - If accepted, let :math:`\vec{x}_{t+1}` be `\vec{x}`.
-   - Otherwise, let :math:`\vec{x}_{t+1}` be `\vec{x}_t`.
+   - If accepted, let :math:`\vec{x}_{t+1}` be :math:`\vec{x}`.
+   - Otherwise, let :math:`\vec{x}_{t+1}` be :math:`\vec{x}_t`.
 
 The whole transition probability is the product of these two ones, :math:`p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)`.
 The acceptance probability :math:`Q(\vec{x} | \vec{x}_t)` is defined as
