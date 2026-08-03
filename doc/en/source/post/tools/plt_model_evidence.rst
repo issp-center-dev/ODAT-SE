@@ -112,10 +112,10 @@ where :math:`Z(D;\beta)` is the partition function:
 
 and:
 
- * :math:`V_\Omega`: Normalization factor of the prior probability distribution
- * :math:`n_\mu`: Number of data points in each dataset
- * :math:`n`: Total number of data points (sum of all datasets)
- * :math:`\beta`: Inverse temperature
+* :math:`V_\Omega`: Normalization factor of the prior probability distribution
+* :math:`n_\mu`: Number of data points in each dataset
+* :math:`n`: Total number of data points (sum of all datasets)
+* :math:`\beta`: Inverse temperature
 
 Input File Format
 ~~~~~~~~~~~~~~~~~

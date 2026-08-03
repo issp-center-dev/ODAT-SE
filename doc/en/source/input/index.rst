@@ -60,16 +60,16 @@ The ``name`` determines the type of solver. Each parameter is defined for each s
 
   Description: Name of the solver. The following solvers are available.
 
-    - ``analytical`` : Solver to provide analytical solutions (mainly used for testing).
+  - ``analytical`` : Solver to provide analytical solutions (mainly used for testing).
 
-    The following are solvers for 2D material structure analysis distributed as separate modules:
+  The following are solvers for 2D material structure analysis distributed as separate modules:
 
-    - ``sim-trhepd-rheed`` :
-      Solver to calculate Total-reflection high energy positron diffraction (TRHEPD) or Reflection High Energy Electron Diffraction (RHEED) intensities.
+  - ``sim-trhepd-rheed`` :
+    Solver to calculate Total-reflection high energy positron diffraction (TRHEPD) or Reflection High Energy Electron Diffraction (RHEED) intensities.
 
-    - ``sxrd`` : Solver for Surface X-ray Diffraction (SXRD)
+  - ``sxrd`` : Solver for Surface X-ray Diffraction (SXRD)
 
-    - ``leed`` : Solver for Low-energy Electron Diffraction (LEED)
+  - ``leed`` : Solver for Low-energy Electron Diffraction (LEED)
 
 - ``dimension``
 
