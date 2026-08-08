@@ -37,5 +37,5 @@ If mpi4py is not installed, ODAT-SE automatically falls back to serial mode.
 
 However, the following algorithms require or strongly benefit from MPI parallelization:
 
-- ``exchange``: Requires at least as many processes as replicas
+- ``exchange``: Distributes replicas across processes (runs with 1 process; the total number of replicas is the number of processes times ``nreplica_per_proc``)
 - ``mapper``: Distributes grid points across processes (runs with 1 process but is very slow for large grids)

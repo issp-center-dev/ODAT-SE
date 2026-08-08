@@ -43,7 +43,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Format: String (default: "#")
 
-  Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+  Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
 
 - ``delimiter``
 
@@ -65,7 +65,7 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
 - ``max_list``
 
-  Format: List of float.The length should match the value of dimension.
+  Format: List of float. The length should match the value of dimension.
 
   Description: The maximum value the parameter can take.
 
@@ -73,13 +73,13 @@ If ``mesh_path`` is not defined, candidate points are automatically generated fr
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description: The number of grids the parametar can take at each dimension.
+  Description: The number of grids the parameter can take at each dimension.
 
 
 ``[algorithm.bayes]`` section
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The hyper parameters are defined.
+The hyperparameters are defined.
 
 - ``random_max_num_probes``
 
@@ -121,7 +121,7 @@ Mesh definition file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Define the grid space to be explored in this file.
-The first column is the index of the mesh, and the second and subsequent columns are the values of variables defined in ``string_list`` in the ``[solver.param]`` section.
+The first column is the index of the mesh, and the second and subsequent columns are the values of the variables in the order defined by ``label_list`` in the ``[algorithm]`` section (``x1``, ``x2``, ... by default).
 
 Below, a sample file is shown.
 
@@ -168,10 +168,10 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   First, it performs the random sampling for the number of times specified by ``random_max_num_probes`` parameter.
   Then, it performs the Bayes optimization for the number of times specified by ``bayes_max_num_probes``.
 
-  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
   #. when the random sampling is finished.
-  #. during the Bayesian optimization, the specified number of iteration has been done, or the specified period of time has passed.
+  #. during the Bayesian optimization, the specified number of iterations has been performed, or the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``
@@ -179,14 +179,14 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution is resumed from the latest checkpoint.
   The conditions such as the number of MPI processes should be kept the same.
 
-  It is noted that the results obtaind from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
+  It is noted that the results obtained from the resumed run from the interruption and those obtained from the uninterrupted run do not exactly match.
 
 - ``"continue"``
 
   The program execution of the Bayes optimization is continued from the previous run.
   The value of ``bayes_max_num_probes`` should be increased. The step counter is taken over.
 
-  For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with ``bayes_max_num_probes=100``. In the next run, the calculation is continued with ``bayes_max_num_probes=200``, where the calculations from 101st step to 200th step are carried out.
+  For example: in the first run, the calculation is carried out for 100 Bayesian optimization steps with ``bayes_max_num_probes=100``. In the next run, the calculation is continued with ``bayes_max_num_probes=200``, where the calculations from the 101st step to the 200th step are carried out.
 
 
 Algorithm Description
@@ -195,11 +195,11 @@ Algorithm Description
 `Bayesian optimization (BO) <https://en.wikipedia.org/wiki/Bayesian_optimization>`_ is an optimization algorithm that uses machine learning as an aid, and is particularly powerful when it takes a long time to evaluate the objective function.
 
 In BO, the objective function :math:`f(\vec{x})` is approximated by a model function (often a Gaussian process) :math:`g(\vec{x})` that is quick to evaluate and easy to optimize.
-The :math:`g` is trained to reproduce well the value of the objective function :math:`\{\vec{x}_i\}_{i=1}^N` at some suitably predetermined points (training data set) :math:`\{f(\vec{x}_i)\}_{i=1}^N`.
+The :math:`g` is trained to reproduce the values of the objective function :math:`\{f(\vec{x}_i)\}_{i=1}^N` at suitably chosen points (the training data set) :math:`\{\vec{x}_i\}_{i=1}^N`.
 
-At each point in the parameter space, we propose the following candidate points for computation :math:`\vec{x}_{N+1}`, where the expected value of the trained :math:`g(\vec{x})` value and the "score" (acquisition function) obtained from the error are optimal.
-The training is done by evaluating :math:`f(\vec{x}_{N+1})`, adding it to the training dataset, and retraining :math:`g`.
-After repeating these searches, the best value of the objective function as the optimal solution will be returned.
+The next candidate point :math:`\vec{x}_{N+1}` is chosen as the point that optimizes the "score" (acquisition function), which is computed from the expected value of the trained :math:`g(\vec{x})` and its error.
+The search proceeds by evaluating :math:`f(\vec{x}_{N+1})`, adding it to the training data set, and retraining :math:`g`.
+After repeating this procedure, the best value of the objective function found is returned as the optimal solution.
 
 A point that gives a better expected value with a smaller error is likely to be the correct answer,
 but it does not contribute much to improving the accuracy of the model function because it is considered to already have enough information.

@@ -33,9 +33,9 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
   Format: Integer
 
   Description:
-  A parameter to specify seeds of the pseudo-random number generator used for random generation of initial values, Monte Carlo updates, etc.
-  For each algorithm process, the value of ``seed + algrank * seed_delta`` is given as seeds, where ``algrank`` is the process rank in the algorithm layer (independent of the solver parallelism ``nsolve``).
-  If omitted, the initialization is done by  `the Numpy's prescribed method <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_.
+  A parameter to specify the seed of the pseudo-random number generator used for random generation of initial values, Monte Carlo updates, etc.
+  For each algorithm process, the value of ``seed + algrank * seed_delta`` is used as the seed, where ``algrank`` is the process rank in the algorithm layer (independent of the solver parallelism ``nsolve``).
+  If omitted, the initialization is done by `NumPy's prescribed method <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`_.
 
 - ``seed_delta``
 
@@ -50,15 +50,15 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
   Format: Boolean (default: false)
 
   Description:
-  A parameter to specify whether the intermediate states are periodically stored to files. The final state is also saved. In case when the execution is terminated, it will be resumed from the latest checkpoint.
+  A parameter to specify whether the intermediate states are periodically stored to files. The final state is also saved. If the execution is terminated, it can be resumed from the latest checkpoint.
 
 - ``checkpoint_steps``
 
   Format: Integer (default: 16,777,216)
 
   Description:
-  A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in  the Monte Carlo (exchange and PAMC) algorithms.
-  The default value is a sufficiently large number of steps. To enable checkpointing, at least either of ``checkpoint_steps`` or ``checkpoint_interval`` should be specified.
+  A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of a grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in the Monte Carlo (exchange and PAMC) algorithms.
+  The default value is a sufficiently large number of steps. To enable checkpointing, at least one of ``checkpoint_steps`` and ``checkpoint_interval`` should be specified.
 
 - ``checkpoint_interval``
 
@@ -66,16 +66,16 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description:
   A parameter to specify the execution time between the previous and next checkpoints in unit of seconds.
-  The default value is a sufficiently long period (360 days). To enable checkpointing, at least either of ``checkpoint_steps`` or ``checkpoint_interval`` should be specified.
+  The default value is a sufficiently long period (360 days). To enable checkpointing, at least one of ``checkpoint_steps`` and ``checkpoint_interval`` should be specified.
 
 - ``checkpoint_file``
 
   Format: String (default: ``"status.pickle"``)
 
   Description:
-  A parameter to specify the name of output file to which the intermediate state is written.
+  A parameter to specify the name of the output file to which the intermediate state is written.
   The files are generated in the output directory of each process.
-  The past three generations are kept with the suffixes .1, .2, and .3 .
+  The past three generations are kept with the suffixes .1, .2, and .3.
 
 
 See :doc:`/algorithm/index` for details of the various algorithms and their input/output files.

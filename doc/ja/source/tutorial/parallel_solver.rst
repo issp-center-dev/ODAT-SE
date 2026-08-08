@@ -11,18 +11,18 @@
 
 ODAT-SE のワークフローは2つの段階からなります。探索 *アルゴリズム* がパラメータ空間中の候補点を提案し、 *ソルバー* がその点で目的関数を評価します。ODAT-SE は、この両方の段階を MPI で同時に並列化できます。
 
-- **アルゴリズム層の並列** (``nalg`` プロセス): 探索空間を、独立した評価に分散します。
+- **アルゴリズム層の並列** (``nalg`` プロセス): 複数の候補点の評価を、独立に各プロセスへ分散します。
 - **ソルバー層の並列** (グループあたり ``nsolve`` プロセス): 1回の評価の計算を、プロセスのグループ内で分散します。
 
 MPI プロセスの総数は ``nalg × nsolve`` です。
 
 各層のプロセス数はコマンドラインで ``--nalg`` と ``--nsolve`` として与え、 ``odatse.initialize()`` がそれらを ``odatse.mpi.setup()`` へ渡します。例えば
 
-.. code:: bash
+.. code-block:: bash
 
     mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
-は、3個のアルゴリズムプロセスとグループあたり2個のソルバープロセス、合計6 MPI ランクで実行します。
+は、3個のアルゴリズムプロセスとグループあたり2個のソルバープロセス、合計 6 MPI ランクで実行します。
 
 各ソルバープロセス内のスレッド並列(例えば NumPy が呼び出す BLAS ルーチン)は、環境変数 ``OMP_NUM_THREADS`` で別途制御します。ODAT-SE 自体はスレッドを管理しません。
 
@@ -33,7 +33,7 @@ MPI プロセスの総数は ``nalg × nsolve`` です。
 2つの層の設定方法
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...)`` がグローバルコミュニケータ(``MPI_COMM_WORLD``)を ``nalg`` 個のソルバーサブコミュニケータ(``solcomm``)に分割します。各 ``solcomm`` はそれぞれ ``nsolve`` プロセスを持ちます。各 ``solcomm`` でランク0のプロセスがグループの *コントローラ* となり探索アルゴリズムに参加します。コントローラ全体がアルゴリズムサブコミュニケータ(``algcomm``)を構成します。コントローラは各グループの最小ランクなので、グローバルランク0は常にコントローラです。
+ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...)`` がグローバルコミュニケータ(``MPI_COMM_WORLD``)を ``nalg`` 個のソルバーサブコミュニケータ(``solcomm``)に分割します。各 ``solcomm`` はそれぞれ ``nsolve`` プロセスを持ちます。各 ``solcomm`` でランク 0 のプロセスがグループの *コントローラ* となり探索アルゴリズムに参加します。コントローラ全体がアルゴリズムサブコミュニケータ(``algcomm``)を構成します。コントローラは各グループの最小ランクなので、グローバルランク 0 は常にコントローラです。
 
 ``odatse.mpi`` モジュールは以下のアクセサを提供します。グローバル層のものと ``enabled()`` はすぐに利用でき、ソルバー層・アルゴリズム層のものは ``setup()`` の呼び出し後に利用可能です。
 
@@ -56,9 +56,9 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 カスタムソルバーの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-おもちゃの問題として、与えられた個数 ``nmats`` の ``matsize × matsize`` のランダム行列について、最大特異値の平均を最小化する整数シードを ``{1, …, 20}`` から探します。ソルバーは ``odatse.solver.SolverBase`` のサブクラスです(スクリプト全体は ``sample/parallel_solver/parallel_solver.py``)。
+簡単な例題として、与えられた個数 ``nmats`` の ``matsize × matsize`` のランダム行列について、最大特異値の平均を最小化する整数シードを ``{1, …, 20}`` から探します。ソルバーは ``odatse.solver.SolverBase`` のサブクラスです(スクリプト全体は ``sample/parallel_solver/parallel_solver.py``)。
 
-.. code:: python
+.. code-block:: python
 
     import os, time, argparse
     import numpy as np
@@ -120,7 +120,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 スクリプトは ``main()`` の中で ODAT-SE のパイプラインを組み立てます。``--nalg`` / ``--nsolve`` を解析し、それらを ``odatse.initialize()`` (内部で ``odatse.mpi.setup()`` を呼ぶ)に渡し、ソルバーとランナーを構築し、アルゴリズムを選択して実行します。``alg.main()`` はアルゴリズムが見つけた最適解を辞書で返します。``mapper`` アルゴリズムの場合、キー ``x`` (最小点の座標)、``fx`` (そこでの目的関数値)、``index`` (最小点のメッシュ番号)を持ちます。全ソルバーグループにわたる最良解はアルゴリズム内部で ``algcomm`` 上ですでに集約済みなので、ドライバーは戻り値から読み取るだけです。
 
-.. code:: python
+.. code-block:: python
 
     def main():
         parser = argparse.ArgumentParser()
@@ -152,7 +152,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 入力ファイル ``input.toml`` は ``mapper`` アルゴリズムを選択し、探索範囲とソルバーのパラメータを設定します。
 
-.. code:: toml
+.. code-block:: toml
 
     [base]
     dimension = 1
@@ -182,14 +182,14 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 MPI プロセスの総数は ``nalg × nsolve`` と一致している必要があります。3個のアルゴリズムプロセスとグループあたり2個のソルバープロセス(合計6ランク)、各プロセス2 BLAS スレッドの場合は次のようにします。
 
-.. code:: bash
+.. code-block:: bash
 
     export OMP_NUM_THREADS=2
     mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
 サンプルの ``do.sh`` はより小さな構成で実行します。
 
-.. code:: bash
+.. code-block:: bash
 
     export OMP_NUM_THREADS=2
     mpirun -np 4 python3 parallel_solver.py -m 2 -n 2
@@ -201,6 +201,6 @@ MPI プロセスの総数は ``nalg × nsolve`` と一致している必要が�
 が ``False`` になり、コミュニケータが利用できません)。1 プロセスだけでも
 ``mpirun`` / ``mpiexec`` で起動してください。
 
-.. code:: bash
+.. code-block:: bash
 
     mpirun -np 1 python3 parallel_solver.py --nalg 1 --nsolve 1

@@ -41,7 +41,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, the name of the file being processed will be displayed as a message instead.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -121,7 +121,7 @@ Performance
 * Files are processed line by line, so memory usage is kept low even for very large files
 * Data for each temperature point is buffered in memory, so memory usage may increase if there is a large amount of data for a single temperature point
 * Processing time increases with the size of the input file, but is relatively fast due to line-by-line processing
-* When processing multiple files, you can use the `\-\-progress` option to monitor progress
+* When processing multiple files, you can use the ``--progress`` option to monitor progress
 
 Error Handling
 ~~~~~~~~~~~~~~

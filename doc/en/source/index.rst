@@ -41,8 +41,6 @@ More Information
   Learn the background, scope, and references of ODAT-SE.
 - :doc:`Tools <tools/index>`
   See the neighbor-list utility and post-processing tools.
-- :doc:`Related Resources <gallery>`
-  Browse sample datasets and solver templates.
 - :doc:`Contact <contact>`
   Check how to report bugs and how to get in touch.
 

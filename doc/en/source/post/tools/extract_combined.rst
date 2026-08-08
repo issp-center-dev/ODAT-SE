@@ -40,7 +40,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
     Displays a progress bar during execution. Requires the tqdm library. If tqdm is not installed, the name of the file being processed will be displayed instead.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -102,7 +102,7 @@ General Workflow
 
 This script is used when analyzing MCMC simulation results:
 
-1. When MCMC simulation is run with the export_combined_files option enabled, ``combined.txt`` files are generated.
+1. When MCMC simulation is run with the ``export_combined_files`` option enabled, ``combined.txt`` files are generated.
 2. Use ``odatse_extract_combined`` to extract necessary files.
 3. Analyze or plot the extracted data files with other tools.
 

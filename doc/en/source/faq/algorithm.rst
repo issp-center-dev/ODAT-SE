@@ -22,7 +22,7 @@ Choose based on the number of parameters and the nature of your objective functi
      - Surrogate model via Gaussian process regression. Minimizes evaluations. Requires physbo
    * - ``mapper``
      - Overview of parameter space. Few parameters (2-3)
-     - Evaluates all grid points. Computation explodes with more parameters
+     - Evaluates all grid points. Computational cost grows explosively with the number of parameters
    * - ``exchange``
      - Multimodal objective function, broad search
      - Replica exchange method. Avoids local minima. Requires MPI

@@ -23,11 +23,11 @@
 
 次のオプションが利用できます。
 
-- ``-o output`` or ``--output output``
+- ``-o output``, ``--output output``
 
   - 出力ファイル名 (default: ``neighborlist.txt``)
 
-- ``-u "unit1 unit2..."`` or ``--unit "unit1 unit2"``
+- ``-u "unit1 unit2..."``, ``--unit "unit1 unit2"``
 
   - 各次元の長さスケール (default: すべて 1.0)
 
@@ -36,12 +36,12 @@
 
   - 各座標はあらかじめこれらの長さスケールで除算されます
 
-- ``-r radius`` or ``--radius radius``
+- ``-r radius``, ``--radius radius``
 
   - 近傍とみなされるユークリッド距離 (default: 1.0)
   - 距離は ``-u`` で除されたあとの座標に対して計算されます
 
-- ``-q`` or ``--quiet``
+- ``-q``, ``--quiet``
 
   - 進捗バーを表示しません
   - なお、進捗バーの表示には ``tqdm`` python パッケージが必要です
@@ -59,7 +59,7 @@
 MPIを用いた並列計算
 ^^^^^^^^^^^^^^^^^^^
 
-MPI を用いて計算を高速化できます。例えば、``mpirun`` コマンドを使用する場合は以下のように実行します：
+MPI を用いて計算を高速化できます。例えば、``mpirun`` コマンドを使用する場合は以下のように実行します。
 
 .. code-block:: bash
 

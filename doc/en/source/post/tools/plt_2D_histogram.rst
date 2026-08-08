@@ -24,7 +24,7 @@ Field names can be specified with the field_list option, or you can use paramete
 
 If FILE is not specified, files named result_*_summarized.txt in the directory specified by the data_dir option will be used as data files.
 
-The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--column x1,x2,x3`` will create histograms marginalized to the ``x1 vs x2`` axis, ``x1 vs x3`` axis, and ``x2 vs x3`` axis.
+The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--columns x1,x2,x3`` will create histograms marginalized onto the ``x1``-``x2``, ``x1``-``x3``, and ``x2``-``x3`` planes.
 
 The histogram range can be specified with the range option. In that case, the same range will be used for all axes being displayed. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 
@@ -87,7 +87,7 @@ USAGE
    2dhist/2Dhistogram_file_x1_vs_x3.png,
    2dhist/2Dhistogram_file_x2_vs_x3.png are output.
 
-2. When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 2dhist directory.
+2. Input data files result_T0_summarized.txt to result_T10_summarized.txt are prepared in the data directory, and the output destination is set to the 2dhist directory.
 
    .. code-block:: bash
 
@@ -129,7 +129,7 @@ USAGE
 
       $ odatse_plt_2D_histogram --config conf.toml
 
-   Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*.png.
+   Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*_z1_vs_z2.png.
 
 NOTES
 -----

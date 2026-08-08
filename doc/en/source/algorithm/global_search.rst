@@ -35,7 +35,7 @@ MPI parallelization
 Under MPI, algorithm rank 0 drives the optimizer while the other ranks act
 as evaluation servers. For differential evolution, the candidate points of a
 whole generation are distributed to the ranks at once; for shgo, the
-evaluation points of the sampling phase are. Each rank evaluates its share
+evaluation points of the sampling phase are distributed in the same way. Each rank evaluates its share
 with its own solver group. The point-level parallelism (number of algorithm
 ranks) composes with the solver-side parallelism (``nsolve``), giving two
 levels of parallelization.

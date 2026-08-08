@@ -7,7 +7,7 @@ Solver for benchmarking, ``analytical``
 ODAT-SE provides the ``analytical`` solver as a direct problem solver that can be used to test search algorithms.
 
 To use the ``analytical`` solver, the users may set the ``name`` parameter in the ``[solver]`` section to ``"analytical"``, and choose the benchmark function ``f(x)`` in the ``function_name`` parameter.
-For example, to use Himmelblau function, make an input file including the following lines:
+For example, to use the Himmelblau function, make an input file including the following lines:
 
 .. code-block:: toml
 
@@ -15,7 +15,7 @@ For example, to use Himmelblau function, make an input file including the follow
     name = "analytical"
     function_name = "himmelblau"
 
-For details of ``analytical`` solver, see :doc:`the reference of the analytical solver <../solver/index>`.
+For details of the ``analytical`` solver, see :doc:`the reference of the analytical solver <../solver/analytical>`.
 
 
 How to add a direct problem solver
@@ -28,13 +28,13 @@ As an example, we will explain the case of adding `the Booth function <https://e
 
     f(x,y) = (x+2y-7)^2 + (2x+y-5)^2.
 
-(The minimum point is :math:`f(1,3) = 0`.)
+(The minimum is :math:`f(1,3) = 0`.)
 
 To do so, we need to download the source code of ODAT-SE and edit the file of ``analytical`` solver.
 For instructions on how to download the source code and run ``odatse`` from the source code, see :doc:`how to install <../start>`.
-``analytical`` solver is defined in the ``src/odatse/solver/analytical.py``, so we will edit this.
+The ``analytical`` solver is defined in ``src/odatse/solver/analytical.py``, so we will edit that file.
 
-First, define the booth function as follows:
+First, define the Booth function as follows:
 
 .. code-block:: python
 

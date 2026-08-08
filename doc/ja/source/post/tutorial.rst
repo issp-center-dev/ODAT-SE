@@ -37,7 +37,7 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 例として TRHEPD 順問題ソルバー (odatse-STR) の計算例を取り上げます。
 パラメータの次元は 3 で、温度点は T=1.0 から 1.0e-6 まで対数スケールで 51点とっています。
 各 annealing の MCMC ステップ数は 20。
-レプリカ数はプロセスあたり 100 x 4 MPIプロセスとします。
+レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。
 
 計算結果は output 以下に出力されます。
 主な出力ファイルは以下の2種類です。
@@ -61,11 +61,11 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
    1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
    ...
 
-各行は温度点に対応し、逆温度 beta、f(x) の平均値・分散、レプリカ数、分配関数の対数比、受容率が記録されています。
+各行は温度点に対応し、逆温度 beta、f(x) の平均値・標準誤差、レプリカ数、分配関数の対数比、採択率が記録されています。
 
 .. note::
 
-   export_combined_files を True にしている場合はログが combined.txt に集約されています。
+   ``export_combined_files`` を ``true`` にしている場合はログが ``combined.txt`` に集約されています。
    :doc:`tools/extract_combined` を使って result.txt を取り出してください。
 
    .. code-block:: bash
@@ -74,7 +74,7 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 
 .. note::
 
-   separate_T が False の場合はログが result.txt に出力されます。
+   ``separate_T`` が ``false`` の場合はログが ``result.txt`` に出力されます。
    :doc:`tools/separateT` を使って温度点ごとのファイルに分割してください。
 
    .. code-block:: bash
@@ -127,7 +127,7 @@ summarized/ 以下に result_T{index}_summarized.txt として書き出されま
 4. 1次元および2次元周辺化ヒストグラムを作成する
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-replica配置のデータを用いて、重み付けされた事後確率分布 :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}` をプロットします。
+replica配置のデータを用いて、重み付けされた事後確率分布 :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i;\beta) P(z_i)}{P(D;\beta)}` をプロットします。
 
 Step 2 で特定した最適な :math:`\beta` 付近の温度点に注目して、パラメータの分布を確認します。
 

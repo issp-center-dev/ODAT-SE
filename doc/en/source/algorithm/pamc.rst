@@ -32,7 +32,7 @@ Otherwise, continuous space is used.
 
     Description:
     Initial value of parameters.
-    If not defined, these will be initialize randomly.
+    If not defined, these will be initialized randomly.
 
   - ``min_list``
 
@@ -79,7 +79,7 @@ Otherwise, continuous space is used.
 
     Format: String (default: "#")
 
-    Description: Character(s) that indicates the beginning of a comment line when reading the mesh definition file.
+    Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
 
   - ``delimiter``
 
@@ -146,7 +146,7 @@ Otherwise, continuous space is used.
 
   Format: Integer
 
-  Description: The number of interval Monte Carlo steps between lowering "temperature".
+  Description: The number of Monte Carlo steps between successive temperature reductions.
 
 - ``Tnum``
 
@@ -190,14 +190,14 @@ Otherwise, continuous space is used.
 
   Format: Integer (default: 1)
 
-  Description: The number of replicas in a MPI process.
+  Description: The number of replicas in an MPI process.
   The total number of replicas (population size) is given by "number of MPI processes × ``nreplica_per_proc``".
 
 - ``resampling_interval``
 
   Format: Integer (default: 1)
 
-  Description: The number of annealing processes between resampling of the replicas.
+  Description: The number of annealing steps between resamplings of the replicas.
 
 - ``fix_num_replicas``
 
@@ -229,7 +229,7 @@ Otherwise, continuous space is used.
 About the number of steps
 """""""""""""""""""""""""""""
 
-Specify just two of ``numstep``, ``numsteps_annealing``, and ``Tnum``.
+Specify just two of ``numsteps``, ``numsteps_annealing``, and ``Tnum``.
 The value of the remaining one will be determined automatically.
 
 .. note::
@@ -265,9 +265,9 @@ Below, a sample file is shown.
 Neighborhood-list file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before searching in the discrete space by Markov Chain Monte Carlo method,
-we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
-A neighborhood-list file defines the list of neighborhoods.
+Before searching a discrete space by the Markov chain Monte Carlo method,
+the "neighborhood" of each point :math:`i` must be defined, i.e. the points to which a walker can move from :math:`i`.
+A neighborhood-list file defines these neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
@@ -293,8 +293,8 @@ The first column (``step``) is the index of the MC step.
 The second column (``walker``) is the index of the walker in the process.
 The third column (``beta``) is the inverse temperature of the replica.
 The fourth column (``fx``) is the value of the solver.
-The fifth - (4+dimension)-th columns are the coordinates.
-The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynsky weight and the grand-ancestor of the replica.
+The fifth through (4+dimension)-th columns are the coordinates.
+The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynski weight and the grand-ancestor of the replica.
 
 Example::
 
@@ -311,12 +311,12 @@ Example::
 ``RANK/trial.txt``
 ^^^^^^^^^^^^^^^^^^^^^
 
-This is a combination of all the ``trial_T#.txt`` in one.
+This file combines all the ``trial_T#.txt`` files into one.
 
 ``RANK/result_T#.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 This file stores the sampled parameters and the corresponding value returned from the solver for each replica and each temperature.
-This has the same format as ``trial.txt``.
+This has the same format as ``trial_T#.txt``.
 
 .. code-block::
 
@@ -332,11 +332,11 @@ This has the same format as ``trial.txt``.
 ``RANK/result.txt``
 ^^^^^^^^^^^^^^^^^^^^^
 
-This is a combination of all the ``result_T#.txt`` in one.
+This file combines all the ``result_T#.txt`` files into one.
 
 ``best_result.txt``
 ^^^^^^^^^^^^^^^^^^^^
-The optimal value of the solver and the corresponding parameter among the all samples.
+The optimal value of the solver and the corresponding parameter among all the samples.
 
 .. code-block::
 
@@ -352,11 +352,11 @@ The optimal value of the solver and the corresponding parameter among the all sa
 ``fx.txt``
 ^^^^^^^^^^^^^^
 
-This file stores statistical metrics over the all replicas for each temperature.
-The first column is inverse temperature.
-The second and third column are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
+This file stores statistical metrics over all the replicas for each temperature.
+The first column is the inverse temperature.
+The second and third columns are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
 The fourth column is the number of replicas.
-The fifth column is the logarithmic of the ratio between the normalization factors (partition functions)
+The fifth column is the logarithm of the ratio between the normalization factors (partition functions)
 
 .. math::
 
@@ -417,9 +417,9 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initialized state.
-  If the checkpointing is enabled, the intermediate states will be stored at the following occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
-  #. at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.
+  #. when the calculation at a temperature point finishes, when the specified number of steps has been performed, or when the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``
@@ -432,7 +432,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution is continued from the previous run.
   The sequence of the temperature points should be specified so that it is continuous from that of the previous run.
 
-  Assume that the temperature has been lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
+  If the temperature was lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
   In the new calculation, the temperature points are taken from :math:`T^{(2)}` to :math:`T^{(3)}` divided by ``Tnum``, namely, :math:`T_0 = T^{(2)}`, :math:`T_1`,..., :math:`T_{\text{Tnum}-1}=T^{(3)}`. (``Tnum`` can be different from the previous run.)
 
 
@@ -443,7 +443,7 @@ Goal
 ^^^^^
 
 When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`f_i(x)`
-(e.g., the Bolzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
+(e.g., the Boltzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
 the expectation value of :math:`A` is defined as
 
 .. math::
@@ -456,7 +456,7 @@ the expectation value of :math:`A` is defined as
 where :math:`Z = \int \mathrm{d} x f_i(x)` is the normalization factor (partition function)
 and :math:`\tilde{f}(x) = f(x)/Z` is the probability of :math:`x`.
 
-Our goal is to numerically calculate the expectation value for each :math:`\beta_i` and the (ratio of) the normalization factor.
+Our goal is to numerically calculate the expectation value for each :math:`\beta_i` and the (ratios of the) normalization factors.
 
 Annealed Importance Sampling (AIS) [1]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -519,7 +519,7 @@ Then, instead of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x
    \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n),
 
 
-by using the following the following scheme:
+by using the following scheme:
 
 1. Generate :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
 
@@ -583,15 +583,15 @@ and therefore the expectation value of :math:`A` can be evaluated as a weighted 
 
    \langle A \rangle_n = \frac{\langle Aw_n \rangle_{g,n}}{\langle w_n \rangle_{g,n}}.
 
-This weight :math:`w_n` is called as the Neal-Jarzynski weight.
+This weight :math:`w_n` is called the Neal-Jarzynski weight.
 
-population annealing (PA) [2]
+Population annealing (PA) [2]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Although the AIS method can estimate the expectation values of :math:`A` for each parameter :math:`\beta` as the form of weighted arithmetic mean,
-the variance of weights :math:`w` is generally large and then the accuracy of the result gets worse.
-In order to overcome this problem, the population annealing Monte Carlo (PAMC) method resamples all the replicas according to the probability
-:math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` at some periods and resets all the weights to unity.
+Although the AIS method can estimate the expectation values of :math:`A` for each parameter :math:`\beta` in the form of a weighted arithmetic mean,
+the variance of the weights :math:`w` is generally large, so the accuracy of the result deteriorates.
+In order to overcome this problem, the population annealing Monte Carlo (PAMC) method periodically resamples all the replicas according to the probability
+:math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` and resets all the weights to unity.
 
 The following pseudo code describes the scheme of PAMC:
 
@@ -610,7 +610,7 @@ The following pseudo code describes the scheme of PAMC:
             x[i, k] = transfer(x[i-1, k], β[i])
         a[i] = sum(A(x[i,:]) * w[i,:]) / sum(w[i,:])
 
-There are two resampling methods: one with a fixed number of replicas[2] and one without[3].
+There are two resampling methods: one with a fixed number of replicas [2] and one without [3].
 
 References
 ^^^^^^^^^^^^^

@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   odatse_plt_model_evidence [OPTION]... -n NDATA FILEs
+   odatse_plt_model_evidence [OPTION]... -n NDATA FILE...
 
 
 DESCRIPTION
@@ -30,13 +30,13 @@ PAMC の出力ファイル FILE から beta および分配関数の値を取り
     PAMCの出力ファイル名 (fx.txt)。複数のファイルを指定可能。
 
 **-n NDATA, --ndata NDATA**
-    各データセットに含まれるデータ点の数をカンマ区切りの整数値で指定する。必須パラメータ。例：「100」(1つのデータセットに100点)、「50,100,75」(3つのデータセットにそれぞれ50点、100点、75点)
+    各データセットに含まれるデータ点の数をカンマ区切りの整数値で指定する。必須パラメータ。例: 「100」(1つのデータセットに100点)、「50,100,75」(3つのデータセットにそれぞれ50点、100点、75点)
 
 **-w WEIGHT, --weight WEIGHT**
     データセット間の相対重みをカンマ区切りの数値で指定する。重みは和が 1.0 になるように自動で規格化される。重みの数値の個数とデータ点の個数は一致させる必要がある。
 
 **-V VOLUME, --Volume VOLUME**
-    事前確率分布の normalization (定義域の体積 :math:`V_\Omega`) を指定する。デフォルトは 1.0。
+    事前確率分布の規格化因子 (定義域の体積 :math:`V_\Omega`) を指定する。デフォルトは 1.0。
 
 **-f RESULT, --result RESULT**
     model evidence の値を出力するファイル名。デフォルトは model_evidence.txt 。
@@ -71,7 +71,7 @@ USAGE
 
       $ odatse_plt_model_evidence -n 50,100,75 -w 0.2,0.5,0.3 fx.txt
 
-   3つのスポット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
+   3つのデータセット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
    model evidence を計算する。
 
 3. 複数のデータファイルを使用する場合
@@ -112,10 +112,10 @@ model evidence :math:`P(D|\beta)` は以下の式で計算される:
 
 また、
 
- * :math:`V_\Omega`: 事前確率分布の正規化因子
- * :math:`n_\mu`: 各データセットのデータ点数
- * :math:`n`: 全データ点数(すべてのデータセットの合計)
- * :math:`\beta`: 逆温度
+* :math:`V_\Omega`: 事前確率分布の正規化因子
+* :math:`n_\mu`: 各データセットのデータ点数
+* :math:`n`: 全データ点数(すべてのデータセットの合計)
+* :math:`\beta`: 逆温度
 
 とする。
 

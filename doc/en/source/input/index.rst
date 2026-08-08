@@ -2,7 +2,7 @@
 Input file
 ================================
 
-As the input file format, `TOML <https://toml.io/ja/>`_ format is used.
+As the input file format, `TOML <https://toml.io/en/>`_ format is used.
 The input file consists of the following four sections.
 
 - ``base``
@@ -60,22 +60,22 @@ The ``name`` determines the type of solver. Each parameter is defined for each s
 
   Description: Name of the solver. The following solvers are available.
 
-    - ``analytical`` : Solver to provide analytical solutions (mainly used for testing).
+  - ``analytical`` : Solver to provide analytical solutions (mainly used for testing).
 
-    The following are solvers for 2D material structure analysis distributed as separate modules:
+  The following are solvers for 2D material structure analysis distributed as separate modules:
 
-    - ``sim-trhepd-rheed`` :
-      Solver to calculate Total-reflection high energy positron diffraction (TRHEPD) or Reflection High Energy Electron Diffraction (RHEED) intensities.
+  - ``sim-trhepd-rheed`` :
+    Solver to calculate Total-reflection high energy positron diffraction (TRHEPD) or Reflection High Energy Electron Diffraction (RHEED) intensities.
 
-    - ``sxrd`` : Solver for Surface X-ray Diffraction (SXRD)
+  - ``sxrd`` : Solver for Surface X-ray Diffraction (SXRD)
 
-    - ``leed`` : Solver for Low-energy Electron Diffraction (LEED)
+  - ``leed`` : Solver for Low-energy Electron Diffraction (LEED)
 
 - ``dimension``
 
   Format: Integer (default: ``base.dimension``)
 
   Description:
-  Number of input parameters for Solvers
+  Number of input parameters for the solver
 
 See :doc:`/solver/index` for details of the various solvers and their input/output files.

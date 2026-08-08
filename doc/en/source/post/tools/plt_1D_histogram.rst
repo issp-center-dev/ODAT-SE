@@ -24,7 +24,7 @@ Field names can be specified with the field_list option, or you can use the para
 
 If FILE is not specified, the script reads files named result_*_summarized.txt from the directory specified by the data_dir option.
 
-The axes for creating histograms can be specified with the columns option. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--column x1,x3`` will create histograms marginalized along the ``x1`` and ``x3`` axes.
+The axes for creating histograms can be specified with the columns option. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--columns x1,x3`` will create histograms marginalized along the ``x1`` and ``x3`` axes.
 
 The histogram range can be specified with the range option. In that case, the same range will be used for all displayed axes. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 
@@ -87,7 +87,7 @@ USAGE
 
    1dhist/1Dhistogram_file.png is output.
 
-2. When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 1dhist directory.
+2. Input data files result_T0_summarized.txt to result_T10_summarized.txt are prepared in the data directory, and the output destination is set to the 1dhist directory.
 
    .. code-block:: bash
 

@@ -9,7 +9,7 @@
 実装には SciPy の `scipy.optimize.minimize`_ 関数を用いています。
 最適化手法は ``[algorithm.minimize]`` セクションの ``method`` パラメータで選択します。
 デフォルトは `Nelder-Mead 法 <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
-(a.k.a. downhill simplex 法) で、 `scipy.optimize.minimize`_ が受け付ける
+(downhill simplex 法とも呼ばれます) で、 `scipy.optimize.minimize`_ が受け付ける
 その他の手法 (Powell, COBYLA など) も選択できます。
 Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として、 :math:`D+1` 個の座標点の組を、各点での目的関数の値に応じて系統的に動かすことで最適解を探索します。
 
@@ -168,7 +168,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
 最小値を求める途中経過に関する情報を出力します。
 1行目はヘッダー、2行目以降にstep、入力ファイルの ``[solver.param]`` セクションにある
-``string_list`` で定義された変数の値、最後に関数の値が出力されます。
+``[algorithm]`` セクションの ``label_list`` で定義された変数(省略時は ``x1``, ``x2``, ...)の値、最後に関数の値が出力されます。
 
 以下、出力例です。
 
@@ -200,7 +200,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 最終的に得られた目的関数の値とその時のパラメータの値を記載しています。
-最初に目的関数、その後は入力ファイルの ``[solver.param]`` セクションにある ``string_list`` で定義された変数の値が順に記載されます。
+最初に目的関数、その後は入力ファイルの ``[algorithm]`` セクションにある ``label_list`` で定義された変数(省略時は ``x1``, ``x2``, ...)の値が順に記載されます。
 
 以下、出力例です。
 

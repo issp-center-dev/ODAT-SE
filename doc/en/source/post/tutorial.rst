@@ -34,13 +34,13 @@ The output of each step serves as input for the next step.
 1. Running PAMC Calculations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As an example, we use a calculation from the TRHEPD forward problem solver (odatse-STR).
+As an example, we use a calculation from the TRHEPD direct problem solver (odatse-STR).
 The parameter space is 3-dimensional, with 51 temperature points logarithmically spaced from T=1.0 to 1.0e-6.
 Each annealing step consists of 20 MCMC steps.
 The number of replicas is set to 100 per process with 4 MPI processes.
 
 Results are output under the output directory.
-The main output files are the following two types.
+There are two main types of output file.
 
 **output/{rank}/result_T{index}.txt** -- MCMC calculation log (per temperature point)
 
@@ -65,7 +65,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
 .. note::
 
-   If export_combined_files is set to True, logs are consolidated in combined.txt.
+   If ``export_combined_files`` is set to ``true``, logs are consolidated in ``combined.txt``.
    Use :doc:`tools/extract_combined` to extract result.txt.
 
    .. code-block:: bash
@@ -74,7 +74,7 @@ Each row corresponds to a temperature point, recording the inverse temperature b
 
 .. note::
 
-   If separate_T is False, logs are output to result.txt.
+   If ``separate_T`` is ``false``, logs are output to ``result.txt``.
    Use :doc:`tools/separateT` to split into files by temperature point.
 
    .. code-block:: bash
@@ -114,7 +114,7 @@ By visualizing the posterior distribution at the optimal :math:`\beta`, you can 
 3. Summarizing Search Data by Temperature Points
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Extract and combine replica configurations at the end of annealing from MCMC step information in output/{rank}/result_T{index}.txt.
+From the MCMC step information in output/{rank}/result_T{index}.txt, extract and combine the replica configurations at the end of annealing.
 
 .. code-block:: bash
 
@@ -127,7 +127,7 @@ For detailed options, see :doc:`tools/summarize_each_T`.
 4. Creating 1D and 2D Marginalized Histograms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Plot weighted posterior probability distributions :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}` using replica configuration data.
+Plot weighted posterior probability distributions :math:`P(z_i|D;\beta) = \dfrac{P(D|z_i;\beta) P(z_i)}{P(D;\beta)}` using replica configuration data.
 
 Focus on temperature points near the optimal :math:`\beta` identified in Step 2 to examine the parameter distributions.
 

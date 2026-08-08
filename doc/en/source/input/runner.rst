@@ -10,7 +10,7 @@ It has three subsections, ``mapping``, ``limitation``, and ``log`` .
   Format: Boolean (default: false)
 
   Description:
-  A parameter to specify whether a RuntimeError occuured within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
+  A parameter to specify whether a RuntimeError raised within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
 
 
 ``[runner.mapping]`` section
@@ -64,9 +64,9 @@ mean
 ``[runner.limitation]`` section
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section defines the limitation (constraint) in an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, in addition of ``min_list`` and ``max_list``.
+This section defines the limitation (constraint) in an :math:`N` dimensional parameter searched by ``Algorithm``, :math:`x`, in addition to ``min_list`` and ``max_list``.
 
-In the current version, a linear inequation with the form :math:`Ax+b>0` is available. Specifically, you can apply constraints as follows:
+In the current version, a linear inequality of the form :math:`Ax+b>0` is available. Specifically, you can apply constraints as follows:
 
 .. math::
 
@@ -88,7 +88,7 @@ where :math:`M` is the number of constraint equations (arbitrary).
 
 - ``co_b``
 
-  Format: List of float, or a string (default: ``[]``)
+  Format: List of lists of float (a column vector), or a string (default: ``[]``)
 
   Description:
   :math:`M` dimensional vector :math:`b` for the constraint equations.
@@ -97,11 +97,11 @@ where :math:`M` is the number of constraint equations (arbitrary).
 
 For example, both ::
 
-  A = [[1,1], [0,1]]
+  co_a = [[1,1], [0,1]]
 
 and ::
 
-  A = """
+  co_a = """
   1 1
   0 1
   """
@@ -168,17 +168,17 @@ Setting parameters related to logging of solver calls.
   Format: Integer (default: 0)
 
   Description:
-  The log will be written out every time solver is called ``interval`` times.
+  Every solver call is recorded; this value specifies how many entries are buffered before they are flushed to the log file.
   If the value is less than or equal to 0, no log will be written.
 
 - ``write_result``
 
   Format: Boolean (default: false)
 
-  Description: Whether to record the output from solver.
+  Description: Whether to record the output from the solver.
 
 - ``write_input``
 
   Format: Boolean (default: false)
 
-  Description: Whether to record the input to solver.
+  Description: Whether to record the input to the solver.

@@ -27,7 +27,7 @@ The number of processes for each layer is given on the command line with
 ``--nalg`` and ``--nsolve``; ``odatse.initialize()`` forwards them to
 ``odatse.mpi.setup()``. For example,
 
-.. code:: bash
+.. code-block:: bash
 
     mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
@@ -102,12 +102,12 @@ workers to leave their loop.
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-As a toy problem we look for the integer seed in ``{1, …, 20}`` that minimises
+As a toy problem we look for the integer seed in ``{1, …, 20}`` that minimizes
 the average largest singular value of ``nmats`` random matrices of size
 ``matsize × matsize``. The solver is a subclass of ``odatse.solver.SolverBase``
 (the full script is ``sample/parallel_solver/parallel_solver.py``):
 
-.. code:: python
+.. code-block:: python
 
     import os, time, argparse
     import numpy as np
@@ -183,7 +183,7 @@ algorithm as a dictionary; for the ``mapper`` algorithm it holds the keys
 groups has already been reduced across ``algcomm`` inside the algorithm, so the
 driver just reads it from the return value:
 
-.. code:: python
+.. code-block:: python
 
     def main():
         parser = argparse.ArgumentParser()
@@ -216,7 +216,7 @@ driver just reads it from the return value:
 The input file ``input.toml`` selects the ``mapper`` algorithm and sets the
 search range and the solver parameters:
 
-.. code:: toml
+.. code-block:: toml
 
     [base]
     dimension = 1
@@ -254,14 +254,14 @@ The number of MPI processes must equal ``nalg × nsolve``. For 3 algorithm
 processes and 2 solver processes per group (6 ranks in total), with 2 BLAS
 threads per process:
 
-.. code:: bash
+.. code-block:: bash
 
     export OMP_NUM_THREADS=2
     mpirun -np 6 python3 parallel_solver.py --nalg 3 --nsolve 2
 
 The sample's ``do.sh`` runs a smaller configuration:
 
-.. code:: bash
+.. code-block:: bash
 
     export OMP_NUM_THREADS=2
     mpirun -np 4 python3 parallel_solver.py -m 2 -n 2
@@ -276,6 +276,6 @@ Do **not** set ``ODATSE_NOMPI=1`` (``odatse.mpi.enabled()`` is ``False`` in that
 mode and the communicators are unavailable). Even a single-process run must be
 launched under ``mpirun`` / ``mpiexec``:
 
-.. code:: bash
+.. code-block:: bash
 
     mpirun -np 1 python3 parallel_solver.py --nalg 1 --nsolve 1
