@@ -6,7 +6,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :doc:`/customize/tutorial_solver` に、独自の目的関数を定義して ODAT-SE で最小化するチュートリアルがあります。
-コピペして動かせる完全な例を提供しています。
+コピー＆ペーストしてそのまま実行できる完全な例を提供しています。
 
 
 外部プログラムをソルバーとして使いたい
@@ -17,6 +17,8 @@
 .. code-block:: python
 
     import subprocess
+
+    import odatse.solver
 
     class MySolver(odatse.solver.SolverBase):
         def evaluate(self, x, args=()):

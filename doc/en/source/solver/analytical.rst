@@ -94,9 +94,9 @@ The ``function_name`` parameter in the ``solver`` section specifies the function
           f(\vec{x}) = -\sum_{i=1}^N \sin(x_i)\left[\sin\!\left(\frac{i\, x_i^2}{\pi}\right)\right]^{20}
 
     - The global minimum value and location depend on the dimension. There are :math:`d!` local minima.
-      For :math:`d = 2`, :math:`f(\vec{x}^*) \approx -1.8013` at :math:`\vec{x}^* \approx (2.2051,\,1.5698)`.
-      For :math:`d = 5`, :math:`f(\vec{x}^*) \approx -4.6876`.
-      For :math:`d = 10`, :math:`f(\vec{x}^*) \approx -9.6602`.
+      For :math:`N = 2`, :math:`f(\vec{x}^*) \approx -1.8013` at :math:`\vec{x}^* \approx (2.2051,\,1.5698)`.
+      For :math:`N = 5`, :math:`f(\vec{x}^*) \approx -4.6876`.
+      For :math:`N = 10`, :math:`f(\vec{x}^*) \approx -9.6602`.
 
   - ``qing``
 

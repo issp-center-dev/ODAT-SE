@@ -89,7 +89,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
 
 - ``initial_list`` specifies the initial values.
 
-Other parameters, such as the convergence criteria used in the Nelder-Mead method, can be set in the ``[algorithm.minimize]`` section, although they are omitted here because the default values are used.
+Other parameters, such as the convergence criteria used in the Nelder-Mead method, can be set in the ``[algorithm.minimize]`` section, although they are omitted here because the default values are used. For details, see :doc:`../algorithm/minsearch`.
 See the input file chapter for details.
 
 Calculation execution

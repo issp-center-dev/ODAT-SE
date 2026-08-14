@@ -36,7 +36,7 @@ internals and must **not** be overridden in subclasses.
 Instance variables set by ``__init__``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, run_mode: str = "initial")``
 
   Reads the common parameters from ``info`` and sets the following instance variables:
 
@@ -176,14 +176,20 @@ Called after ``_initialize()`` or ``_load_state()`` and before ``_run()``.
 
 .. code-block:: python
 
+    import time
+
     def _run(self) -> None:
         # The checkpoint dispatch (init/resume/continue) has already been
         # performed by prepare(); start the main loop directly.
 
         # For "init" mode, perform the initial evaluation here.
         if self.mode.startswith("init"):
-            self.fx = self.runner.submit(self.state, (0, 0))
+            self.fx = self.runner.submit(self.x, (0, 0))
             ...
+
+        # Initialize the checkpoint schedule
+        next_checkpoint_step = self.istep + self.checkpoint_steps
+        next_checkpoint_time = time.time() + self.checkpoint_interval
 
         # Main loop
         while self.istep < self.numsteps:
@@ -223,7 +229,7 @@ To evaluate the objective function for parameter ``x``:
 
     def _post(self) -> dict:
         # Write results to files, gather from MPI ranks, …
-        return {"x": self.xopt, "fx": self.best_fx}
+        return {"x": self.best_x, "fx": self.best_fx}
 
 Post-processes the algorithm results and returns them as a dictionary.
 Called from ``output_dir``.

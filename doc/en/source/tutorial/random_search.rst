@@ -28,7 +28,7 @@ The following files are stored in the folder.
 Input file
 ~~~~~~~~~~~~~~~~~~~
 
-This section describes the input file for the main program, ``input.toml``.
+This section describes the input file for the main program, ``input.toml``. For details, see the "Input file" chapter and :doc:`../algorithm/random_search`.
 The details of ``input.toml`` can be found in the input file section of the manual.
 
 .. code-block::

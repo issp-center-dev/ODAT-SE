@@ -22,7 +22,7 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 
 - ``colormap``
 
-  形式: string型。 (default: "ColorMap.txt")
+  形式: 文字列。 (default: "ColorMap.txt")
 
   説明: 探索結果（各メッシュ点の座標と目的関数値）を出力するファイルの名前。
 
@@ -41,19 +41,19 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 
 - ``mesh_path``
 
-  形式: string型
+  形式: 文字列
 
   説明: メッシュ定義ファイルへのパス。
 
 - ``comments``
 
-  形式: string型。 (default: "#")
+  形式: 文字列。 (default: "#")
 
   説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。
 
 - ``delimiter``
 
-  形式: string型。 (default: 空白文字)
+  形式: 文字列。 (default: 空白文字)
 
   説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は ``","`` を指定します。
 
@@ -65,19 +65,19 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
 
 - ``min_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最小値。
 
 - ``max_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最大値。
 
 - ``num_list``
 
-  形式: 整数型のリスト。長さはdimensionの値と一致させます。
+  形式: 整数のリスト。長さはdimensionの値と一致させます。
 
   説明: それぞれのパラメータについて等間隔にサンプリングする点の数。
 
@@ -155,7 +155,8 @@ MPI 並列を行う場合は、 `mpi4py <https://mpi4py.readthedocs.io/en/stable
   並列数などの計算条件は前と同じにする必要があります。
   探索点の数を変更した場合はエラーとなります
   (再開はチェックポイントを保存した計算の続きを実行するものであるため)。
-  点を増やす場合は ``--cont`` を、別の計算として実行する場合は ``--init`` を使用してください。
+  探索点の数を変更して計算し直す場合は、 ``--init`` を指定して新規計算として実行してください
+  (``mapper`` は continue モードに対応していません)。
 
 - ``"continue"``
 

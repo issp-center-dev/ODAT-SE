@@ -12,7 +12,7 @@ Himmelblau関数は次の表式で表される2変数関数で、複数の極小
 
 .. figure:: ../../../common/img/plot_himmelblau.*
 
-  Himmelblau関数の plot。
+  Himmelblau関数のプロット。
 
 
 [1] D. Himmelblau, Applied Nonlinear Programming, McGraw-Hill, 1972.

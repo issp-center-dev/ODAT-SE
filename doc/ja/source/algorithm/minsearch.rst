@@ -40,13 +40,13 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 
 - ``initial_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。
 
 - ``unit_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: 各パラメータの単位。
         探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
@@ -55,7 +55,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 
 - ``min_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最小値。
           最適化中にこの値を下回るパラメータが出現した場合、
@@ -63,7 +63,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 
 - ``max_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最大値。
           最適化中にこの値を上回るパラメータが出現した場合、
@@ -85,7 +85,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
 - ``method``
 
-  形式: string型 (default: "Nelder-Mead")
+  形式: 文字列 (default: "Nelder-Mead")
 
   説明: 最適化手法の名前。 `scipy.optimize.minimize`_ の ``method`` 引数にそのまま渡されます。
   例: "Nelder-Mead", "Powell", "COBYLA" など。
@@ -98,7 +98,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
 - ``initial_scale_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分。
   ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできる dimension 個の点を合わせたものが ``initial_simplex`` として使われます。
@@ -107,13 +107,13 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
 - ``xatol``
 
-  形式: 実数型 (default: 1e-4)
+  形式: 実数 (default: 1e-4)
 
   説明: Nelder-Mead 法の収束判定に使うパラメータ
 
 - ``fatol``
 
-  形式: 実数型 (default: 1e-4)
+  形式: 実数 (default: 1e-4)
 
   説明: Nelder-Mead 法の収束判定に使うパラメータ
 
@@ -131,7 +131,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
 - ``basinhopping``
 
-  形式: bool型 または テーブル (default: false)
+  形式: 真偽値 または テーブル (default: false)
 
   説明: `scipy.optimize.basinhopping`_ による大域最適化(ベイスンホッピング法)を有効にします。
   ``method`` で指定した手法が各ホップの局所最適化に使われます。
@@ -167,8 +167,7 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 最小値を求める途中経過に関する情報を出力します。
-1行目はヘッダー、2行目以降にstep、入力ファイルの ``[solver.param]`` セクションにある
-``[algorithm]`` セクションの ``label_list`` で定義された変数(省略時は ``x1``, ``x2``, ...)の値、最後に関数の値が出力されます。
+1行目はヘッダー、2行目以降に step、入力ファイルの ``[algorithm]`` セクションの ``label_list`` で定義された変数(省略時は ``x1``, ``x2``, ...)の値、最後に関数の値が出力されます。
 
 以下、出力例です。
 
@@ -181,6 +180,9 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
     3 5.225694444444445 4.40625 3.5451388888888884 0.012635279378225261
     4 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
     5 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
+
+.. note::
+   ヘッダーの ``R-factor`` は目的関数の値の列を表します（旧 2DMAT に由来する名称です）。
 
 ``History_FunctionCall.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

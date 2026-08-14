@@ -36,8 +36,9 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 
 例として TRHEPD 順問題ソルバー (odatse-STR) の計算例を取り上げます。
 パラメータの次元は 3 で、温度点は T=1.0 から 1.0e-6 まで対数スケールで 51点とっています。
-各 annealing の MCMC ステップ数は 20。
-レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。
+各 annealing の MCMC ステップ数は 20、レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。
+この例で用いた入力ファイルやデータの一式は、 `ODAT-SE Gallery <https://isspns-gitlab.issp.u-tokyo.ac.jp/takeohoshi/odat-se-gallery>`_ の odatse-STR の解析例を参照してください。
+なお、以下に示す出力例は紙面の都合で一部を省略・簡略化しています。
 
 計算結果は output 以下に出力されます。
 主な出力ファイルは以下の2種類です。
@@ -46,31 +47,40 @@ PAMC 計算の結果を解析する全体的な流れは以下の通りです。
 
 .. code-block:: text
 
-   # step  replica_id  T  fx  x1  x2  x3
-   0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100
-   1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080
+   # step  walker  T  fx  x1  x2  x3  weight  ancestor
+   0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100  1.000000e+00  0
+   1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080  1.000000e+00  0
    ...
 
-各行は1回の MCMC ステップに対応し、温度 T、目的関数値 fx、パラメータ値 x1〜x3 が記録されています。
+各行は1つの walker（レプリカ）の1回の MCMC ステップに対応し、温度 T、目的関数値 fx、パラメータ値 x1〜x3、サンプリング重み weight、リサンプリング元を示す ancestor が記録されています。
+列ラベルは ``label_list`` の設定に依存します（省略時は ``x1``, ``x2``, ...）。本例の探索パラメータは原子座標に対応する3変数で、本文中では :math:`z_1, z_2, z_3` と表記します。
 
 **output/fx.txt** -- 分配関数と f(x) の統計量
 
 .. code-block:: text
 
-   # beta  fx_mean  fx_var  nreplica  logZ/Z0  acceptance
-   1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
+   # $1: 1/T
+   # $2: mean of f(x)
+   # $3: standard error of f(x)
+   # $4: number of replicas
+   # $5: log(Z/Z0)
+   # $6: acceptance ratio
+   1.000000e+00  1.234e+01  5.678e-01  400  0.000000e+00  0.850
    ...
 
-各行は温度点に対応し、逆温度 beta、f(x) の平均値・標準誤差、レプリカ数、分配関数の対数比、採択率が記録されています。
+各行は温度点に対応し、逆温度 beta、f(x) の平均値・標準誤差、レプリカ数、分配関数の対数比、受容率が記録されています。
 
 .. note::
 
    ``export_combined_files`` を ``true`` にしている場合はログが ``combined.txt`` に集約されています。
    :doc:`tools/extract_combined` を使って result.txt を取り出してください。
+   取り出される ``result.txt`` は温度点ごとに分割されていないため、続けて :doc:`tools/separateT` で
+   温度点ごとのファイル ``result_T{index}.txt`` に分割してから次のステップに進んでください。
 
    .. code-block:: bash
 
       odatse_extract_combined -t result.txt -d output
+      odatse_separateT -d output
 
 .. note::
 
@@ -104,7 +114,7 @@ model evidence の値は model_evidence.txt に書き出されます。また、
 
 .. figure:: ../../../common/img/post/model_evidence.*
 
-   model evidence をプロットした図。最大値を与える beta は beta= :math:`1.91\times 10^5` (Tstep=44)。
+   model evidence をプロットした図。最大値を与える逆温度は :math:`\beta = 1.91\times 10^5` (Tstep=44)。
 
 model evidence が最大となる :math:`\beta` は、データに対してモデルの説明力が最も高い逆温度に対応します。
 :math:`\beta` が小さすぎると事前分布の影響が大きく（アンダーフィッティング）、大きすぎるとデータのノイズまで拾ってしまいます（オーバーフィッティング）。
@@ -142,7 +152,7 @@ summarized/ のデータファイルそれぞれについてヒストグラム�
 
 .. figure:: ../../../common/img/post/1Dhistogram_result_T22.*
 
-   1次元周辺化ヒストグラムの出力例。(Tstep=22, :math:`\beta=4.365\times 10^2` の場合)
+   1次元周辺化ヒストグラムの出力例。(参考として高温側の Tstep=22, :math:`\beta=4.365\times 10^2` の場合を示します)
 
 
 2次元に周辺化したヒストグラムを作成するには、以下を実行します。
@@ -157,4 +167,4 @@ z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元�
 
 .. figure:: ../../../common/img/post/2Dhistogram_result_T22_x1_vs_x2.*
 
-   2次元周辺化ヒストグラムの出力例。(Tstep=22, z1-z2 軸についてのプロット)
+   2次元周辺化ヒストグラムの出力例。(参考として高温側の Tstep=22 における :math:`z_1`-:math:`z_2` 軸についてのプロットを示します)

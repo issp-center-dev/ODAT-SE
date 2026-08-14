@@ -116,6 +116,10 @@ The following standard output will be shown:
 
   ...
 
+.. note::
+   The Bayesian optimization engine (PHYSBO) solves a maximization problem, so the ``f(x)`` shown in the standard output is the objective function with its sign flipped.
+   ``output/BayesData.txt`` records the original values of the objective function.
+
 A list of the hyperparameters is shown first, followed by the evaluated function value ``f(x)``, the grid index (``action``), and the best value found so far at each step.
 The final estimated parameters are output to ``output/BayesData.txt``.
 

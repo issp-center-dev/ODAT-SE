@@ -197,6 +197,9 @@ The following is an example of the output.
     4 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
     5 5.179976851851851 4.348958333333334 3.5943287037037033 0.006001660077530159
 
+.. note::
+   The ``R-factor`` column in the header contains the values of the objective function (the name comes from the former 2DMAT package).
+
 ``History_FunctionCall.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

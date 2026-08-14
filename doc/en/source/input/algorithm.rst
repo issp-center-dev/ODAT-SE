@@ -28,6 +28,12 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   - ``pamc`` :  Population Annealing Monte Carlo method
 
+- ``label_list``
+
+  Format: List of strings. The length should match the value of ``dimension``. (default: ``["x1", "x2", ...]``)
+
+  Description: Names of the parameter axes, used e.g. in the headers of the output files.
+
 - ``seed``
 
   Format: Integer
@@ -58,7 +64,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description:
   A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of a grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in the Monte Carlo (exchange and PAMC) algorithms.
-  The default value is a sufficiently large number of steps. To enable checkpointing, at least one of ``checkpoint_steps`` and ``checkpoint_interval`` should be specified.
+  The default value is a sufficiently large number of steps. To use checkpointing, set ``checkpoint = true`` and specify at least one of ``checkpoint_steps`` and ``checkpoint_interval``.
 
 - ``checkpoint_interval``
 
@@ -66,7 +72,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
 
   Description:
   A parameter to specify the execution time between the previous and next checkpoints in unit of seconds.
-  The default value is a sufficiently long period (360 days). To enable checkpointing, at least one of ``checkpoint_steps`` and ``checkpoint_interval`` should be specified.
+  The default value is a sufficiently long period (360 days). To use checkpointing, set ``checkpoint = true`` and specify at least one of ``checkpoint_steps`` and ``checkpoint_interval``.
 
 - ``checkpoint_file``
 
