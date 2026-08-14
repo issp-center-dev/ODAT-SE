@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../../common'))
 
-from theme_shared import HTML_CONTEXT, HTML_CSS_FILES, get_theme_options
+from theme_shared import HTML_CONTEXT, HTML_CSS_FILES, get_theme_options, get_version_info
 
 
 # -- Project information -----------------------------------------------------
@@ -20,9 +20,9 @@ project = u'ODAT-SE'
 copyright = u'2020, Institute for Solid State Physics, University of Tokyo'
 author = u'2DMAT Developer team'
 
-version = '3.3'
-# The full version, including alpha/beta/rc tags
-release = '3.3-dev'
+# The short X.Y version and the full version, including alpha/beta/rc tags,
+# read from src/odatse/_version.py
+version, release = get_version_info()
 
 # -- General configuration ---------------------------------------------------
 

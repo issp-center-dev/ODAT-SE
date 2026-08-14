@@ -1,6 +1,6 @@
 [project]
 name = "ODAT-SE"
-version = "3.3-dev"
+dynamic = ["version"]
 description = "Open Data Analysis Tool for Science and Engineering"
 authors = [{ name = "2DMAT developers", email = "2dmat-dev@issp.u-tokyo.ac.jp" }]
 requires-python = ">=3.9"
@@ -45,6 +45,9 @@ odatse_plt_2D_histogram = "odatse.scripts.plt_2D_histogram:main"
 odatse_plt_model_evidence = "odatse.scripts.plt_model_evidence:main"
 odatse_separateT = "odatse.scripts.separateT:main"
 odatse_summarize_each_T = "odatse.scripts.summarize_each_T:main"
+
+[tool.hatch.version]
+path = "src/odatse/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["src/odatse"]
