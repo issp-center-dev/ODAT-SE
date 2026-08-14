@@ -95,7 +95,7 @@ R-factor を以下のように定義します:
    R(X;D)^2 = \sum_\mu w_\mu \sum_i \left( I_\mu(\theta_i) - I^{\text{(cal)}}_\mu(\theta_i;X) \right)^2
 
 :math:`I_\mu(\theta_i)` はデータセット :math:`\mu` に含まれる計測データ点、 :math:`I^{\text{(cal)}}_\mu(\theta_i;X)` はパラメータ :math:`X` のもとでの理論計算値とします。
-:math:`w_\mu` はデータセットの相対重みで、合計が1になるよう正規化されています。
+:math:`w_\mu` はデータセットの相対重みで、合計が1になるよう規格化されています。
 
 model evidence :math:`P(D|\beta)` は以下の式で計算されます:
 
@@ -112,7 +112,7 @@ model evidence :math:`P(D|\beta)` は以下の式で計算されます:
 
 また、
 
-* :math:`V_\Omega`: 事前確率分布の正規化因子
+* :math:`V_\Omega`: 事前確率分布の規格化因子
 * :math:`n_\mu`: 各データセットのデータ点数
 * :math:`n`: 全データ点数(すべてのデータセットの合計)
 * :math:`\beta`: 逆温度
