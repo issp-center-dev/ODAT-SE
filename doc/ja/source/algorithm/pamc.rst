@@ -464,29 +464,29 @@ Annealed Importance Sampling (AIS) [1]
 
 .. math::
 
-   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{P}_n(x_n, x_{n-1}) \tilde{P}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{P}_1(x_1, x_0)
+   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0)
 
 を満たす点列 :math:`\{x_i\}` を考えます。ここで
 
 .. math::
 
-   \tilde{P}_i(x_i, x_{i-1}) = P_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)}
+   \tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)}
 
-であり、 :math:`P_i(x, x')` は :math:`\beta_i` のもとでの配位 :math:`x`
+であり、 :math:`p_i(x, x')` は :math:`\beta_i` のもとでの配位 :math:`x`
 から :math:`x'` への遷移確率で、釣り合い条件
 
 .. math::
 
 
-   \int \mathrm{d}x \tilde{W}_i(x) P_i(x, x') = \tilde{W}_i(x')
+   \int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x')
 
 を満たすようにとります(通常の MCMC における遷移確率行列に相当します)。
 
 .. math::
 
 
-   \int \mathrm{d} x_{i-1} \tilde{P}_i(x_i, x_{i-1})
-   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) P_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
+   \int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
    = 1
 
 となるので、 :math:`\tilde{W}_n(x_n)` は
@@ -519,15 +519,15 @@ Annealed Importance Sampling (AIS) [1]
 
    -  例えば MCMC を利用する
 
-2. :math:`x_i` から :math:`P_{i+1}(x_i, x_{i+1})` によって :math:`x_{i+1}` を生成する
+2. :math:`x_i` から :math:`p_{i+1}(x_i, x_{i+1})` によって :math:`x_{i+1}` を生成する
 
-   - :math:`P_{i+1}` は釣り合い条件を満たす遷移確率行列であるため、通常の MCMC 更新を適用します
+   - :math:`p_{i+1}` は釣り合い条件を満たす遷移確率行列であるため、通常の MCMC 更新を適用します
 
 という流れに従って点列 :math:`\{x_i\}` を生成すると、これは同時確率分布
 
 .. math::
 
-   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) P_1(x_0, x_1) P_2(x_1, x_2) \dots P_n(x_{n-1}, x_n)
+   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n)
 
 に従います。これを利用すると期待値 :math:`\langle A \rangle_n` は
 
@@ -551,7 +551,7 @@ Annealed Importance Sampling (AIS) [1]
    \frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
    &=
    \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{P}_i(x_i, x_{i-1})}{P_i(x_{i-1}, x_i)} \\
+   \prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
    &=
    \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
    \prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\

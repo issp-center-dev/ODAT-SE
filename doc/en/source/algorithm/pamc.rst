@@ -466,21 +466,21 @@ First, we introduce a series of configurations :math:`\{x_i\}` obeying the follo
 
 .. math::
 
-   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{P}_n(x_n, x_{n-1}) \tilde{P}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{P}_1(x_1, x_0),
+   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0),
 
 with
 
 .. math::
 
-   \tilde{P}_i(x_i, x_{i-1}) = P_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)},
+   \tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)},
 
-where :math:`P_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
+where :math:`p_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
 holding the balance condition,
 
 .. math::
 
 
-   \int \mathrm{d}x \tilde{W}_i(x) P_i(x, x') = \tilde{W}_i(x').
+   \int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x').
 
 It turns out that :math:`\tilde{W}_n(x_n)` is the marginal distribution of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, that is,
 
@@ -493,8 +493,8 @@ from
 
 .. math::
 
-   \int \mathrm{d} x_{i-1} \tilde{P}_i(x_i, x_{i-1})
-   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) P_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
+   \int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
    = 1.
 
 Consequently,
@@ -517,14 +517,14 @@ Then, instead of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x
 
 .. math::
 
-   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) P_1(x_0, x_1) P_2(x_1, x_2) \dots P_n(x_{n-1}, x_n),
+   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n),
 
 
 by using the following scheme:
 
 1. Generate :math:`x_0` from the initial distribution :math:`\tilde{W}_0(x)`
 
-2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`P_{i+1}(x_i, x_{i+1})`
+2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`p_{i+1}(x_i, x_{i+1})`
 
 
 By using the reweighting method (or importance sampling method),
@@ -549,7 +549,7 @@ Because the ratio between :math:`\tilde{W}` and :math:`\tilde{g}` is
    \frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
    &=
    \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{P}_i(x_i, x_{i-1})}{P_i(x_{i-1}, x_i)} \\
+   \prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
    &=
    \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
    \prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\
