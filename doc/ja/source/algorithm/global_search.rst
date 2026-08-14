@@ -122,7 +122,9 @@ direct と dual annealing は並列評価に対応していないため、ラン
     ``restart_temp_ratio``, ``visit``, ``accept``, ``no_local_search``,
     ``x0`` など。サブテーブル
     ``[algorithm.global_search.minimizer_kwargs]`` は局所最適化に渡す
-    ``minimizer_kwargs`` 引数となります。乱数は ``[algorithm]`` セクションの
+    ``minimizer_kwargs`` 引数となります (scipy >= 1.8。
+    それより古いバージョンではこの引数は ``local_search_options``
+    という名前です)。乱数は ``[algorithm]`` セクションの
     ``seed`` から初期化されます。
 
 設定例:

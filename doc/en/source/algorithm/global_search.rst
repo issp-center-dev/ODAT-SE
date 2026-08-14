@@ -135,7 +135,9 @@ be set.
     ``restart_temp_ratio``, ``visit``, ``accept``, ``no_local_search``,
     ``x0``, ... The sub-table
     ``[algorithm.global_search.minimizer_kwargs]`` is passed as the
-    ``minimizer_kwargs`` argument of the local optimizations. The random
+    ``minimizer_kwargs`` argument of the local optimizations
+    (scipy >= 1.8; older versions name this argument
+    ``local_search_options``). The random
     numbers are initialized from ``seed`` in the ``[algorithm]`` section.
 
 Example:
