@@ -17,7 +17,7 @@ Input parameters
 
 This has two subsections ``algorithm.param`` and ``algorithm.exchange`` .
 
-[``algorithm.param``]
+``[algorithm.param]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
@@ -31,33 +31,40 @@ Otherwise, continuous space is used.
     Format: List of float. Length should be equal to ``dimension``.
 
     Description: Initial value of parameters.
-    If not defined, these will be initialize randomly.
+    If not defined, these will be initialized randomly.
 
   - ``min_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Minimum value of each parameter.
-    When a parameter falls below this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
-
+    Description: The minimum value that each parameter can take.
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Maximum value of each parameter.
-    When a parameter exceeds this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
+    Description: The maximum value that each parameter can take.
 
   - ``step_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    The step length in one Monte Carlo update (deviation of Gaussian distribution).
+    Description: Step width (standard deviation of the Gaussian distribution) used for Monte Carlo updates.
+
+  - ``pbc_list``
+
+    Format: List of boolean (default: false for each parameter).
+
+    Description: Whether to use periodic boundary conditions (PBC) for generating local candidate points for each parameter. The length should be equal to ``dimension``.
+
+  - About state proposals
+
+    - In Monte Carlo updates, candidate points are proposed according to a Gaussian distribution centered at the current state.
+      If a candidate parameter ``d`` falls outside the range [min_list[d], max_list[d]):
+
+      - If ``pbc_list[d] = true``, it will be wrapped into the range [min_list[d], max_list[d]) using periodic boundary conditions.
+      - If ``pbc_list[d] = false``, the proposal will be rejected.
+
 
 - Discrete space
 
@@ -66,6 +73,24 @@ Otherwise, continuous space is used.
     Format: string
 
     Description: Path to the mesh definition file. See *Reference file* below for the format.
+
+  - ``comments``
+
+    Format: String (default: "#")
+
+    Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
+
+  - ``delimiter``
+
+    Format: String (default: whitespace)
+
+    Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+  - ``skiprows``
+
+    Format: Integer (default: 0)
+
+    Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
 
   - ``neighborlist_path``
 
@@ -107,7 +132,7 @@ Otherwise, continuous space is used.
     The number of mesh points along each parameter of the mesh to be generated.
 
 
-[``algorithm.exchange``]
+``[algorithm.exchange]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``
@@ -120,7 +145,7 @@ Otherwise, continuous space is used.
 
   Format: Integer
 
-  Description: The number of interval Monte Carlo steps between replica exchange.
+  Description: The number of Monte Carlo steps between replica exchange trials.
 
 - ``numsteps_thermalization``
 
@@ -164,7 +189,28 @@ Otherwise, continuous space is used.
 
   Format: Integer (default: 1)
 
-  Description: The number of replicas in a MPI process.
+  Description: The number of replicas in an MPI process.
+  The total number of replicas is given by "number of MPI processes × ``nreplica_per_proc``".
+  In the replica exchange Monte Carlo method, one temperature point is assigned to each replica, and therefore the number of temperature points generated between ``Tmin`` and ``Tmax`` equals the total number of replicas.
+  To use more temperature points, increase the number of MPI processes or ``nreplica_per_proc``.
+
+- ``separate_T``
+
+  Format: Boolean (default: true)
+
+  Description: Whether to write log files of Monte Carlo steps separately for each temperature (``result_T*.txt``).
+  This option is ignored when ``export_combined_files`` is true.
+
+- ``export_combined_files``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to write the contents of ``trial.txt`` and ``result.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
+  Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
+
+.. note::
+   **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
+   It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.
 
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,9 +241,9 @@ Below, a sample file is shown.
 Neighborhood-list file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before searching in the discrete space by Markov Chain Monte Carlo method,
-we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
-A neighborhood-list file defines the list of neighborhoods.
+Before searching a discrete space by the Markov chain Monte Carlo method,
+the "neighborhood" of each point :math:`i` must be defined, i.e. the points to which a walker can move from :math:`i`.
+A neighborhood-list file defines these neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
@@ -228,10 +274,10 @@ The remaining columns are the coordinates.
 Example::
 
     # step walker T fx z1 z2
-    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    1 0 0.004999999999999999 0.0758494287185766 2.811346329442423 3.691101784194861 
-    2 0 0.004999999999999999 0.08566823949124412 3.606664760390988 3.2093903670436497 
-    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154 
+    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    1 0 0.004999999999999999 0.0758494287185766 2.811346329442423 3.691101784194861
+    2 0 0.004999999999999999 0.08566823949124412 3.606664760390988 3.2093903670436497
+    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
 
 
 ``RANK/result.txt``
@@ -242,21 +288,22 @@ This has the same format as ``trial.txt``.
 .. code-block::
 
     # step walker T fx z1 z2
-    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    1 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    2 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586 
-    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154 
+    0 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    1 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    2 0 0.004999999999999999 0.07830821484593968 3.682008067401509 3.9502750191292586
+    3 0 0.004999999999999999 0.06273922648753057 4.330900869594549 4.311333132184154
 
 
 ``best_result.txt``
 ^^^^^^^^^^^^^^^^^^^^
-The optimal value of the solver and the corresponding parameter among the all samples.
+The optimal value of the solver and the corresponding parameter among all the samples.
 
 .. code-block::
 
     nprocs = 4
     rank = 2
     step = 65
+    walker = 0
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661
@@ -264,7 +311,7 @@ The optimal value of the solver and the corresponding parameter among the all sa
 
 ``result_T#.txt``
 ^^^^^^^^^^^^^^^^^^^
-This file stores samples for each temperature ( ``#`` is replaced with the index of temperature ).
+This file stores samples for each temperature (``#`` is replaced with the index of the temperature).
 The first column is the index of the MC step.
 The second column is the index of the walker.
 The third column is the value of the solver.
@@ -282,11 +329,11 @@ The remaining columns are the coordinates.
 ``fx.txt``
 ^^^^^^^^^^^^^^
 
-This file stores statistical metrics over the all replicas for each temperature.
-The first column is inverse temperature.
-The second and third column are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
+This file stores statistical metrics over all the replicas for each temperature.
+The first column is the inverse temperature.
+The second and third columns are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
 The fourth column is the number of replicas.
-The fifth column is the logarithmic of the ratio between the normalization factors (partition functions)
+The fifth column is the logarithm of the ratio between the normalization factors (partition functions)
 
 .. math::
 
@@ -320,9 +367,9 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initialized state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
-  #. the specified number of steps has been done, or the specified period of time has passed.
+  #. the specified number of steps has been performed, or the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``
@@ -346,16 +393,16 @@ Markov chain Monte Carlo
 
 The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers :math:`\vec{x}` stochastically according to the weight function :math:`W(\vec{x})`.
 For the weight function, the Boltzmann factor :math:`W(\vec{x}) = e^{-f(\vec{x})/T}` is generally adopted, where :math:`T>0` is the "temperature."
-It is impossible in the many cases, unfortunately, to sample walkers according to :math:`W` directly.
-Insteadly, the MCMC method moves walkers slightly and generates a time series :math:`\{\vec{x}_t\}` such that the distribution of the walkers obeys :math:`W` .
-Let us call the transision probability from :math:`\vec{x}` to :math:`\vec{x}'` as :math:`p(\vec{x}' | \vec{x})`.
+Unfortunately, in many cases it is impossible to sample walkers directly according to :math:`W`.
+Instead, the MCMC method moves walkers by small steps and generates a time series :math:`\{\vec{x}_t\}` such that the distribution of the walkers obeys :math:`W` .
+Let us denote the transition probability from :math:`\vec{x}` to :math:`\vec{x}'` by :math:`p(\vec{x}' | \vec{x})`.
 When :math:`p` is determined by the following condition ("the balance condition")
 
 .. math::
 
   W(\vec{x}') = \sum_{\vec{x}} p(\vec{x}' | \vec{x}) W(\vec{x}),
 
-the distribution of the generated time series :math:`\{\vec{x}_t\}` will converges to :math:`W(\vec{x})` [#mcmc_condition]_.
+the distribution of the generated time series :math:`\{\vec{x}_t\}` will converge to :math:`W(\vec{x})` [#mcmc_condition]_.
 Practically, the stronger condition ("the detailed balance condition")
 
 .. math::
@@ -364,21 +411,21 @@ Practically, the stronger condition ("the detailed balance condition")
 
 
 is usually imposed.
-The detailed balance condition returns to the balance condition by taking the summation of :math:`\vec{x}`.
+The detailed balance condition reduces to the balance condition when summed over :math:`\vec{x}`.
 
-ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
-The MH method splits the transition process into the suggestion process and the acceptance process.
+ODAT-SE adopts the Metropolis-Hastings (MH) method for solving the detailed balance condition.
+The MH method splits the transition process into the proposal process and the acceptance process.
 
-1. Generate a candidate :math:`\vec{x}` with the suggestion probability :math:`P(\vec{x} | \vec{x}_t)`.
+1. Generate a candidate :math:`\vec{x}` with the proposal probability :math:`P(\vec{x} | \vec{x}_t)`.
 
-   - As :math:`P`, use a simple distribution such as the normal distribution with centered at x.
+   - As :math:`P`, use a simple distribution such as a normal distribution centered at :math:`\vec{x}_t`.
 
 2. Accept the candidate :math:`\vec{x}` with the acceptance probability :math:`Q(\vec{x} | \vec{x}_t)`.
 
-   - If accepted, let :math:`\vec{x}_{t+1}` be `\vec{x}`.
-   - Otherwise, let :math:`\vec{x}_{t+1}` be `\vec{x}_t`.
+   - If accepted, let :math:`\vec{x}_{t+1}` be :math:`\vec{x}`.
+   - Otherwise, let :math:`\vec{x}_{t+1}` be :math:`\vec{x}_t`.
 
-The whole transision probability is the product of these two ones, :math:`p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)`.
+The whole transition probability is the product of these two, :math:`p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)`.
 The acceptance probability :math:`Q(\vec{x} | \vec{x}_t)` is defined as
 
 .. math::
@@ -387,16 +434,16 @@ The acceptance probability :math:`Q(\vec{x} | \vec{x}_t)` is defined as
 
 It is easy to verify that the detailed balance condition is satisfied by substituting it into the detailed balance condition equation.
 
-When adopting the Boltzmann factor for the weight and a symmetry distribution
-:math:`P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})` for the suggestion probability,
-the acceptance probability :math:`Q` will be the following simple form:
+When adopting the Boltzmann factor for the weight and a symmetric distribution
+:math:`P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})` for the proposal probability,
+the acceptance probability :math:`Q` takes the following simple form:
 
 .. math::
 
   Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})}{W(\vec{x}_t)} \right]
                          = \min\left[1, \exp\left(-\frac{f(\vec{x}) - f(\vec{x}_t)}{T}\right) \right].
 
-By saying :math:`\Delta f = f(\vec{x}) - f(\vec{x}_t)` and using the fact :math:`Q=1` for :math:`\Delta f \le 0`,
+By defining :math:`\Delta f = f(\vec{x}) - f(\vec{x}_t)` and using the fact :math:`Q=1` for :math:`\Delta f \le 0`,
 the procedure of MCMC with the MH algorithm is the following:
 
 1. Choose a candidate from near the current position and calculate :math:`f` and :math:`\Delta f`.
@@ -405,29 +452,29 @@ the procedure of MCMC with the MH algorithm is the following:
 4. Repeat 1-3.
 
 The solution is given as the point giving the minimum value of :math:`f(\vec{x})`.
-The third process of the above procedure endures that walkers can climb over the hill with a height of :math:`\Delta f \sim T`, the MCMC sampling can escape from local minima.
+The third process of the above procedure ensures that walkers can climb over hills of height :math:`\Delta f \sim T`, so that the MCMC sampling can escape from local minima.
 
 Replica exchange Monte Carlo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The "temperature" :math:`T` is one of the most important hyper parameters in the MCMC sampling.
-The MCMC sampling can climb over the hill with a height of :math:`T` but cannot easily escape from the deeper valley than :math:`T`.
-It is why we should increase the temperature in order to avoid stuck to local minima.
-On the other hand, since walkers cannot see the smaller valleys than :math:`T`, the precision of the obtained result :math:`\min f(\vec{x})` becomes about :math:`T`, and it is necessary to decrease the temperature in order to achieve more precise result.
-This dilemma leads us that we should tune the temperature carefully.
+The "temperature" :math:`T` is one of the most important hyperparameters in the MCMC sampling.
+The MCMC sampling can climb over hills of height :math:`T` but cannot easily escape from valleys deeper than :math:`T`.
+This is why the temperature should be increased in order to avoid getting stuck in local minima.
+On the other hand, since walkers cannot resolve valleys smaller than :math:`T`, the precision of the obtained result :math:`\min f(\vec{x})` becomes about :math:`T`, and it is necessary to decrease the temperature in order to achieve a more precise result.
+This dilemma means that the temperature must be tuned carefully.
 
-One of the ways to overcome this problem is to update temperature too.
-For example, simulated annealing decreases temperature as the iteration goes.
+One way to overcome this problem is to update the temperature as well.
+For example, simulated annealing decreases the temperature as the iterations proceed.
 Another algorithm, simulated tempering, treats temperature as another parameter to be sampled, not a fixed hyper parameter,
-and update temperature after some iterations according to the (detailed) balance condition.
+and updates the temperature after some iterations according to the (detailed) balance condition.
 Simulated tempering studies the details of a valley by cooling and escapes from a valley by heating.
-Replica exchange Monte Carlo (RXMC), also known as parallel tempering, is a parallelized version of the simulated tempering.
-In this algorithm, several copies of a system with different temperature, called as replicas, will be simulated in parallel.
+Replica exchange Monte Carlo (RXMC), also known as parallel tempering, is a parallelized version of simulated tempering.
+In this algorithm, several copies of the system at different temperatures, called replicas, are simulated in parallel.
 Then, with some interval of steps, each replica exchanges temperature with another one according to the (detailed) balance condition.
 As the simulated tempering does, RXMC can observe the details of a valley and escape from it by cooling and heating.
 Moreover, because each temperature is assigned to just one replica, the temperature distribution will not be biased.
 Using more replicas narrows the temperature interval, and increases the acceptance ratio of the temperature exchange.
-This is why this algorithm suits for the massively parallel calculation.
+This is why this algorithm is well suited to massively parallel calculations.
 
 It is recommended that users perform ``minsearch`` optimization starting from the result of ``exchange``, because the RXMC result has uncertainty due to temperature.
 
@@ -435,4 +482,4 @@ It is recommended that users perform ``minsearch`` optimization starting from th
 
   .. rubric:: footnote
 
-.. [#mcmc_condition] To be precisely, the non-periodicality and the ergodicity are necessary for convergence.
+.. [#mcmc_condition] To be precise, aperiodicity and ergodicity are necessary for convergence.

@@ -33,8 +33,7 @@ def choose_algorithm(name):
         alg_name = "odatse.algorithm.{}".format(alg_table.get(name, name))
         alg_module = importlib.import_module(alg_name)
     except ModuleNotFoundError as e:
-        print("ERROR: {}".format(e))
-        import sys
-        sys.exit(1)
+        from ..exception import InputError
+        raise InputError(f"unknown algorithm: {name} ({e})") from e
 
     return alg_module

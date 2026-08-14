@@ -12,7 +12,7 @@ import numpy as np
 #-- delay import
 # from mpi4py.util.dtlib import from_numpy_dtype
 
-import odatse.mpi
+from odatse import mpi
 
 _use_buffer = int(os.environ.get("ODATSE_USE_MPI_BUFFERED", 0)) == 1
 
@@ -21,8 +21,8 @@ _use_buffer = int(os.environ.get("ODATSE_USE_MPI_BUFFERED", 0)) == 1
 #     _use_buffer = use_buffer
 
 def gather_replica(data, axis=0):
-    mpisize = odatse.mpi.size()
-    if mpisize == 1:
+    algsize = mpi.algsize()
+    if algsize is None or algsize == 1:
         return data
     else:
         if _use_buffer:
@@ -31,8 +31,8 @@ def gather_replica(data, axis=0):
             return _do_gather_object(data, axis)
 
 def gather_data(data, axis=0):
-    mpisize = odatse.mpi.size()
-    if mpisize == 1:
+    algsize = mpi.algsize()
+    if algsize is None or algsize == 1:
         return data
     else:
         if _use_buffer:
@@ -41,8 +41,8 @@ def gather_data(data, axis=0):
             return _do_gather_object(data, axis)
 
 def _do_gather_object(data, axis):
-    mpicomm = odatse.mpi.comm()
-    return np.concatenate(mpicomm.allgather(data), axis=axis)
+    algcomm = mpi.algcomm()
+    return np.concatenate(algcomm.allgather(data), axis=axis)
 
 def _do_gather_replica_buffer(data, axis):
     if axis == 0:
@@ -58,13 +58,13 @@ def _do_gather_data_buffer(data, axis):
 
 def _do_gather_variable_buffer(data):
     from mpi4py.util.dtlib import from_numpy_dtype
-    mpicomm = odatse.mpi.comm()
-    mpisize = odatse.mpi.size()
+    algcomm = mpi.algcomm()
+    algsize = mpi.algsize()
 
     sh = data.shape
     nrep = np.array([sh[0]], dtype=np.int64)
-    nreps = np.zeros(mpisize, dtype=np.int64)
-    mpicomm.Allgather(nrep, nreps)
+    nreps = np.zeros(algsize, dtype=np.int64)
+    algcomm.Allgather(nrep, nreps)
 
     displ = np.cumsum(nreps) - nreps
     nrep_total = np.sum(nreps)
@@ -72,7 +72,7 @@ def _do_gather_variable_buffer(data):
 
     buf = np.zeros((nrep_total, *sh[1:]), dtype=data.dtype)
     dtype = from_numpy_dtype(data.dtype)
-    mpicomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
+    algcomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
     return buf
 
 def _do_gather_variable_buffer_transpose(data, axis):
@@ -85,12 +85,12 @@ def _do_gather_variable_buffer_transpose(data, axis):
         
 def _do_gather_fixed_buffer(data):
     from mpi4py.util.dtlib import from_numpy_dtype
-    mpicomm = odatse.mpi.comm()
-    mpisize = odatse.mpi.size()
+    algcomm = mpi.algcomm()
+    algsize = mpi.algsize()
 
     sh = data.shape
-    buf = np.zeros((mpisize*sh[0], *sh[1:]), dtype=data.dtype)
-    mpicomm.Allgather(data, buf)
+    buf = np.zeros((algsize*sh[0], *sh[1:]), dtype=data.dtype)
+    algcomm.Allgather(data, buf)
     return buf
     
 def _do_gather_fixed_buffer_transpose(data, axis):    

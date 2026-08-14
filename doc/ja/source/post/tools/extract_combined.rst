@@ -1,5 +1,5 @@
-extract_combined.py
-===================
+odatse_extract_combined
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 extract_combined.py [OPTION]... -t tag [FILE]...
+   odatse_extract_combined [OPTION]... -t tag [FILE]...
 
 
 DESCRIPTION
@@ -35,7 +35,7 @@ FILE を指定した場合はそのファイルが対象となる。明示的に
 
 **-d DATA_DIR, --data_dir DATA_DIR**
     データファイルをディレクトリから取得する場合(``FILE`` を指定しない場合)に、ディレクトリを指定する。
-			
+
 **--progress**
     実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。tqdmがインストールされていない場合は、代わりに処理中のファイル名が表示される。
 
@@ -50,13 +50,13 @@ USAGE
 .. code-block:: bash
 
    # 特定のファイルから「energy」タグのついた行を抽出し、path/to/energy に出力
-   python3 extract_combined.py -t energy path/to/combined.txt
+   odatse_extract_combined -t energy path/to/combined.txt
 
    # 特定のディレクトリ内の全combined.txtファイルから「acc」タグの行を抽出
-   python3 extract_combined.py -t acc -d ./mcmc_results/
+   odatse_extract_combined -t acc -d ./mcmc_results/
 
    # プログレスバーを表示しながら複数のファイルを処理
-   python3 extract_combined.py -t energy --progress file1.txt file2.txt file3.txt
+   odatse_extract_combined -t energy --progress file1.txt file2.txt file3.txt
 
 NOTES
 -----
@@ -93,7 +93,7 @@ combined形式のファイルは以下のような構造を持つ:
    <tag1> value5 value6 ...
    ...
 
-各行の先頭に ``<tag>`` の形式でタグが付けられており、``extract_combined.py`` はこのタグを検索して一致する行を抽出する。
+各行の先頭に ``<tag>`` の形式でタグが付けられており、``odatse_extract_combined`` はこのタグを検索して一致する行を抽出する。
 タグ部分は出力ファイルからは削除される。
 
 一般的なワークフロー
@@ -102,16 +102,17 @@ combined形式のファイルは以下のような構造を持つ:
 このスクリプトは、MCMCシミュレーションの結果を分析する際に使用する:
 
 1. export_combined_files オプションを有効にしてMCMCシミュレーションを実行した場合、 ``combined.txt`` ファイルが出力される。
-2. ``extract_combined.py`` を使用して必要なファイルを抽出する。
-3. 抽出したデータファイルを別のツールで分析やプロットする。
+2. ``odatse_extract_combined`` を使用して必要なファイルを抽出する。
+3. 抽出したデータファイルを別のツールで分析・プロットする。
 
 複数のシミュレーション結果を一括処理する場合は、 ``-d`` オプションと ``--progress`` オプションを組み合わせると効率的。
 
 MCMCシミュレーションで一般的に使用されるタグの例:
- * ``trial.txt``: Monte Carlo の tiral step のログ
- * ``result.txt``: Monte Carlo の各ステップのログ
- * ``weight.txt``: PAMC計算でのウェイト値
- * ``time.txt``: 計算時間
+
+* ``trial.txt``: モンテカルロ法の trial step のログ
+* ``result.txt``: モンテカルロ法の各ステップのログ
+* ``weight.txt``: PAMC計算でのウェイト値
+* ``time.txt``: 計算時間
 
 
 エラー処理と出力

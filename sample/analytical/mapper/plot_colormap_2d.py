@@ -30,11 +30,12 @@ levels = np.logspace(0.35, 3.2, 8)  # Define contour levels using logarithmic sp
 x = []  # x-coordinates
 y = []  # y-coordinates
 f = []  # function values
-file_input = open("output/ColorMap.txt", "r")
-lines = file_input.readlines()
-file_input.close()
-for line in lines:
-    if line[0] != "/n":  # Skip empty lines
+with open("output/ColorMap.txt", "r") as fp:
+    for line in fp:
+        if line[0] == "\n":  # Skip empty lines
+            continue
+        if line[0] == "#":   # Skip comment lines
+            continue
         data = line.split()  # Split line by whitespace
         x.append(float(data[0]))  # First column: x coordinate
         y.append(float(data[1]))  # Second column: y coordinate

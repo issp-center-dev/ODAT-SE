@@ -32,7 +32,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+html_theme = 'pydata_sphinx_theme'
 # html_static_path = ['_static']
 
 # -- Options for todo extension ----------------------------------------------
@@ -44,3 +44,5 @@ autoclass_content = 'both'
 
 napoleon_include_init_with_doc = True
 
+# Avoid importing optional runtime dependencies during API doc generation.
+autodoc_mock_imports = ["mpi4py", "physbo", "scipy"]

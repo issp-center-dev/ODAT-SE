@@ -6,18 +6,18 @@ export PYTHONUNBUFFERED=1
 rm -f output_transform/ColorMap.txt
 
 # Run the odatse_main.py script with the input_transform.toml configuration file
-python3 ../../src/odatse_main.py input_transform.toml
+${PYTHON:-python3} ../../src/odatse_main.py input_transform.toml
 
 # Remove the existing ColorMap.txt file from the output_meshlist directory
 rm -f output_meshlist/ColorMap.txt
 
 # Run the odatse_main.py script with the input_meshlist.toml configuration file
-python3 ../../src/odatse_main.py input_meshlist.toml
+${PYTHON:-python3} ../../src/odatse_main.py input_meshlist.toml
 
 # Calculate the difference between the ColorMap.txt files from both outputs
 res=$(
 paste output_transform/ColorMap.txt output_meshlist/ColorMap.txt \
-  | awk 'BEGIN {diff = 0.0} {diff += ($2 - $(NF))**2} END {print diff/NR}'
+  | awk 'BEGIN {diff = 0.0; n=0} /^[^#]/ {diff += ($2 - $(NF))**2; n++} END {if (n>0) print diff/n; else print 0}'
 )
 
 # Check if the difference is zero

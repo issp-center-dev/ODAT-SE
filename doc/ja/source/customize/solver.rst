@@ -14,13 +14,13 @@
 
 - コンストラクタ
 
-  コンストラクタは ``Info`` クラスのメソッドを引数としてとります。
+  コンストラクタは ``Info`` クラスのインスタンスを引数としてとります。
 
   .. code-block:: python
 
      def __init__(self, info: odatse.Info):
          super().__init__(info)
-	 ...
+         ...
 
   必ず ``info`` を引数として基底クラスのコンストラクタを呼び出してください。
   基底クラスのコンストラクタでは、次のインスタンス変数が設定されます。
@@ -29,21 +29,29 @@
 
   - ``self.output_dir`` は出力ファイルを書き出すディレクトリです。 ``info.base["output_dir"]`` から取得されます。通例、MPI並列の場合は各ランクからのデータを集約した結果を出力します。
 
-  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(self.mpirank)`` が設定されます。
+  - ``self.proc_dir`` はプロセスごとの作業用ディレクトリです。 ``output_dir / str(odatse.mpi.algrank())`` が設定されます。
     ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
     MPIを使用しない場合もランク番号を0として扱います。
 
+  - ``self.work_dir`` は ``self.proc_dir`` の別名です。
+
+  - ``self.dimension`` は入力変数の次元数です。 ``info.solver`` に ``dimension`` が指定されていればその値、なければ ``info.base["dimension"]`` が設定されます。
+
+  - ``self.timer`` は実行時間を記録するための辞書で、 ``"prepare"``, ``"run"``, ``"post"`` のキーを持ちます。
+
+  - ``self._name`` はソルバー名（文字列）です。基底クラスでは空文字列に初期化されるため、コンストラクタで適切な名前を設定してください。 ``name`` プロパティを通して参照されます。
+
   Solver 固有のパラメータは ``info`` の ``solver`` フィールドから取得します。必要な設定を読み取って保存します。
 
-    
-- ``evaluate`` メソッド  
+
+- ``evaluate`` メソッド
 
   .. code-block:: python
 
-         def evaluate(self, x, args=(), nprocs=1, nthreads=1) -> float:
-	     pass
+         def evaluate(self, x, args=()) -> float:
+             pass
 
-  入力変数に対して目的変数の値を返すメソッドです。以下の引数を取ります。
+  入力変数に対して目的関数の値を返すメソッドです。以下の引数を取ります。
 
   - ``x: np.ndarray``
 
@@ -53,10 +61,12 @@
 
     Algorithm から渡される追加の引数で、step数と set番号からなる Tuple です。step数は Monte Carlo のステップ数や、グリッド探索のグリッド点のインデックスです。set番号は n巡目を表します。
 
-  - ``nprocs: int = 1``
-
-  - ``nthreads: int = 1``
-
-    ソルバーを MPI並列・スレッド並列で実行する際のプロセス数・スレッド数を受け取ります。現在は ``procs=1``, ``nthreads=1`` のみ対応しています。
-
   ``evaluate`` メソッドは、Float 型の目的関数の値を返します。
+
+  .. note::
+     ``evaluate`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して目的関数値を ``np.nan`` として扱います。
+     また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、目的関数値は ``np.inf`` になります。
+
+  .. note::
+     ソルバー並列を使用する場合 (``--nsolve`` が 2 以上)、 ``evaluate`` はソルバーグループ内の全 MPI ランクで同一の ``x``, ``args`` を引数として呼び出されます。
+     ランク間の役割分担はソルバー内で実装してください。詳細は :doc:`../tutorial/parallel_solver` を参照してください。

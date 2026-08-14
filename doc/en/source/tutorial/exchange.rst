@@ -1,12 +1,12 @@
-Optimization by replica exchange Monte Carlo
-================================================
+Search by replica exchange Monte Carlo
+========================================
 
-This tutorial describes how to estimate the minimization problem of Himmelblau function by using the replica exchange Monte Carlo method (RXMC).
+This tutorial describes how to solve the minimization problem of the Himmelblau function by using the replica exchange Monte Carlo method (RXMC).
 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/exchange`` .
+Sample files are available from ``sample/analytical/exchange``.
 This directory includes the following files:
 
 - ``input.toml``
@@ -15,7 +15,7 @@ This directory includes the following files:
 
 - ``do.sh``
 
-  Script files for running this tutorial
+  Script for running this tutorial
 
 
 Input files
@@ -39,7 +39,7 @@ For details, see the input file section of the manual.
   seed = 12345
 
   [algorithm.param]
-  min_list = [3.0, 3.0]
+  min_list = [-6.0, -6.0]
   max_list = [6.0, 6.0]
   step_list = [0.3, 0.3]
 
@@ -54,7 +54,7 @@ For details, see the input file section of the manual.
 In the following, we will briefly describe this input file.
 For details, see the manual of :doc:`../algorithm/exchange`.
 
-The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
+The contents of the ``[base]`` and ``[solver]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
@@ -66,11 +66,11 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
+- ``step_list`` is the step length of one Monte Carlo update (standard deviation of the Gaussian distribution).
 
-``[algorithm.exchange]`` section sets the hyper parameters for RXMC.
+``[algorithm.exchange]`` section sets the hyperparameters for RXMC.
 
-- ``numstep`` is the number of Monte Carlo steps.
+- ``numsteps`` is the number of Monte Carlo steps.
 
 - ``numsteps_exchange`` is the number of steps between temperature exchanges.
 
@@ -79,22 +79,22 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 - When ``Tlogspace`` is ``true``, the temperature points are distributed uniformly in the logarithmic space.
 
 - ``nreplica_per_proc`` specifies the number of replicas that one MPI process handles.
-  
+
 
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are in the root directory of ODAT-SE.)
 
 .. code-block::
 
    $ cd sample/analytical/exchange
 
-Then, run the main program. It will take a few secondes on a normal PC.
+Then, run the main program. It will take a few seconds on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 odatse input.toml | tee log.txt
 
 
 Here, the calculation is performed using MPI parallel with 4 processes.
@@ -107,17 +107,17 @@ These files have the same format: the first two columns are time (step) and the 
 .. code-block::
 
     # step walker T fx x1 x2
-    0 0 0.01 170.0 0.0 0.0
-    0 1 0.01123654800138751 187.94429125133564 5.155393113805774 -2.203493345018569
-    0 2 0.012626001098748564 3.179380982615041 -3.7929742598748666 -3.5452766573635235
-    0 3 0.014187266741165962 108.25464277273859 0.8127003489802398 1.1465364357510186
-    0 4 0.01594159037455999 483.84183395038843 5.57417423682746 1.8381251624588506
-    0 5 0.01791284454622004 0.43633134370869153 2.9868796504069426 1.8428384502208246
-    0 6 0.020127853758499396 719.7992581349758 2.972577711255287 5.535680832873856
-    0 7 0.022616759492228647 452.4691017123836 -5.899340424701358 -4.722667479627368
-    0 8 0.025413430367026365 45.5355817998709 -2.4155554347674215 1.8769341969872393
-    0 9 0.028555923019901074 330.7972369561986 3.717750630491217 4.466110964691396
-    0 10 0.032086999973704504 552.0479484091458 5.575771168463163 2.684224163039442
+    0 0 0.01 187.94429125133564 5.155393113805774 -2.203493345018569
+    0 1 0.01123654800138751 3.179380982615041 -3.7929742598748666 -3.5452766573635235
+    0 2 0.012626001098748564 108.25464277273859 0.8127003489802398 1.1465364357510186
+    0 3 0.014187266741165962 483.84183395038843 5.57417423682746 1.8381251624588506
+    0 4 0.01594159037455999 0.43633134370869153 2.9868796504069426 1.8428384502208246
+    0 5 0.01791284454622004 719.7992581349758 2.972577711255287 5.535680832873856
+    0 6 0.020127853758499396 452.4691017123836 -5.899340424701358 -4.722667479627368
+    0 7 0.022616759492228647 45.5355817998709 -2.4155554347674215 1.8769341969872393
+    0 8 0.025413430367026365 330.7972369561986 3.717750630491217 4.466110964691396
+    0 9 0.028555923019901074 552.0479484091458 5.575771168463163 2.684224163039442
+    0 10 0.032086999973704504 32.20027165958588 1.7097039347500953 2.609443449748964
     ...
 
 ``best_result.txt`` is filled with information about the parameter with the optimal objective function, the rank from which it was obtained, and the Monte Carlo step.
@@ -125,28 +125,31 @@ These files have the same format: the first two columns are time (step) and the 
 .. code-block::
 
     nprocs = 80
-    rank = 3
-    step = 8025
-    walker = 17
-    fx = 3.358076734724385e-06
-    x1 = 2.9998063442504126
-    x2 = 1.999754886043102
+    rank = 2
+    step = 1632
+    walker = 9
+    fx = 3.618846176852812e-06
+    x1 = -2.8054241034292455
+    x2 = 3.13143739585623
+
+``nprocs`` in the first line denotes the total number of replicas (the number of MPI processes × ``nreplica_per_proc``; 4 × 20 = 80 in this example).
+Note that the Himmelblau function has four global minima; in this run, the solution near one of them, :math:`(-2.805, 3.131)`, is obtained.
 
 
 In ODAT-SE, one replica holds samples at different temperatures because of the temperature exchanges. The ``result.txt`` in each rank folder records the data sampled by each replica.
 The data reorganized for each temperature point is written to ``output/result_T%.txt``, where ``%`` is the index of the temperature point.
-The first column is the step, the second column is the rank, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
+The first column is the step, the second column is the global walker (replica) index, the third column is the value of the objective function, and the fourth and subsequent columns are the parameters.
 Example:
 
 .. code-block::
 
     # T = 0.014187266741165962
-    0 3 108.25464277273859 0.8127003489802398 1.1465364357510186 
-    1 3 108.25464277273859 0.8127003489802398 1.1465364357510186 
-    2 3 108.25464277273859 0.8127003489802398 1.1465364357510186 
-    3 3 108.25464277273859 0.8127003489802398 1.1465364357510186 
-    4 3 93.5034551820852 1.3377081691728905 0.8736706475438123 
-    5 3 81.40963740872147 1.4541906604820898 1.0420053981467825 
+    0 3 483.84183395038843 5.57417423682746 1.8381251624588506
+    1 3 376.63669411179063 5.315947017297935 2.006168750367261
+    2 3 376.63669411179063 5.315947017297935 2.006168750367261
+    3 3 376.63669411179063 5.315947017297935 2.006168750367261
+    4 3 376.63669411179063 5.315947017297935 2.006168750367261
+    5 3 254.81573883689714 5.04750307814821 1.483720563950596
     ...
 
 
@@ -154,13 +157,13 @@ Visualization
 ~~~~~~~~~~~~~~~~~~~
 
 By plotting ``output/result_T%.txt``, you can estimate regions where the parameters with small function values are located.
-By executing the following command, the figures of two-dimensional plot ``res_T%.png`` will be generated.
+By executing the following command, the two-dimensional plots ``res_T%.png`` will be generated.
 
 .. code-block::
 
    $ python3 ../plot_himmel.py --xcol=3 --ycol=4 --skip=20 --format="o" --output=output/res_T0.png output/result_T0.txt
 
-Looking at the resulting diagram, we can see that the samples are concentrated near the minima of ``f(x)``. By changing the index of the temperature, the sampling points scatters over the region at high temperature, while they tend to concentrate on the minima at low temperature.
+Looking at the resulting diagram, we can see that the samples are concentrated near the minima of ``f(x)``. By changing the index of the temperature, the sampling points scatter over the region at high temperature, while they tend to concentrate on the minima at low temperature.
 
 .. figure:: ../../../common/img/res_exchange.*
 

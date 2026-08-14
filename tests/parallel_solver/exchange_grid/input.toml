@@ -1,0 +1,30 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+#delay = 0.01
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[algorithm.param]
+use_grid = true
+min_list = [-6.0, -6.0]
+max_list = [ 6.0,  6.0]
+num_list = [31, 31]
+radius = 0.5
+
+[algorithm.exchange]
+numsteps = 1000
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+nreplica_per_proc = 10

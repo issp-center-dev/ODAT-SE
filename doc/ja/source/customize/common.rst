@@ -10,19 +10,19 @@
 
 - ``base``
 
-    - ディレクトリ情報など、プログラム全体で共通するパラメータ
+  - ディレクトリ情報など、プログラム全体で共通するパラメータ
 
 - ``solver``
 
-    - ``Solver`` が用いる入力パラメータ
+  - ``Solver`` が用いる入力パラメータ
 
 - ``algorithm``
 
-    - ``Algorithm`` が用いる入力パラメータ
+  - ``Algorithm`` が用いる入力パラメータ
 
 - ``runner``
 
-    - ``Runner`` が用いる入力パラメータ
+  - ``Runner`` が用いる入力パラメータ
 
 
 ``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキー(省略可)を持つ ``dict`` を渡して初期化できます。また、クラスメソッド ``from_file`` に TOML形式の入力ファイルへのパスを渡して作成することもできます。
@@ -31,7 +31,7 @@
 ``base`` について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-要素として計算のルートディレクトリ ``root_dir`` と出力のルートディレクトリ ``output_dir`` が自動で設定されます
+要素として計算のルートディレクトリ ``root_dir`` と出力のルートディレクトリ ``output_dir`` が自動で設定されます。
 
 - ルートディレクトリ ``root_dir``
 
@@ -42,8 +42,8 @@
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("root_dir", "."))
-       base["root_dir"] = p.expanduser().absolute()
+      p = pathlib.Path(base.get("root_dir", "."))
+      base["root_dir"] = p.expanduser().absolute()
 
 - 出力ディレクトリ ``output_dir``
 
@@ -55,9 +55,9 @@
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("work_dir", "."))
-       p = p.expanduser()
-       base["work_dir"] = base["root_dir"] / p
+      p = pathlib.Path(base.get("output_dir", "."))
+      p = p.expanduser()
+      base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
@@ -71,7 +71,7 @@
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
 関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
 
-その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input` を参照してください。
+その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 
 
 ``odatse.Mapping``
@@ -109,3 +109,35 @@ Runner クラスの引数のデフォルト値となります。
 
 要素 ``A``, ``b`` はコンストラクタの引数に指定するか、 ``from_dict`` クラスメソッドに辞書の形式で与えます。
 ODAT-SEの入力ファイルに指定する場合、パラメータの指定方法は「入力ファイル」の limitation セクションを参照してください。
+
+
+``odatse.initialize``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``initialize(argv=None) -> (Info, str)`` は、コマンドライン引数の解釈と入力ファイルの読み込みをまとめて行う初期化関数です。
+``odatse`` コマンドと同じ引数（入力ファイルのパス、 ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve`` 。詳細は :doc:`../manual/command` を参照）を解釈し、 ``Info`` のインスタンスと実行モード文字列 ``run_mode`` の組を返します。内部で ``odatse.mpi.setup()`` も呼び出します。
+
+- ``argv`` を省略した場合（ ``None`` ）は ``sys.argv[1:]`` が解釈されます。
+  独自の引数処理を持つスクリプトに組み込む場合は、 ``argv`` に明示的にリストを渡すことで ``sys.argv`` に依存せずに初期化できます。
+
+  .. code-block:: python
+
+      info, run_mode = odatse.initialize(["input.toml", "--resume"])
+
+- ``run_mode`` は ``"initial"``, ``"resume"``, ``"continue"`` のいずれか（ ``--reset_rand`` 指定時は ``"-resetrand"`` が付加）です。
+  ``Algorithm`` のコンストラクタの ``run_mode`` 引数にそのまま渡すことで、リスタート機能が独自スクリプトでも有効になります。
+
+
+``odatse.mpi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+MPI コミュニケータへのアクセスを提供するモジュールです。
+mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOMPI`` が設定された場合は、非 MPI のスタブとして動作します。
+二層並列（アルゴリズム層 × ソルバーグループ）の詳細は :doc:`../tutorial/parallel_solver` を参照してください。
+
+- ``setup(nalg=None, nsolve=None)`` : コミュニケータを分割します。 ``Solver`` / ``Algorithm`` の構築前に一度だけ呼ぶ必要があります（ ``odatse.initialize()`` を使う場合は内部で呼ばれます）。
+- ``comm()`` / ``size()`` / ``rank()`` : 全体のコミュニケータとそのサイズ・ランク。
+- ``algcomm()`` / ``algsize()`` / ``algrank()`` : アルゴリズム層のコミュニケータとそのサイズ・ランク。
+- ``solcomm()`` / ``solsize()`` / ``solrank()`` : ソルバーグループのコミュニケータとそのサイズ・ランク。
+- ``run_on_algorithm()`` : 呼び出したプロセスがアルゴリズム層に属するかどうか。
+- ``enabled()`` : MPI が利用可能かどうか（ ``ODATSE_NOMPI`` 設定時は ``False`` ）。

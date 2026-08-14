@@ -6,14 +6,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
+import sys
 from abc import ABCMeta, abstractmethod
 from enum import IntEnum
 import time
 import os
 import pathlib
 import pickle
-import shutil
 import copy
 
 import numpy as np
@@ -37,11 +36,32 @@ class AlgorithmStatus(IntEnum):
     RUN = 3
 
 class AlgorithmBase(metaclass=ABCMeta):
-    """Base class for algorithms, providing common functionality and structure."""
+    """Base class for algorithms, providing common functionality and structure.
 
-    mpicomm: Optional["MPI.Comm"]
-    mpisize: int
-    mpirank: int
+    Lifecycle
+    ---------
+    ``main()`` drives the three-phase lifecycle by calling the framework wrappers::
+
+        main()
+          ├── prepare()   runner.prepare → dispatch(init/resume/continue) → _prepare()
+          ├── run()       _run()
+          └── post()      _post() → runner.post()
+
+    Subclasses implement the hooks with underscore prefix:
+    ``_prepare()`` (optional), ``_run()`` (required), ``_post()`` (required).
+    The plain-named wrappers ``prepare``, ``run``, ``post`` are
+    framework internals and must **not** be overridden in subclasses.
+
+    Checkpoint
+    ----------
+    Each class declares ``_checkpoint_attrs`` (a list of attribute names).
+    ``__getstate__()`` walks the MRO and collects them all automatically.
+    Subclasses normally need only declare their own ``_checkpoint_attrs``
+    and override ``_apply_state()`` to call ``super()`` and restore RNG /
+    algorithm-specific state.  Override ``_save_state()`` / ``_load_state()``
+    only when extra files (e.g. an external policy object) must be written.
+    """
+
     rng: np.random.RandomState
     dimension: int
     label_list: list[str]
@@ -56,13 +76,75 @@ class AlgorithmBase(metaclass=ABCMeta):
     status: AlgorithmStatus = AlgorithmStatus.INIT
     mode: Optional[str] = None
 
+    # Fields saved/restored at every checkpoint for this class.
+    # Each subclass declares only its own fields; ``__getstate__`` collects
+    # them all by walking the MRO.
+    _checkpoint_attrs: list[str] = []
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot of the full algorithm state.
+
+        Saves the MPI configuration, RNG state, timer, and ``info``, then
+        appends every field declared in ``_checkpoint_attrs`` by this class
+        and all its subclasses (collected via MRO traversal).  Subclasses
+        need only declare their own ``_checkpoint_attrs``; no override is
+        needed unless extra non-attribute data must be saved (e.g. a global
+        RNG or an external policy object).
+        """
+        state: dict = {
+            "algsize": odatse.mpi.algsize(),
+            "algrank": odatse.mpi.algrank(),
+            "rng": self.rng.get_state(),
+            "timer": self.timer,
+            "info": self.info,
+        }
+        for cls in reversed(type(self).__mro__):
+            for attr in cls.__dict__.get("_checkpoint_attrs", []):
+                state[attr] = getattr(self, attr)
+        return state
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore the base algorithm state from a checkpoint snapshot.
+
+        Validates the MPI configuration, restores the timer, checks that
+        algorithm parameters are consistent, and restores the RNG state.
+        Subclasses should call
+        ``super()._apply_state(data, mode=mode, restore_rng=restore_rng)``
+        and then handle their own subclass-specific fields
+        (``_checkpoint_attrs``, continue-mode semantics, etc.).  The RNG state
+        saved by ``__getstate__`` for every algorithm is restored here (guarded
+        by ``restore_rng``), so subclasses need not repeat it.
+
+        Parameters
+        ----------
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"`` or ``"continue"``.  Passed through to subclass
+            overrides so they can implement continue-mode semantics.
+        restore_rng : bool
+            When *True* (default) the RNG state is restored from *data*.
+        """
+        assert odatse.mpi.algsize() == data["algsize"]
+        assert odatse.mpi.algrank() == data["algrank"]
+        self.timer = data["timer"]
+        self._check_parameters(data["info"])
+        if restore_rng:
+            # Restore in place rather than rebinding self.rng: collaborators
+            # constructed in __init__ hold a reference to this object (e.g.
+            # the Monte Carlo StateSpace draws its proposals from it, and
+            # MeshGrid may capture it), and __init__ runs before the resume
+            # dispatch in prepare(). Rebinding would leave those collaborators
+            # on the stale un-restored RNG, silently splitting the random
+            # stream after a resume.
+            self.rng.set_state(data["rng"])
+
     @abstractmethod
     def __init__(
             self,
             info: odatse.Info,
             runner: Optional[odatse.Runner] = None,
             run_mode: str = "initial",
-            mpicomm: Optional["MPI.Comm"] = None
     ) -> None:
         """
         Initialize the algorithm with the given information and runner.
@@ -75,18 +157,14 @@ class AlgorithmBase(metaclass=ABCMeta):
             Optional runner object to execute the algorithm.
         run_mode : str
             Mode in which the algorithm should run.
-        mpicomm : MPI.Comm (optional)
-            MPI communicator to use for parallelization.
-            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.
         """
-        if mpicomm is None:
-            self.mpicomm = mpi.comm()
-            self.mpisize = mpi.size()
-            self.mpirank = mpi.rank()
-        else:
-            self.mpicomm = mpicomm
-            self.mpisize = mpicomm.size
-            self.mpirank = mpicomm.rank
+        # Start of the "init" phase: prefer the timestamp recorded by
+        # odatse.initialize() so that argument parsing, input loading and
+        # solver construction are included; fall back to the construction
+        # time of this object when the caller did not use initialize().
+        # The phase is closed at the beginning of _main_algorithm().
+        start_time = getattr(info, "_start_time", None)
+        self._init_time_sta = start_time if start_time is not None else time.perf_counter()
         self.timer = {"init": {}, "prepare": {}, "run": {}, "post": {}}
         self.timer["init"]["total"] = 0.0
         self.status = AlgorithmStatus.INIT
@@ -113,18 +191,28 @@ class AlgorithmBase(metaclass=ABCMeta):
         # directories
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
-        self.proc_dir = self.output_dir / str(self.mpirank)
+        self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
+        # create directory for each rank in case every rank has some output
         self.proc_dir.mkdir(parents=True, exist_ok=True)
         # Some cache of the filesystem may delay making a dictionary
         # especially when mkdir just after removing the old one
         while not self.proc_dir.is_dir():
             time.sleep(0.1)
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+
+        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
-        self.checkpoint_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        _chk_file = info.algorithm.get("checkpoint_file", "status.pickle")
+        # Resolve to an absolute path so _load_state() / _save_state() work
+        # correctly regardless of the working directory at call time.
+        # _prepare() runs from the original directory, not proc_dir, so a
+        # relative path would resolve to the wrong location.
+        self.checkpoint_file = str(
+            Path(_chk_file) if Path(_chk_file).is_absolute()
+            else self.proc_dir / _chk_file
+        )
         self.checkpoint_steps = info.algorithm.get("checkpoint_steps", 65536*256)  # large number
         self.checkpoint_interval = info.algorithm.get("checkpoint_interval", 86400*360)  # longer enough
 
@@ -147,7 +235,12 @@ class AlgorithmBase(metaclass=ABCMeta):
         if seed is None:
             self.rng = np.random.RandomState()
         else:
-            self.rng = np.random.RandomState(seed + self.mpirank * seed_delta)
+            # Offset the seed by the algorithm-layer rank, not the global MPI
+            # rank.  When the solver runs in parallel (nsolve > 1) the global
+            # rank differs from the algorithm rank, so seeding by rank() would
+            # make the per-replica seeds depend on the solver parallelism and
+            # break reproducibility.  algrank() identifies the replica.
+            self.rng = np.random.RandomState(seed + odatse.mpi.algrank() * seed_delta)
 
     def set_runner(self, runner: odatse.Runner) -> None:
         """
@@ -160,91 +253,316 @@ class AlgorithmBase(metaclass=ABCMeta):
         """
         self.runner = runner
 
+    # ------------------------------------------------------------------
+    # Framework wrappers – called by main().  Do NOT override in subclasses.
+    # ------------------------------------------------------------------
+
+    def _reach_consensus(self, error: Optional[Exception], ok: "np.ndarray") -> None:
+        """Collectively agree on whether *every* algorithm rank succeeded.
+
+        Every algorithm rank must call this exactly once per phase, regardless
+        of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when
+        this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the
+        exception this rank caught (or ``None``).
+
+        A single ``Allreduce`` shares the success flags, then:
+
+        * if this rank failed, its own exception is re-raised;
+        * else if any other rank failed, ``OtherAlgorithmProcessError`` is
+          raised so this rank bails out too.
+
+        Because the only collective on the failure path is this one
+        ``Allreduce`` -- reached by all ranks whether they succeeded or failed
+        -- a per-rank failure can no longer leave the other ranks blocked.
+        (Collectives *inside* the ``_prepare``/``_run``/``_post`` hooks remain
+        the responsibility of each algorithm to keep balanced across ranks.)
+        """
+        if odatse.mpi.algsize() > 1:
+            total = np.array([0])
+            odatse.mpi.algcomm().Allreduce(ok, total)
+            all_ok = bool(total[0] == odatse.mpi.algsize())
+        else:
+            all_ok = error is None
+
+        if error is not None:
+            if isinstance(error, exception.Error):
+                # this rank's own failure: have the CLI boundary report it
+                # from this rank (rank 0 may have no error to print)
+                error.rank_local = True
+            raise error
+        if not all_ok:
+            raise odatse.mpi.OtherAlgorithmProcessError()
+
     def prepare(self) -> None:
+        """Framework wrapper for the prepare phase.
+
+        Calls ``runner.prepare()``, dispatches init/resume/continue, then
+        calls the ``_prepare()`` hook.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_prepare()`` instead.
         """
-        Prepare the algorithm for execution.
-        """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
         if self.runner is None:
-            msg = "Runner is not assigned"
-            raise RuntimeError(msg)
-        self._prepare()
+            raise RuntimeError("Runner is not assigned")
+
+        restore_rng = not self.mode.endswith("-resetrand")
+
+        # Everything that can fail per-rank (runner setup, checkpoint dispatch,
+        # the _prepare() hook) is inside the try so that a failure on any rank
+        # is shared through the single collective in _reach_consensus() instead
+        # of leaving the other ranks blocked. The exception is captured here and
+        # re-raised only after that collective.
+        error = None
+        ok = np.array([0])
+        try:
+            # runner lifecycle starts (commit 936e48: moved here from run())
+            self.runner.prepare(self.proc_dir)
+
+            # checkpoint dispatch
+            if self.mode.startswith("init"):
+                self._initialize()
+            elif self.mode.startswith("resume"):
+                self._load_state(self.checkpoint_file, mode="resume", restore_rng=restore_rng)
+            elif self.mode.startswith("continue"):
+                self._load_state(self.checkpoint_file, mode="continue", restore_rng=restore_rng)
+            else:
+                raise RuntimeError(f"unknown mode {self.mode}")
+
+            # algorithm-specific preparation
+            self._prepare()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+
+        self._reach_consensus(error, ok)
+
+        # preparation step completed
         self.status = AlgorithmStatus.PREPARE
+
+    def run(self) -> None:
+        """Framework wrapper for the run phase.
+
+        Calls the ``_run()`` hook.  Runner calls are handled by
+        ``prepare()`` and ``post()``; this wrapper contains no runner
+        invocations.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_run()`` instead.
+        """
+        if not odatse.mpi.run_on_algorithm():
+            return
+
+        if self.runner is None:
+            raise RuntimeError("Runner is not assigned")
+
+        if self.status < AlgorithmStatus.PREPARE:
+            raise RuntimeError("algorithm has not prepared yet")
+
+        error = None
+        ok = np.array([0])
+        original_dir = os.getcwd()
+        try:
+            os.chdir(self.proc_dir)
+            self._run()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
+            os.chdir(original_dir)
+
+        self._reach_consensus(error, ok)
+
+        # run step completed
+        self.status = AlgorithmStatus.RUN
+
+    def post(self) -> dict:
+        """Framework wrapper for the post phase.
+
+        Calls the ``_post()`` hook then ``runner.post()``.
+
+        Do **not** override this method in subclasses.  Implement
+        ``_post()`` instead.
+        """
+        if not odatse.mpi.run_on_algorithm():
+            return {}
+
+        if self.status < AlgorithmStatus.RUN:
+            raise RuntimeError("algorithm has not run yet")
+
+        error = None
+        ok = np.array([0])
+        result = {}
+        original_dir = os.getcwd()
+        try:
+            os.chdir(self.output_dir)
+            result = self._post()
+            ok = np.array([1])
+        except Exception as e:
+            error = e
+        finally:
+            os.chdir(original_dir)
+
+        self._reach_consensus(error, ok)
+
+        # runner lifecycle ends (commit 936e48: moved here from run())
+        self.runner.post()
+
+        return result
+
+    # ------------------------------------------------------------------
+    # Hooks – override these in subclasses.
+    # ------------------------------------------------------------------
+
+    @abstractmethod
+    def _initialize(self) -> None:
+        """Set up initial algorithm state for a fresh run (init mode).
+
+        Called by ``prepare()`` when ``mode`` starts with ``"init"``.
+        Must not use the runner (evaluation happens later in ``_run()``).
+        """
+        pass
 
     @abstractmethod
     def _prepare(self) -> None:
-        """Abstract method to be implemented by subclasses for preparation steps."""
-        pass
+        """Algorithm-specific preparation, called after dispatch.
 
-    def run(self) -> None:
+        Override in subclasses to perform setup that must happen after the
+        checkpoint state is established (e.g. initialising timer entries).
         """
-        Run the algorithm.
-        """
-        if self.status < AlgorithmStatus.PREPARE:
-            msg = "algorithm has not prepared yet"
-            raise RuntimeError(msg)
-        original_dir = os.getcwd()
-        os.chdir(self.proc_dir)
-        self.runner.prepare(self.proc_dir)
-        self._run()
-        self.runner.post()
-        os.chdir(original_dir)
-        self.status = AlgorithmStatus.RUN
+        pass
 
     @abstractmethod
     def _run(self) -> None:
-        """Abstract method to be implemented by subclasses for running steps."""
+        """Execute the main algorithm loop.
+
+        For ``init`` mode, perform the initial evaluation here before
+        entering the main loop.  Call ``_save_state()`` at the appropriate
+        points inside the loop.
+        """
         pass
-
-    def post(self) -> dict:
-        """
-        Perform post-processing after the algorithm has run.
-
-        Returns
-        -------
-        dict
-            Dictionary containing post-processing results.
-        """
-        if self.status < AlgorithmStatus.RUN:
-            msg = "algorithm has not run yet"
-            raise RuntimeError(msg)
-        original_dir = os.getcwd()
-        os.chdir(self.output_dir)
-        result = self._post()
-        os.chdir(original_dir)
-        return result
 
     @abstractmethod
     def _post(self) -> dict:
-        """Abstract method to be implemented by subclasses for post-processing steps."""
+        """Perform post-processing and return results."""
         pass
 
-    def main(self):
+    # ------------------------------------------------------------------
+    # Checkpoint helpers – concrete implementations in the base class.
+    # ------------------------------------------------------------------
+
+    def _save_state(self, filename) -> None:
+        """Save a checkpoint snapshot to *filename*.
+
+        Uses ``__getstate__()`` to collect all fields declared in
+        ``_checkpoint_attrs`` across the MRO, then delegates to
+        ``_save_data()`` for versioned pickle storage.
+
+        Override in subclasses **only** when extra files must be written
+        alongside the pickle (e.g. an external policy object).  In that
+        case call ``super()._save_state(filename)`` first.
         """
-        Main method to execute the algorithm.
+        self._save_data(self.__getstate__(), filename)
+
+    def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
+        """Load a checkpoint snapshot from *filename* and apply it.
+
+        Delegates to ``_load_data()`` then ``_apply_state()``.
+
+        Override in subclasses **only** when extra files must be read
+        (e.g. an external policy object).  In that case call
+        ``super()._load_state(filename, mode=mode, restore_rng=restore_rng)``
+        first.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the checkpoint file.
+        mode : str
+            ``"resume"`` or ``"continue"``, forwarded to ``_apply_state()``.
+        restore_rng : bool
+            Whether to restore the RNG state.
         """
+        data = self._load_data(filename)
+        self._apply_state(data, mode=mode, restore_rng=restore_rng)
+
+    # ------------------------------------------------------------------
+    # main() – orchestrates the three phases with timing and MPI barriers.
+    # ------------------------------------------------------------------
+
+    def _main_algorithm(self):
+        # Close the "init" phase opened in __init__. On resume/continue this
+        # value is later overwritten by the timer restored from the checkpoint
+        # (in _apply_state), preserving the original run's value.
+        self.timer["init"]["total"] = time.perf_counter() - self._init_time_sta
+
         time_sta = time.perf_counter()
         self.prepare()
         time_end = time.perf_counter()
         self.timer["prepare"]["total"] = time_end - time_sta
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         time_sta = time.perf_counter()
         self.run()
         time_end = time.perf_counter()
         self.timer["run"]["total"] = time_end - time_sta
         print("end of run")
-        if self.mpisize > 1:
-            self.mpicomm.Barrier()
+        if odatse.mpi.algsize() > 1:
+            odatse.mpi.algcomm().Barrier()
 
         time_sta = time.perf_counter()
         result = self.post()
         time_end = time.perf_counter()
         self.timer["post"]["total"] = time_end - time_sta
 
-        self.write_timer(self.proc_dir / "time.log")
+        if odatse.mpi.algrank() == 0:
+            self.write_timer(self.proc_dir / "time.log")
 
         return result
+
+    def __signal_workers(self, signal: int) -> None:
+        if odatse.mpi.solsize() > 1:
+            msg = np.array([signal])
+            odatse.mpi.solcomm().Bcast(msg, root=0)
+
+    def main(self):
+        """
+        Main method to execute the algorithm.
+        """
+        if odatse.mpi.run_on_algorithm():
+            try:
+                res = self._main_algorithm()
+
+            except odatse.mpi.OtherAlgorithmProcessError:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                sys.exit(0)
+
+            except Exception:
+                self.__signal_workers(odatse.mpi.MSG_ABORT)
+                raise
+
+            self.__signal_workers(odatse.mpi.MSG_FINISHED)
+            return res
+        else: # Worker process for solver
+            assert odatse.mpi.solrank() > 0
+            signal = np.array([0])
+            xp = np.zeros(self.runner.solver.dimension)
+            while True:
+                odatse.mpi.solcomm().Bcast(signal, root=0)
+                if signal[0] == odatse.mpi.MSG_FINISHED:
+                    break
+                elif signal[0] == odatse.mpi.MSG_ABORT:
+                    sys.exit(0)
+                elif signal[0] == odatse.mpi.MSG_EVALUATE:
+                    odatse.mpi.solcomm().Bcast(xp, root=0)
+                    args = odatse.mpi.solcomm().bcast(None, root=0)
+                    self.runner.solver.evaluate(xp, args)
+                else:
+                    raise ValueError(f"Unknown signal: {signal[0]}")
+            return None
 
     def write_timer(self, filename: Path):
         """
@@ -288,20 +606,30 @@ class AlgorithmBase(metaclass=ABCMeta):
             fn = Path(filename + ".tmp")
             with open(fn, "wb") as f:
                 pickle.dump(data, f)
+                # Make sure the new checkpoint is durable on disk before it
+                # replaces the current one below.
+                f.flush()
+                os.fsync(f.fileno())
         except Exception as e:
-            print("ERROR: {}".format(e))
-            sys.exit(1)
+            raise exception.CheckpointError(
+                f"failed to save checkpoint to {filename}: {e}"
+            ) from e
 
+        # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
+        # (os.replace is an atomic O(1) rename on every platform; shutil.move
+        # would fall back to copy+delete on Windows when the target exists)
         for idx in range(ngen-1, 0, -1):
             fn_from = Path(filename + "." + str(idx))
             fn_to = Path(filename + "." + str(idx+1))
             if fn_from.exists():
-                shutil.move(fn_from, fn_to)
-        if ngen > 0:
-            if Path(filename).exists():
-                fn_to = Path(filename + "." + str(1))
-                shutil.move(Path(filename), fn_to)
-        shutil.move(Path(filename + ".tmp"), Path(filename))
+                os.replace(fn_from, fn_to)
+        # Move the current checkpoint aside to .1 with an atomic rename (O(1),
+        # no re-read/re-write of the pickle), then atomically swap in the new
+        # one. There is a tiny window between the two renames in which
+        # `filename` is absent; `_load_data` covers it by falling back to .1.
+        if ngen > 0 and Path(filename).exists():
+            os.replace(Path(filename), Path(filename + "." + str(1)))
+        os.replace(Path(filename + ".tmp"), Path(filename))
         print("save_state: write to {}".format(filename))
 
     def _load_data(self, filename="state.pickle") -> dict:
@@ -318,25 +646,34 @@ class AlgorithmBase(metaclass=ABCMeta):
         dict
             Dictionary containing the loaded data.
         """
-        if Path(filename).exists():
+        # Prefer the current checkpoint, but fall back to the previous
+        # generation (.1) if it is missing -- e.g. a crash in an older version
+        # during the save window, or external corruption of `filename`.
+        fn = Path(filename)
+        if not fn.exists() and Path(filename + "." + str(1)).exists():
+            fn = Path(filename + "." + str(1))
+            print("WARNING: {} not found, falling back to {}".format(filename, fn))
+
+        if fn.exists():
             try:
-                fn = Path(filename)
                 with open(fn, "rb") as f:
                     data = pickle.load(f)
             except Exception as e:
-                print("ERROR: {}".format(e))
-                sys.exit(1)
-            print("load_state: load from {}".format(filename))
+                raise exception.CheckpointError(
+                    f"failed to read checkpoint from {fn}: {e}"
+                ) from e
+            print("load_state: load from {}".format(fn))
         else:
-            print("ERROR: file {} not exist.".format(filename))
-            data = {}
+            raise exception.CheckpointError(
+                f"checkpoint file {filename} does not exist"
+            )
         return data
 
     def _show_parameters(self):
         """
         Show the parameters of the algorithm.
         """
-        if self.mpirank == 0:
+        if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
             info = flatten_dict(self.info)
             for k, v in info.items():
                 print("{:16s}: {}".format(k, v))
@@ -356,9 +693,9 @@ class AlgorithmBase(metaclass=ABCMeta):
         for k,v in info.items():
             w = info_prev.get(k, None)
             if v != w:
-                if self.mpirank == 0:
+                if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                     print("WARNING: parameter {} changed from {} to {}".format(k, w, v))
-            if self.mpirank == 0:
+            if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:
                 print("{:16s}: {}".format(k, v))
 
 # utility

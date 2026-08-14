@@ -1,5 +1,5 @@
-separateT.py
-============
+odatse_separateT
+================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 separateT.py [OPTION]... [FILE]...
+   odatse_separateT [OPTION]... [FILE]...
 
 
 DESCRIPTION
@@ -33,7 +33,7 @@ FILE を指定した場合はそのファイルが対象となる。明示的に
 
 **-d DATA_DIR, --data_dir DATA_DIR**
     データファイルをディレクトリから取得する場合(``FILE`` を指定しない場合)に、ディレクトリを指定する。
-			
+
 **-t FILE_TYPE, --file_type FILE_TYPE**
     ディレクトリを指定して実行する場合に、対象となるファイル名を指定する。デフォルトは result.txt 。
 
@@ -50,7 +50,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py output/0/result.txt
+      odatse_separateT output/0/result.txt
 
    output/0/result_T0.txt, output/0/result_T1.txt, ... が作成される。
 
@@ -58,7 +58,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -d output
+      odatse_separateT -d output
 
    output/0/result.txt, output/1/result.txt, ... が分割の対象となる。
 
@@ -66,7 +66,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -t trial.txt -d output
+      odatse_separateT -t trial.txt -d output
 
    output/0/trial.txt, output/1/trial.txt, ... を分割する。
 
@@ -74,7 +74,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py --progress file1.txt file2.txt file3.txt
+      odatse_separateT --progress file1.txt file2.txt file3.txt
 
    各ファイルが温度点ごとに分割され、処理の進捗状況がプログレスバーで表示される。
 
@@ -94,7 +94,7 @@ NOTES
    ...
 
 各行は空白文字で区切られたデータで、3番目のカラム(インデックス2)が温度値Tです。
-同じ温度値を持つ連続した行が1つのファイルにまとめられます。
+同じ温度値を持つ行が1つのファイルにまとめられます。交換モンテカルロのように温度が交互に並ぶ場合でも、同じ温度の行は同一ファイルに集約されます。温度は初出順にインデックス付けされます。
 
 処理の仕組み
 ~~~~~~~~~~~~
@@ -104,7 +104,7 @@ NOTES
 1. 入力ファイルを1行ずつ読み込む
 2. コメント行(#で始まる行)をヘッダーとして記録
 3. 各データ行の3番目のカラム(インデックス2)から温度値を取得
-4. 温度値が変わるたびに、それまでのデータを別ファイルに書き出す
+4. 各データ行を、その温度値をキーとする出力ファイルに振り分ける(温度が初めて現れたときに新しいファイルを開く)
 5. 各温度値のデータは、元のファイル名に「_T{インデックス}」を付けたファイルに保存
 
 出力ファイルの形式
@@ -121,11 +121,11 @@ NOTES
 * ファイルを1行ずつ処理するため、非常に大きなファイルでもメモリ使用量は抑えられます
 * 各温度点のデータはメモリ上にバッファリングされるため、1つの温度点に非常に多くのデータがある場合はメモリ使用量が増加する可能性があります
 * 処理時間は入力ファイルのサイズとともに増加しますが、行単位の処理のため比較的高速です
-* 複数のファイルを処理する場合、`--progress` オプションを使用することで進捗状況を確認できます
+* 複数のファイルを処理する場合、``--progress`` オプションを使用することで進捗状況を確認できます
 
 エラー処理
 ~~~~~~~~~~
 
 * 入力ファイルが見つからない場合: ファイルオープンエラーが発生し、その旨のメッセージが表示されます
 * 出力ファイルが書き込めない場合: 権限エラーなどが発生し、その旨のメッセージが表示されます
-* データ行の列数が足りない場合: インデックスエラーが発生する可能性があります(3番目のカラムが存在しない場合)
+* 空行や列数が3未満の行はスキップされます

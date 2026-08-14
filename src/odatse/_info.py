@@ -26,6 +26,11 @@ class Info:
     solver: dict
     runner: dict
 
+    # perf_counter() timestamp recorded by odatse.initialize(), used as the
+    # start of the "init" phase in time.log. None when the Info object is
+    # constructed directly without going through initialize().
+    _start_time: Optional[float] = None
+
     def __init__(self, d: Optional[MutableMapping] = None):
         """
         Initialize the Info object.
@@ -57,7 +62,7 @@ class Info:
         for section in ["base", "algorithm", "solver"]:
             if section not in d:
                 raise exception.InputError(
-                    f"ERROR: section {section} does not appear in input"
+                    f"section {section} does not appear in input"
                 )
         self._cleanup()
         self.base = d["base"]
@@ -85,7 +90,7 @@ class Info:
         self.runner = {}
 
     @classmethod
-    def from_file(cls, file_name, fmt="", **kwargs):
+    def from_file(cls, file_name, **kwargs):
         """
         Create an Info object from a file.
 
@@ -93,8 +98,6 @@ class Info:
         ----------
         file_name : str
             The name of the file to load the information from.
-        fmt : str
-            The format of the file (default is "").
         **kwargs
             Additional keyword arguments.
 
@@ -105,15 +108,44 @@ class Info:
 
         Raises
         ------
-        ValueError
-            If the file format is unsupported.
+        TOMLDecodeError
+            If the file is an invalid TOML document (raised on rank 0).
+        exception.InputError
+            On the other ranks, if the load failed on rank 0.
+
+        Notes
+        -----
+        Only rank 0 reads the file. The load status is broadcast *before* the
+        parsed data so that a failure on rank 0 does not leave the other ranks
+        blocked forever on the data broadcast.
         """
-        if fmt == "toml" or fnmatch(file_name.lower(), "*.toml"):
-            inp = {}
-            if mpi.rank() == 0:
-                inp = toml.load(file_name)
-            if mpi.size() > 1:
-                inp = mpi.comm().bcast(inp, root=0)
-            return cls(inp)
+        inp = {}
+        if mpi.size() > 1:
+            comm = mpi.comm()
+            rank = mpi.rank()
+
+            # Phase 1: rank 0 attempts the load; share the outcome with all
+            # ranks. ``error_message`` is a plain (picklable) string so the
+            # status broadcast itself can never fail and deadlock.
+            error = None          # original exception, rank 0 only
+            error_message = None  # status shared with every rank
+            if rank == 0:
+                try:
+                    inp = toml.load(file_name)
+                except Exception as e:
+                    error = e
+                    error_message = f"{type(e).__name__}: {e}"
+            error_message = comm.bcast(error_message, root=0)
+
+            if error_message is not None:
+                if rank == 0:
+                    raise error
+                raise exception.InputError(
+                    f"failed to load '{file_name}' on rank 0: {error_message}"
+                )
+
+            # Phase 2: broadcast the parsed data only when the load succeeded.
+            inp = comm.bcast(inp, root=0)
         else:
-            raise ValueError("unsupported file format: {}".format(file_name))
+            inp = toml.load(file_name)
+        return cls(inp)

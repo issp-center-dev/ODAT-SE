@@ -6,7 +6,7 @@ export PYTHONUNBUFFERED=1
 rm -rf output
 
 # Run the Python script with the input file and measure the time taken
-time python3 ../../src/odatse_main.py input.toml
+time ${PYTHON:-python3} ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/BayesData.txt

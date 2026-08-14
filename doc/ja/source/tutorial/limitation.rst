@@ -2,7 +2,7 @@
 ================================================================
 
 ここでは、 ``[runner.limitation]`` セクションに設定できる制約式機能のチュートリアルを示します。
-例として、レプリカ交換モンテカルロ法を用いてHimmelblauの最小値を探索する計算に制約式を適用します。
+例として、レプリカ交換モンテカルロ法を用いて Himmelblau 関数の最小値を探索する計算に制約式を適用します。
 
 サンプルファイルの場所
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,12 +16,12 @@
 
 - ``ref.txt``
 
-  計算が正しく実行されたか確認するためのファイル (本チュートリアルを行うことで得られる ``best_result.txt`` の回答)。
+  計算が正しく実行されたか確認するためのファイル (本チュートリアルを行うことで得られる ``best_result.txt`` の正解データ)。
 
 - ``hist2d_limitation_sample.py``
 
   可視化のためのツール。
-  
+
 - ``do.sh``
 
   本チュートリアルを一括計算するために準備されたスクリプト
@@ -48,7 +48,7 @@
   [algorithm.param]
   max_list = [6.0, 6.0]
   min_list = [-6.0, -6.0]
-  unit_list = [0.3, 0.3]
+  step_list = [0.3, 0.3]
 
   [algorithm.exchange]
   Tmin = 1.0
@@ -70,7 +70,7 @@
 
 - ``dimension`` は最適化したい変数の個数です。今の場合は2つの変数の最適化を行うので、 ``2`` を指定します。
 
-- ``output_dir`` は出力先のディレクトリを指定します。  
+- ``output_dir`` は出力先のディレクトリを指定します。
 
 ``[algorithm]`` セクションでは、用いる探索アルゴリズムを設定します。
 
@@ -82,11 +82,11 @@
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
 
-- ``unit_list`` はモンテカルロ更新の際の変化幅(ガウス分布の偏差)です。
+- ``step_list`` はモンテカルロ更新の際の変化幅(ガウス分布の標準偏差)です。
 
 ``[algorithm.exchange]`` サブセクションは、交換モンテカルロ法のハイパーパラメータを指定します。
 
-- ``numstep`` はモンテカルロ更新の回数です。
+- ``numsteps`` はモンテカルロ更新の回数です。
 
 - ``numsteps_exchange`` で指定した回数のモンテカルロ更新の後に、温度交換を試みます。
 
@@ -101,7 +101,7 @@
 - ``function_name`` は ``analytical`` ソルバー内の関数名を指定します。
 
 ``[runner]`` セクションの ``[runner.limitation]`` サブセクションで制約式を設定します。
-現在、制約式は :math:`N` 次元のパラメータ :math:`x` 、 :math:`M` 行 :math:`N` 列の行列 :math:`A` 、 
+現在は、:math:`N` 次元のパラメータ :math:`x` 、 :math:`M` 行 :math:`N` 列の行列 :math:`A` 、
 :math:`M` 次元の縦ベクトル :math:`b` から定義される :math:`Ax+b>0` の制約式が利用可能です。
 パラメータとしては、以下の項目が設定可能です。
 
@@ -109,11 +109,11 @@
 
 - ``co_b`` は縦ベクトル :math:`b` を設定します。
 
-パラメータの詳しい設定方法はマニュアル内「入力ファイル」項の「 [``limitation``] セクション」を参照してください。
+パラメータの詳しい設定方法はマニュアル内「入力ファイル」項の「 ``[runner.limitation]`` セクション」を参照してください。
 今回は
 
 .. math::
-  
+
   x_{1} - x_{2} > 0 \\
   x_{1} + x_{2} - 1 > 0
 
@@ -132,14 +132,14 @@
 
 .. code-block::
 
-    $ mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+    $ mpiexec -np 10 odatse input.toml | tee log.txt
 
 ここではプロセス数10のMPI並列を用いた計算を行っています。
 Open MPI を用いる場合で、使えるコア数よりも要求プロセス数の方が多い時には、 ``mpiexec`` コマンドに ``--oversubscribe`` オプションを追加してください。
 
 実行すると、 ``output`` フォルダが生成され、その中に各ランクのフォルダが作成されます。
-更にその中には、各モンテカルロステップで評価したパラメータおよび目的関数の値を記した ``trial.txt`` ファイルと、実際に採択されたパラメータを記した ``result.txt`` ファイルが作成されます。
-ともに書式は同じで、最初の2列がステップ数とプロセス内のwalker 番号、次が温度、3列目が目的関数の値、4列目以降がパラメータです。
+さらにその中には、各モンテカルロステップで評価したパラメータおよび目的関数の値を記した ``trial.txt`` ファイルと、実際に採択されたパラメータを記した ``result.txt`` ファイルが作成されます。
+ともに書式は同じで、1列目がステップ数、2列目がプロセス内の walker 番号、3列目が温度、4列目が目的関数の値、5列目以降がパラメータです。
 以下は、 ``output/0/result.txt`` ファイルの冒頭部分です。
 
 .. code-block::
@@ -171,18 +171,31 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 
   #!/bin/bash
 
-  mpiexec -np 10 --oversubscribe python3 ../../../src/odatse_main.py input.toml
+  set -e
 
-  echo diff output/best_result.txt ref.txt
+  export PYTHONUNBUFFERED=1
+  export OMPI_MCA_rmaps_base_oversubscribe=1
+
+  mpiexec -np 10 python3 ../../../src/odatse_main.py input.toml
+
+  resfile=output/best_result.txt
+
+  echo ${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt
   res=0
-  diff output/best_result.txt ref.txt || res=$?
+  ${PYTHON:-python3} ../../../tests/test_utilities/diff_res_mc.py $resfile ref.txt || res=$?
   if [ $res -eq 0 ]; then
     echo TEST PASS
     true
   else
-    echo TEST FAILED: best_result.txt and ref.txt differ
+    echo TEST FAILED: $resfile and ref.txt differ
     false
   fi
+
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1 --layout 2,3 --tlist 9,7,5,3,1,0
+  python3 hist2d_limitation_sample.py -p 10 -i input.toml -b 0.1 --layout 2,3 --tlist 9,7,5,3,1,0 --format pdf
+
+  echo "done."
 
 計算結果の可視化
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

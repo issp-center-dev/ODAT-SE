@@ -318,3 +318,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 
+
+# Local development scratch (not tracked)
+dev/

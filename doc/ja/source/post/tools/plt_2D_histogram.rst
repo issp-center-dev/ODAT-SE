@@ -1,5 +1,5 @@
-plt_2D_histogram.py
-===================
+odatse_plt_2D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_2D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -24,7 +24,7 @@ T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパ�
 
 FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込む。
 
-ヒストグラムを作成する軸は columns オプションで指定する。指定した軸のすべての組み合わせの2次元プロットが作成される。指定がない場合は x1, ..., xN のすべての軸が対象となる。指定方法はフィールド名をカンマ区切りで列挙する。例えば ``--column x1,x2,x3`` を指定すると ``x1 vs x2`` 軸、 ``x1 vs x3`` 軸、および ``x2 vs x3`` 軸に周辺化したヒストグラムを描画する。
+ヒストグラムを作成する軸は columns オプションで指定する。指定した軸のすべての組み合わせの2次元プロットが作成される。指定がない場合は x1, ..., xN のすべての軸が対象となる。指定方法はフィールド名をカンマ区切りで列挙する。例えば ``--columns x1,x2,x3`` を指定すると ``x1 vs x2`` 軸、 ``x1 vs x3`` 軸、および ``x2 vs x3`` 軸に周辺化したヒストグラムを描画する。
 
 ヒストグラムの範囲は range オプションで指定できる。その場合は表示するすべての軸について共通の range が使われる。軸ごとに指定する場合は config ファイルに ``[xmin, xmax]`` の組をリストの形で与えるか、入力パラメータファイルの ``min_list``, ``max_list`` を利用する。
 
@@ -42,10 +42,10 @@ FILE を指定しない場合、オプション (data_dir) で指定したディ
 
 **-c COLUMNS, --columns COLUMNS**
     ヒストグラムを作成するフィールド名を指定する。カンマ区切りで複数のフィールド名を指定できる。省略した場合はすべての軸が対象となる。
-			
+
 **-d DATA_DIR, --data_dir DATA_DIR**
     データファイルをディレクトリから取得する場合(``FILE`` を指定しない場合)のディレクトリを指定する。指定しない場合はカレントディレクトリが使われる。
-			
+
 **-f FORMAT, --format FORMAT**
     出力するヒストグラムファイルのフォーマットを指定する。matplotlib がサポートするフォーマットを指定可能。カンマ区切りで複数のフォーマットを指定できる。デフォルト値は ``png`` 。
 
@@ -81,7 +81,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -o 2dhist file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x2.png,
    2dhist/2Dhistogram_file_x1_vs_x3.png,
@@ -91,7 +91,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -d data -o 2dhist
+      $ odatse_plt_2D_histogram -d data -o 2dhist
 
    2dhist ディレクトリに 2Dhistogram_result_T0_NNNN_x1_vs_x2.png 〜 2Dhistogram_result_T10_MMMM_x2_vs_x3.png が出力される。ファイル名の ``summarized`` は ``T_{T}`` または ``beta_{beta}`` に置き換えられる。
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -c x1,x3 -o 2dhist -f png,pdf file.txt
+      $ odatse_plt_2D_histogram -c x1,x3 -o 2dhist -f png,pdf file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x3.png と 2dhist/2Dhistogram_file_x1_vs_x3.pdf が出力される。
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -r 3.0,6.0 -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -r 3.0,6.0 -o 2dhist file.txt
 
 5. オプションの内容を config ファイルに記述して利用する。conf.toml を以下のように用意する。
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py --config config.toml
+      $ odatse_plt_2D_histogram --config config.toml
 
    summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、2dhist/2Dhistogram_result_T*.png に出力される。
 
@@ -162,7 +162,7 @@ NOTES
 * 対数スケール(LogNorm)でカラーマッピングされるため、低密度領域も視覚化できる
 * カラーバーは「Normalized Density (Log Scale)」として表示
 * グリッド線が薄いグレーで表示され、データの位置を把握しやすい
-* ゼロ密度の領域は非常に小さい値(1e-10)で置き換えられ、対数スケールでも表示可能
+* 空(ゼロ密度)のビンはマスクされ透明で描画される。対数カラースケールの上下限(vmin/vmax)は非空ビンの値から自動決定される
 
 ヒストグラム作成の仕組み
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,7 +181,7 @@ NOTES
 
   ``2Dhistogram_{入力ファイル名}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
 
-* ``summarize_each_T.py`` から出力された、ファイル名に _summarized.txt を含むファイル:
+* ``odatse_summarize_each_T`` から出力された、ファイル名に _summarized.txt を含むファイル:
 
   ``2Dhistogram_{ファイル名の_summarizedを T または beta に置換}_{パラメータ1}_vs_{パラメータ2}.{フォーマット}``
 

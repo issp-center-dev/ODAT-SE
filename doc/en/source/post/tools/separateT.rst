@@ -1,5 +1,5 @@
-separateT.py
-============
+odatse_separateT
+================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 separateT.py [OPTION]... [FILE]...
+   odatse_separateT [OPTION]... [FILE]...
 
 
 DESCRIPTION
@@ -33,7 +33,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory from which to retrieve data files (when ``FILE`` is not specified).
-			
+
 **-t FILE_TYPE, \-\-file_type FILE_TYPE**
     Specifies the target filename when running with a directory specified. Default is result.txt.
 
@@ -41,7 +41,7 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, the name of the file being processed will be displayed as a message instead.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -50,7 +50,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py output/0/result.txt
+      odatse_separateT output/0/result.txt
 
    output/0/result_T0.txt, output/0/result_T1.txt, ... are created.
 
@@ -58,7 +58,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -d output
+      odatse_separateT -d output
 
    output/0/result.txt, output/1/result.txt, ... will be processed.
 
@@ -66,7 +66,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py -t trial.txt -d output
+      odatse_separateT -t trial.txt -d output
 
    Splits output/0/trial.txt, output/1/trial.txt, ...
 
@@ -74,7 +74,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 separateT.py --progress file1.txt file2.txt file3.txt
+      odatse_separateT --progress file1.txt file2.txt file3.txt
 
    Each file is split by temperature points, and progress is displayed with a progress bar.
 
@@ -94,7 +94,7 @@ The input file (MCMC log file) is expected to have the following format:
    ...
 
 Each line contains space-separated data, with the third column (index 2) being the temperature value T.
-Consecutive lines with the same temperature value are grouped into a single file.
+All lines with the same temperature value are grouped into a single file, even when the temperatures are interleaved (as in exchange Monte Carlo). Temperatures are indexed in order of first appearance.
 
 Processing Mechanism
 ~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +104,7 @@ This script processes data in the following steps:
 1. Reads the input file line by line
 2. Records comment lines (lines starting with #) as headers
 3. Obtains the temperature value from the third column (index 2) of each data line
-4. Whenever the temperature value changes, writes the accumulated data to a separate file
+4. Routes each data line to the output file keyed by its temperature value, opening a new file the first time a temperature is seen
 5. Data for each temperature value is saved to a file with the original filename plus "_T{index}"
 
 Output File Format
@@ -121,11 +121,11 @@ Performance
 * Files are processed line by line, so memory usage is kept low even for very large files
 * Data for each temperature point is buffered in memory, so memory usage may increase if there is a large amount of data for a single temperature point
 * Processing time increases with the size of the input file, but is relatively fast due to line-by-line processing
-* When processing multiple files, you can use the `\-\-progress` option to monitor progress
+* When processing multiple files, you can use the ``--progress`` option to monitor progress
 
 Error Handling
 ~~~~~~~~~~~~~~
 
 * If the input file is not found: A file open error occurs and a message is displayed
 * If the output file cannot be written: A permission error or similar occurs and a message is displayed
-* If the data line has insufficient columns: An index error may occur (if the third column does not exist)
+* Blank lines and lines with fewer than three columns are skipped

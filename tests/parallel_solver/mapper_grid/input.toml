@@ -1,0 +1,19 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+delay = 0.01
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+max_list = [ 6.0,  6.0]
+min_list = [-6.0, -6.0]
+num_list = [31, 31]

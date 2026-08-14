@@ -1,7 +1,7 @@
-ベイズ最適化
+ベイズ最適化による探索
 ================================
 
-ここでは、ベイズ最適化を行いて Himmelblau関数の最小化問題を解析する方法について説明します。
+ここでは、ベイズ最適化を用いて Himmelblau関数の最小化問題を解析する方法について説明します。
 ベイズ最適化には `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo>`_ を用います。
 事前に PHYSBO パッケージをインストールしておきます。
 
@@ -52,14 +52,14 @@
     bayes_max_num_probes = 40
 
 
-``[base]``, ``[solver]``, ``[runner]`` のセクションについては Nelder-Mead法による探索(``minsearch``)の場合と同じです。
+``[base]``, ``[solver]`` のセクションについては Nelder-Mead法による探索(``minsearch``)の場合と同じです。
 
-``[algorithm]`` セクションでは、使用するアルゴリスムとその設定をします。
+``[algorithm]`` セクションでは、使用するアルゴリズムとその設定をします。
 
 - ``name`` は使用するアルゴリズムの名前です。このチュートリアルでは、ベイズ最適化を用いた解析を行うので、 ``bayes`` を指定します。
 
 - ``seed`` は乱数の初期値を指定します。
-  
+
 ``[algorithm.param]`` セクションでは、探索するパラメータの範囲や初期値を指定します。
 
 - ``min_list`` と ``max_list`` はそれぞれ探索範囲の最小値と最大値を指定します。
@@ -89,32 +89,36 @@
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 実行すると ``output`` ディレクトリの下に各ランクのフォルダが作成されます。
-以下の様な標準出力がされます。
+以下のような標準出力がされます。
 
 .. code-block::
 
   # parameter
-  random_max_num_probes = 10
-  bayes_max_num_probes = 20
+  random_max_num_probes = 20
+  bayes_max_num_probes = 40
   score = TS
   interval = 5
   num_rand_basis = 5000
-  value_01 =  5.10000
-  value_02 =  4.90000
-  R-factor = 0.037237314010261195
-  0001-th step: f(x) = -0.037237 (action=150)
-     current best f(x) = -0.037237 (best action=150)
+  name            : bayes
+  seed            : 12345
+  param.min_list  : [-6.0, -6.0]
+  param.max_list  : [6.0, 6.0]
+  param.num_list  : [61, 61]
+  bayes.random_max_num_probes: 20
+  bayes.bayes_max_num_probes: 40
+  0001-th step: f(x) = -113.219200 (action=1604)
+     current best f(x) = -113.219200 (best action=1604)
 
-  value_01 =  4.30000
-  value_02 =  3.50000
+  0002-th step: f(x) = -263.123200 (action=3271)
+     current best f(x) = -113.219200 (best action=1604)
 
-    ...
+  ...
 
-最初に設定したパラメータのリスト、そのあとに各ステップでの候補パラメータと、
-その時の関数値 ``f(x)`` が出力されます。
+最初に設定したパラメータのリスト、そのあとに各ステップで評価した関数値 ``f(x)``
+とグリッドのインデックス (``action``)、およびその時点での最良値が出力されます。
 また、その時点での一番良いスコアを持つグリッドインデックス (``action``)とその場合の ``f(x)`` と変数が出力されます。
 最終的に推定されたパラメータは、 ``output/BayesData.txt`` に出力されます。
 

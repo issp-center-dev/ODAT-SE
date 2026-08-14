@@ -1,0 +1,23 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+delay = 0.01
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "minsearch"
+seed = 1234567
+
+[algorithm.param]
+max_list = [ 6.0,  6.0]
+min_list = [-6.0, -6.0]
+initial_list = [ [ 1.0, 1.0 ], [ -1.0, 1.0 ], [ -1.0, -1.0 ], [ 1.0, -1.0 ] ]
+
+[algorithm.minimize]
+initial_scale_list = [ 0.25, 0.25 ]

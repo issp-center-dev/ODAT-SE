@@ -1,7 +1,7 @@
-Commons
+Common items
 ================================
 
-In this section, the components commonly used over the program are described.
+In this section, the components used throughout the program are described.
 
 
 ``odatse.Info``
@@ -12,7 +12,7 @@ It contains the following four instance variables.
 
 - ``base`` : ``dict[str, Any]``
 
-  - Parameters for whole program such as the directory where the output will be written.
+  - Parameters for the whole program, such as the directory where the output will be written.
 
 - ``solver`` : ``dict[str, Any]``
 
@@ -27,15 +27,15 @@ It contains the following four instance variables.
   - Parameters for ``Runner``
 
 
-An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``base``, ``solver``, ``algorithm``, and ``runner``. (Some of them can be omitted.) 
+An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``base``, ``solver``, ``algorithm``, and ``runner``. (Some of them can be omitted.)
 Each sub dictionary is set to the corresponding field of ``Info``.
-Alternatively, it can be created by passing to the class method ``from_file`` a path to input file in TOML format.
+Alternatively, it can be created by passing to the class method ``from_file`` a path to an input file in TOML format.
 
 
 ``base`` items
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As items of ``base`` field, ``root_dir`` indicating the root dirctory of the calculation, and ``output_dir`` for output results will be set automatically as follows.
+As items of ``base`` field, ``root_dir`` indicating the root directory of the calculation, and ``output_dir`` for output results will be set automatically as follows.
 
 - Root directory ``root_dir``
 
@@ -54,14 +54,14 @@ As items of ``base`` field, ``root_dir`` indicating the root dirctory of the cal
   - The leading ``~`` will be expanded to the user's home directory.
   - If an absolute path is given, it is set as-is.
   - If a relative path is given, it is regarded to be relative to ``root_dir``.
-  - The default value is ``"."``, that is, the same to ``root_dir``
+  - The default value is ``"."``, that is, the same as ``root_dir``
   - Specifically, the following code is executed:
 
     .. code-block:: python
 
-       p = pathlib.Path(base.get("work_dir", "."))
+       p = pathlib.Path(base.get("output_dir", "."))
        p = p.expanduser()
-       base["work_dir"] = base["root_dir"] / p
+       base["output_dir"] = base["root_dir"] / p
 
 
 ``odatse.Runner``
@@ -69,13 +69,13 @@ As items of ``base`` field, ``root_dir`` indicating the root dirctory of the cal
 
 ``Runner`` is a class that connects ``Algorithm`` and ``Solver``.
 The constructor of ``Runner`` takes instances of ``Solver``, ``Info``, ``Mapping``, and ``Limitation``.
-If the instance of ``Mapping`` is omitted, ``TrivialMapping`` is assumed that does no transformation.
-If the instance of ``Limitation`` is omitted, ``Unlimited`` is assumed that do not impose constraints.
+If the instance of ``Mapping`` is omitted, ``TrivialMapping``, which performs no transformation, is assumed.
+If the instance of ``Limitation`` is omitted, ``Unlimited`` is assumed, which imposes no constraints.
 
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` method invokes the solver and returns the value of objective function ``f(x)``.
 ``submit`` internally uses the instance of ``Limitation`` to check whether the search parameter ``x`` satisfies the constraints. Then, it applies the instance of ``Mapping`` to obtain from ``x`` the input ``y = mapping(x)`` that is actually used by the solver.
 
-See :doc:`../input` for details how/which components of ``info`` ``Runner`` uses.
+See :doc:`../input/index` for details of how and which components of ``info`` the ``Runner`` uses.
 
 
 ``odatse.Mapping``
@@ -89,35 +89,67 @@ In the current version, a trivial transformation ``TrivialMapping`` and an affin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``TrivialMapping`` provides a trivial transformation :math:`x\to x`, that is, no transformation.
-It is taken as a default to the argument of Runner class.
+It is used as the default argument of the ``Runner`` class.
 
 ``Affine``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Affine`` provides an affine mapping :math:`x \to y = A x + b`.
 The coefficients ``A`` and ``b`` should be given as constructor arguments, or passed as dictionary elements through the ``from_dict`` class method.
-In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.
+When they are specified in the ODAT-SE input file, see the input file section of the manual for the format of the parameters.
 
 
 ``odatse.Limitation``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Limitation`` is a class that describes constraints on the :math:`N` dimensional parameter space :math:`x` searched by the inverse problem analysis algorithms.
-It is defined as a class that have the method ``judge(self, x: np.ndarray) -> bool``.
-In the current version, ``Unlimited`` class that imposes no constraint, and ``Inequality`` class that represents the linear inequality constraint.
+It is defined as a class that has the method ``judge(self, x: np.ndarray) -> bool``.
+In the current version, the ``Unlimited`` class, which imposes no constraint, and the ``Inequality`` class, which represents linear inequality constraints, are provided.
 
 ``Unlimited``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Unlimited`` represents that no constraint is imposed.
 ``judge`` method always returns ``True``.
-It is taken as a default to the argument of Runner class.
+It is used as the default argument of the ``Runner`` class.
 
 
 ``Inequality``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Inequality`` is a class that expresses :math:`M` constraints imposed on :math:`N` dimensional search parameters :math:`x` in the form :math:`A x + b > 0` where :math:`A` is a :math:`M \times N` matrix and :math:`b` is a :math:`M` dimensional vector.
+``Inequality`` is a class that expresses :math:`M` constraints imposed on :math:`N` dimensional search parameters :math:`x` in the form :math:`A x + b > 0` where :math:`A` is an :math:`M \times N` matrix and :math:`b` is an :math:`M`-dimensional vector.
 
 The coefficients ``A`` and ``b`` should be given as constructor arguments, or passed as dictionary elements through the ``from_dict`` class method.
-In case when they are specified in the input file of ODAT-SE, the format of the parameter may be referred to the input file section of the manual.
+When they are specified in the ODAT-SE input file, see the input file section of the manual for the format of the parameters.
+
+
+``odatse.initialize``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``initialize(argv=None) -> (Info, str)`` is an initialization function that parses command-line style arguments and loads the input file in one step.
+It interprets the same arguments as the ``odatse`` command (the path to the input file and ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve``; see :doc:`../manual/command` for details), and returns a pair of an ``Info`` instance and a run-mode string ``run_mode``. It also calls ``odatse.mpi.setup()`` internally.
+
+- When ``argv`` is omitted (``None``), ``sys.argv[1:]`` is interpreted.
+  When embedding odatse in a script that has its own argument handling, pass an explicit list as ``argv`` to initialize without depending on ``sys.argv``.
+
+  .. code-block:: python
+
+      info, run_mode = odatse.initialize(["input.toml", "--resume"])
+
+- ``run_mode`` is one of ``"initial"``, ``"resume"``, and ``"continue"`` (with the suffix ``"-resetrand"`` appended when ``--reset_rand`` is specified).
+  Passing it to the ``run_mode`` argument of the ``Algorithm`` constructor enables the restart features also in your own scripts.
+
+
+``odatse.mpi``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A module that provides access to the MPI communicators.
+It works as a non-MPI stub when mpi4py is not installed or when the environment variable ``ODATSE_NOMPI`` is set.
+See :doc:`../tutorial/parallel_solver` for the details of the two-level parallelization (algorithm layer × solver groups).
+
+- ``setup(nalg=None, nsolve=None)`` : Splits the communicators. It must be called exactly once before constructing ``Solver`` / ``Algorithm`` (called internally when ``odatse.initialize()`` is used).
+- ``comm()`` / ``size()`` / ``rank()`` : The global communicator and its size and rank.
+- ``algcomm()`` / ``algsize()`` / ``algrank()`` : The communicator of the algorithm layer and its size and rank.
+- ``solcomm()`` / ``solsize()`` / ``solrank()`` : The communicator of the solver group and its size and rank.
+- ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
+- ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).
