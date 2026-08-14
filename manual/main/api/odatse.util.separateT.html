@@ -1,148 +1,533 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>odatse.util.separateT module &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>odatse.util.separateT module &#8212; ODAT-SE API  documentation</title>
   
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="_static/js/theme.js"></script>
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'odatse.util.separateT';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="odatse.util.toml module" href="odatse.util.toml.html" />
-    <link rel="prev" title="odatse.util.resampling module" href="odatse.util.resampling.html" /> 
-</head>
+    <link rel="prev" title="odatse.util.resampling module" href="odatse.util.resampling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-          
-          
-          <a href="index.html" class="icon icon-home">
-            ODAT-SE API
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">odatse</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="odatse.html">odatse package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="odatse.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="odatse.util.html">odatse.util package</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="odatse.html#submodules">Submodules</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">ODAT-SE API</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">odatse</a></li>
-          <li class="breadcrumb-item"><a href="odatse.html">odatse package</a></li>
-          <li class="breadcrumb-item"><a href="odatse.util.html">odatse.util package</a></li>
-      <li class="breadcrumb-item active">odatse.util.separateT module</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/odatse.util.separateT.rst.txt" rel="nofollow"> View page source</a>
-      </li>
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE API  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="odatse.html">odatse package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._algorithm.html">odatse.algorithm._algorithm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._iterator.html">odatse.algorithm._iterator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.bayes.html">odatse.algorithm.bayes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.exchange.html">odatse.algorithm.exchange module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.gather.html">odatse.algorithm.gather module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.global_search.html">odatse.algorithm.global_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi.html">odatse.algorithm.mapper_mpi module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi_base.html">odatse.algorithm.mapper_mpi_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.min_search.html">odatse.algorithm.min_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.montecarlo.html">odatse.algorithm.montecarlo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.pamc.html">odatse.algorithm.pamc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.random_search.html">odatse.algorithm.random_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.state.html">odatse.algorithm.state module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.ttopt.html">odatse.algorithm.ttopt module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain._domain.html">odatse.domain._domain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.meshgrid.html">odatse.domain.meshgrid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.region.html">odatse.domain.region module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.scripts.html">odatse.scripts package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.extract_combined.html">odatse.scripts.extract_combined module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_1D_histogram.html">odatse.scripts.plt_1D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_2D_histogram.html">odatse.scripts.plt_2D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_model_evidence.html">odatse.scripts.plt_model_evidence module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.separateT.html">odatse.scripts.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.summarize_each_T.html">odatse.scripts.summarize_each_T module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver._solver.html">odatse.solver._solver module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.analytical.html">odatse.solver.analytical module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.function.html">odatse.solver.function module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="odatse.util.html">odatse.util package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.data_writer.html">odatse.util.data_writer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.graph.html">odatse.util.graph module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.limitation.html">odatse.util.limitation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.logger.html">odatse.util.logger module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.mapping.html">odatse.util.mapping module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.neighborlist.html">odatse.util.neighborlist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_matrix.html">odatse.util.read_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_ts.html">odatse.util.read_ts module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.resampling.html">odatse.util.resampling module</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">odatse.util.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.toml.html">odatse.util.toml module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.version.html">odatse.util.version module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.__main__.html">odatse.__main__ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._info.html">odatse._info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._initialize.html">odatse._initialize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._main.html">odatse._main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._runner.html">odatse._runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._version.html">odatse._version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.exception.html">odatse.exception module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.mpi.html">odatse.mpi module</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">odatse</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.html" class="nav-link">odatse package</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.util.html" class="nav-link">odatse.util package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">odatse.util.separateT module</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="module-odatse.util.separateT">
-<span id="odatse-util-separatet-module"></span><h1>odatse.util.separateT module<a class="headerlink" href="#module-odatse.util.separateT" title="Link to this heading"></a></h1>
+<span id="odatse-util-separatet-module"></span><h1>odatse.util.separateT module<a class="headerlink" href="#module-odatse.util.separateT" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">Entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">Entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tstr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<p>Create new instance of Entry(step, walker, fx, xs)</p>
+<p>Create new instance of Entry(step, walker, Tstr, fx, xs)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.separateT.Entry.Tstr">
+<span class="sig-name descname"><span class="pre">Tstr</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.Tstr" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry._asdict">
-<span class="sig-name descname"><span class="pre">_asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._asdict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._asdict" title="Link to this definition">#</a></dt>
 <dd><p>Return a new dict which maps field names to their values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry._make">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._make" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._make" title="Link to this definition">#</a></dt>
 <dd><p>Make a new Entry object from a sequence or iterable</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry._replace">
-<span class="sig-name descname"><span class="pre">_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._replace" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odatse.util.separateT.Entry._replace" title="Link to this definition">#</a></dt>
 <dd><p>Return a new Entry object replacing specified fields with new values</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry.fx">
-<span class="sig-name descname"><span class="pre">fx</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.fx" title="Link to this definition"></a></dt>
-<dd><p>Alias for field number 2</p>
+<span class="sig-name descname"><span class="pre">fx</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.fx" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry.step">
-<span class="sig-name descname"><span class="pre">step</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.step" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">step</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.step" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry.walker">
-<span class="sig-name descname"><span class="pre">walker</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.walker" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">walker</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.walker" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="odatse.util.separateT.Entry.xs">
-<span class="sig-name descname"><span class="pre">xs</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.xs" title="Link to this definition"></a></dt>
-<dd><p>Alias for field number 3</p>
+<span class="sig-name descname"><span class="pre">xs</span></span><a class="headerlink" href="#odatse.util.separateT.Entry.xs" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 4</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._clear_results">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_clear_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_clear_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._clear_results" title="Link to this definition">#</a></dt>
+<dd><p>Reset all entry lists to empty so the structure can be reused each chunk.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._compute_temperature_statistics">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_compute_temperature_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermalization_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbeta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_compute_temperature_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._compute_temperature_statistics" title="Link to this definition">#</a></dt>
+<dd><p>Compute statistics for one temperature from a list of MC samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> (<em>list</em><em> of </em><em>(</em><em>int</em><em>, </em><em>float</em><em>, </em><em>numpy.ndarray</em><em>)</em>) – Raw <code class="docutils literal notranslate"><span class="pre">(step,</span> <span class="pre">fx,</span> <span class="pre">x)</span></code> MC samples in the order they were recorded.</p></li>
+<li><p><strong>thermalization_steps</strong> (<em>int</em>) – Steps with <code class="docutils literal notranslate"><span class="pre">step</span> <span class="pre">&lt;</span> <span class="pre">thermalization_steps</span></code> are discarded as thermalisation.</p></li>
+<li><p><strong>dbeta</strong> (<em>float</em>) – <code class="docutils literal notranslate"><span class="pre">1/T_lower</span> <span class="pre">-</span> <span class="pre">1/T</span></code>; pass <code class="docutils literal notranslate"><span class="pre">0.0</span></code> when there is no lower-temperature
+neighbour (the thermodynamic-integration contribution is then 0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fx_mean</strong> (<em>float</em>) – Arithmetic mean of f(x) over production samples.  <code class="docutils literal notranslate"><span class="pre">nan</span></code> if N == 0.</p></li>
+<li><p><strong>fx_error</strong> (<em>float</em>) – Standard error of the mean.  <code class="docutils literal notranslate"><span class="pre">nan</span></code> if N &lt;= 1.</p></li>
+<li><p><strong>dlogZ</strong> (<em>float</em>) – <code class="docutils literal notranslate"><span class="pre">log(Z_lower</span> <span class="pre">/</span> <span class="pre">Z_this)</span></code> via log-sum-exp thermodynamic integration.
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code> when <code class="docutils literal notranslate"><span class="pre">dbeta</span> <span class="pre">==</span> <span class="pre">0.0</span></code> or N == 0.</p></li>
+<li><p><strong>acceptance</strong> (<em>float</em>) – Fraction of steps where x changed.  <code class="docutils literal notranslate"><span class="pre">nan</span></code> if N == 0.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._distribute_entries">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_distribute_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T2rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_distribute_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._distribute_entries" title="Link to this definition">#</a></dt>
+<dd><p>Append each entry into the destination-rank bucket it belongs to.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._merge_results">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_merge_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_merge_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._merge_results" title="Link to this definition">#</a></dt>
+<dd><p>Merge per-source dicts received from alltoall into a single dict.</p>
+<p><code class="docutils literal notranslate"><span class="pre">results2[0]</span></code> is mutated in-place and returned; the caller owns the object
+(alltoall in mpi4py returns fresh objects, and in the serial path this is the
+same dict that will be cleared at the start of the next chunk).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._parse_result_line">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_parse_result_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpirank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_parse_result_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._parse_result_line" title="Link to this definition">#</a></dt>
+<dd><p>Parse one line from <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> into an <a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entry</span></code></a>.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for blank or comment-only lines.
+The <em>walker</em> field is remapped from a rank-local index to a global index.
+<em>Tstr</em>, <em>fx</em>, and <em>xs</em> are kept as raw strings to preserve exact values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._read_result_T_entries">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_read_result_T_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_read_result_T_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._read_result_T_entries" title="Link to this definition">#</a></dt>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">result_T&lt;idx&gt;.txt</span></code> and return a list of <code class="docutils literal notranslate"><span class="pre">(step,</span> <span class="pre">fx,</span> <span class="pre">x)</span></code> tuples.</p>
+<p>Comment lines and blank lines are skipped.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.separateT._write_entries_to_file">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">_write_entries_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#odatse.util.separateT.Entry" title="odatse.util.separateT.Entry"><span class="pre">Entry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#_write_entries_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT._write_entries_to_file" title="Link to this definition">#</a></dt>
+<dd><p>Sort <em>entries</em> by step number and append them to <em>filepath</em>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="odatse.util.separateT.calculate_statistics_from_separated_files">
-<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">calculate_statistics_from_separated_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermalization_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#calculate_statistics_from_separated_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT.calculate_statistics_from_separated_files" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">calculate_statistics_from_separated_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermalization_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#calculate_statistics_from_separated_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT.calculate_statistics_from_separated_files" title="Link to this definition">#</a></dt>
 <dd><p>Calculate and save statistical quantities (means and errors of f(x) and partition function) from separated files generated by separateT.</p>
-<p>This function reads the separated files, <code class="docutils literal notranslate"><span class="pre">result_T&lt;Tindex&gt;.txt</span></code> in <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>, generated by separateT.
+<p>This function reads the separated files, <code class="docutils literal notranslate"><span class="pre">result_T&lt;Tindex&gt;.txt</span></code> in <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>,
+generated by separateT.
 The output file is <code class="docutils literal notranslate"><span class="pre">fx.txt</span></code> in <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>. The format is described as a header as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: 1/T</span>
 <span class="c1"># $2: mean of f(x)</span>
@@ -158,7 +543,7 @@ The output file is <code class="docutils literal notranslate"><span class="pre">
 <li><p><strong>Ts</strong> (<em>np.ndarray</em>) – Array of temperature values.</p></li>
 <li><p><strong>output_dir</strong> (<em>PathLike</em>) – Directory to store the output files.</p></li>
 <li><p><strong>thermalization_steps</strong> (<em>int</em>) – Number of steps to discard for thermalization.</p></li>
-<li><p><strong>comm</strong> (<em>mpi.Comm</em><em>, </em><em>optional</em>) – MPI communicator for parallel processing.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – MPI communicator for parallel processing.</p></li>
 </ul>
 </dd>
 </dl>
@@ -166,17 +551,22 @@ The output file is <code class="docutils literal notranslate"><span class="pre">
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odatse.util.separateT.separateT">
-<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">separateT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#separateT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT.separateT" title="Link to this definition"></a></dt>
-<dd><p>Separates and processes temperature data for quantum beam diffraction experiments.</p>
+<span class="sig-prename descclassname"><span class="pre">odatse.util.separateT.</span></span><span class="sig-name descname"><span class="pre">separateT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/separateT.html#separateT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.separateT.separateT" title="Link to this definition">#</a></dt>
+<dd><p>Separates and processes temperature data for the data analysis framework.</p>
+<p>Reads each rank’s <code class="docutils literal notranslate"><span class="pre">result.txt</span></code>, redistributes entries to the rank that owns
+their temperature via MPI alltoall, and writes per-temperature <code class="docutils literal notranslate"><span class="pre">result_T*.txt</span></code>
+files.  Large files are processed in chunks of <em>buffer_size</em> lines so that
+memory usage is bounded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Ts</strong> (<em>np.ndarray</em>) – Array of temperature values.</p></li>
-<li><p><strong>nwalkers</strong> (<em>int</em>) – Number of walkers.</p></li>
-<li><p><strong>output_dir</strong> (<em>PathLike</em>) – Directory to store the output files.</p></li>
-<li><p><strong>comm</strong> (<em>mpi.Comm</em><em>, </em><em>optional</em>) – MPI communicator for parallel processing.</p></li>
-<li><p><strong>use_beta</strong> (<em>bool</em>) – Flag to determine if beta values are used instead of temperature.</p></li>
-<li><p><strong>buffer_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the buffer for reading input data. Default is 10000.</p></li>
+<li><p><strong>Ts</strong> (<em>np.ndarray</em>) – Array of temperature (or beta) values, shared across all ranks.</p></li>
+<li><p><strong>nwalkers</strong> (<em>int</em>) – Number of walkers per MPI rank.  Must satisfy <code class="docutils literal notranslate"><span class="pre">len(Ts)</span> <span class="pre">==</span> <span class="pre">nwalkers</span> <span class="pre">*</span> <span class="pre">mpisize</span></code>.</p></li>
+<li><p><strong>output_dir</strong> (<em>PathLike</em>) – Root output directory.  Rank <em>r</em> reads from <code class="docutils literal notranslate"><span class="pre">output_dir/&lt;r&gt;/result.txt</span></code>.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – MPI communicator.  Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> for serial execution.</p></li>
+<li><p><strong>use_beta</strong> (<em>bool</em>) – Write <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">beta</span> <span class="pre">=</span> <span class="pre">…</span></code> headers instead of <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">…</span></code> when <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>buffer_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of lines read per chunk (rounded up to a multiple of
+<em>nwalkers</em>).  Default is 10000.</p></li>
 </ul>
 </dd>
 </dl>
@@ -185,34 +575,139 @@ The output file is <code class="docutils literal notranslate"><span class="pre">
 </section>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="odatse.util.resampling.html" class="btn btn-neutral float-left" title="odatse.util.resampling module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="odatse.util.toml.html" class="btn btn-neutral float-right" title="odatse.util.toml module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2020-, ISSP, UTokyo.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="odatse.util.resampling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">odatse.util.resampling module</p>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </a>
+    <a class="right-next"
+       href="odatse.util.toml.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">odatse.util.toml module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-</body>
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry"><code class="docutils literal notranslate"><span class="pre">Entry</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry.Tstr"><code class="docutils literal notranslate"><span class="pre">Entry.Tstr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry._asdict"><code class="docutils literal notranslate"><span class="pre">Entry._asdict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry._make"><code class="docutils literal notranslate"><span class="pre">Entry._make()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry._replace"><code class="docutils literal notranslate"><span class="pre">Entry._replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry.fx"><code class="docutils literal notranslate"><span class="pre">Entry.fx</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry.step"><code class="docutils literal notranslate"><span class="pre">Entry.step</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry.walker"><code class="docutils literal notranslate"><span class="pre">Entry.walker</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.Entry.xs"><code class="docutils literal notranslate"><span class="pre">Entry.xs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._clear_results"><code class="docutils literal notranslate"><span class="pre">_clear_results()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._compute_temperature_statistics"><code class="docutils literal notranslate"><span class="pre">_compute_temperature_statistics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._distribute_entries"><code class="docutils literal notranslate"><span class="pre">_distribute_entries()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._merge_results"><code class="docutils literal notranslate"><span class="pre">_merge_results()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._parse_result_line"><code class="docutils literal notranslate"><span class="pre">_parse_result_line()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._read_result_T_entries"><code class="docutils literal notranslate"><span class="pre">_read_result_T_entries()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT._write_entries_to_file"><code class="docutils literal notranslate"><span class="pre">_write_entries_to_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.calculate_statistics_from_separated_files"><code class="docutils literal notranslate"><span class="pre">calculate_statistics_from_separated_files()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.separateT.separateT"><code class="docutils literal notranslate"><span class="pre">separateT()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/odatse.util.separateT.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020-, ISSP, UTokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

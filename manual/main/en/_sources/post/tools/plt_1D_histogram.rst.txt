@@ -1,5 +1,5 @@
-plt_1D_histogram.py
-====================
+odatse_plt_1D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_1D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_1D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -24,7 +24,7 @@ Field names can be specified with the field_list option, or you can use the para
 
 If FILE is not specified, the script reads files named result_*_summarized.txt from the directory specified by the data_dir option.
 
-The axes for creating histograms can be specified with the columns option. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--column x1,x3`` will create histograms marginalized along the ``x1`` and ``x3`` axes.
+The axes for creating histograms can be specified with the columns option. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--columns x1,x3`` will create histograms marginalized along the ``x1`` and ``x3`` axes.
 
 The histogram range can be specified with the range option. In that case, the same range will be used for all displayed axes. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 
@@ -38,13 +38,13 @@ These options can also be provided collectively in a config file. The config fil
 
 **-b BINS, \-\-bins BINS**
     Specifies the number of bins. Default value is 60.
-    
+
 **-c COLUMNS, \-\-columns COLUMNS**
     Specifies the field names for which to create histograms. Multiple field names can be specified as a comma-separated list. If omitted, all axes will be used.
-            
+
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory from which to retrieve data files (when ``file`` is not specified). If not specified, the current directory is used.
-            
+
 **-f FORMAT, \-\-format FORMAT**
     Specifies the format of the output histogram files. Any format supported by matplotlib can be specified. Multiple formats can be specified as a comma-separated list. Default value is ``png``.
 
@@ -53,26 +53,26 @@ These options can also be provided collectively in a config file. The config fil
 
 **-r RANGE, \-\-range RANGE**
     Specifies the histogram range in the format xmin,xmax. If specified via the range command line option, it applies to all axes. To vary by axis, specify in the parameter file or config file. If not specified in any of these, the range is automatically set for each axis.
-    
+
 **-w WEIGHT_COLUMN, \-\-weight_column WEIGHT_COLUMN**
     Specifies the column number (0-based) of the weight value. Default value is -1 (last column).
 
 **\-\-config CONFIG**
     Specifies a config file. The config file is in TOML format and specifies options equivalent to command line options. Option priority is: parameter file < config file < command line options.
-    
+
 **\-\-params PARAMS**
     Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.
-    
+
 **\-\-field_list FIELD_LIST**
     Specifies field names. If not specified, the standard format is assumed: T (or beta), fx, x1, .. xN, weight (where N is the parameter dimension). If obtained from a parameter file, the values from label_list are used for x1 .. xN.
     Used for field name specification in columns.
-    
+
 **\-\-progress**
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, messages about the processing status of each file are displayed instead.
-    
+
 **\-\-xlabel XLABEL**
     Specifies the label string for the x-axis.
-    
+
 **-h, \-\-help**
     Displays a help message and exits the program.
 
@@ -83,15 +83,15 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -o 1dhist file.txt
 
    1dhist/1Dhistogram_file.png is output.
 
-2. When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 1dhist directory.
+2. Input data files result_T0_summarized.txt to result_T10_summarized.txt are prepared in the data directory, and the output destination is set to the 1dhist directory.
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -d data -o 1dhist
+      $ odatse_plt_1D_histogram -d data -o 1dhist
 
    1Dhistogram_result_T0_NNNN.png to 1Dhistogram_result_T10_MMMM.png are output to the 1dhist directory. In the filename, ``summarized`` is replaced with ``T_{T}`` or ``beta_{beta}``.
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -c x1,x3 -o 1dhist -f png,pdf file.txt
+      $ odatse_plt_1D_histogram -c x1,x3 -o 1dhist -f png,pdf file.txt
 
    1dhist/1Dhistogram_file.png and 1dhist/1Dhistogram_file.pdf are output.
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py -r 3.0,6.0 -o 1dhist file.txt
+      $ odatse_plt_1D_histogram -r 3.0,6.0 -o 1dhist file.txt
 
 5. Use a config file to describe the options. Prepare conf.toml as follows:
 
@@ -127,7 +127,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_1D_histogram.py --config conf.toml
+      $ odatse_plt_1D_histogram --config conf.toml
 
    Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 1dhist/1Dhistogram_result_T*.png.
 
@@ -166,11 +166,11 @@ This script creates histograms using the following procedure:
 Output file naming convention:
 
 * Normal files:
-  
+
   ``1Dhistogram_{input_filename}.{format}``
 
-* Files containing _summarized.txt (output from summarize_each_T.py):
-  
+* Files containing _summarized.txt (output from odatse_summarize_each_T):
+
   ``1Dhistogram_{input_filename_with_summarized_replaced_by_T_or_beta}.{format}``
 
 Performance

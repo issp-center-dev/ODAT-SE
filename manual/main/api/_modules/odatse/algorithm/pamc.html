@@ -1,74 +1,310 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>odatse.algorithm.pamc &mdash; ODAT-SE API  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>odatse.algorithm.pamc &#8212; ODAT-SE API  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/odatse/algorithm/pamc';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../../../index.html" class="icon icon-home">
-            ODAT-SE API
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">odatse</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">ODAT-SE API</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../algorithm.html">odatse.algorithm</a></li>
-      <li class="breadcrumb-item active">odatse.algorithm.pamc</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE API  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../modules.html">
+    odatse
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../algorithm.html" class="nav-link">odatse.algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">odatse.algorithm.pamc</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for odatse.algorithm.pamc</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
 <span class="c1">#</span>
@@ -83,7 +319,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -129,8 +364,6 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    x : np.ndarray</span>
-<span class="sd">        Current configurations for all walkers</span>
 <span class="sd">    logweights : np.ndarray</span>
 <span class="sd">        Log of importance weights for each walker</span>
 <span class="sd">    fx : np.ndarray</span>
@@ -149,11 +382,8 @@
 <span class="sd">        Tracks genealogy of walkers for analysis</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># x: np.ndarray</span>
-    <span class="c1"># xmin: np.ndarray</span>
-    <span class="c1"># xmax: np.ndarray</span>
-    <span class="c1"># #xunit: np.ndarray</span>
-    <span class="c1"># xstep: np.ndarray</span>
+    <span class="c1"># Coordinate bounds/steps live on self.statespace; the walker state is in</span>
+    <span class="c1"># self.state (see montecarlo.AlgorithmBase / state.py).</span>
 
     <span class="n">numsteps</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">numsteps_annealing</span><span class="p">:</span> <span class="nb">int</span>
@@ -182,6 +412,19 @@
     <span class="n">Fmeans</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">Ferrs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
+    <span class="c1"># PAMC-specific fields appended to the MC base checkpoint.</span>
+    <span class="c1"># Fields restored with slice assignment or special logic are still listed</span>
+    <span class="c1"># here so that ``__getstate__`` saves them; ``_apply_state`` handles them</span>
+    <span class="c1"># explicitly rather than via the generic setattr loop.</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;betas&quot;</span><span class="p">,</span> <span class="s2">&quot;nwalkers&quot;</span><span class="p">,</span> <span class="s2">&quot;input_as_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Tindex&quot;</span><span class="p">,</span> <span class="s2">&quot;index_from_reset&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;logZ&quot;</span><span class="p">,</span> <span class="s2">&quot;logZs&quot;</span><span class="p">,</span> <span class="s2">&quot;logweights&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Fmeans&quot;</span><span class="p">,</span> <span class="s2">&quot;Ferrs&quot;</span><span class="p">,</span> <span class="s2">&quot;nreplicas&quot;</span><span class="p">,</span> <span class="s2">&quot;populations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;family_lo&quot;</span><span class="p">,</span> <span class="s2">&quot;family_hi&quot;</span><span class="p">,</span> <span class="s2">&quot;walker_ancestors&quot;</span><span class="p">,</span> <span class="s2">&quot;fx_from_reset&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;naccepted_from_reset&quot;</span><span class="p">,</span> <span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;pr_list&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
 <div class="viewcode-block" id="Algorithm.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -189,7 +432,6 @@
         <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
-        <span class="n">mpicomm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MPI.Comm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the Algorithm class.</span>
@@ -202,18 +444,13 @@
 <span class="sd">            Runner object for executing the algorithm, by default None.</span>
 <span class="sd">        run_mode : str, optional</span>
 <span class="sd">            Mode in which to run the algorithm, by default &quot;initial&quot;.</span>
-<span class="sd">        mpicomm : MPI.Comm</span>
-<span class="sd">            MPI communicator to use for parallelization.</span>
-<span class="sd">            If not provided, the default MPI communicator (MPI.COMM_WORLD) will be used if mpi4py is installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-
         <span class="n">info_pamc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;pamc&quot;</span><span class="p">]</span>
         <span class="n">nwalkers</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nreplica_per_proc&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">,</span> <span class="n">mpicomm</span><span class="o">=</span><span class="n">mpicomm</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="n">nwalkers</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
 
         <span class="n">numT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_scheduling</span><span class="p">(</span><span class="n">info_pamc</span><span class="p">)</span>
 
@@ -227,15 +464,20 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_combined_files&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">separate_T</span> <span class="o">=</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;separate_T&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anneal_from_beta0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">info_pamc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;anneal_from_beta0&quot;</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+
+        <span class="c1"># PAMC-specific counters for a fresh run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">numT</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
 
@@ -245,12 +487,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
-        <span class="n">nreplicas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
+        <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">numT</span><span class="p">,</span> <span class="n">nreplicas</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">populations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">*</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">*</span> <span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -298,7 +540,7 @@
 
         <span class="n">oks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">numsteps</span><span class="p">,</span> <span class="n">numsteps_annealing</span><span class="p">,</span> <span class="n">numT</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">oks</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;ERROR: Two of &#39;numsteps&#39;, &#39;numsteps_annealing&#39;, &quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Two of &#39;numsteps&#39;, &#39;numsteps_annealing&#39;, &quot;</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;and &#39;Tnum&#39; should be positive in the input file</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  numsteps = </span><span class="si">{</span><span class="n">numsteps</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  numsteps_annealing = </span><span class="si">{</span><span class="n">numsteps_annealing</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -312,7 +554,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">numT</span><span class="p">,</span> <span class="n">nr</span><span class="p">)</span>
             <span class="n">rem</span> <span class="o">=</span> <span class="n">numsteps</span> <span class="o">-</span> <span class="n">nr</span> <span class="o">*</span> <span class="n">numT</span>
             <span class="k">if</span> <span class="n">rem</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="p">(</span><span class="n">rem</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># Distribute the remainder over the first ``rem`` temperatures</span>
+                <span class="c1"># so that the per-temperature step counts sum to ``numsteps``.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">rem</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ss</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">while</span> <span class="n">numsteps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -332,44 +576,18 @@
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;mode unset&quot;</span><span class="p">)</span>
-
-        <span class="n">restore_rng</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-resetrand&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;resume&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;continue&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
-
-            <span class="n">Tindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span>
-
-            <span class="n">dbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">Tindex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">+=</span> <span class="o">-</span><span class="n">dbeta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">:</span>
-                <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_resample</span><span class="p">()</span>
-                <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;resampling&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unknown mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">))</span>
+        <span class="c1"># dispatch は prepare() が処理済み</span>
 
         <span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_writer</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
             <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anneal_from_beta0</span><span class="p">:</span>
+                <span class="c1"># Anneal from beta=0 and resample</span>
+                <span class="c1"># In _resample, self.logZ is updated</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resample</span><span class="p">(</span><span class="n">at_init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">writer</span><span class="p">[</span><span class="s2">&quot;trial&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">writer</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">])</span>
@@ -469,9 +687,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_split_result_file</span><span class="p">(</span><span class="s2">&quot;trial&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_split_result_file</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mpicomm</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="p">))</span></div>
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()))</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -547,7 +766,14 @@
         <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ancestors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">)</span>
         <span class="n">nacc</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">numT</span><span class="p">,:]])</span>
         <span class="n">nacc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nacc</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;acceptance ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nacc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">nacc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># A temperature with no trials (e.g. numsteps_for_T == 0) would give a</span>
+        <span class="c1"># 0/0 acceptance ratio; report 0.0 there instead of nan/inf.</span>
+        <span class="n">ntrials</span> <span class="o">=</span> <span class="n">nacc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;acceptance ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+            <span class="n">nacc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ntrials</span><span class="p">,</span>
+            <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nacc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">ntrials</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
 
         <span class="n">fxs</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">]</span>
         <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">])</span>
@@ -618,7 +844,6 @@
         <span class="n">logz</span> <span class="o">+=</span> <span class="n">logweights_max</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[</span><span class="n">startTindex</span><span class="p">:</span><span class="n">endTindex</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span> <span class="o">+</span> <span class="n">logz</span>
         <span class="k">if</span> <span class="n">endTindex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">):</span>
-            <span class="c1"># Calculate the next weight before reset and evaluate dF</span>
             <span class="n">bdiff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">endTindex</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">endTindex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logweights</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">bdiff</span> <span class="o">*</span> <span class="n">fxs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[</span><span class="n">startTindex</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
@@ -637,15 +862,22 @@
 
 <div class="viewcode-block" id="Algorithm._resample">
 <a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._resample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_init</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform population resampling between temperature steps.</span>
 
 <span class="sd">        This is a key component of PAMC that:</span>
-<span class="sd">          1. Gathers current population statistics</span>
+<span class="sd">          1. Gathers current population statistics (unless at_init)</span>
 <span class="sd">          2. Calculates importance weights for the temperature change</span>
 <span class="sd">          3. Resamples walkers based on their weights</span>
-<span class="sd">          4. Updates population statistics and free energy estimates</span>
+<span class="sd">          4. Updates population statistics and free energy estimates (unless at_init)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        at_init : bool, optional</span>
+<span class="sd">            If True, use current logweights only and skip gather/save_stats</span>
+<span class="sd">            (used when resampling at init with anneal_from_beta0).</span>
+<span class="sd">            self.logZ is updated in this case.</span>
 
 <span class="sd">        The resampling can be done in two modes:</span>
 <span class="sd">          - Fixed: Maintains constant population size</span>
@@ -657,20 +889,26 @@
 <span class="sd">          - Updates free energy estimates using resampling data</span>
 <span class="sd">          - Handles MPI communication for parallel execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_information</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_stats</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">at_init</span><span class="p">:</span>
+            <span class="n">logweights</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">)</span>
+            <span class="n">lw_max</span> <span class="o">=</span> <span class="n">logweights</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logweights</span> <span class="o">-</span> <span class="n">lw_max</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">+</span> <span class="n">lw_max</span>
+            <span class="n">ns</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_information</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_stats</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+            <span class="n">dbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
+            <span class="n">logweights</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;logweights&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dbeta</span> <span class="o">*</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logweights</span> <span class="o">-</span> <span class="n">logweights</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="n">ns</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span>
 
-        <span class="c1"># weights for resampling</span>
-        <span class="n">dbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
-        <span class="n">logweights</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;logweights&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dbeta</span> <span class="o">*</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;fxs&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logweights</span> <span class="o">-</span> <span class="n">logweights</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>  <span class="c1"># to avoid overflow</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_nwalkers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_resample_fixed</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ns</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ns&quot;</span><span class="p">]</span>
             <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">-</span> <span class="n">ns</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_resample_varied</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">offsets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resample_varied</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">offsets</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">)</span></div>
 
@@ -738,7 +976,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">new_fx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_index</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">)</span></div>
+        <span class="c1"># keep nwalkers a plain int (np.sum returns np.int64), since downstream</span>
+        <span class="c1"># code does isinstance(..., int) checks and uses it as an array size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">next_numbers</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._calc_participation_ratio">
@@ -775,10 +1015,17 @@
         <span class="n">log_weights</span> <span class="o">=</span> <span class="n">gather_replica</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">)</span>
         <span class="n">max_log_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">log_weights</span><span class="p">)</span>
 
-        <span class="n">sum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">))</span>
-        <span class="n">sum_weight_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># Degenerate weights (e.g. all -inf) make (log_weights - max) contain</span>
+        <span class="c1"># nan; the guard below turns that into a finite 0.0, so suppress the</span>
+        <span class="c1"># transient invalid-value warning here.</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="n">sum_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">))</span>
+            <span class="n">sum_weight_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weights</span> <span class="o">-</span> <span class="n">max_log_weight</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">pr</span> <span class="o">=</span> <span class="n">sum_weight</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">sum_weight_sq</span>
+        <span class="c1"># sum_weight_sq is normally &gt;= 1 (the max element contributes exp(0)=1),</span>
+        <span class="c1"># but degenerate weights make it 0 or nan; guard so the participation</span>
+        <span class="c1"># ratio is a finite number rather than nan.</span>
+        <span class="n">pr</span> <span class="o">=</span> <span class="n">sum_weight</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">sum_weight_sq</span> <span class="k">if</span> <span class="n">sum_weight_sq</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
 
         <span class="k">return</span> <span class="n">pr</span></div>
 
@@ -789,11 +1036,25 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the algorithm for execution.</span>
 
-<span class="sd">        This method initializes the timers for the &#39;submit&#39; and &#39;resampling&#39; phases</span>
-<span class="sd">        of the algorithm run.</span>
+<span class="sd">        Initialises the run-phase timers, then for ``continue`` mode applies</span>
+<span class="sd">        the logweight update and advances ``Tindex`` to the next temperature.</span>
+<span class="sd">        This must run after ``_apply_state()`` has extended the beta schedule</span>
+<span class="sd">        (done inside ``_prepare()`` dispatch) and after the timers are ready.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;resampling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;resampling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;continue&quot;</span><span class="p">):</span>
+            <span class="n">Tindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span>
+            <span class="n">dbeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">Tindex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">+=</span> <span class="o">-</span><span class="n">dbeta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_interval</span><span class="p">:</span>
+                <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resample</span><span class="p">()</span>
+                <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;resampling&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_split_result_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
@@ -826,9 +1087,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post-processing after the algorithm execution.</span>
 
-<span class="sd">        This method consolidates the results from different temperature steps</span>
-<span class="sd">        into single files for &#39;result&#39; and &#39;trial&#39;. It also gathers the best</span>
-<span class="sd">        results from all processes and writes them to &#39;best_result.txt&#39;.</span>
+<span class="sd">        Gathers the best solution across all processes and writes it to</span>
+<span class="sd">        ``best_result.txt``, and writes the per-temperature statistics</span>
+<span class="sd">        (free energy, errors, partition function) to ``fx.txt`` and the</span>
+<span class="sd">        participation ratios to ``pr.txt``. (Splitting of ``trial``/``result``</span>
+<span class="sd">        into per-temperature files is done in ``_run``, not here.)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">best_fx</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">]))</span>
         <span class="n">best_x</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">]))</span>
@@ -836,9 +1099,9 @@
         <span class="n">best_iwalker</span> <span class="o">=</span> <span class="n">gather_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">]))</span>
 
         <span class="n">best_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">best_fx</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;best_result.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nprocs = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nprocs = </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rank = </span><span class="si">{</span><span class="n">best_rank</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;step = </span><span class="si">{</span><span class="n">best_istep</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;walker = </span><span class="si">{</span><span class="n">best_iwalker</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -881,149 +1144,68 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">best_x</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
             <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">best_fx</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
-            <span class="s2">&quot;nprocs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="p">,</span>
+            <span class="s2">&quot;nprocs&quot;</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">(),</span>
             <span class="s2">&quot;rank&quot;</span><span class="p">:</span> <span class="n">best_rank</span><span class="p">,</span>
             <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">best_istep</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
             <span class="s2">&quot;walker&quot;</span><span class="p">:</span> <span class="n">best_iwalker</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
         <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="Algorithm._save_state">
-<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._save_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save the current state of the algorithm to a file.</span>
+<div class="viewcode-block" id="Algorithm._apply_state">
+<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._apply_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore algorithm state from a checkpoint snapshot.</span>
+
+<span class="sd">        Delegates MPI validation, RNG restore, and MC-layer fields to the</span>
+<span class="sd">        base class, then handles PAMC-specific fields explicitly.  Simple</span>
+<span class="sd">        scalar fields are set directly; array fields that may be shorter than</span>
+<span class="sd">        the current schedule (``logZs``, ``Fmeans``, etc.) are written with</span>
+<span class="sd">        slice assignment after re-initialisation.</span>
+
+<span class="sd">        The logweight update, optional resampling, and ``Tindex`` increment</span>
+<span class="sd">        for ``continue`` mode are performed in ``prepare()`` after this method</span>
+<span class="sd">        returns, so that the run-phase timers are already initialised.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        filename : str</span>
-<span class="sd">            The name of the file where the state will be saved.</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            ``&quot;resume&quot;`` — validate that the temperature schedule is identical</span>
+<span class="sd">            to the one stored in *data*.</span>
+<span class="sd">            ``&quot;continue&quot;`` — concatenate the stored schedule with the new one</span>
+<span class="sd">            (the stored last beta must equal the new first beta).</span>
+<span class="sd">        restore_rng : bool</span>
+<span class="sd">            When *True* (default) the RNG state is restored from *data*;</span>
+<span class="sd">            when *False* a fresh RNG state is kept (``--reset_rand`` mode).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1">#-- _algorithm</span>
-            <span class="s2">&quot;mpisize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span><span class="p">,</span>
-            <span class="s2">&quot;mpirank&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span><span class="p">,</span>
-            <span class="s2">&quot;rng&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">get_state</span><span class="p">(),</span>
-            <span class="s2">&quot;timer&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
-            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="c1">#-- montecarlo</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
-            <span class="c1">#&quot;inode&quot;: self.inode,</span>
-            <span class="s2">&quot;istep&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span><span class="p">,</span>
-            <span class="s2">&quot;best_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span>
-            <span class="s2">&quot;best_fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">,</span>
-            <span class="s2">&quot;best_istep&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">,</span>
-            <span class="s2">&quot;best_iwalker&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">,</span>
-            <span class="s2">&quot;naccepted&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">naccepted</span><span class="p">,</span>
-            <span class="s2">&quot;ntrial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span><span class="p">,</span>
-            <span class="c1">#-- pamc</span>
-            <span class="s2">&quot;betas&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">,</span>
-            <span class="s2">&quot;nwalkers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span>
-            <span class="s2">&quot;input_as_beta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">,</span>
-            <span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">,</span>
-            <span class="s2">&quot;Tindex&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">,</span>
-            <span class="s2">&quot;index_from_reset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span><span class="p">,</span>
-            <span class="s2">&quot;logZ&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span><span class="p">,</span>
-            <span class="s2">&quot;logZs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">,</span>
-            <span class="s2">&quot;logweights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span><span class="p">,</span>
-            <span class="s2">&quot;Fmeans&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span><span class="p">,</span>
-            <span class="s2">&quot;Ferrs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span><span class="p">,</span>
-            <span class="s2">&quot;nreplicas&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">,</span>
-            <span class="s2">&quot;populations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">populations</span><span class="p">,</span>
-            <span class="s2">&quot;family_lo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span><span class="p">,</span>
-            <span class="s2">&quot;family_hi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span><span class="p">,</span>
-            <span class="s2">&quot;walker_ancestors&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span><span class="p">,</span>
-            <span class="s2">&quot;fx_from_reset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span><span class="p">,</span>
-            <span class="s2">&quot;naccepted_from_reset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span><span class="p">,</span>
-            <span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">,</span>
-            <span class="s2">&quot;pr_list&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="Algorithm._load_state">
-<a class="viewcode-back" href="../../../odatse.algorithm.pamc.html#odatse.algorithm.pamc.Algorithm._load_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the saved state of the algorithm from a file.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        filename : str</span>
-<span class="sd">            The name of the file from which the state will be loaded.</span>
-<span class="sd">        mode : str, optional</span>
-<span class="sd">            The mode in which to load the state. Can be &quot;resume&quot; or &quot;continue&quot;, by default &quot;resume&quot;.</span>
-<span class="sd">        restore_rng : bool, optional</span>
-<span class="sd">            Whether to restore the random number generator state, by default True.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Load status file failed&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c1"># -- _algorithm</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mpisize&quot;</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirank</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mpirank&quot;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">restore_rng</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rng&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span>
-
-        <span class="n">info</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-
-        <span class="c1"># -- montecarlo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;fx&quot;</span><span class="p">]</span>
-        <span class="c1"># self.inode = data[&quot;inode&quot;]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_x&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_fx&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_istep&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_iwalker&quot;</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">naccepted</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;naccepted&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ntrial</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ntrial&quot;</span><span class="p">]</span>
-
-        <span class="c1"># -- pamc</span>
+        <span class="c1"># -- simple scalar fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Tindex&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;index_from_reset&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nwalkers&quot;</span><span class="p">]</span>
 
+        <span class="c1"># -- temperature schedule (mode-dependent)</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;resume&quot;</span><span class="p">:</span>
-            <span class="c1"># check if scheduling is as stored</span>
-            <span class="n">betas</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;betas&quot;</span><span class="p">]</span>
-            <span class="n">input_as_beta</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;input_as_beta&quot;</span><span class="p">]</span>
-            <span class="n">numsteps_for_T</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">]</span>
-
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">betas</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">input_as_beta</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numsteps_for_T</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;betas&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;input_as_beta&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">)</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
-
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
-            <span class="c1"># check if scheduling is continuous</span>
-            <span class="n">betas</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;betas&quot;</span><span class="p">]</span>
-            <span class="n">input_as_beta</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;input_as_beta&quot;</span><span class="p">]</span>
-            <span class="n">numsteps_for_T</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;input_as_beta&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;betas&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">odatse</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">InputError</span><span class="p">(</span>
+                    <span class="s2">&quot;temperature is not continuous between the saved and &quot;</span>
+                    <span class="s2">&quot;current schedules (saved last beta &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;betas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != current first beta </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;betas&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;numsteps_for_T&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
 
-            <span class="k">assert</span> <span class="n">input_as_beta</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">betas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: temperator is not continuous&quot;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">betas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">numsteps_for_T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_for_T</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">pass</span>
-
+        <span class="c1"># -- re-initialise length-numT arrays, then overwrite with saved data</span>
         <span class="n">numT</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">)</span>
-
-        <span class="n">nreplicas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpisize</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
+        <span class="n">nreplicas</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
@@ -1033,53 +1215,94 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logZ</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZ&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logZs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logZs&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logweights</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;logweights&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Fmeans</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fmeans&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ferrs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Ferrs&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nreplicas</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nreplicas&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">populations</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;populations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">family_lo</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;family_lo&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">family_hi</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;family_hi&quot;</span><span class="p">]</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">fx_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;fx_from_reset&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walker_ancestors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;walker_ancestors&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">naccepted_from_reset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;naccepted_from_reset&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acceptance_ratio</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;acceptance_ratio&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_list</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pr_list&quot;</span><span class="p">]</span>
 
-        <span class="c1"># -- restore rng state in statespace</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span></div>
 </div>
 
 </pre></div>
 
-           </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2020-, ISSP, UTokyo.</p>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
   </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  <p class="copyright">
+    
+      © Copyright 2020-, ISSP, UTokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
 
-</body>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

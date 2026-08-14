@@ -19,7 +19,7 @@
 - ``plot_colormap_2d.py``
 
   計算結果を可視化するためのプログラム
-  
+
 - ``do.sh``
 
   本チュートリアルを一括計算するために準備されたスクリプト
@@ -55,7 +55,7 @@
 
 ``[base]``, ``[solver]``, ``[runner]`` のセクションについては Nelder-Mead法による探索(``minsearch``)の場合と同じです。
 
-``[algorithm]`` セクションでは、使用するアルゴリスムとその設定を行います。
+``[algorithm]`` セクションでは、使用するアルゴリズムとその設定を行います。
 
 - ``name`` は使用するアルゴリズムの名前です。このチュートリアルでは、グリッド探索による解析を行うので、 ``mapper`` を指定します。
 
@@ -81,26 +81,36 @@
 
 .. code-block::
 
-    $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+    $ mpiexec -np 4 odatse input.toml | tee log.txt
 
 ここではプロセス数4のMPI並列を用いた計算を行っています。
 実行すると ``output`` ディレクトリとその下に各ランクのフォルダが作成され、ランクごとの計算結果が出力されます。
-同時に、以下の様な出力が標準出力に書き出されます。
+同時に、以下のような出力が標準出力に書き出されます。
 
 .. code-block::
 
-    Make ColorMap
-    Iteration : 1/240
-    Iteration : 2/240
+    name            : mapper
+    seed            : 12345
+    param.max_list  : [6.0, 6.0]
+    param.min_list  : [-6.0, -6.0]
+    param.num_list  : [31, 31]
     Iteration : 3/240
-    Iteration : 4/240
-    Iteration : 5/240
+    Iteration : 3/241
+    Iteration : 3/240
+    Iteration : 3/240
     Iteration : 6/240
-    Iteration : 7/240
+    Iteration : 6/241
     ...
+    [3] minimum_value: 1.95200000e-01 at 721 (mesh [-2.8, 3.200000000000001])
+    complete main process : rank 00000003/00000004
+    end of run
+    Make ColorMap
+
+961 個の格子点が 4 プロセスに分配されるため、担当点数はランクごとに 240 または 241 となります。
+進捗は数点ごとにまとめて出力され、複数ランクの出力が混ざるため、行の順序は実行のたびに変わります。
 
 ``x1``, ``x2`` に各メッシュでの候補パラメータと、その時の関数値が出力されます。
-最終的にグリッド上の全ての点で計算された関数値が ``output/ColorMap.txt`` に出力されます。
+最終的にグリッド上のすべての点で計算された関数値が ``output/ColorMap.txt`` に出力されます。
 今回の場合は、
 
 .. code-block::
@@ -129,7 +139,7 @@
 
     $ python3 plot_colormap_2d.py
 
-上記を実行すると ``ColorMapFig.png`` が作成され、Himmelblau関数の関数値を表す等高線の上に、各グリッド点で評価した関数値がカラーマップとしてプロットされます。
+上記を実行すると ``output/ColorMapFig.pdf`` が作成され、Himmelblau関数の関数値を表す等高線の上に、各グリッド点で評価した関数値がカラーマップとしてプロットされます。
 
 .. figure:: ../../../common/img/res_mapper.*
 

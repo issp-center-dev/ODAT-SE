@@ -1,5 +1,5 @@
-plt_2D_histogram.py
-====================
+odatse_plt_2D_histogram
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 plt_2D_histogram.py [OPTION]... [FILE]...
+   odatse_plt_2D_histogram [OPTION]... [FILE]...
 
 DESCRIPTION
 -----------
@@ -24,7 +24,7 @@ Field names can be specified with the field_list option, or you can use paramete
 
 If FILE is not specified, files named result_*_summarized.txt in the directory specified by the data_dir option will be used as data files.
 
-The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--column x1,x2,x3`` will create histograms marginalized to the ``x1 vs x2`` axis, ``x1 vs x3`` axis, and ``x2 vs x3`` axis.
+The axes for creating histograms are specified with the columns option. 2D plots will be created for all combinations of the specified axes. If not specified, all axes x1, ..., xN will be used. Specify field names as a comma-separated list. For example, ``--columns x1,x2,x3`` will create histograms marginalized onto the ``x1``-``x2``, ``x1``-``x3``, and ``x2``-``x3`` planes.
 
 The histogram range can be specified with the range option. In that case, the same range will be used for all axes being displayed. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 
@@ -39,13 +39,13 @@ These options can also be provided collectively in a config file. The config fil
 
 **-b BINS, \-\-bins BINS**
     Specifies the number of bins. Default value is 60.
-    
+
 **-c COLUMNS, \-\-columns COLUMNS**
     Specifies the field names for creating histograms. Multiple field names can be specified as a comma-separated list. If omitted, all axes will be used.
-			
+
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory to retrieve data files from (when ``file`` is not specified). If not specified, the current directory is used.
-			
+
 **-f FORMAT, \-\-format FORMAT**
     Specifies the format of the output histogram files. Any format supported by matplotlib can be specified. Multiple formats can be specified as a comma-separated list. Default value is ``png``.
 
@@ -54,23 +54,23 @@ These options can also be provided collectively in a config file. The config fil
 
 **-r RANGE, \-\-range RANGE**
     Specifies the histogram range in the format xmin,xmax. When specified via the range command line option, it applies to all axes. To vary by axis, specify in the parameter file or config file. If not specified in any of these, ranges will be set automatically for each axis.
-    
+
 **-w WEIGHT_COLUMN, \-\-weight_column WEIGHT_COLUMN**
     Specifies the column number (0-based) for the weight value. Default value is -1 (last column).
 
 **\-\-config CONFIG**
     Specifies a config file. The config file is in TOML format and specifies options equivalent to command line options. Option priority is: parameter file < config file < command line options.
-    
+
 **\-\-params PARAMS**
     Specifies the input parameter file used when running PAMC. Range information (min_list, max_list) and field_list information (label_list) are obtained from the parameter file.
-    
+
 **\-\-field_list FIELD_LIST**
     Specifies field names. If not specified, the standard format is assumed: T (or beta), fx, x1, .. xN, weight (where N is the parameter dimension). When obtained from a parameter file, label_list values are used for x1 .. xN.
     Used for field name specification in columns.
-    
+
 **\-\-progress**
     Displays a progress bar during execution. The tqdm library is required for display. If tqdm is not installed, messages about the processing status of each file will be displayed instead.
-    
+
 **-h, \-\-help**
     Displays a help message and exits the program.
 
@@ -81,17 +81,17 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -o 2dhist file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x2.png,
    2dhist/2Dhistogram_file_x1_vs_x3.png,
    2dhist/2Dhistogram_file_x2_vs_x3.png are output.
 
-2. When input data files are prepared in the data directory as result_T0_summarized.txt to result_T10_summarized.txt. Set the output destination to the 2dhist directory.
+2. Input data files result_T0_summarized.txt to result_T10_summarized.txt are prepared in the data directory, and the output destination is set to the 2dhist directory.
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -d data -o 2dhist
+      $ odatse_plt_2D_histogram -d data -o 2dhist
 
    2Dhistogram_result_T0_NNNN_x1_vs_x2.png to 2Dhistogram_result_T10_MMMM_x2_vs_x3.png are output to the 2dhist directory. In the filename, ``summarized`` is replaced with ``T_{T}`` or ``beta_{beta}``.
 
@@ -99,7 +99,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -c x1,x3 -o 2dhist -f png,pdf file.txt
+      $ odatse_plt_2D_histogram -c x1,x3 -o 2dhist -f png,pdf file.txt
 
    2dhist/2Dhistogram_file_x1_vs_x3.png and 2dhist/2Dhistogram_file_x1_vs_x3.pdf are output.
 
@@ -107,7 +107,7 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py -r 3.0,6.0 -o 2dhist file.txt
+      $ odatse_plt_2D_histogram -r 3.0,6.0 -o 2dhist file.txt
 
 5. Use a config file to describe the options. Prepare conf.toml as follows:
 
@@ -127,9 +127,9 @@ USAGE
 
    .. code-block:: bash
 
-      $ python3 plt_2D_histogram.py --config conf.toml
+      $ odatse_plt_2D_histogram --config conf.toml
 
-   Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*.png.
+   Histograms are created for each result_T*_summarized.txt in the summarized/ directory and output to 2dhist/2Dhistogram_result_T*_z1_vs_z2.png.
 
 NOTES
 -----
@@ -162,7 +162,7 @@ Each line contains numerical data separated by whitespace. In the standard forma
 * Color mapping is on a logarithmic scale (LogNorm), allowing visualization of low-density regions
 * Color bar is displayed as "Normalized Density (Log Scale)"
 * Grid lines are displayed in light gray, making it easier to grasp data positions
-* Zero-density regions are replaced with a very small value (1e-10) to enable display on a logarithmic scale
+* Empty (zero-density) bins are masked and rendered transparent; the logarithmic color scale uses data-driven limits (vmin/vmax taken from the non-empty bins)
 
 Histogram Creation Mechanism
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,7 +181,7 @@ Output file naming convention:
 
   ``2Dhistogram_{input_filename}_{parameter1}_vs_{parameter2}.{format}``
 
-* Files containing _summarized.txt (output from summarize_each_T.py):
+* Files containing _summarized.txt (output from odatse_summarize_each_T):
 
   ``2Dhistogram_{filename_with_summarized_replaced_by_T_or_beta}_{parameter1}_vs_{parameter2}.{format}``
 

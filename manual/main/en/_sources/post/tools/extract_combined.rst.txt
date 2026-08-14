@@ -1,5 +1,5 @@
-extract_combined.py
-===================
+odatse_extract_combined
+=======================
 
 NAME
 ----
@@ -10,7 +10,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 extract_combined.py [OPTION]... -t tag [FILE]...
+   odatse_extract_combined [OPTION]... -t tag [FILE]...
 
 
 DESCRIPTION
@@ -29,18 +29,18 @@ If FILE is specified, that file will be processed. If no file is explicitly spec
 
 **FILE**
     Specifies the MCMC log file(s) (combined.txt). Multiple files can be specified.
-    
+
 **-t TAG, \-\-tag TAG**
     Specifies the tag to extract. This is a required parameter. The tag is a string.
-    
+
 **-d DATA_DIR, \-\-data_dir DATA_DIR**
     Specifies the directory to get data files from (when ``FILE`` is not specified).
-			
+
 **\-\-progress**
     Displays a progress bar during execution. Requires the tqdm library. If tqdm is not installed, the name of the file being processed will be displayed instead.
-    
+
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -50,13 +50,13 @@ Basic usage examples are shown below.
 .. code-block:: bash
 
    # Extract lines with the "energy" tag from a specific file
-   python3 extract_combined.py -t energy path/to/combined.txt
+   odatse_extract_combined -t energy path/to/combined.txt
 
    # Extract lines with the "acc" tag from all combined.txt files in a specific directory
-   python3 extract_combined.py -t acc -d ./mcmc_results/
+   odatse_extract_combined -t acc -d ./mcmc_results/
 
    # Process multiple files with a progress bar
-   python3 extract_combined.py -t energy --progress file1.txt file2.txt file3.txt
+   odatse_extract_combined -t energy --progress file1.txt file2.txt file3.txt
 
 NOTES
 -----
@@ -64,14 +64,14 @@ NOTES
 Usage Notes
 ~~~~~~~~~~~
 
-1. **Exact Tag Matching**: 
+1. **Exact Tag Matching**:
    Tags must match exactly. If you specify the "energy" tag, only lines starting with "``<energy>``" will be extracted.
    Lines with "``<Energy>``" or "``<energy_value>``" will not be matched. A space must follow the tag.
 
-2. **Output File Overwriting**: 
+2. **Output File Overwriting**:
    If a file with the same name already exists, it will be overwritten without warning. It is recommended to back up important files beforehand.
 
-3. **Processing Large Files**: 
+3. **Processing Large Files**:
    The script processes files line by line, so memory consumption is kept low even for very large files.
    When processing large files, you can use the ``--progress`` option to monitor progress.
 
@@ -94,7 +94,7 @@ Files in combined format have the following structure:
    <tag1> value5 value6 ...
    ...
 
-Each line begins with a tag in the format ``<tag>``, and ``extract_combined.py`` searches for and extracts lines with matching tags.
+Each line begins with a tag in the format ``<tag>``, and ``odatse_extract_combined`` searches for and extracts lines with matching tags.
 The tag portion is removed from the output file.
 
 General Workflow
@@ -102,8 +102,8 @@ General Workflow
 
 This script is used when analyzing MCMC simulation results:
 
-1. When MCMC simulation is run with the export_combined_files option enabled, ``combined.txt`` files are generated.
-2. Use ``extract_combined.py`` to extract necessary files.
+1. When MCMC simulation is run with the ``export_combined_files`` option enabled, ``combined.txt`` files are generated.
+2. Use ``odatse_extract_combined`` to extract necessary files.
 3. Analyze or plot the extracted data files with other tools.
 
 When processing multiple simulation results at once, combining the ``-d`` option with the ``--progress`` option is efficient.

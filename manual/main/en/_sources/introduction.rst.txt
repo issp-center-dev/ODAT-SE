@@ -1,18 +1,25 @@
+================================
 Introduction
 ================================
 
 What is ODAT-SE ?
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Open Data Analysis Tool for Science and Engineering (ODAT-SE) is a framework for applying a search algorithm to a direct problem solver to find the optimal solution.
-It has been developed by the name 2DMAT, and since version 3, it is organized as an open platform for data analysis by modularizing direct problem solvers and search algorithms.
+It has been developed under the name 2DMAT, and since version 3, it is organized as an open platform for data analysis by modularizing direct problem solvers and search algorithms.
 
-Users can define their own direct problem solvers. 
-As the standard direct problem solver, the experimental data analysis software for two-dimensional material structure analysis is prepared. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm. 
+Users can define their own direct problem solvers.
+Experimental data analysis software for two-dimensional material structure analysis is provided as the standard direct problem solver. The direct problem solver gives the deviation between the experimental data and the calculated data obtained under the given parameters such as atomic positions as a loss function used in the inverse problem. The optimal parameters are estimated by minimizing the loss function using a search algorithm.
 In the current version, for solving a direct problem, ODAT-SE offers the wrapper of the solver for the total-reflection high-energy positron diffraction (TRHEPD) experiment[1, 2], surface X-ray diffraction (sxrd)[3], and low-energy electron diffraction (leed)[4].
-As algorithms, it offers the Nelder-Mead method[5], the grid search method[6], the Bayesian optimization method[7], the replica exchange Monte Carlo method[8], and the population annealing Monte Carlo method[9-11].
+As algorithms, it offers the Nelder-Mead method[5], the grid search method[6], the Bayesian optimization method[7], the replica exchange Monte Carlo method[8], the population annealing Monte Carlo method[9-11], the tensor train optimization method, and the random search method.
 
 In the future, we plan to add other direct problem solvers and search algorithms in ODAT-SE.
+
+Related Resources
+^^^^^^^^^^^^^^^^^^^^^^
+
+The `ODAT-SE Gallery <https://isspns-gitlab.issp.u-tokyo.ac.jp/takeohoshi/odat-se-gallery>`_ provides sample data, working examples, and solver templates for various analysis techniques.
+It includes examples for TRHEPD, SXRD, LEED, and XAFS, as well as templates for developing custom solvers.
 
 
 [1] As a review, see `Y. Fukaya, et al., J. Phys. D: Appl. Phys. 52, 013002 (2019) <https://iopscience.iop.org/article/10.1088/1361-6463/aadf14>`_.
@@ -38,7 +45,7 @@ In the future, we plan to add other direct problem solvers and search algorithms
 [11] `J. Machta, Phys. Rev. E 82, 026704 (2010). <https://journals.aps.org/pre/abstract/10.1103/PhysRevE.82.026704>`_
 
 License
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |  This package is distributed under `Mozilla Public License version 2.0 (MPL-2.0) <https://www.mozilla.org/en-US/MPL/2.0/>`_.
 
 Copyright (c) <2020-> The University of Tokyo. All rights reserved.
@@ -63,7 +70,7 @@ BibTeX::
    }
 
 Version Information
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ODAT-SE
 
@@ -73,17 +80,17 @@ Version Information
   - v3.0.0: 2024-11-25
 
 - 2DMAT
-  
+
   - v2.1.0: 2022-04-08
   - v2.0.0: 2022-01-17
-  - v1.0.1: 2021-04-15 
-  - v1.0.0: 2021-03-12 
+  - v1.0.1: 2021-04-15
+  - v1.0.0: 2021-03-12
   - v0.1.0: 2021-02-08
 
 
 Main developers
---------------------------------
-ODAT-SE has been developed by following members.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ODAT-SE has been developed by the following members.
 
 - ODAT-SE v3.0.0 -
 
@@ -104,3 +111,8 @@ ODAT-SE has been developed by following members.
   - Y. Motoyama (The Institute for Solid State Physics, The University of Tokyo)
   - K. Yoshimi (The Institute for Solid State Physics, The University of Tokyo)
   - T. Hoshi (Department of Applied Mathematics and Physics, Tottori University)
+
+.. toctree::
+   :maxdepth: 2
+
+   start

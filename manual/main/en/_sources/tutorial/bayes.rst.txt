@@ -1,14 +1,14 @@
-Optimization by Bayesian Optimization
-========================================
+Search by Bayesian optimization
+=================================
 
-This tutorial describes how to estimate the minimization problem of Himmelblau function by using Bayesian optimization (BO).
+This tutorial describes how to solve the minimization problem of the Himmelblau function by using Bayesian optimization (BO).
 ODAT-SE uses `PHYSBO <https://www.pasums.issp.u-tokyo.ac.jp/physbo/en>`_ for BO.
-PHYSBO package should be installed beforehand.
+The PHYSBO package should be installed beforehand.
 
 Sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/bayes`` .
+Sample files are available from ``sample/analytical/bayes``.
 This directory includes the following files:
 
 - ``input.toml``
@@ -17,10 +17,10 @@ This directory includes the following files:
 
 - ``do.sh``
 
-  Script files for running this tutorial
+  Script for running this tutorial
 
-In addition, ``plot_himmel.py`` in ``sample`` directory is used to visualize the result.
-  
+In addition, ``plot_himmel.py`` in the ``sample/analytical`` directory is used to visualize the result.
+
 
 Input files
 ~~~~~~~~~~~~~~~~~~~
@@ -52,7 +52,7 @@ For details, see :ref:`the manual of bayes <bayes_input>`.
     bayes_max_num_probes = 40
 
 
-The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
+The contents of the ``[base]`` and ``[solver]`` sections are the same as those for the search by the Nelder-Mead method (``minsearch``).
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
@@ -65,7 +65,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 - ``min_list`` and ``max_list`` specify the minimum and maximum values of the search grid, respectively.
 
 - ``num_list`` specifies the number of grid points along each parameter.
-  
+
 ``[algorithm.bayes]`` section sets the parameters for Bayesian optimization.
 
 - ``random_max_num_probes`` specifies the number of random searches before Bayesian optimization.
@@ -78,17 +78,17 @@ For details on other parameters that can be specified in the input file, see the
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are in the root directory of ODAT-SE.)
 
 .. code-block::
 
    $ cd sample/analytical/bayes
 
-Then, run the main program. It will take a few secondes on a normal PC.
+Then, run the main program. It will take a few seconds on a normal PC.
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 By executing the program, a directory with the name ``0`` is created under ``output`` directory, and the results are written in it.
 The following standard output will be shown:
@@ -96,26 +96,30 @@ The following standard output will be shown:
 .. code-block::
 
   # parameter
-  random_max_num_probes = 10
-  bayes_max_num_probes = 20
+  random_max_num_probes = 20
+  bayes_max_num_probes = 40
   score = TS
   interval = 5
   num_rand_basis = 5000
-  value_01 =  5.10000
-  value_02 =  4.90000
-  R-factor = 0.037237314010261195
-  0001-th step: f(x) = -0.037237 (action=150)
-     current best f(x) = -0.037237 (best action=150)
+  name            : bayes
+  seed            : 12345
+  param.min_list  : [-6.0, -6.0]
+  param.max_list  : [6.0, 6.0]
+  param.num_list  : [61, 61]
+  bayes.random_max_num_probes: 20
+  bayes.bayes_max_num_probes: 40
+  0001-th step: f(x) = -113.219200 (action=1604)
+     current best f(x) = -113.219200 (best action=1604)
 
-  value_01 =  4.30000
-  value_02 =  3.50000
+  0002-th step: f(x) = -263.123200 (action=3271)
+     current best f(x) = -113.219200 (best action=1604)
+
   ...
 
-A list of hyperparameters, followed by candidate parameters at each step and the corresponding function values are shown first.
-It also outputs the grid index (``action``) and ``f(x)`` of the best value at that time.
+A list of the hyperparameters is shown first, followed by the evaluated function value ``f(x)``, the grid index (``action``), and the best value found so far at each step.
 The final estimated parameters are output to ``output/BayesData.txt``.
 
-In this case, ``BayesData.txt`` can be seen as the following
+In this case, ``BayesData.txt`` looks as follows
 
 .. code-block::
 
@@ -141,7 +145,7 @@ In this case, ``BayesData.txt`` can be seen as the following
    ...
 
 
-The first column contains the number of steps, and the second, third, and fourth columns contain ``x2``, ``x2``, and ``f(x)``, which give the highest score at that time.
+The first column contains the number of steps, and the second, third, and fourth columns contain ``x1``, ``x2``, and ``f(x)``, which give the highest score at that time.
 This is followed by the candidate ``x1``, ``x2`` and ``f(x)`` for that step.
 In this case, you can see that the correct solution is obtained at the 41st step.
 
@@ -156,7 +160,7 @@ You can see at what step the parameter gave the minimum score by looking at ``Ba
    $ python3 ../plot_himmel.py --xcol=1 --ycol=2 --format="-o" --output=output/res.pdf output/BayesData.txt
    $ python3 ../plot_himmel.py --xcol=4 --ycol=5 --format="o" --output=output/actions.pdf output/BayesData.txt
 
-By executing the above commands, ``output/actions.pdf`` and ``output/res.pdf`` will be created that plots the grid points evaluated during the Bayes optimization process, and the sequence of the points that yield the least scores, respectively, on top of the contour of Himmelblau function.
+By executing the above commands, ``output/actions.pdf`` and ``output/res.pdf`` will be created; they plot, on top of the contours of the Himmelblau function, the grid points evaluated during the Bayesian optimization and the sequence of points that yielded the best scores, respectively.
 
 .. figure:: ../../../common/img/res_bayes_plot.*
 

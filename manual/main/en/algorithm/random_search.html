@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Random search random_search &#8212; ODAT-SE 3.3-dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=5e09bc0c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/random_search';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bayesian optimization bayes" href="bayes.html" />
+    <link rel="prev" title="Direct parallel search mapper" href="mapper_mpi.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../manual/command.html">odatse command</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../input/index.html">Input file</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../input/algorithm.html"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../input/runner.html"><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> section</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../output.html">Output files</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Search algorithms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="minsearch.html">Optimization by local optimization algorithms <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_search.html">Global optimization <code class="docutils literal notranslate"><span class="pre">global_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Random search <code class="docutils literal notranslate"><span class="pre">random_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttopt.html">Tensor Train Optimization <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solver/index.html">Direct Problem Solver</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../manual/index.html" class="nav-link">Manual</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Search algorithms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Random search <code class="docutils literal notranslate"><span class="pre">random_search</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="random-search-random-search">
+<h1>Random search <code class="docutils literal notranslate"><span class="pre">random_search</span></code><a class="headerlink" href="#random-search-random-search" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">random_search</span></code> is an algorithm to search for the minimum value by computing <span class="math notranslate nohighlight">\(f(x)\)</span> on random points in the parameter space.
+This algorithm is effective when it is difficult to use other methods such as grid search for high-dimensional problems.
+The random search is compatible with MPI. The sampling points are evaluated in a trivially parallel way over MPI processes.
+In addition to pseudo-random sequences, quasi-random (low-discrepancy) sequences such as the Sobol sequence are available.</p>
+<section id="preparation">
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">#</a></h2>
+<p>For MPI parallelism, you need to install <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+</pre></div>
+</div>
+<p>For quasi-random sequences, you need to install <a class="reference external" href="https://scipy.org">scipy</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install scipy
+</pre></div>
+</div>
+</section>
+<section id="input-parameters">
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">#</a></h2>
+<section id="algorithm-section">
+<span id="random-search-input-algorithm"></span><h3><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section<a class="headerlink" href="#algorithm-section" title="Link to this heading">#</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
+<p>Format: String</p>
+<p>Description: To use random search, specify <code class="docutils literal notranslate"><span class="pre">random_search</span></code>.</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-mode-section">
+<span id="random-search-input-mode"></span><h3><code class="docutils literal notranslate"><span class="pre">[algorithm.mode]</span></code> section<a class="headerlink" href="#algorithm-mode-section" title="Link to this heading">#</a></h3>
+<p>In this section, the search mode is defined. If this section is omitted, the pseudo-random sequence (<code class="docutils literal notranslate"><span class="pre">random</span></code>) is chosen.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode</span></code></p>
+<p>Format: String</p>
+<p>Description: Specify <code class="docutils literal notranslate"><span class="pre">random</span></code> for pseudo-random sequence, or <code class="docutils literal notranslate"><span class="pre">quasi-random</span></code> for quasi-random sequence.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence</span></code></p>
+<p>Format: String</p>
+<p>Description: Specify the type of quasi-random sequence. Available types are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sobol</span></code>: Sobol sequence</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">halton</span></code>: Halton sequence</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">latin</span></code>: Latin Hypercube</p></li>
+</ul>
+<p>For details, refer to the descriptions in scipy.stats.qmc manual.</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-param-section">
+<span id="random-search-input-param"></span><h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section<a class="headerlink" href="#algorithm-param-section" title="Link to this heading">#</a></h3>
+<p>In this section, the search parameter space is defined.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>Format: List of float. The length should match the value of dimension.</p>
+<p>Description: The minimum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>Format: List of float. The length should match the value of dimension.</p>
+<p>Description: The maximum value the parameter can take.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
+<p>Format: Integer.</p>
+<p>Description: The number of points to be randomly sampled.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
+<p>Format: List of float. The length should match the value of dimension.</p>
+<p>Description:
+Units for each parameter.
+In the search algorithm, each parameter is divided by each of these values to perform simple nondimensionalization and normalization.
+If not defined, the value is 1.0 for all dimensions.</p>
+</li>
+</ul>
+<p>The following parameters can be set in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
+<p>Format: Integer.</p>
+<p>Description: The seed for the pseudo-random number generator used to generate the parameters.
+For quasi-random sequences, the seed is used for the scrambling of the sequence;
+when specified, the generated point set becomes reproducible,
+and is identical regardless of the number of MPI processes.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="output-files">
+<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">#</a></h2>
+<section id="colormap-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code><a class="headerlink" href="#colormap-txt" title="Link to this heading">#</a></h3>
+<p>This file contains the candidate parameters for each sample point and the objective function value at that point.
+The data is listed in the order of the variables defined by <code class="docutils literal notranslate"><span class="pre">label_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section of the input file (<code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, … by default), and the value of the objective function is listed last.</p>
+<p>Below, an output example is shown.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">5.155393</span> <span class="o">-</span><span class="mf">2.203493</span> <span class="mf">187.944291</span>
+<span class="o">-</span><span class="mf">3.792974</span> <span class="o">-</span><span class="mf">3.545277</span> <span class="mf">3.179381</span>
+<span class="mf">0.812700</span> <span class="mf">1.146536</span> <span class="mf">108.254643</span>
+<span class="mf">5.574174</span> <span class="mf">1.838125</span> <span class="mf">483.841834</span>
+<span class="mf">2.986880</span> <span class="mf">1.842838</span> <span class="mf">0.436331</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="restart">
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">#</a></h2>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
+The operation of each mode is described as follows.
+The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
+<p>The program is started from the initial state.
+If the checkpointing is enabled, the intermediate states will be stored on the following occasions:</p>
+<ol class="arabic simple">
+<li><p>the specified number of sample points has been evaluated, or the specified period of time has passed.</p></li>
+<li><p>at the end of the execution.</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>The program execution is resumed from the latest checkpoint.
+The conditions such as the number of MPI processes should be kept the same.
+Changing the number of search points is an error, because resuming continues
+the run the checkpoint was written for. Use <code class="docutils literal notranslate"><span class="pre">--cont</span></code> to add points, or
+<code class="docutils literal notranslate"><span class="pre">--init</span></code> to start a separate calculation.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>The program execution is continued from the state of the previous run, with the number of sample points extended to the <code class="docutils literal notranslate"><span class="pre">num_points</span></code> of the new input.
+The previously evaluated points are reused, and only the additional points are evaluated.
+The continue mode is available for the pseudo-random sequence (<code class="docutils literal notranslate"><span class="pre">random</span></code>) and for the <code class="docutils literal notranslate"><span class="pre">sobol</span></code> and <code class="docutils literal notranslate"><span class="pre">halton</span></code> quasi-random sequences, whose point sets are nested: the first <span class="math notranslate nohighlight">\(N\)</span> points of a longer sequence are exactly the points of the shorter one.
+It is not available for the <code class="docutils literal notranslate"><span class="pre">latin</span></code> sequence, because a Latin hypercube design is not nested; a run with the <code class="docutils literal notranslate"><span class="pre">latin</span></code> sequence must be started anew.
+The search mode, the sequence type, and <code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code> must be kept the same as in the previous run.</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-description">
+<h2>Algorithm description<a class="headerlink" href="#algorithm-description" title="Link to this heading">#</a></h2>
+<p>The random search algorithm generates <code class="docutils literal notranslate"><span class="pre">num_points</span></code> parameter vectors <span class="math notranslate nohighlight">\(x\)</span> by uniform random sampling from the range defined by <code class="docutils literal notranslate"><span class="pre">min_list</span></code> and <code class="docutils literal notranslate"><span class="pre">max_list</span></code> for each dimension. For each generated point, the solver is called to evaluate the objective function <span class="math notranslate nohighlight">\(f(x)\)</span>.</p>
+<p>When running with MPI parallelism, the generated candidate points are divided equally among the processes, and each process evaluates its assigned points in parallel.</p>
+<p>Unlike the grid-based search (<code class="docutils literal notranslate"><span class="pre">mapper</span></code>), which discretizes the parameter space regularly, random search samples uniformly at random. This avoids the curse of dimensionality, where the number of grid points increases exponentially with the number of dimensions. On the other hand, random search is not well-suited for precisely locating optimal solutions, so it is often used as a preliminary exploration before applying other optimization methods.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mapper_mpi.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bayes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparation">Preparation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-parameters">Input parameters</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-section"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-mode-section"><code class="docutils literal notranslate"><span class="pre">[algorithm.mode]</span></code> section</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-param-section"><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-files">Output files</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#colormap-txt"><code class="docutils literal notranslate"><span class="pre">ColorMap.txt</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#restart">Restart</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-description">Algorithm description</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

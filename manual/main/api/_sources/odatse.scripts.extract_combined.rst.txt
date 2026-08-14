@@ -1,0 +1,7 @@
+odatse.scripts.extract\_combined module
+=======================================
+
+.. automodule:: odatse.scripts.extract_combined
+   :members:
+   :private-members:
+   :show-inheritance:

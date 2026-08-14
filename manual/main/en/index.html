@@ -1,132 +1,581 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+
+<html lang="en" data-content_root="./" data-theme="light">
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Welcome to ODAT-SE documentation! &#8212; ODAT-SE 3.2.1 documentation</title>
+    <title>ODAT-SE Documentation &#8212; ODAT-SE 3.3-dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=9f80acc1" />
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3fc7cb41" />
-    <script src="_static/documentation_options.js?v=eb155f5e"></script>
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=5e09bc0c"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="introduction.html" /> 
-  </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="#">
-          <span>ODAT-SE 3.2.1 documentation</span></a></h1>
-        <h2 class="heading"><span>Welcome to ODAT-SE documentation!</span></h2>
-      </div>
-      <div class="topnav" role="navigation" aria-label="Top">
+    <link rel="next" title="Introduction" href="introduction.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
       
-        <p>
-        <a class="uplink" href="#">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="introduction.html">Introduction</a>&#160;&#160;»
-        </p>
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
 
       </div>
-      <div class="content" role="main">
+      
+      <main id="main-content" class="bd-main" role="main">
         
         
-  <section id="welcome-to-odat-se-documentation">
-<h1>Welcome to ODAT-SE documentation!<a class="headerlink" href="#welcome-to-odat-se-documentation" title="Link to this heading">¶</a></h1>
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="odat-se-documentation">
+<h1>ODAT-SE Documentation<a class="headerlink" href="#odat-se-documentation" title="Link to this heading">#</a></h1>
+<p>ODAT-SE is a software framework for inverse problem analysis that combines search algorithms with direct problem solvers.
+It lets you try multiple search methods within a common workflow for inputs, outputs, and execution.</p>
+<section id="choose-what-you-want-to-do">
+<h2>Choose What You Want To Do<a class="headerlink" href="#choose-what-you-want-to-do" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="start.html"><span class="doc">Install It First</span></a>
+Check prerequisites, basic execution modes, restart options, and MPI basics.</p></li>
+<li><p><a class="reference internal" href="tutorial/index.html"><span class="doc">Run a Sample First</span></a>
+Follow hands-on examples to understand how each algorithm works in practice.</p></li>
+<li><p><a class="reference internal" href="manual/index.html"><span class="doc">Look Up Input and Output Details</span></a>
+See the specifications of input files, output files, algorithms, and solvers.</p></li>
+<li><p><a class="reference internal" href="faq/index.html"><span class="doc">Troubleshoot a Problem</span></a>
+Find answers on installation, algorithms, errors, and customization.</p></li>
+</ul>
+</section>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Combine search algorithms and direct problem solvers to solve inverse problems</p></li>
+<li><p>Choose among Bayes, PAMC, replica exchange, grid search, and other methods</p></li>
+<li><p>Extend the framework with custom solvers or external programs</p></li>
+<li><p>Use sample data and templates as a starting point for real applications</p></li>
+</ul>
+</section>
+<section id="related-resources">
+<h2>Related Resources<a class="headerlink" href="#related-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="gallery.html"><span class="doc">Samples and Templates</span></a>
+Browse samples for TRHEPD, SXRD, LEED, and XAFS, as well as solver templates.</p></li>
+<li><p><a class="reference internal" href="customize/index.html"><span class="doc">Customization Guide</span></a>
+Start here if you want to develop your own algorithms or direct problem solvers.</p></li>
+<li><p><a class="reference external" href="../api/index.html">API Reference</a>
+Browse the specifications of all public APIs generated automatically from docstrings.</p></li>
+</ul>
+</section>
+<section id="more-information">
+<h2>More Information<a class="headerlink" href="#more-information" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="introduction.html"><span class="doc">Introduction</span></a>
+Learn the background, scope, and references of ODAT-SE.</p></li>
+<li><p><a class="reference internal" href="tools/index.html"><span class="doc">Tools</span></a>
+See the neighbor-list utility and post-processing tools.</p></li>
+<li><p><a class="reference internal" href="contact.html"><span class="doc">Contact</span></a>
+Check how to report bugs and how to get in touch.</p></li>
+</ul>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-odat-se">What is ODAT-SE ?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#license">License</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#version-information">Version Information</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#main-developers">Main developers</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="start.html">Installation of ODAT-SE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="start.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#how-to-download-and-install">How to download and install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#how-to-run">How to run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#verifying-the-installation">Verifying the installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#how-to-uninstall">How to uninstall</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/intro.html">Minimization of an analytical function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/minsearch.html">Optimization by Nelder-Mead method</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/mapper.html">Grid search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/random_search.html">Random search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/bayes.html">Optimization by Bayesian Optimization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/exchange.html">Optimization by replica exchange Monte Carlo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/pamc.html">Optimization by population annealing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/limitation.html">Replica Exchange Monte Carlo search with limitation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/solver_simple.html">Adding a direct problem solver</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/linreg_with_noise.html">Example: Linear regression and noise estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/gpr.html">Example: Gaussian process regression for function modeling</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="input.html">Input file</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="input.html#base-section">[<code class="docutils literal notranslate"><span class="pre">base</span></code>] section</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#solver-section">[<code class="docutils literal notranslate"><span class="pre">solver</span></code>] section</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#algorithm-section">[<code class="docutils literal notranslate"><span class="pre">algorithm</span></code>] section</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#runner-section">[<code class="docutils literal notranslate"><span class="pre">runner</span></code>] section</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html#mpi-parallel-computation">MPI Parallel Computation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="output.html">Output files</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="output.html#common-file">Common file</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="algorithm/index.html">Search algorithms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="algorithm/minsearch.html">Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithm/mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithm/exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithm/pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithm/bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="solver/index.html">Direct Problem Solver</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tool.html">Related Tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tool.html#odatse-neighborlist"><code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="post/index.html">Post-Processing Tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="post/tutorial.html">Tutorial: How to Use Post-Processing Tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="post/tools/index.html">Reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="customize/index.html">(For developers) User-defined algorithms and solvers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="customize/common.html">Commons</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customize/solver.html"><code class="docutils literal notranslate"><span class="pre">Solver</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="customize/algorithm.html"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="customize/usage.html">Usage</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledgements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
-</ul>
 </div>
+</section>
 </section>
 
 
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="introduction.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Introduction</p>
       </div>
-      <div class="bottomnav" role="navigation" aria-label="Bottom">
-      
-        <p>
-        <a class="uplink" href="#">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="introduction.html">Introduction</a>&#160;&#160;»
-        </p>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-      </div>
 
-    <div class="footer" role="contentinfo">
-    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-what-you-want-to-do">Choose What You Want To Do</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-resources">Related Resources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-information">More Information</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
     </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
   </body>
 </html>

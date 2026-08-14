@@ -14,6 +14,7 @@ Subpackages
 
    odatse.algorithm
    odatse.domain
+   odatse.scripts
    odatse.solver
    odatse.util
 
@@ -28,5 +29,6 @@ Submodules
    odatse._initialize
    odatse._main
    odatse._runner
+   odatse._version
    odatse.exception
    odatse.mpi

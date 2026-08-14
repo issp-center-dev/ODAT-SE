@@ -10,7 +10,7 @@ Location of the sample files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The sample files are located in ``sample/analytical/mapper``.
-The following files are stored in the folder
+The following files are stored in the folder.
 
 - ``input.toml``
 
@@ -75,29 +75,40 @@ First, move to the folder where the sample files are located. (We assume that yo
 
 .. code-block::
 
-   $ cd sample/analytical/minsearch
+   $ cd sample/analytical/mapper
 
-The, run the main program. The computation time takes only a few seconds on a normal PC.
+Then, run the main program. The computation time takes only a few seconds on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 odatse input.toml | tee log.txt
 
-Here, the calculation using MPI parallel with 4 processes will be done.
+Here, the calculation is performed using MPI parallelization with 4 processes.
 When executed, a folder for each rank will be created under ``output`` directory, and the calculation results of each rank will be written.
 The standard output will be seen like this.
 
 .. code-block::
 
-    Make ColorMap
-    Iteration : 1/240
-    Iteration : 2/240
+    name            : mapper
+    seed            : 12345
+    param.max_list  : [6.0, 6.0]
+    param.min_list  : [-6.0, -6.0]
+    param.num_list  : [31, 31]
     Iteration : 3/240
-    Iteration : 4/240
-    Iteration : 5/240
+    Iteration : 3/241
+    Iteration : 3/240
+    Iteration : 3/240
     Iteration : 6/240
-    Iteration : 7/240
+    Iteration : 6/241
     ...
+    [3] minimum_value: 1.95200000e-01 at 721 (mesh [-2.8, 3.200000000000001])
+    complete main process : rank 00000003/00000004
+    end of run
+    Make ColorMap
+
+The 961 grid points are distributed over 4 processes, so each rank handles 240 or 241 points.
+The progress is reported every few points, and since the output of the ranks is interleaved,
+the order of the lines varies from run to run.
 
 Finally, the function values calculated for all the points on the grid will be written to ``output/ColorMap.txt``.
 In this case, the following results will be obtained.
@@ -121,14 +132,14 @@ The first and second columns contain the values of ``x1`` and ``x2``, and the th
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By plotting ``ColorMap.txt``, we can estimate the region where the small function values are located.
+By plotting ``ColorMap.txt``, we can estimate the region where the function values are small.
 A program ``plot_colormap_2d.py`` is prepared to generate such a plot of the two-dimensional space.
 
 .. code-block::
 
    $ python3 plot_colormap_2d.py
 
-By executing the above command, ``ColorMapFig.png`` is generated in which the functional value evaluated at each grid point is shown as a color map on top of the contour of Himmelblau function.
+By executing the above command, ``output/ColorMapFig.pdf`` is generated in which the function value evaluated at each grid point is shown as a color map on top of the contour of Himmelblau function.
 
 .. figure:: ../../../common/img/res_mapper.*
 

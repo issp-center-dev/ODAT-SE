@@ -1,60 +1,534 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../">
+
+<html lang="en" data-content_root="../" data-theme="light">
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Nelder-Mead method minsearch &#8212; ODAT-SE 3.2.1 documentation</title>
+    <title>Optimization by local optimization algorithms minsearch &#8212; ODAT-SE 3.3-dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
-    <script src="../_static/documentation_options.js?v=eb155f5e"></script>
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=5e09bc0c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/minsearch';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Direct parallel search mapper" href="mapper_mpi.html" />
-    <link rel="prev" title="Search algorithms" href="index.html" /> 
-  </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>ODAT-SE 3.2.1 documentation</span></a></h1>
-        <h2 class="heading"><span>Nelder-Mead method minsearch</span></h2>
-      </div>
-      <div class="topnav" role="navigation" aria-label="Top">
+    <link rel="next" title="Global optimization global_search" href="global_search.html" />
+    <link rel="prev" title="Search algorithms" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
       
-        <p>
-        «&#160;&#160;<a href="index.html">Search algorithms</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
-        </p>
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../manual/command.html">odatse command</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../input/index.html">Input file</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../input/algorithm.html"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../input/runner.html"><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> section</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../output.html">Output files</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Search algorithms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Optimization by local optimization algorithms <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_search.html">Global optimization <code class="docutils literal notranslate"><span class="pre">global_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_search.html">Random search <code class="docutils literal notranslate"><span class="pre">random_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttopt.html">Tensor Train Optimization <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="exchange.html">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solver/index.html">Direct Problem Solver</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
 
       </div>
-      <div class="content" role="main">
+      
+      <main id="main-content" class="bd-main" role="main">
         
         
-  <section id="nelder-mead-method-minsearch">
-<h1>Nelder-Mead method <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#nelder-mead-method-minsearch" title="Link to this heading">¶</a></h1>
-<p>When <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> is selcted, the optimization by the <a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead method</a> (a.k.a. downhill simplex method) will be done. In the Nelder-Mead method, assuming the dimension of the parameter space is <span class="math notranslate nohighlight">\(D\)</span>, the optimal solution is searched by systematically moving pairs of <span class="math notranslate nohighlight">\(D+1\)</span> coordinate points according to the value of the objective function at each point.</p>
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../manual/index.html" class="nav-link">Manual</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Search algorithms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Optimization by local optimization algorithms <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="optimization-by-local-optimization-algorithms-minsearch">
+<h1>Optimization by local optimization algorithms <code class="docutils literal notranslate"><span class="pre">minsearch</span></code><a class="headerlink" href="#optimization-by-local-optimization-algorithms-minsearch" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code> performs optimization by local optimization algorithms.
+It is implemented on top of SciPy’s <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> function.
+The optimization method is selected by the <code class="docutils literal notranslate"><span class="pre">method</span></code> parameter of the
+<code class="docutils literal notranslate"><span class="pre">[algorithm.minimize]</span></code> section. The default is the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead method</a>
+(a.k.a. downhill simplex method), and the other methods accepted by
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> (Powell, COBYLA, …) can also be chosen.
+In the Nelder-Mead method, assuming the dimension of the parameter space is
+<span class="math notranslate nohighlight">\(D\)</span>, the optimal solution is searched by systematically moving a set of
+<span class="math notranslate nohighlight">\(D+1\)</span> coordinate points (the vertices of a simplex) according to the
+value of the objective function at each point.</p>
 <p>An important hyperparameter is the initial value of the coordinates.
-Although it is more stable than the simple steepest descent method, it still has the problem of being trapped in the local optimum solution, so it is recommended to repeat the calculation with different initial values several times to check the results.</p>
-<p>In ODAT-SE, the Scipy’s function <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize(method=&quot;Nelder-Mead&quot;)</span></code> is used.
-For details, see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize">the official document</a> .</p>
+Since these local optimization methods have the problem of being trapped in a
+local optimum, it is recommended to repeat the calculation with different
+initial values several times to check the results, or to enable the optional
+global optimization by basin hopping (<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">scipy.optimize.basinhopping</a>), which
+repeats a random hop followed by a local optimization with the selected method
+(see the <code class="docutils literal notranslate"><span class="pre">basinhopping</span></code> parameter below).</p>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
-<p>You will need to install <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a> .</p>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">#</a></h2>
+<p>You will need to install <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference">scipy</a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install scipy
 </pre></div>
 </div>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">#</a></h2>
 <p>It has subsections <code class="docutils literal notranslate"><span class="pre">param</span></code> and <code class="docutils literal notranslate"><span class="pre">minimize</span></code>.</p>
-<section id="param-section">
-<span id="minsearch-input-param"></span><h3>[<code class="docutils literal notranslate"><span class="pre">param</span></code>] section<a class="headerlink" href="#param-section" title="Link to this heading">¶</a></h3>
+<section id="algorithm-param-section">
+<span id="minsearch-input-param"></span><h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section<a class="headerlink" href="#algorithm-param-section" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
 <p>Format: List of float. The length should match the value of dimension.</p>
@@ -64,44 +538,64 @@ For details, see <a class="reference external" href="https://docs.scipy.org/doc/
 <p>Format: List of float. The length should match the value of dimension.</p>
 <p>Description:
 Units for each parameter.
-In the search algorithm, each parameter is divided by each of these values to perform a simple dimensionless and normalization.
+In the search algorithm, each parameter is divided by each of these values to perform simple nondimensionalization and normalization.
 If not defined, the value is 1.0 for all dimensions.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
 <p>Description:
 Minimum value of each parameter.
-When a parameter falls below this value during the Nelson-Mead method,
+When a parameter falls below this value during the optimization,
 the solver is not evaluated and the value is considered infinite.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
 <p>Description:
 Maximum value of each parameter.
-When a parameter exceeds this value during the Nelson-Mead method,
+When a parameter exceeds this value during the optimization,
 the solver is not evaluated and the value is considered infinite.</p>
 </li>
 </ul>
 </section>
-<section id="minimize-section">
-<h3>[<code class="docutils literal notranslate"><span class="pre">minimize</span></code>] section<a class="headerlink" href="#minimize-section" title="Link to this heading">¶</a></h3>
-<p>Set the hyperparameters for the Nelder-Mead method.
-See the documentation of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.minimize-neldermead.html">scipy.optimize.minimize</a> for details.</p>
+<section id="algorithm-minimize-section">
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.minimize]</span></code> section<a class="headerlink" href="#algorithm-minimize-section" title="Link to this heading">#</a></h3>
+<p>Set the optimization method and its hyperparameters.
+See the documentation of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> for details.</p>
+<p>All parameters other than the ODAT-SE-specific keys <code class="docutils literal notranslate"><span class="pre">method</span></code>,
+<code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code>, and <code class="docutils literal notranslate"><span class="pre">basinhopping</span></code> (described below) are passed
+verbatim to the <code class="docutils literal notranslate"><span class="pre">options</span></code> argument of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.
+If a parameter name not accepted by the selected method is given,
+the program stops with an error before the optimization starts.
+The default values of <code class="docutils literal notranslate"><span class="pre">xatol</span></code>, <code class="docutils literal notranslate"><span class="pre">fatol</span></code>, <code class="docutils literal notranslate"><span class="pre">maxiter</span></code>, and <code class="docutils literal notranslate"><span class="pre">maxfev</span></code>
+listed below apply only when <code class="docutils literal notranslate"><span class="pre">method</span></code> is “Nelder-Mead”.</p>
 <ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p>
+<p>Format: String (default: “Nelder-Mead”)</p>
+<p>Description:
+Name of the optimization method, passed as-is to the <code class="docutils literal notranslate"><span class="pre">method</span></code> argument of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a>.
+Examples: “Nelder-Mead”, “Powell”, “COBYLA”.
+Note that for gradient-based methods (BFGS, CG, …) the gradient is evaluated by numerical differentiation,
+which costs dimension+1 solver evaluations per gradient evaluation.
+The search region (<code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code>) is passed as the <code class="docutils literal notranslate"><span class="pre">bounds</span></code> argument of scipy
+for methods that support it (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA).
+For the Nelder-Mead method, out-of-range points are handled as before
+by treating the objective function value as infinity.</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code></p>
 <p>Format: List of float. The length should match the value of dimension.</p>
 <p>Description:
 The difference value that is shifted from the initial value in order to create the initial simplex for the Nelder-Mead method.
-The <code class="docutils literal notranslate"><span class="pre">initial_simplex</span></code> is given by the sum of <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> and the dimension of the <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> plus one component of the <code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code>.
-If not defined, scales at each dimension are set to 0.25.</p>
+The <code class="docutils literal notranslate"><span class="pre">initial_simplex</span></code> consists of <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> together with the <code class="docutils literal notranslate"><span class="pre">dimension</span></code> points obtained by adding each single component of <code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code> to <code class="docutils literal notranslate"><span class="pre">initial_list</span></code>.
+If not defined, scales at each dimension are set to 0.25.
+Used only when <code class="docutils literal notranslate"><span class="pre">method</span></code> is “Nelder-Mead”.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">xatol</span></code></p>
 <p>Format: Float (default: 1e-4)</p>
-<p>Description: Parameters used to determine convergence of the Nelder-Mead method.</p>
+<p>Description: Parameter used to determine convergence of the Nelder-Mead method.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fatol</span></code></p>
 <p>Format: Float (default: 1e-4)</p>
-<p>Description: Parameters used to determine convergence of the Nelder-Mead method.</p>
+<p>Description: Parameter used to determine convergence of the Nelder-Mead method.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxiter</span></code></p>
 <p>Format: Integer (default: 10000)</p>
@@ -111,16 +605,44 @@ If not defined, scales at each dimension are set to 0.25.</p>
 <p>Format: Integer (default: 100000)</p>
 <p>Description: Maximum number of times to evaluate the objective function.</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">basinhopping</span></code></p>
+<p>Format: Boolean or table (default: false)</p>
+<p>Description:
+Enables global optimization by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">scipy.optimize.basinhopping</a> (basin hopping),
+with the method specified by <code class="docutils literal notranslate"><span class="pre">method</span></code> used as the local minimizer of each hop.
+<code class="docutils literal notranslate"><span class="pre">basinhopping</span> <span class="pre">=</span> <span class="pre">true</span></code> runs with the scipy default parameters.
+Defining a <code class="docutils literal notranslate"><span class="pre">[algorithm.minimize.basinhopping]</span></code> sub-table also enables it;
+its entries (<code class="docutils literal notranslate"><span class="pre">niter</span></code>, <code class="docutils literal notranslate"><span class="pre">stepsize</span></code>, <code class="docutils literal notranslate"><span class="pre">T</span></code>, …) are passed verbatim as
+arguments of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">scipy.optimize.basinhopping</a>.
+If an argument name not accepted by scipy is given, the program stops with
+an error before the optimization starts.
+Arguments managed by ODAT-SE (<code class="docutils literal notranslate"><span class="pre">take_step</span></code>, <code class="docutils literal notranslate"><span class="pre">seed</span></code>, …) cannot be set.</p>
+<p>Random hops are clipped into the search region (<code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code>).
+The random numbers are initialized from <code class="docutils literal notranslate"><span class="pre">seed</span></code> in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section.
+Note that the local optimization runs <code class="docutils literal notranslate"><span class="pre">niter</span></code> + 1 times in total, so the
+total number of solver evaluations is roughly
+(<code class="docutils literal notranslate"><span class="pre">niter</span></code> + 1) x (evaluations per local optimization).
+When enabled, <code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code> (the initial simplex) is not used.</p>
+<p>Example:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[algorithm.minimize]</span>
+<span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Nelder-Mead&quot;</span>
+
+<span class="k">[algorithm.minimize.basinhopping]</span>
+<span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+<span class="n">stepsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+</pre></div>
+</div>
+</li>
 </ul>
 </section>
 </section>
 <section id="output-files">
-<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">¶</a></h2>
+<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">#</a></h2>
 <section id="simplexdata-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Link to this heading">#</a></h3>
 <p>Outputs information about the process of finding the minimum value.
 The first line is a header, the second and subsequent lines are step,
-the values of variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> sections of the input file,
+the values of the variables in the order defined by <code class="docutils literal notranslate"><span class="pre">label_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section of the input file (<code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, … by default),
 and finally the value of the function.</p>
 <p>The following is an example of the output.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 z3 R-factor</span>
@@ -133,10 +655,23 @@ and finally the value of the function.</p>
 </pre></div>
 </div>
 </section>
+<section id="history-functioncall-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">History_FunctionCall.txt</span></code><a class="headerlink" href="#history-functioncall-txt" title="Link to this heading">#</a></h3>
+<p>Records every call of the objective function during the optimization.
+Each line contains the call number, the values of the variables, and the value of the objective function, in that order.</p>
+</section>
+<section id="basinhoppingdata-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">BasinHoppingData.txt</span></code><a class="headerlink" href="#basinhoppingdata-txt" title="Link to this heading">#</a></h3>
+<p>Written only when <code class="docutils literal notranslate"><span class="pre">basinhopping</span></code> is enabled.
+For each local optimization (one from the initial point plus <code class="docutils literal notranslate"><span class="pre">niter</span></code> hops),
+it outputs the hop number, the values of the variables at the local minimum,
+the value of the objective function, and whether the hop was accepted (1/0),
+in that order.</p>
+</section>
 <section id="res-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Link to this heading">#</a></h3>
 <p>The value of the final objective function and the value of the parameters at that time are described.
-The objective function is listed first, followed by the values of the variables defined in <code class="docutils literal notranslate"><span class="pre">string_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> - <code class="docutils literal notranslate"><span class="pre">[param]</span></code> sections of the input file, in that order.</p>
+The objective function is listed first, followed by the values of the variables in the order defined by <code class="docutils literal notranslate"><span class="pre">label_list</span></code> in the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section of the input file (<code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, … by default).</p>
 <p>The following is an example of the output.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="mf">7.382680568652868e-06</span>
 <span class="n">z1</span> <span class="o">=</span> <span class="mf">5.230524973874179</span>
@@ -147,28 +682,131 @@ The objective function is listed first, followed by the values of the variables 
 </section>
 </section>
 <section id="restart">
-<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
-<p>The restarting is not supported for the optimization by the Nelder-Mead method.</p>
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">#</a></h2>
+<p>Restarting is not supported by the <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> algorithm,
+regardless of the selected method and whether basin hopping is enabled.</p>
 </section>
 </section>
 
 
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Search algorithms</p>
       </div>
-      <div class="bottomnav" role="navigation" aria-label="Bottom">
-      
-        <p>
-        «&#160;&#160;<a href="index.html">Search algorithms</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>&#160;&#160;»
-        </p>
-
+    </a>
+    <a class="right-next"
+       href="global_search.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Global optimization <code class="docutils literal notranslate"><span class="pre">global_search</span></code></p>
       </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-    <div class="footer" role="contentinfo">
-    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparation">Preparation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-parameters">Input parameters</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-param-section"><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> section</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-minimize-section"><code class="docutils literal notranslate"><span class="pre">[algorithm.minimize]</span></code> section</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-files">Output files</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simplexdata-txt"><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#history-functioncall-txt"><code class="docutils literal notranslate"><span class="pre">History_FunctionCall.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basinhoppingdata-txt"><code class="docutils literal notranslate"><span class="pre">BasinHoppingData.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#res-txt"><code class="docutils literal notranslate"><span class="pre">res.txt</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#restart">Restart</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
     </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
   </body>
 </html>

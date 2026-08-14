@@ -1,5 +1,5 @@
-Optimization by Nelder-Mead method
-====================================
+Search by Nelder-Mead method
+==============================
 
 In this section, we will explain how to calculate the minimization problem of Himmelblau function using the Nelder-Mead method.
 The specific calculation procedure is as follows.
@@ -10,7 +10,7 @@ The specific calculation procedure is as follows.
 
 2. Run the main program
 
-   Run the calculation using ``src/odatse_main.py`` to solve the minimization problem.
+   Run the calculation using the ``odatse`` command to solve the minimization problem.
 
 
 Location of the sample files
@@ -25,10 +25,10 @@ The following files are stored in the folder.
 
 - ``do.sh``
 
-  Script prepared for doing all calculation of this tutorial
+  Script prepared for running all the calculations of this tutorial.
 
-In addition, ``plot_himmel.py`` in the ``sample`` folder is used to visualize the result.
-  
+In addition, ``plot_himmel.py`` in the ``sample/analytical`` folder is used to visualize the result.
+
 
 Input file
 ~~~~~~~~~~~~~~~~~~~
@@ -49,7 +49,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
     [runner]
     [runner.log]
     interval = 20
-    
+
     [algorithm]
     name = "minsearch"
     seed = 12345
@@ -66,7 +66,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
 
 - ``output_dir`` is the name of directory for output.
 
-  
+
 ``[solver]`` section specifies the solver to be used inside the main program and its settings.
 
 - ``name`` is the name of the solver you want to use. In this tutorial, we perform analyses of an analytical function in the ``analytical`` solver.
@@ -75,7 +75,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
 
 ``[runner]`` section specifies settings on calling the direct problem solver from the inverse problem analysis algorithm.
 
-- ``interval`` in ``[runner.log]`` specifies the frequency of the log output. The logs are written in every ``interval`` steps.
+- ``interval`` in ``[runner.log]`` specifies how many log entries are buffered before they are flushed to the file. Every solver call is recorded, and the entries are written in batches of ``interval``.
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
@@ -89,7 +89,7 @@ The details of ``input.toml`` can be found in the ``input file`` section of the 
 
 - ``initial_list`` specifies the initial values.
 
-Other parameters, such as convergence judgments used in the Nelder-Mead method, can be done in the ``[algorithm]`` section, although they are omitted here because the default values are used.
+Other parameters, such as the convergence criteria used in the Nelder-Mead method, can be set in the ``[algorithm.minimize]`` section, although they are omitted here because the default values are used.
 See the input file chapter for details.
 
 Calculation execution
@@ -105,32 +105,31 @@ Then, run the main program. The computation time takes only a few seconds on a n
 
 .. code-block::
 
-   $ python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ odatse input.toml | tee log.txt
 
 The standard output will be seen as follows.
 
 .. code-block::
 
+    name            : minsearch
+    seed            : 12345
+    param.max_list  : [6.0, 6.0]
+    param.min_list  : [-6.0, -6.0]
+    param.initial_list: [0, 0]
+    eval: x=[0.375 0.375], fun=151.96923828125
+    eval: x=[0.0625 0.9375], fun=137.88186645507812
+    eval: x=[0.65625 1.46875], fun=100.34764289855957
+    eval: x=[0.328125 2.859375], fun=66.79089844226837
+    ...
+    eval: x=[2.99996696 1.99999734], fun=4.2278370361994904e-08
     Optimization terminated successfully.
              Current function value: 0.000000
              Iterations: 40
              Function evaluations: 79
-    iteration: 40
-    len(allvecs): 41
-    step: 0
-    allvecs[step]: [0. 0.]
-    step: 1
-    allvecs[step]: [0.375 0.375]
-    step: 2
-    allvecs[step]: [0.0625 0.9375]
-    step: 3
-    allvecs[step]: [0.65625 1.46875]
-    step: 4
-    allvecs[step]: [0.328125 2.859375]
-    ...
+    end of run
 
-The ``x1`` and ``x2`` are the candidate parameters at each step and the function value at that point.
-The final estimated parameters is written to ``output/res.dat``. 
+``x`` and ``fun`` in the ``eval`` lines are the candidate parameters at each step and the function value at that point.
+The final estimated parameters are written to ``output/res.txt``.
 In the current case, the following result will be obtained:
 
 .. code-block::
@@ -139,12 +138,12 @@ In the current case, the following result will be obtained:
     x1 = 2.9999669562950175
     x2 = 1.9999973389336225
 
-It is seen that one of the minima is obtained.    
+It is seen that one of the minima is obtained.
 
 Visualization of calculation results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The steps taken during the search by the Nelder-Mead method is written in ``output/0/SimplexData.txt``. A tool to plot the path is prepared as ``simplex/plot_himmel.py``.
+The steps taken during the search by the Nelder-Mead method are written in ``output/0/SimplexData.txt``. A tool to plot the path is prepared as ``sample/analytical/plot_himmel.py``.
 
 .. code-block::
 
@@ -154,6 +153,6 @@ By executing the above command, ``output/res.pdf`` will be generated.
 
 .. figure:: ../../../common/img/res_minsearch.*
 
-   The path taken during the minimum search by the Nelder-Mead method is drawn by the blue line. The black curves show contour of Himmelblau function.
+   The path taken during the minimum search by the Nelder-Mead method is drawn by the blue line. The black curves show the contours of the Himmelblau function.
 
-The path of the minimum search by the Nelder-Mead method is drawn on top of the contour plot of Himmelblau function. Starting from the initial value at ``(0, 0)``, the path reaches to one of the minima, ``(3, 2)``.
+The path of the minimum search by the Nelder-Mead method is drawn on top of the contour plot of Himmelblau function. Starting from the initial value at ``(0, 0)``, the path reaches one of the minima, ``(3, 2)``.

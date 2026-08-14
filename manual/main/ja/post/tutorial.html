@@ -1,186 +1,736 @@
+
 <!DOCTYPE html>
 
-<html lang="ja" data-content_root="../">
+
+<html lang="ja" data-content_root="../" data-theme="light">
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>チュートリアル：ポスト処理ツールの使い方 &#8212; ODAT-SE 3.2.1 ドキュメント</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=47202671" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <title>チュートリアル &#8212; ODAT-SE 3.3-dev ドキュメント</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
-    <script src="../_static/documentation_options.js?v=720fe4f0"></script>
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=c71307a2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/translations.js?v=4755f45a"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'post/tutorial';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="リファレンス" href="tools/index.html" />
-    <link rel="prev" title="ポスト処理ツール" href="index.html" /> 
-  </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>ODAT-SE 3.2.1 ドキュメント</span></a></h1>
-        <h2 class="heading"><span>チュートリアル：ポスト処理ツールの使い方</span></h2>
-      </div>
-      <div class="topnav" role="navigation" aria-label="Top">
+    <link rel="prev" title="ポスト処理ツール" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="ja"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">本文へスキップ</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>トップに戻る</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="バージョン警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="サイトナビゲーション">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev ドキュメント</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
       
-        <p>
-        «&#160;&#160;<a href="index.html">ポスト処理ツール</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">コンテンツ</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="tools/index.html">リファレンス</a>&#160;&#160;»
-        </p>
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="このページでは">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="セクションナビゲーション">
+  <p class="bd-links__title" role="heading" aria-level="1">セクションナビゲーション</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../tool.html">関連ツール</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">ポスト処理ツール</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">チュートリアル</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tools/index.html">リファレンス</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="tools/extract_combined.html">odatse_extract_combined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/separateT.html">odatse_separateT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/summarize_each_T.html">odatse_summarize_each_T</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/plt_model_evidence.html">odatse_plt_model_evidence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/plt_1D_histogram.html">odatse_plt_1D_histogram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools/plt_2D_histogram.html">odatse_plt_2D_histogram</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
 
       </div>
-      <div class="content" role="main">
+      
+      <main id="main-content" class="bd-main" role="main">
         
         
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="パンくずリスト" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="ホーム">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../tools/index.html" class="nav-link">ツール</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">ポスト処理ツール</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">チュートリアル</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="id1">
-<h1>チュートリアル：ポスト処理ツールの使い方<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
-<ol class="arabic">
-<li><p>PAMC計算を実行する</p>
+<h1>チュートリアル<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>ここでは PAMC 計算の結果を解析する一連の流れを、具体的な例を用いて説明します。
+各ツールのオプションや出力形式の詳細については <a class="reference internal" href="tools/index.html"><span class="doc">リファレンス</span></a> を参照してください。</p>
+<section id="id2">
+<h2>前提条件<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Python 3.9 以上</p></li>
+<li><p>matplotlib（ヒストグラムや model evidence のプロットに必要。ODAT-SE 本体とともに自動でインストールされます）</p></li>
+<li><p>ポスト処理ツールは ODAT-SE のインストール時に <code class="docutils literal notranslate"><span class="pre">odatse_</span></code> で始まるコマンド（<code class="docutils literal notranslate"><span class="pre">odatse_extract_combined</span></code> など）として導入されます</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>解析の流れ<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>PAMC 計算の結果を解析する全体的な流れは以下の通りです。</p>
+<ol class="arabic simple">
+<li><p><strong>PAMC計算を実行</strong> し、MCMC ログと分配関数の値を取得する</p></li>
+<li><p><strong>model evidence を計算</strong> し、最適な逆温度 <span class="math notranslate nohighlight">\(\beta\)</span> を特定する</p></li>
+<li><p><strong>温度点ごとにデータを集約</strong> し、各温度での replica 配置をまとめる</p></li>
+<li><p><strong>ヒストグラムを作成</strong> し、事後確率分布を可視化する</p></li>
+</ol>
+<p>各ステップの出力が次のステップの入力になります。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PAMC計算
+  ├─ output/fx.txt ──────────────→ (2) model evidence 計算
+  └─ output/{rank}/result_T*.txt ─→ (3) 温度点ごとに集約
+                                        └─ summarized/ ─→ (4) ヒストグラム作成
+</pre></div>
+</div>
+</section>
+<section id="pamc">
+<h2>1. PAMC計算を実行する<a class="headerlink" href="#pamc" title="Link to this heading">#</a></h2>
 <p>例として TRHEPD 順問題ソルバー (odatse-STR) の計算例を取り上げます。
 パラメータの次元は 3 で、温度点は T=1.0 から 1.0e-6 まで対数スケールで 51点とっています。
 各 annealing の MCMC ステップ数は 20。
-レプリカ数はプロセスあたり 100 x 4 MPIプロセスとします。</p>
+レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。</p>
 <p>計算結果は output 以下に出力されます。
-MPIプロセスごとの MCMC の計算ログは output/{rank}/result_T{index}.txt に温度点ごとに分割されて書き出されます。また、f(x)の期待値と分散、分配関数の値が output/fx.txt に出力されます。</p>
-<div class="admonition note">
-<p class="admonition-title">注釈</p>
-<p>export_combined_files を True にしている場合はログが combined.txt に集約されている。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>extract_combined.py<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+主な出力ファイルは以下の2種類です。</p>
+<p><strong>output/{rank}/result_T{index}.txt</strong> -- MCMC の計算ログ（温度点ごと）</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># step  replica_id  T  fx  x1  x2  x3
+0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100
+1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080
+...
 </pre></div>
 </div>
-<p>を実行して result.txt を取り出す。その後、result.txt を温度点ごとに分割する。</p>
-<p>extract_combined.py は特定のタグで始まる行を抽出するツールで、以下のオプションが使用可能：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--tag</span></code> : 抽出対象のタグ(必須)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
-</ul>
-<p>詳細は <a class="reference internal" href="tools/extract_combined.html"><span class="doc">extract_combined.py</span></a> を参照。</p>
+<p>各行は1回の MCMC ステップに対応し、温度 T、目的関数値 fx、パラメータ値 x1〜x3 が記録されています。</p>
+<p><strong>output/fx.txt</strong> -- 分配関数と f(x) の統計量</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># beta  fx_mean  fx_var  nreplica  logZ/Z0  acceptance
+1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
+...
+</pre></div>
+</div>
+<p>各行は温度点に対応し、逆温度 beta、f(x) の平均値・標準誤差、レプリカ数、分配関数の対数比、採択率が記録されています。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p><code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code> を <code class="docutils literal notranslate"><span class="pre">true</span></code> にしている場合はログが <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code> に集約されています。
+<a class="reference internal" href="tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> を使って result.txt を取り出してください。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_extract_combined<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+</pre></div>
+</div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
-<p>separate_T が False の場合はログが result.txt に出力される。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>separateT.py<span class="w"> </span>-d<span class="w"> </span>output
+<p><code class="docutils literal notranslate"><span class="pre">separate_T</span></code> が <code class="docutils literal notranslate"><span class="pre">false</span></code> の場合はログが <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> に出力されます。
+<a class="reference internal" href="tools/separateT.html"><span class="doc">odatse_separateT</span></a> を使って温度点ごとのファイルに分割してください。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_separateT<span class="w"> </span>-d<span class="w"> </span>output
 </pre></div>
 </div>
-<p>を実行して温度点ごとのファイル result_T{index}.txt に分割する。</p>
-<p>separateT.py は MCMC のデータファイルを温度ごとに分割するツールで、以下のオプションが使用可能：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--file_type</span></code> : 分割する対象のファイル名 (指定がない場合は各ディレクトリ内の result.txt を処理)</p></li>
-</ul>
-<p>詳細は <a class="reference internal" href="tools/separateT.html"><span class="doc">separateT.py</span></a> を参照。</p>
 </div>
-</li>
-<li><p>model evidence を計算する</p>
+</section>
+<section id="model-evidence">
+<h2>2. model evidence を計算する<a class="headerlink" href="#model-evidence" title="Link to this heading">#</a></h2>
 <p>model evidence <span class="math notranslate nohighlight">\(\log P(D;\beta)\)</span> は次の式で表されます。</p>
 <div class="math notranslate nohighlight">
 \[\log P(D;\beta) = \log\left(\dfrac{Z_\beta}{Z_{\beta_0}}\right) - \log V_\Omega + \sum_\mu \dfrac{n_\mu}{2}\log\left(\dfrac{\beta w_\mu}{\pi}\right)\]</div>
 <p>output/fx.txt に出力された分配関数 <span class="math notranslate nohighlight">\(\log Z/Z_0\)</span> の値を用いて model evidence を計算します。その際に、事前確率の規格化因子である探索空間の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span> とデータ点の数 <span class="math notranslate nohighlight">\(n\)</span> を指定します。</p>
 <p>今の例では探索空間は z1, z2, z3 についてそれぞれ [3.0, 6.0] の領域をとっています。データ点の数 (experiment.txt の行数) は 70 です。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_model_evidence.py<span class="w"> </span>-V<span class="w"> </span><span class="m">27</span>.0<span class="w"> </span>-n<span class="w"> </span><span class="m">70</span><span class="w"> </span>output/fx.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_plt_model_evidence<span class="w"> </span>-V<span class="w"> </span><span class="m">27</span>.0<span class="w"> </span>-n<span class="w"> </span><span class="m">70</span><span class="w"> </span>output/fx.txt
 </pre></div>
 </div>
-<p>model evidence の値は model_evidence.txt に書き出されます。また、beta についてプロットした図が model_evidence.png に出力されます。</p>
-<p>plt_model_evidence.py は以下のオプションを使用できます:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-V,</span> <span class="pre">--Volume</span></code> : 探索空間の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--ndata</span></code> : データ点の数(必須)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output</span></code> : プロットを出力するファイル名。出力形式は拡張子を元に判断します。</p></li>
-</ul>
-<p>詳細は <a class="reference internal" href="tools/plt_model_evidence.html"><span class="doc">plt_model_evidence.py</span></a> を参照。</p>
-<figure class="align-default" id="id2">
+<p>model evidence の値は model_evidence.txt に書き出されます。また、beta についてプロットした図が model_evidence.png に出力されます。
+オプションの詳細は <a class="reference internal" href="tools/plt_model_evidence.html"><span class="doc">odatse_plt_model_evidence</span></a> を参照してください。</p>
+<figure class="align-default" id="id6">
 <img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
 <figcaption>
-<p><span class="caption-text">model evidence をプロットした図。最大値を与える beta は beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44)。</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+<p><span class="caption-text">model evidence をプロットした図。最大値を与える beta は beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44)。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-</li>
-<li><p>温度点ごとに探索データをまとめる</p>
+<p>model evidence が最大となる <span class="math notranslate nohighlight">\(\beta\)</span> は、データに対してモデルの説明力が最も高い逆温度に対応します。
+<span class="math notranslate nohighlight">\(\beta\)</span> が小さすぎると事前分布の影響が大きく（アンダーフィッティング）、大きすぎるとデータのノイズまで拾ってしまいます（オーバーフィッティング）。
+最適な <span class="math notranslate nohighlight">\(\beta\)</span> における事後分布を可視化することで、パラメータの推定結果を評価できます。</p>
+</section>
+<section id="id4">
+<h2>3. 温度点ごとに探索データをまとめる<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <p>output/{rank}/result_T{index}.txt に出力されている MCMC ステップの情報から、annealing が終了した時点の replica の配置を取り出し、温度点ごとのファイルにまとめます。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>summarize_each_T.py<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_summarize_each_T<span class="w"> </span>-d<span class="w"> </span>output<span class="w"> </span>-o<span class="w"> </span>summarized
 </pre></div>
 </div>
-<p>summarized/ 以下に result_T{index}_summarized.txt として書き出される。</p>
-<p>summarize_each_T.py は各温度点でのレプリカ配置データを抽出してまとめるツールで、以下のオプションが使用可能：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_directory</span></code> : MCMC データファイルが格納されているディレクトリ</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--export_directory</span></code> : 出力先ディレクトリ</p></li>
-</ul>
-<p><code class="docutils literal notranslate"><span class="pre">-i,</span> <span class="pre">--input_file</span></code> オプションを利用すると、PAMC計算に用いたTOML設定ファイルからレプリカ数などのパラメータを自動的に取得できます。</p>
-<p>詳細は <a class="reference internal" href="tools/summarize_each_T.html"><span class="doc">summarize_each_T.py</span></a> を参照。</p>
-</li>
-<li><p>1次元および2次元周辺化ヒストグラムを作成する</p>
-<p>replica配置のデータを用いて、重み付けされた事後確率分布 <span class="math notranslate nohighlight">\(P(z_i|D;\beta) = \dfrac{P(D|z_i\beta) P(z_i)}{P(D;\beta)}\)</span> をプロットします。</p>
-<p>各 <span class="math notranslate nohighlight">\(z_i\)</span> に沿って周辺化した1次元ヒストグラムを作成するには</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_1D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+<p>summarized/ 以下に result_T{index}_summarized.txt として書き出されます。
+オプションの詳細は <a class="reference internal" href="tools/summarize_each_T.html"><span class="doc">odatse_summarize_each_T</span></a> を参照してください。</p>
+</section>
+<section id="id5">
+<h2>4. 1次元および2次元周辺化ヒストグラムを作成する<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>replica配置のデータを用いて、重み付けされた事後確率分布 <span class="math notranslate nohighlight">\(P(z_i|D;\beta) = \dfrac{P(D|z_i;\beta) P(z_i)}{P(D;\beta)}\)</span> をプロットします。</p>
+<p>Step 2 で特定した最適な <span class="math notranslate nohighlight">\(\beta\)</span> 付近の温度点に注目して、パラメータの分布を確認します。</p>
+<p>各 <span class="math notranslate nohighlight">\(z_i\)</span> に沿って周辺化した1次元ヒストグラムを作成するには、以下を実行します。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_plt_1D_histogram<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
 </pre></div>
 </div>
-<p>を実行します。summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に 1Dhistogram_result_T{index}_beta_{beta}.png (温度の範囲を bmin, bmax で指定してPAMC計算を実行した場合) または  1Dhistogram_result_T{index}_T_{T}.png (温度の範囲を Tmin, Tmax で指定してPAMC計算を実行した場合) というファイル名で書き出されます。値の範囲は 3.0〜6.0 にとっています。</p>
-<p>plt_1D_histogram.py は以下の主要なオプションを使用できます:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--data_dir</span></code> : データファイルが格納されているディレクトリ</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output_dir</span></code> : 出力先ディレクトリ</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-r,</span> <span class="pre">--range</span></code> : 変数の範囲を指定(カンマ区切りの「最小値,最大値」形式)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-b,</span> <span class="pre">--bins</span></code> : ヒストグラムのビン数(デフォルト: 60)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-f,</span> <span class="pre">--format</span></code> : 出力ファイル形式(カンマ区切りのリスト、デフォルト: &quot;png&quot;)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code> : 設定ファイル(TOML形式)のパス</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--params</span></code> : PAMC計算に使用したパラメータファイルのパス</p></li>
-</ul>
-<p>設定ファイルを使用すると、オプションをまとめて設定が可能になります。</p>
-<p>詳細は <a class="reference internal" href="tools/plt_1D_histogram.html"><span class="doc">plt_1D_histogram.py</span></a> を参照。</p>
-<figure class="align-default" id="id3">
+<p>summarized/ のデータファイルそれぞれについてヒストグラムが作成され、1dhist/ 以下に出力されます。
+オプションの詳細は <a class="reference internal" href="tools/plt_1D_histogram.html"><span class="doc">odatse_plt_1D_histogram</span></a> を参照してください。</p>
+<figure class="align-default" id="id7">
 <img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
 <figcaption>
-<p><span class="caption-text">1次元周辺化ヒストグラムの出力例。(Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span> の場合)</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+<p><span class="caption-text">1次元周辺化ヒストグラムの出力例。(Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span> の場合)</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>2次元に周辺化したヒストグラムを作成するには</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>plt_2D_histogram.py<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
+<p>2次元に周辺化したヒストグラムを作成するには、以下を実行します。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_plt_2D_histogram<span class="w"> </span>-d<span class="w"> </span>summarized<span class="w"> </span>-o<span class="w"> </span>2dhist<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0
 </pre></div>
 </div>
-<p>を実行します。z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元ヒストグラムが作成され、2dhist/ 以下に 2Dhistogram_result_T{index}_beta_{beta}_x1_vs_x2.png 等のファイル名で書き出されます。(field_list を指定しない場合、軸の名称は x1, x2, ... になります。)</p>
-<p>plt_2D_histogram.py は plt_1D_histogram.py と同様のオプションに加えて、以下の機能があります。</p>
-<ul class="simple">
-<li><p>2変数の組み合わせごとにヒストグラムを生成</p></li>
-<li><p>対数スケールでのカラーマッピングによる確率密度の可視化</p></li>
-</ul>
-<p>出力ファイル名の命名規則は
-2Dhistogram_[ファイル名]_[x軸ラベル]_vs_[y軸ラベル].[フォーマット]
-となります。</p>
-<p>例: 2Dhistogram_result_T44_beta_1.91e+05_x1_vs_x2.png</p>
-<p>詳細は <a class="reference internal" href="tools/plt_2D_histogram.html"><span class="doc">plt_2D_histogram.py</span></a> を参照。</p>
-<figure class="align-default" id="id4">
+<p>z1, z2, z3 の組み合わせ (z1,z2), (z1,z3), (z2,z3) についての2次元ヒストグラムが作成され、2dhist/ 以下に出力されます。
+2次元ヒストグラムにより、パラメータ間の相関を確認できます。
+オプションの詳細は <a class="reference internal" href="tools/plt_2D_histogram.html"><span class="doc">odatse_plt_2D_histogram</span></a> を参照してください。</p>
+<figure class="align-default" id="id8">
 <img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
 <figcaption>
-<p><span class="caption-text">2次元周辺化ヒストグラムの出力例。(Tstep=22, z1-z2 軸についてのプロット)</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
+<p><span class="caption-text">2次元周辺化ヒストグラムの出力例。(Tstep=22, z1-z2 軸についてのプロット)</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-</li>
-</ol>
+</section>
 </section>
 
 
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="前のページ">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">前へ</p>
+        <p class="prev-next-title">ポスト処理ツール</p>
       </div>
-      <div class="bottomnav" role="navigation" aria-label="Bottom">
-      
-        <p>
-        «&#160;&#160;<a href="index.html">ポスト処理ツール</a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">コンテンツ</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="tools/index.html">リファレンス</a>&#160;&#160;»
-        </p>
-
+    </a>
+    <a class="right-next"
+       href="tools/index.html"
+       title="次ページ">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">次へ</p>
+        <p class="prev-next-title">リファレンス</p>
       </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-    <div class="footer" role="contentinfo">
-    &#169; 著作権 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> このページでは
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">前提条件</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">解析の流れ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pamc">1. PAMC計算を実行する</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evidence">2. model evidence を計算する</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">3. 温度点ごとに探索データをまとめる</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">4. 1次元および2次元周辺化ヒストグラムを作成する</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
     </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4 を使用して作成されました。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0 で構築されています。
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
   </body>
 </html>

@@ -1,5 +1,5 @@
-summarize_each_T.py
-===================
+odatse_summarize_each_T
+=======================
 
 NAME
 ----
@@ -11,7 +11,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py [OPTION]...
+   odatse_summarize_each_T [OPTION]...
 
 
 DESCRIPTION
@@ -61,7 +61,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized
+      odatse_summarize_each_T -d output -o summarized
 
    output ディレクトリ内のすべてのプロセスフォルダから result_T*.txt ファイルを処理し、summarized ディレクトリに保存します。
    各ファイルの最後のMCステップのデータが抽出されます。
@@ -70,7 +70,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -i input.toml -o summarized
+      odatse_summarize_each_T -i input.toml -o summarized
 
    input.toml から設定を読み込み(レプリカ数、データディレクトリ)、データを処理して summarized ディレクトリに保存します。
 
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -n 16 -o summarized
+      odatse_summarize_each_T -d output -n 16 -o summarized
 
    各ファイルの最後の16行を抽出します(16レプリカの場合)。
 
@@ -86,7 +86,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized --progress
+      odatse_summarize_each_T -d output -o summarized --progress
 
    処理中にプログレスバーを表示します(tqdmライブラリが必要)。
 
@@ -97,7 +97,7 @@ NOTES
 データ変換の詳細
 ~~~~~~~~~~~~~~~~
 
-このスクリプトは以下のデータ変換を行います：
+このスクリプトは以下のデータ変換を行います:
 
 1. 入力データの形式:
 
@@ -156,7 +156,7 @@ TOML設定ファイルの形式
 2. 出力ディレクトリの作成(存在しない場合)
 3. 入力ファイルのパターンマッチング(DATA_DIRECTORY/\*/result_T*.txt)
 4. 各ファイルの処理:
-   
+
    a. ファイルを読み込み
    b. レプリカ数が指定されている場合は最後の n 行を抽出
    c. レプリカ数が指定されていない場合は最後のステップの行を抽出
@@ -166,9 +166,9 @@ TOML設定ファイルの形式
 パフォーマンスと注意点
 ~~~~~~~~~~~~~~~~~~~~~~
 
-* 一度に多数のファイルを処理する場合に `--progress` オプションを使用して処理の進行状況を可視化できます。
+* 一度に多数のファイルを処理する場合に ``--progress`` オプションを使用して処理の進行状況を可視化できます。
 * 非常に大きなファイルを処理する場合、メモリ使用量に注意が必要です。
-* 出力ファイルに追記モード (`a`) で書き込むため、同じ処理を複数回実行すると結果が重複する可能性があります。再実行する場合は、出力ディレクトリを空にするか新しいディレクトリを指定してください。
+* 温度ごとの出力ファイルは、実行内で最初に書き込むときに上書き(truncate)し、以降の入力ファイルに対しては追記します。このため、再実行しても結果は重複せず上書きされます。
 * TOMLファイルから設定を読み込む場合、Python 3.11未満では追加のライブラリ(tomli)が必要です。
 
 エラー処理

@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+
+
+<html lang="ja" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>テンソル列最適化 ttopt &#8212; ODAT-SE 3.3-dev ドキュメント</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=c71307a2"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/ttopt';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="レプリカ交換モンテカルロ法 exchange" href="exchange.html" />
+    <link rel="prev" title="ベイズ最適化 bayes" href="bayes.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="ja"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">本文へスキップ</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>トップに戻る</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="バージョン警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="サイトナビゲーション">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev ドキュメント</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="このページでは">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="セクションナビゲーション">
+  <p class="bd-links__title" role="heading" aria-level="1">セクションナビゲーション</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../manual/command.html">odatse コマンド</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../input/index.html">入力ファイル</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../input/algorithm.html"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクション</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../input/runner.html"><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> セクション</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../output.html">出力ファイル</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">探索アルゴリズム</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="minsearch.html">局所最適化アルゴリズムによる最適値探索 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_search.html">大域最適化 <code class="docutils literal notranslate"><span class="pre">global_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_search.html">ランダム探索 <code class="docutils literal notranslate"><span class="pre">random_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayes.html">ベイズ最適化 <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="exchange.html">レプリカ交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pamc.html">ポピュレーションアニーリングモンテカルロ法 <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solver/index.html">順問題ソルバー</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバー</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="パンくずリスト" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="ホーム">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../manual/index.html" class="nav-link">マニュアル</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">探索アルゴリズム</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="ttopt">
+<h1>テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code><a class="headerlink" href="#ttopt" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code> は、目的関数をパラメータで添字付けられた大きなテンソルとしてモデル化し、その大きなテンソルを1次元的にならんだ3階テンソルのネットワーク（行列積状態MPS, tensor train）として表現し、そのMPSを反復的な交差近似に基づく勾配不要の最適化手法で探索する <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
+<section id="id1">
+<h2>前準備<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>MPI 並列化を用いる場合は <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしてください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>入力パラメータ<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="algorithm-param">
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション<a class="headerlink" href="#algorithm-param" title="Link to this heading">#</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
+<p>説明: 各パラメータが取りうる最小値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
+<p>説明: 各パラメータが取りうる最大値。</p>
+</li>
+</ul>
+</section>
+<section id="algorithm-ttopt">
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.ttopt]</span></code> セクション<a class="headerlink" href="#algorithm-ttopt" title="Link to this heading">#</a></h3>
+<p>次のハイパーパラメータを指定できます。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_points</span></code></p>
+<p>形式: 整数または整数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
+<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際に各テンソル脚がとる値の数 <span class="math notranslate nohighlight">\(P_i\)</span> 。
+パラメータは <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。
+整数の場合はすべての次元で同じ値になります。
+デフォルトは 2 です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">q_points</span></code></p>
+<p>形式: 整数または整数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
+<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際のテンソル脚の本数 <span class="math notranslate nohighlight">\(q_i\)</span> 。
+パラメータは <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。
+整数の場合はすべての次元で同じ値になります。
+デフォルトは 1 です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r_max</span></code></p>
+<p>形式: 整数 (default: 4)</p>
+<p>説明: 小テンソル同士をつなぐボンド次元の最大値。大きいほど表現能力はあがりますが、最適化の各ステップでコスト関数の評価回数が増えます。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code></p>
+<p>形式: 整数 (default: 10000)</p>
+<p>説明: コスト関数の評価回数の上限。最適化の計算予算に相当します。カウンタはアルゴリズムの各スイープの終了時に更新され、この値以上になった時点でパラメータ探索を終了します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxvol_tol</span></code></p>
+<p>形式: 浮動小数点数 (default: 1.001)</p>
+<p>説明: 最大体積部分行列を求める際の許容誤差。許容誤差を 1 に設定すると行列の厳密な分解を行います。1 未満の値は 1 にクリップされます。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxvol_max_it</span></code></p>
+<p>形式: 整数 (default: 1000)</p>
+<p>説明: 最大体積部分行列を求める反復の最大回数。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_points</span></code></p>
+<p>形式: 実数のリストのリスト (default: [])</p>
+<p>説明: 最適化の冒頭で評価する初期候補。内側の各リストの長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> と一致させます。任意のパラメータで、既知の候補領域を最適化器に伝えるために用います。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_eval_history</span></code></p>
+<p>形式: 真偽値 (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">true</span></code> のとき、評価した各候補点を <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code> に追記します（MPI ランク 0 のみ）。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eval_history_buffer_rows</span></code></p>
+<p>形式: 整数 (default: 256)</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code> に書き出す頻度 <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 。 <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 回の評価結果をまとめて出力します。</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>出力ファイル<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">[base]</span></code> の <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> を <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> と書くことにします（<code class="docutils literal notranslate"><span class="pre">root_dir</span></code> からの相対パスで指定した場合は <code class="docutils literal notranslate"><span class="pre">root_dir/output_dir</span></code> の絶対パスが使われます）。
+各 MPI ランクは、作業ディレクトリとして <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> 直下のランク番号付きサブディレクトリ（例 <code class="docutils literal notranslate"><span class="pre">OUTPUT/0/</span></code>）を用います。TTOpt が書き出す主なファイルは <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> 直下に置かれます（下記、特に記載がなければ MPI ランク 0 のみが作成）。</p>
+<section id="ttopt-hyperparameters-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">ttopt_hyperparameters.txt</span></code><a class="headerlink" href="#ttopt-hyperparameters-txt" title="Link to this heading">#</a></h3>
+<p>準備フェーズ（<code class="docutils literal notranslate"><span class="pre">prepare</span></code>）の終了時に、入力で与えた主なハイパーパラメータを 1 行 1 項目で保存します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">bounds</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">]]</span>
+<span class="n">p_points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">q_points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span> <span class="mi">20</span><span class="p">]</span>
+<span class="n">r_max</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">max_f_eval</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">maxvol_tol</span> <span class="o">=</span> <span class="mf">1.001</span>
+<span class="n">maxvol_max_it</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">save_eval_history</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">eval_history_buffer_rows</span> <span class="o">=</span> <span class="mi">256</span>
+</pre></div>
+</div>
+</section>
+<section id="ttopt-history-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">ttopt_history.txt</span></code><a class="headerlink" href="#ttopt-history-txt" title="Link to this heading">#</a></h3>
+<p>最適化ループの各ステップ（ある MPS コア位置で候補点の束を評価し、これまでの最良点を更新した直後）ごとに、累積の関数評価回数と、その時点での最良点 <code class="docutils literal notranslate"><span class="pre">x_opt</span></code> および最良値 <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> が追記されます。先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列の意味です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: count</span>
+<span class="c1"># $2: x_opt[0]</span>
+<span class="c1"># $3: x_opt[1]</span>
+<span class="c1"># $4: fx_opt</span>
+<span class="mi">8</span> <span class="mf">3.420030040769616e+00</span> <span class="o">-</span><span class="mf">9.735097632501253e-01</span> <span class="mf">7.005409201321578e+00</span>
+<span class="mi">24</span> <span class="mf">3.420030040769616e+00</span> <span class="o">-</span><span class="mf">2.098510836134754e+00</span> <span class="mf">2.643948442798083e+00</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>次元が <span class="math notranslate nohighlight">\(D\)</span> のとき、データ列は 1 列目が評価回数、2 列目から <span class="math notranslate nohighlight">\(D+1\)</span> 列目が <code class="docutils literal notranslate"><span class="pre">x_opt[0],</span> <span class="pre">...,</span> <span class="pre">x_opt[D-1]</span></code>、最後の列が <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> です。</p>
+</section>
+<section id="res-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">res.txt</span></code><a class="headerlink" href="#res-txt" title="Link to this heading">#</a></h3>
+<p>終了後の全体最良解（MPI 使用時は全ランクの結果のうち最良）を、目的関数値 <code class="docutils literal notranslate"><span class="pre">fx</span></code> と各パラメータ（既定のラベルは <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, …）でテキスト保存します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fx</span> <span class="o">=</span> <span class="mf">3.188892404355571e-08</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="mf">3.584424576210571</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.8480795365138398</span>
+</pre></div>
+</div>
+</section>
+<section id="ttopt-eval-history-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code><a class="headerlink" href="#ttopt-eval-history-txt" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">save_eval_history</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> のときのみ <code class="docutils literal notranslate"><span class="pre">OUTPUT/ttopt_eval_history.txt</span></code> に作成されます。バッチ評価で実際に呼び出した各候補点の座標と <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> が行単位で並びます（先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列ラベル。パラメータ名は <code class="docutils literal notranslate"><span class="pre">label_list</span></code> が設定されていればそれが使われます）。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: row index (order of batches in the run)</span>
+<span class="c1"># $2: x1</span>
+<span class="c1"># $3: x2</span>
+<span class="c1"># $4: f(x)</span>
+<span class="mi">1</span> <span class="mf">3.420030040769616e+00</span> <span class="o">-</span><span class="mf">5.098513697160432e+00</span> <span class="mf">5.218032809779967e+02</span>
+<span class="mi">2</span> <span class="mf">3.420030040769616e+00</span> <span class="o">-</span><span class="mf">9.735097632501253e-01</span> <span class="mf">7.005409201321578e+00</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="time-log">
+<h3><code class="docutils literal notranslate"><span class="pre">time.log</span></code><a class="headerlink" href="#time-log" title="Link to this heading">#</a></h3>
+<p>アルゴリズム全体の計測時間は、アルゴリズム側のランク 0 のプロセスのみが <code class="docutils literal notranslate"><span class="pre">OUTPUT/0/time.log</span></code> に書き出します。</p>
+</section>
+</section>
+<section id="id4">
+<h2>アルゴリズムの説明<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>Tensor Train Optimization (TTOpt) [1] は、離散関数の最適値と、そのパラメータ空間上の位置を求める手法です。連続最適化問題にも容易に適用でき、高次元問題や、離散量と連続量が混在するパラメータをもつ関数にも対応できます。</p>
+<p>TTOpt は、パラメータの組 <span class="math notranslate nohighlight">\((x_1, x_2, ..., x_n)\)</span> で添字付けられた目的関数 <span class="math notranslate nohighlight">\(f(x_1, x_2, ..., x_n)\)</span> の値に対応する要素をもつ大きなテンソルの、反復的な交差近似に基づく勾配不要の最適化手法です。交差近似は近似最大体積部分行列を用いて計算されます。
+各次元のパラメータ <span class="math notranslate nohighlight">\(x_i\)</span> はそれぞれ <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。こうして、目的関数が <span class="math notranslate nohighlight">\(\sum_i q_i\)</span> 階のテンソルとして表現されます。
+TTOpt アルゴリズムは、この高次元テンソルを行列積状態(MPS)として、すなわち <span class="math notranslate nohighlight">\(\sum_i q_i\)</span> 個の3階テンソルの1次元ネットワークとして分解します。
+巨大テンソル全体のごく一部だけを明示的に計算すればよいように設計されており、コスト関数の計算コストが高い場合や探索空間が非常に大きい場合に有利です。また、データを MPS 形式で表現することで、最適化過程で指数的に大きな行列を形成する必要を避けられます。</p>
+<p>本アルゴリズムは複数の MPI プロセスによる実行が可能です。MPI を用いる場合、サンプル点におけるコスト関数値の評価が各ランクに分散されます。</p>
+</section>
+<section id="id5">
+<h2>リスタート<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">algorithm.checkpoint</span></code> を true にすると、実行中の状態が <code class="docutils literal notranslate"><span class="pre">status.pickle</span></code>
+に保存されます。保存されるのは次のタイミングです。</p>
+<ol class="arabic simple">
+<li><p>ダブルスイープ(右→左と左→右の一巡)が完了し、<code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または
+<code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の条件を満たしたとき</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> に到達して実行を終了するとき(最終状態)</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">run_mode</span></code> は <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> に対応します。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code></p>
+<p>最初から実行します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>中断した計算をチェックポイントから再開します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>終了した計算を延長します。TTOpt では <code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code> と同じ動作になります。
+評価回数の上限 <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> はチェックポイントに保存されず、
+毎回入力ファイルから読み直されるため、<code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> を増やして再実行すると、
+保存された状態から続きの評価が行われます。</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>延長した計算の結果は、最初から大きな <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> で一括実行した場合と一致します。
+再実行時に一部の評価が再計算されますが、評価値のキャッシュもチェックポイントに
+含まれるため、ソルバーが再度呼ばれることはありません。</p>
+</div>
+<section id="id6">
+<h3>参考文献<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>[1] K. Sozykin et al., <a class="reference external" href="https://arxiv.org/abs/2205.00293">arXiv:2205.00293</a> (2022).</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="bayes.html"
+       title="前のページ">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">前へ</p>
+        <p class="prev-next-title">ベイズ最適化 <code class="docutils literal notranslate"><span class="pre">bayes</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="exchange.html"
+       title="次ページ">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">次へ</p>
+        <p class="prev-next-title">レプリカ交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> このページでは
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">前準備</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">入力パラメータ</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-param"><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-ttopt"><code class="docutils literal notranslate"><span class="pre">[algorithm.ttopt]</span></code> セクション</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">出力ファイル</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ttopt-hyperparameters-txt"><code class="docutils literal notranslate"><span class="pre">ttopt_hyperparameters.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ttopt-history-txt"><code class="docutils literal notranslate"><span class="pre">ttopt_history.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#res-txt"><code class="docutils literal notranslate"><span class="pre">res.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ttopt-eval-history-txt"><code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-log"><code class="docutils literal notranslate"><span class="pre">time.log</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">アルゴリズムの説明</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">リスタート</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">参考文献</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4 を使用して作成されました。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0 で構築されています。
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

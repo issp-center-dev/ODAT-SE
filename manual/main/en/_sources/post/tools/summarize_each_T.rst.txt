@@ -1,5 +1,5 @@
-summarize_each_T.py
-====================
+odatse_summarize_each_T
+=======================
 
 NAME
 ----
@@ -11,7 +11,7 @@ SYNOPSIS
 
 .. code-block:: bash
 
-   python3 summarize_each_T.py [OPTION]...
+   odatse_summarize_each_T [OPTION]...
 
 
 DESCRIPTION
@@ -52,7 +52,7 @@ The following command line options are available:
     Displays a progress bar during execution. The tqdm library is required for display.
 
 **-h, \-\-help**
-    Displays help message and exits the program.
+    Displays the help message and exits.
 
 USAGE
 -----
@@ -61,7 +61,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized
+      odatse_summarize_each_T -d output -o summarized
 
    Processes result_T*.txt files from all process folders in the output directory and saves them to the summarized directory.
    Data from the last MC step of each file is extracted.
@@ -70,7 +70,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -i input.toml -o summarized
+      odatse_summarize_each_T -i input.toml -o summarized
 
    Loads settings from input.toml (number of replicas, data directory), processes the data, and saves it to the summarized directory.
 
@@ -78,7 +78,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -n 16 -o summarized
+      odatse_summarize_each_T -d output -n 16 -o summarized
 
    Extracts the last 16 lines from each file (for 16 replicas).
 
@@ -86,7 +86,7 @@ USAGE
 
    .. code-block:: bash
 
-      python3 summarize_each_T.py -d output -o summarized --progress
+      odatse_summarize_each_T -d output -o summarized --progress
 
    Displays a progress bar during processing (requires the tqdm library).
 
@@ -100,19 +100,19 @@ This script performs the following data conversions:
 
 1. Input data format:
 
-   If the input parameter has been given by the temperature Tmin and Tmax, 
-   
+   If the input parameters were given as the temperatures ``Tmin`` and ``Tmax``,
+
    .. code-block:: text
 
       step walker_id T fx x1 ... xN weight ancestor
 
-   If the input parameter has been given by the inverse temperature bmin and bmax, 
-   
+   If the input parameters were given as the inverse temperatures ``bmin`` and ``bmax``,
+
    .. code-block:: text
 
       step walker_id beta fx x1 ... xN weight ancestor
 
-   The item types of columns are shown in the header part as comments.
+   The column types are shown in the header as comments.
 
 2. Output data format:
 
@@ -154,7 +154,7 @@ This script processes data in the following steps:
 2. Create output directory (if it doesn't exist)
 3. Pattern matching of input files (DATA_DIRECTORY/\*/result_T*.txt)
 4. Process each file:
-   
+
    a. Read file line by line
    b. Extract the last n lines if the number of replicas is specified
    c. Extract lines from the last step if the number of replicas is not specified
@@ -164,9 +164,9 @@ This script processes data in the following steps:
 Performance and Considerations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* The `\-\-progress` option can be used to visualize progress when processing many files at once.
+* The ``--progress`` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
-* Since data is written to output files in append mode (`a`), results may be duplicated if the same process is executed multiple times. If re-executing, empty the output directory or specify a new directory.
+* Each per-temperature output file is truncated on its first write within a run and appended to for the remaining input files, so re-running the tool overwrites the previous output rather than duplicating it.
 * If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.
 
 Error Handling

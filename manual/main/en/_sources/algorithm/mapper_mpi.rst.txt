@@ -1,7 +1,8 @@
+===================================
 Direct parallel search ``mapper``
-**********************************
+===================================
 
-``mapper_mpi`` is an algorithm to search for the minimum value by computing :math:`f(x)` on all the candidate points in the parameter space prepared in advance.
+``mapper`` is an algorithm to search for the minimum value by computing :math:`f(x)` on all the candidate points in the parameter space prepared in advance.
 In the case of MPI execution, the set of candidate points is divided into equal parts and automatically assigned to each process to perform trivial parallel computation.
 
 Preparation
@@ -16,26 +17,50 @@ For MPI parallelism, you need to install `mpi4py <https://mpi4py.readthedocs.io/
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+``[algorithm]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``colormap``
+
+  Format: String (default: "ColorMap.txt")
+
+  Description: Name of the file to which the search results (the coordinates and the objective function values of the mesh points) are written.
+
 .. _mapper_input_param:
 
-[``param``] section
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, the search parameter space is defined.
 
 If ``mesh_path`` is defined, it is read from a mesh file.
 In the mesh file, one line defines one point in the parameter space, the first column is the data number, and the second and subsequent columns are the coordinates of each dimension.
 
-If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list`` and ``max_list``.
-If ``num_list`` is defined, ``num_list`` points are sampled evenly for each parameter.
-If ``num_points`` is defined, ``num_points`` points are randomly sampled from the search space.
-``num_list`` and ``num_points`` cannot be defined at the same time.
+If ``mesh_path`` is not defined, candidate points are automatically generated from the search space defined by ``min_list``, ``max_list``, and ``num_list``: ``num_list`` points are sampled evenly for each parameter.
 
 - ``mesh_path``
 
   Format: String
 
   Description: Path to the mesh definition file.
+
+- ``comments``
+
+  Format: String (default: "#")
+
+  Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
+
+- ``delimiter``
+
+  Format: String (default: whitespace)
+
+  Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+- ``skiprows``
+
+  Format: Integer (default: 0)
+
+  Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
 
 - ``min_list``
 
@@ -45,7 +70,7 @@ If ``num_points`` is defined, ``num_points`` points are randomly sampled from th
 
 - ``max_list``
 
-  Format: List of float.The length should match the value of dimension.
+  Format: List of float. The length should match the value of dimension.
 
   Description: The maximum value the parameter can take.
 
@@ -53,14 +78,7 @@ If ``num_points`` is defined, ``num_points`` points are randomly sampled from th
 
   Format: List of integer. The length should match the value of dimension.
 
-  Description:  The number of grids the parametar can take at each dimension.
-
-
-- ``num_points``
-
-  Format: Integer.
-
-  Description: The number of points to be randomly sampled.
+  Description:  The number of grids the parameter can take at each dimension.
 
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,8 +88,8 @@ Mesh definition file
 
 Define the grid space to be explored in this file.
 1 + ``dimension`` columns are required.
-The first column is the index of the mesh, and the second and subsequent columns are the values of parameter.
-The lines starting from ``#`` are ignored as comments.
+The first column is the index of the mesh, and the second and subsequent columns are the values of the parameters.
+Lines starting with ``#`` are ignored as comments.
 
 A sample file for two dimensions is shown below.
 
@@ -94,10 +112,11 @@ Output file
 ``ColorMap.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This file contains the candidate parameters for each mesh and the function value at that time.
-The mesh data is listed in the order of the variables defined in ``string_list`` in the ``[solver]`` - ``[param]`` sections of the input file, and the value of the function value is listed last.
+This file contains the candidate parameters for each mesh and the corresponding function value.
+The file name can be changed by the ``colormap`` parameter in the ``[algorithm]`` section.
+The mesh data is listed in the order of the variables defined by ``label_list`` in the ``[algorithm]`` section of the input file (``x1``, ``x2``, ... by default), and the function value is listed last.
 
-Below, output example is shown.
+An example of the output is shown below.
 
 .. code-block::
 
@@ -122,7 +141,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initial state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
   #. the specified number of grid points has been evaluated, or the specified period of time has passed.
   #. at the end of the execution.
@@ -131,6 +150,9 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 
   The program execution is resumed from the latest checkpoint.
   The conditions such as the number of MPI processes should be kept the same.
+  Changing the number of search points is an error, because resuming continues
+  the run the checkpoint was written for. Use ``--cont`` to add points, or
+  ``--init`` to start a separate calculation.
 
 - ``"continue"``
 

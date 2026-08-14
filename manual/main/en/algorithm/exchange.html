@@ -1,56 +1,517 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../">
+
+<html lang="en" data-content_root="../" data-theme="light">
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Replica exchange Monte Carlo exchange &#8212; ODAT-SE 3.2.1 documentation</title>
+    <title>Replica exchange Monte Carlo exchange &#8212; ODAT-SE 3.3-dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/haiku.css?v=fce32b03" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
-    <script src="../_static/documentation_options.js?v=eb155f5e"></script>
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=5e09bc0c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/exchange';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Population Annealing Monte Carlo pamc" href="pamc.html" />
-    <link rel="prev" title="Direct parallel search mapper" href="mapper_mpi.html" /> 
-  </head><body>
-      <div class="header" role="banner"><h1 class="heading"><a href="../index.html">
-          <span>ODAT-SE 3.2.1 documentation</span></a></h1>
-        <h2 class="heading"><span>Replica exchange Monte Carlo exchange</span></h2>
-      </div>
-      <div class="topnav" role="navigation" aria-label="Top">
+    <link rel="prev" title="Tensor Train Optimization ttopt" href="ttopt.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.3" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 3.3-dev documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
       
-        <p>
-        «&#160;&#160;<a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>&#160;&#160;»
-        </p>
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../manual/command.html">odatse command</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../input/index.html">Input file</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../input/algorithm.html"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../input/runner.html"><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> section</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../output.html">Output files</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Search algorithms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="minsearch.html">Optimization by local optimization algorithms <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_search.html">Global optimization <code class="docutils literal notranslate"><span class="pre">global_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_search.html">Random search <code class="docutils literal notranslate"><span class="pre">random_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayes.html">Bayesian optimization <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttopt.html">Tensor Train Optimization <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solver/index.html">Direct Problem Solver</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
 
       </div>
-      <div class="content" role="main">
+      
+      <main id="main-content" class="bd-main" role="main">
         
         
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../manual/index.html" class="nav-link">Manual</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Search algorithms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="replica-exchange-monte-carlo-exchange">
-<h1>Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code><a class="headerlink" href="#replica-exchange-monte-carlo-exchange" title="Link to this heading">¶</a></h1>
+<h1>Replica exchange Monte Carlo <code class="docutils literal notranslate"><span class="pre">exchange</span></code><a class="headerlink" href="#replica-exchange-monte-carlo-exchange" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> explores the parameter space by using the replica exchange Monte Carlo (RXMC) method.</p>
 <section id="preparation">
-<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed if MPI parallelization is used.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
 <section id="input-parameters">
-<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">¶</a></h2>
+<h2>Input parameters<a class="headerlink" href="#input-parameters" title="Link to this heading">#</a></h2>
 <p>This has two subsections <code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code> and <code class="docutils literal notranslate"><span class="pre">algorithm.exchange</span></code> .</p>
 <section id="algorithm-param">
-<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.param</span></code>]<a class="headerlink" href="#algorithm-param" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code><a class="headerlink" href="#algorithm-param" title="Link to this heading">#</a></h3>
 <p>This defines a space to be explored.
 When <code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> key is defined or <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> key is set to true, the discrete space is used.
 Otherwise, continuous space is used.</p>
@@ -60,26 +521,34 @@ Otherwise, continuous space is used.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
 <p>Description: Initial value of parameters.
-If not defined, these will be initialize randomly.</p>
+If not defined, these will be initialized randomly.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description:
-Minimum value of each parameter.
-When a parameter falls below this value during the Monte Carlo search,
-the solver is not evaluated and the value is considered infinite.</p>
+<p>Description: The minimum value that each parameter can take.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description:
-Maximum value of each parameter.
-When a parameter exceeds this value during the Monte Carlo search,
-the solver is not evaluated and the value is considered infinite.</p>
+<p>Description: The maximum value that each parameter can take.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
 <p>Format: List of float. Length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
-<p>Description:
-The step length in one Monte Carlo update (deviation of Gaussian distribution).</p>
+<p>Description: Step width (standard deviation of the Gaussian distribution) used for Monte Carlo updates.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pbc_list</span></code></p>
+<p>Format: List of boolean (default: false for each parameter).</p>
+<p>Description: Whether to use periodic boundary conditions (PBC) for generating local candidate points for each parameter. The length should be equal to <code class="docutils literal notranslate"><span class="pre">dimension</span></code>.</p>
+</li>
+<li><p>About state proposals</p>
+<ul class="simple">
+<li><p>In Monte Carlo updates, candidate points are proposed according to a Gaussian distribution centered at the current state.
+If a candidate parameter <code class="docutils literal notranslate"><span class="pre">d</span></code> falls outside the range [min_list[d], max_list[d]):</p>
+<ul>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">pbc_list[d]</span> <span class="pre">=</span> <span class="pre">true</span></code>, it will be wrapped into the range [min_list[d], max_list[d]) using periodic boundary conditions.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">pbc_list[d]</span> <span class="pre">=</span> <span class="pre">false</span></code>, the proposal will be rejected.</p></li>
+</ul>
+</li>
+</ul>
 </li>
 </ul>
 </li>
@@ -88,6 +557,18 @@ The step length in one Monte Carlo update (deviation of Gaussian distribution).<
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>Format: string</p>
 <p>Description: Path to the mesh definition file. See <em>Reference file</em> below for the format.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p>
+<p>Format: String (default: “#”)</p>
+<p>Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code></p>
+<p>Format: String (default: whitespace)</p>
+<p>Description: Column delimiter of the mesh definition file. Specify <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> to read a CSV file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skiprows</span></code></p>
+<p>Format: Integer (default: 0)</p>
+<p>Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
 <p>Format: string</p>
@@ -121,7 +602,7 @@ The number of mesh points along each parameter of the mesh to be generated.</p>
 </ul>
 </section>
 <section id="algorithm-exchange">
-<h3>[<code class="docutils literal notranslate"><span class="pre">algorithm.exchange</span></code>]<a class="headerlink" href="#algorithm-exchange" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code><a class="headerlink" href="#algorithm-exchange" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
 <p>Format: Integer</p>
@@ -129,7 +610,7 @@ The number of mesh points along each parameter of the mesh to be generated.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_exchange</span></code></p>
 <p>Format: Integer</p>
-<p>Description: The number of interval Monte Carlo steps between replica exchange.</p>
+<p>Description: The number of Monte Carlo steps between replica exchange trials.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_thermalization</span></code></p>
 <p>Format: Integer</p>
@@ -159,15 +640,33 @@ One of the “temperature” and “inverse temperature” should be defined.</p
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code></p>
 <p>Format: Integer (default: 1)</p>
-<p>Description: The number of replicas in a MPI process.</p>
+<p>Description: The number of replicas in an MPI process.
+The total number of replicas is given by “number of MPI processes × <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code>”.
+In the replica exchange Monte Carlo method, one temperature point is assigned to each replica, and therefore the number of temperature points generated between <code class="docutils literal notranslate"><span class="pre">Tmin</span></code> and <code class="docutils literal notranslate"><span class="pre">Tmax</span></code> equals the total number of replicas.
+To use more temperature points, increase the number of MPI processes or <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">separate_T</span></code></p>
+<p>Format: Boolean (default: true)</p>
+<p>Description: Whether to write log files of Monte Carlo steps separately for each temperature (<code class="docutils literal notranslate"><span class="pre">result_T*.txt</span></code>).
+This option is ignored when <code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code> is true.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code></p>
+<p>Format: Boolean (default: false)</p>
+<p>Description: Whether to write the contents of <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> into a single combined file <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code> instead of separate per-process files.
+Use the <code class="docutils literal notranslate"><span class="pre">odatse_extract_combined</span></code> tool to extract the individual files from the combined file (see <a class="reference internal" href="../post/tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a>).</p>
 </li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>For developers</strong>: Setting the environment variable <code class="docutils literal notranslate"><span class="pre">ODATSE_USE_MPI_BUFFERED=1</span></code> switches the MPI communication used for collecting replica data from object-based (<code class="docutils literal notranslate"><span class="pre">gather</span></code>) to buffer-based (<code class="docutils literal notranslate"><span class="pre">Gather</span></code>).
+It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.</p>
+</div>
 </section>
 </section>
 <section id="reference-file">
-<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">¶</a></h2>
+<h2>Reference file<a class="headerlink" href="#reference-file" title="Link to this heading">#</a></h2>
 <section id="mesh-definition-file">
-<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Link to this heading">¶</a></h3>
+<h3>Mesh definition file<a class="headerlink" href="#mesh-definition-file" title="Link to this heading">#</a></h3>
 <p>Define the grid space to be explored in this file.
 The first column is the index of the mesh, and the second and subsequent columns are the values of variables.
 Note that the index of the mesh will be ignored for this “algorithm”.</p>
@@ -186,10 +685,10 @@ Note that the index of the mesh will be ignored for this “algorithm”.</p>
 </div>
 </section>
 <section id="neighborhood-list-file">
-<h3>Neighborhood-list file<a class="headerlink" href="#neighborhood-list-file" title="Link to this heading">¶</a></h3>
-<p>Before searching in the discrete space by Markov Chain Monte Carlo method,
-we should define “neighborhoods” for each point <span class="math notranslate nohighlight">\(i\)</span>, which are points that a walker can move from <span class="math notranslate nohighlight">\(i\)</span>
-A neighborhood-list file defines the list of neighborhoods.
+<h3>Neighborhood-list file<a class="headerlink" href="#neighborhood-list-file" title="Link to this heading">#</a></h3>
+<p>Before searching a discrete space by the Markov chain Monte Carlo method,
+the “neighborhood” of each point <span class="math notranslate nohighlight">\(i\)</span> must be defined, i.e. the points to which a walker can move from <span class="math notranslate nohighlight">\(i\)</span>.
+A neighborhood-list file defines these neighborhoods.
 In this file, the index of an initial point <span class="math notranslate nohighlight">\(i\)</span> is specified by the first column,
 and the indices of final points <span class="math notranslate nohighlight">\(j\)</span> are specified by the second and successive columns.</p>
 <p>An utility tool, <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> is available for generating a neighborhood-list file from a mesh file. For details, please see <a class="reference internal" href="../tool.html"><span class="doc">Related Tools</span></a>.</p>
@@ -205,9 +704,9 @@ and the indices of final points <span class="math notranslate nohighlight">\(j\)
 </section>
 </section>
 <section id="output-files">
-<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">¶</a></h2>
+<h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">#</a></h2>
 <section id="rank-trial-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Link to this heading">#</a></h3>
 <p>This file stores the suggested parameters and the corresponding value returned from the solver for each replica.
 The first column is the index of the MC step.
 The second column is the index of the walker in the process.
@@ -224,7 +723,7 @@ The remaining columns are the coordinates.</p>
 </div>
 </section>
 <section id="rank-result-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Link to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Link to this heading">#</a></h3>
 <p>This file stores the sampled parameters and the corresponding value returned from the solver for each replica.
 This has the same format as <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
@@ -236,11 +735,12 @@ This has the same format as <code class="docutils literal notranslate"><span cla
 </div>
 </section>
 <section id="best-result-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="Link to this heading">¶</a></h3>
-<p>The optimal value of the solver and the corresponding parameter among the all samples.</p>
+<h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="Link to this heading">#</a></h3>
+<p>The optimal value of the solver and the corresponding parameter among all the samples.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">rank</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">step</span> <span class="o">=</span> <span class="mi">65</span>
+<span class="n">walker</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">fx</span> <span class="o">=</span> <span class="mf">0.008233957976993406</span>
 <span class="n">z1</span> <span class="o">=</span> <span class="mf">4.221129370933539</span>
 <span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
@@ -248,8 +748,8 @@ This has the same format as <code class="docutils literal notranslate"><span cla
 </div>
 </section>
 <section id="result-t-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code><a class="headerlink" href="#result-t-txt" title="Link to this heading">¶</a></h3>
-<p>This file stores samples for each temperature ( <code class="docutils literal notranslate"><span class="pre">#</span></code> is replaced with the index of temperature ).
+<h3><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code><a class="headerlink" href="#result-t-txt" title="Link to this heading">#</a></h3>
+<p>This file stores samples for each temperature (<code class="docutils literal notranslate"><span class="pre">#</span></code> is replaced with the index of the temperature).
 The first column is the index of the MC step.
 The second column is the index of the walker.
 The third column is the value of the solver.
@@ -263,12 +763,12 @@ The remaining columns are the coordinates.</p>
 </div>
 </section>
 <section id="fx-txt">
-<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Link to this heading">¶</a></h3>
-<p>This file stores statistical metrics over the all replicas for each temperature.
-The first column is inverse temperature.
-The second and third column are the expectation value and the standard error of the solver’s output (<span class="math notranslate nohighlight">\(f(x)\)</span>), respectively.
+<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Link to this heading">#</a></h3>
+<p>This file stores statistical metrics over all the replicas for each temperature.
+The first column is the inverse temperature.
+The second and third columns are the expectation value and the standard error of the solver’s output (<span class="math notranslate nohighlight">\(f(x)\)</span>), respectively.
 The fourth column is the number of replicas.
-The fifth column is the logarithmic of the ratio between the normalization factors (partition functions)</p>
+The fifth column is the logarithm of the ratio between the normalization factors (partition functions)</p>
 <div class="math notranslate nohighlight">
 \[\log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\beta_0\)</span> is the minimum value of <span class="math notranslate nohighlight">\(\beta\)</span> used in the calculation.
@@ -289,16 +789,16 @@ The sixth column is the acceptance ratio of MC updates.</p>
 </section>
 </section>
 <section id="restart">
-<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">¶</a></h2>
+<h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">#</a></h2>
 <p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
 The operation of each mode is described as follows.
 The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
 <p>The program is started from the initialized state.
-If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:</p>
+If the checkpointing is enabled, the intermediate states will be stored on the following occasions:</p>
 <ol class="arabic simple">
-<li><p>the specified number of steps has been done, or the specified period of time has passed.</p></li>
+<li><p>the specified number of steps has been performed, or the specified period of time has passed.</p></li>
 <li><p>at the end of the execution.</p></li>
 </ol>
 </li>
@@ -314,50 +814,50 @@ The value of <code class="docutils literal notranslate"><span class="pre">numste
 </ul>
 </section>
 <section id="algorithm">
-<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">¶</a></h2>
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading">#</a></h2>
 <section id="markov-chain-monte-carlo">
-<h3>Markov chain Monte Carlo<a class="headerlink" href="#markov-chain-monte-carlo" title="Link to this heading">¶</a></h3>
+<h3>Markov chain Monte Carlo<a class="headerlink" href="#markov-chain-monte-carlo" title="Link to this heading">#</a></h3>
 <p>The Markov chain Monte Carlo (MCMC) sampling explores the parameter space by moving walkers <span class="math notranslate nohighlight">\(\vec{x}\)</span> stochastically according to the weight function <span class="math notranslate nohighlight">\(W(\vec{x})\)</span>.
 For the weight function, the Boltzmann factor <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> is generally adopted, where <span class="math notranslate nohighlight">\(T&gt;0\)</span> is the “temperature.”
-It is impossible in the many cases, unfortunately, to sample walkers according to <span class="math notranslate nohighlight">\(W\)</span> directly.
-Insteadly, the MCMC method moves walkers slightly and generates a time series <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> such that the distribution of the walkers obeys <span class="math notranslate nohighlight">\(W\)</span> .
-Let us call the transision probability from <span class="math notranslate nohighlight">\(\vec{x}\)</span> to <span class="math notranslate nohighlight">\(\vec{x}'\)</span> as <span class="math notranslate nohighlight">\(p(\vec{x}' | \vec{x})\)</span>.
+Unfortunately, in many cases it is impossible to sample walkers directly according to <span class="math notranslate nohighlight">\(W\)</span>.
+Instead, the MCMC method moves walkers by small steps and generates a time series <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> such that the distribution of the walkers obeys <span class="math notranslate nohighlight">\(W\)</span> .
+Let us denote the transition probability from <span class="math notranslate nohighlight">\(\vec{x}\)</span> to <span class="math notranslate nohighlight">\(\vec{x}'\)</span> by <span class="math notranslate nohighlight">\(p(\vec{x}' | \vec{x})\)</span>.
 When <span class="math notranslate nohighlight">\(p\)</span> is determined by the following condition (“the balance condition”)</p>
 <div class="math notranslate nohighlight">
 \[W(\vec{x}') = \sum_{\vec{x}} p(\vec{x}' | \vec{x}) W(\vec{x}),\]</div>
-<p>the distribution of the generated time series <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> will converges to <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> <a class="footnote-reference brackets" href="#mcmc-condition" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+<p>the distribution of the generated time series <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> will converge to <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> <a class="footnote-reference brackets" href="#mcmc-condition" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
 Practically, the stronger condition (“the detailed balance condition”)</p>
 <div class="math notranslate nohighlight">
 \[p(\vec{x} | \vec{x}') W(\vec{x}') =  W(\vec{x})p(\vec{x}' | \vec{x})\]</div>
 <p>is usually imposed.
-The detailed balance condition returns to the balance condition by taking the summation of <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
-<p>ODAT-SE adopts the Metropolis-Hasting (MH) method for solving the detailed balance condition.
-The MH method splits the transition process into the suggestion process and the acceptance process.</p>
+The detailed balance condition reduces to the balance condition when summed over <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
+<p>ODAT-SE adopts the Metropolis-Hastings (MH) method for solving the detailed balance condition.
+The MH method splits the transition process into the proposal process and the acceptance process.</p>
 <ol class="arabic simple">
-<li><p>Generate a candidate <span class="math notranslate nohighlight">\(\vec{x}\)</span> with the suggestion probability <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t)\)</span>.</p>
+<li><p>Generate a candidate <span class="math notranslate nohighlight">\(\vec{x}\)</span> with the proposal probability <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t)\)</span>.</p>
 <ul class="simple">
-<li><p>As <span class="math notranslate nohighlight">\(P\)</span>, use a simple distribution such as the normal distribution with centered at x.</p></li>
+<li><p>As <span class="math notranslate nohighlight">\(P\)</span>, use a simple distribution such as a normal distribution centered at <span class="math notranslate nohighlight">\(\vec{x}_t\)</span>.</p></li>
 </ul>
 </li>
 <li><p>Accept the candidate <span class="math notranslate nohighlight">\(\vec{x}\)</span> with the acceptance probability <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span>.</p>
 <ul class="simple">
-<li><p>If accepted, let <span class="math notranslate nohighlight">\(\vec{x}_{t+1}\)</span> be <cite>vec{x}</cite>.</p></li>
-<li><p>Otherwise, let <span class="math notranslate nohighlight">\(\vec{x}_{t+1}\)</span> be <cite>vec{x}_t</cite>.</p></li>
+<li><p>If accepted, let <span class="math notranslate nohighlight">\(\vec{x}_{t+1}\)</span> be <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p></li>
+<li><p>Otherwise, let <span class="math notranslate nohighlight">\(\vec{x}_{t+1}\)</span> be <span class="math notranslate nohighlight">\(\vec{x}_t\)</span>.</p></li>
 </ul>
 </li>
 </ol>
-<p>The whole transision probability is the product of these two ones, <span class="math notranslate nohighlight">\(p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)\)</span>.
+<p>The whole transition probability is the product of these two, <span class="math notranslate nohighlight">\(p(\vec{x} | \vec{x_t}) = P(\vec{x} | \vec{x}_t) Q(\vec{x} | \vec{x}_t)\)</span>.
 The acceptance probability <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span> is defined as</p>
 <div class="math notranslate nohighlight">
 \[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x} | \vec{x}_t)} \right].\]</div>
 <p>It is easy to verify that the detailed balance condition is satisfied by substituting it into the detailed balance condition equation.</p>
-<p>When adopting the Boltzmann factor for the weight and a symmetry distribution
-<span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> for the suggestion probability,
-the acceptance probability <span class="math notranslate nohighlight">\(Q\)</span> will be the following simple form:</p>
+<p>When adopting the Boltzmann factor for the weight and a symmetric distribution
+<span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> for the proposal probability,
+the acceptance probability <span class="math notranslate nohighlight">\(Q\)</span> takes the following simple form:</p>
 <div class="math notranslate nohighlight">
 \[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})}{W(\vec{x}_t)} \right]
                        = \min\left[1, \exp\left(-\frac{f(\vec{x}) - f(\vec{x}_t)}{T}\right) \right].\]</div>
-<p>By saying <span class="math notranslate nohighlight">\(\Delta f = f(\vec{x}) - f(\vec{x}_t)\)</span> and using the fact <span class="math notranslate nohighlight">\(Q=1\)</span> for <span class="math notranslate nohighlight">\(\Delta f \le 0\)</span>,
+<p>By defining <span class="math notranslate nohighlight">\(\Delta f = f(\vec{x}) - f(\vec{x}_t)\)</span> and using the fact <span class="math notranslate nohighlight">\(Q=1\)</span> for <span class="math notranslate nohighlight">\(\Delta f \le 0\)</span>,
 the procedure of MCMC with the MH algorithm is the following:</p>
 <ol class="arabic simple">
 <li><p>Choose a candidate from near the current position and calculate <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(\Delta f\)</span>.</p></li>
@@ -366,33 +866,33 @@ the procedure of MCMC with the MH algorithm is the following:</p>
 <li><p>Repeat 1-3.</p></li>
 </ol>
 <p>The solution is given as the point giving the minimum value of <span class="math notranslate nohighlight">\(f(\vec{x})\)</span>.
-The third process of the above procedure endures that walkers can climb over the hill with a height of <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span>, the MCMC sampling can escape from local minima.</p>
+The third process of the above procedure ensures that walkers can climb over hills of height <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span>, so that the MCMC sampling can escape from local minima.</p>
 </section>
 <section id="replica-exchange-monte-carlo">
-<h3>Replica exchange Monte Carlo<a class="headerlink" href="#replica-exchange-monte-carlo" title="Link to this heading">¶</a></h3>
-<p>The “temperature” <span class="math notranslate nohighlight">\(T\)</span> is one of the most important hyper parameters in the MCMC sampling.
-The MCMC sampling can climb over the hill with a height of <span class="math notranslate nohighlight">\(T\)</span> but cannot easily escape from the deeper valley than <span class="math notranslate nohighlight">\(T\)</span>.
-It is why we should increase the temperature in order to avoid stuck to local minima.
-On the other hand, since walkers cannot see the smaller valleys than <span class="math notranslate nohighlight">\(T\)</span>, the precision of the obtained result <span class="math notranslate nohighlight">\(\min f(\vec{x})\)</span> becomes about <span class="math notranslate nohighlight">\(T\)</span>, and it is necessary to decrease the temperature in order to achieve more precise result.
-This dilemma leads us that we should tune the temperature carefully.</p>
-<p>One of the ways to overcome this problem is to update temperature too.
-For example, simulated annealing decreases temperature as the iteration goes.
+<h3>Replica exchange Monte Carlo<a class="headerlink" href="#replica-exchange-monte-carlo" title="Link to this heading">#</a></h3>
+<p>The “temperature” <span class="math notranslate nohighlight">\(T\)</span> is one of the most important hyperparameters in the MCMC sampling.
+The MCMC sampling can climb over hills of height <span class="math notranslate nohighlight">\(T\)</span> but cannot easily escape from valleys deeper than <span class="math notranslate nohighlight">\(T\)</span>.
+This is why the temperature should be increased in order to avoid getting stuck in local minima.
+On the other hand, since walkers cannot resolve valleys smaller than <span class="math notranslate nohighlight">\(T\)</span>, the precision of the obtained result <span class="math notranslate nohighlight">\(\min f(\vec{x})\)</span> becomes about <span class="math notranslate nohighlight">\(T\)</span>, and it is necessary to decrease the temperature in order to achieve a more precise result.
+This dilemma means that the temperature must be tuned carefully.</p>
+<p>One way to overcome this problem is to update the temperature as well.
+For example, simulated annealing decreases the temperature as the iterations proceed.
 Another algorithm, simulated tempering, treats temperature as another parameter to be sampled, not a fixed hyper parameter,
-and update temperature after some iterations according to the (detailed) balance condition.
+and updates the temperature after some iterations according to the (detailed) balance condition.
 Simulated tempering studies the details of a valley by cooling and escapes from a valley by heating.
-Replica exchange Monte Carlo (RXMC), also known as parallel tempering, is a parallelized version of the simulated tempering.
-In this algorithm, several copies of a system with different temperature, called as replicas, will be simulated in parallel.
+Replica exchange Monte Carlo (RXMC), also known as parallel tempering, is a parallelized version of simulated tempering.
+In this algorithm, several copies of the system at different temperatures, called replicas, are simulated in parallel.
 Then, with some interval of steps, each replica exchanges temperature with another one according to the (detailed) balance condition.
 As the simulated tempering does, RXMC can observe the details of a valley and escape from it by cooling and heating.
 Moreover, because each temperature is assigned to just one replica, the temperature distribution will not be biased.
 Using more replicas narrows the temperature interval, and increases the acceptance ratio of the temperature exchange.
-This is why this algorithm suits for the massively parallel calculation.</p>
+This is why this algorithm is well suited to massively parallel calculations.</p>
 <p>It is recommended that users perform <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> optimization starting from the result of <code class="docutils literal notranslate"><span class="pre">exchange</span></code>, because the RXMC result has uncertainty due to temperature.</p>
 <p class="rubric">footnote</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="mcmc-condition" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>To be precisely, the non-periodicality and the ergodicity are necessary for convergence.</p>
+<p>To be precise, aperiodicity and ergodicity are necessary for convergence.</p>
 </aside>
 </aside>
 </section>
@@ -400,22 +900,135 @@ This is why this algorithm suits for the massively parallel calculation.</p>
 </section>
 
 
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ttopt.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tensor Train Optimization <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p>
       </div>
-      <div class="bottomnav" role="navigation" aria-label="Bottom">
-      
-        <p>
-        «&#160;&#160;<a href="mapper_mpi.html">Direct parallel search <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a>
-        &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="pamc.html">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a>&#160;&#160;»
-        </p>
-
+    </a>
+    <a class="right-next"
+       href="pamc.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Population Annealing Monte Carlo <code class="docutils literal notranslate"><span class="pre">pamc</span></code></p>
       </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-    <div class="footer" role="contentinfo">
-    &#169; Copyright 2020, Institute for Solid State Physics, University of Tokyo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparation">Preparation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-parameters">Input parameters</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-param"><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-exchange"><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-file">Reference file</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mesh-definition-file">Mesh definition file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#neighborhood-list-file">Neighborhood-list file</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-files">Output files</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rank-trial-txt"><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rank-result-txt"><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-result-txt"><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#result-t-txt"><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fx-txt"><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#restart">Restart</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm">Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chain-monte-carlo">Markov chain Monte Carlo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#replica-exchange-monte-carlo">Replica exchange Monte Carlo</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
     </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
   </body>
 </html>
