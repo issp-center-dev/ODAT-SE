@@ -16,33 +16,37 @@ In the future, we plan to add other direct problem solvers and search algorithms
 | [main][source/main] (latest, stable) | [![main][ci/main/badge]][ci/main/uri] |        [![doc_en][doc/en/badge]][doc/main/en/uri] [![doc_ja][doc/ja/badge]][doc/main/ja/uri]        |
 <!-- | [develop][source/develop] (latest, unstable) |                     --                      | [![doc_en][doc/en/badge]][doc/develop/en/uri] [![doc_ja][doc/ja/badge]][doc/develop/ja/uri] | -->
 
-## odat-se
+## odatse
 
-`odat-se` is a python framework library for solving inverse problems.
-It also offers a driver script to solve the problem with predefined optimization algorithms and direct problem solvers. (`odat-se` also stands for the name of the script.)
+`odatse` is a python framework library for solving inverse problems.
+It also offers a driver script to solve the problem with predefined optimization algorithms and direct problem solvers. (`odatse` also stands for the name of the script.)
 
-### Prerequists
+### Prerequisites
 
 - Required
   - python >= 3.9
   - numpy >= 1.14
-  - tomli >= 1.2.0
+  - matplotlib >= 3
+  - tomli >= 1.2 (for Python < 3.11)
 - Optional
   - scipy
-    - for `minsearch` algorithm
-  - mpi4py
-    - for `exchange` algorithm
+    - for `minsearch` and `global_search` algorithms
+  - mpi4py >= 3.1
+    - for MPI-parallel algorithms such as `exchange` and `pamc`
   - physbo >= 2.0
     - for `bayes` algorithm
+  - tqdm
+    - for progress display
 
 ### Install
 
 - From PyPI (Recommended)
   - `python3 -m pip install -U ODAT-SE`
     - If you install them locally, use `--user` option like `python3 -m pip install -U --user`
+    - To install all the optional dependencies at once, use `python3 -m pip install -U "ODAT-SE[all]"`
 - From Source (For developers)
   1. update `pip >= 19` by `python3 -m pip install -U pip`
-  2. `python3 -m pip install ODAT_SE_ROOT_DIRECTORY` to install `odatse` package and `odat-se` command
+  2. `python3 -m pip install ODAT_SE_ROOT_DIRECTORY` to install `odatse` package and `odatse` command
       - `ODAT_SE_ROOT_DIRECTORY` means the directory including this `README.md` file.
 
 ### Simple Usage
