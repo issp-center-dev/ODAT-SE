@@ -5,6 +5,7 @@ Global optimization ``global_search``
 .. _scipy.optimize.differential_evolution: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html
 .. _scipy.optimize.shgo: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html
 .. _scipy.optimize.direct: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html
+.. _scipy.optimize.dual_annealing: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.dual_annealing.html
 
 ``global_search`` minimizes :math:`f(x)` using the global optimization
 routines of scipy.optimize.
@@ -24,6 +25,10 @@ The following methods are currently available:
   a deterministic method that partitions the search region into
   hyperrectangles and preferentially subdivides those that are promising
   and large. It uses no random numbers and is fully reproducible.
+- dual annealing (`scipy.optimize.dual_annealing`_):
+  a stochastic method based on generalized simulated annealing (GSA),
+  combining an annealing-driven global search with local optimizations
+  started from accepted points.
 
 The search region is defined by ``min_list`` / ``max_list`` of
 ``[algorithm.param]`` and passed as the ``bounds`` argument of scipy.
@@ -51,9 +56,9 @@ stage (``polish``), which is enabled by default.
 The local refinements of shgo (its internal local optimizations) run serially
 on rank 0.
 
-direct does not support parallel evaluation and runs serially on rank 0
-(the other ranks stay idle; the solver-side parallelism ``nsolve`` within
-each point remains effective).
+direct and dual annealing do not support parallel evaluation and run
+serially on rank 0 (the other ranks stay idle; the solver-side parallelism
+``nsolve`` within each point remains effective).
 
 Preparation
 ~~~~~~~~~~~
@@ -111,7 +116,8 @@ be set.
 
   Description: Name of the optimization method (case-insensitive).
   "DE" or "differential_evolution" selects differential evolution;
-  "shgo" selects shgo; "direct" selects direct.
+  "shgo" selects shgo; "direct" selects direct; "dual_annealing" selects
+  dual annealing.
 
 - other parameters
 
@@ -130,6 +136,14 @@ be set.
   - direct: ``maxfun``, ``maxiter``, ``eps``, ``locally_biased``,
     ``len_tol``, ``vol_tol``, ... direct is also deterministic and does
     not use random numbers.
+  - dual annealing: ``maxiter``, ``maxfun``, ``initial_temp``,
+    ``restart_temp_ratio``, ``visit``, ``accept``, ``no_local_search``,
+    ``x0``, ... The sub-table
+    ``[algorithm.global_search.minimizer_kwargs]`` is passed as the
+    ``minimizer_kwargs`` argument of the local optimizations
+    (scipy >= 1.8; older versions name this argument
+    ``local_search_options``). The random
+    numbers are initialized from ``seed`` in the ``[algorithm]`` section.
 
 Example:
 
@@ -165,6 +179,12 @@ Remarks
 - direct requires scipy >= 1.9. Since its refinement near the optimum is
   slow, a useful workflow is to locate the basin with direct and then
   refine with minsearch.
+- By default, dual annealing runs local optimizations (L-BFGS-B) during
+  the annealing. Their gradients are evaluated by numerical
+  differentiation, so the number of evaluations can grow large when solver
+  evaluations are expensive. Setting ``no_local_search = true`` turns it
+  into classical simulated annealing without local optimizations.
+  ``maxfun`` (default: 1e7) limits the total number of evaluations.
 - Constraints given by ``[runner.limitation]`` are handled by treating the
   objective function value of violating points as infinity.
 - Restarting (checkpointing) is not supported (see the "Restart" section below).
@@ -172,8 +192,8 @@ Remarks
 Output files
 ~~~~~~~~~~~~~~~~~
 
-``GenerationData.txt`` / ``IterationData.txt``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``GenerationData.txt`` / ``IterationData.txt`` / ``MinimumData.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Records the best point of each iteration (rank 0 only).
 For differential evolution, ``GenerationData.txt`` contains the generation
@@ -182,6 +202,11 @@ objective function, and the convergence measure, in that order.
 For shgo and direct, ``IterationData.txt`` contains the iteration number,
 the values of the variables of the best point, and the value of the
 objective function.
+For dual annealing, a row is appended to ``MinimumData.txt`` each time a
+better minimum is found, containing the index, the values of the
+variables, the value of the objective function, and the context (0: found
+during annealing, 1: found during a local search, 2: found in the dual
+annealing process), in that order.
 
 ``LocalMinimaData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -202,6 +202,112 @@ def test_direct_unknown_param_raises(tmp_path, monkeypatch):
                            run=False)
 
 
+def test_dual_annealing_converges(tmp_path, monkeypatch):
+    """dual_annealing finds the minimum of a quadratic function. Like
+    direct it runs entirely on rank 0; under MPI the other ranks stay idle
+    but still receive the broadcast result."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record,
+        global_search_params={"method": "dual_annealing", "maxiter": 20,
+                              "maxfun": 2000})
+    assert alg.method == "dual_annealing"
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+    assert alg.fopt < 1e-4
+    if odatse.mpi.algrank() == 0:
+        assert len(alg.iter_history) > 0
+        files = list(tmp_path.glob("**/MinimumData.txt"))
+        assert len(files) == 1
+        # exact writer contract: header line with the labels, then one
+        # space-separated str()-formatted row per recorded minimum
+        expected = "#no {} R-factor context\n".format(" ".join(alg.label_list))
+        expected += "".join(" ".join(map(str, row)) + "\n"
+                            for row in alg.iter_history)
+        assert files[0].read_text() == expected
+        # rows are [index, *x, f, context], numbered from 0, with the
+        # context an integer in {0, 1, 2}
+        for i, row in enumerate(alg.iter_history):
+            assert len(row) == 3 + len(alg.label_list)
+            assert row[0] == i
+            assert row[-1] in (0, 1, 2)
+        content = (tmp_path / "output" / "res.txt").read_text()
+        assert content.startswith("fx = ")
+        assert "None" not in content
+
+
+def test_dual_annealing_multimodal(tmp_path, monkeypatch):
+    """dual_annealing reaches the global minimum of the double-well
+    function."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+
+    def double_well(x):
+        record.append(np.array(x, copy=True))
+        return float(((x[0] ** 2 - 4) ** 2) / 8.0 + 0.5 * x[0] - 2.0 + x[1] ** 2)
+
+    alg = _run_global_search(
+        tmp_path, unit_list=[1.0, 1.0], record=record, fn=double_well,
+        global_search_params={"method": "dual_annealing", "maxiter": 50,
+                              "maxfun": 4000})
+    assert alg.fopt < -2.0
+    assert alg.xopt[0] < 0.0
+
+
+def test_dual_annealing_unknown_param_raises(tmp_path, monkeypatch):
+    """fail-fast also applies to the dual_annealing argument list."""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match="dual_annealing"):
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           global_search_params={"method": "dual_annealing",
+                                                 "no_such_param": 1},
+                           run=False)
+
+
+def test_dual_annealing_runtime_error_propagates(tmp_path, monkeypatch):
+    """An exception raised by the objective while dual_annealing runs on
+    rank 0 must propagate instead of hanging: the MSG_ABORT broadcast in
+    _run releases the other algorithm ranks from the evaluation-server
+    loop. Under MPI those ranks exit silently with SystemExit(0), like in
+    test_runtime_typeerror_propagates."""
+    monkeypatch.chdir(tmp_path)
+    calls = [0]
+
+    def broken(x):
+        calls[0] += 1
+        if calls[0] > 5:
+            raise TypeError("broken objective")
+        return float(np.sum(x * x))
+
+    if odatse.mpi.algrank() == 0:
+        # rank 0 drives the optimizer and evaluates every point itself, so
+        # the objective's TypeError must propagate here (possibly wrapped),
+        # never a silent exit
+        with pytest.raises((TypeError, RuntimeError)) as excinfo:
+            _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                               fn=broken,
+                               global_search_params={
+                                   "method": "dual_annealing",
+                                   "maxiter": 5, "maxfun": 500})
+        # the original TypeError must be preserved in the exception chain
+        chain, e = [], excinfo.value
+        while e is not None:
+            chain.append(e)
+            e = e.__cause__
+        assert any(isinstance(c, TypeError) and "broken objective" in str(c)
+                   for c in chain)
+    else:
+        # the idle ranks must be released by the MSG_ABORT broadcast and
+        # exit silently with status 0
+        with pytest.raises(SystemExit) as excinfo:
+            _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                               fn=broken,
+                               global_search_params={
+                                   "method": "dual_annealing",
+                                   "maxiter": 5, "maxfun": 500})
+        assert excinfo.value.code == 0
+
+
 def test_method_aliases(tmp_path, monkeypatch):
     """"DE" (default), "de" and "differential_evolution" all select the DE
     routine."""
@@ -224,7 +330,8 @@ def test_unknown_method_raises(tmp_path, monkeypatch):
 def test_all_methods_recognized(tmp_path, monkeypatch):
     """Every documented method name resolves without NotImplementedError."""
     monkeypatch.chdir(tmp_path)
-    methods = [("DE", "differential_evolution"), ("shgo", "shgo")]
+    methods = [("DE", "differential_evolution"), ("shgo", "shgo"),
+               ("dual_annealing", "dual_annealing")]
     if global_search.direct is not None:
         methods.append(("direct", "direct"))
     for m, resolved in methods:

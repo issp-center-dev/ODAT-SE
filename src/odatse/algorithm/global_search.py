@@ -6,12 +6,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional, TYPE_CHECKING
+from typing import Callable, Union, Optional, TYPE_CHECKING
+from dataclasses import dataclass
 import inspect
 import time
 
 import numpy as np
-from scipy.optimize import differential_evolution, shgo
+from scipy.optimize import differential_evolution, shgo, dual_annealing
 
 try:
     from scipy.optimize import direct
@@ -25,6 +26,107 @@ if TYPE_CHECKING:
     from mpi4py import MPI
 
 
+@dataclass(frozen=True)
+class _Method:
+    """Declarative description of one scipy.optimize global routine.
+
+    All per-method differences of the algorithm live here, so that adding
+    a method amounts to adding one entry to the _METHODS table (plus tests
+    and documentation); __init__, _run and _output_results are table-driven.
+    """
+
+    # the scipy routine, or None when the installed scipy does not provide
+    # it; requires then names the requirement reported to the user
+    func: Optional[Callable]
+    requires: Optional[str]
+    # accepted method names besides the canonical one (case-insensitive)
+    aliases: tuple
+    # whether the routine takes random numbers, passed as seed=self.rng:
+    # the seed path accepts a RandomState across all supported scipy
+    # versions, while the new rng= argument of scipy >= 1.15 does not
+    uses_seed: bool
+    # whether candidate points can be evaluated in parallel through the
+    # workers= hook; otherwise the routine runs entirely on rank 0 and the
+    # other algorithm ranks stay idle
+    supports_workers: bool
+    # per-iteration callback signature: "xk" for callback(xk[, convergence])
+    # (the old-style signature supported by every scipy version in the
+    # supported range), "x_f_context" for callback(x, f, context) invoked
+    # on every new best minimum (dual_annealing)
+    callback_style: str
+    # ODAT-SE defaults for the routine; user-specified values take precedence
+    defaults: dict
+    # iteration-history output file and its header ({} receives the labels)
+    iter_file: str
+    iter_header: str
+
+
+_METHODS = {
+    "differential_evolution": _Method(
+        func=differential_evolution,
+        requires=None,
+        aliases=("de",),
+        uses_seed=True,
+        supports_workers=True,
+        callback_style="xk",
+        # deferred updating evaluates a whole generation at a time, which
+        # the parallel evaluation requires; it is also scipy's own
+        # fallback when workers is set, so make it the default to keep
+        # serial and parallel runs identical
+        defaults={"updating": "deferred"},
+        iter_file="GenerationData.txt",
+        iter_header="#gen {} R-factor convergence\n",
+    ),
+    "shgo": _Method(
+        func=shgo,
+        requires=None,
+        aliases=(),
+        # deterministic; workers parallelizes the sampling-phase
+        # evaluations (scipy >= 1.11), while the local refinements run
+        # serially on rank 0
+        uses_seed=False,
+        supports_workers=True,
+        callback_style="xk",
+        defaults={},
+        iter_file="IterationData.txt",
+        iter_header="#iter {} R-factor\n",
+    ),
+    "direct": _Method(
+        func=direct,
+        requires="scipy >= 1.9",
+        aliases=(),
+        # deterministic and strictly sequential
+        uses_seed=False,
+        supports_workers=False,
+        callback_style="xk",
+        defaults={},
+        iter_file="IterationData.txt",
+        iter_header="#iter {} R-factor\n",
+    ),
+    "dual_annealing": _Method(
+        func=dual_annealing,
+        requires=None,
+        aliases=(),
+        # a single sequential annealing chain
+        uses_seed=True,
+        supports_workers=False,
+        callback_style="x_f_context",
+        defaults={},
+        # rows are recorded when a new best minimum is found, not per
+        # iteration
+        iter_file="MinimumData.txt",
+        iter_header="#no {} R-factor context\n",
+    ),
+}
+
+# method name (case-insensitive) -> canonical method name
+_METHOD_ALIASES = {
+    alias: name
+    for name, m in _METHODS.items()
+    for alias in (name,) + m.aliases
+}
+
+
 class Algorithm(odatse.algorithm.AlgorithmBase):
     """
     Algorithm class for global optimization using scipy.optimize routines.
@@ -35,6 +137,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     * "DE" / "differential_evolution": scipy.optimize.differential_evolution
     * "shgo": scipy.optimize.shgo
     * "direct": scipy.optimize.direct
+    * "dual_annealing": scipy.optimize.dual_annealing
+
+    The per-method differences (aliases, seed and workers handling,
+    callback signature, defaults, output files) are described by the
+    module-level _METHODS table.
 
     All other entries of the section are passed verbatim as arguments of the
     selected scipy routine; argument names the routine does not accept abort
@@ -46,19 +153,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     a time) to all algorithm ranks; the other ranks run an evaluation-server
     loop, evaluating their share of the points with their own solver group.
     This composes with solver-side parallelism (``nsolve``): the total
-    parallelism is algsize (points) x nsolve (per point).
+    parallelism is algsize (points) x nsolve (per point). The direct and
+    dual_annealing methods do not support parallel evaluation and run
+    entirely on rank 0.
     """
-
-    # method name aliases (case-insensitive) -> scipy routine name
-    _METHOD_ALIASES = {
-        "de": "differential_evolution",
-        "differential_evolution": "differential_evolution",
-        "shgo": "shgo",
-        "direct": "direct",
-    }
-
-    # methods implemented so far
-    _IMPLEMENTED = {"differential_evolution", "shgo", "direct"}
 
     # arguments of the scipy routines managed by ODAT-SE itself; rejected if
     # the user sets them in [algorithm.global_search]
@@ -75,6 +173,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # optimization method and its parameters
     method: str
+    _method: _Method
     opt_params: dict
 
     # results
@@ -126,20 +225,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         method = str(info_gs.get("method", "DE"))
         key = method.lower()
-        if key not in self._METHOD_ALIASES:
+        if key not in _METHOD_ALIASES:
+            available = ", ".join(
+                "{} ({})".format(m.aliases[0], name) if m.aliases else name
+                for name, m in _METHODS.items())
             raise ValueError(
                 f"algorithm.global_search.method '{method}' is unknown; "
-                f"available: DE (differential_evolution), shgo, direct"
+                f"available: {available}"
             )
-        self.method = self._METHOD_ALIASES[key]
-        if self.method not in self._IMPLEMENTED:
-            raise NotImplementedError(
-                f"algorithm.global_search.method '{method}' is not implemented yet; "
-                f"currently implemented: DE (differential_evolution), shgo, direct"
-            )
-        if self.method == "direct" and direct is None:
+        self.method = _METHOD_ALIASES[key]
+        self._method = _METHODS[self.method]
+        if self._method.func is None:
             raise RuntimeError(
-                "algorithm.global_search.method 'direct' requires scipy >= 1.9"
+                "algorithm.global_search.method '{}' requires {}".format(
+                    method, self._method.requires)
             )
 
         # forward all remaining entries verbatim as arguments of the scipy
@@ -155,12 +254,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # scipy before anything runs, instead of catching TypeError around
         # the optimizer call: a TypeError raised at runtime (by the solver,
         # a callback, ...) must not be misreported as an input-file mistake
-        scipy_func = {
-            "differential_evolution": differential_evolution,
-            "shgo": shgo,
-            "direct": direct,
-        }[self.method]
-        accepted = set(inspect.signature(scipy_func).parameters)
+        accepted = set(inspect.signature(self._method.func).parameters)
         unknown = set(self.opt_params) - accepted
         if unknown:
             raise ValueError(
@@ -326,70 +420,56 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             print("iteration {}: best x={}, fun={}".format(len(iter_history), xk, fun))
             iter_history.append(row)
 
+        def _cb_da(x, f, context):
+            """
+            Callback for dual_annealing, invoked each time a new best
+            minimum is found, as (x, f, context) with context 0 (found
+            during annealing), 1 (found during local search) or 2 (found
+            in the dual annealing process). f comes with the callback, so
+            no f_cache lookup is needed.
+            """
+            row = [len(iter_history), *x, float(f), int(context)]
+            print("minimum {}: x={}, fun={}, context={}".format(
+                len(iter_history), x, f, context))
+            iter_history.append(row)
+
+        m = self._method
         params = dict(self.opt_params)
-        if self.method == "differential_evolution":
-            # deferred updating evaluates a whole generation at a time, which
-            # the parallel evaluation requires; it is also scipy's own
-            # fallback when workers is set, so make it the default to keep
-            # serial and parallel runs identical (a user-specified value
-            # still takes precedence)
-            params.setdefault("updating", "deferred")
+        for k, v in m.defaults.items():
+            params.setdefault(k, v)
 
         bounds = list(zip(min_list, max_list))
 
-        # inject the MPI map only when there are ranks to distribute to:
-        # passing workers= unconditionally would make even serial runs
-        # require a scipy version that supports the keyword (shgo gained it
-        # in 1.11). Serial DE results stay identical either way because
-        # updating='deferred' evaluates the population in the same order as
-        # the workers hook does.
-        workers_kwargs = {"workers": _workers} if nprocs > 1 else {}
+        extra_kwargs = {}
+        if m.supports_workers and nprocs > 1:
+            # inject the MPI map only when there are ranks to distribute
+            # to: passing workers= unconditionally would make even serial
+            # runs require a scipy version that supports the keyword (shgo
+            # gained it in 1.11). Serial DE results stay identical either
+            # way because updating='deferred' evaluates the population in
+            # the same order as the workers hook does.
+            extra_kwargs["workers"] = _workers
+        if m.uses_seed:
+            extra_kwargs["seed"] = self.rng
+        callback = _cb_da if m.callback_style == "x_f_context" else _cb
 
         time_sta = time.perf_counter()
         if rank == 0:
+            if not m.supports_workers and nprocs > 1:
+                print("Warning: method '{}' does not support parallel "
+                      "evaluation; algorithm ranks > 0 stay idle"
+                      .format(self.method))
             # argument names were validated against the scipy signature in
             # __init__, so a TypeError here is a genuine runtime failure and
             # propagates unchanged (issue #76)
             try:
-                if self.method == "differential_evolution":
-                    optres = differential_evolution(
-                        _f_calc,
-                        bounds,
-                        # self.rng is a RandomState; the seed path accepts
-                        # it across all supported scipy versions, while
-                        # the new rng= argument of scipy >= 1.15 does not
-                        seed=self.rng,
-                        callback=_cb,
-                        **workers_kwargs,
-                        **params,
-                    )
-                elif self.method == "shgo":
-                    # shgo is deterministic and takes no seed; workers
-                    # parallelizes the sampling-phase evaluations, while
-                    # the local refinements run serially through _f_calc
-                    optres = shgo(
-                        _f_calc,
-                        bounds,
-                        callback=_cb,
-                        **workers_kwargs,
-                        **params,
-                    )
-                elif self.method == "direct":
-                    # direct is deterministic and does not support
-                    # parallel evaluation; it runs entirely on rank 0
-                    # while the other ranks stay idle in the server loop
-                    if nprocs > 1:
-                        print("Warning: method 'direct' does not support "
-                              "parallel evaluation; algorithm ranks > 0 "
-                              "stay idle")
-                    optres = direct(
-                        _f_calc,
-                        bounds,
-                        callback=_cb,
-                        **params,
-                    )
-                else:  # pragma: no cover - guarded in __init__
-                    raise RuntimeError(f"method {self.method} not implemented")
+                optres = m.func(
+                    _f_calc,
+                    bounds,
+                    callback=callback,
+                    **extra_kwargs,
+                    **params,
+                )
             except BaseException:
                 # release the evaluation servers before propagating, so that
                 # every rank reaches the consensus collective in run()
@@ -446,12 +526,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fp.write(" ".join(map(str, v)) + "\n")
 
         if odatse.mpi.algrank() == 0:
-            if self.method == "differential_evolution":
-                iter_file, iter_header = "GenerationData.txt", "#gen {} R-factor convergence\n"
-            else:
-                iter_file, iter_header = "IterationData.txt", "#iter {} R-factor\n"
-            with open(iter_file, "w") as fp:
-                fp.write(iter_header.format(" ".join(label_list)))
+            with open(self._method.iter_file, "w") as fp:
+                fp.write(self._method.iter_header.format(" ".join(label_list)))
                 for v in self.iter_history:
                     fp.write(" ".join(map(str, v)) + "\n")
 
