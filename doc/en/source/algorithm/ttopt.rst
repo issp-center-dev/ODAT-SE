@@ -71,7 +71,7 @@ The following hyperparameters are supported:
 
   Format: Float (default: 1.001)
 
-  Description: Stopping threshold of the iterative maximum-volume submatrix search (the maxvol method described below). Values closer to 1 make the iteration continue until a stricter maximum-volume condition is reached. The default value is usually sufficient.
+  Description: Stopping threshold of the iterative maximum-volume submatrix search (the maxvol method described below). Values closer to 1 make the iteration continue until a stricter maximum-volume condition is reached; setting it to exactly 1 requires the exact maximum-volume condition. Values below 1 are not meaningful: the stopping condition can never be satisfied, so the iteration always runs up to ``maxvol_max_it``. The default value is usually sufficient.
 
 - ``maxvol_max_it``
 
