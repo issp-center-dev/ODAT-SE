@@ -1,38 +1,40 @@
-/* ODAT-SE custom theme colors - warm orange, easy on the eyes.
+/* ODAT-SE custom theme colors - haiku-inspired palette.
+ *
+ * Palette derived from the classic Sphinx "haiku" theme:
+ *   headings / accents  #0c3762 (navy)
+ *   links               #dc3c01 (orange red) -> darkened to #c53601 for AA
+ *   note / warning      pale green / pale yellow boxes
+ * The site is pinned to light mode (html_context default_mode = "light" and
+ * the theme switcher is not shown), and the same palette is assigned to
+ * html[data-theme="dark"] as a safeguard for visitors who still have a dark
+ * preference stored in localStorage.
  *
  * Color roles follow pydata-sphinx-theme semantics:
  *   --pst-color-background     page background
  *   --pst-color-on-background  background of elevated surfaces (header,
  *                              dropdowns, dialogs, admonitions, kbd, cards)
  *   --pst-color-surface        background of sunken surfaces (code blocks)
- * All text/background pairs below meet WCAG AA (>= 4.5:1).
+ * All text/background pairs below meet WCAG AA (>= 4.5:1). Where the
+ * original haiku colors fall short (link #dc3c01 on white is 4.0:1), the
+ * darkened variants #c53601 (4.9:1) and #a52d00 (7.1:1) are used.
  */
 
-/* Light mode */
-html[data-theme="light"] {
-    --pst-color-primary: #8f4d04;
-    --pst-color-primary-highlight: #6e3a00;
-    --pst-color-link: #8f4d04;
-    --pst-color-link-hover: #6e3a00;
-    --pst-color-link-higher-contrast: #6e3a00;
-
-    /* Softer background for readability */
-    --pst-color-background: #fefcf8;
-    --pst-color-on-background: #ffffff;
-    --pst-color-surface: #faf6ef;
-}
-
-/* Dark mode */
+html[data-theme="light"],
 html[data-theme="dark"] {
-    --pst-color-primary: #e8a840;
-    --pst-color-primary-highlight: #f0be60;
-    --pst-color-link: #e8a840;
-    --pst-color-link-hover: #f0be60;
-    --pst-color-link-higher-contrast: #f0be60;
+    --pst-color-primary: #0c3762;
+    --pst-color-primary-highlight: #a52d00;
+    --pst-color-secondary: #c53601;
+    --pst-color-link: #c53601;
+    --pst-color-link-hover: #a52d00;
+    --pst-color-link-higher-contrast: #a52d00;
 
-    --pst-color-background: #1e1a16;
-    --pst-color-on-background: #2a2420;
-    --pst-color-surface: #2a2420;
+    --pst-color-text-base: #333333;
+    --pst-color-heading: #0c3762;
+
+    --pst-color-background: #ffffff;
+    --pst-color-on-background: #ffffff;
+    --pst-color-surface: #eeeeee;
+    --pst-color-border: #e0e0e0;
 }
 
 /* Navbar styling - two-row layout (mode-independent) */
@@ -46,7 +48,7 @@ html[data-theme="dark"] {
     display: flex;
     justify-content: center;
     padding: 8px 0 4px 0;
-    border-bottom: 1px solid rgba(250, 243, 232, 0.2);
+    border-bottom: 1px solid #e0e0e0;
 }
 
 /* Nav row: full width, centered */
@@ -54,37 +56,46 @@ html[data-theme="dark"] {
     width: 100%;
 }
 
-.bd-header {
-    border-bottom: 2px solid #d4820a;
+/* Header: light gradient strip in the spirit of haiku's page top, with a
+   navy rule below (the theme paints the header with --pst-color-on-background,
+   so override it explicitly here) */
+html[data-theme="light"] .bd-header,
+html[data-theme="dark"] .bd-header {
+    background: linear-gradient(#f2f2f2, #ffffff) !important;
+    border-bottom: 2px solid #0c3762;
 }
 
-/* Light mode: dark brown navbar for contrast (the theme paints the header
-   with --pst-color-on-background, so override it explicitly here) */
-html[data-theme="light"] .bd-header {
-    background-color: #6b4f2e !important;
-}
-
-/* Navbar links and icons - ensure visibility on dark navbar */
+/* Navbar links and icons */
 html[data-theme="light"] .bd-header .navbar-nav .nav-link,
-html[data-theme="light"] .bd-header .nav-link {
-    color: #faf3e8 !important;
+html[data-theme="light"] .bd-header .nav-link,
+html[data-theme="dark"] .bd-header .navbar-nav .nav-link,
+html[data-theme="dark"] .bd-header .nav-link {
+    color: #0c3762 !important;
 }
 
 html[data-theme="light"] .bd-header .navbar-nav .nav-link:hover,
-html[data-theme="light"] .bd-header .nav-link:hover {
-    color: #ffd080 !important;
+html[data-theme="light"] .bd-header .nav-link:hover,
+html[data-theme="dark"] .bd-header .navbar-nav .nav-link:hover,
+html[data-theme="dark"] .bd-header .nav-link:hover {
+    color: #a52d00 !important;
 }
 
 html[data-theme="light"] .bd-header .navbar-icon-links a,
 html[data-theme="light"] .bd-header .navbar-icon-links i,
-html[data-theme="light"] .bd-header .navbar-icon-links svg {
-    color: #faf3e8 !important;
+html[data-theme="light"] .bd-header .navbar-icon-links svg,
+html[data-theme="dark"] .bd-header .navbar-icon-links a,
+html[data-theme="dark"] .bd-header .navbar-icon-links i,
+html[data-theme="dark"] .bd-header .navbar-icon-links svg {
+    color: #0c3762 !important;
 }
 
 html[data-theme="light"] .bd-header .navbar-icon-links a:hover,
 html[data-theme="light"] .bd-header .navbar-icon-links a:hover i,
-html[data-theme="light"] .bd-header .navbar-icon-links a:hover svg {
-    color: #ffd080 !important;
+html[data-theme="light"] .bd-header .navbar-icon-links a:hover svg,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover i,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover svg {
+    color: #a52d00 !important;
 }
 
 /* Hide keyboard shortcut hint (Ctrl+K) in search field */
@@ -95,55 +106,50 @@ html[data-theme="light"] .bd-header .navbar-icon-links a:hover svg {
 /* Project name / logo text (including inner .logo__title) */
 html[data-theme="light"] .bd-header .navbar-brand,
 html[data-theme="light"] .bd-header .navbar-brand .logo__title,
-html[data-theme="light"] .bd-header .navbar-brand p {
-    color: #faf3e8 !important;
+html[data-theme="light"] .bd-header .navbar-brand p,
+html[data-theme="dark"] .bd-header .navbar-brand,
+html[data-theme="dark"] .bd-header .navbar-brand .logo__title,
+html[data-theme="dark"] .bd-header .navbar-brand p {
+    color: #0c3762 !important;
 }
 
 /* "More" dropdown toggle button */
-html[data-theme="light"] .bd-header .btn.dropdown-toggle {
-    color: #faf3e8 !important;
+html[data-theme="light"] .bd-header .btn.dropdown-toggle,
+html[data-theme="dark"] .bd-header .btn.dropdown-toggle {
+    color: #0c3762 !important;
 }
 
-html[data-theme="light"] .bd-header .btn.dropdown-toggle:hover {
-    color: #ffd080 !important;
+html[data-theme="light"] .bd-header .btn.dropdown-toggle:hover,
+html[data-theme="dark"] .bd-header .btn.dropdown-toggle:hover {
+    color: #a52d00 !important;
 }
 
 /* Active/current nav link highlight (the theme puts .active/.current on the
    li.nav-item, not on the anchor) */
 html[data-theme="light"] .bd-header .navbar-nav li.nav-item.active > .nav-link,
-html[data-theme="light"] .bd-header .navbar-nav li.nav-item.current > .nav-link {
-    color: #ffd080 !important;
-    border-bottom: 2px solid #ffd080;
-}
-
+html[data-theme="light"] .bd-header .navbar-nav li.nav-item.current > .nav-link,
 html[data-theme="dark"] .bd-header .navbar-nav li.nav-item.active > .nav-link,
 html[data-theme="dark"] .bd-header .navbar-nav li.nav-item.current > .nav-link {
-    color: #e8a840 !important;
-    border-bottom: 2px solid #e8a840;
-}
-
-/* Dark mode navbar links (header background is #2a2420 via on-background) */
-html[data-theme="dark"] .bd-header .navbar-nav .nav-link {
-    color: #d4c8b8;
-}
-
-html[data-theme="dark"] .bd-header .navbar-nav .nav-link:hover {
-    color: #e8a840;
+    color: #a52d00 !important;
+    border-bottom: 2px solid #c53601;
 }
 
 /* Dropdown menu on navbar */
-html[data-theme="light"] .bd-header .dropdown-menu {
-    background-color: #6b4f2e;
-    border-color: rgba(250, 243, 232, 0.2);
+html[data-theme="light"] .bd-header .dropdown-menu,
+html[data-theme="dark"] .bd-header .dropdown-menu {
+    background-color: #ffffff;
+    border-color: #e0e0e0;
 }
 
-html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item {
-    color: #faf3e8 !important;
+html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item,
+html[data-theme="dark"] .bd-header .dropdown-menu .dropdown-item {
+    color: #0c3762 !important;
 }
 
-html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item:hover {
-    color: #ffd080 !important;
-    background-color: #553e24;
+html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item:hover,
+html[data-theme="dark"] .bd-header .dropdown-menu .dropdown-item:hover {
+    color: #a52d00 !important;
+    background-color: #eeeeee;
 }
 
 /* Sidebar active item (anchor carries .current; some levels mark the li) */
@@ -153,9 +159,9 @@ html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item:hover {
     font-weight: 600;
 }
 
-/* Headings */
+/* Headings - haiku navy */
 h1, h2, h3, h4, h5, h6 {
-    color: #6b4f2e;
+    color: #0c3762;
 }
 
 html[data-theme="dark"] h1,
@@ -164,201 +170,133 @@ html[data-theme="dark"] h3,
 html[data-theme="dark"] h4,
 html[data-theme="dark"] h5,
 html[data-theme="dark"] h6 {
-    color: #e8a840;
+    color: #0c3762;
 }
 
-/* Admonitions - clear contrast */
-html[data-theme="light"] .admonition {
-    background-color: #fdf8f0;
-    border: 1px solid #e0d0b8;
-    border-left: 4px solid #d4820a;
-    color: #3d3229;
+/* Visited links in the article body - haiku purple (6.9:1 on white) */
+.bd-article a:visited {
+    color: #551a8b;
 }
 
-html[data-theme="light"] .admonition .admonition-title {
-    background-color: #f0e4d0;
-    color: #6b4f2e;
-    font-weight: 600;
-}
-
-html[data-theme="light"] .admonition.note {
-    border-left-color: #d4820a;
-}
-
-html[data-theme="light"] .admonition.note .admonition-title {
-    background-color: #f5e8d4;
-}
-
-html[data-theme="light"] .admonition.tip {
-    border-left-color: #7aad3a;
-}
-
-html[data-theme="light"] .admonition.tip .admonition-title {
-    background-color: #edf5e0;
-    color: #3d6b1e;
-}
-
-html[data-theme="light"] .admonition.warning {
-    border-left-color: #cc6600;
-}
-
-html[data-theme="light"] .admonition.warning .admonition-title {
-    background-color: #fde8d0;
-    color: #8b4000;
-}
-
-html[data-theme="light"] .admonition.important {
-    border-left-color: #c0392b;
-}
-
-html[data-theme="light"] .admonition.important .admonition-title {
-    background-color: #fde0dc;
-    color: #8b1a10;
-}
-
+/* Admonitions - haiku's pale green (note family) and pale yellow (warning) */
+html[data-theme="light"] .admonition,
 html[data-theme="dark"] .admonition {
-    background-color: #26201b;
-    border: 1px solid #4a3d31;
-    border-left: 4px solid #e8a840;
-    color: #e0d8cc;
+    background-color: #f0faea;
+    border: 1px solid #cfe8c2;
+    border-left: 4px solid #4c8b3b;
+    color: #333333;
 }
 
+html[data-theme="light"] .admonition .admonition-title,
 html[data-theme="dark"] .admonition .admonition-title {
-    background-color: #352b22;
-    color: #f0c47a;
+    background-color: #e0f3d3;
+    color: #245217;
     font-weight: 600;
 }
 
-html[data-theme="dark"] .admonition.tip {
-    border-left-color: #a3cc70;
+html[data-theme="light"] .admonition.warning,
+html[data-theme="light"] .admonition.caution,
+html[data-theme="dark"] .admonition.warning,
+html[data-theme="dark"] .admonition.caution {
+    background-color: #fffbdc;
+    border-color: #ede2a8;
+    border-left-color: #a98a00;
 }
 
-html[data-theme="dark"] .admonition.tip .admonition-title {
-    color: #b8d98a;
+html[data-theme="light"] .admonition.warning .admonition-title,
+html[data-theme="light"] .admonition.caution .admonition-title,
+html[data-theme="dark"] .admonition.warning .admonition-title,
+html[data-theme="dark"] .admonition.caution .admonition-title {
+    background-color: #faf3c0;
+    color: #6b5900;
 }
 
-html[data-theme="dark"] .admonition.warning {
-    border-left-color: #e8934a;
+html[data-theme="light"] .admonition.important,
+html[data-theme="light"] .admonition.danger,
+html[data-theme="light"] .admonition.error,
+html[data-theme="dark"] .admonition.important,
+html[data-theme="dark"] .admonition.danger,
+html[data-theme="dark"] .admonition.error {
+    background-color: #fdeeea;
+    border-color: #f0cfc5;
+    border-left-color: #b03425;
 }
 
-html[data-theme="dark"] .admonition.warning .admonition-title {
-    color: #f0a060;
+html[data-theme="light"] .admonition.important .admonition-title,
+html[data-theme="light"] .admonition.danger .admonition-title,
+html[data-theme="light"] .admonition.error .admonition-title,
+html[data-theme="dark"] .admonition.important .admonition-title,
+html[data-theme="dark"] .admonition.danger .admonition-title,
+html[data-theme="dark"] .admonition.error .admonition-title {
+    background-color: #f8ddd4;
+    color: #7c1d10;
 }
 
-html[data-theme="dark"] .admonition.important {
-    border-left-color: #e07060;
-}
-
-html[data-theme="dark"] .admonition.important .admonition-title {
-    color: #f08070;
-}
-
-/* Tables - clear contrast */
-html[data-theme="light"] table.docutils {
+/* Tables - navy header row */
+html[data-theme="light"] table.docutils,
+html[data-theme="light"] table.table,
+html[data-theme="dark"] table.docutils,
+html[data-theme="dark"] table.table {
     border-collapse: collapse;
-    border: 1px solid #d4c0a0;
+    border: 1px solid #cccccc;
 }
 
-html[data-theme="light"] table.table {
-    border-collapse: collapse;
-    border: 1px solid #d4c0a0;
-}
-
-html[data-theme="light"] table.docutils th {
-    background-color: #6b4f2e !important;
-    color: #faf3e8 !important;
-    border: 1px solid #5a4020;
+html[data-theme="light"] table.docutils th,
+html[data-theme="light"] table.table th,
+html[data-theme="dark"] table.docutils th,
+html[data-theme="dark"] table.table th {
+    background-color: #0c3762 !important;
+    color: #ffffff !important;
+    border: 1px solid #0a2c4e;
     padding: 8px 12px;
 }
 
-html[data-theme="light"] table.table th {
-    background-color: #6b4f2e !important;
-    color: #faf3e8 !important;
-    border: 1px solid #5a4020;
-    padding: 8px 12px;
-}
-
-html[data-theme="light"] table.docutils td {
-    background-color: #fff !important;
-    color: #3d3229 !important;
-    border: 1px solid #e0d0b8;
-    padding: 8px 12px;
-}
-
-html[data-theme="light"] table.table td {
-    background-color: #fff !important;
-    color: #3d3229 !important;
-    border: 1px solid #e0d0b8;
+html[data-theme="light"] table.docutils td,
+html[data-theme="light"] table.table td,
+html[data-theme="dark"] table.docutils td,
+html[data-theme="dark"] table.table td {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0;
     padding: 8px 12px;
 }
 
 /* Base cell text color; spans (links, inline code) inherit or keep their own */
 html[data-theme="light"] table.docutils td p,
-html[data-theme="light"] table.docutils td li {
-    color: #3d3229 !important;
-}
-
+html[data-theme="light"] table.docutils td li,
 html[data-theme="light"] table.table td p,
-html[data-theme="light"] table.table td li {
-    color: #3d3229 !important;
-}
-
-html[data-theme="light"] table.docutils tr:nth-child(even) td {
-    background-color: #fdf8f0 !important;
-}
-
-html[data-theme="light"] table.table tr:nth-child(even) td {
-    background-color: #fdf8f0 !important;
-}
-
-html[data-theme="dark"] table.docutils th,
-html[data-theme="dark"] table.table th {
-    background-color: #3a2f27 !important;
-    color: #f2cf98 !important;
-    border: 1px solid #5a4533;
-    padding: 8px 12px;
-}
-
-html[data-theme="dark"] table.docutils td,
+html[data-theme="light"] table.table td li,
 html[data-theme="dark"] table.docutils td p,
-html[data-theme="dark"] table.docutils td li {
-    color: #e0d8cc !important;
-}
-
-html[data-theme="dark"] table.table td,
+html[data-theme="dark"] table.docutils td li,
 html[data-theme="dark"] table.table td p,
 html[data-theme="dark"] table.table td li {
-    color: #e0d8cc !important;
+    color: #333333 !important;
 }
 
-html[data-theme="dark"] table.docutils td,
-html[data-theme="dark"] table.table td {
-    border: 1px solid #4a3d31;
-    padding: 8px 12px;
+html[data-theme="light"] table.docutils tr:nth-child(even) td,
+html[data-theme="light"] table.table tr:nth-child(even) td,
+html[data-theme="dark"] table.docutils tr:nth-child(even) td,
+html[data-theme="dark"] table.table tr:nth-child(even) td {
+    background-color: #f5f5f5 !important;
 }
 
-/* Inline code / literals - consistent inside and outside tables */
+/* Inline code / literals - haiku's neutral gray, consistent inside and
+   outside tables */
 html[data-theme="light"] code.docutils.literal,
-html[data-theme="light"] .docutils.literal {
-    background-color: #f3e7d6;
-    color: #5b3412 !important;
-    border: 1px solid #dfc7aa;
-    border-radius: 4px;
-    padding: 0.08rem 0.35rem;
-}
-
+html[data-theme="light"] .docutils.literal,
 html[data-theme="dark"] code.docutils.literal,
 html[data-theme="dark"] .docutils.literal {
-    background-color: #3a2f27;
-    color: #f2cf98 !important;
-    border: 1px solid #6a553f;
+    background-color: #eeeeee;
+    color: #333333 !important;
+    border: 1px solid #dcdcdc;
     border-radius: 4px;
     padding: 0.08rem 0.35rem;
 }
 
-/* Code blocks - warm tint */
-html[data-theme="light"] .highlight {
-    background: #fdf8f0 !important;
-    border: 1px solid #e8dcc8;
+/* Code blocks - haiku's light gray */
+html[data-theme="light"] .highlight,
+html[data-theme="dark"] .highlight {
+    background: #eeeeee !important;
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
 }
