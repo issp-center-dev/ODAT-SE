@@ -52,12 +52,13 @@ The available command-line options are listed below.
 
 **--nalg NALG**
     Number of MPI processes assigned to the search algorithm layer.
-    Used together with ``--nsolve`` to split the MPI communicator; ``NALG × NSOLVE`` must equal the total number of processes.
-    If omitted, it is determined from the total number of processes and ``--nsolve``.
+    Used together with ``--nsolve`` to split the MPI communicator; when both are given, ``NALG × NSOLVE`` must equal the total number of processes.
+    When only one of the two is given, the other is determined automatically as "total number of processes ÷ given value" (an error is raised if it does not divide evenly).
 
 **--nsolve NSOLVE**
     Number of MPI processes per solver group.
-    If both ``--nalg`` and ``--nsolve`` are omitted, all processes are assigned to the algorithm layer (``NSOLVE = 1``).
+    As with ``--nalg``, when only one of the two is given, the other is determined automatically.
+    If both ``--nalg`` and ``--nsolve`` are omitted, all processes are assigned to the algorithm layer (``NALG = total``, ``NSOLVE = 1``).
     See :doc:`/tutorial/parallel_solver` for details of the two-level parallelization.
 
 **--version**

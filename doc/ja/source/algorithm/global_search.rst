@@ -68,19 +68,19 @@ direct と dual annealing は並列評価に対応していないため、ラン
 
 - ``min_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最小値。
 
 - ``max_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: パラメータが取りうる最大値。
 
 - ``unit_list``
 
-  形式: 実数型のリスト。長さはdimensionの値と一致させます。
+  形式: 実数のリスト。長さはdimensionの値と一致させます。
 
   説明: 各パラメータの単位。
         探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
@@ -99,7 +99,7 @@ direct と dual annealing は並列評価に対応していないため、ラン
 
 - ``method``
 
-  形式: string型 (default: "DE")
+  形式: 文字列 (default: "DE")
 
   説明: 最適化手法の名前(大文字小文字は区別しません)。
   "DE" または "differential_evolution" で差分進化法、"shgo" で shgo、

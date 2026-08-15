@@ -36,7 +36,7 @@
 ``__init__`` が設定するインスタンス変数
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None)``
+- ``__init__(self, info: odatse.Info, runner: odatse.Runner = None, run_mode: str = "initial")``
 
   ``info`` から共通の入力パラメータを読み取り、以下のインスタンス変数を設定します。
 
@@ -175,14 +175,20 @@ runner を使用しないでください（初期評価は ``_run()`` で行い�
 
 .. code-block:: python
 
+  import time
+
   def _run(self) -> None:
       # チェックポイントのディスパッチ（init/resume/continue）は
       # prepare() が処理済み。メインループを直接開始する。
 
       # init モードの場合、ここで初期評価を行う
       if self.mode.startswith("init"):
-          self.fx = self.runner.submit(self.state, (0, 0))
+          self.fx = self.runner.submit(self.x, (0, 0))
           ...
+
+      # チェックポイントの保存タイミングを初期化
+      next_checkpoint_step = self.istep + self.checkpoint_steps
+      next_checkpoint_time = time.time() + self.checkpoint_interval
 
       # メインループ
       while self.istep < self.numsteps:
@@ -222,7 +228,7 @@ runner を使用しないでください（初期評価は ``_run()`` で行い�
 
   def _post(self) -> dict:
       # 結果をファイルに書き出し、MPIランクから収集する、など
-      return {"x": self.xopt, "fx": self.best_fx}
+      return {"x": self.best_x, "fx": self.best_fx}
 
 アルゴリズムの後処理を記述し、結果を辞書形式で返します。
 ``output_dir`` から呼び出されます。

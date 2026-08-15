@@ -4,14 +4,26 @@
 ODAT-SE は、順問題ソルバー ``Solver`` と探索アルゴリズム ``Algorithm`` を組み合わせて逆問題を解くフレームワークです。
 定義済みの ``Solver`` や ``Algorithm`` に加えて、ユーザーが独自のものを定義して利用できます。
 
-.. code-block:: text
+.. only:: html
 
-   Algorithm ----> Runner ----> Solver
-   (search)        (bridge)      (objective function)
-       |              |              |
-       |  propose x   | transform    | compute f(x)
-       |              | & check      | and return
-       |<-------------|<-------------|
+   .. mermaid::
+
+      flowchart LR
+          A["<b>Algorithm</b><br/>(探索)"] -->|"パラメータ x を提案"| R["<b>Runner</b><br/>(仲介)"]
+          R -->|"座標変換・制約チェック"| S["<b>Solver</b><br/>(目的関数)"]
+          S -->|"f(x) を計算"| R
+          R -->|"f(x) を返す"| A
+
+.. only:: latex
+
+   .. code-block:: text
+
+      Algorithm ----> Runner ----> Solver
+      (search)        (bridge)      (objective function)
+          |              |              |
+          |  propose x   | transform    | compute f(x)
+          |              | & check      | and return
+          |<-------------|<-------------|
 
 本章では、最も一般的なユースケースである **独自のソルバーを追加する方法** をチュートリアル形式で解説した後、
 APIの詳細を説明します。

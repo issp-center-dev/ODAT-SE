@@ -171,14 +171,14 @@ Otherwise, continuous space is used.
   Format: Float
 
   Description: The minimum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``bmax``
 
   Format: Float
 
   Description: The maximum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``Tlogspace``
 
@@ -223,14 +223,15 @@ Otherwise, continuous space is used.
 
   Format: Boolean (default: false)
 
-  Description: When set to ``true`` and ``bmin>0``, the algorithm first performs annealing and resampling from an initial random sample at :math:`\beta=0` (infinite temperature) up to the first temperature :math:`\beta_1`, before starting the main calculation.
+  Description: When set to ``true`` and ``bmin>0``, the algorithm first performs annealing and resampling from an initial random sample at :math:`\beta=0` (infinite temperature) up to the smallest specified inverse temperature (``bmin`` or :math:`1/T_{\max}`), before starting the main calculation.
   This ensures that, even if the computation does not start from :math:`\beta=0`, the reference value of :math:`\log Z/Z_0` can still be considered as being taken at :math:`\beta=0`.
 
 About the number of steps
 """""""""""""""""""""""""""""
 
 Specify just two of ``numsteps``, ``numsteps_annealing``, and ``Tnum``.
-The value of the remaining one will be determined automatically.
+The value of the remaining one will be determined automatically. They are approximately related by ``numsteps = numsteps_annealing × Tnum``
+(when the division leaves a remainder, the extra steps are assigned to the higher-temperature points).
 
 .. note::
    **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
@@ -291,7 +292,7 @@ Output files
 This file stores the suggested parameters and the corresponding value returned from the solver for each temperature point (specified by ``#``).
 The first column (``step``) is the index of the MC step.
 The second column (``walker``) is the index of the walker in the process.
-The third column (``beta``) is the inverse temperature of the replica.
+The third column (``beta``) is the inverse temperature of the replica (when the temperature range is given via ``Tmin``/``Tmax``, the temperature ``T`` is written instead).
 The fourth column (``fx``) is the value of the solver.
 The fifth through (4+dimension)-th columns are the coordinates.
 The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynski weight and the grand-ancestor of the replica.
@@ -362,7 +363,7 @@ The fifth column is the logarithm of the ratio between the normalization factors
 
    \log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)},
 
-where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation.
+where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation (when ``anneal_from_beta0 = true``, the reference is :math:`\beta_0 = 0`).
 The sixth column is the acceptance ratio of MC updates.
 
 .. code-block::
@@ -382,7 +383,7 @@ The sixth column is the acceptance ratio of MC updates.
 ^^^^^^^^^^^^^^^^^^^
 This file stores the Neal-Jarzynski weight of each replica at each temperature.
 The columns are, in order, the temperature index (``Tindex``), the inverse temperature (``beta``),
-the walker index (``walker``), the grand-ancestor id (``idnum``), the value of the solver (``fx``),
+the walker index (``walker``), the grand-ancestor id (``idnum``), the value of the objective function (``fx``),
 the logarithm of the weight (``log_weight``), and the coordinates.
 
 Example::
@@ -419,7 +420,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program is started from the initialized state.
   If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
-  #. when the calculation at a temperature point finishes, when the specified number of steps has been performed, or when the specified period of time has passed.
+  #. when the calculation at a temperature point finishes and the specified number of steps has been performed or the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``
@@ -442,19 +443,19 @@ Algorithm
 Goal
 ^^^^^
 
-When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`f_i(x)`
-(e.g., the Boltzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
+When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`W_i(x)`
+(e.g., the Boltzmann factor :math:`W_i(x) = \exp[-\beta_i f(x)]` ),
 the expectation value of :math:`A` is defined as
 
 .. math::
 
    \langle A\rangle_i
-   = \frac{\int \mathrm{d}xA(x)f_i(x)}{\int \mathrm{d}x f_i(x)}
-   = \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
-   = \int \mathrm{d}xA(x)\tilde{f}_i(x),
+   = \frac{\int \mathrm{d}xA(x)W_i(x)}{\int \mathrm{d}x W_i(x)}
+   = \frac{1}{Z_i}\int \mathrm{d}xA(x)W_i(x)
+   = \int \mathrm{d}xA(x)\tilde{W}_i(x),
 
-where :math:`Z = \int \mathrm{d} x f_i(x)` is the normalization factor (partition function)
-and :math:`\tilde{f}(x) = f(x)/Z` is the probability of :math:`x`.
+where :math:`Z_i = \int \mathrm{d} x W_i(x)` is the normalization factor (partition function)
+and :math:`\tilde{W}_i(x) = W_i(x)/Z_i` is the probability of :math:`x`.
 
 Our goal is to numerically calculate the expectation value for each :math:`\beta_i` and the (ratios of the) normalization factors.
 
@@ -465,35 +466,35 @@ First, we introduce a series of configurations :math:`\{x_i\}` obeying the follo
 
 .. math::
 
-   \tilde{f}(x_0, x_1, \dots, x_n) = \tilde{f}_n(x_n) \tilde{T}_n(x_n, x_{n-1}) \tilde{T}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{T}_1(x_1, x_0),
+   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0),
 
 with
 
 .. math::
 
-   \tilde{T}_i(x_i, x_{i-1}) = T_i(x_{i-1}, x_i) \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)},
+   \tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)},
 
-where :math:`T_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
+where :math:`p_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
 holding the balance condition,
 
 .. math::
 
 
-   \int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x').
+   \int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x').
 
-It turns out that :math:`\tilde{f}_n(x_n)` is the marginal distribution of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, that is,
+It turns out that :math:`\tilde{W}_n(x_n)` is the marginal distribution of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, that is,
 
 .. math::
 
 
-   \tilde{f}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{f}(x_0, x_1, \dots, x_n),
+   \tilde{W}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{W}(x_0, x_1, \dots, x_n),
 
 from
 
 .. math::
 
-   \int \mathrm{d} x_{i-1} \tilde{T}_i(x_i, x_{i-1})
-   = \int \mathrm{d} x_{i-1} \tilde{f}_i(x_{i-1}) T_i(x_{i-1}, x_i) / \tilde{f}_i(x_i)
+   \int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
    = 1.
 
 Consequently,
@@ -505,25 +506,25 @@ Consequently,
    \begin{split}
    \langle A \rangle_n
    &\equiv
-   \int \mathrm{d} x_n A(x_n) \tilde{f}_n(x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n).
+   \int \mathrm{d} x_n A(x_n) \tilde{W}_n(x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n).
    \end{split}
 
 
 Unfortunately, it is difficult to generate directly a series of configurations :math:`\{x_i\}`
-following the distribution :math:`\tilde{f}(x_0, x_1, \dots, x_n)`.
-Then, instead of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x_i\}` obeying the joint distribution
+following the distribution :math:`\tilde{W}(x_0, x_1, \dots, x_n)`.
+Then, instead of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x_i\}` obeying the joint distribution
 
 .. math::
 
-   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n),
+   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n),
 
 
 by using the following scheme:
 
-1. Generate :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
+1. Generate :math:`x_0` from the initial distribution :math:`\tilde{W}_0(x)`
 
-2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`T_{i+1}(x_i, x_{i+1})`
+2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`p_{i+1}(x_i, x_{i+1})`
 
 
 By using the reweighting method (or importance sampling method),
@@ -534,31 +535,31 @@ By using the reweighting method (or importance sampling method),
 
    \begin{split}
    \langle A \rangle_n
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{f}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
-   &= \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{W}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
+   &= \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    \end{split}.
 
-Because the ratio between :math:`\tilde{f}` and :math:`\tilde{g}` is
+Because the ratio between :math:`\tilde{W}` and :math:`\tilde{g}` is
 
 .. math::
 
 
    \begin{split}
-   \frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
+   \frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
    &=
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
    &=
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)} \\
-   &=
-   \frac{Z_0}{Z_n}
-   \frac{f_n(x_n)}{f_0(x_0)}
-   \prod_{i=1}^n \frac{f_i(x_{i-1})}{f_i(x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\
    &=
    \frac{Z_0}{Z_n}
-   \prod_{i=0}^{n-1} \frac{f_{i+1}(x_{i})}{f_i(x_i)} \\
+   \frac{W_n(x_n)}{W_0(x_0)}
+   \prod_{i=1}^n \frac{W_i(x_{i-1})}{W_i(x_i)} \\
+   &=
+   \frac{Z_0}{Z_n}
+   \prod_{i=0}^{n-1} \frac{W_{i+1}(x_{i})}{W_i(x_i)} \\
    &\equiv
    \frac{Z_0}{Z_n} w_n(x_0, x_1, \dots, x_n),
    \end{split}
@@ -567,7 +568,7 @@ the form of the expectation value will be
 
 .. math::
 
-   \langle A \rangle_n = \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   \langle A \rangle_n = \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    = \frac{Z_0}{Z_n} \langle Aw_n \rangle_{g,n}.
 
 
@@ -602,12 +603,13 @@ The following pseudo code describes the scheme of PAMC:
         x[0, k] = draw_from(β[0])
     for i in range(1, N):
         for k in range(K):
-            w[i, k] = w[i-1, k] * ( f(x[i-1,k], β[i]) / f(x[i-1,k], β[i-1]) )
+            w[i, k] = w[i-1, k] * ( W(x[i-1,k], β[i]) / W(x[i-1,k], β[i-1]) )
+        x_prev = x[i-1, :]
         if i % interval == 0:
-            x[i, :] = resample(x[i, :], w[i, :])
+            x_prev = resample(x_prev, w[i, :])
             w[i, :] = 1.0
         for k in range(K):
-            x[i, k] = transfer(x[i-1, k], β[i])
+            x[i, k] = transfer(x_prev[k], β[i])
         a[i] = sum(A(x[i,:]) * w[i,:]) / sum(w[i,:])
 
 There are two resampling methods: one with a fixed number of replicas [2] and one without [3].

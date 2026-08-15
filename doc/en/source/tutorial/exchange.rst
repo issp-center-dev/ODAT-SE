@@ -22,7 +22,7 @@ Input files
 ~~~~~~~~~~~~~
 
 This subsection describes the input file.
-For details, see the input file section of the manual.
+For details, see the "Input file" chapter and :doc:`../algorithm/exchange`.
 
 .. code-block::
 
@@ -169,3 +169,8 @@ Looking at the resulting diagram, we can see that the samples are concentrated n
 
    Distribution of sampling points on two-dimensional parameter space at :math:`T=\{35.02, 3.40, 0.33, 0.01\}`.
 
+
+.. seealso::
+   Post-processing tools are available for analyzing the calculation results,
+   such as ``odatse_separateT``, which splits Monte Carlo log files by temperature point.
+   See :doc:`../post/index` for details.

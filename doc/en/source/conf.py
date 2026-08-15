@@ -33,7 +33,12 @@ from theme_shared import HTML_CONTEXT, HTML_CSS_FILES, get_theme_options, get_ve
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.mathjax']
+    'sphinx.ext.mathjax',
+    'sphinxcontrib.mermaid']
+
+# Let mermaid diagrams take their natural height instead of the extension's
+# fixed 500px box, which leaves large blank margins around wide, flat charts.
+mermaid_height = "auto"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -32,20 +32,20 @@ ODAT-SE は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
 - ``dimension``
 
-  形式: 整数型
+  形式: 整数
 
   説明: 探索空間の次元(探索するパラメータの数)
 
 - ``root_dir``
 
-  形式: string型 (default: プログラム実行時のディレクトリ)
+  形式: 文字列 (default: プログラム実行時のディレクトリ)
 
   説明: プログラムを実行する一番上のディレクトリ。
         入力ファイルなどのパスはすべて ``root_dir`` を起点とします。
 
 - ``output_dir``
 
-  形式: string型 (default: プログラム実行時のディレクトリ)
+  形式: 文字列 (default: プログラム実行時のディレクトリ)
 
   説明: プログラムの実行結果を出力するディレクトリ名
 
@@ -56,7 +56,7 @@ ODAT-SE は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
 - ``name``
 
-  形式: string型
+  形式: 文字列
 
   説明: ソルバーの名前。以下のソルバーが用意されています。
 
@@ -72,7 +72,7 @@ ODAT-SE は入力ファイルの形式に `TOML <https://toml.io/ja/>`_ を採�
 
 - ``dimension``
 
-  形式: 整数型 (default: ``base.dimension``)
+  形式: 整数 (default: ``base.dimension``)
 
   説明: ソルバーが受け取る入力パラメータの数。
 

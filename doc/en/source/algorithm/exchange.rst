@@ -170,14 +170,14 @@ Otherwise, continuous space is used.
   Format: Float
 
   Description: The minimum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``bmax``
 
   Format: Float
 
   Description: The maximum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``Tlogspace``
 
@@ -262,9 +262,11 @@ An utility tool, ``odatse_neighborlist`` is available for generating a neighborh
 Output files
 ~~~~~~~~~~~~~~~~~~~~~
 
+In the following files, the unit that tracks the state of each replica is called a *walker* (``nreplica_per_proc`` walkers per process).
+
 ``RANK/trial.txt``
 ^^^^^^^^^^^^^^^^^^^^^
-This file stores the suggested parameters and the corresponding value returned from the solver for each replica.
+This file stores the parameter candidates proposed (trialed) in the Monte Carlo updates and the corresponding values of the objective function for each replica.
 The first column is the index of the MC step.
 The second column is the index of the walker in the process.
 The third column is the temperature of the replica.
@@ -282,7 +284,7 @@ Example::
 
 ``RANK/result.txt``
 ^^^^^^^^^^^^^^^^^^^^^
-This file stores the sampled parameters and the corresponding value returned from the solver for each replica.
+This file stores the sequence of accepted parameters after the acceptance/rejection step and the corresponding values of the objective function for each replica (when a trial is rejected, the previous state is kept).
 This has the same format as ``trial.txt``.
 
 .. code-block::

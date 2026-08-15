@@ -26,7 +26,7 @@ Input files
 ~~~~~~~~~~~~~
 
 This subsection describes the input file.
-For details, see the input file section of the manual.
+For details, see the "Input file" chapter and :doc:`../algorithm/pamc`.
 
 .. code-block::
 
@@ -181,3 +181,8 @@ It is seen from the figures that the samples are concentrated near the minima of
 .. figure:: ../../../common/img/res_pamc.*
 
    Plot of sampled parameters. The horizontal axis denotes ``x1``, the vertical axis denotes ``x2``, and the color represents the value of ``T`` (left) and ``f(x)`` (right), respectively.
+
+.. seealso::
+   The PAMC outputs can be further analyzed, e.g., computing the model evidence and
+   making histograms of the posterior probability distributions.
+   See :doc:`../post/index` for the analysis workflow using the post-processing tools.

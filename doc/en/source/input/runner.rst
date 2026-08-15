@@ -92,6 +92,7 @@ where :math:`M` is the number of constraint equations (arbitrary).
 
   Description:
   :math:`M` dimensional vector :math:`b` for the constraint equations.
+  Specify it as a column vector (a list of lists), e.g. ``co_b = [[0], [-1]]``; a flat list such as ``co_b = [0, -1]`` raises an error.
   You need to set a column vector with the dimension equal to the number of constraints :math:`M`.
   You must define ``co_a`` together with this parameter.
 

@@ -9,7 +9,8 @@ For ``exchange`` and ``pamc``, the acceptance ratio can be checked as follows:
 
 **Standard output during execution:**
 
-``pamc`` displays the acceptance ratio at each temperature step.
+``pamc`` displays the acceptance ratio in the standard output at each temperature step.
+``exchange`` does not print it to the standard output; check ``fx.txt`` below instead.
 
 .. code-block:: text
 
@@ -88,16 +89,4 @@ To reproduce results, fix the ``seed`` in the ``[algorithm]`` section.
 
 With sufficient steps, statistically equivalent results will be obtained.
 
-
-Optimization does not converge
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Check the following:
-
-1. **Search range**: Verify that ``min_list`` / ``max_list`` include the optimal solution.
-
-2. **Initial values**: For ``minsearch``, convergence is difficult if ``initial_list`` is extremely far from the optimal solution.
-
-3. **Algorithm choice**: Using ``minsearch`` on problems with many local minima tends to get trapped. Try ``exchange`` or ``bayes`` which can perform global search.
-
-4. **Insufficient steps**: Monte Carlo methods need enough steps for thorough exploration. Increase the number of steps and re-run.
+If the optimization does not converge or the results are not what you expect, see :doc:`error`.
