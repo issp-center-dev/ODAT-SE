@@ -31,7 +31,12 @@ version, release = get_version_info()
 # ones.
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
+    'sphinxcontrib.mermaid',
 ]
+
+# Let mermaid diagrams take their natural height instead of the extension's
+# fixed 500px box, which leaves large blank margins around wide, flat charts.
+mermaid_height = "auto"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
