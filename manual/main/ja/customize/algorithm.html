@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -504,7 +504,7 @@
 <section id="init">
 <h3><code class="docutils literal notranslate"><span class="pre">__init__</span></code> が設定するインスタンス変数<a class="headerlink" href="#init" title="Link to this heading">#</a></h3>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None)</span></code></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">info:</span> <span class="pre">odatse.Info,</span> <span class="pre">runner:</span> <span class="pre">odatse.Runner</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">run_mode:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&quot;initial&quot;)</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">info</span></code> から共通の入力パラメータを読み取り、以下のインスタンス変数を設定します。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">self.rng:</span> <span class="pre">np.random.RandomState</span></code> : 擬似乱数生成器</p></li>
@@ -624,14 +624,20 @@ runner を使用しないでください（初期評価は <code class="docutils
 </section>
 <section id="run">
 <h3><code class="docutils literal notranslate"><span class="pre">_run</span></code> （必須）<a class="headerlink" href="#run" title="Link to this heading">#</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># チェックポイントのディスパッチ（init/resume/continue）は</span>
     <span class="c1"># prepare() が処理済み。メインループを直接開始する。</span>
 
     <span class="c1"># init モードの場合、ここで初期評価を行う</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
         <span class="o">...</span>
+
+    <span class="c1"># チェックポイントの保存タイミングを初期化</span>
+    <span class="n">next_checkpoint_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span>
+    <span class="n">next_checkpoint_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span>
 
     <span class="c1"># メインループ</span>
     <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps</span><span class="p">:</span>
@@ -667,7 +673,7 @@ runner を使用しないでください（初期評価は <code class="docutils
 <h3><code class="docutils literal notranslate"><span class="pre">_post</span></code> （必須）<a class="headerlink" href="#post" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="c1"># 結果をファイルに書き出し、MPIランクから収集する、など</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>アルゴリズムの後処理を記述し、結果を辞書形式で返します。

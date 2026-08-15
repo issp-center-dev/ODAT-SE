@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -500,11 +500,14 @@
                   
   <section id="ttopt">
 <h1>テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code><a class="headerlink" href="#ttopt" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code> は、目的関数をパラメータで添字付けられた大きなテンソルとしてモデル化し、その大きなテンソルを1次元的にならんだ3階テンソルのネットワーク（行列積状態MPS, tensor train）として表現し、そのMPSを反復的な交差近似に基づく勾配不要の最適化手法で探索する <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code> は、Tensor Train Optimization (TTOpt) によるパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。
+目的関数をパラメータの組で添字付けられた高次元テンソルとみなし、そのごく一部だけを選択的に評価する交差近似によって、勾配を使わずに最適値とその位置を探索します。
+手法の概要は後述の「アルゴリズムの説明」を参照してください。</p>
 <section id="id1">
 <h2>前準備<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
-<p>MPI 並列化を用いる場合は <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしてください。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+<p>TTOpt の実行には scipy が必要です。また、MPI 並列化を用いる場合は <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしてください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install scipy
+$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
@@ -529,29 +532,36 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">p_points</span></code></p>
 <p>形式: 整数または整数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
-<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際に各テンソル脚がとる値の数 <span class="math notranslate nohighlight">\(P_i\)</span> 。
-パラメータは <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。
+<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際の基数 <span class="math notranslate nohighlight">\(P_i\)</span> （分解した各インデックスがとる値の数。2進数表現なら 2）。
+パラメータは <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化されます。
 整数の場合はすべての次元で同じ値になります。
 デフォルトは 2 です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">q_points</span></code></p>
 <p>形式: 整数または整数のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。</p>
-<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際のテンソル脚の本数 <span class="math notranslate nohighlight">\(q_i\)</span> 。
-パラメータは <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。
+<p>説明: パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> を離散化する際のインデックスの分解数 <span class="math notranslate nohighlight">\(q_i\)</span> （分割数 <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> を決める指数。2進数表現ならビット数に相当）。
 整数の場合はすべての次元で同じ値になります。
 デフォルトは 1 です。</p>
 </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>デフォルト設定（<code class="docutils literal notranslate"><span class="pre">p_points</span> <span class="pre">=</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">q_points</span> <span class="pre">=</span> <span class="pre">1</span></code>）では、各パラメータは <span class="math notranslate nohighlight">\(2^1 = 2\)</span> 点にしか離散化されません。
+連続パラメータを最適化する場合は、十分な分解能が得られるよう <code class="docutils literal notranslate"><span class="pre">q_points</span></code> を 10〜20 程度
+（<span class="math notranslate nohighlight">\(2^{10} \approx 10^3\)</span> 〜 <span class="math notranslate nohighlight">\(2^{20} \approx 10^6\)</span> 分割）に設定してください。</p>
+</div>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">r_max</span></code></p>
 <p>形式: 整数 (default: 4)</p>
-<p>説明: 小テンソル同士をつなぐボンド次元の最大値。大きいほど表現能力はあがりますが、最適化の各ステップでコスト関数の評価回数が増えます。</p>
+<p>説明: テンソル近似のランクの上限（小テンソル同士をつなぐボンド次元の最大値）。大きいほど複雑な関数形を捉えやすくなりますが、最適化の各ステップでの目的関数の評価回数が増えます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code></p>
 <p>形式: 整数 (default: 10000)</p>
-<p>説明: コスト関数の評価回数の上限。最適化の計算予算に相当します。カウンタはアルゴリズムの各スイープの終了時に更新され、この値以上になった時点でパラメータ探索を終了します。</p>
+<p>説明: 目的関数の評価回数の上限。最適化の計算予算に相当します。カウンタは候補点の束を評価するたびに更新され、束の評価後に上限判定を行うため、実際の評価回数は <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> をいくらか超えることがあります。カウンタには評価をリクエストした候補点数（キャッシュ済みの点を含む）が計上されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxvol_tol</span></code></p>
-<p>形式: 浮動小数点数 (default: 1.001)</p>
-<p>説明: 最大体積部分行列を求める際の許容誤差。許容誤差を 1 に設定すると行列の厳密な分解を行います。1 未満の値は 1 にクリップされます。</p>
+<p>形式: 実数 (default: 1.001)</p>
+<p>説明: 最大体積部分行列を求める反復（後述の maxvol 法）の停止閾値。1 に近づけるほど厳密な最大体積条件まで反復を続け、ちょうど 1 に設定すると厳密な最大体積条件を要求します。1 未満の値は意味を持ちません（停止条件が満たされないため、反復は常に <code class="docutils literal notranslate"><span class="pre">maxvol_max_it</span></code> 回まで実行されます）。通常はデフォルト値のままで問題ありません。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxvol_max_it</span></code></p>
 <p>形式: 整数 (default: 1000)</p>
@@ -567,7 +577,7 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eval_history_buffer_rows</span></code></p>
 <p>形式: 整数 (default: 256)</p>
-<p>説明: <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code> に書き出す頻度 <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 。 <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 回の評価結果をまとめて出力します。</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code> への書き出し閾値 <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 。バッファ内の行数が <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> 以上になった時点で、バッファ全体をまとめて書き出します。</p>
 </li>
 </ul>
 </section>
@@ -594,7 +604,7 @@
 </section>
 <section id="ttopt-history-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">ttopt_history.txt</span></code><a class="headerlink" href="#ttopt-history-txt" title="Link to this heading">#</a></h3>
-<p>最適化ループの各ステップ（ある MPS コア位置で候補点の束を評価し、これまでの最良点を更新した直後）ごとに、累積の関数評価回数と、その時点での最良点 <code class="docutils literal notranslate"><span class="pre">x_opt</span></code> および最良値 <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> が追記されます。先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列の意味です。</p>
+<p>最適化ループの各ステップ（候補点の束を評価し、これまでの最良点を更新した直後）ごとに、累積の関数評価回数と、その時点での最良点 <code class="docutils literal notranslate"><span class="pre">x_opt</span></code> および最良値 <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> が追記されます。先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列の意味です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: count</span>
 <span class="c1"># $2: x_opt[0]</span>
 <span class="c1"># $3: x_opt[1]</span>
@@ -617,8 +627,8 @@
 </section>
 <section id="ttopt-eval-history-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code><a class="headerlink" href="#ttopt-eval-history-txt" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">save_eval_history</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> のときのみ <code class="docutils literal notranslate"><span class="pre">OUTPUT/ttopt_eval_history.txt</span></code> に作成されます。バッチ評価で実際に呼び出した各候補点の座標と <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> が行単位で並びます（先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列ラベル。パラメータ名は <code class="docutils literal notranslate"><span class="pre">label_list</span></code> が設定されていればそれが使われます）。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: row index (order of batches in the run)</span>
+<p><code class="docutils literal notranslate"><span class="pre">save_eval_history</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> のときのみ <code class="docutils literal notranslate"><span class="pre">OUTPUT/ttopt_eval_history.txt</span></code> に作成されます。評価をリクエストした各候補点（キャッシュ済みでソルバーが呼ばれなかった点も含む）の座標と <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> が行単位で並びます（先頭の <code class="docutils literal notranslate"><span class="pre">#</span></code> 行は列ラベル。パラメータ名は <code class="docutils literal notranslate"><span class="pre">label_list</span></code> が設定されていればそれが使われます）。1列目は行の通し番号です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: row index</span>
 <span class="c1"># $2: x1</span>
 <span class="c1"># $3: x2</span>
 <span class="c1"># $4: f(x)</span>
@@ -635,12 +645,18 @@
 </section>
 <section id="id4">
 <h2>アルゴリズムの説明<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
-<p>Tensor Train Optimization (TTOpt) [1] は、離散関数の最適値と、そのパラメータ空間上の位置を求める手法です。連続最適化問題にも容易に適用でき、高次元問題や、離散量と連続量が混在するパラメータをもつ関数にも対応できます。</p>
-<p>TTOpt は、パラメータの組 <span class="math notranslate nohighlight">\((x_1, x_2, ..., x_n)\)</span> で添字付けられた目的関数 <span class="math notranslate nohighlight">\(f(x_1, x_2, ..., x_n)\)</span> の値に対応する要素をもつ大きなテンソルの、反復的な交差近似に基づく勾配不要の最適化手法です。交差近似は近似最大体積部分行列を用いて計算されます。
-各次元のパラメータ <span class="math notranslate nohighlight">\(x_i\)</span> はそれぞれ <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の等間隔点に離散化され、そのインデックスは <span class="math notranslate nohighlight">\(P_i\)</span> 個の値をとる <span class="math notranslate nohighlight">\(q_i\)</span> 本のテンソル脚によって表現されます。こうして、目的関数が <span class="math notranslate nohighlight">\(\sum_i q_i\)</span> 階のテンソルとして表現されます。
-TTOpt アルゴリズムは、この高次元テンソルを行列積状態(MPS)として、すなわち <span class="math notranslate nohighlight">\(\sum_i q_i\)</span> 個の3階テンソルの1次元ネットワークとして分解します。
-巨大テンソル全体のごく一部だけを明示的に計算すればよいように設計されており、コスト関数の計算コストが高い場合や探索空間が非常に大きい場合に有利です。また、データを MPS 形式で表現することで、最適化過程で指数的に大きな行列を形成する必要を避けられます。</p>
-<p>本アルゴリズムは複数の MPI プロセスによる実行が可能です。MPI を用いる場合、サンプル点におけるコスト関数値の評価が各ランクに分散されます。</p>
+<p>Tensor Train Optimization (TTOpt) [1] は、高次元の離散最適化問題に対する勾配不要のブラックボックス最適化手法です。
+連続変数についても、各変数を離散化することで適用でき、離散変数と連続変数が混在する問題にも対応できます。</p>
+<p>TTOpt では、目的関数 <span class="math notranslate nohighlight">\(f(x_1, \dots, x_n)\)</span> を、各パラメータの組を添字とする高次元テンソルの要素とみなします。
+ただし、この巨大なテンソル全体を明示的に計算することはしません。
+Tensor Train（TT。行列積状態 MPS と同等）形式による低ランク表現を利用し、TT-cross と呼ばれる交差近似法によって、必要なテンソル要素だけを選択的に評価します。</p>
+<p>TT-cross では、maxvol（maximum-volume）法を用いて、テンソルの構造を効率よく捉えられる行・列に対応するサンプル点を選択します。
+この操作を Tensor Train の各次元に沿って繰り返すことで、目的関数の評価回数を抑えながら最適値とその位置を探索します。</p>
+<p>また、各パラメータ <span class="math notranslate nohighlight">\(x_i\)</span> に <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> 個の離散点がある場合、そのインデックスを <span class="math notranslate nohighlight">\(P_i\)</span> 状態を持つ <span class="math notranslate nohighlight">\(q_i\)</span> 個の小さなインデックスへ分解する「量子化」を行うことができます。
+これにより、非常に細かく離散化されたパラメータ空間も、小さな局所次元を持つ高階テンソルとして扱えます。
+入力パラメータの <code class="docutils literal notranslate"><span class="pre">p_points</span></code>, <code class="docutils literal notranslate"><span class="pre">q_points</span></code> はそれぞれ <span class="math notranslate nohighlight">\(P_i\)</span>, <span class="math notranslate nohighlight">\(q_i\)</span> に対応します。</p>
+<p>この方法では、探索空間全体を格納したり評価したりする必要がないため、パラメータ空間が巨大な場合や、1回の目的関数評価に大きな計算コストを要する場合に有効です。
+また、目的関数の各サンプル点での評価は独立に実行できるため、MPI を用いて複数プロセスに分散することも可能です。</p>
 </section>
 <section id="id5">
 <h2>リスタート<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>

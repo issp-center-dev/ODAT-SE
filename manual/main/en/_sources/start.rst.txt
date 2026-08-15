@@ -158,6 +158,10 @@ At present, the following wrapper packages are available:
 
   An electron diffraction method for studying crystal structures of solid surfaces.
 
+- `odatse-XAFS <https://github.com/2DMAT/odatse-XAFS>`_ -- X-ray Absorption Fine Structure (XAFS)
+
+  A method for studying the local structure around an absorbing atom from X-ray absorption spectra.
+
 If you want to prepare the ``Algorithm`` or ``Solver`` by yourself, use the ODAT-SE package.
 See :doc:`customize/index` for details.
 

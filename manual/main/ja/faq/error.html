@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -592,6 +592,19 @@ Python のトレースバックとしてそのまま表示されます。</p>
 </ul>
 </section>
 </section>
+<section id="id6">
+<h2>計算結果に関する問題<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h3>最適化が収束しません<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>以下を確認してください。</p>
+<ol class="arabic simple">
+<li><p><strong>探索範囲が適切か</strong>: <code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code> が最適解を含む範囲になっているか確認してください。</p></li>
+<li><p><strong>初期値が適切か</strong>: <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の場合、初期値 (<code class="docutils literal notranslate"><span class="pre">initial_list</span></code>) が最適解から極端に遠いと収束しにくくなります。</p></li>
+<li><p><strong>アルゴリズムの選択</strong>: 局所解が多い問題に <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> を使うと局所解に捕まりやすくなります。<code class="docutils literal notranslate"><span class="pre">exchange</span></code> や <code class="docutils literal notranslate"><span class="pre">bayes</span></code> など大域的な探索が可能なアルゴリズムを試してください。</p></li>
+<li><p><strong>ステップ数の不足</strong>: モンテカルロ法ではステップ数が少ないと十分に探索できません。ステップ数を増やして再実行してください。モンテカルロ法のステップサイズや温度点の調整については <a class="reference internal" href="montecarlo.html"><span class="doc">モンテカルロ法のチューニング</span></a> も参照してください。</p></li>
+</ol>
+</section>
+</section>
 </section>
 
 
@@ -658,6 +671,10 @@ Python のトレースバックとしてそのまま表示されます。</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">再開時のエラー</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">チェックポイントから再開するには？</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoint-file-does-not-exist"><code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">file</span> <span class="pre">...</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">exist</span></code> と表示されます</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">計算結果に関する問題</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">最適化が収束しません</a></li>
 </ul>
 </li>
 </ul>

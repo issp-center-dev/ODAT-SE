@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -498,7 +498,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でアルゴリズムの種類を決定します。各パラメータはアルゴリズムごとに定義されています。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
-<p>形式: string型</p>
+<p>形式: 文字列</p>
 <p>説明: アルゴリズムの名前。以下のアルゴリズムが用意されています。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">minsearch</span></code>: Nelder-Mead法による最小値探索</p></li>
@@ -511,8 +511,12 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code>:  ポピュレーションアニーリングモンテカルロ法</p></li>
 </ul>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code></p>
+<p>形式: 文字列のリスト。長さは <code class="docutils literal notranslate"><span class="pre">dimension</span></code> の値と一致させます。 (default: <code class="docutils literal notranslate"><span class="pre">[&quot;x1&quot;,</span> <span class="pre">&quot;x2&quot;,</span> <span class="pre">...]</span></code>)</p>
+<p>説明: 各パラメータ軸の名前。出力ファイルのヘッダーなどで用いられます。</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
-<p>形式: 整数値</p>
+<p>形式: 整数</p>
 <dl class="simple">
 <dt>説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。</dt><dd><p>各アルゴリズムプロセスに対して、 <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">algrank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> の値が実際の種として用いられます( <code class="docutils literal notranslate"><span class="pre">algrank</span></code> はアルゴリズム層でのプロセスランクで、ソルバー並列数 <code class="docutils literal notranslate"><span class="pre">nsolve</span></code> に依存しません)。
 省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState">Numpy の既定の方法</a> で初期化されます。</p>
@@ -520,25 +524,25 @@
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed_delta</span></code></p>
-<p>形式: 整数値 (default: 314159)</p>
+<p>形式: 整数 (default: 314159)</p>
 <dl class="simple">
 <dt>説明: 擬似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。</dt><dd><p>詳しくは <code class="docutils literal notranslate"><span class="pre">seed</span></code> を参照してください。</p>
 </dd>
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint</span></code></p>
-<p>形式: bool値 (default: false)</p>
+<p>形式: 真偽値 (default: false)</p>
 <p>説明: 実行中および終了時の状態を定期的にファイルに出力します。実行が中断した場合に、チェックポイントから実行を再開できます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code></p>
-<p>形式: 整数値 (default: 16,777,216)</p>
+<p>形式: 整数 (default: 16,777,216)</p>
 <p>説明: 次のチェックポイントまでの繰り返し回数を指定します。繰り返し回数は、mapper の場合はグリッド点の数、bayes の場合は探索点の評価回数、モンテカルロ法(exchange, pamc) の場合は local update の回数です。
-デフォルト値は十分大きな数が設定されています。チェックポイント機能を有効にするには、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定する必要があります。</p>
+デフォルト値は十分大きな数が設定されています。チェックポイント機能を利用するには、 <code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">=</span> <span class="pre">true</span></code> を指定した上で、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code></p>
-<p>形式: 実数値 (default: 31,104,000)</p>
+<p>形式: 実数 (default: 31,104,000)</p>
 <p>説明: 次のチェックポイントまでの経過時間を指定します。単位は秒です。
-デフォルト値は十分大きな数(360日)が設定されています。チェックポイント機能を有効にするには、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定する必要があります。</p>
+デフォルト値は十分大きな数(360日)が設定されています。チェックポイント機能を利用するには、 <code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">=</span> <span class="pre">true</span></code> を指定した上で、 <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> または <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> の少なくとも一方を設定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_file</span></code></p>
 <p>形式: 文字列 (default: <code class="docutils literal notranslate"><span class="pre">&quot;status.pickle&quot;</span></code>)</p>

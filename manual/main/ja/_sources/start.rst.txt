@@ -40,7 +40,7 @@
 
 - サンプルファイルのダウンロード
 
-  - サンプルファイルはソースコードに同梱されています。
+  - サンプルファイルはソースコードに同梱されています（リポジトリ内の ``sample/`` ディレクトリ）。
   - ``git clone https://github.com/issp-center-dev/ODAT-SE``
 
 インストールの確認
@@ -152,6 +152,9 @@ Himmelblau 関数の最小値の一つ :math:`(3, 2)` （関数値 :math:`0`）�
 
 - `odatse-LEED <https://github.com/2DMAT/odatse-LEED>`_ -- 低速電子線回折 (LEED)
   固体表面の結晶構造を調べるための電子回折手法です。
+
+- `odatse-XAFS <https://github.com/2DMAT/odatse-XAFS>`_ -- X線吸収微細構造 (XAFS)
+  X線吸収スペクトルから吸収原子周辺の局所構造を調べるための手法です。
 
 ``Algorithm`` や ``Solver`` をユーザーが準備する場合は、 ``ODAT-SE`` パッケージを利用します。
 詳しくは :doc:`customize/index` を参照してください。

@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -554,15 +554,15 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
 <h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション<a class="headerlink" href="#algorithm-param" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
 <dt>説明: 各パラメータの単位。</dt><dd><p>探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
 簡易的な無次元化・正規化を行います。
@@ -581,7 +581,7 @@ shgo の局所精錬(内部の局所最適化)はランク 0 上で逐次実行�
 引数は指定できません。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p>
-<p>形式: string型 (default: &quot;DE&quot;)</p>
+<p>形式: 文字列 (default: &quot;DE&quot;)</p>
 <p>説明: 最適化手法の名前(大文字小文字は区別しません)。
 &quot;DE&quot; または &quot;differential_evolution&quot; で差分進化法、&quot;shgo&quot; で shgo、
 &quot;direct&quot; で direct、&quot;dual_annealing&quot; で dual annealing を選択します。</p>

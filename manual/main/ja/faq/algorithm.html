@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -497,27 +497,31 @@
 <td><p>パラメータ数が少なく（〜10程度）、局所的な最小値を素早く見つけたい</p></td>
 <td><p>Nelder-Mead法。高速だが局所解に陥る可能性あり。勾配不要</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_search</span></code></p></td>
+<td><p>連続パラメータの大域的最適化を行いたい</p></td>
+<td><p>scipy.optimize の大域最適化（差分進化法、SHGO、DIRECT、dual annealing）。scipy が必要。候補点評価の MPI 並列に対応</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code></p></td>
 <td><p>目的関数の評価コストが高く、少数の評価で最適解を見つけたい</p></td>
 <td><p>ガウス過程回帰によるサロゲートモデル。評価回数を最小化。physbo が必要</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code></p></td>
 <td><p>パラメータ空間の全体像を把握したい。パラメータ数が少ない（2〜3程度）</p></td>
 <td><p>全格子点を評価。パラメータ数が増えると計算量が爆発的に増加</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p></td>
 <td><p>多峰性の目的関数を広範囲に探索したい</p></td>
-<td><p>レプリカ交換法。局所解を回避しやすい。MPI が必要</p></td>
+<td><p>レプリカ交換法。局所解を回避しやすい。MPI 並列推奨（mpi4py が必要。1プロセスでも実行可能）</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code></p></td>
 <td><p>事後確率分布を推定したい。model evidence を計算したい</p></td>
 <td><p>ポピュレーションアニーリング。統計的推定に適している</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">random_search</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">random_search</span></code></p></td>
 <td><p>パラメータ空間の概観を手軽に把握したい</p></td>
 <td><p>ランダムサンプリング。シンプルで堅牢</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p></td>
 <td><p>パラメータ数が比較的多い問題や離散変数を含む問題で最小値を探索したい</p></td>
 <td><p>テンソル列（テンソルトレイン）最適化。勾配不要の交差近似。MPI 並列に対応</p></td>
 </tr>

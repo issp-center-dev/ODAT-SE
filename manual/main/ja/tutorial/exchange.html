@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -485,7 +485,7 @@
   <section id="id1">
 <h1>レプリカ交換モンテカルロ法による探索<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <p>ここでは、レプリカ交換モンテカルロ法を用いて Himmelblau関数の最小化問題を解析する方法について説明します。
-具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。</p>
+具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の場合と同様です。</p>
 <section id="id2">
 <h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/analytical/exchange</span></code> にあります。
@@ -528,7 +528,7 @@
 </pre></div>
 </div>
 <p>ここではこの入力ファイルを簡単に説明します。
-詳細は入力ファイルのリファレンスを参照してください。</p>
+詳細は「入力ファイル」の章および <a class="reference internal" href="../algorithm/exchange.html"><span class="doc">レプリカ交換モンテカルロ法 exchange</span></a> を参照してください。</p>
 <p><code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> のセクションについては Nelder-Mead法による探索(<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>)の場合と同じです。</p>
 <p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションでは、使用するアルゴリズムとその設定を行います。</p>
 <ul class="simple">
@@ -544,7 +544,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code> はモンテカルロ更新の回数です。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_exchange</span></code> で指定した回数のモンテカルロ更新の後に、温度交換を試みます。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code> はそれぞれ温度の下限・上限です。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> の場合、温度を対数空間で等分割します。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code> が <code class="docutils literal notranslate"><span class="pre">true</span></code> の場合、温度を対数空間で等分割します（省略時のデフォルト値は <code class="docutils literal notranslate"><span class="pre">true</span></code> です）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> は 1つのMPIプロセスが受け持つレプリカの数を指定します。</p></li>
 </ul>
 </section>
@@ -617,6 +617,11 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 <p><span class="caption-text">2次元パラメータ空間上のモンテカルロ法によるサンプリング点の分布。 <span class="math notranslate nohighlight">\(T=\{35.02, 3.40, 0.33, 0.01\}\)</span> の場合。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
+<div class="admonition seealso">
+<p class="admonition-title">参考</p>
+<p>モンテカルロ法のログファイルを温度点ごとに分割する <code class="docutils literal notranslate"><span class="pre">odatse_separateT</span></code> をはじめ、
+計算結果を解析するためのポスト処理ツールが用意されています。詳細は <a class="reference internal" href="../post/index.html"><span class="doc">ポスト処理ツール</span></a> を参照してください。</p>
+</div>
 </section>
 </section>
 

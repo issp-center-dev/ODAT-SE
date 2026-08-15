@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -563,7 +563,7 @@ the first column is the data number, and the second and subsequent columns are t
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">score</span></code></p>
 <p>Format: String (default: <code class="docutils literal notranslate"><span class="pre">TS</span></code> )</p>
-<p>Description: Parameter to specify the score function.
+<p>Description: Parameter to specify the score function (acquisition function).
 <code class="docutils literal notranslate"><span class="pre">EI</span></code> (expected improvement), <code class="docutils literal notranslate"><span class="pre">PI</span></code> (probability of improvement), and <code class="docutils literal notranslate"><span class="pre">TS</span></code> (Thompson sampling) can be chosen.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
@@ -616,9 +616,9 @@ The first column is the index of the mesh, and the second and subsequent columns
 </section>
 <section id="restart">
 <h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">#</a></h2>
-<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter to the constructor.
-The operation of each mode is described as follows.
-The parameter values correspond to <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command, respectively.</p>
+<p>The execution mode is specified by the <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, and <code class="docutils literal notranslate"><span class="pre">--cont</span></code> options of the <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command
+(when using ODAT-SE directly from Python, they correspond to the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> parameter of the constructor).
+The operation of each mode is described as follows.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (default)</p>
 <p>The program is started from the initial state.

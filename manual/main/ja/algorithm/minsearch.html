@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -527,11 +527,11 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 <span id="minsearch-input-param"></span><h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション<a class="headerlink" href="#algorithm-param" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
 <dt>説明: 各パラメータの単位。</dt><dd><p>探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
 簡易的な無次元化・正規化を行います。
@@ -540,7 +540,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
 <dt>説明: パラメータが取りうる最小値。</dt><dd><p>最適化中にこの値を下回るパラメータが出現した場合、
 ソルバーは評価されずに、値が無限大だとみなされます。</p>
@@ -548,7 +548,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
 <dt>説明: パラメータが取りうる最大値。</dt><dd><p>最適化中にこの値を上回るパラメータが出現した場合、
 ソルバーは評価されずに、値が無限大だとみなされます。</p>
@@ -570,7 +570,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を <span class="math not
 <code class="docutils literal notranslate"><span class="pre">method</span></code> が &quot;Nelder-Mead&quot; の場合にのみ適用されます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p>
-<p>形式: string型 (default: &quot;Nelder-Mead&quot;)</p>
+<p>形式: 文字列 (default: &quot;Nelder-Mead&quot;)</p>
 <p>説明: 最適化手法の名前。 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html">scipy.optimize.minimize</a> の <code class="docutils literal notranslate"><span class="pre">method</span></code> 引数にそのまま渡されます。
 例: &quot;Nelder-Mead&quot;, &quot;Powell&quot;, &quot;COBYLA&quot; など。
 勾配を必要とする手法 (BFGS, CG など) では、勾配が数値差分で評価されるため
@@ -581,18 +581,18 @@ scipy の <code class="docutils literal notranslate"><span class="pre">bounds</s
 Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限大とみなす方法で処理されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: Nelder-Mead 法の初期 simplex を作るために、初期値からずらす差分。
 <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> と、 <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> に <code class="docutils literal notranslate"><span class="pre">initial_scale_list</span></code> の成分ひとつを足してできる dimension 個の点を合わせたものが <code class="docutils literal notranslate"><span class="pre">initial_simplex</span></code> として使われます。
 定義しなかった場合、各次元に 0.25 が設定されます。
 <code class="docutils literal notranslate"><span class="pre">method</span></code> が &quot;Nelder-Mead&quot; の場合のみ使用されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">xatol</span></code></p>
-<p>形式: 実数型 (default: 1e-4)</p>
+<p>形式: 実数 (default: 1e-4)</p>
 <p>説明: Nelder-Mead 法の収束判定に使うパラメータ</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fatol</span></code></p>
-<p>形式: 実数型 (default: 1e-4)</p>
+<p>形式: 実数 (default: 1e-4)</p>
 <p>説明: Nelder-Mead 法の収束判定に使うパラメータ</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxiter</span></code></p>
@@ -604,7 +604,7 @@ Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限�
 <p>説明: 目的関数を評価する回数の最大値</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">basinhopping</span></code></p>
-<p>形式: bool型 または テーブル (default: false)</p>
+<p>形式: 真偽値 または テーブル (default: false)</p>
 <p>説明: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">scipy.optimize.basinhopping</a> による大域最適化(ベイスンホッピング法)を有効にします。
 <code class="docutils literal notranslate"><span class="pre">method</span></code> で指定した手法が各ホップの局所最適化に使われます。
 <code class="docutils literal notranslate"><span class="pre">basinhopping</span> <span class="pre">=</span> <span class="pre">true</span></code> とした場合は scipy のデフォルトパラメータで実行されます。
@@ -636,8 +636,7 @@ Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限�
 <section id="simplexdata-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">SimplexData.txt</span></code><a class="headerlink" href="#simplexdata-txt" title="Link to this heading">#</a></h3>
 <p>最小値を求める途中経過に関する情報を出力します。
-1行目はヘッダー、2行目以降にstep、入力ファイルの <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションにある
-<code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">label_list</span></code> で定義された変数(省略時は <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, ...)の値、最後に関数の値が出力されます。</p>
+1行目はヘッダー、2行目以降に step、入力ファイルの <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">label_list</span></code> で定義された変数(省略時は <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, ...)の値、最後に関数の値が出力されます。</p>
 <p>以下、出力例です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#step z1 z2 z3 R-factor</span>
 <span class="mi">0</span> <span class="mf">5.25</span> <span class="mf">4.25</span> <span class="mf">3.5</span> <span class="mf">0.015199251773721183</span>
@@ -647,6 +646,10 @@ Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限�
 <span class="mi">4</span> <span class="mf">5.179976851851851</span> <span class="mf">4.348958333333334</span> <span class="mf">3.5943287037037033</span> <span class="mf">0.006001660077530159</span>
 <span class="mi">5</span> <span class="mf">5.179976851851851</span> <span class="mf">4.348958333333334</span> <span class="mf">3.5943287037037033</span> <span class="mf">0.006001660077530159</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>ヘッダーの <code class="docutils literal notranslate"><span class="pre">R-factor</span></code> は目的関数の値の列を表します（旧 2DMAT に由来する名称です）。</p>
 </div>
 </section>
 <section id="history-functioncall-txt">

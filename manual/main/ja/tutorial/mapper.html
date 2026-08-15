@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -504,7 +504,7 @@
 </section>
 <section id="id3">
 <h2>入力ファイルの説明<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
-<p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
+<p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。記述方法の詳細については「入力ファイル」の章および <a class="reference internal" href="../algorithm/mapper_mpi.html"><span class="doc">グリッド型探索 mapper</span></a> を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
@@ -572,8 +572,8 @@
 </div>
 <p>961 個の格子点が 4 プロセスに分配されるため、担当点数はランクごとに 240 または 241 となります。
 進捗は数点ごとにまとめて出力され、複数ランクの出力が混ざるため、行の順序は実行のたびに変わります。</p>
-<p><code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> に各メッシュでの候補パラメータと、その時の関数値が出力されます。
-最終的にグリッド上のすべての点で計算された関数値が <code class="docutils literal notranslate"><span class="pre">output/ColorMap.txt</span></code> に出力されます。
+<p>標準出力には探索の進捗状況が表示されます。
+各グリッド点（メッシュ）で評価されたパラメータ <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> とその関数値は、最終的に <code class="docutils literal notranslate"><span class="pre">output/ColorMap.txt</span></code> に出力されます。
 今回の場合は、</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="mf">6.000000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">890.000000</span>
 <span class="o">-</span><span class="mf">5.600000</span> <span class="o">-</span><span class="mf">6.000000</span> <span class="mf">753.769600</span>

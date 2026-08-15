@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -497,8 +497,8 @@
 <p>とします。
 利用可能な関数の詳細は <a class="reference internal" href="../solver/analytical.html"><span class="doc">analytical ソルバーのリファレンス</span></a> を参照してください。</p>
 </section>
-<section id="id3">
-<h2>順問題ソルバーの追加<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="booth">
+<h2>Booth 関数の実装例<a class="headerlink" href="#booth" title="Link to this heading">#</a></h2>
 <p>ユーザー定義の順問題ソルバーを定義・解析する一番簡単な方法は、 <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーに追加することです。
 ここでは例として、 <a class="reference external" href="https://en.wikipedia.org/wiki/Test_functions_for_optimization">Booth関数</a></p>
 <div class="math notranslate nohighlight">
@@ -523,7 +523,7 @@
 </div>
 <p>つぎに、入力ファイルの <code class="docutils literal notranslate"><span class="pre">solver.function_name</span></code> パラメータで <code class="docutils literal notranslate"><span class="pre">booth</span></code> 関数を指定できるようにするために、<code class="docutils literal notranslate"><span class="pre">Solver</span></code> クラスのコンストラクタ (<code class="docutils literal notranslate"><span class="pre">__init__</span></code>) 中の if 分岐に以下のコードを挿入します。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;booth&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">booth</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">booth</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>この改造した <code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバーでは、 Booth 関数の最適化が行えます。
@@ -609,7 +609,7 @@ x2 = 2.9999832920260863
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">ベンチマーク関数ソルバー</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">順問題ソルバーの追加</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#booth">Booth 関数の実装例</a></li>
 </ul>
   </nav></div>
 

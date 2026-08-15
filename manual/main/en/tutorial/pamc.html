@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -503,7 +503,7 @@ This directory includes the following files:</p>
 <section id="input-files">
 <h2>Input files<a class="headerlink" href="#input-files" title="Link to this heading">#</a></h2>
 <p>This subsection describes the input file.
-For details, see the input file section of the manual.</p>
+For details, see the “Input file” chapter and <a class="reference internal" href="../algorithm/pamc.html"><span class="doc">Population Annealing Monte Carlo pamc</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
@@ -632,6 +632,12 @@ The symbol color corresponds to the function value.</p>
 <p><span class="caption-number">Fig. 8 </span><span class="caption-text">Plot of sampled parameters. The horizontal axis denotes <code class="docutils literal notranslate"><span class="pre">x1</span></code>, the vertical axis denotes <code class="docutils literal notranslate"><span class="pre">x2</span></code>, and the color represents the value of <code class="docutils literal notranslate"><span class="pre">T</span></code> (left) and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (right), respectively.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The PAMC outputs can be further analyzed, e.g., computing the model evidence and
+making histograms of the posterior probability distributions.
+See <a class="reference internal" href="../post/index.html"><span class="doc">Post-Processing Tools</span></a> for the analysis workflow using the post-processing tools.</p>
+</div>
 </section>
 </section>
 

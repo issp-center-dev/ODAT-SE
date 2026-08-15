@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -537,11 +537,12 @@
 <dt><strong>--reset_rand</strong></dt><dd><p><code class="docutils literal notranslate"><span class="pre">--resume</span></code> または <code class="docutils literal notranslate"><span class="pre">--cont</span></code> と組み合わせて使用し、再開時に乱数系列を新しくする。</p>
 </dd>
 <dt><strong>--nalg NALG</strong></dt><dd><p>探索アルゴリズム層に割り当てる MPI プロセス数。
-<code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> と組み合わせて MPI コミュニケータを分割する。 <code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">×</span> <span class="pre">NSOLVE</span></code> が総プロセス数と一致する必要がある。
-省略した場合は総プロセス数と <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> から決定される。</p>
+<code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> と組み合わせて MPI コミュニケータを分割する。両方を指定した場合は <code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">×</span> <span class="pre">NSOLVE</span></code> が総プロセス数と一致する必要がある。
+一方のみを指定した場合、もう一方は「総プロセス数 ÷ 指定値」として自動的に決定される（割り切れない場合はエラー）。</p>
 </dd>
 <dt><strong>--nsolve NSOLVE</strong></dt><dd><p>ソルバーグループあたりの MPI プロセス数。
-<code class="docutils literal notranslate"><span class="pre">--nalg</span></code> と <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> の両方を省略した場合は、すべてのプロセスがアルゴリズム層に割り当てられる (<code class="docutils literal notranslate"><span class="pre">NSOLVE</span> <span class="pre">=</span> <span class="pre">1</span></code>)。
+<code class="docutils literal notranslate"><span class="pre">--nalg</span></code> と同様に、一方のみを指定した場合はもう一方が自動的に決定される。
+<code class="docutils literal notranslate"><span class="pre">--nalg</span></code> と <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> の両方を省略した場合は、すべてのプロセスがアルゴリズム層に割り当てられる (<code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">=</span> <span class="pre">総プロセス数</span></code>, <code class="docutils literal notranslate"><span class="pre">NSOLVE</span> <span class="pre">=</span> <span class="pre">1</span></code>)。
 二層並列の詳細は <a class="reference internal" href="../tutorial/parallel_solver.html"><span class="doc">ソルバーの二層 MPI 並列化</span></a> を参照。</p>
 </dd>
 <dt><strong>--version</strong></dt><dd><p>バージョンを表示して終了する。</p>

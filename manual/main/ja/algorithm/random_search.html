@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -550,19 +550,19 @@
 <p>探索パラメータ空間を定義します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_points</span></code></p>
-<p>形式: 整数型。</p>
+<p>形式: 整数。</p>
 <p>説明: ランダムにサンプリングする点の数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <dl class="simple">
 <dt>説明: 各パラメータの単位。</dt><dd><p>探索アルゴリズム中では、各パラメータをそれぞれこれらの値で割ることで、
 簡易的な無次元化・正規化を行います。
@@ -574,7 +574,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクション内には以下のパラメータを設定できます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
-<p>形式: 整数型。</p>
+<p>形式: 整数。</p>
 <p>説明: パラメータ生成に用いる擬似乱数のシード。
 quasi-random sequence の場合は数列のスクランブルに用いられ、
 seed を指定すると生成される点列が再現可能になります。
@@ -610,7 +610,7 @@ seed を指定すると生成される点列が再現可能になります。
 <p>初期化して実行します。
 チェックポイント機能が有効な場合、以下のタイミングで実行時の状態をファイルに出力します。</p>
 <ol class="arabic simple">
-<li><p>指定した数のグリッド点を評価したとき、または指定した実行時間が経過したとき</p></li>
+<li><p>指定した数のサンプル点を評価したとき、または指定した実行時間が経過したとき</p></li>
 <li><p>実行の終了時</p></li>
 </ol>
 </li>

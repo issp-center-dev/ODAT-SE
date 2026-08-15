@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -627,12 +627,12 @@ The number of mesh points along each parameter of the mesh to be generated.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
 <p>Format: Float</p>
 <p>Description: The minimum value of the “inverse temperature” (<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>).
-One of the “temperature” and “inverse temperature” should be defined.</p>
+Specify either the temperature range (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) or the inverse-temperature range (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>), but not both pairs.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
 <p>Format: Float</p>
 <p>Description: The maximum value of the “inverse temperature” (<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>).
-One of the “temperature” and “inverse temperature” should be defined.</p>
+Specify either the temperature range (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) or the inverse-temperature range (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>), but not both pairs.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
 <p>Format: Boolean (default: true)</p>
@@ -705,9 +705,10 @@ and the indices of final points <span class="math notranslate nohighlight">\(j\)
 </section>
 <section id="output-files">
 <h2>Output files<a class="headerlink" href="#output-files" title="Link to this heading">#</a></h2>
+<p>In the following files, the unit that tracks the state of each replica is called a <em>walker</em> (<code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> walkers per process).</p>
 <section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Link to this heading">#</a></h3>
-<p>This file stores the suggested parameters and the corresponding value returned from the solver for each replica.
+<p>This file stores the parameter candidates proposed (trialed) in the Monte Carlo updates and the corresponding values of the objective function for each replica.
 The first column is the index of the MC step.
 The second column is the index of the walker in the process.
 The third column is the temperature of the replica.
@@ -724,7 +725,7 @@ The remaining columns are the coordinates.</p>
 </section>
 <section id="rank-result-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Link to this heading">#</a></h3>
-<p>This file stores the sampled parameters and the corresponding value returned from the solver for each replica.
+<p>This file stores the sequence of accepted parameters after the acceptance/rejection step and the corresponding values of the objective function for each replica (when a trial is rejected, the previous state is kept).
 This has the same format as <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>

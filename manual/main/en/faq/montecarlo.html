@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -481,7 +481,8 @@
 <h2>Where can I check the acceptance ratio?<a class="headerlink" href="#where-can-i-check-the-acceptance-ratio" title="Link to this heading">#</a></h2>
 <p>For <code class="docutils literal notranslate"><span class="pre">exchange</span></code> and <code class="docutils literal notranslate"><span class="pre">pamc</span></code>, the acceptance ratio can be checked as follows:</p>
 <p><strong>Standard output during execution:</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> displays the acceptance ratio at each temperature step.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> displays the acceptance ratio in the standard output at each temperature step.
+<code class="docutils literal notranslate"><span class="pre">exchange</span></code> does not print it to the standard output; check <code class="docutils literal notranslate"><span class="pre">fx.txt</span></code> below instead.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># beta  mean[f]  Err[f]  nreplica  log(Z/Z0)  acceptance_ratio
 </pre></div>
 </div>
@@ -541,16 +542,7 @@ To reproduce results, fix the <code class="docutils literal notranslate"><span c
 </pre></div>
 </div>
 <p>With sufficient steps, statistically equivalent results will be obtained.</p>
-</section>
-<section id="optimization-does-not-converge">
-<h2>Optimization does not converge<a class="headerlink" href="#optimization-does-not-converge" title="Link to this heading">#</a></h2>
-<p>Check the following:</p>
-<ol class="arabic simple">
-<li><p><strong>Search range</strong>: Verify that <code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code> include the optimal solution.</p></li>
-<li><p><strong>Initial values</strong>: For <code class="docutils literal notranslate"><span class="pre">minsearch</span></code>, convergence is difficult if <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> is extremely far from the optimal solution.</p></li>
-<li><p><strong>Algorithm choice</strong>: Using <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> on problems with many local minima tends to get trapped. Try <code class="docutils literal notranslate"><span class="pre">exchange</span></code> or <code class="docutils literal notranslate"><span class="pre">bayes</span></code> which can perform global search.</p></li>
-<li><p><strong>Insufficient steps</strong>: Monte Carlo methods need enough steps for thorough exploration. Increase the number of steps and re-run.</p></li>
-</ol>
+<p>If the optimization does not converge or the results are not what you expect, see <a class="reference internal" href="error.html"><span class="doc">Troubleshooting</span></a>.</p>
 </section>
 </section>
 
@@ -606,7 +598,6 @@ To reproduce results, fix the <code class="docutils literal notranslate"><span c
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-should-i-do-if-the-acceptance-ratio-is-too-low">What should I do if the acceptance ratio is too low?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-should-i-do-if-the-acceptance-ratio-is-too-high">What should I do if the acceptance ratio is too high?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monte-carlo-results-differ-each-run">Monte Carlo results differ each run</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-does-not-converge">Optimization does not converge</a></li>
 </ul>
   </nav></div>
 

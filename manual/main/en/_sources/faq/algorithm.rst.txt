@@ -17,6 +17,9 @@ Choose based on the number of parameters and the nature of your objective functi
    * - ``minsearch``
      - Few parameters (~10), quick local minimum search
      - Nelder-Mead method. Fast but may get trapped in local minima. Gradient-free
+   * - ``global_search``
+     - Global optimization of continuous parameters
+     - Global optimizers from scipy.optimize (differential evolution, SHGO, DIRECT, dual annealing). Requires scipy. Supports MPI-parallel candidate evaluation
    * - ``bayes``
      - Expensive objective function, minimize evaluation count
      - Surrogate model via Gaussian process regression. Minimizes evaluations. Requires physbo
@@ -25,7 +28,7 @@ Choose based on the number of parameters and the nature of your objective functi
      - Evaluates all grid points. Computational cost grows explosively with the number of parameters
    * - ``exchange``
      - Multimodal objective function, broad search
-     - Replica exchange method. Avoids local minima. Requires MPI
+     - Replica exchange method. Avoids local minima. MPI parallelism recommended (requires mpi4py; single-process runs also work)
    * - ``pamc``
      - Posterior distribution estimation, model evidence calculation
      - Population annealing. Suitable for statistical estimation

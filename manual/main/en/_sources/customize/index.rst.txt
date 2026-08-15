@@ -4,15 +4,27 @@ Developer Guide
 ODAT-SE is a framework that solves inverse problems by combining a forward problem solver ``Solver`` with a search algorithm ``Algorithm``.
 In addition to the built-in ``Solver`` and ``Algorithm``, users can define and use their own.
 
-.. code-block:: text
+.. only:: html
 
-   ┌────────────┐     ┌────────┐     ┌────────────┐
-   │ Algorithm  │────→│ Runner │────→│   Solver   │
-   │ (search)   │←────│(bridge)│←────│(objective) │
-   └────────────┘     └────────┘     └────────────┘
-     proposes          coordinate      computes
-     parameter x       transform       f(x) and
-                       & constraints    returns it
+   .. mermaid::
+
+      flowchart LR
+          A["<b>Algorithm</b><br/>(search)"] -->|"proposes parameter x"| R["<b>Runner</b><br/>(bridge)"]
+          R -->|"coordinate transform<br/>&amp; constraints"| S["<b>Solver</b><br/>(objective)"]
+          S -->|"computes f(x)"| R
+          R -->|"returns f(x)"| A
+
+.. only:: latex
+
+   .. code-block:: text
+
+      ┌────────────┐     ┌────────┐     ┌────────────┐
+      │ Algorithm  │────→│ Runner │────→│   Solver   │
+      │ (search)   │←────│(bridge)│←────│(objective) │
+      └────────────┘     └────────┘     └────────────┘
+        proposes          coordinate      computes
+        parameter x       transform       f(x) and
+                          & constraints    returns it
 
 This chapter first explains **how to add a custom solver** through a hands-on tutorial,
 then provides API details.

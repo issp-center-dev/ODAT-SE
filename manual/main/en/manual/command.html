@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -536,11 +536,12 @@ The support for the execution modes varies by algorithm; see the “Restart” o
 <dt><strong>–reset_rand</strong></dt><dd><p>Use together with <code class="docutils literal notranslate"><span class="pre">--resume</span></code> or <code class="docutils literal notranslate"><span class="pre">--cont</span></code> to start a new random number series on restart.</p>
 </dd>
 <dt><strong>–nalg NALG</strong></dt><dd><p>Number of MPI processes assigned to the search algorithm layer.
-Used together with <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> to split the MPI communicator; <code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">×</span> <span class="pre">NSOLVE</span></code> must equal the total number of processes.
-If omitted, it is determined from the total number of processes and <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code>.</p>
+Used together with <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> to split the MPI communicator; when both are given, <code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">×</span> <span class="pre">NSOLVE</span></code> must equal the total number of processes.
+When only one of the two is given, the other is determined automatically as “total number of processes ÷ given value” (an error is raised if it does not divide evenly).</p>
 </dd>
 <dt><strong>–nsolve NSOLVE</strong></dt><dd><p>Number of MPI processes per solver group.
-If both <code class="docutils literal notranslate"><span class="pre">--nalg</span></code> and <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> are omitted, all processes are assigned to the algorithm layer (<code class="docutils literal notranslate"><span class="pre">NSOLVE</span> <span class="pre">=</span> <span class="pre">1</span></code>).
+As with <code class="docutils literal notranslate"><span class="pre">--nalg</span></code>, when only one of the two is given, the other is determined automatically.
+If both <code class="docutils literal notranslate"><span class="pre">--nalg</span></code> and <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code> are omitted, all processes are assigned to the algorithm layer (<code class="docutils literal notranslate"><span class="pre">NALG</span> <span class="pre">=</span> <span class="pre">total</span></code>, <code class="docutils literal notranslate"><span class="pre">NSOLVE</span> <span class="pre">=</span> <span class="pre">1</span></code>).
 See <a class="reference internal" href="../tutorial/parallel_solver.html"><span class="doc">Two-level MPI parallelization of the solver</span></a> for details of the two-level parallelization.</p>
 </dd>
 <dt><strong>–version</strong></dt><dd><p>Show the version and exit.</p>

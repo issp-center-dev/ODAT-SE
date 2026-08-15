@@ -11,7 +11,7 @@
 
 - ``function_name``
 
-  形式: string型
+  形式: 文字列
 
   説明: 関数名。以下の関数が選べます。
 
@@ -95,9 +95,9 @@
           f(\vec{x}) = -\sum_{i=1}^N \sin(x_i)\left[\sin\!\left(\frac{i\, x_i^2}{\pi}\right)\right]^{20}
 
     - 大域最適値および位置は次元に依存します。局所最適解は :math:`d!` 個存在します。
-      :math:`d = 2` のとき :math:`f(\vec{x}^*) \approx -1.8013 \quad (\vec{x}^* \approx (2.2051,\,1.5698))`。
-      :math:`d = 5` のとき :math:`f(\vec{x}^*) \approx -4.6876`。
-      :math:`d = 10` のとき :math:`f(\vec{x}^*) \approx -9.6602`。
+      :math:`N = 2` のとき :math:`f(\vec{x}^*) \approx -1.8013 \quad (\vec{x}^* \approx (2.2051,\,1.5698))`。
+      :math:`N = 5` のとき :math:`f(\vec{x}^*) \approx -4.6876`。
+      :math:`N = 10` のとき :math:`f(\vec{x}^*) \approx -9.6602`。
 
   - ``qing``
 

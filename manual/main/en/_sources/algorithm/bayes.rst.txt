@@ -97,7 +97,7 @@ The hyperparameters are defined.
 
   Format: String (default: ``TS`` )
 
-  Description: Parameter to specify the score function.
+  Description: Parameter to specify the score function (acquisition function).
   ``EI`` (expected improvement), ``PI`` (probability of improvement), and ``TS`` (Thompson sampling) can be chosen.
 
 - ``interval``
@@ -158,9 +158,9 @@ At each step of the optimization process, the values of the parameters and the c
 
 Restart
 ~~~~~~~~~~~~~~~~~~~~~~
-The execution mode is specified by the ``run_mode`` parameter to the constructor.
+The execution mode is specified by the ``--init``, ``--resume``, and ``--cont`` options of the ``odatse`` command
+(when using ODAT-SE directly from Python, they correspond to the ``run_mode`` parameter of the constructor).
 The operation of each mode is described as follows.
-The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` options of ``odatse`` command, respectively.
 
 - ``"initial"`` (default)
 

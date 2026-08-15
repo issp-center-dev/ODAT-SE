@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -522,15 +522,15 @@
 各パラメータについて等間隔なグリッドを作成します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
-<p>形式: string型</p>
+<p>形式: 文字列</p>
 <p>説明: メッシュデータの情報が記載された参照用ファイルへのパス。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p>
-<p>形式: string型。 (default: &quot;#&quot;)</p>
+<p>形式: 文字列。 (default: &quot;#&quot;)</p>
 <p>説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code></p>
-<p>形式: string型。 (default: 空白文字)</p>
+<p>形式: 文字列。 (default: 空白文字)</p>
 <p>説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">skiprows</span></code></p>
@@ -538,15 +538,15 @@
 <p>説明: メッシュ定義ファイルの先頭から読み飛ばす行数。ヘッダ行をスキップする場合に指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
-<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 整数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: それぞれのパラメータについて等間隔にサンプリングする点の数。</p>
 </li>
 </ul>
@@ -556,26 +556,26 @@
 <p>手法のハイパーパラメータを定義します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">random_max_num_probes</span></code></p>
-<p>形式: int型 (default: 20)</p>
+<p>形式: 整数 (default: 20)</p>
 <p>説明: ベイズ最適化を行う前に行うランダムサンプリングの回数(パラメータとスコアが初めに無い場合にはランダムサンプリングは必須)。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bayes_max_num_probes</span></code></p>
-<p>形式: int型 (default: 40)</p>
+<p>形式: 整数 (default: 40)</p>
 <p>説明: ベイズ最適化を行う回数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">score</span></code></p>
-<p>形式: string型 (default: <code class="docutils literal notranslate"><span class="pre">TS</span></code> )</p>
-<p>説明: スコア関数を指定するパラメータ。
+<p>形式: 文字列 (default: <code class="docutils literal notranslate"><span class="pre">TS</span></code> )</p>
+<p>説明: スコア関数（獲得関数, acquisition function）を指定するパラメータ。
 <code class="docutils literal notranslate"><span class="pre">EI</span></code>, <code class="docutils literal notranslate"><span class="pre">PI</span></code>, <code class="docutils literal notranslate"><span class="pre">TS</span></code> より選択可能で、それぞれ &quot;expected improvement&quot;, &quot;probability of improvement&quot;, &quot;Thompson sampling&quot; を行います。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">interval</span></code></p>
-<p>形式: int型 (default: 5)</p>
+<p>形式: 整数 (default: 5)</p>
 <p>説明: 指定したインターバルごとに、ハイパーパラメータを学習します。負の値を指定すると、ハイパーパラメータの学習は行われません。
 0を指定すると、ハイパーパラメータの学習は最初のステップでのみ行われます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_rand_basis</span></code></p>
-<p>形式: int型 (default: 5000)</p>
-<p>説明: 基底関数の数。0を指定した場合、Bayesian linear modelを利用しない通常のガウシアンプロセスが行われます。</p>
+<p>形式: 整数 (default: 5000)</p>
+<p>説明: 基底関数の数。0を指定した場合、Bayesian linear modelを利用しない通常のガウス過程回帰が行われます。</p>
 </li>
 </ul>
 </section>
@@ -586,8 +586,7 @@
 <h3>メッシュ定義ファイル<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <p>本ファイルで探索するグリッド空間を定義します。
 1列目にメッシュのインデックス、
-2列目以降は <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> セクションにある、
-<code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">label_list</span></code> で定義された変数(省略時は <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, ...)に入る値が入ります。</p>
+2列目以降は <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">label_list</span></code> で定義された変数(省略時は <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, ...)に入る値が入ります。</p>
 <p>以下、サンプルを記載します。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
 <span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
@@ -622,8 +621,8 @@
 </section>
 <section id="id6">
 <h2>リスタート<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
-<p>コンストラクタの引数 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> に実行モードを指定します。
-以下はそれぞれ <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの引数の <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> に対応します。
+<p>実行モードは <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの引数 <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> で指定します
+（Python から直接利用する場合はコンストラクタの引数 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> に対応します）。
 各モードの動作は次のとおりです。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (デフォルト)</p>

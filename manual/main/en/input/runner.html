@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -569,6 +569,7 @@ You must define <code class="docutils literal notranslate"><span class="pre">co_
 <p>Format: List of lists of float (a column vector), or a string (default: <code class="docutils literal notranslate"><span class="pre">[]</span></code>)</p>
 <p>Description:
 <span class="math notranslate nohighlight">\(M\)</span> dimensional vector <span class="math notranslate nohighlight">\(b\)</span> for the constraint equations.
+Specify it as a column vector (a list of lists), e.g. <code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[[0],</span> <span class="pre">[-1]]</span></code>; a flat list such as <code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">-1]</span></code> raises an error.
 You need to set a column vector with the dimension equal to the number of constraints <span class="math notranslate nohighlight">\(M\)</span>.
 You must define <code class="docutils literal notranslate"><span class="pre">co_a</span></code> together with this parameter.</p>
 </li>

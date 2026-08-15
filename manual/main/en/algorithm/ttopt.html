@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -499,11 +499,14 @@
                   
   <section id="tensor-train-optimization-ttopt">
 <h1>Tensor Train Optimization <code class="docutils literal notranslate"><span class="pre">ttopt</span></code><a class="headerlink" href="#tensor-train-optimization-ttopt" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code> is an <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> that performs parameter search by modeling the objective function as a large tensor indexed by the parameters and representing it as a network of 3-rank tensors (matrix product state MPS, tensor train) and searching the MPS using a gradient-free optimization method based on repeated cross-approximation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code> is an <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> that performs parameter search using Tensor Train Optimization (TTOpt).
+It treats the objective function as a high-dimensional tensor indexed by the parameter combinations, and searches for the optimal value and its location without gradients by selectively evaluating only a small fraction of the tensor via cross approximation.
+See “Algorithm Description” below for an overview of the method.</p>
 <section id="preparation">
 <h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed when using MPI parallelization.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+<p>TTOpt requires scipy. In addition, <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> should be installed when using MPI parallelization.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install scipy
+$ python3 -m pip install mpi4py
 </pre></div>
 </div>
 </section>
@@ -528,23 +531,31 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">p_points</span></code></p>
 <p>Format: Integer or list of integer. The length should match the value of dimension.</p>
-<p>Description: Number of values <span class="math notranslate nohighlight">\(P_i\)</span> taken by each tensor leg along each dimension. Each parameter is discretized into <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> uniformly spaced points, which are represented by <span class="math notranslate nohighlight">\(P_i\)</span> values taken by <span class="math notranslate nohighlight">\(q_i\)</span> tensor legs. If an integer is provided, the same value is used for all dimensions. The default value is 2.</p>
+<p>Description: Base <span class="math notranslate nohighlight">\(P_i\)</span> used to discretize parameter <span class="math notranslate nohighlight">\(x_i\)</span> (the number of values each decomposed index takes; 2 for a binary representation). Each parameter is discretized into <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> uniformly spaced points. If an integer is provided, the same value is used for all dimensions. The default value is 2.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">q_points</span></code></p>
 <p>Format: Integer or list of integer. The length should match the value of dimension.</p>
-<p>Description: Number of tensor legs along each dimension. Each parameter is discretized into <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> uniformly spaced points, which are represented by <span class="math notranslate nohighlight">\(P_i\)</span> values taken by <span class="math notranslate nohighlight">\(q_i\)</span> tensor legs. If an integer is provided, the same value is used for all dimensions. The default value is 1.</p>
+<p>Description: Number of decomposed indices <span class="math notranslate nohighlight">\(q_i\)</span> for parameter <span class="math notranslate nohighlight">\(x_i\)</span> (the exponent that determines the number of grid points <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span>; the number of bits for a binary representation). If an integer is provided, the same value is used for all dimensions. The default value is 1.</p>
 </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With the default settings (<code class="docutils literal notranslate"><span class="pre">p_points</span> <span class="pre">=</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">q_points</span> <span class="pre">=</span> <span class="pre">1</span></code>), each parameter is discretized into only <span class="math notranslate nohighlight">\(2^1 = 2\)</span> points.
+When optimizing continuous parameters, set <code class="docutils literal notranslate"><span class="pre">q_points</span></code> to around 10–20
+(<span class="math notranslate nohighlight">\(2^{10} \approx 10^3\)</span> to <span class="math notranslate nohighlight">\(2^{20} \approx 10^6\)</span> grid points) to obtain sufficient resolution.</p>
+</div>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">r_max</span></code></p>
 <p>Format: Integer (default: 4)</p>
-<p>Description: Maximum bond dimension used to connect small tensors. Larger values result in more function evaluations at each step of the optimization.</p>
+<p>Description: Maximum rank of the tensor approximation (the maximum bond dimension connecting the small tensors). Larger values can capture more complicated functions, but result in more objective-function evaluations at each step of the optimization.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code></p>
 <p>Format: Integer (default: 10000)</p>
-<p>Description: Maximum number of cost function evaluations. This corresponds to the computational budget for the optimization. The counter is updated at the end of each sweep in the algorithm, and the parameter search terminates when the counter is greater than or equal to this variable.</p>
+<p>Description: Maximum number of objective-function evaluations. This corresponds to the computational budget for the optimization. The counter is updated after each batch of candidate points is evaluated, and the limit is checked after the whole batch, so the actual count can slightly exceed <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code>. The counter counts the requested candidate points, including those already cached.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxvol_tol</span></code></p>
 <p>Format: Float (default: 1.001)</p>
-<p>Description: Tolerance used in computing the maximum volume submatrix. Exact decomposition of the matrix is done when the tolerance is set to 1. Values lower than 1 are clipped to 1.</p>
+<p>Description: Stopping threshold of the iterative maximum-volume submatrix search (the maxvol method described below). Values closer to 1 make the iteration continue until a stricter maximum-volume condition is reached; setting it to exactly 1 requires the exact maximum-volume condition. Values below 1 are not meaningful: the stopping condition can never be satisfied, so the iteration always runs up to <code class="docutils literal notranslate"><span class="pre">maxvol_max_it</span></code>. The default value is usually sufficient.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxvol_max_it</span></code></p>
 <p>Format: Integer (default: 1000)</p>
@@ -560,13 +571,15 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eval_history_buffer_rows</span></code></p>
 <p>Format: Integer (default: 256)</p>
-<p>Description: Frequency <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> of writing to <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code>. <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> evaluations are written together.</p>
+<p>Description: Flush threshold <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span> for writing to <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code>. The whole pending buffer is written out once the number of buffered rows reaches or exceeds <span class="math notranslate nohighlight">\(N_{\mathrm{flush}}\)</span>.</p>
 </li>
 </ul>
 </section>
 </section>
 <section id="output-files">
 <h2>Output Files<a class="headerlink" href="#output-files" title="Link to this heading">#</a></h2>
+<p>In the following, <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> denotes <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> specified in the <code class="docutils literal notranslate"><span class="pre">[base]</span></code> section (when given as a relative path, <code class="docutils literal notranslate"><span class="pre">root_dir/output_dir</span></code> is used).
+Each MPI rank uses a rank-numbered subdirectory under <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">OUTPUT/0/</span></code>) as its working directory. The main files written by TTOpt are placed directly under <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> (created by MPI rank 0 only, unless stated otherwise).</p>
 <section id="ttopt-hyperparameters-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">ttopt_hyperparameters.txt</span></code><a class="headerlink" href="#ttopt-hyperparameters-txt" title="Link to this heading">#</a></h3>
 <p>At the end of the preparation phase (<code class="docutils literal notranslate"><span class="pre">prepare</span></code>), rank 0 writes the main hyperparameters, one field per line:</p>
@@ -585,7 +598,7 @@
 </section>
 <section id="ttopt-history-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">ttopt_history.txt</span></code><a class="headerlink" href="#ttopt-history-txt" title="Link to this heading">#</a></h3>
-<p>After each optimization step (after a batch of candidates is evaluated at one MPS core and the running best point is updated), the cumulative function evaluation count, the best point <code class="docutils literal notranslate"><span class="pre">x_opt</span></code> so far, and the best value <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> are appended. Leading <code class="docutils literal notranslate"><span class="pre">#</span></code> lines describe the columns.</p>
+<p>After each optimization step (after a batch of candidates is evaluated and the running best point is updated), the cumulative function evaluation count, the best point <code class="docutils literal notranslate"><span class="pre">x_opt</span></code> so far, and the best value <code class="docutils literal notranslate"><span class="pre">fx_opt</span></code> are appended. Leading <code class="docutils literal notranslate"><span class="pre">#</span></code> lines describe the columns.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: count</span>
 <span class="c1"># $2: x_opt[0]</span>
 <span class="c1"># $3: x_opt[1]</span>
@@ -609,8 +622,8 @@
 <section id="ttopt-eval-history-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code><a class="headerlink" href="#ttopt-eval-history-txt" title="Link to this heading">#</a></h3>
 <p>Created only if <code class="docutils literal notranslate"><span class="pre">save_eval_history</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>: <code class="docutils literal notranslate"><span class="pre">OUTPUT/ttopt_eval_history.txt</span></code>.
-Each row is one actually evaluated candidate with its coordinates and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (leading <code class="docutils literal notranslate"><span class="pre">#</span></code> lines give column labels; parameter names follow <code class="docutils literal notranslate"><span class="pre">label_list</span></code> when set).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: row index (order of batches in the run)</span>
+Each row is one requested candidate (including cached points for which the solver was not called again) with its coordinates and <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (leading <code class="docutils literal notranslate"><span class="pre">#</span></code> lines give column labels; parameter names follow <code class="docutils literal notranslate"><span class="pre">label_list</span></code> when set). Column 1 is the sequential row index.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: row index</span>
 <span class="c1"># $2: x1</span>
 <span class="c1"># $3: x2</span>
 <span class="c1"># $4: f(x)</span>
@@ -627,12 +640,18 @@ Each row is one actually evaluated candidate with its coordinates and <code clas
 </section>
 <section id="algorithm-description">
 <h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Link to this heading">#</a></h2>
-<p>Tensor Train Optimization (TTOpt) [1] is a method for finding the optimum of a discrete function and its location in the parameter space. It can be easily adapted to continuous optimization problems and is able to handle high-dimensional problems and functions whose parameters are a combination of discrete and continuous quantities.</p>
-<p>TTOpt is a gradient-free optimization scheme based on repeated cross-approximation of a large tensor whose elements correspond to values of the objective function <span class="math notranslate nohighlight">\(f(x_1, x_2, ..., x_n)\)</span> indexed by parameter combinations <span class="math notranslate nohighlight">\((x_1, x_2, ..., x_n)\)</span>. The cross-approximation is computed using approximate maximum-volume submatrices.
-Each parameter <span class="math notranslate nohighlight">\(x_i\)</span> is discretized into <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> uniformly spaced points, which are represented by <span class="math notranslate nohighlight">\(P_i\)</span> values taken by <span class="math notranslate nohighlight">\(q_i\)</span> tensor legs. This way, the objective function is represented as a <span class="math notranslate nohighlight">\(\sum_i q_i\)</span>-rank tensor.
-The TTOpt algorithm decomposes this high-dimensional tensor into a network of 3-rank tensors (MPS, tensor train).</p>
-<p>The algorithm is designed such that only a small part of the whole large tensor needs to be explicitly computed. Thus, this approach is advantageous when the objective function is computationally costly or when the search space is very large. Furthermore, by representing the data in MPS form, we can avoid having to form exponentially large matrices in the optimization process.</p>
-<p>For this algorithm, execution using multiple MPI processes is possible. When MPI is used, evaluation of the objective function values at the sampled points is divided across the different ranks.</p>
+<p>Tensor Train Optimization (TTOpt) [1] is a gradient-free black-box optimization method for high-dimensional discrete optimization problems.
+It can also be applied to continuous variables by discretizing each of them, and thus handles problems with a mixture of discrete and continuous variables.</p>
+<p>TTOpt regards the objective function <span class="math notranslate nohighlight">\(f(x_1, \dots, x_n)\)</span> as the elements of a high-dimensional tensor indexed by the parameter combinations.
+This huge tensor is never computed explicitly.
+Instead, TTOpt exploits a low-rank representation in the Tensor Train (TT, equivalent to the matrix product state MPS) format and selectively evaluates only the required tensor elements using a cross-approximation technique called TT-cross.</p>
+<p>In TT-cross, the maxvol (maximum-volume) method is used to select sample points corresponding to the rows and columns that capture the structure of the tensor efficiently.
+Repeating this operation along each dimension of the Tensor Train, the algorithm searches for the optimal value and its location while keeping the number of objective-function evaluations small.</p>
+<p>In addition, when each parameter <span class="math notranslate nohighlight">\(x_i\)</span> has <span class="math notranslate nohighlight">\(N_i = P_i^{q_i}\)</span> discrete points, the index can be “quantized”, i.e., decomposed into <span class="math notranslate nohighlight">\(q_i\)</span> smaller indices each taking <span class="math notranslate nohighlight">\(P_i\)</span> states.
+This allows even very finely discretized parameter spaces to be treated as a higher-order tensor with small local dimensions.
+The input parameters <code class="docutils literal notranslate"><span class="pre">p_points</span></code> and <code class="docutils literal notranslate"><span class="pre">q_points</span></code> correspond to <span class="math notranslate nohighlight">\(P_i\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span>, respectively.</p>
+<p>Since this method does not need to store or evaluate the whole search space, it is effective when the parameter space is huge or when a single objective-function evaluation is computationally expensive.
+Moreover, the evaluations of the objective function at the sample points are independent of each other, so they can be distributed over multiple processes using MPI.</p>
 </section>
 <section id="restart">
 <h2>Restart<a class="headerlink" href="#restart" title="Link to this heading">#</a></h2>

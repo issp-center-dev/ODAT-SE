@@ -145,3 +145,20 @@ You tried to restart with ``--resume`` but the checkpoint file is not found. Che
 - You are running in the same directory with the same input file (the same ``output_dir``) as the original calculation.
 - You are running with the same MPI process layout (including ``--nalg`` / ``--nsolve``) as the original calculation.
 - The calculation was not interrupted before the first checkpoint was saved (i.e., before the first ``checkpoint_steps`` steps or ``checkpoint_interval`` seconds).
+
+
+Problems with calculation results
+=================================
+
+Optimization does not converge
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check the following:
+
+1. **Search range**: Verify that ``min_list`` / ``max_list`` include the optimal solution.
+
+2. **Initial values**: For ``minsearch``, convergence is difficult if ``initial_list`` is extremely far from the optimal solution.
+
+3. **Algorithm choice**: Using ``minsearch`` on problems with many local minima tends to get trapped. Try ``exchange`` or ``bayes`` which can perform global search.
+
+4. **Insufficient steps**: Monte Carlo methods need enough steps for thorough exploration. Increase the number of steps and re-run. See also :doc:`montecarlo` for tuning step sizes and temperature points.

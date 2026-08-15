@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -510,6 +510,10 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> :  Population Annealing Monte Carlo method</p></li>
 </ul>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label_list</span></code></p>
+<p>Format: List of strings. The length should match the value of <code class="docutils literal notranslate"><span class="pre">dimension</span></code>. (default: <code class="docutils literal notranslate"><span class="pre">[&quot;x1&quot;,</span> <span class="pre">&quot;x2&quot;,</span> <span class="pre">...]</span></code>)</p>
+<p>Description: Names of the parameter axes, used e.g. in the headers of the output files.</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
 <p>Format: Integer</p>
 <p>Description:
@@ -532,13 +536,13 @@ A parameter to specify whether the intermediate states are periodically stored t
 <p>Format: Integer (default: 16,777,216)</p>
 <p>Description:
 A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of a grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in the Monte Carlo (exchange and PAMC) algorithms.
-The default value is a sufficiently large number of steps. To enable checkpointing, at least one of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> should be specified.</p>
+The default value is a sufficiently large number of steps. To use checkpointing, set <code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">=</span> <span class="pre">true</span></code> and specify at least one of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code>.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code></p>
 <p>Format: Floating point number (default: 31,104,000)</p>
 <p>Description:
 A parameter to specify the execution time between the previous and next checkpoints in unit of seconds.
-The default value is a sufficiently long period (360 days). To enable checkpointing, at least one of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code> should be specified.</p>
+The default value is a sufficiently long period (360 days). To use checkpointing, set <code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">=</span> <span class="pre">true</span></code> and specify at least one of <code class="docutils literal notranslate"><span class="pre">checkpoint_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code>.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_file</span></code></p>
 <p>Format: String (default: <code class="docutils literal notranslate"><span class="pre">&quot;status.pickle&quot;</span></code>)</p>

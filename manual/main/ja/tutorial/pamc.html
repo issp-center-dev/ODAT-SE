@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -485,7 +485,7 @@
   <section id="id1">
 <h1>ポピュレーションアニーリングによる探索<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <p>ここでは、ポピュレーションアニーリングを用いて Himmelblau関数の最小化問題を解析する方法について説明します。
-具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の時と同様です。</p>
+具体的な計算手順は <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の場合と同様です。</p>
 <section id="id2">
 <h2>サンプルファイルの場所<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>サンプルファイルは <code class="docutils literal notranslate"><span class="pre">sample/analytical/pamc</span></code> にあります。
@@ -536,7 +536,7 @@
 </pre></div>
 </div>
 <p>ここではこの入力ファイルを簡単に説明します。
-詳細は入力ファイルのリファレンスを参照してください。</p>
+詳細は「入力ファイル」の章および <a class="reference internal" href="../algorithm/pamc.html"><span class="doc">ポピュレーションアニーリングモンテカルロ法 pamc</span></a> を参照してください。</p>
 <p><code class="docutils literal notranslate"><span class="pre">[base]</span></code>, <code class="docutils literal notranslate"><span class="pre">[solver]</span></code>, <code class="docutils literal notranslate"><span class="pre">[runner]</span></code> のセクションについては Nelder-Mead法による探索(<code class="docutils literal notranslate"><span class="pre">minsearch</span></code>)の場合と同じです。</p>
 <p><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションでは、使用するアルゴリズムとその設定を行います。</p>
 <ul class="simple">
@@ -616,11 +616,14 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 <section id="id5">
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> を図示することで <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の小さいパラメータがどこにあるかを推定することができます。
-以下のコマンドを入力すると2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> が作成されます。
-シンボルの色は目的関数の値に対応します。</p>
+<code class="docutils literal notranslate"><span class="pre">plot_result_2dmap.py</span></code> を実行すると、全温度点のサンプルを読み込み、
+温度 <code class="docutils literal notranslate"><span class="pre">T</span></code> で色分けした図 <code class="docutils literal notranslate"><span class="pre">result_T.png</span></code> （下図左）と、目的関数値 <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> で色分けした図 <code class="docutils literal notranslate"><span class="pre">result_fx.png</span></code> （下図右）、
+および両者を並べた <code class="docutils literal notranslate"><span class="pre">result.png</span></code> が作成されます。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 plot_result_2dmap.py
 </pre></div>
 </div>
+<p>なお、 <code class="docutils literal notranslate"><span class="pre">plot_result_2d.py</span></code> は、引数に指定した <code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> ファイルのサンプル点を
+<code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の値で色分けした図を1枚作成するスクリプトです（デフォルトの出力先は <code class="docutils literal notranslate"><span class="pre">res.png</span></code>）。</p>
 <p>作成された図を見ると、 <code class="docutils literal notranslate"><span class="pre">T</span></code> を小さくするごとに <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の最小値を与える点の付近にサンプルが集中していることがわかります。</p>
 <figure class="align-default" id="id6">
 <img alt="../_images/res_pamc.png" src="../_images/res_pamc.png" />
@@ -628,6 +631,11 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 <p><span class="caption-text">サンプルされたパラメータ。横軸は <code class="docutils literal notranslate"><span class="pre">x1</span></code> , 縦軸は <code class="docutils literal notranslate"><span class="pre">x2</span></code> を、色は <code class="docutils literal notranslate"><span class="pre">T</span></code> (左図), <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> (右図)を表す。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
+<div class="admonition seealso">
+<p class="admonition-title">参考</p>
+<p>PAMC の出力からは、model evidence の計算や事後確率分布のヒストグラム作成などの解析ができます。
+ポスト処理ツールを用いた解析の流れは <a class="reference internal" href="../post/index.html"><span class="doc">ポスト処理ツール</span></a> を参照してください。</p>
+</div>
 </section>
 </section>
 

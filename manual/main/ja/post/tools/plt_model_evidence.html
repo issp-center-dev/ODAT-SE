@@ -31,8 +31,8 @@
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -493,21 +493,21 @@
                   
   <section id="odatse-plt-model-evidence">
 <h1>odatse_plt_model_evidence<a class="headerlink" href="#odatse-plt-model-evidence" title="Link to this heading">#</a></h1>
-<section id="name">
-<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">#</a></h2>
-<p>model evidence を計算する</p>
+<section id="id1">
+<h2>機能概要<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>model evidence を計算します</p>
 </section>
-<section id="synopsis">
-<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h2>書式<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_plt_model_evidence<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span>-n<span class="w"> </span>NDATA<span class="w"> </span>FILE...
 </pre></div>
 </div>
 </section>
-<section id="description">
-<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
-<p>PAMC の出力ファイル FILE から beta および分配関数の値を取り出し、model evidence を計算する。
-結果は標準出力に書き出される。また、結果をプロットした図をファイルに出力する。</p>
-<p>複数の FILE を指定した場合は、それらの model evidence の平均と標準偏差を出力し、エラーバー付きのプロットを生成する。</p>
+<section id="id3">
+<h2>説明<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>PAMC の出力ファイル FILE から beta および分配関数の値を取り出し、model evidence を計算します。
+計算結果は標準出力およびテキストファイル(デフォルト: model_evidence.txt)に出力されます。また、結果をプロットした図を画像ファイル(デフォルト: model_evidence.png)に出力します。</p>
+<p>複数の FILE を指定した場合は、それらの model evidence の平均と標準偏差を出力し、エラーバー付きのプロットを生成します。</p>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <ul class="simple">
@@ -517,62 +517,62 @@
 </ul>
 </div>
 <dl class="simple">
-<dt><strong>FILE</strong></dt><dd><p>PAMCの出力ファイル名 (fx.txt)。複数のファイルを指定可能。</p>
+<dt><strong>FILE</strong></dt><dd><p>PAMCの出力ファイル名 (fx.txt)。複数のファイルを指定可能です。</p>
 </dd>
-<dt><strong>-n NDATA, --ndata NDATA</strong></dt><dd><p>各データセットに含まれるデータ点の数をカンマ区切りの整数値で指定する。必須パラメータ。例: 「100」(1つのデータセットに100点)、「50,100,75」(3つのデータセットにそれぞれ50点、100点、75点)</p>
+<dt><strong>-n NDATA, --ndata NDATA</strong></dt><dd><p>各データセットに含まれるデータ点の数をカンマ区切りの整数値で指定します。必須パラメータです。例: 「100」(1つのデータセットに100点)、「50,100,75」(3つのデータセットにそれぞれ50点、100点、75点)</p>
 </dd>
-<dt><strong>-w WEIGHT, --weight WEIGHT</strong></dt><dd><p>データセット間の相対重みをカンマ区切りの数値で指定する。重みは和が 1.0 になるように自動で規格化される。重みの数値の個数とデータ点の個数は一致させる必要がある。</p>
+<dt><strong>-w WEIGHT, --weight WEIGHT</strong></dt><dd><p>データセット間の相対重みをカンマ区切りの数値で指定します。重みは和が 1.0 になるように自動で規格化されます。重みの数値の個数とデータ点の個数は一致させる必要があります。</p>
 </dd>
-<dt><strong>-V VOLUME, --Volume VOLUME</strong></dt><dd><p>事前確率分布の規格化因子 (定義域の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span>) を指定する。デフォルトは 1.0。</p>
+<dt><strong>-V VOLUME, --Volume VOLUME</strong></dt><dd><p>事前確率分布の規格化因子 (定義域の体積 <span class="math notranslate nohighlight">\(V_\Omega\)</span>) を指定します。デフォルトは 1.0 です。</p>
 </dd>
-<dt><strong>-f RESULT, --result RESULT</strong></dt><dd><p>model evidence の値を出力するファイル名。デフォルトは model_evidence.txt 。</p>
+<dt><strong>-f RESULT, --result RESULT</strong></dt><dd><p>model evidence の値を出力するファイル名を指定します。デフォルトは model_evidence.txt です。</p>
 </dd>
-<dt><strong>-o OUTPUT, --output OUTPUT</strong></dt><dd><p>model evidence のプロットを出力するファイル名。出力形式は拡張子を元に設定され、matplotlib がサポートする形式を指定可能。デフォルトは model_evidence.png 。</p>
+<dt><strong>-o OUTPUT, --output OUTPUT</strong></dt><dd><p>model evidence のプロットを出力するファイル名を指定します。出力形式は拡張子を元に設定され、matplotlib がサポートする形式を指定可能です。デフォルトは model_evidence.png です。</p>
 </dd>
-<dt><strong>--auto-focus</strong></dt><dd><p>model evidence の最大値をもとに、プロットの表示範囲を自動的に決定する方法を適用するフラグ。範囲の絞り込みの強さは <code class="docutils literal notranslate"><span class="pre">--focus-factor</span></code> オプションで制御する。</p>
+<dt><strong>--auto-focus</strong></dt><dd><p>model evidence の最大値をもとに、プロットの表示範囲を自動決定するフラグです。範囲の絞り込みの強さは <code class="docutils literal notranslate"><span class="pre">--focus-factor</span></code> オプションで制御します。</p>
 </dd>
-<dt><strong>--focus-factor</strong></dt><dd><p><code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> の絞り込みの強さを指定する。0 から 1 の実数（小さいほど狭い）で、<code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> が指定されていない場合は無効。デフォルトは 0.5。</p>
+<dt><strong>--focus-factor</strong></dt><dd><p><code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> の絞り込みの強さを指定します。0 から 1 の実数（小さいほど狭い）で、<code class="docutils literal notranslate"><span class="pre">--auto-focus</span></code> が指定されていない場合は無効です。デフォルトは 0.5 です。</p>
 </dd>
-<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了します。</p>
 </dd>
 </dl>
 </section>
-<section id="usage">
-<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h2>使用例<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <ol class="arabic">
 <li><p>基本的な使用方法(1つのデータファイルと1つのデータセット)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_model_evidence<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>fx.txt
 </pre></div>
 </div>
 <p>データ点数100のデータセットについて model evidence を計算し、
-model_evidence.txt と model_evidence.png を出力する。</p>
+model_evidence.txt と model_evidence.png を出力します。</p>
 </li>
 <li><p>複数のデータセットがある場合</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_model_evidence<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>,100,75<span class="w"> </span>-w<span class="w"> </span><span class="m">0</span>.2,0.5,0.3<span class="w"> </span>fx.txt
 </pre></div>
 </div>
 <p>3つのデータセット(データ点数がそれぞれ50、100、75で、相対重みが0.2、0.5、0.3)について、
-model evidence を計算する。</p>
+model evidence を計算します。</p>
 </li>
 <li><p>複数のデータファイルを使用する場合</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_model_evidence<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span><span class="w"> </span>-o<span class="w"> </span>evidence_plot.pdf<span class="w"> </span>-f<span class="w"> </span>evidence_data.txt<span class="w"> </span>fx_1.txt<span class="w"> </span>fx_2.txt<span class="w"> </span>fx_3.txt
 </pre></div>
 </div>
-<p>3つのデータファイルから model evidence を計算し、それらの平均と標準偏差を求める。
-結果を evidence_data.txt に出力し、evidence_plot.pdf にエラーバー付きのプロットを生成する。</p>
+<p>3つのデータファイルから model evidence を計算し、それらの平均と標準偏差を求めます。
+結果を evidence_data.txt に出力し、evidence_plot.pdf にエラーバー付きのプロットを生成します。</p>
 </li>
 </ol>
 </section>
-<section id="notes">
-<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h2>補足事項<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <section id="model-evidence">
 <h3>model evidence の計算<a class="headerlink" href="#model-evidence" title="Link to this heading">#</a></h3>
-<p>R-factor を以下のように定義する:</p>
+<p>R-factor を以下のように定義します:</p>
 <div class="math notranslate nohighlight">
 \[R(X;D)^2 = \sum_\mu w_\mu \sum_i \left( I_\mu(\theta_i) - I^{\text{(cal)}}_\mu(\theta_i;X) \right)^2\]</div>
-<p><span class="math notranslate nohighlight">\(I_\mu(\theta_i)\)</span> はデータセット <span class="math notranslate nohighlight">\(\mu\)</span> に含まれる計測データ点、 <span class="math notranslate nohighlight">\(I^{\text{(cal)}}_\mu(\theta_i;X)\)</span> はパラメータ <span class="math notranslate nohighlight">\(X\)</span> のもとでの理論計算値とする。
-<span class="math notranslate nohighlight">\(w_\mu\)</span> はデータセットの相対重みで、合計が1になるよう正規化されている。</p>
-<p>model evidence <span class="math notranslate nohighlight">\(P(D|\beta)\)</span> は以下の式で計算される:</p>
+<p><span class="math notranslate nohighlight">\(I_\mu(\theta_i)\)</span> はデータセット <span class="math notranslate nohighlight">\(\mu\)</span> に含まれる計測データ点、 <span class="math notranslate nohighlight">\(I^{\text{(cal)}}_\mu(\theta_i;X)\)</span> はパラメータ <span class="math notranslate nohighlight">\(X\)</span> のもとでの理論計算値とします。
+<span class="math notranslate nohighlight">\(w_\mu\)</span> はデータセットの相対重みで、合計が1になるよう規格化されています。</p>
+<p>model evidence <span class="math notranslate nohighlight">\(P(D|\beta)\)</span> は以下の式で計算されます:</p>
 <div class="math notranslate nohighlight">
 \[\log P(D|\beta) = \log Z(D;\beta) - \log V_\Omega + \frac{n}{2} \log \beta + \sum_{\mu} \frac{n_{\mu}}{2} \log w_{\mu} - \frac{n}{2} \log \pi\]</div>
 <p>ここで、 <span class="math notranslate nohighlight">\(Z(D;\beta)\)</span> は分配関数</p>
@@ -580,15 +580,15 @@ model evidence を計算する。</p>
 \[Z(D;\beta) = \int_\Omega \exp\left(-\beta\,R(X;D)^2\right) dX\]</div>
 <p>また、</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(V_\Omega\)</span>: 事前確率分布の正規化因子</p></li>
+<li><p><span class="math notranslate nohighlight">\(V_\Omega\)</span>: 事前確率分布の規格化因子</p></li>
 <li><p><span class="math notranslate nohighlight">\(n_\mu\)</span>: 各データセットのデータ点数</p></li>
 <li><p><span class="math notranslate nohighlight">\(n\)</span>: 全データ点数(すべてのデータセットの合計)</p></li>
 <li><p><span class="math notranslate nohighlight">\(\beta\)</span>: 逆温度</p></li>
 </ul>
-<p>とする。</p>
+<p>とします。</p>
 </section>
-<section id="id1">
-<h3>入力ファイルの形式<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>入力ファイルの形式<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <p>入力ファイル(PAMCの出力ファイル)は以下の形式を想定しています:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
 beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
@@ -603,8 +603,8 @@ beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
 </dd>
 </dl>
 </section>
-<section id="id2">
-<h3>出力ファイルの形式<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>出力ファイルの形式<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <p>出力ファイル(model_evidence.txt)の形式は以下の通りです:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># max log_P(D;beta) = {最大値} at Tstep = {インデックス}, beta = {対応するbeta値}
 # $1: Tstep
@@ -627,33 +627,33 @@ beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
 </pre></div>
 </div>
 </section>
-<section id="id3">
-<h3>処理の仕組み<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>処理の仕組み<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <p>このスクリプトは以下の手順で処理を行います:</p>
 <ol class="arabic simple">
-<li><p>入力ファイルからbeta値とlogz値を読み込む</p></li>
-<li><p>各データセットのデータ点数と重みを取得</p></li>
-<li><p>model evidenceの対数値を計算</p></li>
-<li><p>複数ファイルの場合は平均と標準偏差を計算</p></li>
-<li><p>結果をファイルに出力</p></li>
-<li><p>model evidenceをbetaの関数としてプロット</p></li>
+<li><p>入力ファイルからbeta値とlogz値を読み込みます</p></li>
+<li><p>各データセットのデータ点数と重みを取得します</p></li>
+<li><p>model evidenceの対数値を計算します</p></li>
+<li><p>複数ファイルの場合は平均と標準偏差を計算します</p></li>
+<li><p>結果をファイルに出力します</p></li>
+<li><p>model evidenceをbetaの関数としてプロットします</p></li>
 </ol>
 </section>
-<section id="id4">
-<h3>プロットの特性<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>プロットの特性<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>X軸(beta)は常に対数スケールで表示</p></li>
-<li><p>単一ファイルの場合は点のみ、複数ファイルの場合はエラーバー付きで表示</p></li>
-<li><p>マーカーは赤色の「x」で表示</p></li>
-<li><p>グリッド線を表示し、データの位置を把握しやすくする</p></li>
+<li><p>X軸(beta)は常に対数スケールで表示されます</p></li>
+<li><p>単一ファイルの場合は点のみ、複数ファイルの場合はエラーバー付きで表示されます</p></li>
+<li><p>マーカーは赤色の「x」で表示されます</p></li>
+<li><p>グリッド線を表示し、データの位置を把握しやすくします</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>エラー処理<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h3>エラー処理<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>入力ファイルが存在しない場合: ファイルオープンエラーが発生</p></li>
-<li><p>データ形式が不正: numpy.loadtxtでエラーが発生</p></li>
-<li><p>NDATAとWEIGHTの長さが一致しない場合、またはデータ点数・重みが正でない場合: エラーメッセージを表示して終了</p></li>
+<li><p>入力ファイルが存在しない場合: ファイルオープンエラーが発生します</p></li>
+<li><p>データ形式が不正: numpy.loadtxtでエラーが発生します</p></li>
+<li><p>NDATAとWEIGHTの長さが一致しない場合、またはデータ点数・重みが正でない場合: エラーメッセージを表示して終了します</p></li>
 </ul>
 <p>特に、データ点数のリストとそれらの重みの数は必ず一致させる必要があります。</p>
 </section>
@@ -707,17 +707,17 @@ beta_value  fx_mean  fx_var  nreplica  logz_value  acceptance
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#name">NAME</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synopsis">SYNOPSIS</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">DESCRIPTION</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">USAGE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">NOTES</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">機能概要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">書式</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">説明</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">使用例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">補足事項</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evidence">model evidence の計算</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">入力ファイルの形式</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">出力ファイルの形式</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">処理の仕組み</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">プロットの特性</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">エラー処理</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">入力ファイルの形式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">出力ファイルの形式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">処理の仕組み</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">プロットの特性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">エラー処理</a></li>
 </ul>
 </li>
 </ul>

@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -479,15 +479,16 @@
   <section id="id1">
 <h1>モンテカルロ法のチューニング<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
 <section id="acceptance-ratio">
-<h2>受容率 (acceptance ratio) はどこで確認できますか？<a class="headerlink" href="#acceptance-ratio" title="Link to this heading">#</a></h2>
+<h2>採択率 (acceptance ratio) はどこで確認できますか？<a class="headerlink" href="#acceptance-ratio" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> と <code class="docutils literal notranslate"><span class="pre">pamc</span></code> の場合、以下の方法で確認できます。</p>
 <p><strong>実行時の標準出力:</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> では各温度ステップで受容率が表示されます。</p>
+<p><code class="docutils literal notranslate"><span class="pre">pamc</span></code> では各温度ステップで採択率が標準出力に表示されます。
+<code class="docutils literal notranslate"><span class="pre">exchange</span></code> では標準出力には表示されないため、下記の <code class="docutils literal notranslate"><span class="pre">fx.txt</span></code> を参照してください。</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># beta  mean[f]  Err[f]  nreplica  log(Z/Z0)  acceptance_ratio
 </pre></div>
 </div>
 <p><strong>出力ファイル ``fx.txt``:</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">output/fx.txt</span></code> の第6列に受容率が記録されています。</p>
+<p><code class="docutils literal notranslate"><span class="pre">output/fx.txt</span></code> の第6列に採択率が記録されています。</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># $1: beta (= 1/T)
 # $2: mean of f(x)
 # $3: std err of f(x)
@@ -498,17 +499,17 @@
 </div>
 </section>
 <section id="id2">
-<h2>受容率はどの程度が適切ですか？<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<h2>採択率はどの程度が適切ですか？<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>一般的な目安として:</p>
 <ul class="simple">
-<li><p><strong>受容率が高すぎる (&gt; 0.8)</strong>: ステップサイズが小さすぎます。パラメータ空間の探索が遅くなります。</p></li>
-<li><p><strong>受容率が低すぎる (&lt; 0.1)</strong>: ステップサイズが大きすぎます。ほとんどの提案が棄却され、探索が停滞します。</p></li>
+<li><p><strong>採択率が高すぎる (&gt; 0.8)</strong>: ステップサイズが小さすぎます。パラメータ空間の探索が遅くなります。</p></li>
+<li><p><strong>採択率が低すぎる (&lt; 0.1)</strong>: ステップサイズが大きすぎます。ほとんどの提案が棄却され、探索が停滞します。</p></li>
 <li><p><strong>適切な範囲</strong>: 0.2〜0.5 程度が効率的とされています。</p></li>
 </ul>
-<p>受容率は温度（逆温度 <span class="math notranslate nohighlight">\(\beta\)</span>）によって変化します。高温（低い <span class="math notranslate nohighlight">\(\beta\)</span>）では高く、低温（高い <span class="math notranslate nohighlight">\(\beta\)</span>）では低くなるのが正常です。</p>
+<p>採択率は温度（逆温度 <span class="math notranslate nohighlight">\(\beta\)</span>）によって変化します。高温（低い <span class="math notranslate nohighlight">\(\beta\)</span>）では高く、低温（高い <span class="math notranslate nohighlight">\(\beta\)</span>）では低くなるのが正常です。</p>
 </section>
 <section id="id3">
-<h2>受容率が低すぎる場合はどうすればよいですか？<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<h2>採択率が低すぎる場合はどうすればよいですか？<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
 <p>以下の対策を検討してください。</p>
 <ol class="arabic">
 <li><p><strong>ステップサイズを小さくする</strong></p>
@@ -517,7 +518,7 @@
 <span class="n">step_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>値を小さくすると受容率が上がります。各パラメータの探索範囲に対して適切なスケールを設定してください。</p>
+<p>値を小さくすると採択率が上がります。各パラメータの探索範囲に対して適切なスケールを設定してください。</p>
 </li>
 <li><p><strong>温度点を増やす</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> の場合、レプリカ間の温度差が大きすぎると交換が起こりにくくなります。温度点数を増やして温度間隔を小さくしてください。</p>
@@ -529,7 +530,7 @@
 </ol>
 </section>
 <section id="id4">
-<h2>受容率が高すぎる場合はどうすればよいですか？<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<h2>採択率が高すぎる場合はどうすればよいですか？<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">step_list</span></code> の値を大きくして、1ステップでの移動量を増やしてください。
 パラメータの探索範囲（<code class="docutils literal notranslate"><span class="pre">max_list</span></code> - <code class="docutils literal notranslate"><span class="pre">min_list</span></code>）に対して、ステップサイズが小さすぎる場合によく起こります。</p>
 </section>
@@ -542,16 +543,7 @@
 </pre></div>
 </div>
 <p>十分なステップ数で計算すれば、統計的に同等の結果が得られます。</p>
-</section>
-<section id="id6">
-<h2>最適化が収束しません<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
-<p>以下を確認してください。</p>
-<ol class="arabic simple">
-<li><p><strong>探索範囲が適切か</strong>: <code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code> が最適解を含む範囲になっているか確認してください。</p></li>
-<li><p><strong>初期値が適切か</strong>: <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> の場合、初期値 (<code class="docutils literal notranslate"><span class="pre">initial_list</span></code>) が最適解から極端に遠いと収束しにくくなります。</p></li>
-<li><p><strong>アルゴリズムの選択</strong>: 局所解が多い問題に <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> を使うと局所解に捕まりやすくなります。<code class="docutils literal notranslate"><span class="pre">exchange</span></code> や <code class="docutils literal notranslate"><span class="pre">bayes</span></code> など大域的な探索が可能なアルゴリズムを試してください。</p></li>
-<li><p><strong>ステップ数の不足</strong>: モンテカルロ法ではステップ数が少ないと十分に探索できません。ステップ数を増やして再実行してください。</p></li>
-</ol>
+<p>なお、「最適化が収束しない」「期待した結果が得られない」場合の確認事項は <a class="reference internal" href="error.html"><span class="doc">トラブルシューティング</span></a> を参照してください。</p>
 </section>
 </section>
 
@@ -602,12 +594,11 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acceptance-ratio">受容率 (acceptance ratio) はどこで確認できますか？</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">受容率はどの程度が適切ですか？</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">受容率が低すぎる場合はどうすればよいですか？</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">受容率が高すぎる場合はどうすればよいですか？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acceptance-ratio">採択率 (acceptance ratio) はどこで確認できますか？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">採択率はどの程度が適切ですか？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">採択率が低すぎる場合はどうすればよいですか？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">採択率が高すぎる場合はどうすればよいですか？</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">モンテカルロ計算の結果が毎回異なります</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">最適化が収束しません</a></li>
 </ul>
   </nav></div>
 

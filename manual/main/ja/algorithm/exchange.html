@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -519,19 +519,19 @@
 <li><p>連続空間</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: モンテカルロ更新の際の変化幅(ガウス分布の標準偏差)です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pbc_list</span></code></p>
@@ -555,14 +555,14 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。</p>
+<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p>
-<p>形式: string型。 (default: &quot;#&quot;)</p>
+<p>形式: 文字列。 (default: &quot;#&quot;)</p>
 <p>説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code></p>
-<p>形式: string型。 (default: 空白文字)</p>
+<p>形式: 文字列。 (default: 空白文字)</p>
 <p>説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">skiprows</span></code></p>
@@ -571,26 +571,26 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
+<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p>
 <p>形式: 実数</p>
 <p>説明: 隣接点とみなす範囲。 <code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code> を省略した場合または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は必須です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_grid</span></code></p>
-<p>形式: boolean</p>
+<p>形式: 真偽値</p>
 <p>説明: true の場合、均質なメッシュを <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> パラメータから生成します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの下端を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの上端を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
-<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 整数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの各パラメータに沿った格子点数を指定します。</p>
 </li>
 </ul>
@@ -601,34 +601,34 @@
 <h3><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code> セクション<a class="headerlink" href="#algorithm-exchange" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: モンテカルロ更新を行う回数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_exchange</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: 「温度」のレプリカ交換を行う頻度。この回数だけモンテカルロ更新を行ったらレプリカ交換を実行します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_thermalization</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: モンテカルロ平均を計算する際に、初期緩和として無視するモンテカルロ更新の数。 デフォルトは <code class="docutils literal notranslate"><span class="pre">numsteps</span></code> の10%です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmax</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最小値。
-温度と逆温度はどちらか片方だけを指定する必要があります。</p>
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最大値。
-温度と逆温度はどちらか片方だけを指定する必要があります。</p>
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
 <p>形式: 真偽値。 (default: true)</p>
@@ -704,9 +704,10 @@
 </section>
 <section id="id6">
 <h2>出力ファイル<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<p>以下のファイルでは、各レプリカの状態を追跡する単位を walker と呼びます（1プロセスあたり <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> 個）。</p>
 <section id="rank-trial-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Link to this heading">#</a></h3>
-<p>各レプリカについて、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
+<p>各レプリカについて、モンテカルロ更新で提案（試行）されたパラメータ候補と、対応する目的関数の値です。
 1列目にステップ数、2列目にプロセス内の walker 番号、3列目にレプリカの温度、4列目に目的関数の値、5列目以降にパラメータが記載されます。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
@@ -718,7 +719,7 @@
 </section>
 <section id="rank-result-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Link to this heading">#</a></h3>
-<p>各レプリカについて、モンテカルロサンプリングで生成されたパラメータと、対応する目的関数の値です。
+<p>各レプリカについて、採択・棄却判定を経て採択されたパラメータの系列と、対応する目的関数の値です（棄却された場合は直前の状態が維持されます）。
 <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> と同一の書式です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
@@ -866,7 +867,7 @@ MH 法によるMCMC は次のようになります。</p>
 焼戻し法と同様に、温度を上下することで谷を調べたり脱出したりするのですが、各温度点について、かならずレプリカのどれかが対応しているため、全体として特定の温度に偏ることがなくなります。
 また、複数の MPI プロセスを用意してそれぞれレプリカを担当させることで簡単に並列化可能です。
 数多くのレプリカを用意することで温度間隔が狭まると、温度交換の採択率も上がるため、大規模並列計算に特に向いたアルゴリズムです。
-有限温度由来の「ぼやけ」がどうしても生まれるので、モンテカルロ法の結果を初期値として <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> をするのがおすすめです。</p>
+有限温度由来の「ぼやけ」がどうしても生まれるので、モンテカルロ法で得られた解を初期値として <a class="reference internal" href="minsearch.html"><span class="doc">局所最適化アルゴリズムによる最適値探索 minsearch</span></a> を実行することを推奨します。</p>
 <p class="rubric">脚注</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="mcmc-condition" role="doc-footnote">

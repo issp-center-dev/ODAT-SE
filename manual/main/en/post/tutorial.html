@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -521,29 +521,40 @@ For detailed options and output formats of each tool, see <a class="reference in
 <p>As an example, we use a calculation from the TRHEPD direct problem solver (odatse-STR).
 The parameter space is 3-dimensional, with 51 temperature points logarithmically spaced from T=1.0 to 1.0e-6.
 Each annealing step consists of 20 MCMC steps.
-The number of replicas is set to 100 per process with 4 MPI processes.</p>
+The number of replicas is set to 100 per process with 4 MPI processes.
+For the complete set of input files and data used in this example, see the odatse-STR analysis example in the <a class="reference external" href="https://isspns-gitlab.issp.u-tokyo.ac.jp/takeohoshi/odat-se-gallery">ODAT-SE Gallery</a>.
+Note that the sample outputs shown below are abbreviated and simplified.</p>
 <p>Results are output under the output directory.
 There are two main types of output file.</p>
 <p><strong>output/{rank}/result_T{index}.txt</strong> – MCMC calculation log (per temperature point)</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># step  replica_id  T  fx  x1  x2  x3
-0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100
-1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># step  walker  T  fx  x1  x2  x3  weight  ancestor
+0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100  1.000000e+00  0
+1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080  1.000000e+00  0
 ...
 </pre></div>
 </div>
-<p>Each row corresponds to one MCMC step, recording the temperature T, objective function value fx, and parameter values x1–x3.</p>
+<p>Each row corresponds to one MCMC step of one walker (replica), recording the temperature T, the objective function value fx, the parameter values x1 to x3, the sampling weight, and the ancestor index used in resampling.
+The column labels depend on the <code class="docutils literal notranslate"><span class="pre">label_list</span></code> setting (<code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, … by default). The search parameters in this example are three variables corresponding to atomic coordinates, denoted <span class="math notranslate nohighlight">\(z_1, z_2, z_3\)</span> in the text below.</p>
 <p><strong>output/fx.txt</strong> – Partition function and f(x) statistics</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># beta  fx_mean  fx_var  nreplica  logZ/Z0  acceptance
-1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># $1: 1/T
+# $2: mean of f(x)
+# $3: standard error of f(x)
+# $4: number of replicas
+# $5: log(Z/Z0)
+# $6: acceptance ratio
+1.000000e+00  1.234e+01  5.678e-01  400  0.000000e+00  0.850
 ...
 </pre></div>
 </div>
-<p>Each row corresponds to a temperature point, recording the inverse temperature beta, mean and variance of f(x), number of replicas, log ratio of partition functions, and acceptance rate.</p>
+<p>Each row corresponds to a temperature point, recording the inverse temperature beta, mean and standard error of f(x), number of replicas, log ratio of partition functions, and acceptance rate.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code> is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, logs are consolidated in <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code>.
-Use <a class="reference internal" href="tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> to extract result.txt.</p>
+Use <a class="reference internal" href="tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> to extract result.txt.
+The extracted <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> is not split by temperature point, so also run <a class="reference internal" href="tools/separateT.html"><span class="doc">odatse_separateT</span></a>
+to split it into per-temperature files <code class="docutils literal notranslate"><span class="pre">result_T{index}.txt</span></code> before proceeding to the next step.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_extract_combined<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+odatse_separateT<span class="w"> </span>-d<span class="w"> </span>output
 </pre></div>
 </div>
 </div>
@@ -571,7 +582,7 @@ For detailed options, see <a class="reference internal" href="tools/plt_model_ev
 <figure class="align-default" id="id1">
 <img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Plot of model evidence. Maximum value occurs at beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44).</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Plot of model evidence. The maximum occurs at <span class="math notranslate nohighlight">\(\beta = 1.91\times 10^5\)</span> (Tstep=44).</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The <span class="math notranslate nohighlight">\(\beta\)</span> that maximizes the model evidence corresponds to the inverse temperature at which the model best explains the data.
@@ -600,7 +611,7 @@ For detailed options, see <a class="reference internal" href="tools/plt_1D_histo
 <figure class="align-default" id="id2">
 <img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Example 1D marginalized histogram output (Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span>).</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Example 1D marginalized histogram output (shown for a higher-temperature point, Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span>, for reference).</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>To create 2D marginalized histograms:</p>
@@ -613,7 +624,7 @@ For detailed options, see <a class="reference internal" href="tools/plt_2D_histo
 <figure class="align-default" id="id3">
 <img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Example 2D marginalized histogram output (Tstep=22, z1-z2 axis plot).</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Example 2D marginalized histogram output (shown for a higher-temperature point, Tstep=22, for the <span class="math notranslate nohighlight">\(z_1\)</span>-<span class="math notranslate nohighlight">\(z_2\)</span> axes, for reference).</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>

@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -590,6 +590,19 @@ See <a class="reference internal" href="../manual/command.html"><span class="doc
 </ul>
 </section>
 </section>
+<section id="problems-with-calculation-results">
+<h2>Problems with calculation results<a class="headerlink" href="#problems-with-calculation-results" title="Link to this heading">#</a></h2>
+<section id="optimization-does-not-converge">
+<h3>Optimization does not converge<a class="headerlink" href="#optimization-does-not-converge" title="Link to this heading">#</a></h3>
+<p>Check the following:</p>
+<ol class="arabic simple">
+<li><p><strong>Search range</strong>: Verify that <code class="docutils literal notranslate"><span class="pre">min_list</span></code> / <code class="docutils literal notranslate"><span class="pre">max_list</span></code> include the optimal solution.</p></li>
+<li><p><strong>Initial values</strong>: For <code class="docutils literal notranslate"><span class="pre">minsearch</span></code>, convergence is difficult if <code class="docutils literal notranslate"><span class="pre">initial_list</span></code> is extremely far from the optimal solution.</p></li>
+<li><p><strong>Algorithm choice</strong>: Using <code class="docutils literal notranslate"><span class="pre">minsearch</span></code> on problems with many local minima tends to get trapped. Try <code class="docutils literal notranslate"><span class="pre">exchange</span></code> or <code class="docutils literal notranslate"><span class="pre">bayes</span></code> which can perform global search.</p></li>
+<li><p><strong>Insufficient steps</strong>: Monte Carlo methods need enough steps for thorough exploration. Increase the number of steps and re-run. See also <a class="reference internal" href="montecarlo.html"><span class="doc">Monte Carlo Tuning</span></a> for tuning step sizes and temperature points.</p></li>
+</ol>
+</section>
+</section>
 </section>
 
 
@@ -656,6 +669,10 @@ See <a class="reference internal" href="../manual/command.html"><span class="doc
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-on-restart">Errors on restart</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-restart-from-a-checkpoint">How to restart from a checkpoint?</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checkpoint-file-does-not-exist"><code class="docutils literal notranslate"><span class="pre">checkpoint</span> <span class="pre">file</span> <span class="pre">...</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">exist</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problems-with-calculation-results">Problems with calculation results</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-does-not-converge">Optimization does not converge</a></li>
 </ul>
 </li>
 </ul>

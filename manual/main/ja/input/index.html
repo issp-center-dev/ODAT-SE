@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -535,18 +535,18 @@
 <h2><code class="docutils literal notranslate"><span class="pre">[base]</span></code> セクション<a class="headerlink" href="#base" title="Link to this heading">#</a></h2>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
-<p>形式: 整数型</p>
+<p>形式: 整数</p>
 <p>説明: 探索空間の次元(探索するパラメータの数)</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p>
-<p>形式: string型 (default: プログラム実行時のディレクトリ)</p>
+<p>形式: 文字列 (default: プログラム実行時のディレクトリ)</p>
 <dl class="simple">
 <dt>説明: プログラムを実行する一番上のディレクトリ。</dt><dd><p>入力ファイルなどのパスはすべて <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> を起点とします。</p>
 </dd>
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></p>
-<p>形式: string型 (default: プログラム実行時のディレクトリ)</p>
+<p>形式: 文字列 (default: プログラム実行時のディレクトリ)</p>
 <p>説明: プログラムの実行結果を出力するディレクトリ名</p>
 </li>
 </ul>
@@ -556,7 +556,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> でソルバーの種類を決定します。各パラメータはソルバーごとに定義されています。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p>
-<p>形式: string型</p>
+<p>形式: 文字列</p>
 <p>説明: ソルバーの名前。以下のソルバーが用意されています。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">analytical</span></code> : 解析関数を与えるソルバー (主にテストに利用)</p></li>
@@ -569,7 +569,7 @@
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dimension</span></code></p>
-<p>形式: 整数型 (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
+<p>形式: 整数 (default: <code class="docutils literal notranslate"><span class="pre">base.dimension</span></code>)</p>
 <p>説明: ソルバーが受け取る入力パラメータの数。</p>
 </li>
 </ul>

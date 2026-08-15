@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -496,27 +496,31 @@
 <td><p>Few parameters (~10), quick local minimum search</p></td>
 <td><p>Nelder-Mead method. Fast but may get trapped in local minima. Gradient-free</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_search</span></code></p></td>
+<td><p>Global optimization of continuous parameters</p></td>
+<td><p>Global optimizers from scipy.optimize (differential evolution, SHGO, DIRECT, dual annealing). Requires scipy. Supports MPI-parallel candidate evaluation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bayes</span></code></p></td>
 <td><p>Expensive objective function, minimize evaluation count</p></td>
 <td><p>Surrogate model via Gaussian process regression. Minimizes evaluations. Requires physbo</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mapper</span></code></p></td>
 <td><p>Overview of parameter space. Few parameters (2-3)</p></td>
 <td><p>Evaluates all grid points. Computational cost grows explosively with the number of parameters</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exchange</span></code></p></td>
 <td><p>Multimodal objective function, broad search</p></td>
-<td><p>Replica exchange method. Avoids local minima. Requires MPI</p></td>
+<td><p>Replica exchange method. Avoids local minima. MPI parallelism recommended (requires mpi4py; single-process runs also work)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pamc</span></code></p></td>
 <td><p>Posterior distribution estimation, model evidence calculation</p></td>
 <td><p>Population annealing. Suitable for statistical estimation</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">random_search</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">random_search</span></code></p></td>
 <td><p>Quick overview of parameter space</p></td>
 <td><p>Random sampling. Simple and robust</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p></td>
 <td><p>Finding minima in problems with relatively many parameters or with discrete variables</p></td>
 <td><p>Tensor train optimization. Gradient-free cross approximation. Supports MPI</p></td>
 </tr>

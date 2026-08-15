@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -519,19 +519,19 @@
 <li><p>連続空間</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: パラメータが取りうる最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: モンテカルロ更新の際の変化幅(ガウス分布の標準偏差)です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pbc_list</span></code></p>
@@ -555,14 +555,14 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。</p>
+<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p>
-<p>形式: string型。 (default: &quot;#&quot;)</p>
+<p>形式: 文字列。 (default: &quot;#&quot;)</p>
 <p>説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code></p>
-<p>形式: string型。 (default: 空白文字)</p>
+<p>形式: 文字列。 (default: 空白文字)</p>
 <p>説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">skiprows</span></code></p>
@@ -571,26 +571,26 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
 <p>形式: ファイルパス</p>
-<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
+<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p>
 <p>形式: 実数</p>
 <p>説明: 隣接点とみなす範囲。 <code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code> を省略した場合または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は必須です。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_grid</span></code></p>
-<p>形式: boolean</p>
+<p>形式: 真偽値</p>
 <p>説明: true の場合、均質なメッシュを <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> パラメータから生成します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの下端を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
-<p>形式: 実数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの上端を指定します。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
-<p>形式: 整数型のリスト。長さはdimensionの値と一致させます。</p>
+<p>形式: 整数のリスト。長さはdimensionの値と一致させます。</p>
 <p>説明: メッシュの各パラメータに沿った格子点数を指定します。</p>
 </li>
 </ul>
@@ -601,34 +601,34 @@
 <h3><code class="docutils literal notranslate"><span class="pre">[algorithm.pamc]</span></code> セクション<a class="headerlink" href="#algorithm-pamc" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: モンテカルロ更新を行う総回数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numsteps_annealing</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: 「温度」を下げる頻度。この回数だけモンテカルロ更新を行った後に温度が下がります。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tnum</span></code></p>
-<p>形式: 整数値。</p>
+<p>形式: 整数。</p>
 <p>説明: 「温度」点の数。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最小値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tmax</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最大値。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最小値。
-温度と逆温度はどちらか片方だけを指定する必要があります。</p>
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
-<p>形式: 実数値。</p>
+<p>形式: 実数。</p>
 <p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最大値。
-温度と逆温度はどちらか片方だけを指定する必要があります。</p>
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
 <p>形式: 真偽値。 (default: true)</p>
@@ -662,14 +662,15 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">anneal_from_beta0</span></code></p>
 <p>形式: 真偽値。 (default: false)</p>
-<p>説明: <code class="docutils literal notranslate"><span class="pre">true</span></code> かつ <code class="docutils literal notranslate"><span class="pre">bmin</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> の場合、はじめに <span class="math notranslate nohighlight">\(\beta=0`（無限温度）のランダムサンプルから最初の温度 :math:\)</span>beta_1` までアニール、リサンプリングを行ってから計算を始めます。
+<p>説明: <code class="docutils literal notranslate"><span class="pre">true</span></code> かつ <code class="docutils literal notranslate"><span class="pre">bmin</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> の場合、はじめに <span class="math notranslate nohighlight">\(\beta=0`（無限温度）のランダムサンプルから、設定した最小の逆温度（``bmin`\)</span> または <span class="math notranslate nohighlight">\(1/T_{\max}\)</span>）までアニール、リサンプリングを行ってから計算を始めます。
 これにより、 <span class="math notranslate nohighlight">\(\beta=0\)</span> から計算を始めない場合でも、 <span class="math notranslate nohighlight">\(\log Z/Z_0\)</span> の基準値が <span class="math notranslate nohighlight">\(\beta=0\)</span> であるとみなせます。</p>
 </li>
 </ul>
 <section id="id3">
 <h4>ステップ数について<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code>, <code class="docutils literal notranslate"><span class="pre">numsteps_annealing</span></code>, <code class="docutils literal notranslate"><span class="pre">Tnum</span></code> の3つのうち、どれか2つを同時に指定してください。
-残りの1つは自動的に決定されます。</p>
+残りの1つは自動的に決定されます。これらはおおよそ <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">numsteps_annealing</span> <span class="pre">×</span> <span class="pre">Tnum</span></code> の関係にあります
+（割り切れない場合、余りのステップは高温側の温度点に振り分けられます）。</p>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <p><strong>開発者向け</strong>: レプリカデータの収集に用いる MPI 通信は、環境変数 <code class="docutils literal notranslate"><span class="pre">ODATSE_USE_MPI_BUFFERED=1</span></code> を設定すると、オブジェクトベースの通信 (<code class="docutils literal notranslate"><span class="pre">gather</span></code>) からバッファベースの通信 (<code class="docutils literal notranslate"><span class="pre">Gather</span></code>) に切り替わります。
@@ -723,7 +724,7 @@
 <section id="rank-trial-t-txt">
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/trial_T#.txt</span></code><a class="headerlink" href="#rank-trial-t-txt" title="Link to this heading">#</a></h3>
 <p>各温度点(<code class="docutils literal notranslate"><span class="pre">#</span></code>)ごとに、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
-1列目にステップ数、2列目にプロセス内の walker 番号、3列目にレプリカの逆温度、4列目に目的関数の値、5列目からパラメータが記載されます。
+1列目にステップ数、2列目にプロセス内の walker 番号、3列目にレプリカの逆温度（温度 <code class="docutils literal notranslate"><span class="pre">Tmin</span></code>/<code class="docutils literal notranslate"><span class="pre">Tmax</span></code> で指定した場合は温度）、4列目に目的関数の値、5列目からパラメータが記載されます。
 最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先(計算開始時のレプリカ番号)です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker beta fx x1 weight ancestor</span>
 <span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.0</span> <span class="mf">73.82799488298886</span> <span class="mf">8.592321856342956</span> <span class="mf">1.0</span> <span class="mi">0</span>
@@ -779,7 +780,7 @@
 <div class="math notranslate nohighlight">
 \[\log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)}\]</div>
 <p>が、6列目にはモンテカルロ更新の採択率が出力されます。
-ここで <span class="math notranslate nohighlight">\(\beta_0\)</span> は計算している <span class="math notranslate nohighlight">\(\beta\)</span> の最小値です。</p>
+ここで <span class="math notranslate nohighlight">\(\beta_0\)</span> は計算している <span class="math notranslate nohighlight">\(\beta\)</span> の最小値です（<code class="docutils literal notranslate"><span class="pre">anneal_from_beta0</span> <span class="pre">=</span> <span class="pre">true</span></code> の場合は <span class="math notranslate nohighlight">\(\beta_0 = 0\)</span> が基準になります）。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: 1/T</span>
 <span class="c1"># $2: mean of f(x)</span>
 <span class="c1"># $3: standard error of f(x)</span>
@@ -797,7 +798,7 @@
 <h3><code class="docutils literal notranslate"><span class="pre">RANK/weight.txt</span></code><a class="headerlink" href="#rank-weight-txt" title="Link to this heading">#</a></h3>
 <p>各温度における各レプリカの Neal-Jarzynski 重みを記録したファイルです。
 各列は順に、温度インデックス (<code class="docutils literal notranslate"><span class="pre">Tindex</span></code>)、逆温度 (<code class="docutils literal notranslate"><span class="pre">beta</span></code>)、
-walker のインデックス (<code class="docutils literal notranslate"><span class="pre">walker</span></code>)、祖先の id (<code class="docutils literal notranslate"><span class="pre">idnum</span></code>)、ソルバーの値 (<code class="docutils literal notranslate"><span class="pre">fx</span></code>)、
+walker のインデックス (<code class="docutils literal notranslate"><span class="pre">walker</span></code>)、祖先の id (<code class="docutils literal notranslate"><span class="pre">idnum</span></code>)、目的関数の値 (<code class="docutils literal notranslate"><span class="pre">fx</span></code>)、
 重みの対数 (<code class="docutils literal notranslate"><span class="pre">log_weight</span></code>)、および座標です。</p>
 <p>例:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tindex beta walker idnum fx log_weight x1</span>
@@ -856,97 +857,97 @@ walker のインデックス (<code class="docutils literal notranslate"><span c
 <section id="id10">
 <h3>問題と目的<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <p>分布パラメータ <span class="math notranslate nohighlight">\(\beta_i\)</span> のもとでの配位 <span class="math notranslate nohighlight">\(x\)</span> の重みを
-<span class="math notranslate nohighlight">\(f_i(x)\)</span> と書くと(例えばボルツマン因子 <span class="math notranslate nohighlight">\(f_i(x) = \exp\left[-\beta_i E(x)\right]\)</span>)、
+<span class="math notranslate nohighlight">\(W_i(x)\)</span> と書くと(例えばボルツマン因子 <span class="math notranslate nohighlight">\(W_i(x) = \exp\left[-\beta_i f(x)\right]\)</span>)、
 <span class="math notranslate nohighlight">\(A\)</span> の期待値は</p>
 <div class="math notranslate nohighlight">
 \[\langle A\rangle_i
-= \frac{\int \mathrm{d}xA(x)f_i(x)}{\int \mathrm{d}x f_i(x)}
-= \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
-= \int \mathrm{d}xA(x)\tilde{f}_i(x)\]</div>
+= \frac{\int \mathrm{d}xA(x)W_i(x)}{\int \mathrm{d}x W_i(x)}
+= \frac{1}{Z_i}\int \mathrm{d}xA(x)W_i(x)
+= \int \mathrm{d}xA(x)\tilde{W}_i(x)\]</div>
 <p>と書けます。
-ここで <span class="math notranslate nohighlight">\(Z = \int \mathrm{d} x f_i(x)\)</span> は規格化因子(分配関数)で、 <span class="math notranslate nohighlight">\(\tilde{f}(x) = f(x)/Z\)</span> は配位 <span class="math notranslate nohighlight">\(x\)</span> の確率密度です。</p>
+ここで <span class="math notranslate nohighlight">\(Z_i = \int \mathrm{d} x W_i(x)\)</span> は規格化因子(分配関数)で、 <span class="math notranslate nohighlight">\(\tilde{W}_i(x) = W_i(x)/Z_i\)</span> は配位 <span class="math notranslate nohighlight">\(x\)</span> の確率密度です。</p>
 <p>目的は複数の分布パラメータについてこの期待値および規格化因子(の比)を数値的に求めることです。</p>
 </section>
 <section id="annealed-importance-sampling-ais-1">
 <h3>Annealed Importance Sampling (AIS) [1]<a class="headerlink" href="#annealed-importance-sampling-ais-1" title="Link to this heading">#</a></h3>
 <p>次の同時確率分布</p>
 <div class="math notranslate nohighlight">
-\[\tilde{f}(x_0, x_1, \dots, x_n) = \tilde{f}_n(x_n) \tilde{T}_n(x_n, x_{n-1}) \tilde{T}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{T}_1(x_1, x_0)\]</div>
+\[\tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0)\]</div>
 <p>を満たす点列 <span class="math notranslate nohighlight">\(\{x_i\}\)</span> を考えます。ここで</p>
 <div class="math notranslate nohighlight">
-\[\tilde{T}_i(x_i, x_{i-1}) = T_i(x_{i-1}, x_i) \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)}\]</div>
-<p>であり、 <span class="math notranslate nohighlight">\(T_i(x, x')\)</span> は <span class="math notranslate nohighlight">\(\beta_i\)</span> のもとでの配位 <span class="math notranslate nohighlight">\(x\)</span>
+\[\tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)}\]</div>
+<p>であり、 <span class="math notranslate nohighlight">\(p_i(x, x')\)</span> は <span class="math notranslate nohighlight">\(\beta_i\)</span> のもとでの配位 <span class="math notranslate nohighlight">\(x\)</span>
 から <span class="math notranslate nohighlight">\(x'\)</span> への遷移確率で、釣り合い条件</p>
 <div class="math notranslate nohighlight">
-\[\int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x')\]</div>
-<p>を満たすようにとります(つまりは普通のMCMCにおける遷移確率行列)。</p>
+\[\int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x')\]</div>
+<p>を満たすようにとります(通常の MCMC における遷移確率行列に相当します)。</p>
 <div class="math notranslate nohighlight">
-\[\int \mathrm{d} x_{i-1} \tilde{T}_i(x_i, x_{i-1})
-= \int \mathrm{d} x_{i-1} \tilde{f}_i(x_{i-1}) T_i(x_{i-1}, x_i) / \tilde{f}_i(x_i)
+\[\int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+= \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
 = 1\]</div>
-<p>となるので、 <span class="math notranslate nohighlight">\(\tilde{f}_n(x_n)\)</span> は
-<span class="math notranslate nohighlight">\(\tilde{f}(x_0, x_1, \dots, x_n)\)</span> の周辺分布</p>
+<p>となるので、 <span class="math notranslate nohighlight">\(\tilde{W}_n(x_n)\)</span> は
+<span class="math notranslate nohighlight">\(\tilde{W}(x_0, x_1, \dots, x_n)\)</span> の周辺分布</p>
 <div class="math notranslate nohighlight">
-\[\tilde{f}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{f}(x_0, x_1, \dots, x_n)\]</div>
+\[\tilde{W}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{W}(x_0, x_1, \dots, x_n)\]</div>
 <p>です。
-これを利用すると、 <span class="math notranslate nohighlight">\(\tilde{f}_n\)</span> における平均値 <span class="math notranslate nohighlight">\(\langle A \rangle_n\)</span> は拡張した配位の重み付き平均として</p>
+これを利用すると、 <span class="math notranslate nohighlight">\(\tilde{W}_n\)</span> における平均値 <span class="math notranslate nohighlight">\(\langle A \rangle_n\)</span> は拡張した配位の重み付き平均として</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{split}
 \langle A \rangle_n
 &amp;\equiv
-\int \mathrm{d} x_n A(x_n) \tilde{f}_n(x_n) \\
-&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n)
+\int \mathrm{d} x_n A(x_n) \tilde{W}_n(x_n) \\
+&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n)
 \end{split}\end{split}\]</div>
 <p>と表せます。</p>
-<p>さて、残念ながら <span class="math notranslate nohighlight">\(\tilde{f}(x_0, x_1, \dots, x_n)\)</span>
+<p>さて、残念ながら <span class="math notranslate nohighlight">\(\tilde{W}(x_0, x_1, \dots, x_n)\)</span>
 に従うような点列を直接生成することは困難です。そこでもっと簡単に、</p>
 <ol class="arabic simple">
-<li><p>確率 <span class="math notranslate nohighlight">\(\tilde{f}_0(x)\)</span> に従う <span class="math notranslate nohighlight">\(x_0\)</span> を生成する</p>
+<li><p>確率 <span class="math notranslate nohighlight">\(\tilde{W}_0(x)\)</span> に従う <span class="math notranslate nohighlight">\(x_0\)</span> を生成する</p>
 <ul class="simple">
 <li><p>例えば MCMC を利用する</p></li>
 </ul>
 </li>
-<li><p><span class="math notranslate nohighlight">\(x_i\)</span> から <span class="math notranslate nohighlight">\(T_{i+1}(x_i, x_{i+1})\)</span> によって <span class="math notranslate nohighlight">\(x_{i+1}\)</span> を生成する</p>
+<li><p><span class="math notranslate nohighlight">\(x_i\)</span> から <span class="math notranslate nohighlight">\(p_{i+1}(x_i, x_{i+1})\)</span> によって <span class="math notranslate nohighlight">\(x_{i+1}\)</span> を生成する</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(T_{i+1}\)</span> は釣り合い条件を満たすような遷移確率行列なので、普通にMCMCを行えば良い</p></li>
+<li><p><span class="math notranslate nohighlight">\(p_{i+1}\)</span> は釣り合い条件を満たす遷移確率行列であるため、通常の MCMC 更新を適用します</p></li>
 </ul>
 </li>
 </ol>
 <p>という流れに従って点列 <span class="math notranslate nohighlight">\(\{x_i\}\)</span> を生成すると、これは同時確率分布</p>
 <div class="math notranslate nohighlight">
-\[\tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n)\]</div>
+\[\tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n)\]</div>
 <p>に従います。これを利用すると期待値 <span class="math notranslate nohighlight">\(\langle A \rangle_n\)</span> は</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{split}
 \langle A \rangle_n
-&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n) \\
-&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{f}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
-&amp;= \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n) \\
+&amp;= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{W}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
+&amp;= \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
 \end{split}\end{split}\]</div>
 <p>と評価できます (reweighting method)。
-<span class="math notranslate nohighlight">\(\tilde{f}\)</span> と <span class="math notranslate nohighlight">\(\tilde{g}\)</span> との比は、</p>
+<span class="math notranslate nohighlight">\(\tilde{W}\)</span> と <span class="math notranslate nohighlight">\(\tilde{g}\)</span> との比は、</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{split}
-\frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
+\frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
 &amp;=
-\frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-\prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
+\frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+\prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
 &amp;=
-\frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-\prod_{i=1}^n \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)} \\
-&amp;=
-\frac{Z_0}{Z_n}
-\frac{f_n(x_n)}{f_0(x_0)}
-\prod_{i=1}^n \frac{f_i(x_{i-1})}{f_i(x_i)} \\
+\frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+\prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\
 &amp;=
 \frac{Z_0}{Z_n}
-\prod_{i=0}^{n-1} \frac{f_{i+1}(x_{i})}{f_i(x_i)} \\
+\frac{W_n(x_n)}{W_0(x_0)}
+\prod_{i=1}^n \frac{W_i(x_{i-1})}{W_i(x_i)} \\
+&amp;=
+\frac{Z_0}{Z_n}
+\prod_{i=0}^{n-1} \frac{W_{i+1}(x_{i})}{W_i(x_i)} \\
 &amp;\equiv
 \frac{Z_0}{Z_n} w_n(x_0, x_1, \dots, x_n)
 \end{split}\end{split}\]</div>
 <p>と書けるので、期待値は</p>
 <div class="math notranslate nohighlight">
-\[\langle A \rangle_n = \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+\[\langle A \rangle_n = \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
 = \frac{Z_0}{Z_n} \langle Aw_n \rangle_{g,n}\]</div>
 <p>となります。
 規格化因子の比 <span class="math notranslate nohighlight">\(Z_n/Z_0\)</span> は <span class="math notranslate nohighlight">\(\langle 1 \rangle_n = 1\)</span> を用いると</p>
@@ -970,12 +971,13 @@ walker のインデックス (<code class="docutils literal notranslate"><span c
     <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">draw_from</span><span class="p">(</span><span class="n">β</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
-        <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">)</span>
+        <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span> <span class="n">W</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">W</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="p">)</span>
+    <span class="n">x_prev</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
     <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="n">interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">x_prev</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">x_prev</span><span class="p">,</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:])</span>
         <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">(</span><span class="n">x_prev</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">β</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span> <span class="o">*</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span>
 </pre></div>
 </div>

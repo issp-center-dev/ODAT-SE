@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -521,21 +521,28 @@
 <h2>1. PAMC計算を実行する<a class="headerlink" href="#pamc" title="Link to this heading">#</a></h2>
 <p>例として TRHEPD 順問題ソルバー (odatse-STR) の計算例を取り上げます。
 パラメータの次元は 3 で、温度点は T=1.0 から 1.0e-6 まで対数スケールで 51点とっています。
-各 annealing の MCMC ステップ数は 20。
-レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。</p>
+各 annealing の MCMC ステップ数は 20、レプリカ数はプロセスあたり 100、MPI プロセス数は 4 とします。
+この例で用いた入力ファイルやデータの一式は、 <a class="reference external" href="https://isspns-gitlab.issp.u-tokyo.ac.jp/takeohoshi/odat-se-gallery">ODAT-SE Gallery</a> の odatse-STR の解析例を参照してください。
+なお、以下に示す出力例は紙面の都合で一部を省略・簡略化しています。</p>
 <p>計算結果は output 以下に出力されます。
 主な出力ファイルは以下の2種類です。</p>
 <p><strong>output/{rank}/result_T{index}.txt</strong> -- MCMC の計算ログ（温度点ごと）</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># step  replica_id  T  fx  x1  x2  x3
-0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100
-1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># step  walker  T  fx  x1  x2  x3  weight  ancestor
+0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100  1.000000e+00  0
+1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080  1.000000e+00  0
 ...
 </pre></div>
 </div>
-<p>各行は1回の MCMC ステップに対応し、温度 T、目的関数値 fx、パラメータ値 x1〜x3 が記録されています。</p>
+<p>各行は1つの walker（レプリカ）の1回の MCMC ステップに対応し、温度 T、目的関数値 fx、パラメータ値 x1〜x3、サンプリング重み weight、リサンプリング元を示す ancestor が記録されています。
+列ラベルは <code class="docutils literal notranslate"><span class="pre">label_list</span></code> の設定に依存します（省略時は <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, ...）。本例の探索パラメータは原子座標に対応する3変数で、本文中では <span class="math notranslate nohighlight">\(z_1, z_2, z_3\)</span> と表記します。</p>
 <p><strong>output/fx.txt</strong> -- 分配関数と f(x) の統計量</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># beta  fx_mean  fx_var  nreplica  logZ/Z0  acceptance
-1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># $1: 1/T
+# $2: mean of f(x)
+# $3: standard error of f(x)
+# $4: number of replicas
+# $5: log(Z/Z0)
+# $6: acceptance ratio
+1.000000e+00  1.234e+01  5.678e-01  400  0.000000e+00  0.850
 ...
 </pre></div>
 </div>
@@ -543,8 +550,11 @@
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <p><code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code> を <code class="docutils literal notranslate"><span class="pre">true</span></code> にしている場合はログが <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code> に集約されています。
-<a class="reference internal" href="tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> を使って result.txt を取り出してください。</p>
+<a class="reference internal" href="tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> を使って result.txt を取り出してください。
+取り出される <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> は温度点ごとに分割されていないため、続けて <a class="reference internal" href="tools/separateT.html"><span class="doc">odatse_separateT</span></a> で
+温度点ごとのファイル <code class="docutils literal notranslate"><span class="pre">result_T{index}.txt</span></code> に分割してから次のステップに進んでください。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_extract_combined<span class="w"> </span>-t<span class="w"> </span>result.txt<span class="w"> </span>-d<span class="w"> </span>output
+odatse_separateT<span class="w"> </span>-d<span class="w"> </span>output
 </pre></div>
 </div>
 </div>
@@ -572,7 +582,7 @@
 <figure class="align-default" id="id6">
 <img alt="../_images/model_evidence.png" src="../_images/model_evidence.png" />
 <figcaption>
-<p><span class="caption-text">model evidence をプロットした図。最大値を与える beta は beta= <span class="math notranslate nohighlight">\(1.91\times 10^5\)</span> (Tstep=44)。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+<p><span class="caption-text">model evidence をプロットした図。最大値を与える逆温度は <span class="math notranslate nohighlight">\(\beta = 1.91\times 10^5\)</span> (Tstep=44)。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>model evidence が最大となる <span class="math notranslate nohighlight">\(\beta\)</span> は、データに対してモデルの説明力が最も高い逆温度に対応します。
@@ -601,7 +611,7 @@
 <figure class="align-default" id="id7">
 <img alt="../_images/1Dhistogram_result_T22.png" src="../_images/1Dhistogram_result_T22.png" />
 <figcaption>
-<p><span class="caption-text">1次元周辺化ヒストグラムの出力例。(Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span> の場合)</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+<p><span class="caption-text">1次元周辺化ヒストグラムの出力例。(参考として高温側の Tstep=22, <span class="math notranslate nohighlight">\(\beta=4.365\times 10^2\)</span> の場合を示します)</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 <p>2次元に周辺化したヒストグラムを作成するには、以下を実行します。</p>
@@ -614,7 +624,7 @@
 <figure class="align-default" id="id8">
 <img alt="../_images/2Dhistogram_result_T22_x1_vs_x2.png" src="../_images/2Dhistogram_result_T22_x1_vs_x2.png" />
 <figcaption>
-<p><span class="caption-text">2次元周辺化ヒストグラムの出力例。(Tstep=22, z1-z2 軸についてのプロット)</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+<p><span class="caption-text">2次元周辺化ヒストグラムの出力例。(参考として高温側の Tstep=22 における <span class="math notranslate nohighlight">\(z_1\)</span>-<span class="math notranslate nohighlight">\(z_2\)</span> 軸についてのプロットを示します)</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>

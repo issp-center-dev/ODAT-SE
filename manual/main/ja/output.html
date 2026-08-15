@@ -31,8 +31,8 @@
 <link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -559,7 +559,7 @@
 <h3><code class="docutils literal notranslate"><span class="pre">time.log</span></code><a class="headerlink" href="#time-log" title="Link to this heading">#</a></h3>
 <p>計算にかかった総時間を出力します。
 アルゴリズム側のランク 0 のプロセスのみが書き出すため、出力先は <code class="docutils literal notranslate"><span class="pre">output_dir/0/time.log</span></code> です。
-計算の初期化にかかった時間、計算の前処理にかかった時間、計算にかかった時間、計算の後処理にかかった時間について、
+初期化、前処理、主計算、後処理の各工程にかかった時間が、
 <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">prepare</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code> のセクションごとに記載されます。</p>
 <p>以下、出力例です。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#in units of seconds</span>

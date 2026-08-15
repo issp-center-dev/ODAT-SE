@@ -31,8 +31,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -507,7 +507,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">solver</span></code> セクション以下の <code class="docutils literal notranslate"><span class="pre">function_name</span></code> パラメータで用いる関数を指定します。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">function_name</span></code></p>
-<p>形式: string型</p>
+<p>形式: 文字列</p>
 <p>説明: 関数名。以下の関数が選べます。</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">quadratics</span></code></p>
@@ -581,9 +581,9 @@
 \[f(\vec{x}) = -\sum_{i=1}^N \sin(x_i)\left[\sin\!\left(\frac{i\, x_i^2}{\pi}\right)\right]^{20}\]</div>
 </li>
 <li><p>大域最適値および位置は次元に依存します。局所最適解は <span class="math notranslate nohighlight">\(d!\)</span> 個存在します。
-<span class="math notranslate nohighlight">\(d = 2\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -1.8013 \quad (\vec{x}^* \approx (2.2051,\,1.5698))\)</span>。
-<span class="math notranslate nohighlight">\(d = 5\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -4.6876\)</span>。
-<span class="math notranslate nohighlight">\(d = 10\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -9.6602\)</span>。</p></li>
+<span class="math notranslate nohighlight">\(N = 2\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -1.8013 \quad (\vec{x}^* \approx (2.2051,\,1.5698))\)</span>。
+<span class="math notranslate nohighlight">\(N = 5\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -4.6876\)</span>。
+<span class="math notranslate nohighlight">\(N = 10\)</span> のとき <span class="math notranslate nohighlight">\(f(\vec{x}^*) \approx -9.6602\)</span>。</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">qing</span></code></p>

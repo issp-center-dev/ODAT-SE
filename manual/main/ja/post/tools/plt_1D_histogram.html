@@ -31,8 +31,8 @@
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f80acc1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3fc7cb41" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
@@ -492,26 +492,26 @@
                   
   <section id="odatse-plt-1d-histogram">
 <h1>odatse_plt_1D_histogram<a class="headerlink" href="#odatse-plt-1d-histogram" title="Link to this heading">#</a></h1>
-<section id="name">
-<h2>NAME<a class="headerlink" href="#name" title="Link to this heading">#</a></h2>
-<p>1次元周辺化ヒストグラムを作成する</p>
+<section id="id1">
+<h2>機能概要<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>1次元周辺化ヒストグラムを作成します</p>
 </section>
-<section id="synopsis">
-<h2>SYNOPSIS<a class="headerlink" href="#synopsis" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h2>書式<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>odatse_plt_1D_histogram<span class="w"> </span><span class="o">[</span>OPTION<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>FILE<span class="o">]</span>...
 </pre></div>
 </div>
 </section>
-<section id="description">
-<h2>DESCRIPTION<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
-<p>FILE に指定するデータファイルから1次元に周辺化したヒストグラムを作成する。</p>
-<p>データファイルはテキスト形式で、複数のカラムからなる数値データである。
-標準フォーマットでは、空白文字区切りで T(または beta), fx, x1, ..., xN, weight の各数値を格納する。
-T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表す。
-フィールド名はオプション (field_list) で指定できるほか、PAMC計算に用いた入力ファイルのパラメータ (label_list) を用いることができる。</p>
-<p>FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込む。</p>
-<p>ヒストグラムを作成する軸は columns オプションで指定する。指定がない場合は x1, ..., xN のすべての軸が対象となる。指定方法はフィールド名をカンマ区切りで列挙する。例えば <code class="docutils literal notranslate"><span class="pre">--columns</span> <span class="pre">x1,x3</span></code> を指定すると <code class="docutils literal notranslate"><span class="pre">x1</span></code> および <code class="docutils literal notranslate"><span class="pre">x3</span></code> 軸に周辺化したヒストグラムを描画する。</p>
-<p>ヒストグラムの範囲は range オプションで指定できる。その場合は表示するすべての軸について共通の range が使われる。軸ごとに指定する場合は config ファイルに <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax]</span></code> の組をリストの形で与えるか、入力パラメータファイルの <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code> を利用する。</p>
+<section id="id3">
+<h2>説明<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>FILE に指定するデータファイルから1次元に周辺化したヒストグラムを作成します。</p>
+<p>データファイルはテキスト形式で、複数のカラムからなる数値データです。
+標準フォーマットでは、空白文字区切りで T(または beta), fx, x1, ..., xN, weight の各数値を格納します。
+T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパラメータの次元数)、fx はその点での関数の値、weight は重み値を表します。
+フィールド名はオプション (field_list) で指定できるほか、PAMC計算に用いた入力ファイルのパラメータ (label_list) を用いることができます。</p>
+<p>FILE を指定しない場合、オプション (data_dir) で指定したディレクトリから result_*_summarized.txt というファイル名のファイルをデータファイルとして読み込みます。</p>
+<p>ヒストグラムを作成する軸は columns オプションで指定します。指定がない場合は x1, ..., xN のすべての軸が対象となります。指定方法はフィールド名をカンマ区切りで列挙します。例えば <code class="docutils literal notranslate"><span class="pre">--columns</span> <span class="pre">x1,x3</span></code> を指定すると <code class="docutils literal notranslate"><span class="pre">x1</span></code> および <code class="docutils literal notranslate"><span class="pre">x3</span></code> 軸に周辺化したヒストグラムを描画します。</p>
+<p>ヒストグラムの範囲は range オプションで指定できます。その場合は表示するすべての軸について共通の range が使われます。軸ごとに指定する場合は config ファイルに <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax]</span></code> の組をリストの形で与えるか、入力パラメータファイルの <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code> を利用します。</p>
 <div class="admonition note">
 <p class="admonition-title">注釈</p>
 <ul class="simple">
@@ -520,65 +520,65 @@ T は温度 (beta=1/T は逆温度)、x1, ... xN はパラメータ値(N はパ�
 <li><p>大きなデータセットを処理する場合はメモリ使用量に注意してください。</p></li>
 </ul>
 </div>
-<p>指定可能なコマンドラインオプションを以下に示す。
-これらのオプションを一括して config ファイルで与えることもできる。config ファイルは TOML 形式で、オプション名 = 値の書式でオプションを指定する。</p>
+<p>指定可能なコマンドラインオプションを以下に示します。
+これらのオプションを一括して config ファイルで与えることもできます。config ファイルは TOML 形式で、オプション名 = 値の書式でオプションを指定します。</p>
 <dl class="simple">
-<dt><strong>-b BINS, --bins BINS</strong></dt><dd><p>bin の数を指定する。デフォルト値は 60。</p>
+<dt><strong>-b BINS, --bins BINS</strong></dt><dd><p>bin の数を指定します。デフォルト値は 60 です。</p>
 </dd>
-<dt><strong>-c COLUMNS, --columns COLUMNS</strong></dt><dd><p>ヒストグラムを作成するフィールド名を指定する。カンマ区切りで複数のフィールド名を指定できる。省略した場合はすべての軸が対象となる。</p>
+<dt><strong>-c COLUMNS, --columns COLUMNS</strong></dt><dd><p>ヒストグラムを作成するフィールド名を指定します。カンマ区切りで複数のフィールド名を指定できます。省略した場合はすべての軸が対象となります。</p>
 </dd>
-<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>データファイルをディレクトリから取得する場合(<code class="docutils literal notranslate"><span class="pre">FILE</span></code> を指定しない場合)のディレクトリを指定する。指定しない場合はカレントディレクトリが使われる。</p>
+<dt><strong>-d DATA_DIR, --data_dir DATA_DIR</strong></dt><dd><p>データファイルをディレクトリから取得する場合(<code class="docutils literal notranslate"><span class="pre">FILE</span></code> を指定しない場合)のディレクトリを指定します。指定しない場合はカレントディレクトリが使われます。</p>
 </dd>
-<dt><strong>-f FORMAT, --format FORMAT</strong></dt><dd><p>出力するヒストグラムファイルのフォーマットを指定する。matplotlib がサポートするフォーマットを指定可能。カンマ区切りで複数のフォーマットを指定できる。デフォルト値は <code class="docutils literal notranslate"><span class="pre">png</span></code> 。</p>
+<dt><strong>-f FORMAT, --format FORMAT</strong></dt><dd><p>出力するヒストグラムファイルのフォーマットを指定します。matplotlib がサポートするフォーマットを指定可能です。カンマ区切りで複数のフォーマットを指定できます。デフォルト値は <code class="docutils literal notranslate"><span class="pre">png</span></code> です。</p>
 </dd>
-<dt><strong>-o OUTPUT_DIR, --output_dir OUTPUT_DIR</strong></dt><dd><p>ヒストグラムファイルを出力するディレクトリを指定する。指定しない場合はカレントディレクトリに書き出される。ディレクトリが存在しない場合は自動的に作成される。</p>
+<dt><strong>-o OUTPUT_DIR, --output_dir OUTPUT_DIR</strong></dt><dd><p>ヒストグラムファイルを出力するディレクトリを指定します。指定しない場合はカレントディレクトリに書き出されます。ディレクトリが存在しない場合は自動的に作成されます。</p>
 </dd>
-<dt><strong>-r RANGE, --range RANGE</strong></dt><dd><p>ヒストグラムの範囲を xmin,xmax の形式で指定する。range コマンドラインオプションで指定した場合、すべての軸について共通になる。軸ごとに変える場合はパラメータファイルまたは config ファイルで指定する。いずれにも指定がない場合は軸ごとに自動設定される。</p>
+<dt><strong>-r RANGE, --range RANGE</strong></dt><dd><p>ヒストグラムの範囲を xmin,xmax の形式で指定します。range コマンドラインオプションで指定した場合、すべての軸について共通になります。軸ごとに変える場合はパラメータファイルまたは config ファイルで指定します。いずれにも指定がない場合は軸ごとに自動設定されます。</p>
 </dd>
-<dt><strong>-w WEIGHT_COLUMN, --weight_column WEIGHT_COLUMN</strong></dt><dd><p>weight 値のカラム番号 (0スタート) を指定する。デフォルト値は -1 (最後のカラム)。</p>
+<dt><strong>-w WEIGHT_COLUMN, --weight_column WEIGHT_COLUMN</strong></dt><dd><p>weight 値のカラム番号 (0スタート) を指定します。デフォルト値は -1 (最後のカラム) です。</p>
 </dd>
-<dt><strong>--config CONFIG</strong></dt><dd><p>config ファイルを指定する。config ファイルは TOML 形式で、コマンドラインオプションと同等のものを指定する。オプションの優先度はパラメータファイル &lt; configファイル &lt; コマンドラインオプションの順。</p>
+<dt><strong>--config CONFIG</strong></dt><dd><p>config ファイルを指定します。config ファイルは TOML 形式で、コマンドラインオプションと同等のものを指定します。オプションの優先度はパラメータファイル &lt; configファイル &lt; コマンドラインオプションの順です。</p>
 </dd>
-<dt><strong>--params PARAMS</strong></dt><dd><p>PAMCを実行する際に用いた入力パラメータファイルを指定する。パラメータファイルからは range (min_list, max_list) および field_list (label_list) の情報を取得する。</p>
+<dt><strong>--params PARAMS</strong></dt><dd><p>PAMCを実行する際に用いた入力パラメータファイルを指定します。パラメータファイルからは range (min_list, max_list) および field_list (label_list) の情報を取得します。</p>
 </dd>
-<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>フィールド名を指定する。指定しない場合は標準フォーマットを仮定し、 T(or beta), fx, x1, .. xN, weight となる (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用いる。
-columns のフィールド名指定に使われる。</p>
+<dt><strong>--field_list FIELD_LIST</strong></dt><dd><p>フィールド名を指定します。指定しない場合は標準フォーマットを仮定し、 T(or beta), fx, x1, .. xN, weight となります (Nはパラメータの次元)。パラメータファイルから取得する場合は x1 .. xN に label_list の値を用います。
+columns のフィールド名指定に使われます。</p>
 </dd>
-<dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示する。表示には tqdm ライブラリが必要。tqdmがインストールされていない場合は、代わりに各ファイルの処理状況がメッセージとして表示される。</p>
+<dt><strong>--progress</strong></dt><dd><p>実行時にプログレスバーを表示します。表示には tqdm ライブラリが必要です。tqdmがインストールされていない場合は、代わりに各ファイルの処理状況がメッセージとして表示されます。</p>
 </dd>
-<dt><strong>--xlabel XLABEL</strong></dt><dd><p>x軸のラベル文字列を指定する。</p>
+<dt><strong>--xlabel XLABEL</strong></dt><dd><p>x軸のラベル文字列を指定します。</p>
 </dd>
-<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了する。</p>
+<dt><strong>-h, --help</strong></dt><dd><p>ヘルプメッセージを表示してプログラムを終了します。</p>
 </dd>
 </dl>
 </section>
-<section id="usage">
-<h2>USAGE<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h2>使用例<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <ol class="arabic">
-<li><p>入力データファイル file.txt を指定して実行する。出力先は 1dhist ディレクトリ。</p>
+<li><p>入力データファイル file.txt を指定して実行します。出力先は 1dhist ディレクトリです。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_1D_histogram<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>file.txt
 </pre></div>
 </div>
-<p>1dhist/1Dhistogram_file.png が出力される。</p>
+<p>1dhist/1Dhistogram_file.png が出力されます。</p>
 </li>
-<li><p>入力データファイルが data ディレクトリに result_T0_summarized.txt 〜 result_T10_summarized.txt として用意されている場合。出力先は 1dhist ディレクトリとする。</p>
+<li><p>入力データファイルが data ディレクトリに result_T0_summarized.txt 〜 result_T10_summarized.txt として用意されている場合の例です。出力先は 1dhist ディレクトリとします。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_1D_histogram<span class="w"> </span>-d<span class="w"> </span>data<span class="w"> </span>-o<span class="w"> </span>1dhist
 </pre></div>
 </div>
-<p>1dhist ディレクトリに 1Dhistogram_result_T0_NNNN.png 〜 1Dhistogram_result_T10_MMMM.png が出力される。ファイル名の <code class="docutils literal notranslate"><span class="pre">summarized</span></code> は <code class="docutils literal notranslate"><span class="pre">T_{T}</span></code> または <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code> に置き換えられる。</p>
+<p>1dhist ディレクトリに 1Dhistogram_result_T0_NNNN.png 〜 1Dhistogram_result_T10_MMMM.png が出力されます。ファイル名の <code class="docutils literal notranslate"><span class="pre">summarized</span></code> は <code class="docutils literal notranslate"><span class="pre">T_{T}</span></code> または <code class="docutils literal notranslate"><span class="pre">beta_{beta}</span></code> に置き換えられます。</p>
 </li>
-<li><p>入力データ file.txt のうち、x1 と x3 のフィールドについてヒストグラムを作成し、png と pdf 形式で出力する。</p>
+<li><p>入力データ file.txt のうち、x1 と x3 のフィールドについてヒストグラムを作成し、png と pdf 形式で出力します。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_1D_histogram<span class="w"> </span>-c<span class="w"> </span>x1,x3<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>-f<span class="w"> </span>png,pdf<span class="w"> </span>file.txt
 </pre></div>
 </div>
-<p>1dhist/1Dhistogram_file.png と 1dhist/1Dhistogram_file.pdf が出力される。</p>
+<p>1dhist/1Dhistogram_file.png と 1dhist/1Dhistogram_file.pdf が出力されます。</p>
 </li>
-<li><p>値の範囲を 3.0〜6.0 とする。すべての軸について同じ範囲に設定される。</p>
+<li><p>値の範囲を 3.0〜6.0 とします。すべての軸について同じ範囲に設定されます。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_1D_histogram<span class="w"> </span>-r<span class="w"> </span><span class="m">3</span>.0,6.0<span class="w"> </span>-o<span class="w"> </span>1dhist<span class="w"> </span>file.txt
 </pre></div>
 </div>
 </li>
-<li><p>オプションの内容を config ファイルに記述して利用する。conf.toml を以下のように用意する。</p>
+<li><p>オプションの内容を config ファイルに記述して利用します。conf.toml を以下のように用意します。</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="n">field_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
 <span class="n">columns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">]</span>
 <span class="n">bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span>
@@ -587,28 +587,28 @@ columns のフィールド名指定に使われる。</p>
 <span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1dhist&quot;</span>
 </pre></div>
 </div>
-<p>軸のラベルは z1, z2, z3 とし、それぞれの値の範囲はそれぞれ 3.0〜6.0, -3.0〜3.0, 0.0〜3.0 とする。
-その中で z1 と z2 についてヒストグラムを描画する。</p>
-<p>config ファイルを指定して実行する。</p>
+<p>軸のラベルは z1, z2, z3 とし、それぞれの値の範囲はそれぞれ 3.0〜6.0, -3.0〜3.0, 0.0〜3.0 とします。
+その中で z1 と z2 についてヒストグラムを描画します。</p>
+<p>config ファイルを指定して実行します。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>odatse_plt_1D_histogram<span class="w"> </span>--config<span class="w"> </span>conf.toml
 </pre></div>
 </div>
-<p>summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、1dhist/1Dhistogram_result_T*.png に出力される。</p>
+<p>summarized/ ディレクトリ内の各 result_T*_summarized.txt についてヒストグラムが作成され、1dhist/1Dhistogram_result_T*.png に出力されます。</p>
 </li>
 </ol>
 </section>
-<section id="notes">
-<h2>NOTES<a class="headerlink" href="#notes" title="Link to this heading">#</a></h2>
-<section id="id1">
-<h3>データファイルの形式<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<p>標準フォーマットのデータファイルは以下の形式をとる。</p>
+<section id="id5">
+<h2>補足事項<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<section id="id6">
+<h3>データファイルの形式<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>標準フォーマットのデータファイルは以下の形式をとります。</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span># コメント行(任意)
 T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 ...
 </pre></div>
 </div>
-<p>各行は空白文字で区切られた数値データであり、各列は以下の意味を持つ:</p>
+<p>各行は空白文字で区切られた数値データであり、各列は以下の意味を持ちます:</p>
 <ul class="simple">
 <li><p>第1列: T(温度) または beta(逆温度)</p></li>
 <li><p>第2列: fx(関数値)</p></li>
@@ -616,14 +616,14 @@ T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 <li><p>最終列: 重み(weight)</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>ヒストグラム作成の仕組み<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
-<p>このスクリプトは以下の手順でヒストグラムを作成する:</p>
+<section id="id7">
+<h3>ヒストグラム作成の仕組み<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>このスクリプトは以下の手順でヒストグラムを作成します:</p>
 <ol class="arabic simple">
-<li><p>入力ファイルからデータを読み込む</p></li>
-<li><p>重みを正規化する(合計が1になるように)</p></li>
-<li><p>指定された各変数(列)に対して1次元ヒストグラムを作成</p></li>
-<li><p>各ヒストグラムを指定されたフォーマットで保存</p></li>
+<li><p>入力ファイルからデータを読み込みます</p></li>
+<li><p>重みを正規化します(合計が1になるように)</p></li>
+<li><p>指定された各変数(列)に対して1次元ヒストグラムを作成します</p></li>
+<li><p>各ヒストグラムを指定されたフォーマットで保存します</p></li>
 </ol>
 <p>出力ファイルの命名規則:</p>
 <ul>
@@ -635,24 +635,24 @@ T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
 </li>
 </ul>
 </section>
-<section id="id3">
-<h3>パフォーマンス<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>パフォーマンス<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>大きなデータファイルを処理する場合、必要なメモリ量はファイルサイズにほぼ比例する</p></li>
-<li><p>NumPyを使用しているため、処理速度は比較的高速</p></li>
-<li><p>多数のファイルを処理する場合、<code class="docutils literal notranslate"><span class="pre">--progress</span></code> オプションで進捗を確認できる</p></li>
+<li><p>大きなデータファイルを処理する場合、必要なメモリ量はファイルサイズにほぼ比例します</p></li>
+<li><p>NumPyを使用しているため、処理速度は比較的高速です</p></li>
+<li><p>多数のファイルを処理する場合、<code class="docutils literal notranslate"><span class="pre">--progress</span></code> オプションで進捗を確認できます</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>エラー処理と制限事項<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>エラー処理と制限事項<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>データファイルが見つからない場合: エラーメッセージを表示</p></li>
-<li><p>データ形式が不正(数値でない、列数が一致しない): そのファイルをスキップしてエラーメッセージを表示</p></li>
-<li><p>フィールド名が存在しない: キーエラーが発生</p></li>
-<li><p>出力ディレクトリに書き込めない場合: 権限エラーが表示される</p></li>
+<li><p>データファイルが見つからない場合: エラーメッセージを表示します</p></li>
+<li><p>データ形式が不正(数値でない、列数が一致しない): そのファイルをスキップしてエラーメッセージを表示します</p></li>
+<li><p>フィールド名が存在しない: キーエラーが発生します</p></li>
+<li><p>出力ディレクトリに書き込めない場合: 権限エラーが表示されます</p></li>
 </ul>
-<p>処理中にエラーが発生した場合、そのファイルはスキップされて次のファイルの処理が継続される。
-最後に成功・失敗の要約が表示される。</p>
+<p>処理中にエラーが発生した場合、そのファイルはスキップされて次のファイルの処理が継続されます。
+最後に成功・失敗の要約が表示されます。</p>
 </section>
 </section>
 </section>
@@ -704,15 +704,15 @@ T(or beta)_value fx_value x1_value x2_value ... xN_value weight_value
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#name">NAME</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#synopsis">SYNOPSIS</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">DESCRIPTION</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">USAGE</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">NOTES</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">データファイルの形式</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">ヒストグラム作成の仕組み</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">パフォーマンス</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">エラー処理と制限事項</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">機能概要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">書式</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">説明</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">使用例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">補足事項</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">データファイルの形式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ヒストグラム作成の仕組み</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">パフォーマンス</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">エラー処理と制限事項</a></li>
 </ul>
 </li>
 </ul>

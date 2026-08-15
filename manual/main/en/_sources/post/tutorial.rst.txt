@@ -38,6 +38,8 @@ As an example, we use a calculation from the TRHEPD direct problem solver (odats
 The parameter space is 3-dimensional, with 51 temperature points logarithmically spaced from T=1.0 to 1.0e-6.
 Each annealing step consists of 20 MCMC steps.
 The number of replicas is set to 100 per process with 4 MPI processes.
+For the complete set of input files and data used in this example, see the odatse-STR analysis example in the `ODAT-SE Gallery <https://isspns-gitlab.issp.u-tokyo.ac.jp/takeohoshi/odat-se-gallery>`_.
+Note that the sample outputs shown below are abbreviated and simplified.
 
 Results are output under the output directory.
 There are two main types of output file.
@@ -46,31 +48,40 @@ There are two main types of output file.
 
 .. code-block:: text
 
-   # step  replica_id  T  fx  x1  x2  x3
-   0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100
-   1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080
+   # step  walker  T  fx  x1  x2  x3  weight  ancestor
+   0  0  1.000000e+00  1.234567e+01  4.500  3.200  5.100  1.000000e+00  0
+   1  0  1.000000e+00  1.198765e+01  4.520  3.180  5.080  1.000000e+00  0
    ...
 
-Each row corresponds to one MCMC step, recording the temperature T, objective function value fx, and parameter values x1--x3.
+Each row corresponds to one MCMC step of one walker (replica), recording the temperature T, the objective function value fx, the parameter values x1 to x3, the sampling weight, and the ancestor index used in resampling.
+The column labels depend on the ``label_list`` setting (``x1``, ``x2``, ... by default). The search parameters in this example are three variables corresponding to atomic coordinates, denoted :math:`z_1, z_2, z_3` in the text below.
 
 **output/fx.txt** -- Partition function and f(x) statistics
 
 .. code-block:: text
 
-   # beta  fx_mean  fx_var  nreplica  logZ/Z0  acceptance
-   1.000000e+00  1.234e+01  5.678e+00  400  0.000000e+00  0.850
+   # $1: 1/T
+   # $2: mean of f(x)
+   # $3: standard error of f(x)
+   # $4: number of replicas
+   # $5: log(Z/Z0)
+   # $6: acceptance ratio
+   1.000000e+00  1.234e+01  5.678e-01  400  0.000000e+00  0.850
    ...
 
-Each row corresponds to a temperature point, recording the inverse temperature beta, mean and variance of f(x), number of replicas, log ratio of partition functions, and acceptance rate.
+Each row corresponds to a temperature point, recording the inverse temperature beta, mean and standard error of f(x), number of replicas, log ratio of partition functions, and acceptance rate.
 
 .. note::
 
    If ``export_combined_files`` is set to ``true``, logs are consolidated in ``combined.txt``.
    Use :doc:`tools/extract_combined` to extract result.txt.
+   The extracted ``result.txt`` is not split by temperature point, so also run :doc:`tools/separateT`
+   to split it into per-temperature files ``result_T{index}.txt`` before proceeding to the next step.
 
    .. code-block:: bash
 
       odatse_extract_combined -t result.txt -d output
+      odatse_separateT -d output
 
 .. note::
 
@@ -104,7 +115,7 @@ For detailed options, see :doc:`tools/plt_model_evidence`.
 
 .. figure:: ../../../common/img/post/model_evidence.*
 
-   Plot of model evidence. Maximum value occurs at beta= :math:`1.91\times 10^5` (Tstep=44).
+   Plot of model evidence. The maximum occurs at :math:`\beta = 1.91\times 10^5` (Tstep=44).
 
 The :math:`\beta` that maximizes the model evidence corresponds to the inverse temperature at which the model best explains the data.
 When :math:`\beta` is too small, the prior distribution dominates (underfitting); when too large, the model fits noise in the data (overfitting).
@@ -142,7 +153,7 @@ For detailed options, see :doc:`tools/plt_1D_histogram`.
 
 .. figure:: ../../../common/img/post/1Dhistogram_result_T22.*
 
-   Example 1D marginalized histogram output (Tstep=22, :math:`\beta=4.365\times 10^2`).
+   Example 1D marginalized histogram output (shown for a higher-temperature point, Tstep=22, :math:`\beta=4.365\times 10^2`, for reference).
 
 
 To create 2D marginalized histograms:
@@ -157,4 +168,4 @@ For detailed options, see :doc:`tools/plt_2D_histogram`.
 
 .. figure:: ../../../common/img/post/2Dhistogram_result_T22_x1_vs_x2.*
 
-   Example 2D marginalized histogram output (Tstep=22, z1-z2 axis plot).
+   Example 2D marginalized histogram output (shown for a higher-temperature point, Tstep=22, for the :math:`z_1`-:math:`z_2` axes, for reference).
