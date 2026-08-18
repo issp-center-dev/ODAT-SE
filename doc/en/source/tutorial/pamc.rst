@@ -169,12 +169,18 @@ Visualization
 ~~~~~~~~~~~~~~~~~~~
 
 By visualizing ``result_T%.txt``, you can estimate regions where the function values become small.
-By executing the following command, the figures of the two-dimensional parameter space ``res_T%.png`` will be generated, where ``%`` stands for the index of the temperature point.
-The symbol color corresponds to the function value.
+Running ``plot_result_2dmap.py`` reads samples from all temperature points and
+generates ``result_T.png`` (colored by temperature ``T``), ``result_fx.png``
+(colored by the objective function value ``f(x)``), and ``result.png`` (which
+places both plots side by side).
 
 .. code-block::
 
     $ python3 plot_result_2dmap.py
+
+``plot_result_2d.py`` instead creates one plot for the ``result_T%.txt`` file
+given as an argument, with samples colored by ``f(x)``. Its default output file
+is ``res.png``.
 
 It is seen from the figures that the samples are concentrated near the minima of ``f(x)`` where the objective function has a small value.
 

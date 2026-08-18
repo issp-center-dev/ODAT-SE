@@ -66,4 +66,5 @@ build-backend = "hatchling.build"
 dev = [
     "sphinx>=7.4.7",
     "pydata-sphinx-theme>=0.16.1",
+    "sphinxcontrib-mermaid>=1.0.0",
 ]

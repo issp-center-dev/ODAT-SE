@@ -21,7 +21,7 @@ Extracts lines tagged with a specific tag from MCMC log files in combined format
 In the combined format, multiple data types are stored with a tag at the beginning of each line in the format ``<tag>``. This script extracts lines with a specific ``tag`` and outputs them to a file. The output file will be named ``tag`` and placed in the same directory as the input file.
 
 .. note::
-   * Python 3.5 or higher is required (due to the use of type hints).
+   * Python 3.9 or higher is required, as for ODAT-SE itself.
    * The tag format must be ``<tag>`` followed by a space.
 
 The following command line options are available.

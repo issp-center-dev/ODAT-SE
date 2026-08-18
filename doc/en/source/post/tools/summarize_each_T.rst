@@ -28,7 +28,7 @@ Each file format consists of: temperature (T) or inverse temperature (beta), fx,
 If an input parameter file used in PAMC calculations is specified as INPUT_FILE, the number of replicas (nreplica) and the directory storing calculation data (data_directory) are obtained from the input file. However, command line arguments take precedence.
 
 .. note::
-   * Python 3.6 or higher is required (due to the use of type hints and f-strings).
+   * Python 3.9 or higher is required, as for ODAT-SE itself.
    * By default, the last nreplica lines from each file are extracted. This number of lines corresponds to the number of replicas.
    * If nreplica is not specified, data from the last MCMC step is automatically determined and extracted.
    * The tqdm library is required for progress bar display. If not installed, processing will be executed without a progress bar.
@@ -167,7 +167,7 @@ Performance and Considerations
 * The ``--progress`` option can be used to visualize progress when processing many files at once.
 * Be mindful of memory usage when processing very large files.
 * Each per-temperature output file is truncated on its first write within a run and appended to for the remaining input files, so re-running the tool overwrites the previous output rather than duplicating it.
-* If loading settings from a TOML file, an additional library (tomli) is required for Python versions below 3.11.
+* When ODAT-SE is installed with pip, the required ``tomli`` dependency is installed automatically on Python versions below 3.11.
 
 Error Handling
 ~~~~~~~~~~~~~~

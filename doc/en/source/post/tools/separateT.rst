@@ -20,7 +20,7 @@ Separates MCMC log files (result.txt, trial.txt) into individual files for each 
 Files are created in the same directory as the input, and filenames follow the format of the original filename with ``_T{index}`` appended. ``{index}`` is the index of different temperature points, assigned from 0 in the order they appear in the log file.
 
 .. note::
-   * Python 3.6 or higher is required (due to the use of type hints and f-strings).
+   * Python 3.9 or higher is required, as for ODAT-SE itself.
    * MCMC log files are expected to have temperature values in the third column (index 2).
    * Comment lines (lines starting with #) in the input file are preserved in all output files.
    * The tqdm library is required for progress bar display. If not installed, regular messages will be displayed.

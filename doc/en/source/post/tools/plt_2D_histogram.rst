@@ -29,7 +29,7 @@ The axes for creating histograms are specified with the columns option. 2D plots
 The histogram range can be specified with the range option. In that case, the same range will be used for all axes being displayed. To specify ranges for each axis individually, provide a list of ``[xmin, xmax]`` pairs in the config file, or use the ``min_list`` and ``max_list`` from the input parameter file.
 
 .. note::
-   * Python 3.6 or higher is required (due to the use of f-strings).
+   * Python 3.9 or higher is required, as for ODAT-SE itself.
    * The tqdm library is required for progress bar display. If not installed, regular messages will be displayed.
    * Be mindful of memory usage when processing large datasets.
    * 2D histograms are displayed on a logarithmic scale (LogNorm), allowing visualization of low-density regions.
