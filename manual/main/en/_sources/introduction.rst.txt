@@ -74,6 +74,7 @@ Version Information
 
 - ODAT-SE
 
+  - v4.0.0: 2026-08-31
   - v3.2.0: 2025-11-20
   - v3.1.0: 2025-04-11
   - v3.0.1: 2025-02-21
@@ -91,6 +92,14 @@ Version Information
 Main developers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ODAT-SE has been developed by the following members.
+
+- ODAT-SE v4.0.0 -
+
+  - Y. Motoyama (The Institute for Solid State Physics, The University of Tokyo)
+  - K. Yoshimi (The Institute for Solid State Physics, The University of Tokyo)
+  - T. Aoyama (The Institute for Solid State Physics, The University of Tokyo)
+  - K. Akamatsu (The Institute for Solid State Physics, The University of Tokyo)
+  - T. Hoshi (National Institute for Fusion Science)
 
 - ODAT-SE v3.0.0 -
 

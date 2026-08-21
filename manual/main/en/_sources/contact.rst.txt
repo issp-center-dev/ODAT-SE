@@ -22,4 +22,4 @@ Please direct your inquiries about ODAT-SE here.
 
   If you have any questions about your research that are difficult to discuss in GitHub Issues, please send an e-mail to the following address:
 
-  E-mail: ``2dmat-dev__at__issp.u-tokyo.ac.jp`` (replace ``__at__`` with @)
+  E-mail: ``odatse-dev__at__issp.u-tokyo.ac.jp`` (replace ``__at__`` with @)

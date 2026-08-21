@@ -1,7 +1,11 @@
 Acknowledgements
 ================================
 
-The development of 2DMAT and ODAT-SE was supported by JSPS KAKENHI Grant Numbers 19H04125, 20H00581, 21K19773, and 23K18465, and "`Project for advancement of software usability in materials science <https://www.pasums.issp.u-tokyo.ac.jp/>`_" (FY2020, 2021, and 2024) of The Institute for Solid State Physics, The University of Tokyo.
+The development of 2DMAT and ODAT-SE was supported by
+JSPS KAKENHI Grant Numbers 19H04125, 20H00581, 21K19773, and 23K18465,
+"`Project for advancement of software usability in materials science <https://www.pasums.issp.u-tokyo.ac.jp/>`_" (FY2020, 2021, and 2024) of The Institute for Solid State Physics, The University of Tokyo,
+and
+JST (Moonshot R&D Program) Japan Grant Number JPMJMS24A3.
 
 For details on the project, please refer to the following paper:
 
@@ -13,4 +17,7 @@ For details on the project, please refer to the following paper:
 Presentations and publications related to ODAT-SE are available `here <https://www.pasums.issp.u-tokyo.ac.jp/odat-se/paper>`_.
 
 Part of the design and naming of the software is inspired by `abics <https://github.com/issp-center-dev/abICS>`_.
-For adding a tutorial on customizing a solver, we thank K. Tsukamoto (ISSP).
+We thank K. Tsukamoto (ISSP) for adding the tutorial on customizing a solver,
+H. Shimizu (ISSP) for checking the manual and testing the software,
+and
+Li Hengyu (ISSP) for writing the manual and tutorial for the post-processing tools.
