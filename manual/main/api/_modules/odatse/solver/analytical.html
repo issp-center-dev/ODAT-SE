@@ -319,7 +319,7 @@
 <div class="viewcode-block" id="quadratics">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.quadratics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quadratics</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Quadratic (sphere) function.</span>
 
 <span class="sd">    Parameters</span>
@@ -335,14 +335,14 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has one global minimum f(xs)=0 at xs = [0,0,...,0].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xs</span> <span class="o">*</span> <span class="n">xs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="quartics">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.quartics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quartics</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Quartic function with two global minima.</span>
 
 <span class="sd">    Parameters</span>
@@ -359,15 +359,15 @@
 <span class="sd">    -----</span>
 <span class="sd">    It has two global minima f(xs)=0 at xs = [1,1,...,1] and [-1,-1,...,-1].</span>
 <span class="sd">    It has one saddle point f(0,0,...,0) = 1.0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">xs</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">xs</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ackley">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.ackley">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ackley</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ackley&#39;s function in arbitrary dimension</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Ackley's function in arbitrary dimension</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -377,13 +377,13 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
-<span class="sd">        The calculated value of Ackley&#39;s function.</span>
+<span class="sd">        The calculated value of Ackley's function.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has one global minimum f(xs)=0 at xs=[0,0,...,0].</span>
 <span class="sd">    It has many local minima.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">xs</span><span class="p">)</span>
@@ -394,7 +394,7 @@
 <div class="viewcode-block" id="alpine">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.alpine">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">alpine</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Alpine function.</span>
 
 <span class="sd">    Parameters</span>
@@ -410,14 +410,14 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=0 at x=[0,0,...,0].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">xs</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xs</span><span class="p">))</span><span class="o">+</span><span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="n">xs</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="exponential">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.exponential">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">exponential</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Exponential function.</span>
 
 <span class="sd">    Parameters</span>
@@ -433,14 +433,14 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=-1 at x=[0,0,...,0].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="griewank">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.griewank">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">griewank</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Griewank function.</span>
 
 <span class="sd">    Parameters</span>
@@ -456,15 +456,15 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=0 at x=[0,0,...,0].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">/</span><span class="mi">4000</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xs</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">))),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="himmelblau">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.himmelblau">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">himmelblau</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Himmelblau&#39;s function.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Himmelblau's function.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -474,16 +474,16 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
-<span class="sd">        The calculated value of Himmelblau&#39;s function.</span>
+<span class="sd">        The calculated value of Himmelblau's function.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has four global minima f(xs) = 0 at</span>
 <span class="sd">    xs=[3,2], [-2.805118..., 3.131312...], [-3.779310..., -3.2831860], and [3.584428..., -1.848126...].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;ERROR: himmelblau expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one&quot;</span>
+            <span class="sa">f</span><span class="s2">"ERROR: himmelblau expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">11.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">7.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span></div>
 
@@ -491,7 +491,7 @@
 <div class="viewcode-block" id="michalewicz">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.michalewicz">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">michalewicz</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Michalewicz function.</span>
 
 <span class="sd">    Parameters</span>
@@ -510,14 +510,14 @@
 <span class="sd">    For d=2, it has a global minimum f(x)=-1.8013 at x=[2.2051, 1.5698].</span>
 <span class="sd">    For d=5, it has a global minimum f(x)=-4.6876.</span>
 <span class="sd">    For d=10, it has a global minimum f(x)=-9.6602.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">10</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="qing">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.qing">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qing</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Qing function.</span>
 
 <span class="sd">    Parameters</span>
@@ -533,14 +533,14 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=0 at x=[+/-sqrt(n), ...], where n runs from 1 to d.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="rastrigin">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.rastrigin">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rastrigin</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rastrigin function.</span>
 
 <span class="sd">    Parameters</span>
@@ -556,15 +556,15 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=0 at x=[0,0,...,0].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xs</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="p">(</span><span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">xs</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="rosenbrock">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.rosenbrock">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rosenbrock</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rosenbrock&#39;s function.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Rosenbrock's function.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -574,19 +574,19 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
-<span class="sd">        The calculated value of Rosenbrock&#39;s function.</span>
+<span class="sd">        The calculated value of Rosenbrock's function.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has one global minimum f(xs) = 0 at xs=[1,1,...,1].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="schaffer">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.schaffer">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">schaffer</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Schaffer function (generalized).</span>
 
 <span class="sd">    Parameters</span>
@@ -598,7 +598,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
 <span class="sd">        The calculated value of the Schaffer function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">a</span><span class="o">=</span><span class="p">(</span><span class="n">xs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">+</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="mf">0.001</span><span class="o">*</span><span class="n">a</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
@@ -606,7 +606,7 @@
 <div class="viewcode-block" id="schwefel">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.schwefel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">schwefel</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Schwefel function.</span>
 
 <span class="sd">    Parameters</span>
@@ -622,14 +622,14 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    It has a global minimum f(x)=0 at x=[420.9687..., ...].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">418.9829</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xs</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">xs</span><span class="p">))),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="linear_regression_test">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.linear_regression_test">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">linear_regression_test</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Negative log likelihood of linear regression with Gaussian noise N(0,sigma)</span>
 
 <span class="sd">    y = ax + b</span>
@@ -651,10 +651,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    float</span>
 <span class="sd">        The negative log likelihood of the linear regression model.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;ERROR: regression expects d=3 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one&quot;</span>
+            <span class="sa">f</span><span class="s2">"ERROR: regression expects d=3 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one"</span>
         <span class="p">)</span>
 
     <span class="n">xdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
@@ -669,7 +669,7 @@
 <div class="viewcode-block" id="Solver">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.Solver">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Solver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">Solver</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function Solver with pre-defined benchmark functions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Function Solver with pre-defined benchmark functions"""</span>
 
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">fx</span><span class="p">:</span> <span class="nb">float</span>
@@ -677,58 +677,58 @@
 <div class="viewcode-block" id="Solver.__init__">
 <a class="viewcode-back" href="../../../odatse.solver.analytical.html#odatse.solver.analytical.Solver.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the solver.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info: Info</span>
 <span class="sd">            Information object containing solver configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-        <span class="n">function_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function_name&quot;</span><span class="p">,</span> <span class="s2">&quot;quadratics&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">"analytical"</span>
+        <span class="n">function_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"function_name"</span><span class="p">,</span> <span class="s2">"quadratics"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;quadratics&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"quadratics"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">quadratics</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;quartics&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"quartics"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">quartics</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;ackley&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"ackley"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">ackley</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;alpine&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"alpine"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">alpine</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;exponential&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"exponential"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">exponential</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;griewank&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"griewank"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">griewank</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;himmelblau&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"himmelblau"</span><span class="p">:</span>
             <span class="n">dimension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
             <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">dimension</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;ERROR: himmelblau works only with dimension=2 but input is dimension=</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"ERROR: himmelblau works only with dimension=2 but input is dimension=</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">himmelblau</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;michalewicz&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"michalewicz"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">michalewicz</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;qing&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"qing"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">qing</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;rastrigin&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"rastrigin"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">rastrigin</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;rosenbrock&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"rosenbrock"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">rosenbrock</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;schaffer&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"schaffer"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">schaffer</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;schwefel&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"schwefel"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">schwefel</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;linear_regression_test&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"linear_regression_test"</span><span class="p">:</span>
             <span class="n">dimension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
             <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">dimension</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;ERROR: regression works only with dimension=3 but input is dimension=</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"ERROR: regression works only with dimension=3 but input is dimension=</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">linear_regression_test</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: Unknown function, </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: Unknown function, </span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

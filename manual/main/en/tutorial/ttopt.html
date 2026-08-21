@@ -506,18 +506,18 @@ The directory contains the following:</p>
 For the full input specification, see the <em>Input files</em> chapter.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">"output"</span>
 
 <span class="p">[</span><span class="n">solver</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"analytical"</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">"himmelblau"</span>
 
 <span class="p">[</span><span class="n">runner</span><span class="p">]</span>
 <span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
 <span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ttopt&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"ttopt"</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
@@ -583,7 +583,7 @@ For the full input specification, see the <em>Input files</em> chapter.</p>
 <section id="visualizing-results">
 <h2>Visualizing results<a class="headerlink" href="#visualizing-results" title="Link to this heading">#</a></h2>
 <p>Columns 2 and 3 of <code class="docutils literal notranslate"><span class="pre">output/ttopt_history.txt</span></code> correspond to the best <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code> at each recorded step. The bundled <code class="docutils literal notranslate"><span class="pre">plot.py</span></code> overlays this trajectory on Himmelblau contours and saves a PDF.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ./plot.py --xcol=1 --ycol=2 --format=&quot;-o&quot; --output=output/res.pdf output/ttopt_history.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ./plot.py --xcol=1 --ycol=2 --format="-o" --output=output/res.pdf output/ttopt_history.txt
 </pre></div>
 </div>
 <p>This creates <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> with the history of best-point updates from TTOpt. The iterate approaches a minimum already at an early stage.</p>

@@ -489,8 +489,8 @@
 <p>To use the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, the users may set the <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter in the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section to <code class="docutils literal notranslate"><span class="pre">&quot;analytical&quot;</span></code>, and choose the benchmark function <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> in the <code class="docutils literal notranslate"><span class="pre">function_name</span></code> parameter.
 For example, to use the Himmelblau function, make an input file including the following lines:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;himmelblau&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"analytical"</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"himmelblau"</span>
 </pre></div>
 </div>
 <p>For details of the <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver, see <a class="reference internal" href="../solver/analytical.html"><span class="doc">the reference of the analytical solver</span></a>.</p>
@@ -507,20 +507,20 @@ For instructions on how to download the source code and run <code class="docutil
 The <code class="docutils literal notranslate"><span class="pre">analytical</span></code> solver is defined in <code class="docutils literal notranslate"><span class="pre">src/odatse/solver/analytical.py</span></code>, so we will edit that file.</p>
 <p>First, define the Booth function as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">booth</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Booth function</span>
+<span class="w">    </span><span class="sd">"""Booth function</span>
 
 <span class="sd">    it has one global minimum f(xs) = 0 at xs = [1,3].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;ERROR: booth expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one&quot;</span>
+            <span class="sa">f</span><span class="s2">"ERROR: booth expects d=2 input, but receives d=</span><span class="si">{</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> one"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">7.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 </pre></div>
 </div>
 <p>Next, insert the following code in the if branch of the <code class="docutils literal notranslate"><span class="pre">Solver</span></code> class’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__</span></code>) to allow users to choose the <code class="docutils literal notranslate"><span class="pre">booth</span></code> function by the <code class="docutils literal notranslate"><span class="pre">solver.function_name</span></code> parameter of the input file.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;booth&quot;</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">"booth"</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">booth</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -528,10 +528,10 @@ The <code class="docutils literal notranslate"><span class="pre">analytical</spa
 For example, to optimize it by the Nelder-Mead method, pass the following input file (<code class="docutils literal notranslate"><span class="pre">input.toml</span></code>):</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
 <span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
-<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"output"</span>
 
 <span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;minsearch&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"minsearch"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -540,8 +540,8 @@ For example, to optimize it by the Nelder-Mead method, pass the following input 
 <span class="n">initial_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
 
 <span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;booth&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"analytical"</span>
+<span class="n">function_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"booth"</span>
 </pre></div>
 </div>
 <p>to the <code class="docutils literal notranslate"><span class="pre">odatse</span></code> command as follows:</p>

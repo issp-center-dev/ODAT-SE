@@ -406,21 +406,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">min_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">max_list</span>
 
-        <span class="k">if</span> <span class="s2">&quot;step_list&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_list&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;unit_list&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: unit_list is obsolete. use step_list instead&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit_list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"step_list"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"step_list"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">"unit_list"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"WARNING: unit_list is obsolete. use step_list instead"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xstep</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"unit_list"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorighm.param.step_list not specified&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorighm.param.step_list not specified"</span><span class="p">)</span>
 
         <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;pbc_list&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="n">pbc_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;pbc_list&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"pbc_list"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="n">pbc_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"pbc_list"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">pbc_list</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">ndim</span><span class="p">,):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;ERROR: algorithm.param.pbc_list length must match dimension (min_list/max_list). &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pbc_list</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="s2">"ERROR: algorithm.param.pbc_list length must match dimension (min_list/max_list). "</span>
+                    <span class="sa">f</span><span class="s2">"Expected </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pbc_list</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pbc</span> <span class="o">=</span> <span class="n">pbc_list</span>
         <span class="k">else</span><span class="p">:</span>
@@ -433,7 +433,7 @@
 <div class="viewcode-block" id="ContinuousStateSpace._wrap_pbc">
 <a class="viewcode-back" href="../../../odatse.algorithm.state.html#odatse.algorithm.state.ContinuousStateSpace._wrap_pbc">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_pbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap coordinates into [xmin, xmax) for dimensions with PBC.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Wrap coordinates into [xmin, xmax) for dimensions with PBC."""</span>
         <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span>
         <span class="n">safe_period</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">period</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">wrapped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">safe_period</span><span class="p">)</span>
@@ -506,7 +506,7 @@
 <div class="viewcode-block" id="DiscreteStateSpace._setup_neighbour">
 <a class="viewcode-back" href="../../../odatse.algorithm.state.html#odatse.algorithm.state.DiscreteStateSpace._setup_neighbour">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up the neighbor list for the discrete problem.</span>
 
 <span class="sd">        Parameters</span>
@@ -521,7 +521,7 @@
 <span class="sd">            the parameters.</span>
 <span class="sd">        RuntimeError</span>
 <span class="sd">            If the transition graph made from the neighbor list is not connected or not bidirectional.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">algrank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span>
         <span class="n">algcomm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span>
         <span class="n">algsize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span>
@@ -531,8 +531,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ncandidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span> <span class="ow">and</span> <span class="s2">&quot;neighborlist_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="n">nn_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;neighborlist_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">"mesh_path"</span> <span class="ow">in</span> <span class="n">info_param</span> <span class="ow">and</span> <span class="s2">"neighborlist_path"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="n">nn_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"neighborlist_path"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">algrank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">nnlist</span> <span class="o">=</span> <span class="n">load_neighbor_list</span><span class="p">(</span><span class="n">nn_path</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nnodes</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -543,21 +543,21 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">nnlist</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;radius&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="se">\&quot;</span><span class="s2">algorithm.param.radius</span><span class="se">\&quot;</span><span class="s2"> not specified&quot;</span><span class="p">)</span>
-            <span class="n">radius</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DEBUG: create neighbor list, radius=</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"radius"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"parameter </span><span class="se">\"</span><span class="s2">algorithm.param.radius</span><span class="se">\"</span><span class="s2"> not specified"</span><span class="p">)</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"radius"</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DEBUG: create neighbor list, radius=</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">make_neighbor_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_coordinates</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
 
         <span class="c1"># checks</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;ERROR: The transition graph made from neighbor list is not connected.&quot;</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">HINT: Increase neighborhood radius.&quot;</span>
+                <span class="s2">"ERROR: The transition graph made from neighbor list is not connected."</span>
+                <span class="s2">"</span><span class="se">\n</span><span class="s2">HINT: Increase neighborhood radius."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">is_bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;ERROR: The transition graph made from neighbor list is not bidirectional.&quot;</span>
+                <span class="s2">"ERROR: The transition graph made from neighbor list is not bidirectional."</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ncandidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">ns</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_list</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span></div>

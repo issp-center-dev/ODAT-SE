@@ -413,7 +413,7 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Tensor-Train Optimization (TTOpt) algorithm implementation.</span>
 
 <span class="sd">    This class implements the TTOpt algorithm. It is an optimization method</span>
@@ -453,7 +453,7 @@
 <span class="sd">        The optimal solution.</span>
 <span class="sd">    fopt: Optional[float]</span>
 <span class="sd">        The optimal function value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">bounds</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">p_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -484,18 +484,18 @@
     <span class="c1"># Fields saved and restored at every checkpoint.</span>
     <span class="c1"># n_q_dims is included for structural consistency validation on resume.</span>
     <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;n_q_dims&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;f_eval_count&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;f_eval_count_history&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xopt&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fopt&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xopt_history&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fopt_history&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;poi&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tt_ranks&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sweep_pos&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;cache_hits&quot;</span><span class="p">,</span>
+        <span class="s2">"n_q_dims"</span><span class="p">,</span>
+        <span class="s2">"f_eval_count"</span><span class="p">,</span>
+        <span class="s2">"f_eval_count_history"</span><span class="p">,</span>
+        <span class="s2">"xopt"</span><span class="p">,</span>
+        <span class="s2">"fopt"</span><span class="p">,</span>
+        <span class="s2">"xopt_history"</span><span class="p">,</span>
+        <span class="s2">"fopt_history"</span><span class="p">,</span>
+        <span class="s2">"poi"</span><span class="p">,</span>
+        <span class="s2">"tt_ranks"</span><span class="p">,</span>
+        <span class="s2">"sweep_pos"</span><span class="p">,</span>
+        <span class="s2">"cache"</span><span class="p">,</span>
+        <span class="s2">"cache_hits"</span><span class="p">,</span>
     <span class="p">]</span>
 
 <div class="viewcode-block" id="Algorithm.__init__">
@@ -505,9 +505,9 @@
         <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">domain</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">Region</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Algorithm class.</span>
 
 <span class="sd">        Parameters</span>
@@ -517,13 +517,13 @@
 <span class="sd">        runner : odatse.Runner, optional</span>
 <span class="sd">            Runner object for executing the algorithm.</span>
 <span class="sd">        run_mode : str, optional</span>
-<span class="sd">            Mode to run the algorithm in, by default &quot;initial&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Mode to run the algorithm in, by default "initial".</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The TTOpt algorithm requires a runner instance.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The TTOpt algorithm requires a runner instance."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">domain</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">Region</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
@@ -534,13 +534,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">max_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">min_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_list</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="n">info_ttopt</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ttopt&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">info_ttopt</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ttopt"</span><span class="p">,</span> <span class="p">{})</span>
 
-        <span class="n">p_points</span> <span class="o">=</span> <span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;p_points&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">p_points</span> <span class="o">=</span> <span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"p_points"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p_points</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">p_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_points</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
 
-        <span class="n">q_points</span> <span class="o">=</span> <span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;q_points&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">q_points</span> <span class="o">=</span> <span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"q_points"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q_points</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">q_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">q_points</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
 
@@ -548,19 +548,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">q_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ttopt.p_points must match the problem dimension.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ttopt.p_points must match the problem dimension."</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ttopt.q_points must match the problem dimension.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ttopt.q_points must match the problem dimension."</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">r_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_max&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_f_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_f_eval&quot;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maxvol_tol&quot;</span><span class="p">,</span> <span class="mf">1.001</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maxvol_max_it&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_eval_history</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;save_eval_history&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
-        <span class="n">_buf_rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;eval_history_buffer_rows&quot;</span><span class="p">,</span> <span class="mi">256</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"r_max"</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_f_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_f_eval"</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"maxvol_tol"</span><span class="p">,</span> <span class="mf">1.001</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"maxvol_max_it"</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_eval_history</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"save_eval_history"</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">_buf_rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"eval_history_buffer_rows"</span><span class="p">,</span> <span class="mi">256</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_history_buffer_rows</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_buf_rows</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;init_points&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">info_ttopt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"init_points"</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span> <span class="o">=</span> <span class="kc">None</span>
@@ -582,12 +582,12 @@
 <div class="viewcode-block" id="Algorithm._setup_structure">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._setup_structure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up structural fields derived from config parameters.</span>
+<span class="w">        </span><span class="sd">"""Set up structural fields derived from config parameters.</span>
 
 <span class="sd">        Called on every run mode (init and resume).  These fields are</span>
 <span class="sd">        deterministic functions of the configuration and do not need to be</span>
 <span class="sd">        checkpointed, but they must exist before ``_run()`` can use them.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p_points</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span>
@@ -614,10 +614,10 @@
 <div class="viewcode-block" id="Algorithm._init_counters">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._init_counters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_counters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset evaluation counters and the eval-history file handle.</span>
+<span class="w">        </span><span class="sd">"""Reset evaluation counters and the eval-history file handle.</span>
 
 <span class="sd">        Called on every run mode so that the history file is opened fresh.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">f_eval_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">f_eval_count_history</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xopt_history</span> <span class="o">=</span> <span class="p">[]</span>
@@ -626,7 +626,7 @@
         <span class="c1"># (re)start.  A checkpoint may be written mid-sweep, where poi/tt_ranks</span>
         <span class="c1"># are only consistent for exactly this position.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sweep_pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_eval_hist_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_eval_hist_file"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IO</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_next_row</span> <span class="o">=</span> <span class="mi">1</span>
@@ -638,11 +638,11 @@
 <div class="viewcode-block" id="Algorithm._init_poi">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._init_poi">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_poi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate init_points and initialize poi/tt_ranks via maxvol.</span>
+<span class="w">        </span><span class="sd">"""Evaluate init_points and initialize poi/tt_ranks via maxvol.</span>
 
-<span class="sd">        Called only for fresh runs (mode ``&quot;initial&quot;``).  On resume the</span>
+<span class="sd">        Called only for fresh runs (mode ``"initial"``).  On resume the</span>
 <span class="sd">        poi and tt_ranks are restored from the checkpoint instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># process init_points</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">n_init_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -668,7 +668,7 @@
                     <span class="n">multi_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span>
                         <span class="n">n_idx</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">n_q_points</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="p">[</span><span class="n">dim</span><span class="p">]],</span>
-                        <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+                        <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">init_q_pois</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="p">[</span><span class="n">dim</span><span class="p">]]</span> <span class="o">=</span> <span class="n">multi_idx</span>
                 <span class="n">start</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
@@ -726,7 +726,7 @@
             <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
                 <span class="n">z</span><span class="p">,</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_q_points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
-                <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># make state uniform across all ranks</span>
@@ -747,19 +747,19 @@
 <div class="viewcode-block" id="Algorithm._prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare the TT decomposition structure and (for fresh runs) the initial poi.</span>
+<span class="w">        </span><span class="sd">"""Prepare the TT decomposition structure and (for fresh runs) the initial poi.</span>
 
 <span class="sd">        The deterministic structural fields are always rebuilt from config and</span>
 <span class="sd">        the counters reset.  On resume the checkpoint snapshot (already read by</span>
-<span class="sd">        prepare()&#39;s dispatch into ``self._resume_data``) is applied *here*,</span>
+<span class="sd">        prepare()'s dispatch into ``self._resume_data``) is applied *here*,</span>
 <span class="sd">        after the structural rebuild, so that the restored poi/tt_ranks/counters</span>
 <span class="sd">        are not clobbered by ``_setup_structure()``/``_init_counters()``.  For a</span>
 <span class="sd">        fresh run the initial poi is built from ``init_points`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_structure</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_counters</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="s2">&quot;continue&quot;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"resume"</span><span class="p">,</span> <span class="s2">"continue"</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_resume_data</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_resume_restore_rng</span>
             <span class="p">)</span>
@@ -769,17 +769,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_init_poi</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;ttopt_hyperparameters.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nprocs = </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bounds = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;p_points = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_points</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;q_points = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;r_max = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">r_max</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;max_f_eval = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_f_eval</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;maxvol_tol = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;maxvol_max_it = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_eval_history = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">save_eval_history</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;eval_history_buffer_rows = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_history_buffer_rows</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"ttopt_hyperparameters.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nprocs = </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bounds = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"p_points = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p_points</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"q_points = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">q_points</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"r_max = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">r_max</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"max_f_eval = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_f_eval</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"maxvol_tol = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"maxvol_max_it = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"save_eval_history = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">save_eval_history</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"eval_history_buffer_rows = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_history_buffer_rows</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._run">
@@ -848,7 +848,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">n_q_points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
                             <span class="p">),</span>
-                            <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+                            <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="n">row_idxs</span> <span class="o">=</span> <span class="n">find_rows</span><span class="p">(</span>
                             <span class="n">z</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span>
@@ -870,7 +870,7 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_q_points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">tt_ranks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
                             <span class="p">),</span>
-                            <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+                            <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">,</span>
                         <span class="p">)</span>
                         <span class="n">row_idxs</span> <span class="o">=</span> <span class="n">find_rows</span><span class="p">(</span>
                             <span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_tol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxvol_max_it</span>
@@ -918,14 +918,14 @@
 <div class="viewcode-block" id="Algorithm._save_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._save_state">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the current algorithm state to a checkpoint file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Save the current algorithm state to a checkpoint file."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._apply_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._apply_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore algorithm state from a checkpoint snapshot.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore algorithm state from a checkpoint snapshot.</span>
 
 <span class="sd">        Validates the MPI configuration and structural consistency (n_q_dims),</span>
 <span class="sd">        optionally restores the RNG, then applies all fields listed in</span>
@@ -943,19 +943,19 @@
 <span class="sd">        data : dict</span>
 <span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            ``&quot;resume&quot;`` or ``&quot;continue&quot;``; TTOpt treats them identically.</span>
+<span class="sd">            ``"resume"`` or ``"continue"``; TTOpt treats them identically.</span>
 <span class="sd">        restore_rng : bool</span>
 <span class="sd">            When *True*, restore the RNG state from *data*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_q_dims</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;n_q_dims&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_q_dims</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"n_q_dims"</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;n_q_dims mismatch: checkpoint has </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;n_q_dims&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;current config gives </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_q_dims</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Check that p_points and q_points match the original run.&quot;</span>
+                <span class="sa">f</span><span class="s2">"n_q_dims mismatch: checkpoint has </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'n_q_dims'</span><span class="p">]</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"current config gives </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_q_dims</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Check that p_points and q_points match the original run."</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">_checkpoint_attrs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;sweep_pos&quot;</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">"sweep_pos"</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                 <span class="c1"># checkpoint written before sweep_pos was tracked: those were</span>
                 <span class="c1"># only ever saved at a double-sweep boundary</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sweep_pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -965,8 +965,8 @@
 
 <div class="viewcode-block" id="Algorithm._load_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._load_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a checkpoint file and defer applying it until ``_prepare()``.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Read a checkpoint file and defer applying it until ``_prepare()``.</span>
 
 <span class="sd">        The snapshot is *not* applied here: ``_prepare()`` first rebuilds the</span>
 <span class="sd">        deterministic structural fields (which would otherwise clobber the</span>
@@ -977,7 +977,7 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            Path to the checkpoint file.</span>
 <span class="sd">        mode : str, optional</span>
-<span class="sd">            ``&quot;resume&quot;`` or ``&quot;continue&quot;``.  TTOpt does not distinguish between</span>
+<span class="sd">            ``"resume"`` or ``"continue"``.  TTOpt does not distinguish between</span>
 <span class="sd">            them: the evaluation budget ``max_f_eval`` is re-read from the input</span>
 <span class="sd">            file on every run and is deliberately not checkpointed, while</span>
 <span class="sd">            ``f_eval_count`` is.  Raising ``max_f_eval`` and restarting therefore</span>
@@ -985,7 +985,7 @@
 <span class="sd">        restore_rng : bool, optional</span>
 <span class="sd">            Whether the RNG state should be restored when the snapshot is</span>
 <span class="sd">            applied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resume_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resume_restore_rng</span> <span class="o">=</span> <span class="n">restore_rng</span></div>
@@ -1014,26 +1014,26 @@
             <span class="k">return</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_pending_x</span><span class="p">)</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_pending_f</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;ttopt_eval_history.txt&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"ttopt_eval_history.txt"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span>
                 <span class="n">path</span><span class="p">,</span>
-                <span class="s2">&quot;w&quot;</span><span class="p">,</span>
-                <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
-                <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"w"</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
+                <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">hf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span>
-            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: row index (order of batches in the run)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: row index (order of batches in the run)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
-                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# $</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# $</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: f(x)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# $</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# $</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: f(x)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">hf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_file</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_next_row</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_next_row</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_next_row</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
-                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">xs</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">fs</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">xs</span><span class="p">[</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">hf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">fs</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_pending_x</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_pending_f</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_pending_nrows</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1049,10 +1049,10 @@
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.ttopt.html#odatse.algorithm.ttopt.Algorithm._post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect the best solution across ranks.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Collect the best solution across ranks."""</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span>
-            <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span>
+            <span class="s2">"fx"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">opt_history</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
@@ -1060,16 +1060,16 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eval_hist_finalize</span><span class="p">()</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;ttopt_history.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: count</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"ttopt_history.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: count</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# $</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: x_opt[</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# $</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: fx_opt</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# $</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: x_opt[</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# $</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">: fx_opt</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">opt_history</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.15e</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -1077,23 +1077,23 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
-        <span class="n">fxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;fx&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">fxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"fx"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
 
         <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">fxs</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">&quot;opt_history&quot;</span><span class="p">:</span> <span class="n">opt_history</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">"opt_history"</span><span class="p">:</span> <span class="n">opt_history</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best solution: x = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, f(x) = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;fx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Best solution: x = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span><span class="si">}</span><span class="s2">, f(x) = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'fx'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">hitrate</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="mi">100</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_hits</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_eval_count</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_eval_count</span> <span class="o">&gt;</span> <span class="mi">0</span>
                 <span class="k">else</span> <span class="mi">0</span>
             <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cache hitrate: </span><span class="si">{</span><span class="n">hitrate</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;res.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fx = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;fx&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]):</span>
-                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cache hitrate: </span><span class="si">{</span><span class="n">hitrate</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"res.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fx = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'fx'</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]):</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -1116,7 +1116,7 @@
         <span class="k">for</span> <span class="n">dim_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_dims</span><span class="p">):</span>
             <span class="n">submat</span> <span class="o">=</span> <span class="n">todo_q_pois</span><span class="p">[:,</span> <span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="n">dim_idx</span><span class="p">]]</span>
             <span class="n">todo_pois</span><span class="p">[:,</span> <span class="n">dim_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel_multi_index</span><span class="p">(</span>
-                <span class="n">submat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">n_q_points</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="n">dim_idx</span><span class="p">]],</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span>
+                <span class="n">submat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">n_q_points</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">qs</span><span class="p">[</span><span class="n">dim_idx</span><span class="p">]],</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span>
             <span class="p">)</span>
             <span class="n">start</span> <span class="o">+=</span> <span class="n">qs</span><span class="p">[</span><span class="n">dim_idx</span><span class="p">]</span>
         <span class="c1"># convert idxs to coordinates</span>

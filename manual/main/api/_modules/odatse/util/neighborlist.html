@@ -337,7 +337,7 @@
 <div class="viewcode-block" id="Cells">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Cells</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class to represent a grid of cells for spatial partitioning.</span>
 <span class="sd">    </span>
 <span class="sd">    This class divides a spatial region into a grid of cells to efficiently</span>
@@ -370,7 +370,7 @@
 <span class="sd">    &gt;&gt;&gt; point_coords = np.array([1.5, 3.2, 4.7])</span>
 <span class="sd">    &gt;&gt;&gt; cell_index = cells.coord2cellindex(point_coords)</span>
 <span class="sd">    &gt;&gt;&gt; cells.cells[cell_index].add(point_index)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span>
@@ -383,7 +383,7 @@
 <div class="viewcode-block" id="Cells.__init__">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mins</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">maxs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cellsize</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Cells object.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -398,14 +398,14 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
-<span class="sd">            This method initializes the object&#39;s attributes.</span>
+<span class="sd">            This method initializes the object's attributes.</span>
 <span class="sd">            </span>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; mins = np.array([0.0, 0.0, 0.0])</span>
 <span class="sd">        &gt;&gt;&gt; maxs = np.array([10.0, 10.0, 10.0])</span>
 <span class="sd">        &gt;&gt;&gt; cells = Cells(mins, maxs, cellsize=2.0)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mins</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mins</span> <span class="o">=</span> <span class="n">mins</span>
         <span class="n">Ls</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxs</span> <span class="o">-</span> <span class="n">mins</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.001</span>
@@ -419,10 +419,10 @@
 <div class="viewcode-block" id="Cells.coord2cellindex">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.coord2cellindex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">coord2cellindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert spatial coordinates to a cell index.</span>
 <span class="sd">        </span>
-<span class="sd">        This method transforms a point&#39;s spatial coordinates into the index</span>
+<span class="sd">        This method transforms a point's spatial coordinates into the index</span>
 <span class="sd">        of the cell containing it, by first converting to cell coordinates</span>
 <span class="sd">        and then to a cell index.</span>
 <span class="sd">        </span>
@@ -441,14 +441,14 @@
 <span class="sd">        &gt;&gt;&gt; cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)</span>
 <span class="sd">        &gt;&gt;&gt; cells.coord2cellindex(np.array([3.5, 4.2]))</span>
 <span class="sd">        8</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cellcoord2cellindex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord2cellcoord</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Cells.coord2cellcoord">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.coord2cellcoord">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">coord2cellcoord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert spatial coordinates to cell coordinates.</span>
 <span class="sd">        </span>
 <span class="sd">        Cell coordinates are integer indices that identify the position of a cell</span>
@@ -469,14 +469,14 @@
 <span class="sd">        &gt;&gt;&gt; cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)</span>
 <span class="sd">        &gt;&gt;&gt; cells.coord2cellcoord(np.array([3.5, 4.2]))</span>
 <span class="sd">        array([1, 2])</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mins</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cellsize</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Cells.cellcoord2cellindex">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.cellcoord2cellindex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cellcoord2cellindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ns</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert cell coordinates to a cell index.</span>
 <span class="sd">        </span>
 <span class="sd">        This method converts multi-dimensional cell coordinates to a single</span>
@@ -497,10 +497,10 @@
 <span class="sd">        &gt;&gt;&gt; cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)</span>
 <span class="sd">        &gt;&gt;&gt; cells.cellcoord2cellindex(np.array([1, 2]))</span>
 <span class="sd">        8</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Row-major (C-order) flattening: the stride of dimension d is the</span>
         <span class="c1"># product of the cell counts of the dimensions after it.  At each step</span>
-        <span class="c1"># multiply the running index by the *current* dimension&#39;s size before</span>
+        <span class="c1"># multiply the running index by the *current* dimension's size before</span>
         <span class="c1"># adding its coordinate, so that this is the exact inverse of</span>
         <span class="c1"># cellindex2cellcoord().</span>
         <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -512,7 +512,7 @@
 <div class="viewcode-block" id="Cells.cellindex2cellcoord">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.cellindex2cellcoord">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cellindex2cellcoord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert a cell index to cell coordinates.</span>
 <span class="sd">        </span>
 <span class="sd">        This method is the inverse of cellcoord2cellindex and converts a flat cell</span>
@@ -533,7 +533,7 @@
 <span class="sd">        &gt;&gt;&gt; cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)</span>
 <span class="sd">        &gt;&gt;&gt; cells.cellindex2cellcoord(8)</span>
 <span class="sd">        array([1, 2])</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
             <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">-</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span>
@@ -546,7 +546,7 @@
 <div class="viewcode-block" id="Cells.out_of_bound">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.out_of_bound">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">out_of_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ns</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check if cell coordinates are out of bounds.</span>
 <span class="sd">        </span>
 <span class="sd">        This method verifies whether the given cell coordinates are within</span>
@@ -569,7 +569,7 @@
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; cells.out_of_bound(np.array([3, 4]))</span>
 <span class="sd">        False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ns</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ns</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
@@ -580,7 +580,7 @@
 <div class="viewcode-block" id="Cells.neighborcells">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.Cells.neighborcells">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">neighborcells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the indices of neighboring cells, including the cell itself.</span>
 <span class="sd">        </span>
 <span class="sd">        This method returns the indices of all cells that are adjacent to the specified</span>
@@ -602,7 +602,7 @@
 <span class="sd">        &gt;&gt;&gt; neighbors = cells.neighborcells(7)  # interior cell [1, 1]</span>
 <span class="sd">        &gt;&gt;&gt; len(neighbors)  # 3x3 neighborhood in 2D</span>
 <span class="sd">        9</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">neighbors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">center_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cellindex2cellcoord</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">):</span>
@@ -624,7 +624,7 @@
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a neighbor list using cell-based spatial partitioning.</span>
 <span class="sd">    </span>
 <span class="sd">    This function uses the Cells class to efficiently find neighboring points</span>
@@ -658,7 +658,7 @@
 <span class="sd">    ...                                        show_progress=False)</span>
 <span class="sd">    &gt;&gt;&gt; neighbor_list</span>
 <span class="sd">    [[1, 2], [0, 2], [0, 1], []]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">comm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mpisize</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mpirank</span> <span class="o">=</span> <span class="mi">0</span>
@@ -680,7 +680,7 @@
     <span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_progress</span> <span class="ow">and</span> <span class="n">has_tqdm</span><span class="p">:</span>
-        <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;rank 0&quot;</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s2">"rank 0"</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">points</span>
@@ -713,7 +713,7 @@
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a neighbor list using a naive all-pairs approach.</span>
 <span class="sd">    </span>
 <span class="sd">    This function computes the distance between all pairs of points to find</span>
@@ -748,7 +748,7 @@
 <span class="sd">    ...                                         show_progress=False)</span>
 <span class="sd">    &gt;&gt;&gt; neighbor_list</span>
 <span class="sd">    [[1, 2], [0, 2], [0, 1], []]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">comm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mpisize</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mpirank</span> <span class="o">=</span> <span class="mi">0</span>
@@ -762,7 +762,7 @@
     <span class="n">nnlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npoints_local</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">show_progress</span> <span class="ow">and</span> <span class="n">has_tqdm</span><span class="p">:</span>
-        <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;rank 0&quot;</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s2">"rank 0"</span> <span class="k">if</span> <span class="n">mpisize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpisize</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="n">points</span>
@@ -794,7 +794,7 @@
     <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a neighbor list for given points.</span>
 <span class="sd">    </span>
 <span class="sd">    This function serves as a unified interface to create neighbor lists,</span>
@@ -834,7 +834,7 @@
 <span class="sd">    &gt;&gt;&gt; neighbor_list = make_neighbor_list(coords, radius=1.5, check_allpairs=True)</span>
 <span class="sd">    &gt;&gt;&gt; neighbor_list</span>
 <span class="sd">    [[1, 2], [0, 2], [0, 1], []]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">check_allpairs</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">make_neighbor_list_naive</span><span class="p">(</span>
             <span class="n">X</span><span class="p">,</span>
@@ -857,7 +857,7 @@
 <div class="viewcode-block" id="load_neighbor_list">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.load_neighbor_list">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_neighbor_list</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load a neighbor list from a file.</span>
 <span class="sd">    </span>
 <span class="sd">    The file format is expected to have one line per node, with the first number</span>
@@ -882,15 +882,15 @@
 <span class="sd">    &gt;&gt;&gt; # 0 1 2</span>
 <span class="sd">    &gt;&gt;&gt; # 1 0 2</span>
 <span class="sd">    &gt;&gt;&gt; # 2 0 1</span>
-<span class="sd">    &gt;&gt;&gt; neighbor_list = load_neighbor_list(&quot;neighborlist.txt&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; neighbor_list = load_neighbor_list("neighborlist.txt")</span>
 <span class="sd">    &gt;&gt;&gt; neighbor_list</span>
 <span class="sd">    [[1, 2], [0, 2], [0, 1]]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">nnodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">nnodes</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">nnodes</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -898,7 +898,7 @@
     <span class="n">neighbor_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -917,7 +917,7 @@
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write the neighbor list to a file.</span>
 <span class="sd">    </span>
 <span class="sd">    The file format has one line per node, with the first number being the </span>
@@ -944,25 +944,25 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; neighbor_list = [[1, 2], [0, 2], [0, 1]]</span>
-<span class="sd">    &gt;&gt;&gt; write_neighbor_list(&quot;neighborlist.txt&quot;, neighbor_list, radius=1.5,</span>
+<span class="sd">    &gt;&gt;&gt; write_neighbor_list("neighborlist.txt", neighbor_list, radius=1.5,</span>
 <span class="sd">    ...                    unit=np.array([1.0, 1.0, 1.0]))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# radius = </span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# radius = </span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# unit =&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# unit ="</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">unit</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">nn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nnlist</span><span class="p">):</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">nn</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">nn</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../odatse.util.neighborlist.html#odatse.util.neighborlist.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Command-line utility for creating neighbor lists from mesh data files.</span>
 <span class="sd">    </span>
 <span class="sd">    This function parses command-line arguments and creates a neighbor list file</span>
@@ -972,46 +972,46 @@
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        This function is the main entry point for the command-line utility.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Make neighbor-list file from mesh-data file&quot;</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Make neighbor-list file from mesh-data file"</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""</span>
 <span class="s2">Note:</span>
 <span class="s2">  - The first column of an input file will be ignored.</span>
 <span class="s2">  - UNIT is used for changing aspect ratio (a kind of normalization)</span>
 <span class="s2">    - Each coodinate will be divided by the corresponding unit</span>
 <span class="s2">    - UNIT is given as a string separated with white space</span>
-<span class="s2">      - For example, -u &quot;1.0 0.5 1.0&quot; for 3D case</span>
+<span class="s2">      - For example, -u "1.0 0.5 1.0" for 3D case</span>
 <span class="s2">  - tqdm python package is required to show progress bar</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">"""</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;input file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"input"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"input file"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;neighborlist.txt&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;output file&quot;</span>
+        <span class="s2">"-o"</span><span class="p">,</span> <span class="s2">"--output"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"neighborlist.txt"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"output file"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--radius&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;neighborhood radius&quot;</span>
+        <span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--radius"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"neighborhood radius"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-u&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--unit&quot;</span><span class="p">,</span>
+        <span class="s2">"-u"</span><span class="p">,</span>
+        <span class="s2">"--unit"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;length unit for each coordinate (see Note)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"length unit for each coordinate (see Note)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not show progress bar&quot;</span>
+        <span class="s2">"-q"</span><span class="p">,</span> <span class="s2">"--quiet"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Do not show progress bar"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--progress&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show progress bar&quot;</span>
+        <span class="s2">"--progress"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"show progress bar"</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--allow-selfloop&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;allow self loop&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--allow-selfloop"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"allow self loop"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--check-allpairs&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;check all pairs (bruteforce algorithm)&quot;</span><span class="p">,</span>
+        <span class="s2">"--check-allpairs"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"check all pairs (bruteforce algorithm)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -1023,7 +1023,7 @@
     <span class="n">radius</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">radius</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_tqdm</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: cannot show progress because tqdm package is not available&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"WARNING: cannot show progress because tqdm package is not available"</span><span class="p">)</span>
 
     <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
@@ -1043,7 +1043,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">unit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span> <span class="o">!=</span> <span class="n">D</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--unit option expects </span><span class="si">{</span><span class="n">D</span><span class="si">}</span><span class="s2"> floats as a string but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="si">}</span><span class="s2"> given&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"--unit option expects </span><span class="si">{</span><span class="n">D</span><span class="si">}</span><span class="s2"> floats as a string but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="si">}</span><span class="s2"> given"</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">/</span> <span class="n">unit</span>
 

@@ -316,7 +316,7 @@
 <div class="viewcode-block" id="choose_algorithm">
 <a class="viewcode-back" href="../../odatse.algorithm.html#odatse.algorithm.choose_algorithm">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">choose_algorithm</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Search for algorithm module by name</span>
 
 <span class="sd">    Parameters</span>
@@ -328,20 +328,20 @@
 <span class="sd">    -------</span>
 <span class="sd">    module</span>
 <span class="sd">        algorithm module</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">alg_table</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;mapper&quot;</span><span class="p">:</span> <span class="s2">&quot;mapper_mpi&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;minsearch&quot;</span><span class="p">:</span> <span class="s2">&quot;min_search&quot;</span><span class="p">,</span>
+        <span class="s2">"mapper"</span><span class="p">:</span> <span class="s2">"mapper_mpi"</span><span class="p">,</span>
+        <span class="s2">"minsearch"</span><span class="p">:</span> <span class="s2">"min_search"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
-        <span class="n">alg_name</span> <span class="o">=</span> <span class="s2">&quot;odatse.algorithm.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alg_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">alg_name</span> <span class="o">=</span> <span class="s2">"odatse.algorithm.</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alg_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="n">alg_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">alg_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">..exception</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputError</span>
-        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown algorithm: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown algorithm: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="k">return</span> <span class="n">alg_module</span></div>
 

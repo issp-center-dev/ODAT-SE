@@ -517,8 +517,8 @@ Alternatively, it can be created by passing to the class method <code class="doc
 <li><p>The value of <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> will be converted to an absolute path.</p></li>
 <li><p>The leading <code class="docutils literal notranslate"><span class="pre">~</span></code> will be expanded to the user’s home directory.</p></li>
 <li><p>Specifically, the following code is executed:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"root_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
@@ -531,9 +531,9 @@ Alternatively, it can be created by passing to the class method <code class="doc
 <li><p>If a relative path is given, it is regarded to be relative to <code class="docutils literal notranslate"><span class="pre">root_dir</span></code>.</p></li>
 <li><p>The default value is <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code>, that is, the same as <code class="docutils literal notranslate"><span class="pre">root_dir</span></code></p></li>
 <li><p>Specifically, the following code is executed:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"output_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
 </pre></div>
 </div>
 </li>
@@ -594,7 +594,7 @@ It interprets the same arguments as the <code class="docutils literal notranslat
 <ul>
 <li><p>When <code class="docutils literal notranslate"><span class="pre">argv</span></code> is omitted (<code class="docutils literal notranslate"><span class="pre">None</span></code>), <code class="docutils literal notranslate"><span class="pre">sys.argv[1:]</span></code> is interpreted.
 When embedding odatse in a script that has its own argument handling, pass an explicit list as <code class="docutils literal notranslate"><span class="pre">argv</span></code> to initialize without depending on <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">([</span><span class="s2">&quot;input.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;--resume&quot;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">([</span><span class="s2">"input.toml"</span><span class="p">,</span> <span class="s2">"--resume"</span><span class="p">])</span>
 </pre></div>
 </div>
 </li>

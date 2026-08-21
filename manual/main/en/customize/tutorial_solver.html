@@ -507,17 +507,17 @@ using ODAT-SE’s search algorithms.</p>
 
 <span class="c1"># --- Solver definition ---</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MySolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A solver that computes a custom objective function&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A solver that computes a custom objective function"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;my_solver&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">"my_solver"</span>
 
         <span class="c1"># You can read parameters from the [solver] section of the TOML file</span>
-        <span class="c1"># Example: self.param = info.solver.get(&quot;my_param&quot;, 1.0)</span>
+        <span class="c1"># Example: self.param = info.solver.get("my_param", 1.0)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute and return the objective function value.</span>
 
 <span class="sd">        Parameters</span>
@@ -526,7 +526,7 @@ using ODAT-SE’s search algorithms.</p>
 <span class="sd">            Search parameters (here a 2D vector [x, y])</span>
 <span class="sd">        args : tuple</span>
 <span class="sd">            (step number, set number) tuple. Can be used for logging.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Write your objective function here</span>
         <span class="n">fx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">fx</span>
@@ -543,7 +543,7 @@ using ODAT-SE’s search algorithms.</p>
 <span class="c1"># Assemble: Solver -&gt; Runner -&gt; Algorithm</span>
 <span class="n">solver</span> <span class="o">=</span> <span class="n">MySolver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 <span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-<span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+<span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
 <span class="n">algorithm</span> <span class="o">=</span> <span class="n">alg_module</span><span class="o">.</span><span class="n">Algorithm</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">)</span>
 
 <span class="c1"># Run</span>
@@ -564,15 +564,15 @@ using ODAT-SE’s search algorithms.</p>
 <p>Create a file called <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> with the following content.</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
 <span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
-<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"output"</span>
 
 <span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_solver&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_solver"</span>
 <span class="c1"># You can add solver-specific parameters here</span>
 <span class="c1"># my_param = 1.0</span>
 
 <span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;minsearch&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"minsearch"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -611,7 +611,7 @@ x2 = 1.9999999...
 <p>By changing only the <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> section in the TOML file, you can search with a different algorithm without modifying the Python code.</p>
 <p><strong>Bayesian optimization example:</strong></p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bayes&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bayes"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -620,13 +620,13 @@ x2 = 1.9999999...
 
 <span class="k">[algorithm.bayes]</span>
 <span class="n">random_max_num_probes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
-<span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TS&quot;</span>
+<span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"TS"</span>
 <span class="n">num_search_each_probe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 </pre></div>
 </div>
 <p><strong>Grid search example:</strong></p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;mapper&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"mapper"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -641,7 +641,7 @@ x2 = 1.9999999...
 <p>To add parameters to the objective function, add values to the <code class="docutils literal notranslate"><span class="pre">[solver]</span></code> section
 and read them in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_solver&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_solver"</span>
 <span class="n">center_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="n">center_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
 </pre></div>
@@ -649,10 +649,10 @@ and read them in <code class="docutils literal notranslate"><span class="pre">__
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MySolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;my_solver&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">"my_solver"</span>
         <span class="c1"># Read values from the [solver] section of the TOML file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cx</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;center_x&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cy</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;center_y&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cx</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"center_x"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cy</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"center_y"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cx</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>

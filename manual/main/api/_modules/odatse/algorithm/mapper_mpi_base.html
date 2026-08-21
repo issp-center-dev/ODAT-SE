@@ -329,7 +329,7 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class of mapper-type algorithms that evaluate the objective</span>
 <span class="sd">    function over a sequence of points supplied by an iterator.</span>
 <span class="sd">    Inherits from odatse.algorithm.AlgorithmBase.</span>
@@ -340,7 +340,7 @@
 <span class="sd">    from the input parameters and assign it to self._iter. Alternatively,</span>
 <span class="sd">    a custom point sequence can be supplied programmatically through the</span>
 <span class="sd">    iterator parameter of this class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Whether --cont is supported. Subclasses whose iterator can be extended</span>
     <span class="c1"># with additional points (see random_search) set this to True; for the</span>
@@ -352,10 +352,10 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
                  <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+                 <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
                  <span class="n">iterator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Algorithm instance.</span>
 
 <span class="sd">        Parameters</span>
@@ -365,33 +365,33 @@
 <span class="sd">        runner : Runner</span>
 <span class="sd">            Optional runner object for submitting tasks.</span>
 <span class="sd">        run_mode : str</span>
-<span class="sd">            Mode to run the algorithm, defaults to &quot;initial&quot;.</span>
+<span class="sd">            Mode to run the algorithm, defaults to "initial".</span>
 <span class="sd">        iterator : IteratorBase</span>
 <span class="sd">            Iterator that yields (index, coordinates) pairs of the points</span>
 <span class="sd">            to evaluate. Subclasses usually build one from the input</span>
 <span class="sd">            parameters and set self._iter themselves; pass an iterator</span>
 <span class="sd">            here to evaluate a custom point sequence directly.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span> <span class="o">=</span> <span class="n">iterator</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;colormap&quot;</span><span class="p">,</span> <span class="s2">&quot;ColorMap.txt&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_colormap_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.tmp&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"colormap"</span><span class="p">,</span> <span class="s2">"ColorMap.txt"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_colormap_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">".tmp"</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm._initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the algorithm parameters and timer.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">opt_fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opt_mesh</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_parameters</span><span class="p">()</span></div>
 
 
@@ -404,15 +404,15 @@
 <div class="viewcode-block" id="Algorithm._run">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm._run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Execute the main algorithm process.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># dispatch は prepare() が処理済み</span>
 
         <span class="c1"># local colormap file</span>
-        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_colormap_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; fval</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_colormap_file</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">):</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#"</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" fval</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">niter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
         <span class="c1"># nonzero on checkpoint resume: points already evaluated on this rank</span>
@@ -426,7 +426,7 @@
         <span class="k">for</span> <span class="n">icount</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">coord</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">istart</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="p">(</span><span class="n">icount</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">print_interval</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">icount</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="n">niter</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iteration : </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">icount</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">niter</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Iteration : </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">icount</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">niter</span><span class="p">))</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
 
@@ -435,14 +435,14 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">fx</span> <span class="o">=</span> <span class="n">fx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">idx</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">fx</span><span class="p">])</span>
 
             <span class="c1"># write to local colormap file</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:8f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">))</span>
-            <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">"</span><span class="si">{:8f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">))</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># update optimal value</span>
             <span class="k">if</span> <span class="n">fx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_fx</span><span class="p">:</span>
@@ -466,48 +466,48 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_fx</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span><span class="si">}</span><span class="s2">] minimum_value: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_fx</span><span class="si">:</span><span class="s2">12.8e</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (mesh </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span><span class="si">}</span><span class="s2">] minimum_value: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_fx</span><span class="si">:</span><span class="s2">12.8e</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (mesh </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 
         <span class="c1"># if Path(self.local_colormap_file).exists():</span>
         <span class="c1">#     os.remove(Path(self.local_colormap_file))</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()))</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()))</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._output_results">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm._output_results">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_output_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="n">opt_mesh</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Output the results to the colormap file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Make ColorMap&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Make ColorMap"</span><span class="p">)</span>
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; fval</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#"</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" fval</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">fx</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:8f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="o">*</span><span class="n">coord</span><span class="p">,</span> <span class="n">fx</span><span class="p">))</span>
-                <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">"</span><span class="si">{:8f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="o">*</span><span class="n">coord</span><span class="p">,</span> <span class="n">fx</span><span class="p">))</span>
+                <span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">opt_fx</span><span class="p">):</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Index of the minimum point : </span><span class="si">{:d}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Coordinates of the minimum point : &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:8f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#f(x) at the minimum point : </span><span class="si">{:8f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt_fx</span><span class="p">))</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#Index of the minimum point : </span><span class="si">{:d}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#Coordinates of the minimum point : "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="s2">"</span><span class="si">{:8f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#f(x) at the minimum point : </span><span class="si">{:8f}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt_fx</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# No mesh point</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# No mesh point</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;file_CM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"file_CM"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm._post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Post-process the results and gather data from all MPI ranks.</span>
 
 <span class="sd">        Returns</span>
@@ -517,7 +517,7 @@
 <span class="sd">            minimum), ``fx`` (function value at the minimum), and ``index``</span>
 <span class="sd">            (mesh index of the minimum). ``x`` and ``index`` are ``None`` if</span>
 <span class="sd">            no point was evaluated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># gather results</span>
             <span class="n">results_lists</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
@@ -539,27 +539,27 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_output_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="n">opt_mesh</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">opt_mesh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span></div>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="s2">"index"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="n">opt_fx</span><span class="p">,</span> <span class="s2">"index"</span><span class="p">:</span> <span class="n">opt_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span></div>
 
 
     <span class="c1"># Mapper-specific fields (simple getattr/setattr).</span>
-    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="s2">&quot;opt_fx&quot;</span><span class="p">,</span> <span class="s2">&quot;opt_mesh&quot;</span><span class="p">]</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"results"</span><span class="p">,</span> <span class="s2">"opt_fx"</span><span class="p">,</span> <span class="s2">"opt_mesh"</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a checkpoint snapshot including iterator state.</span>
+<span class="w">        </span><span class="sd">"""Return a checkpoint snapshot including iterator state.</span>
 
-<span class="sd">        Extends the base ``__getstate__()`` with the iterator&#39;s own state</span>
+<span class="sd">        Extends the base ``__getstate__()`` with the iterator's own state</span>
 <span class="sd">        so that a single pickle file captures everything needed to resume.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
         <span class="n">state</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="o">.</span><span class="n">_save_state</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">state</span>
 
 <div class="viewcode-block" id="Algorithm._apply_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi_base.html#odatse.algorithm.mapper_mpi_base.Algorithm._apply_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore algorithm state from a checkpoint snapshot.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore algorithm state from a checkpoint snapshot.</span>
 
 <span class="sd">        Delegates MPI validation, timer restore, and parameter check to the</span>
 <span class="sd">        base class, applies the mapper-specific fields, then restores the</span>
@@ -570,16 +570,16 @@
 <span class="sd">        data : dict</span>
 <span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            ``&quot;resume&quot;``, or ``&quot;continue&quot;`` when the subclass declares</span>
+<span class="sd">            ``"resume"``, or ``"continue"`` when the subclass declares</span>
 <span class="sd">            ``_continuable = True`` (the subclass is then responsible for</span>
 <span class="sd">            extending the iterator after this method returns); otherwise</span>
-<span class="sd">            ``&quot;continue&quot;`` raises ``RuntimeError``.</span>
+<span class="sd">            ``"continue"`` raises ``RuntimeError``.</span>
 <span class="sd">        restore_rng : bool</span>
-<span class="sd">            Forwarded to the base class and to the iterator&#39;s state restore</span>
+<span class="sd">            Forwarded to the base class and to the iterator's state restore</span>
 <span class="sd">            (e.g. RandomIterator restores its RNG state when this is True).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continuable</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;continue mode is not supported for mapper&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"continue"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continuable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"continue mode is not supported for mapper"</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">_checkpoint_attrs</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>

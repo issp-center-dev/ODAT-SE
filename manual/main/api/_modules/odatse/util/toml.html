@@ -320,16 +320,16 @@
 <div class="viewcode-block" id="_parse_version">
 <a class="viewcode-back" href="../../../odatse.util.toml.html#odatse.util.toml._parse_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_version</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a dotted version string into a 3-tuple of integers.</span>
+<span class="w">    </span><span class="sd">"""Parse a dotted version string into a 3-tuple of integers.</span>
 
 <span class="sd">    Non-numeric suffixes on a component (e.g. ``1.2.0rc1``) are ignored, and</span>
-<span class="sd">    the result is padded to three components so that ``&quot;1.2&quot;`` compares equal</span>
-<span class="sd">    to ``&quot;1.2.0&quot;``. Used to compare versions numerically -- a plain string</span>
-<span class="sd">    comparison is wrong (e.g. ``&quot;1.10.0&quot; &lt; &quot;1.2.0&quot;`` is True).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    the result is padded to three components so that ``"1.2"`` compares equal</span>
+<span class="sd">    to ``"1.2.0"``. Used to compare versions numerically -- a plain string</span>
+<span class="sd">    comparison is wrong (e.g. ``"1.10.0" &lt; "1.2.0"`` is True).</span>
+<span class="sd">    """</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-        <span class="n">num</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
                 <span class="n">num</span> <span class="o">+=</span> <span class="n">ch</span>
@@ -344,36 +344,36 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
-    <span class="c1"># print(&quot;tomllib is available&quot;)</span>
+    <span class="c1"># print("tomllib is available")</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">tomllib</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">tomli</span>
         <span class="k">if</span> <span class="n">_parse_version</span><span class="p">(</span><span class="n">tomli</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">use_old_tomli_api</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="c1"># print(&quot;tomli old api is available&quot;)</span>
+            <span class="c1"># print("tomli old api is available")</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">use_old_tomli_api</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="c1"># print(&quot;tomli new api is available&quot;)</span>
+            <span class="c1"># print("tomli new api is available")</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="n">tomli</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">toml</span>
-            <span class="c1"># print(&quot;toml is available&quot;)</span>
+            <span class="c1"># print("toml is available")</span>
             <span class="k">if</span> <span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: use of toml package is left for compatibility.&quot;</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;         please use tomli package instead.&quot;</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HINT: python3 -m pip install tomli&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"WARNING: use of toml package is left for compatibility."</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"         please use tomli package instead."</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"HINT: python3 -m pip install tomli"</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: toml parser library is not available.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: toml parser library is not available."</span><span class="p">)</span>
             <span class="k">raise</span>
 
 
 <div class="viewcode-block" id="load">
 <a class="viewcode-back" href="../../../odatse.util.toml.html#odatse.util.toml.load">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;read TOML file</span>
+<span class="w">    </span><span class="sd">"""read TOML file</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -385,16 +385,16 @@
 <span class="sd">    toml_dict: MutableMapping[str, Any]</span>
 <span class="sd">        Dictionary representing TOML file</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">tomllib</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">tomli</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">use_old_tomli_api</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">tomli</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">tomli</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">toml</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>

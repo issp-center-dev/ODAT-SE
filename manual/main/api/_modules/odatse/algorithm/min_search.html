@@ -334,14 +334,14 @@
 <div class="viewcode-block" id="_ClippedRandomDisplacement">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search._ClippedRandomDisplacement">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_ClippedRandomDisplacement</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Random displacement for basinhopping, clipped to the search region.</span>
+<span class="w">    </span><span class="sd">"""Random displacement for basinhopping, clipped to the search region.</span>
 
-<span class="sd">    The default take_step of scipy&#39;s basinhopping may propose points outside</span>
+<span class="sd">    The default take_step of scipy's basinhopping may propose points outside</span>
 <span class="sd">    [min_list, max_list], which would only waste solver evaluations on the</span>
 <span class="sd">    inf-penalty. Clipping keeps every hop inside the region. The ``stepsize``</span>
-<span class="sd">    attribute is exposed so that basinhopping&#39;s adaptive stepsize adjustment</span>
+<span class="sd">    attribute is exposed so that basinhopping's adaptive stepsize adjustment</span>
 <span class="sd">    keeps working.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">,</span> <span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">rng</span>
@@ -358,11 +358,11 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Algorithm class for performing minimization using scipy.optimize.minimize.</span>
 
 <span class="sd">    The optimization method is selected by the ``method`` parameter in the</span>
-<span class="sd">    ``[algorithm.minimize]`` section (default: &quot;Nelder-Mead&quot;). All other</span>
+<span class="sd">    ``[algorithm.minimize]`` section (default: "Nelder-Mead"). All other</span>
 <span class="sd">    entries of the section except ODAT-SE-specific keys are passed through</span>
 <span class="sd">    to scipy.optimize.minimize as its ``options`` argument.</span>
 
@@ -370,20 +370,20 @@
 <span class="sd">    table whose entries are passed to scipy.optimize.basinhopping) switches to</span>
 <span class="sd">    global optimization by basin hopping, with the configured method serving</span>
 <span class="sd">    as the local minimizer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># methods for which ODAT-SE passes bounds= to scipy.optimize.minimize.</span>
     <span class="c1"># Nelder-Mead is deliberately excluded to keep the legacy behavior of</span>
     <span class="c1"># returning +inf for out-of-range points unchanged.</span>
-    <span class="n">_BOUNDS_METHODS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;powell&quot;</span><span class="p">,</span> <span class="s2">&quot;l-bfgs-b&quot;</span><span class="p">,</span> <span class="s2">&quot;tnc&quot;</span><span class="p">,</span> <span class="s2">&quot;slsqp&quot;</span><span class="p">,</span> <span class="s2">&quot;trust-constr&quot;</span><span class="p">,</span> <span class="s2">&quot;cobyla&quot;</span><span class="p">,</span> <span class="s2">&quot;cobyqa&quot;</span><span class="p">}</span>
+    <span class="n">_BOUNDS_METHODS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"powell"</span><span class="p">,</span> <span class="s2">"l-bfgs-b"</span><span class="p">,</span> <span class="s2">"tnc"</span><span class="p">,</span> <span class="s2">"slsqp"</span><span class="p">,</span> <span class="s2">"trust-constr"</span><span class="p">,</span> <span class="s2">"cobyla"</span><span class="p">,</span> <span class="s2">"cobyqa"</span><span class="p">}</span>
 
     <span class="c1"># keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not</span>
     <span class="c1"># forwarded to scipy.optimize.minimize as options</span>
-    <span class="n">_ODATSE_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_scale_list&quot;</span><span class="p">,</span> <span class="s2">&quot;basinhopping&quot;</span><span class="p">}</span>
+    <span class="n">_ODATSE_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"method"</span><span class="p">,</span> <span class="s2">"initial_scale_list"</span><span class="p">,</span> <span class="s2">"basinhopping"</span><span class="p">}</span>
 
     <span class="c1"># basinhopping arguments managed by ODAT-SE itself; rejected if the user</span>
     <span class="c1"># sets them in [algorithm.minimize.basinhopping]</span>
-    <span class="n">_BH_RESERVED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minimizer_kwargs&quot;</span><span class="p">,</span> <span class="s2">&quot;take_step&quot;</span><span class="p">,</span> <span class="s2">&quot;accept_test&quot;</span><span class="p">,</span> <span class="s2">&quot;callback&quot;</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="s2">&quot;rng&quot;</span><span class="p">}</span>
+    <span class="n">_BH_RESERVED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"minimizer_kwargs"</span><span class="p">,</span> <span class="s2">"take_step"</span><span class="p">,</span> <span class="s2">"accept_test"</span><span class="p">,</span> <span class="s2">"callback"</span><span class="p">,</span> <span class="s2">"seed"</span><span class="p">,</span> <span class="s2">"rng"</span><span class="p">}</span>
 
     <span class="c1"># inputs</span>
     <span class="n">label_list</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -419,9 +419,9 @@
         <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Algorithm class.</span>
 
 <span class="sd">        Parameters</span>
@@ -434,7 +434,7 @@
 <span class="sd">            Domain object defining the search space.</span>
 <span class="sd">        run_mode : str</span>
 <span class="sd">            Mode of running the algorithm.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">domain</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">Region</span><span class="p">):</span>
@@ -452,16 +452,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">initial_list</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">info_minimize</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimize&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">info_minimize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">))</span>
+        <span class="n">info_minimize</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"minimize"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">info_minimize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"method"</span><span class="p">,</span> <span class="s2">"Nelder-Mead"</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_scale_list</span> <span class="o">=</span> <span class="n">info_minimize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;initial_scale_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
+            <span class="s2">"initial_scale_list"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
         <span class="p">)</span>
 
         <span class="c1"># basinhopping = true enables scipy.optimize.basinhopping with its</span>
         <span class="c1"># default parameters; a [algorithm.minimize.basinhopping] table both</span>
         <span class="c1"># enables it and forwards its entries as basinhopping arguments</span>
-        <span class="n">bh</span> <span class="o">=</span> <span class="n">info_minimize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basinhopping&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">bh</span> <span class="o">=</span> <span class="n">info_minimize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"basinhopping"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bh</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">bh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">bh</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -470,15 +470,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bh</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;algorithm.minimize.basinhopping must be a boolean or a table, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bh</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"algorithm.minimize.basinhopping must be a boolean or a table, "</span>
+                <span class="sa">f</span><span class="s2">"not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bh</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">reserved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_BH_RESERVED</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">reserved</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;algorithm.minimize.basinhopping parameters </span><span class="si">{}</span><span class="s2"> are managed &quot;</span>
-                    <span class="s2">&quot;by ODAT-SE and cannot be set in the input file&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">reserved</span><span class="p">))</span>
+                    <span class="s2">"algorithm.minimize.basinhopping parameters </span><span class="si">{}</span><span class="s2"> are managed "</span>
+                    <span class="s2">"by ODAT-SE and cannot be set in the input file"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">reserved</span><span class="p">))</span>
                 <span class="p">)</span>
             <span class="c1"># validate the argument names against the signature of the</span>
             <span class="c1"># installed scipy before anything runs, instead of catching</span>
@@ -489,10 +489,10 @@
             <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span><span class="p">)</span> <span class="o">-</span> <span class="n">accepted</span>
             <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;algorithm.minimize.basinhopping parameters </span><span class="si">{}</span><span class="s2"> are not accepted &quot;</span>
-                    <span class="s2">&quot;by scipy.optimize.basinhopping of the installed scipy version; &quot;</span>
-                    <span class="s2">&quot;accepted arguments are </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">accepted</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;func&quot;</span><span class="p">,</span> <span class="s2">&quot;x0&quot;</span><span class="p">}</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_BH_RESERVED</span><span class="p">))</span>
+                    <span class="s2">"algorithm.minimize.basinhopping parameters </span><span class="si">{}</span><span class="s2"> are not accepted "</span>
+                    <span class="s2">"by scipy.optimize.basinhopping of the installed scipy version; "</span>
+                    <span class="s2">"accepted arguments are </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">accepted</span> <span class="o">-</span> <span class="p">{</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"x0"</span><span class="p">}</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_BH_RESERVED</span><span class="p">))</span>
                 <span class="p">)</span>
 
         <span class="c1"># forward all remaining entries verbatim to scipy.optimize.minimize</span>
@@ -508,20 +508,20 @@
 <div class="viewcode-block" id="Algorithm._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm._initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up initial state for a fresh run.</span>
+<span class="w">        </span><span class="sd">"""Set up initial state for a fresh run.</span>
 
 <span class="sd">        Nelder-Mead does not use checkpointing, so this is a no-op.</span>
 <span class="sd">        The simplex initialisation is done in ``_prepare()``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._run">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm._run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the minimization algorithm.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span>
 
         <span class="n">min_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_list</span>
@@ -539,29 +539,29 @@
 
         <span class="k">if</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">_cb</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">):</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">                Callback function for scipy.optimize.minimize.</span>
 
 <span class="sd">                The parameter must be named intermediate_result so that scipy</span>
 <span class="sd">                passes an OptimizeResult where supported. Methods that do not</span>
 <span class="sd">                support the new-style callback (e.g. COBYLA, SLSQP, TNC) still</span>
 <span class="sd">                pass the raw parameter vector, so handle both.</span>
-<span class="sd">                &quot;&quot;&quot;</span>
+<span class="sd">                """</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">,</span> <span class="n">OptimizeResult</span><span class="p">):</span>
                     <span class="n">x</span> <span class="o">=</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span>
                     <span class="n">fun</span> <span class="o">=</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">x</span> <span class="o">=</span> <span class="n">intermediate_result</span>
                     <span class="n">fun</span> <span class="o">=</span> <span class="n">_f_calc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;eval: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"eval: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">))</span>
                 <span class="n">iter_history</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">_cb</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">                Callback function for scipy.optimize.minimize.</span>
-<span class="sd">                &quot;&quot;&quot;</span>
+<span class="sd">                """</span>
                 <span class="n">fun</span> <span class="o">=</span> <span class="n">_f_calc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;eval: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"eval: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">))</span>
                 <span class="n">iter_history</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">])</span>
 
         <span class="c1"># for methods that support it, let scipy keep the search within the</span>
@@ -569,13 +569,13 @@
         <span class="c1"># exactly on the boundary, which such methods evaluate legitimately.</span>
         <span class="c1"># On older scipy where the method predates bounds support (e.g.</span>
         <span class="c1"># Powell &lt; 1.5, COBYLA &lt; 1.11), scipy itself ignores bounds= with a</span>
-        <span class="c1"># RuntimeWarning (&quot;Method X cannot handle bounds.&quot;); that warning is</span>
+        <span class="c1"># RuntimeWarning ("Method X cannot handle bounds."); that warning is</span>
         <span class="c1"># not escalated by the OptimizeWarning filter below, and the range</span>
         <span class="c1"># check in _f_calc remains as the inf-penalty safety net.</span>
         <span class="n">use_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_BOUNDS_METHODS</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_f_calc</span><span class="p">(</span><span class="n">x_list</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">iset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Calculate the objective function value.</span>
 
 <span class="sd">            Parameters</span>
@@ -589,7 +589,7 @@
 <span class="sd">            -------</span>
 <span class="sd">            float</span>
 <span class="sd">                Objective function value.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="c1"># check if within region; kept as a safety net even when bounds=</span>
             <span class="c1"># is passed to minimize</span>
             <span class="k">if</span> <span class="n">use_bounds</span><span class="p">:</span>
@@ -597,18 +597,18 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">in_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">min_list</span> <span class="o">&lt;</span> <span class="n">x_list</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x_list</span> <span class="o">&lt;</span> <span class="n">max_list</span><span class="p">))</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">in_range</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: out of range: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_list</span><span class="p">))</span>
-                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: out of range: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_list</span><span class="p">))</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span>
 
             <span class="c1"># check if limitation satisfied</span>
             <span class="n">in_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">x_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">in_limit</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: variables do not satisfy the constraint formula&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: variables do not satisfy the constraint formula"</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span>
 
             <span class="c1"># Scale into solver units on a *copy*: x_list is the array owned by</span>
-            <span class="c1"># scipy&#39;s optimizer (and, for scipy &lt; 1.11, the same array passed</span>
-            <span class="c1"># to the callback). Dividing it in place corrupts the optimizer&#39;s</span>
+            <span class="c1"># scipy's optimizer (and, for scipy &lt; 1.11, the same array passed</span>
+            <span class="c1"># to the callback). Dividing it in place corrupts the optimizer's</span>
             <span class="c1"># simplex bookkeeping and, on old scipy, double-scales x in _cb.</span>
             <span class="n">x_scaled</span> <span class="o">=</span> <span class="n">x_list</span> <span class="o">/</span> <span class="n">unit_list</span>
 
@@ -622,37 +622,37 @@
         <span class="n">use_basinhopping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimize_options</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nelder-mead&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"nelder-mead"</span><span class="p">:</span>
             <span class="c1"># keep the historical defaults of the Nelder-Mead implementation;</span>
             <span class="c1"># user-specified values in [algorithm.minimize] take precedence</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;xatol&quot;</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;fatol&quot;</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;maxiter&quot;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;maxfev&quot;</span><span class="p">,</span> <span class="mi">100000</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"xatol"</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"fatol"</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"maxiter"</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"maxfev"</span><span class="p">,</span> <span class="mi">100000</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">use_basinhopping</span><span class="p">:</span>
                 <span class="c1"># a fixed initial simplex makes scipy ignore its x0 argument,</span>
                 <span class="c1"># which would restart every basinhopping hop from the same</span>
                 <span class="c1"># simplex; only usable for a single local optimization</span>
-                <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;initial_simplex&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_simplex_list</span><span class="p">)</span>
-                <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;return_all&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"initial_simplex"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_simplex_list</span><span class="p">)</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"return_all"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">use_basinhopping</span><span class="p">:</span>
             <span class="c1"># per-hop convergence messages of the local minimizer are noisy;</span>
             <span class="c1"># progress is reported per hop by basinhopping itself</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;disp&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"disp"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;disp&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"disp"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
         <span class="n">minimize_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">use_bounds</span><span class="p">:</span>
-            <span class="n">minimize_kwargs</span><span class="p">[</span><span class="s2">&quot;bounds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">))</span>
+            <span class="n">minimize_kwargs</span><span class="p">[</span><span class="s2">"bounds"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">))</span>
 
         <span class="n">hop_history</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_bh_cb</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">accept</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            Per-hop callback function for scipy.optimize.basinhopping.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hop: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">, accept=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">accept</span><span class="p">))</span>
+<span class="sd">            """</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"hop: x=</span><span class="si">{}</span><span class="s2">, fun=</span><span class="si">{}</span><span class="s2">, accept=</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">accept</span><span class="p">))</span>
             <span class="n">hop_history</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">hop_history</span><span class="p">),</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">accept</span><span class="p">)])</span>
 
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
@@ -663,25 +663,25 @@
                 <span class="c1"># so that e.g. a misspelled tolerance aborts immediately</span>
                 <span class="c1"># instead of running a lengthy optimization with defaults</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                    <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Unknown solver options&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">OptimizeWarning</span>
+                    <span class="s2">"error"</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">"Unknown solver options"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">OptimizeWarning</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">use_basinhopping</span><span class="p">:</span>
                     <span class="c1"># argument names were validated against the basinhopping</span>
                     <span class="c1"># signature in __init__, so a TypeError here is a genuine</span>
                     <span class="c1"># runtime failure and propagates unchanged</span>
                     <span class="n">bh_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basinhopping_params</span><span class="p">)</span>
-                    <span class="n">bh_params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;disp&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">bh_params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"disp"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
                     <span class="n">take_step</span> <span class="o">=</span> <span class="n">_ClippedRandomDisplacement</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">,</span> <span class="n">bh_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;stepsize&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">,</span> <span class="n">bh_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"stepsize"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span>
                     <span class="p">)</span>
                     <span class="n">optres</span> <span class="o">=</span> <span class="n">basinhopping</span><span class="p">(</span>
                         <span class="n">_f_calc</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">initial_list</span><span class="p">,</span>
                         <span class="n">minimizer_kwargs</span><span class="o">=</span><span class="p">{</span>
-                            <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-                            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
-                            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
-                            <span class="s2">&quot;callback&quot;</span><span class="p">:</span> <span class="n">_cb</span><span class="p">,</span>
+                            <span class="s2">"method"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                            <span class="s2">"args"</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,),</span>
+                            <span class="s2">"options"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+                            <span class="s2">"callback"</span><span class="p">:</span> <span class="n">_cb</span><span class="p">,</span>
                             <span class="o">**</span><span class="n">minimize_kwargs</span><span class="p">,</span>
                         <span class="p">},</span>
                         <span class="n">take_step</span><span class="o">=</span><span class="n">take_step</span><span class="p">,</span>
@@ -704,18 +704,18 @@
                     <span class="p">)</span>
         <span class="k">except</span> <span class="n">OptimizeWarning</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">: check the [algorithm.minimize] section of the input file &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;against the options accepted by scipy.optimize.minimize &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;for method &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">: check the [algorithm.minimize] section of the input file "</span>
+                <span class="sa">f</span><span class="s2">"against the options accepted by scipy.optimize.minimize "</span>
+                <span class="sa">f</span><span class="s2">"for method '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">'"</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">w</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span> <span class="o">=</span> <span class="n">optres</span><span class="o">.</span><span class="n">x</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fopt</span> <span class="o">=</span> <span class="n">optres</span><span class="o">.</span><span class="n">fun</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">itera</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">&quot;nit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">funcalls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">&quot;nfev&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allvecs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">&quot;allvecs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">itera</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">"nit"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">funcalls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">"nfev"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allvecs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">optres</span><span class="p">,</span> <span class="s2">"allvecs"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;min_search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"min_search"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_history</span> <span class="o">=</span> <span class="n">iter_history</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fev_history</span> <span class="o">=</span> <span class="n">fev_history</span>
@@ -731,12 +731,12 @@
 <div class="viewcode-block" id="Algorithm._prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm._prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Prepare the initial simplex for the Nelder-Mead algorithm.</span>
 
 <span class="sd">        The simplex is only passed to scipy when method is Nelder-Mead;</span>
 <span class="sd">        for other methods it is built but unused.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># make initial simplex</span>
         <span class="c1">#   [ v0, v0+a_1*e_1, v0+a_2*e_2, ... v0+a_d*e_d ]</span>
         <span class="c1"># where a = ( a_1 a_2 a_3 ... a_d ) and e_k is a unit vector along k-axis</span>
@@ -748,48 +748,48 @@
 <div class="viewcode-block" id="Algorithm._output_results">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm._output_results">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_output_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Output the results of the minimization to files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">label_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;SimplexData.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#step &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; R-factor</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"SimplexData.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#step "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" R-factor</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_history</span><span class="p">):</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;History_FunctionCall.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#No &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"History_FunctionCall.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#No "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fev_history</span><span class="p">):</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hop_history</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;BasinHoppingData.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#hop &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; R-factor accept</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"BasinHoppingData.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#hop "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_list</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" R-factor accept</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hop_history</span><span class="p">:</span>
-                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;res.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fx = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"res.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fx = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">):</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="c1"># some methods (e.g. COBYLA) do not report these quantities</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">itera</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;iterations = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">itera</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"iterations = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">itera</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcalls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function_evaluations = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">funcalls</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"function_evaluations = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">funcalls</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.min_search.html#odatse.algorithm.min_search.Algorithm._post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Post-process the results after minimization.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span>
-            <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="p">,</span>
-            <span class="s2">&quot;x0&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_list</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span>
+            <span class="s2">"fx"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopt</span><span class="p">,</span>
+            <span class="s2">"x0"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_list</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -797,24 +797,24 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
-        <span class="n">fxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;fx&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
-        <span class="n">x0s</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;x0&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">fxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"fx"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">x0s</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"x0"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
 
         <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">fxs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">label_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;res.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fx = </span><span class="si">{</span><span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"res.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fx = </span><span class="si">{</span><span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_list</span><span class="p">,</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]):</span>
-                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index = </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"index = </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_list</span><span class="p">,</span> <span class="n">x0s</span><span class="p">[</span><span class="n">idx</span><span class="p">]):</span>
-                        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initial </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"initial </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">&quot;x0&quot;</span><span class="p">:</span> <span class="n">x0s</span><span class="p">[</span><span class="n">idx</span><span class="p">]}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="n">xs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="n">fxs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="s2">"x0"</span><span class="p">:</span> <span class="n">x0s</span><span class="p">[</span><span class="n">idx</span><span class="p">]}</span></div>
 </div>
 
 </pre></div>

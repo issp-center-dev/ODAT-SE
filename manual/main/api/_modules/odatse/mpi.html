@@ -315,7 +315,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="n">_NOMPI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ODATSE_NOMPI&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;0&quot;</span>
+<span class="n">_NOMPI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ODATSE_NOMPI"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"0"</span>
 
 <span class="k">if</span> <span class="ow">not</span> <span class="n">_NOMPI</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
@@ -330,30 +330,30 @@
 <span class="c1"># ------------------------------------------------------------------ #</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_CheckpointMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin that provides checkpoint save/restore via the pickle protocol.</span>
+<span class="w">    </span><span class="sd">"""Mixin that provides checkpoint save/restore via the pickle protocol.</span>
 
 <span class="sd">    Subclasses must implement __getstate__ to return a dict of integer-valued</span>
 <span class="sd">    parallelism parameters. __setstate__ verifies the saved state against the</span>
 <span class="sd">    current module-level singleton (_ctx) that has already been re-initialised</span>
 <span class="sd">    by setup(), then copies its attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must implement __getstate__&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Subclasses must implement __getstate__"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore from a checkpoint snapshot.</span>
+<span class="w">        </span><span class="sd">"""Restore from a checkpoint snapshot.</span>
 
 <span class="sd">        Assumes that odatse.mpi.setup() has already been called in the current</span>
 <span class="sd">        run. Raises RuntimeError if setup() has not been called, and ValueError</span>
 <span class="sd">        if any saved value does not match the current configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">odatse.mpi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_mod</span>
         <span class="n">current</span> <span class="o">=</span> <span class="n">_mod</span><span class="o">.</span><span class="n">_ctx</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="s2">&quot;_ready&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="s2">"_ready"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;odatse.mpi.setup() must be called before restoring state&quot;</span>
+                <span class="s2">"odatse.mpi.setup() must be called before restoring state"</span>
             <span class="p">)</span>
 
         <span class="n">current_state</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
@@ -364,11 +364,11 @@
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">mismatches</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: saved=</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, current=</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: saved=</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, current=</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mismatches</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">]</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Parallelism configuration mismatch:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="s2">"Parallelism configuration mismatch:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
@@ -379,11 +379,11 @@
 <span class="c1"># ------------------------------------------------------------------ #</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_NoMPIContext</span><span class="p">(</span><span class="n">_CheckpointMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).</span>
+<span class="w">    </span><span class="sd">"""Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).</span>
 
 <span class="sd">    All accessors return values consistent with single-process execution.</span>
 <span class="sd">    setup() accepts nalg and nsolve but ignores them.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">nalg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nsolve</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
@@ -401,7 +401,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>              <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;algsize&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;algrank&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;solsize&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;solrank&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"algsize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"algrank"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"solsize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"solrank"</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
 
 <span class="c1"># ------------------------------------------------------------------ #</span>
@@ -411,7 +411,7 @@
 <span class="k">if</span> <span class="ow">not</span> <span class="n">_NOMPI</span><span class="p">:</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">_MPIContext</span><span class="p">(</span><span class="n">_CheckpointMixin</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;MPI-enabled implementation.</span>
+<span class="w">        </span><span class="sd">"""MPI-enabled implementation.</span>
 
 <span class="sd">        Manages three sets of communicators:</span>
 
@@ -422,7 +422,7 @@
 <span class="sd">        Call setup() exactly once after MPI_Init to partition the global</span>
 <span class="sd">        communicator. Solver-layer and algorithm-layer accessors raise</span>
 <span class="sd">        RuntimeError if called before setup().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ready</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -437,7 +437,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">rank</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">nalg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nsolve</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Partition the global communicator.</span>
+<span class="w">            </span><span class="sd">"""Partition the global communicator.</span>
 
 <span class="sd">            Parameters</span>
 <span class="sd">            ----------</span>
@@ -449,33 +449,33 @@
 <span class="sd">            Exactly one of nalg/nsolve may be None; the missing value is</span>
 <span class="sd">            derived from the total process count. If both are None, all</span>
 <span class="sd">            processes are assigned to the algorithm layer (nsolve=1).</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ready</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;setup() must be called only once&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"setup() must be called only once"</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">nalg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nalg</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nalg must be a positive integer, got </span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nalg must be a positive integer, got </span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">nsolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nsolve</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nsolve must be a positive integer, got </span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nsolve must be a positive integer, got </span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">size</span>
 
             <span class="k">if</span> <span class="n">nalg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nsolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">nalg</span> <span class="o">*</span> <span class="n">nsolve</span> <span class="o">!=</span> <span class="n">total</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;nalg * nsolve must equal the total number of MPI processes, &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;but </span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">nalg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nsolve</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"nalg * nsolve must equal the total number of MPI processes, "</span>
+                        <span class="sa">f</span><span class="s2">"but </span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">nalg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">nsolve</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
             <span class="k">elif</span> <span class="n">nalg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">total</span> <span class="o">%</span> <span class="n">nalg</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Total MPI processes (</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">) must be divisible by nalg (</span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Total MPI processes (</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">) must be divisible by nalg (</span><span class="si">{</span><span class="n">nalg</span><span class="si">}</span><span class="s2">)"</span>
                     <span class="p">)</span>
                 <span class="n">nsolve</span> <span class="o">=</span> <span class="n">total</span> <span class="o">//</span> <span class="n">nalg</span>
             <span class="k">elif</span> <span class="n">nsolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">total</span> <span class="o">%</span> <span class="n">nsolve</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Total MPI processes (</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">) must be divisible by nsolve (</span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Total MPI processes (</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">) must be divisible by nsolve (</span><span class="si">{</span><span class="n">nsolve</span><span class="si">}</span><span class="s2">)"</span>
                     <span class="p">)</span>
                 <span class="n">nalg</span> <span class="o">=</span> <span class="n">total</span> <span class="o">//</span> <span class="n">nsolve</span>
             <span class="k">else</span><span class="p">:</span>
@@ -513,7 +513,7 @@
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_require_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ready</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;odatse.mpi.setup() has not been called&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"odatse.mpi.setup() has not been called"</span><span class="p">)</span>
 
         <span class="c1"># --- Global MPI (available before setup) ---</span>
 
@@ -546,17 +546,17 @@
         <span class="c1"># --- Algorithm layer ---</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">algcomm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return the algorithm communicator, or None for solver-worker processes.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return the algorithm communicator, or None for solver-worker processes."""</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_ready</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algcomm</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">algsize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return the algorithm communicator size (0 for solver-worker processes).&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return the algorithm communicator size (0 for solver-worker processes)."""</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_ready</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algsize</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">algrank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return this process&#39;s rank in the algorithm communicator (broadcast to all solver workers).&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Return this process's rank in the algorithm communicator (broadcast to all solver workers)."""</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_ready</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span>
 
@@ -566,12 +566,12 @@
         <span class="c1"># --- debug ---</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_print_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: &quot;</span>
-                  <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;global: size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span>
-                  <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
-                  <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;alg: comm=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algcomm</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algsize</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span><span class="si">}</span><span class="s2">&quot;</span>
-                  <span class="o">+</span> <span class="s2">&quot;; &quot;</span>
-                  <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;sol: comm=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solcomm</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solsize</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solrank</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"DEBUG: "</span>
+                  <span class="o">+</span> <span class="sa">f</span><span class="s2">"global: size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_comm</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">"</span>
+                  <span class="o">+</span> <span class="s2">"; "</span>
+                  <span class="o">+</span> <span class="sa">f</span><span class="s2">"alg: comm=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algcomm</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algsize</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span><span class="si">}</span><span class="s2">"</span>
+                  <span class="o">+</span> <span class="s2">"; "</span>
+                  <span class="o">+</span> <span class="sa">f</span><span class="s2">"sol: comm=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solcomm</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solsize</span><span class="si">}</span><span class="s2">, rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_solrank</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="c1"># --- Checkpoint ---</span>
@@ -579,10 +579,10 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_ready</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;algsize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algsize</span><span class="p">,</span>
-                <span class="s2">&quot;algrank&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span><span class="p">,</span>
-                <span class="s2">&quot;solsize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solsize</span><span class="p">,</span>
-                <span class="s2">&quot;solrank&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solrank</span><span class="p">,</span>
+                <span class="s2">"algsize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algsize</span><span class="p">,</span>
+                <span class="s2">"algrank"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algrank</span><span class="p">,</span>
+                <span class="s2">"solsize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solsize</span><span class="p">,</span>
+                <span class="s2">"solrank"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solrank</span><span class="p">,</span>
             <span class="p">}</span>
 
     <span class="n">_ctx</span> <span class="o">=</span> <span class="n">_MPIContext</span><span class="p">()</span>
@@ -599,11 +599,11 @@
 <div class="viewcode-block" id="OtherAlgorithmProcessError">
 <a class="viewcode-back" href="../../odatse.mpi.html#odatse.mpi.OtherAlgorithmProcessError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OtherAlgorithmProcessError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when an error occurs in another algorithm process.</span>
+<span class="w">    </span><span class="sd">"""Raised when an error occurs in another algorithm process.</span>
 
 <span class="sd">    After catching this, the algorithm process should signal solver workers</span>
 <span class="sd">    to finish and exit without printing a message.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
@@ -618,14 +618,14 @@
 <span class="c1"># ------------------------------------------------------------------ #</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;setup&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;comm&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;solcomm&quot;</span><span class="p">,</span> <span class="s2">&quot;solsize&quot;</span><span class="p">,</span> <span class="s2">&quot;solrank&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;algcomm&quot;</span><span class="p">,</span> <span class="s2">&quot;algsize&quot;</span><span class="p">,</span> <span class="s2">&quot;algrank&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;run_on_algorithm&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;OtherAlgorithmProcessError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MSG_ABORT&quot;</span><span class="p">,</span> <span class="s2">&quot;MSG_FINISHED&quot;</span><span class="p">,</span> <span class="s2">&quot;MSG_EVALUATE&quot;</span><span class="p">,</span>
+    <span class="s2">"setup"</span><span class="p">,</span>
+    <span class="s2">"comm"</span><span class="p">,</span> <span class="s2">"size"</span><span class="p">,</span> <span class="s2">"rank"</span><span class="p">,</span>
+    <span class="s2">"solcomm"</span><span class="p">,</span> <span class="s2">"solsize"</span><span class="p">,</span> <span class="s2">"solrank"</span><span class="p">,</span>
+    <span class="s2">"algcomm"</span><span class="p">,</span> <span class="s2">"algsize"</span><span class="p">,</span> <span class="s2">"algrank"</span><span class="p">,</span>
+    <span class="s2">"run_on_algorithm"</span><span class="p">,</span>
+    <span class="s2">"enabled"</span><span class="p">,</span>
+    <span class="s2">"OtherAlgorithmProcessError"</span><span class="p">,</span>
+    <span class="s2">"MSG_ABORT"</span><span class="p">,</span> <span class="s2">"MSG_FINISHED"</span><span class="p">,</span> <span class="s2">"MSG_EVALUATE"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">nalg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nsolve</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>   <span class="n">_ctx</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">nalg</span><span class="o">=</span><span class="n">nalg</span><span class="p">,</span> <span class="n">nsolve</span><span class="o">=</span><span class="n">nsolve</span><span class="p">)</span>

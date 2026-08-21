@@ -311,10 +311,10 @@
 <span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
 <span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">This script separates MCMC data files into multiple files based on temperature values.</span>
 <span class="sd">It reads MCMC result files and splits them into separate files for each temperature.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -328,12 +328,12 @@
 <div class="viewcode-block" id="do_separate">
 <a class="viewcode-back" href="../../../odatse.scripts.separateT.html#odatse.scripts.separateT.do_separate">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">do_separate</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">buffer_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200_000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Separate a single MCMC data file into multiple files, one per temperature.</span>
 
 <span class="sd">    Lines are routed to an output file keyed by the temperature value in the</span>
-<span class="sd">    3rd column (index 2). Unlike a simple &quot;split whenever the value changes</span>
-<span class="sd">    from the previous line&quot;, this groups all lines with the same temperature</span>
+<span class="sd">    3rd column (index 2). Unlike a simple "split whenever the value changes</span>
+<span class="sd">    from the previous line", this groups all lines with the same temperature</span>
 <span class="sd">    together even when temperatures are interleaved (as in exchange MC), so</span>
 <span class="sd">    each temperature gets exactly one file. Temperatures are indexed in order</span>
 <span class="sd">    of first appearance.</span>
@@ -355,7 +355,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        Files are written to disk with naming pattern: original_filename_T{index}.ext</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">file_base</span><span class="p">,</span> <span class="n">file_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="n">header</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># header lines (comments starting with #)</span>
@@ -368,16 +368,16 @@
         <span class="k">for</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">buffers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="n">temperature</span><span class="p">],</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="n">temperature</span><span class="p">],</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
                 <span class="n">out</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="n">pending</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fp</span><span class="p">:</span>
                 <span class="c1"># Preserve header lines (comments)</span>
-                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                     <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                     <span class="k">continue</span>
 
@@ -393,10 +393,10 @@
                 <span class="c1"># far (all comment lines precede the data in result.txt).</span>
                 <span class="k">if</span> <span class="n">temperature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
                     <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
-                    <span class="n">new_file</span> <span class="o">=</span> <span class="n">file_base</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_T</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">file_ext</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+                    <span class="n">new_file</span> <span class="o">=</span> <span class="n">file_base</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"_T</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span> <span class="o">+</span> <span class="n">file_ext</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">new_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
                         <span class="n">out</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
-                        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# T (or beta) = </span><span class="si">{</span><span class="n">temperature</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# T (or beta) = </span><span class="si">{</span><span class="n">temperature</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                     <span class="n">paths</span><span class="p">[</span><span class="n">temperature</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_file</span>
                     <span class="n">buffers</span><span class="p">[</span><span class="n">temperature</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -412,7 +412,7 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../odatse.scripts.separateT.html#odatse.scripts.separateT.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to parse arguments and process MCMC data files.</span>
 <span class="sd">    </span>
 <span class="sd">    Command line arguments:</span>
@@ -424,13 +424,13 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Set up command line argument parser</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Separate MCMC data file by temperature values&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--data_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory of MCMC data&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--file_type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;result.txt&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File type of MCMC data&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--progress&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show progress bar.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;input_files&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Files to extract in combined format.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Separate MCMC data file by temperature values"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-d"</span><span class="p">,</span> <span class="s2">"--data_dir"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Directory of MCMC data"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-t"</span><span class="p">,</span> <span class="s2">"--file_type"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"result.txt"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"File type of MCMC data"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--progress"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Show progress bar."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"input_files"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Files to extract in combined format."</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -440,14 +440,14 @@
         <span class="n">input_files</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">input_files</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">:</span>
         <span class="c1"># Find files matching pattern in data directory</span>
-        <span class="n">file_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file_type</span><span class="p">)</span>
+        <span class="n">file_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file_type</span><span class="p">)</span>
         <span class="n">input_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">file_pattern</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">input_files</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># Nothing to do: warn rather than exiting silently with success.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">input_files</span><span class="p">:</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no input files: specify input files or --data_dir&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"no input files: specify input files or --data_dir"</span><span class="p">)</span>
 
     <span class="c1"># Add progress bar if requested and tqdm is available</span>
     <span class="k">if</span> <span class="n">tqdm</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">:</span>
@@ -457,14 +457,14 @@
     <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
         <span class="c1"># Print progress message if not using progress bar</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tqdm</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;processing file </span><span class="si">{}</span><span class="s2">...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_file</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"processing file </span><span class="si">{}</span><span class="s2">..."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_file</span><span class="p">))</span>
 
         <span class="c1"># Separate the file by temperature</span>
         <span class="n">do_separate</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

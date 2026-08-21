@@ -605,7 +605,7 @@
 <h3>TOML設定ファイルの形式<a class="headerlink" href="#toml" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">-i</span></code> で指定する TOML 設定ファイルには、PAMC 本計算を実行した際の入力ファイル (<code class="docutils literal notranslate"><span class="pre">input.toml</span></code>) をそのまま指定できます。<code class="docutils literal notranslate"><span class="pre">[base]</span></code> セクションの <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> と <code class="docutils literal notranslate"><span class="pre">[algorithm.pamc]</span></code> セクションのレプリカ数が読み込まれます。想定される形式は以下の通りです(PAMC の入力ファイルについては <a class="reference internal" href="../../algorithm/pamc.html"><span class="doc">ポピュレーションアニーリングモンテカルロ法 pamc</span></a> を参照):</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
-<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span><span class="w">  </span><span class="c1"># データディレクトリ</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"output"</span><span class="w">  </span><span class="c1"># データディレクトリ</span>
 
 <span class="k">[algorithm.pamc]</span>
 <span class="n">nreplica_per_proc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="w">  </span><span class="c1"># プロセスあたりのレプリカ数</span>

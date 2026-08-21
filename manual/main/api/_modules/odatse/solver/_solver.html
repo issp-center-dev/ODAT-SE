@@ -325,9 +325,9 @@
 <div class="viewcode-block" id="SolverBase">
 <a class="viewcode-back" href="../../../odatse.solver._solver.html#odatse.solver._solver.SolverBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SolverBase</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract base class for solvers in ODAT-SE.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
@@ -341,43 +341,43 @@
 <a class="viewcode-back" href="../../../odatse.solver._solver.html#odatse.solver._solver.SolverBase.__init__">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the solver with the given information.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info : Info</span>
 <span class="sd">            Information object containing configuration details.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;prepare&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{}}</span>
-        <span class="k">if</span> <span class="s2">&quot;dimension&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">&quot;dimension&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"prepare"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"run"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"post"</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">if</span> <span class="s2">"dimension"</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">"dimension"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;dimension&quot;</span><span class="p">]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"dimension"</span><span class="p">]</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the name of the solver.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
 <span class="sd">            The name of the solver.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
 <div class="viewcode-block" id="SolverBase.evaluate">
 <a class="viewcode-back" href="../../../odatse.solver._solver.html#odatse.solver._solver.SolverBase.evaluate">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Evaluate the solver with the given parameters.</span>
 
 <span class="sd">        Parameters</span>
@@ -391,7 +391,7 @@
 <span class="sd">        ------</span>
 <span class="sd">        NotImplementedError</span>
 <span class="sd">            This method should be implemented by subclasses.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 </div>
 

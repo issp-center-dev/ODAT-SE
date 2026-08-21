@@ -319,7 +319,7 @@
 <div class="viewcode-block" id="BaseWriter">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseWriter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for file writing operations with support for combined output files.</span>
 <span class="sd">    </span>
 <span class="sd">    Class Attributes</span>
@@ -332,14 +332,14 @@
 <span class="sd">        Default filename for combined output</span>
 <span class="sd">    _combined_filemode : str</span>
 <span class="sd">        Default file mode for combined output</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_fp</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_fp_count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;BaseWriter&quot;</span><span class="p">)</span>
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"BaseWriter"</span><span class="p">)</span>
 
-    <span class="n">_combined_filename</span> <span class="o">=</span> <span class="s2">&quot;combined.txt&quot;</span>
-    <span class="c1"># None means &quot;not explicitly configured&quot;: the combined file is then opened</span>
-    <span class="c1"># using the mode of the first writer that opens it (so an &quot;a&quot; writer on</span>
+    <span class="n">_combined_filename</span> <span class="o">=</span> <span class="s2">"combined.txt"</span>
+    <span class="c1"># None means "not explicitly configured": the combined file is then opened</span>
+    <span class="c1"># using the mode of the first writer that opens it (so an "a" writer on</span>
     <span class="c1"># resume appends instead of truncating). basicConfig() can set an explicit</span>
     <span class="c1"># mode that overrides this.</span>
     <span class="n">_combined_filemode</span> <span class="o">=</span> <span class="kc">None</span>
@@ -348,7 +348,7 @@
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter.basicConfig">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">basicConfig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">combined_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combined_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure global settings for combined file output.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Configure global settings for combined file output."""</span>
         <span class="k">if</span> <span class="n">combined_filename</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filename</span> <span class="o">=</span> <span class="n">combined_filename</span>
         <span class="k">if</span> <span class="n">combined_mode</span><span class="p">:</span>
@@ -357,8 +357,8 @@
 
 <div class="viewcode-block" id="BaseWriter.__init__">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize writer with file handling options.</span>
 
 <span class="sd">        Parameters</span>
@@ -366,23 +366,23 @@
 <span class="sd">        filename : str | None</span>
 <span class="sd">            Path to output file</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            File open mode (&#39;w&#39; for write, &#39;a&#39; for append)</span>
+<span class="sd">            File open mode ('w' for write, 'a' for append)</span>
 <span class="sd">        combined : bool</span>
 <span class="sd">            If True, writes to a shared combined file instead of individual files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combined</span> <span class="o">=</span> <span class="n">combined</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># Prefix for lines in combined mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># Prefix for lines in combined mode</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initialize: file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">, mode=</span><span class="se">\&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">, combined=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"initialize: file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">, mode=</span><span class="se">\"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="se">\"</span><span class="s2">, combined=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">()</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;finalize: destructor called, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"finalize: destructor called, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -391,33 +391,33 @@
 <div class="viewcode-block" id="BaseWriter._write">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.BaseWriter._write">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Internal write method handling both combined and individual file modes.</span>
 <span class="sd">        </span>
 <span class="sd">        In combined mode, prefixes each line with the source filename tag.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
                 <span class="c1"># Add filename tag to each line in combined mode</span>
                 <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Direct write in individual file mode</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open: combined file&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open: combined file"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fp</span> <span class="o">=</span> <span class="vm">__class__</span><span class="o">.</span><span class="n">_open_combined</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&gt; &quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&gt; "</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open: local file, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open: local file, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open: tag=</span><span class="se">\&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open: tag=</span><span class="se">\"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="se">\"</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="p">:</span>
@@ -425,41 +425,41 @@
                 <span class="vm">__class__</span><span class="o">.</span><span class="n">_close_combined</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;close: closed, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"close: closed, file=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fp</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_open_combined</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># An explicit basicConfig() mode wins; otherwise use the opening</span>
-            <span class="c1"># writer&#39;s mode (falling back to &quot;w&quot; only if neither is given).</span>
-            <span class="n">filemode</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filemode</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filemode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">mode</span> <span class="ow">or</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open_combined: open file </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filename</span><span class="si">}</span><span class="s2"> with mode=</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">filemode</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># writer's mode (falling back to "w" only if neither is given).</span>
+            <span class="n">filemode</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filemode</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filemode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">mode</span> <span class="ow">or</span> <span class="s2">"w"</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open_combined: open file </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filename</span><span class="si">}</span><span class="s2"> with mode=</span><span class="se">\"</span><span class="si">{</span><span class="n">filemode</span><span class="si">}</span><span class="se">\"</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_combined_filename</span><span class="p">,</span> <span class="n">filemode</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open_combined: already opened&quot;</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open_combined: already opened"</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;open_combined: increment counter to </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"open_combined: increment counter to </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_close_combined</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;close_combined: decrement counter to </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"close_combined: decrement counter to </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fp_count</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_fp</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;close_combined: closed&quot;</span><span class="p">)</span></div>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"close_combined: closed"</span><span class="p">)</span></div>
 
         
 
 <div class="viewcode-block" id="TextWriter">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.TextWriter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TextWriter</span><span class="p">(</span><span class="n">BaseWriter</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initialize: file=</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">, mode=</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">, combined=</span><span class="si">{</span><span class="n">combined</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"initialize: file=</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">, mode=</span><span class="se">\"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="se">\"</span><span class="s2">, combined=</span><span class="si">{</span><span class="n">combined</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="n">combined</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -470,17 +470,17 @@
 <div class="viewcode-block" id="DataWriter">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.DataWriter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataWriter</span><span class="p">(</span><span class="n">BaseWriter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Specialized writer for structured data output with header support.</span>
 <span class="sd">    </span>
 <span class="sd">    Extends BaseWriter to handle formatted data output with column headers</span>
 <span class="sd">    and optional descriptions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 <div class="viewcode-block" id="DataWriter.__init__">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.DataWriter.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
                  <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_format</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize data writer with column specifications.</span>
 
 <span class="sd">        Parameters</span>
@@ -497,11 +497,11 @@
 <span class="sd">            If True, writes detailed column descriptions</span>
 <span class="sd">        combined : bool</span>
 <span class="sd">            If True, writes to shared combined file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="n">combined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_item_list</span><span class="p">(</span><span class="n">item_list</span> <span class="ow">or</span> <span class="p">[])</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"w"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_header</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">long_format</span><span class="p">)</span></div>
 
 
@@ -511,7 +511,7 @@
 <div class="viewcode-block" id="DataWriter._write_header">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.DataWriter._write_header">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">long_format</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write file header with column descriptions.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -520,38 +520,38 @@
 <span class="sd">            Optional file description</span>
 <span class="sd">        long_format : bool</span>
 <span class="sd">            If True, writes detailed per-column descriptions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="n">s</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">"# "</span> <span class="o">+</span> <span class="n">s</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">long_format</span><span class="p">:</span>
             <span class="c1"># Write detailed column descriptions with indices</span>
             <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">w</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="k">else</span> <span class="n">s</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"# </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: "</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="k">else</span> <span class="n">s</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Write simple column names</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">&quot;# &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">]))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">"# "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="DataWriter._write_items">
 <a class="viewcode-back" href="../../../odatse.util.data_writer.html#odatse.util.data_writer.DataWriter._write_items">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write a row of data values with proper formatting.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        items : sequence</span>
 <span class="sd">            Values to write, must match header length</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
             <span class="c1"># Apply format if specified, otherwise convert to string</span>
             <span class="n">msg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">fmt</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
 
         
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_item_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_list</span><span class="p">):</span>
@@ -562,7 +562,7 @@
             <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown item </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown item </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">items</span></div>
 
 </pre></div>

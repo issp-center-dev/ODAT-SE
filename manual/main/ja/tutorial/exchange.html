@@ -504,14 +504,14 @@
 <p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> について説明します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">"output"</span>
 
 <span class="p">[</span><span class="n">solver</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"analytical"</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">"himmelblau"</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;exchange&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"exchange"</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
@@ -607,7 +607,7 @@ Open MPI を用いる場合で、使えるコア数よりも要求プロセス�
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">result_T%.txt</span></code> を図示することで <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の小さいパラメータがどこにあるかを推定することができます。
 以下のコマンドを入力すると 2次元パラメータ空間の図 <code class="docutils literal notranslate"><span class="pre">res_T%.png</span></code> が作成されます。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=3 --ycol=4 --skip=20 --format=&quot;o&quot; --output=output/res_T0.png output/result_T0.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=3 --ycol=4 --skip=20 --format="o" --output=output/res_T0.png output/result_T0.txt
 </pre></div>
 </div>
 <p>作成された図を見ると、 <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> の最小値を与える点の付近にサンプルが集中していることが分かります。温度Tのインデックスを変えると、高温ではサンプリング点が領域内に広く分布していること、温度を下げると極小点付近に集中することが見てとれます。</p>

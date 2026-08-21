@@ -508,17 +508,17 @@
 
 <span class="c1"># --- ソルバーの定義 ---</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MySolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;自分の目的関数を計算するソルバー&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""自分の目的関数を計算するソルバー"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;my_solver&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">"my_solver"</span>
 
         <span class="c1"># TOML ファイルの [solver] セクションからパラメータを読み取れます</span>
-        <span class="c1"># 例: self.param = info.solver.get(&quot;my_param&quot;, 1.0)</span>
+        <span class="c1"># 例: self.param = info.solver.get("my_param", 1.0)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        目的関数を計算して返す。</span>
 
 <span class="sd">        Parameters</span>
@@ -527,7 +527,7 @@
 <span class="sd">            探索パラメータ（ここでは [x, y] の2次元ベクトル）</span>
 <span class="sd">        args : tuple</span>
 <span class="sd">            (step番号, set番号) のタプル。ログ出力などに利用可能。</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># ここに自分の目的関数を書く</span>
         <span class="n">fx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">fx</span>
@@ -544,7 +544,7 @@
 <span class="c1"># ソルバー → Runner → Algorithm の順に組み立てる</span>
 <span class="n">solver</span> <span class="o">=</span> <span class="n">MySolver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 <span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-<span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+<span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
 <span class="n">algorithm</span> <span class="o">=</span> <span class="n">alg_module</span><span class="o">.</span><span class="n">Algorithm</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">)</span>
 
 <span class="c1"># 実行</span>
@@ -565,15 +565,15 @@
 <p>以下の内容で <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> を作成してください。</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
 <span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
-<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"output"</span>
 
 <span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_solver&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_solver"</span>
 <span class="c1"># ここに solver 固有のパラメータを追加できます</span>
 <span class="c1"># my_param = 1.0</span>
 
 <span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;minsearch&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"minsearch"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -612,7 +612,7 @@ x2 = 1.9999999...
 <p>TOML ファイルの <code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクションを変更するだけで、Python コードを変えずに別のアルゴリズムで探索できます。</p>
 <p><strong>ベイズ最適化の例:</strong></p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bayes&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bayes"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -621,13 +621,13 @@ x2 = 1.9999999...
 
 <span class="k">[algorithm.bayes]</span>
 <span class="n">random_max_num_probes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
-<span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TS&quot;</span>
+<span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"TS"</span>
 <span class="n">num_search_each_probe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 </pre></div>
 </div>
 <p><strong>グリッド探索の例:</strong></p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[algorithm]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;mapper&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"mapper"</span>
 <span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
 
 <span class="k">[algorithm.param]</span>
@@ -642,7 +642,7 @@ x2 = 1.9999999...
 <p>目的関数にパラメータを持たせたい場合は、<code class="docutils literal notranslate"><span class="pre">[solver]</span></code> セクションに値を追加し、
 <code class="docutils literal notranslate"><span class="pre">__init__</span></code> で読み取ります。</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[solver]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_solver&quot;</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_solver"</span>
 <span class="n">center_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="n">center_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
 </pre></div>
@@ -650,10 +650,10 @@ x2 = 1.9999999...
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MySolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;my_solver&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">"my_solver"</span>
         <span class="c1"># TOML の [solver] セクションから値を取得</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cx</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;center_x&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cy</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;center_y&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cx</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"center_x"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cy</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"center_y"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cx</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>

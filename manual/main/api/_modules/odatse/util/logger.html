@@ -330,9 +330,9 @@
 <div class="viewcode-block" id="Logger">
 <a class="viewcode-back" href="../../../odatse.util.logger.html#odatse.util.logger.Logger">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Logger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Logger class to handle logging of calls, elapsed time, and optionally input and result data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">logfile</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span>
@@ -348,12 +348,12 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="o">*</span><span class="p">,</span>
                  <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                 <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;runner.log&quot;</span><span class="p">,</span>
+                 <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"runner.log"</span><span class="p">,</span>
                  <span class="n">write_input</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">write_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">rest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Logger.</span>
 
 <span class="sd">        Parameters</span>
@@ -372,18 +372,18 @@
 <span class="sd">            Additional parameters for logging.</span>
 <span class="sd">        **rest</span>
 <span class="sd">            Additional keyword arguments.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">info_log</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">info_log</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"log"</span><span class="p">,</span> <span class="p">{})</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># params may be omitted; fall back to an empty config so the</span>
             <span class="c1"># .get() lookups below use the keyword defaults instead of raising.</span>
             <span class="n">info_log</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">{}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_write_input</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;write_input&quot;</span><span class="p">,</span> <span class="n">write_input</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;write_result&quot;</span><span class="p">,</span> <span class="n">write_result</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"interval"</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_write_input</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"write_input"</span><span class="p">,</span> <span class="n">write_input</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span> <span class="o">=</span> <span class="n">info_log</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"write_result"</span><span class="p">,</span> <span class="n">write_result</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span>
@@ -394,28 +394,28 @@
 <div class="viewcode-block" id="Logger.is_active">
 <a class="viewcode-back" href="../../../odatse.util.logger.html#odatse.util.logger.Logger.is_active">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check if logging is active.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            True if logging is active, False otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="Logger.prepare">
 <a class="viewcode-back" href="../../../odatse.util.logger.html#odatse.util.logger.Logger.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proc_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Prepare the log file for writing.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        proc_dir : Path</span>
 <span class="sd">            Directory where the log file will be created.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span><span class="p">():</span>
             <span class="k">return</span>
 
@@ -423,21 +423,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: num_calls</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $2: elapsed time from last call</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $3: elapsed time from start</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: num_calls</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $2: elapsed time from last call</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $3: elapsed time from start</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $4: result</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $4: result</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_input</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $</span><span class="si">{}</span><span class="s2">-: input</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span> <span class="k">else</span> <span class="mi">4</span><span class="p">))</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $</span><span class="si">{}</span><span class="s2">-: input</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span> <span class="k">else</span> <span class="mi">4</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Logger.count">
 <a class="viewcode-back" href="../../../odatse.util.logger.html#odatse.util.logger.Logger.count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Log a call with input and result data.</span>
 
 <span class="sd">        Parameters</span>
@@ -448,7 +448,7 @@
 <span class="sd">            Additional arguments.</span>
 <span class="sd">        result : float</span>
 <span class="sd">            Result data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span><span class="p">():</span>
             <span class="k">return</span>
 
@@ -458,14 +458,14 @@
 
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_calls</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
-        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_previous</span><span class="p">))</span>
-        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">))</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="si">{:.6f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_previous</span><span class="p">))</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="si">{:.6f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_start</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_result</span><span class="p">:</span>
             <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_write_input</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
                 <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_previous</span> <span class="o">=</span> <span class="n">t</span>
 
@@ -476,12 +476,12 @@
 <div class="viewcode-block" id="Logger.write">
 <a class="viewcode-back" href="../../../odatse.util.logger.html#odatse.util.logger.Logger.write">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write the buffered log entries to the log file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span><span class="p">():</span>
             <span class="k">return</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>

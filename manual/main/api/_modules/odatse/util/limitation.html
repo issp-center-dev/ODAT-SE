@@ -321,22 +321,22 @@
 <div class="viewcode-block" id="LimitationBase">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.LimitationBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LimitationBase</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract base class for limitations.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="LimitationBase.__init__">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.LimitationBase.__init__">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_limitary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the limitation.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        is_limitary : bool</span>
 <span class="sd">            Boolean indicating if the limitation is active.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_limitary</span> <span class="o">=</span> <span class="n">is_limitary</span></div>
 
 
@@ -344,7 +344,7 @@
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.LimitationBase.judge">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">judge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Abstract method to judge if the limitation is satisfied.</span>
 
 <span class="sd">        Parameters</span>
@@ -356,7 +356,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Boolean indicating if the limitation is satisfied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -364,23 +364,23 @@
 <div class="viewcode-block" id="Unlimited">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Unlimited">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Unlimited</span><span class="p">(</span><span class="n">LimitationBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class representing an unlimited (no limitation) condition.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Unlimited.__init__">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Unlimited.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the unlimited condition.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Unlimited.judge">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Unlimited.judge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">judge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Always returns True as there is no limitation.</span>
 
 <span class="sd">        Parameters</span>
@@ -392,7 +392,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Always True.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 </div>
 
@@ -400,14 +400,14 @@
 <div class="viewcode-block" id="Inequality">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Inequality">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Inequality</span><span class="p">(</span><span class="n">LimitationBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class representing an inequality limitation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Inequality.__init__">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Inequality.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">is_limitary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the inequality limitation.</span>
 
 <span class="sd">        Parameters</span>
@@ -418,7 +418,7 @@
 <span class="sd">            Constant vector.</span>
 <span class="sd">        is_limitary : bool</span>
 <span class="sd">            Boolean indicating if the limitation is active.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">is_limitary</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_limitary</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
@@ -431,7 +431,7 @@
 <div class="viewcode-block" id="Inequality.judge">
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Inequality.judge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">judge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Judge if the inequality limitation is satisfied.</span>
 
 <span class="sd">        Parameters</span>
@@ -443,7 +443,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Boolean indicating if the limitation is satisfied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_limitary</span><span class="p">:</span>
             <span class="n">Ax_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span>
             <span class="n">judge_result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">Ax_b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
@@ -456,21 +456,21 @@
 <a class="viewcode-back" href="../../../odatse.util.limitation.html#odatse.util.limitation.Inequality.from_dict">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create an Inequality instance from a dictionary.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        d</span>
-<span class="sd">            Dictionary containing &#39;co_a&#39; and &#39;co_b&#39; keys.</span>
+<span class="sd">            Dictionary containing 'co_a' and 'co_b' keys.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Inequality</span>
 <span class="sd">            an Inequality instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">co_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">read_matrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;co_a&quot;</span><span class="p">,</span> <span class="p">[]))</span>
-        <span class="n">co_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">read_matrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;co_b&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+<span class="sd">        """</span>
+        <span class="n">co_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">read_matrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"co_a"</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">co_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">read_matrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"co_b"</span><span class="p">,</span> <span class="p">[]))</span>
 
         <span class="k">if</span> <span class="n">co_a</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">is_set_co_a</span> <span class="o">=</span> <span class="kc">False</span>
@@ -478,7 +478,7 @@
             <span class="k">if</span> <span class="n">co_a</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">is_set_co_a</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;co_a should be a matrix of size equal to number of constraints times dimension&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"co_a should be a matrix of size equal to number of constraints times dimension"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">co_b</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">is_set_co_b</span> <span class="o">=</span> <span class="kc">False</span>
@@ -486,14 +486,14 @@
             <span class="k">if</span> <span class="n">co_b</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">co_b</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">co_a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">is_set_co_b</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;co_b should be a column vector of size equal to number of constraints&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"co_b should be a column vector of size equal to number of constraints"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">is_set_co_a</span> <span class="ow">and</span> <span class="n">is_set_co_b</span><span class="p">:</span>
             <span class="n">is_limitary</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_set_co_a</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_set_co_b</span><span class="p">):</span>
             <span class="n">is_limitary</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;ERROR: Both co_a and co_b must be defined.&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"ERROR: Both co_a and co_b must be defined."</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">co_a</span><span class="p">,</span> <span class="n">co_b</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">is_limitary</span><span class="p">)</span></div>

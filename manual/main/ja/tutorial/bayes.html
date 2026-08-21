@@ -505,14 +505,14 @@
 <p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> を作成します。記述方法の詳細については「入力ファイル」の章および <a class="reference internal" href="../algorithm/bayes.html"><span class="doc">ベイズ最適化 bayes</span></a> を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">"output"</span>
 
 <span class="p">[</span><span class="n">solver</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"analytical"</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">"himmelblau"</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;bayes&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"bayes"</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
@@ -615,8 +615,8 @@
 <section id="id5">
 <h2>計算結果の可視化<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">output/BayesData.txt</span></code> を参照すると、何ステップ目のパラメータが最小スコアを与えたかがわかります。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=1 --ycol=2 --format=&quot;-o&quot; --output=output/res.pdf output/BayesData.txt
-$ python3 ../plot_himmel.py --xcol=4 --ycol=5 --format=&quot;o&quot; --output=output/actions.pdf output/BayesData.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ../plot_himmel.py --xcol=1 --ycol=2 --format="-o" --output=output/res.pdf output/BayesData.txt
+$ python3 ../plot_himmel.py --xcol=4 --ycol=5 --format="o" --output=output/actions.pdf output/BayesData.txt
 </pre></div>
 </div>
 <p>上記を実行すると <code class="docutils literal notranslate"><span class="pre">output/actions.pdf</span></code> と  <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> が作成され、Himmelblau関数の関数値を表す等高線の上に、ベイズ最適化で評価したグリッド点と最小スコアを与える点の履歴がプロットされます。</p>

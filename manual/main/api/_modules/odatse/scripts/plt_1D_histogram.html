@@ -325,95 +325,95 @@
 <div class="viewcode-block" id="parse_options">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_1D_histogram.html#odatse.scripts.plt_1D_histogram.parse_options">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_options</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parse command line arguments and configuration files.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Dictionary containing all configuration options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Default configuration options</span>
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>          <span class="c1"># Column names to draw histograms</span>
-        <span class="s2">&quot;weight_column&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>      <span class="c1"># Column index for weights (default: last column)</span>
-        <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>               <span class="c1"># Number of bins for histograms</span>
-        <span class="s2">&quot;range&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>            <span class="c1"># Range of variables [xmin, xmax]</span>
-        <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>          <span class="c1"># Directory containing data files</span>
-        <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>        <span class="c1"># Directory for output files</span>
-        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">],</span>        <span class="c1"># Output image format(s)</span>
-        <span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>        <span class="c1"># Whether to show progress bar</span>
-        <span class="s2">&quot;xlabel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>           <span class="c1"># Label for x-axis</span>
-        <span class="s2">&quot;field_list&quot;</span><span class="p">:</span> <span class="p">[],</span>         <span class="c1"># List of field labels</span>
-        <span class="s2">&quot;input_files&quot;</span><span class="p">:</span> <span class="p">[],</span>        <span class="c1"># List of input files</span>
+        <span class="s2">"columns"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>          <span class="c1"># Column names to draw histograms</span>
+        <span class="s2">"weight_column"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>      <span class="c1"># Column index for weights (default: last column)</span>
+        <span class="s2">"bins"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>               <span class="c1"># Number of bins for histograms</span>
+        <span class="s2">"range"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>            <span class="c1"># Range of variables [xmin, xmax]</span>
+        <span class="s2">"data_dir"</span><span class="p">:</span> <span class="s2">"."</span><span class="p">,</span>          <span class="c1"># Directory containing data files</span>
+        <span class="s2">"output_dir"</span><span class="p">:</span> <span class="s2">"."</span><span class="p">,</span>        <span class="c1"># Directory for output files</span>
+        <span class="s2">"format"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"png"</span><span class="p">],</span>        <span class="c1"># Output image format(s)</span>
+        <span class="s2">"progress"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>        <span class="c1"># Whether to show progress bar</span>
+        <span class="s2">"xlabel"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>           <span class="c1"># Label for x-axis</span>
+        <span class="s2">"field_list"</span><span class="p">:</span> <span class="p">[],</span>         <span class="c1"># List of field labels</span>
+        <span class="s2">"input_files"</span><span class="p">:</span> <span class="p">[],</span>        <span class="c1"># List of input files</span>
     <span class="p">}</span>
 
     <span class="c1"># Set up command line argument parser</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Generate histograms for files in a directory.&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--config&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Configuration file.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--params&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Parameter file used for calculation.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--columns&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Column names to draw histograms.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--weight_column&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Column id for weights. default=-1 (last column).&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;--bins&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of bins.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--range&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Range of variables, </span><span class="se">\&quot;</span><span class="s2">xmin,xmax</span><span class="se">\&quot;</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--data_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to data directory&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to output directory.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File type of output images. default=png&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--xlabel&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Label for x-axis.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--field_list&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Field labels.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--progress&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show progress bar.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;input_files&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to data file(s).&quot;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Generate histograms for files in a directory.'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--config"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Configuration file."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--params"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Parameter file used for calculation."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-c"</span><span class="p">,</span> <span class="s2">"--columns"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Column names to draw histograms."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-w"</span><span class="p">,</span> <span class="s2">"--weight_column"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Column id for weights. default=-1 (last column)."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-b"</span><span class="p">,</span> <span class="s2">"--bins"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Number of bins."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--range"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Range of variables, </span><span class="se">\"</span><span class="s2">xmin,xmax</span><span class="se">\"</span><span class="s2">."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-d"</span><span class="p">,</span> <span class="s2">"--data_dir"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to data directory"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-o"</span><span class="p">,</span> <span class="s2">"--output_dir"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to output directory."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-f"</span><span class="p">,</span> <span class="s2">"--format"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"File type of output images. default=png"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--xlabel"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Label for x-axis."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--field_list"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Field labels."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--progress"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Show progress bar."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"input_files"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to data file(s)."</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="c1"># Read input parameter file used for calculation</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">read_toml</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="c1"># Extract relevant parameters from the parameter file</span>
-        <span class="k">if</span> <span class="s2">&quot;algorithm&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;param&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">"algorithm"</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"param"</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">]:</span>
                 <span class="c1"># Get min and max ranges if available</span>
-                <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">][</span><span class="s2">&quot;param&quot;</span><span class="p">]:</span>
-                    <span class="n">min_list</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">][</span><span class="s2">&quot;param&quot;</span><span class="p">][</span><span class="s2">&quot;min_list&quot;</span><span class="p">]</span>
-                    <span class="n">max_list</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">][</span><span class="s2">&quot;param&quot;</span><span class="p">][</span><span class="s2">&quot;max_list&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">][</span><span class="s2">"param"</span><span class="p">]:</span>
+                    <span class="n">min_list</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">][</span><span class="s2">"param"</span><span class="p">][</span><span class="s2">"min_list"</span><span class="p">]</span>
+                    <span class="n">max_list</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">][</span><span class="s2">"param"</span><span class="p">][</span><span class="s2">"max_list"</span><span class="p">]</span>
                     <span class="c1"># Create range list for each variable</span>
-                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">xmin</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">xmax</span><span class="p">)]</span> <span class="k">for</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">)]</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">xmin</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">xmax</span><span class="p">)]</span> <span class="k">for</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">)]</span>
             <span class="c1"># Get field labels if available</span>
-            <span class="k">if</span> <span class="s2">&quot;label_list&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">]:</span>
-                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;field_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">][</span><span class="s2">&quot;label_list&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"label_list"</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">]:</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">"field_list"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"beta"</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">]</span> <span class="o">+</span> <span class="n">params</span><span class="p">[</span><span class="s2">"algorithm"</span><span class="p">][</span><span class="s2">"label_list"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"weight"</span><span class="p">]</span>
 
     <span class="c1"># Read config file in TOML format if specified</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_toml</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
         <span class="c1"># Convert format string to list if needed</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"format"</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"format"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"format"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
 
     <span class="c1"># Override config with command-line arguments if specified</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"columns"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">weight_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;weight_column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">weight_column</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"weight_column"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">weight_column</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bins</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;bins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bins</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"bins"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bins</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">range</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">range</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">data_dir</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">data_dir</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"data_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">data_dir</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"format"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;progress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">progress</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">input_files</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">input_files</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"input_files"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">input_files</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">field_list</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;field_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">field_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"field_list"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">field_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">xlabel</span><span class="p">:</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlabel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">xlabel</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"xlabel"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">xlabel</span>
 
     <span class="k">return</span> <span class="n">config</span></div>
 
@@ -421,22 +421,22 @@
 <div class="viewcode-block" id="show_options">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_1D_histogram.html#odatse.scripts.plt_1D_histogram.show_options">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">show_options</span><span class="p">(</span><span class="n">opt</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Display the current configuration options.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    opt : dict</span>
 <span class="sd">        Dictionary containing configuration options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="find_files">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_1D_histogram.html#odatse.scripts.plt_1D_histogram.find_files">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find all result files in the specified directory.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -448,15 +448,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    list</span>
 <span class="sd">        Sorted list of file paths matching the pattern.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span> 
-                  <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;result_T&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_summarized.txt&quot;</span><span class="p">)])</span></div>
+                  <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"result_T"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_summarized.txt"</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="read_toml">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_1D_histogram.html#odatse.scripts.plt_1D_histogram.read_toml">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_toml</span><span class="p">(</span><span class="n">input_filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Reads the TOML configuration file and extracts required parameters.</span>
 
 <span class="sd">    Parameters</span>
@@ -468,15 +468,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Contents of configuration file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">tomli</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tomllib</span>
-        <span class="k">if</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">&quot;1.2.0&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;tomli 1.2.0 or later required&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">"1.2.0"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">"tomli 1.2.0 or later required"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_filename</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
         <span class="n">dict_toml</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dict_toml</span></div>
 
@@ -484,24 +484,24 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_1D_histogram.html#odatse.scripts.plt_1D_histogram.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to generate 1D histograms from data files.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Parse command line options and configuration files</span>
     <span class="n">opt</span> <span class="o">=</span> <span class="n">parse_options</span><span class="p">()</span>
     <span class="n">show_options</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
 
     <span class="c1"># Extract key configuration parameters</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
-    <span class="n">weight_column</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;weight_column&quot;</span><span class="p">]</span>
-    <span class="n">bins</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;bins&quot;</span><span class="p">]</span>
-    <span class="n">configured_field_list</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;field_list&quot;</span><span class="p">]</span>  <span class="c1"># may be empty; default is per-file</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"columns"</span><span class="p">]</span>
+    <span class="n">weight_column</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"weight_column"</span><span class="p">]</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"bins"</span><span class="p">]</span>
+    <span class="n">configured_field_list</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"field_list"</span><span class="p">]</span>  <span class="c1"># may be empty; default is per-file</span>
 
     <span class="c1"># Determine histogram range and axis sharing behavior</span>
-    <span class="n">hist_range</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span>
+    <span class="n">hist_range</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"range"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">hist_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">auto_axis</span> <span class="o">=</span> <span class="kc">True</span>      <span class="c1"># Automatically determine axis range</span>
-        <span class="n">share_axis</span> <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># Don&#39;t share axes between subplots</span>
+        <span class="n">share_axis</span> <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># Don't share axes between subplots</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">auto_axis</span> <span class="o">=</span> <span class="kc">False</span>     <span class="c1"># Use specified range</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hist_range</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -510,15 +510,15 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">share_axis</span> <span class="o">=</span> <span class="kc">True</span>     <span class="c1"># Same range for all variables</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown data type for range parameter: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">hist_range</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"unknown data type for range parameter: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">hist_range</span><span class="p">)))</span>
 
-    <span class="c1"># Create output directory if it doesn&#39;t exist</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Create output directory if it doesn't exist</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Get list of files to process</span>
-    <span class="n">file_list</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;input_files&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;input_files&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">find_files</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;data_dir&quot;</span><span class="p">])</span>
+    <span class="n">file_list</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"input_files"</span><span class="p">]</span> <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"input_files"</span><span class="p">]</span> <span class="k">else</span> <span class="n">find_files</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">"data_dir"</span><span class="p">])</span>
     <span class="c1"># Add progress bar if requested and tqdm is available</span>
-    <span class="k">if</span> <span class="n">tqdm</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;progress&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">tqdm</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]:</span>
         <span class="n">file_list</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span>
 
     <span class="c1"># Process each file</span>
@@ -529,14 +529,14 @@
             <span class="n">is_beta</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                         <span class="c1"># Detect whether column 1 is beta or T from the header</span>
                         <span class="k">if</span> <span class="n">is_beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="s2">&quot; beta&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="s2">" beta"</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                                 <span class="n">is_beta</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">elif</span> <span class="s2">&quot; T&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="k">elif</span> <span class="s2">" T"</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                                 <span class="n">is_beta</span> <span class="o">=</span> <span class="kc">False</span>
                         <span class="k">continue</span>
                     <span class="n">items</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -546,13 +546,13 @@
 
             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: no data rows&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipping </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: no data rows"</span><span class="p">)</span>
                 <span class="n">err</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
             <span class="n">ndata</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
 
             <span class="c1"># Extract beta value in float (0.00101) or scientific notation (e.g., 1.01e-3)</span>
-            <span class="n">beta_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">#.6g</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">beta_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">#.6g</span><span class="si">}</span><span class="s2">"</span>
 
             <span class="c1"># Get weights from the specified column</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">weight_column</span><span class="p">]</span>
@@ -564,7 +564,7 @@
             <span class="c1"># differing widths are not mis-indexed by a value cached from the</span>
             <span class="c1"># first file. Standard format: beta, fx, x1, .., xn, weight.</span>
             <span class="n">field_list</span> <span class="o">=</span> <span class="n">configured_field_list</span> <span class="k">if</span> <span class="n">configured_field_list</span> <span class="k">else</span> \
-                <span class="p">([</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+                <span class="p">([</span><span class="s2">"beta"</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"x</span><span class="si">{</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"weight"</span><span class="p">])</span>
             <span class="n">field_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">field_list</span><span class="p">)}</span>
             <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
                 <span class="n">z_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">field_id</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
@@ -573,7 +573,7 @@
                 <span class="n">z_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
             <span class="n">num_variables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_columns</span><span class="p">)</span>
 
-            <span class="c1"># Map each per-variable range to its data column. When config[&quot;range&quot;]</span>
+            <span class="c1"># Map each per-variable range to its data column. When config["range"]</span>
             <span class="c1"># is a per-parameter list it is ordered as the parameters x1..xn,</span>
             <span class="c1"># which occupy columns 2..ncols-2; columns outside that (beta, fx,</span>
             <span class="c1"># weight) get no fixed range and fall back to auto.</span>
@@ -602,15 +602,15 @@
 
                 <span class="c1"># Create histogram with normalized weights</span>
                 <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">hrange</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">normalized_weights</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_list</span><span class="p">[</span><span class="n">col_index</span><span class="p">]</span><span class="si">}</span><span class="s1"> 1D Histogram&#39;</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">field_list</span><span class="p">[</span><span class="n">col_index</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># Add grid lines</span>
+                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_list</span><span class="p">[</span><span class="n">col_index</span><span class="p">]</span><span class="si">}</span><span class="s1"> 1D Histogram'</span><span class="p">)</span>
+                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_list</span><span class="p">[</span><span class="n">col_index</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># Add grid lines</span>
                 <span class="k">if</span> <span class="n">hrange</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">hrange</span><span class="p">)</span>  <span class="c1"># Set x-axis limits</span>
 
             <span class="c1"># Set x-label for bottom subplot if provided</span>
-            <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;xlabel&quot;</span><span class="p">]:</span>
-                <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;xlabel&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"xlabel"</span><span class="p">]:</span>
+                <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">"xlabel"</span><span class="p">])</span>
 
             <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
@@ -618,34 +618,34 @@
             <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
             <span class="n">file_base</span><span class="p">,</span> <span class="n">file_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
 
-            <span class="c1"># Replace &quot;_summarized&quot; with beta value in filename</span>
-            <span class="k">if</span> <span class="s2">&quot;_summarized&quot;</span> <span class="ow">in</span> <span class="n">file_base</span><span class="p">:</span>
-                <span class="n">beta_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_beta_</span><span class="si">{</span><span class="n">beta_value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">is_beta</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;_T_</span><span class="si">{</span><span class="n">beta_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">file_base</span> <span class="o">=</span> <span class="n">file_base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_summarized&quot;</span><span class="p">,</span> <span class="n">beta_tag</span><span class="p">)</span>
+            <span class="c1"># Replace "_summarized" with beta value in filename</span>
+            <span class="k">if</span> <span class="s2">"_summarized"</span> <span class="ow">in</span> <span class="n">file_base</span><span class="p">:</span>
+                <span class="n">beta_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_beta_</span><span class="si">{</span><span class="n">beta_value</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">is_beta</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"_T_</span><span class="si">{</span><span class="n">beta_value</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">file_base</span> <span class="o">=</span> <span class="n">file_base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_summarized"</span><span class="p">,</span> <span class="n">beta_tag</span><span class="p">)</span>
                 
             <span class="c1"># Save plot in each requested format</span>
-            <span class="k">for</span> <span class="n">suf</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]:</span>
-                <span class="n">plot_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1Dhistogram_</span><span class="si">{</span><span class="n">file_base</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">suf</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">],</span> <span class="n">plot_filename</span><span class="p">))</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="p">[</span><span class="s2">&quot;progress&quot;</span><span class="p">]:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Histogram created: </span><span class="si">{</span><span class="n">plot_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">suf</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"format"</span><span class="p">]:</span>
+                <span class="n">plot_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"1Dhistogram_</span><span class="si">{</span><span class="n">file_base</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">suf</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">],</span> <span class="n">plot_filename</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">opt</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Histogram created: </span><span class="si">{</span><span class="n">plot_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># Clean up plot objects</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error occurred while processing </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error occurred while processing </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">err</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="c1"># Print summary message</span>
     <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All histograms have been saved in </span><span class="si">{</span><span class="n">opt</span><span class="p">[</span><span class="s1">&#39;output_dir&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"All histograms have been saved in </span><span class="si">{</span><span class="n">opt</span><span class="p">[</span><span class="s1">'output_dir'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Some histograms have not been created because of errors.&quot;</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"ERROR: Some histograms have not been created because of errors."</span><span class="p">)</span></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -318,7 +318,7 @@
 <div class="viewcode-block" id="load_data">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.load_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load beta and log evidence values from a data file.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -332,12 +332,12 @@
 <span class="sd">        A tuple containing two numpy arrays:</span>
 <span class="sd">        - beta: inverse temperature values</span>
 <span class="sd">        - logz: log evidence values</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fx_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">fx_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s2">"#"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fx_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">fx_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: expected at least 5 columns &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(beta ... log(Z/Z0) in column 5), got shape </span><span class="si">{</span><span class="n">fx_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: expected at least 5 columns "</span>
+            <span class="sa">f</span><span class="s2">"(beta ... log(Z/Z0) in column 5), got shape </span><span class="si">{</span><span class="n">fx_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">fx_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># First column: beta (1/T)</span>
     <span class="n">logz</span> <span class="o">=</span> <span class="n">fx_data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># Fifth column: log(Z/Z0)</span>
@@ -349,7 +349,7 @@
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.calc_log_pdb">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_log_pdb</span><span class="p">(</span><span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">logz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_mu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
                 <span class="n">w_mu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate the logarithm of the model evidence P(D;\beta).</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -369,13 +369,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        Array of log model evidence values.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_mu</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">w_mu</span><span class="p">),</span> <span class="s2">&quot;Length of n_mu and w_mu must be the same&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_mu</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">w_mu</span><span class="p">),</span> <span class="s2">"Length of n_mu and w_mu must be the same"</span>
     
     <span class="c1"># Calculate total number of data points</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n_mu</span><span class="p">)</span>
     
-    <span class="c1"># Normalize weights to sum to 1 (on a copy; do not mutate the caller&#39;s array)</span>
+    <span class="c1"># Normalize weights to sum to 1 (on a copy; do not mutate the caller's array)</span>
     <span class="n">w_mu</span> <span class="o">=</span> <span class="n">w_mu</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w_mu</span><span class="p">)</span>
     
     <span class="c1"># Calculate log model evidence using the formula:</span>
@@ -389,7 +389,7 @@
 <div class="viewcode-block" id="print_log_pdb">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.print_log_pdb">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_log_pdb</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write model evidence data to a file.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -405,37 +405,37 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
         <span class="k">return</span>
 
     <span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">data</span>
     
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
         <span class="c1"># Write the maximum log model evidence value and its corresponding beta</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">)</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# max log_P(D;beta) = </span><span class="si">{}</span><span class="s2"> at Tstep = </span><span class="si">{}</span><span class="s2">, beta = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">idx</span><span class="p">,</span> <span class="n">beta</span><span class="p">[</span><span class="n">idx</span><span class="p">]))</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# max log_P(D;beta) = </span><span class="si">{}</span><span class="s2"> at Tstep = </span><span class="si">{}</span><span class="s2">, beta = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">idx</span><span class="p">,</span> <span class="n">beta</span><span class="p">[</span><span class="n">idx</span><span class="p">]))</span>
 
         <span class="c1"># Write column headers based on the number of data arrays</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: Tstep</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;# $2: beta</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;# $3: model_evidence</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: Tstep</span><span class="se">\n</span><span class="s2">"</span>
+                     <span class="s2">"# $2: beta</span><span class="se">\n</span><span class="s2">"</span>
+                     <span class="s2">"# $3: model_evidence</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: Tstep</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;# $2: beta</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;# $3: average model_evidence</span><span class="se">\n</span><span class="s2">&quot;</span>
-                     <span class="s2">&quot;# $4: standard deviation</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: Tstep</span><span class="se">\n</span><span class="s2">"</span>
+                     <span class="s2">"# $2: beta</span><span class="se">\n</span><span class="s2">"</span>
+                     <span class="s2">"# $3: average model_evidence</span><span class="se">\n</span><span class="s2">"</span>
+                     <span class="s2">"# $4: standard deviation</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Write the data values</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)):</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">]))</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"  "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">]))</span><span class="o">+</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="auto_range">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.auto_range">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">auto_range</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">focus_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Automatically calculate plot range focusing on the maximum model evidence region</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -451,16 +451,16 @@
 <span class="sd">    -------</span>
 <span class="sd">    tuple</span>
 <span class="sd">        Tuple containing (beta_min, beta_max, y_min, y_max)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Filter out NaN and Inf values</span>
     <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">beta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: No valid data points for auto-focus&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: No valid data points for auto-focus"</span><span class="p">)</span>
         <span class="c1"># Fallback: use all finite values, if any; otherwise raise</span>
         <span class="n">finite_beta</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">beta</span><span class="p">)]</span>
         <span class="n">finite_log_pdb</span> <span class="o">=</span> <span class="n">log_pdb</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">finite_beta</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">finite_log_pdb</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;auto_range: no finite beta/log_pdb values available for range calculation&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"auto_range: no finite beta/log_pdb values available for range calculation"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">finite_beta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">finite_beta</span><span class="p">),</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">finite_log_pdb</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">finite_log_pdb</span><span class="p">))</span>
     <span class="n">valid_beta</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
@@ -516,7 +516,7 @@
         <span class="n">beta_min</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">beta_log_center</span> <span class="o">-</span> <span class="n">beta_log_half_range</span> <span class="o">*</span> <span class="n">expansion</span><span class="p">)</span>
         <span class="n">beta_max</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">beta_log_center</span> <span class="o">+</span> <span class="n">beta_log_half_range</span> <span class="o">*</span> <span class="n">expansion</span><span class="p">)</span>
         
-        <span class="c1"># Ensure we don&#39;t go beyond data bounds (valid_beta is ascending:</span>
+        <span class="c1"># Ensure we don't go beyond data bounds (valid_beta is ascending:</span>
         <span class="c1"># fx.txt is written in increasing-beta / Tstep order).</span>
         <span class="n">beta_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">beta_min</span><span class="p">,</span> <span class="n">valid_beta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">)</span>
         <span class="n">beta_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">beta_max</span><span class="p">,</span> <span class="n">valid_beta</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">)</span>
@@ -562,7 +562,7 @@
         <span class="n">y_min</span> <span class="o">=</span> <span class="n">log_pdb_max</span> <span class="o">-</span> <span class="mi">10</span>
         <span class="n">y_max</span> <span class="o">=</span> <span class="n">log_pdb_max</span> <span class="o">+</span> <span class="mi">2</span>
     
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto-focus: beta range [</span><span class="si">{</span><span class="n">beta_min</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">beta_max</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">], y range [</span><span class="si">{</span><span class="n">y_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Auto-focus: beta range [</span><span class="si">{</span><span class="n">beta_min</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">beta_max</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">], y range [</span><span class="si">{</span><span class="n">y_min</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">y_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">beta_min</span><span class="p">,</span> <span class="n">beta_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span></div>
 
@@ -570,7 +570,7 @@
 <div class="viewcode-block" id="plot_log_pdb">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.plot_log_pdb">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_log_pdb</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auto_focus</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">focus_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot the model evidence as a function of beta.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -592,45 +592,45 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Create a new figure and axes</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>  <span class="c1"># Use logarithmic scale for x-axis (beta)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>  <span class="c1"># Use logarithmic scale for x-axis (beta)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;beta&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;model evidence&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'beta'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'model evidence'</span><span class="p">)</span>
 
     <span class="c1"># Plot data points with or without error bars</span>
     <span class="k">if</span> <span class="n">std</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'data'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">std</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-                   <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">std</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                   <span class="n">linestyle</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'data'</span><span class="p">)</span>
 
     <span class="c1"># Highlight maximum point</span>
     <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_pdb</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No valid data points&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No valid data points"</span><span class="p">)</span>
     <span class="n">valid_log_pdb</span> <span class="o">=</span> <span class="n">log_pdb</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
     <span class="n">valid_beta</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
     <span class="n">max_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">valid_log_pdb</span><span class="p">)</span>
     <span class="n">beta_opt</span> <span class="o">=</span> <span class="n">valid_beta</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span>
     <span class="n">log_pdb_max</span> <span class="o">=</span> <span class="n">valid_log_pdb</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span>
     
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">beta_opt</span><span class="p">,</span> <span class="n">log_pdb_max</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> 
-              <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
-              <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Max at $</span><span class="se">\\</span><span class="s1">beta=</span><span class="si">{</span><span class="n">beta_opt</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">beta_opt</span><span class="p">,</span> <span class="n">log_pdb_max</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> 
+              <span class="n">facecolors</span><span class="o">=</span><span class="s1">'none'</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
+              <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Max at $</span><span class="se">\\</span><span class="s1">beta=</span><span class="si">{</span><span class="n">beta_opt</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">$'</span><span class="p">)</span>
     
     <span class="c1"># Set axis properties</span>
     <span class="k">if</span> <span class="n">auto_focus</span><span class="p">:</span>
         <span class="n">beta_min</span><span class="p">,</span> <span class="n">beta_max</span><span class="p">,</span> <span class="n">y_min_auto</span><span class="p">,</span> <span class="n">y_max_auto</span> <span class="o">=</span> <span class="n">auto_range</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">log_pdb</span><span class="p">,</span> <span class="n">focus_factor</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">beta_min</span><span class="p">,</span> <span class="n">beta_max</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">y_min_auto</span><span class="p">,</span> <span class="n">y_max_auto</span><span class="p">])</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">beta$ (inverse temperature)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">log P(D|</span><span class="se">\\</span><span class="s1">beta)$ (model evidence)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model Evidence vs Beta (Max: </span><span class="si">{</span><span class="n">log_pdb_max</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> at $</span><span class="se">\\</span><span class="s1">beta=</span><span class="si">{</span><span class="n">beta_opt</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'$</span><span class="se">\\</span><span class="s1">beta$ (inverse temperature)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'$</span><span class="se">\\</span><span class="s1">log P(D|</span><span class="se">\\</span><span class="s1">beta)$ (model evidence)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'best'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Model Evidence vs Beta (Max: </span><span class="si">{</span><span class="n">log_pdb_max</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> at $</span><span class="se">\\</span><span class="s1">beta=</span><span class="si">{</span><span class="n">beta_opt</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">$)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
     <span class="c1"># Save or display the plot</span>
     <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -646,54 +646,54 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../odatse.scripts.plt_model_evidence.html#odatse.scripts.plt_model_evidence.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to parse arguments and calculate model evidence.</span>
 <span class="sd">    </span>
 <span class="sd">    Processes command line arguments, loads data files, calculates model evidence,</span>
 <span class="sd">    and generates output files and plots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
     <span class="c1"># Set up command line argument parser</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Calculate model evidence values for input data.&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-V&quot;</span><span class="p">,</span> <span class="s2">&quot;--Volume&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Normalization factor of prior probability distribution.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--weight&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Relative weights of spots.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;model_evidence.png&quot;</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to output plot image.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--result&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;model_evidence.txt&quot;</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to output file.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--ndata&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of data points of spots.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;data_files&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
-                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to data files.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--auto-focus&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Auto-focus on maximum model evidence region&#39;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--focus-factor&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Auto-focus tightness (0-1, smaller is tighter, default: 0.5)&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Calculate model evidence values for input data.'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-V"</span><span class="p">,</span> <span class="s2">"--Volume"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Normalization factor of prior probability distribution."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-w"</span><span class="p">,</span> <span class="s2">"--weight"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Relative weights of spots."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-o"</span><span class="p">,</span> <span class="s2">"--output"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"model_evidence.png"</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to output plot image."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-f"</span><span class="p">,</span> <span class="s2">"--result"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"model_evidence.txt"</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to output file."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-n"</span><span class="p">,</span> <span class="s2">"--ndata"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Number of data points of spots."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"data_files"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to data files."</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--auto-focus'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s1">'Auto-focus on maximum model evidence region'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--focus-factor'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                       <span class="n">help</span><span class="o">=</span><span class="s1">'Auto-focus tightness (0-1, smaller is tighter, default: 0.5)'</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="n">V</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">Volume</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">weight</span><span class="p">:</span>
-        <span class="n">w_mu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="n">w_mu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Default to equal weights, one per data group.</span>
         <span class="n">w_mu</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
     <span class="c1"># Check for invalid arguments</span>
     <span class="k">if</span> <span class="n">V</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Error: normalization factor must be greater than 0.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">"Error: normalization factor must be greater than 0."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">focus_factor</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">focus_factor</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Error: focus factor must be between 0 and 1.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">"Error: focus factor must be between 0 and 1."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w_mu</span><span class="p">):</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: --ndata (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="si">}</span><span class="s2">) and --weight (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">w_mu</span><span class="p">)</span><span class="si">}</span><span class="s2">) &quot;</span>
-                 <span class="s2">&quot;must have the same number of values.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: --ndata (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="si">}</span><span class="s2">) and --weight (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">w_mu</span><span class="p">)</span><span class="si">}</span><span class="s2">) "</span>
+                 <span class="s2">"must have the same number of values."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">ni</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="n">n</span><span class="p">):</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Error: --ndata values must be positive.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">"Error: --ndata values must be positive."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">wi</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">wi</span> <span class="ow">in</span> <span class="n">w_mu</span><span class="p">):</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Error: --weight values must be positive.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">"Error: --weight values must be positive."</span><span class="p">)</span>
 
     <span class="c1"># Get input and output file paths</span>
     <span class="n">data_files</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">data_files</span>
@@ -725,7 +725,7 @@
 
         
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -319,7 +319,7 @@
 <div class="viewcode-block" id="DomainBase">
 <a class="viewcode-back" href="../../../odatse.domain._domain.html#odatse.domain._domain.DomainBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DomainBase</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for domain management in ODAT-SE.</span>
 
 <span class="sd">    Attributes</span>
@@ -328,24 +328,24 @@
 <span class="sd">        The root directory for the domain.</span>
 <span class="sd">    output_dir : Path</span>
 <span class="sd">        The output directory for the domain.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 <div class="viewcode-block" id="DomainBase.__init__">
 <a class="viewcode-back" href="../../../odatse.domain._domain.html#odatse.domain._domain.DomainBase.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initializes the DomainBase instance.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info : Info, optional</span>
 <span class="sd">            An instance of odatse.Info containing base directory information.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

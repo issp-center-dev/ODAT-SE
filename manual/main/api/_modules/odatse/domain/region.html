@@ -322,7 +322,7 @@
 <div class="viewcode-block" id="Region">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Region</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class to represent a region in the domain.</span>
 
 <span class="sd">    Attributes</span>
@@ -335,7 +335,7 @@
 <span class="sd">        Unit values for each dimension.</span>
 <span class="sd">    initial_list : np.array</span>
 <span class="sd">        Initial values for each dimension.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">min_list</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
     <span class="n">max_list</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
@@ -345,7 +345,7 @@
 <div class="viewcode-block" id="Region.__init__">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Region object.</span>
 
 <span class="sd">        Parameters</span>
@@ -354,14 +354,14 @@
 <span class="sd">            Information object containing algorithm parameters.</span>
 <span class="sd">        param : dict, optional</span>
 <span class="sd">            Dictionary containing algorithm parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;param&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;param&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">"param"</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"param"</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param not defined&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param not defined"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -371,40 +371,40 @@
 <div class="viewcode-block" id="Region._setup">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region._setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the region with the given parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param : dict</span>
 <span class="sd">            Dictionary containing the parameters for the region.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.min_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">min_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;min_list&quot;</span><span class="p">])</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.min_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">min_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"min_list"</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="s2">&quot;max_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.max_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">max_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;max_list&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"max_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.max_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">max_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"max_list"</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: lengths of min_list and max_list do not match&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: lengths of min_list and max_list do not match"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span>
 
-        <span class="n">unit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">))</span>
+        <span class="n">unit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"unit_list"</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_list</span> <span class="o">=</span> <span class="n">min_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_list</span> <span class="o">=</span> <span class="n">max_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unit_list</span> <span class="o">=</span> <span class="n">unit_list</span>
 
-        <span class="n">initial_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;initial_list&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">initial_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"initial_list"</span><span class="p">,</span> <span class="p">[]))</span>
         <span class="k">if</span> <span class="n">initial_list</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">initial_list</span> <span class="o">=</span> <span class="n">initial_list</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">initial_list</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">initial_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: dimension of initial_list is incorrect&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: dimension of initial_list is incorrect"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span> <span class="o">=</span> <span class="n">initial_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span> <span class="o">=</span> <span class="mi">0</span>
@@ -415,7 +415,7 @@
 <div class="viewcode-block" id="Region.initialize">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region.initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">num_walkers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the region with random values or predefined initial values.</span>
 
 <span class="sd">        Parameters</span>
@@ -426,7 +426,7 @@
 <span class="sd">            Limitation object to judge the validity of the values.</span>
 <span class="sd">        num_walkers : int, optional</span>
 <span class="sd">            Number of walkers to initialize.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">num_walkers</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span> <span class="o">=</span> <span class="n">num_walkers</span>
 
@@ -439,7 +439,7 @@
 <div class="viewcode-block" id="Region._init_random">
 <a class="viewcode-back" href="../../../odatse.domain.region.html#odatse.domain.region.Region._init_random">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="p">,</span> <span class="n">limitation</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">limitation</span><span class="o">.</span><span class="n">Unlimited</span><span class="p">(),</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the region with random values within the specified limits.</span>
 
 <span class="sd">        Parameters</span>
@@ -450,7 +450,7 @@
 <span class="sd">            Limitation object to judge the validity of the values.</span>
 <span class="sd">        max_count : int, optional</span>
 <span class="sd">            Maximum number of trials to generate valid values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">initial_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">is_ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_walkers</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
@@ -465,16 +465,16 @@
             <span class="n">initial_list</span><span class="p">[</span><span class="o">~</span><span class="n">is_ok</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_list</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_list</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_list</span><span class="p">)</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">is_ok</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)</span>
             <span class="n">is_ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">limitation</span><span class="o">.</span><span class="n">judge</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">initial_list</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">max_count</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ERROR: init_random: trial count exceeds </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_count</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"ERROR: init_random: trial count exceeds </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_count</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_list</span> <span class="o">=</span> <span class="n">initial_list</span></div>
 </div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">reg</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;min_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
-        <span class="s2">&quot;max_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
-        <span class="s2">&quot;initial_list&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+        <span class="s2">"min_list"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="s2">"max_list"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+        <span class="s2">"initial_list"</span><span class="p">:</span> <span class="p">[[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
                          <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
                          <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
                          <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>

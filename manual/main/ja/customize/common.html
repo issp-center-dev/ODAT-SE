@@ -516,8 +516,8 @@
 <li><p>絶対パスに変換されたものがあらためて <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> に設定されます</p></li>
 <li><p>先頭の <code class="docutils literal notranslate"><span class="pre">~</span></code> はホームディレクトリに展開されます</p></li>
 <li><p>具体的には次のコードが実行されます</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"root_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
@@ -530,9 +530,9 @@
 <li><p>相対パスが設定されていた場合、 <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> を起点とした相対パスとして解釈されます</p></li>
 <li><p>デフォルトは <code class="docutils literal notranslate"><span class="pre">&quot;.&quot;</span></code> 、つまり <code class="docutils literal notranslate"><span class="pre">root_dir</span></code> と同一ディレクトリです</p></li>
 <li><p>具体的には次のコードが実行されます</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"output_dir"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-<span class="n">base</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
+<span class="n">base</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span> <span class="o">/</span> <span class="n">p</span>
 </pre></div>
 </div>
 </li>
@@ -590,7 +590,7 @@ ODAT-SEの入力ファイルに指定する場合、パラメータの指定方�
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">argv</span></code> を省略した場合（ <code class="docutils literal notranslate"><span class="pre">None</span></code> ）は <code class="docutils literal notranslate"><span class="pre">sys.argv[1:]</span></code> が解釈されます。
 独自の引数処理を持つスクリプトに組み込む場合は、 <code class="docutils literal notranslate"><span class="pre">argv</span></code> に明示的にリストを渡すことで <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> に依存せずに初期化できます。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">([</span><span class="s2">&quot;input.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;--resume&quot;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">([</span><span class="s2">"input.toml"</span><span class="p">,</span> <span class="s2">"--resume"</span><span class="p">])</span>
 </pre></div>
 </div>
 </li>

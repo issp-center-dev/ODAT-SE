@@ -321,7 +321,7 @@
 <div class="viewcode-block" id="choose_solver">
 <a class="viewcode-back" href="../../odatse._main.html#odatse._main.choose_solver">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">choose_solver</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Select the solver class for the given info.</span>
 
 <span class="sd">    Parameters</span>
@@ -338,19 +338,19 @@
 <span class="sd">    ------</span>
 <span class="sd">    odatse.exception.InputError</span>
 <span class="sd">        If the solver name is not recognised.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">solvername</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">solvername</span> <span class="o">==</span> <span class="s2">&quot;analytical&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="n">solvername</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">solvername</span> <span class="o">==</span> <span class="s2">"analytical"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.solver.analytical</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solver</span>
         <span class="k">return</span> <span class="n">Solver</span>
-    <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">InputError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown solver (</span><span class="si">{</span><span class="n">solvername</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">InputError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown solver (</span><span class="si">{</span><span class="n">solvername</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../odatse._main.html#odatse._main.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run an analysis specified by command-line style arguments.</span>
 
 <span class="sd">    Parses the arguments, loads the input file, selects the algorithm and</span>
@@ -366,11 +366,11 @@
 
 <span class="sd">    Note: do not use this function as a console-script entry point; use</span>
 <span class="sd">    ``cli()``, which converts the result to an exit status.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-        <span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">alg_module</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
 
         <span class="n">Solver</span> <span class="o">=</span> <span class="n">choose_solver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
         <span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
@@ -382,10 +382,10 @@
         <span class="c1"># rank-local errors (see exception.Error.rank_local) exist only on the</span>
         <span class="c1"># rank that failed, so gating on rank 0 would silence them entirely</span>
         <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">rank_local</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[rank </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[rank </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span><span class="si">}</span><span class="s2">] "</span> <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
@@ -393,14 +393,14 @@
 <div class="viewcode-block" id="cli">
 <a class="viewcode-back" href="../../odatse._main.html#odatse._main.cli">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cli</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Console-script entry point for the ``odatse`` command.</span>
 
 <span class="sd">    Runs :func:`main` and returns exit status 0 on success, discarding the</span>
 <span class="sd">    result object (``sys.exit()`` would interpret a non-integer return value</span>
 <span class="sd">    as a failure). Errors are reported inside :func:`main` and terminate the</span>
 <span class="sd">    process with exit status 1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">main</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">0</span></div>
 

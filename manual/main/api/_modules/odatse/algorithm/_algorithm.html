@@ -340,7 +340,7 @@
 <div class="viewcode-block" id="AlgorithmStatus">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmStatus">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlgorithmStatus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the status of the algorithm.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enumeration for the status of the algorithm."""</span>
     <span class="n">INIT</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">PREPARE</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">RUN</span> <span class="o">=</span> <span class="mi">3</span></div>
@@ -349,7 +349,7 @@
 <div class="viewcode-block" id="AlgorithmBase">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlgorithmBase</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for algorithms, providing common functionality and structure.</span>
+<span class="w">    </span><span class="sd">"""Base class for algorithms, providing common functionality and structure.</span>
 
 <span class="sd">    Lifecycle</span>
 <span class="sd">    ---------</span>
@@ -373,7 +373,7 @@
 <span class="sd">    and override ``_apply_state()`` to call ``super()`` and restore RNG /</span>
 <span class="sd">    algorithm-specific state.  Override ``_save_state()`` / ``_load_state()``</span>
 <span class="sd">    only when extra files (e.g. an external policy object) must be written.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span>
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span>
@@ -395,7 +395,7 @@
     <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a checkpoint snapshot of the full algorithm state.</span>
+<span class="w">        </span><span class="sd">"""Return a checkpoint snapshot of the full algorithm state.</span>
 
 <span class="sd">        Saves the MPI configuration, RNG state, timer, and ``info``, then</span>
 <span class="sd">        appends every field declared in ``_checkpoint_attrs`` by this class</span>
@@ -403,23 +403,23 @@
 <span class="sd">        need only declare their own ``_checkpoint_attrs``; no override is</span>
 <span class="sd">        needed unless extra non-attribute data must be saved (e.g. a global</span>
 <span class="sd">        RNG or an external policy object).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;algsize&quot;</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">(),</span>
-            <span class="s2">&quot;algrank&quot;</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span>
-            <span class="s2">&quot;rng&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">get_state</span><span class="p">(),</span>
-            <span class="s2">&quot;timer&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
-            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+            <span class="s2">"algsize"</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">(),</span>
+            <span class="s2">"algrank"</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span>
+            <span class="s2">"rng"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">get_state</span><span class="p">(),</span>
+            <span class="s2">"timer"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
+            <span class="s2">"info"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_checkpoint_attrs&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_checkpoint_attrs"</span><span class="p">,</span> <span class="p">[]):</span>
                 <span class="n">state</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">state</span>
 
 <div class="viewcode-block" id="AlgorithmBase._apply_state">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._apply_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore the base algorithm state from a checkpoint snapshot.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore the base algorithm state from a checkpoint snapshot.</span>
 
 <span class="sd">        Validates the MPI configuration, restores the timer, checks that</span>
 <span class="sd">        algorithm parameters are consistent, and restores the RNG state.</span>
@@ -435,15 +435,15 @@
 <span class="sd">        data : dict</span>
 <span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            ``&quot;resume&quot;`` or ``&quot;continue&quot;``.  Passed through to subclass</span>
+<span class="sd">            ``"resume"`` or ``"continue"``.  Passed through to subclass</span>
 <span class="sd">            overrides so they can implement continue-mode semantics.</span>
 <span class="sd">        restore_rng : bool</span>
 <span class="sd">            When *True* (default) the RNG state is restored from *data*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;algsize&quot;</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;algrank&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">])</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">"algsize"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">"algrank"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"timer"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"info"</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">restore_rng</span><span class="p">:</span>
             <span class="c1"># Restore in place rather than rebinding self.rng: collaborators</span>
             <span class="c1"># constructed in __init__ hold a reference to this object (e.g.</span>
@@ -452,7 +452,7 @@
             <span class="c1"># dispatch in prepare(). Rebinding would leave those collaborators</span>
             <span class="c1"># on the stale un-restored RNG, silently splitting the random</span>
             <span class="c1"># stream after a resume.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rng&quot;</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"rng"</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.__init__">
@@ -462,9 +462,9 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
             <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+            <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the algorithm with the given information and runner.</span>
 
 <span class="sd">        Parameters</span>
@@ -475,40 +475,40 @@
 <span class="sd">            Optional runner object to execute the algorithm.</span>
 <span class="sd">        run_mode : str</span>
 <span class="sd">            Mode in which the algorithm should run.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Start of the &quot;init&quot; phase: prefer the timestamp recorded by</span>
+<span class="sd">        """</span>
+        <span class="c1"># Start of the "init" phase: prefer the timestamp recorded by</span>
         <span class="c1"># odatse.initialize() so that argument parsing, input loading and</span>
         <span class="c1"># solver construction are included; fall back to the construction</span>
         <span class="c1"># time of this object when the caller did not use initialize().</span>
         <span class="c1"># The phase is closed at the beginning of _main_algorithm().</span>
-        <span class="n">start_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;_start_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"_start_time"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_time_sta</span> <span class="o">=</span> <span class="n">start_time</span> <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;init&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;prepare&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{}}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"init"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"prepare"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"run"</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">"post"</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"init"</span><span class="p">][</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">INIT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">run_mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="c1"># keep copy of parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dimension&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dimension&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dimension"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dimension"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: dimension is not defined&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: dimension is not defined"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;label_list&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;label_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"label_list"</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"label_list"</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: length of label_list and dimension do not match (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: length of label_list and dimension do not match (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">=</span> <span class="n">label</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"x</span><span class="si">{</span><span class="n">d</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)]</span>
 
         <span class="c1"># initialize random number generator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__init_rng</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="c1"># directories</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;root_dir&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"root_dir"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="p">[</span><span class="s2">"output_dir"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">())</span>
         <span class="c1"># create directory for each rank in case every rank has some output</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -521,8 +521,8 @@
             <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
 
         <span class="c1"># checkpointing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">_chk_file</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checkpoint_file&quot;</span><span class="p">,</span> <span class="s2">&quot;status.pickle&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"checkpoint"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">_chk_file</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"checkpoint_file"</span><span class="p">,</span> <span class="s2">"status.pickle"</span><span class="p">)</span>
         <span class="c1"># Resolve to an absolute path so _load_state() / _save_state() work</span>
         <span class="c1"># correctly regardless of the working directory at call time.</span>
         <span class="c1"># _prepare() runs from the original directory, not proc_dir, so a</span>
@@ -531,8 +531,8 @@
             <span class="n">Path</span><span class="p">(</span><span class="n">_chk_file</span><span class="p">)</span> <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">_chk_file</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="n">_chk_file</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checkpoint_steps&quot;</span><span class="p">,</span> <span class="mi">65536</span><span class="o">*</span><span class="mi">256</span><span class="p">)</span>  <span class="c1"># large number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checkpoint_interval&quot;</span><span class="p">,</span> <span class="mi">86400</span><span class="o">*</span><span class="mi">360</span><span class="p">)</span>  <span class="c1"># longer enough</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"checkpoint_steps"</span><span class="p">,</span> <span class="mi">65536</span><span class="o">*</span><span class="mi">256</span><span class="p">)</span>  <span class="c1"># large number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"checkpoint_interval"</span><span class="p">,</span> <span class="mi">86400</span><span class="o">*</span><span class="mi">360</span><span class="p">)</span>  <span class="c1"># longer enough</span>
 
         <span class="c1"># runner</span>
         <span class="k">if</span> <span class="n">runner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -540,16 +540,16 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__init_rng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the random number generator.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info : Info</span>
 <span class="sd">            Information object containing algorithm parameters.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">seed_delta</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seed_delta&quot;</span><span class="p">,</span> <span class="mi">314159</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">seed_delta</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seed_delta"</span><span class="p">,</span> <span class="mi">314159</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
@@ -564,14 +564,14 @@
 <div class="viewcode-block" id="AlgorithmBase.set_runner">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.set_runner">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set the runner for the algorithm.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        runner : Runner</span>
 <span class="sd">            Runner object to execute the algorithm.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="o">=</span> <span class="n">runner</span></div>
 
 
@@ -581,12 +581,12 @@
 
 <div class="viewcode-block" id="AlgorithmBase._reach_consensus">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._reach_consensus">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_reach_consensus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="n">ok</span><span class="p">:</span> <span class="s2">&quot;np.ndarray&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collectively agree on whether *every* algorithm rank succeeded.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reach_consensus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="n">ok</span><span class="p">:</span> <span class="s2">"np.ndarray"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Collectively agree on whether *every* algorithm rank succeeded.</span>
 
 <span class="sd">        Every algorithm rank must call this exactly once per phase, regardless</span>
 <span class="sd">        of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when</span>
-<span class="sd">        this rank&#39;s phase succeeded and ``[0]`` otherwise; ``error`` is the</span>
+<span class="sd">        this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the</span>
 <span class="sd">        exception this rank caught (or ``None``).</span>
 
 <span class="sd">        A single ``Allreduce`` shares the success flags, then:</span>
@@ -600,7 +600,7 @@
 <span class="sd">        -- a per-rank failure can no longer leave the other ranks blocked.</span>
 <span class="sd">        (Collectives *inside* the ``_prepare``/``_run``/``_post`` hooks remain</span>
 <span class="sd">        the responsibility of each algorithm to keep balanced across ranks.)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">Allreduce</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
@@ -610,7 +610,7 @@
 
         <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">exception</span><span class="o">.</span><span class="n">Error</span><span class="p">):</span>
-                <span class="c1"># this rank&#39;s own failure: have the CLI boundary report it</span>
+                <span class="c1"># this rank's own failure: have the CLI boundary report it</span>
                 <span class="c1"># from this rank (rank 0 may have no error to print)</span>
                 <span class="n">error</span><span class="o">.</span><span class="n">rank_local</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">raise</span> <span class="n">error</span>
@@ -621,21 +621,21 @@
 <div class="viewcode-block" id="AlgorithmBase.prepare">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Framework wrapper for the prepare phase.</span>
+<span class="w">        </span><span class="sd">"""Framework wrapper for the prepare phase.</span>
 
 <span class="sd">        Calls ``runner.prepare()``, dispatches init/resume/continue, then</span>
 <span class="sd">        calls the ``_prepare()`` hook.</span>
 
 <span class="sd">        Do **not** override this method in subclasses.  Implement</span>
 <span class="sd">        ``_prepare()`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Runner is not assigned&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Runner is not assigned"</span><span class="p">)</span>
 
-        <span class="n">restore_rng</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-resetrand&quot;</span><span class="p">)</span>
+        <span class="n">restore_rng</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"-resetrand"</span><span class="p">)</span>
 
         <span class="c1"># Everything that can fail per-rank (runner setup, checkpoint dispatch,</span>
         <span class="c1"># the _prepare() hook) is inside the try so that a failure on any rank</span>
@@ -649,14 +649,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span><span class="p">)</span>
 
             <span class="c1"># checkpoint dispatch</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;resume&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;continue&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"resume"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"continue"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"continue"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown mode </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown mode </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># algorithm-specific preparation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">()</span>
@@ -673,7 +673,7 @@
 <div class="viewcode-block" id="AlgorithmBase.run">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Framework wrapper for the run phase.</span>
+<span class="w">        </span><span class="sd">"""Framework wrapper for the run phase.</span>
 
 <span class="sd">        Calls the ``_run()`` hook.  Runner calls are handled by</span>
 <span class="sd">        ``prepare()`` and ``post()``; this wrapper contains no runner</span>
@@ -681,15 +681,15 @@
 
 <span class="sd">        Do **not** override this method in subclasses.  Implement</span>
 <span class="sd">        ``_run()`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Runner is not assigned&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Runner is not assigned"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">PREPARE</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;algorithm has not prepared yet&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"algorithm has not prepared yet"</span><span class="p">)</span>
 
         <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
@@ -712,18 +712,18 @@
 <div class="viewcode-block" id="AlgorithmBase.post">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Framework wrapper for the post phase.</span>
+<span class="w">        </span><span class="sd">"""Framework wrapper for the post phase.</span>
 
 <span class="sd">        Calls the ``_post()`` hook then ``runner.post()``.</span>
 
 <span class="sd">        Do **not** override this method in subclasses.  Implement</span>
 <span class="sd">        ``_post()`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">return</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="n">AlgorithmStatus</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;algorithm has not run yet&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"algorithm has not run yet"</span><span class="p">)</span>
 
         <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
@@ -754,11 +754,11 @@
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._initialize">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up initial algorithm state for a fresh run (init mode).</span>
+<span class="w">        </span><span class="sd">"""Set up initial algorithm state for a fresh run (init mode).</span>
 
-<span class="sd">        Called by ``prepare()`` when ``mode`` starts with ``&quot;init&quot;``.</span>
+<span class="sd">        Called by ``prepare()`` when ``mode`` starts with ``"init"``.</span>
 <span class="sd">        Must not use the runner (evaluation happens later in ``_run()``).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -766,11 +766,11 @@
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._prepare">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm-specific preparation, called after dispatch.</span>
+<span class="w">        </span><span class="sd">"""Algorithm-specific preparation, called after dispatch.</span>
 
 <span class="sd">        Override in subclasses to perform setup that must happen after the</span>
 <span class="sd">        checkpoint state is established (e.g. initialising timer entries).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -778,12 +778,12 @@
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._run">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the main algorithm loop.</span>
+<span class="w">        </span><span class="sd">"""Execute the main algorithm loop.</span>
 
 <span class="sd">        For ``init`` mode, perform the initial evaluation here before</span>
 <span class="sd">        entering the main loop.  Call ``_save_state()`` at the appropriate</span>
 <span class="sd">        points inside the loop.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -791,7 +791,7 @@
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._post">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform post-processing and return results.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform post-processing and return results."""</span>
         <span class="k">pass</span></div>
 
 
@@ -802,7 +802,7 @@
 <div class="viewcode-block" id="AlgorithmBase._save_state">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._save_state">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save a checkpoint snapshot to *filename*.</span>
+<span class="w">        </span><span class="sd">"""Save a checkpoint snapshot to *filename*.</span>
 
 <span class="sd">        Uses ``__getstate__()`` to collect all fields declared in</span>
 <span class="sd">        ``_checkpoint_attrs`` across the MRO, then delegates to</span>
@@ -811,14 +811,14 @@
 <span class="sd">        Override in subclasses **only** when extra files must be written</span>
 <span class="sd">        alongside the pickle (e.g. an external policy object).  In that</span>
 <span class="sd">        case call ``super()._save_state(filename)`` first.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase._load_state">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._load_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a checkpoint snapshot from *filename* and apply it.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Load a checkpoint snapshot from *filename* and apply it.</span>
 
 <span class="sd">        Delegates to ``_load_data()`` then ``_apply_state()``.</span>
 
@@ -832,10 +832,10 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            Path to the checkpoint file.</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            ``&quot;resume&quot;`` or ``&quot;continue&quot;``, forwarded to ``_apply_state()``.</span>
+<span class="sd">            ``"resume"`` or ``"continue"``, forwarded to ``_apply_state()``.</span>
 <span class="sd">        restore_rng : bool</span>
 <span class="sd">            Whether to restore the RNG state.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span></div>
 
@@ -845,33 +845,33 @@
     <span class="c1"># ------------------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_main_algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Close the &quot;init&quot; phase opened in __init__. On resume/continue this</span>
+        <span class="c1"># Close the "init" phase opened in __init__. On resume/continue this</span>
         <span class="c1"># value is later overwritten by the timer restored from the checkpoint</span>
-        <span class="c1"># (in _apply_state), preserving the original run&#39;s value.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;init&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_time_sta</span>
+        <span class="c1"># (in _apply_state), preserving the original run's value.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"init"</span><span class="p">][</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_time_sta</span>
 
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;prepare&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"prepare"</span><span class="p">][</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
 
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;end of run&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"end of run"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
 
         <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">()</span>
         <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"post"</span><span class="p">][</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="s2">&quot;time.log&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="s2">"time.log"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span>
 
@@ -883,9 +883,9 @@
 <div class="viewcode-block" id="AlgorithmBase.main">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.main">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Main method to execute the algorithm.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_algorithm</span><span class="p">()</span>
@@ -915,42 +915,42 @@
                     <span class="n">args</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solcomm</span><span class="p">()</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown signal: </span><span class="si">{</span><span class="n">signal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown signal: </span><span class="si">{</span><span class="n">signal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase.write_timer">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase.write_timer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write the timing information to a file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : Path</span>
 <span class="sd">            Path to the file where timing information will be written.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fw</span><span class="p">:</span>
-            <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#in units of seconds</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fw</span><span class="p">:</span>
+            <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#in units of seconds</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">output_file</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span>
-                <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">{}</span><span class="se">\n</span><span class="s2"> total = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]))</span>
+                <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#</span><span class="si">{}</span><span class="se">\n</span><span class="s2"> total = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]))</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;total&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"total"</span><span class="p">:</span>
                         <span class="k">continue</span>
-                    <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; - </span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+                    <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" - </span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
 
-            <span class="n">output_file</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">)</span>
-            <span class="n">output_file</span><span class="p">(</span><span class="s2">&quot;prepare&quot;</span><span class="p">)</span>
-            <span class="n">output_file</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">)</span>
-            <span class="n">output_file</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">)</span></div>
+            <span class="n">output_file</span><span class="p">(</span><span class="s2">"init"</span><span class="p">)</span>
+            <span class="n">output_file</span><span class="p">(</span><span class="s2">"prepare"</span><span class="p">)</span>
+            <span class="n">output_file</span><span class="p">(</span><span class="s2">"run"</span><span class="p">)</span>
+            <span class="n">output_file</span><span class="p">(</span><span class="s2">"post"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase._save_data">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._save_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">,</span> <span class="n">ngen</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">"state.pickle"</span><span class="p">,</span> <span class="n">ngen</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save data to a file with versioning.</span>
 
 <span class="sd">        Parameters</span>
@@ -961,10 +961,10 @@
 <span class="sd">            Name of the file to save the data.</span>
 <span class="sd">        ngen : int, default: 3</span>
 <span class="sd">            Number of generations for versioning.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.tmp&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">".tmp"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
                 <span class="c1"># Make sure the new checkpoint is durable on disk before it</span>
                 <span class="c1"># replaces the current one below.</span>
@@ -972,15 +972,15 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">CheckpointError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;failed to save checkpoint to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"failed to save checkpoint to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="c1"># Rotate the older backup generations: .(ngen-1) -&gt; .ngen, ..., .1 -&gt; .2</span>
         <span class="c1"># (os.replace is an atomic O(1) rename on every platform; shutil.move</span>
         <span class="c1"># would fall back to copy+delete on Windows when the target exists)</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ngen</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">fn_from</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
-            <span class="n">fn_to</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">fn_from</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+            <span class="n">fn_to</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">fn_from</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">fn_from</span><span class="p">,</span> <span class="n">fn_to</span><span class="p">)</span>
         <span class="c1"># Move the current checkpoint aside to .1 with an atomic rename (O(1),</span>
@@ -988,15 +988,15 @@
         <span class="c1"># one. There is a tiny window between the two renames in which</span>
         <span class="c1"># `filename` is absent; `_load_data` covers it by falling back to .1.</span>
         <span class="k">if</span> <span class="n">ngen</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.tmp&quot;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;save_state: write to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
+            <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">".tmp"</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"save_state: write to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase._load_data">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._load_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;state.pickle&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">"state.pickle"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Load data from a file.</span>
 
 <span class="sd">        Parameters</span>
@@ -1008,27 +1008,27 @@
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
 <span class="sd">            Dictionary containing the loaded data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Prefer the current checkpoint, but fall back to the previous</span>
         <span class="c1"># generation (.1) if it is missing -- e.g. a crash in an older version</span>
         <span class="c1"># during the save window, or external corruption of `filename`.</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">fn</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: </span><span class="si">{}</span><span class="s2"> not found, falling back to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fn</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"WARNING: </span><span class="si">{}</span><span class="s2"> not found, falling back to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">CheckpointError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;failed to read checkpoint from </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"failed to read checkpoint from </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;load_state: load from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"load_state: load from </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">CheckpointError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;checkpoint file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist&quot;</span>
+                <span class="sa">f</span><span class="s2">"checkpoint file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
@@ -1036,26 +1036,26 @@
 <div class="viewcode-block" id="AlgorithmBase._show_parameters">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._show_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_show_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Show the parameters of the algorithm.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:16s}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span></div>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:16s}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="AlgorithmBase._check_parameters">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase._check_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check the parameters of the algorithm against previous parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        param (optional)</span>
 <span class="sd">            Previous parameters to check against.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
         <span class="n">info_prev</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 
@@ -1063,33 +1063,33 @@
             <span class="n">w</span> <span class="o">=</span> <span class="n">info_prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">w</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: parameter </span><span class="si">{}</span><span class="s2"> changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"WARNING: parameter </span><span class="si">{}</span><span class="s2"> changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:16s}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span></div>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:16s}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span></div>
 </div>
 
 
 <span class="c1"># utility</span>
 <div class="viewcode-block" id="flatten_dict">
 <a class="viewcode-back" href="../../../odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.flatten_dict">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">flatten_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">"."</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Flatten a nested dictionary.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    d</span>
 <span class="sd">        Dictionary to flatten.</span>
-<span class="sd">    parent_key : str, default : &quot;&quot;</span>
+<span class="sd">    parent_key : str, default : ""</span>
 <span class="sd">        Key for the parent dictionary.</span>
-<span class="sd">    separator : str, default : &quot;.&quot;</span>
+<span class="sd">    separator : str, default : "."</span>
 <span class="sd">        Separator to use between keys.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Flattened dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">key_</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

@@ -314,7 +314,7 @@
 <div class="viewcode-block" id="Error">
 <a class="viewcode-back" href="../../odatse.exception.html#odatse.exception.Error">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class of exceptions in odatse</span>
+<span class="w">    </span><span class="sd">"""Base class of exceptions in odatse</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -324,7 +324,7 @@
 <span class="sd">        protocol), as opposed to an error raised identically on every rank</span>
 <span class="sd">        (e.g. a config error). The CLI boundary prints rank-local errors from</span>
 <span class="sd">        the owning rank; all other errors are printed on rank 0 only.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">rank_local</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -333,14 +333,14 @@
 <div class="viewcode-block" id="InputError">
 <a class="viewcode-back" href="../../odatse.exception.html#odatse.exception.InputError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InputError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Exception raised for errors in inputs</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    message : str</span>
 <span class="sd">        explanation</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -351,14 +351,14 @@
 <div class="viewcode-block" id="CheckpointError">
 <a class="viewcode-back" href="../../odatse.exception.html#odatse.exception.CheckpointError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CheckpointError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Exception raised for checkpoint save/restore failures</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    message : str</span>
 <span class="sd">        explanation</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>

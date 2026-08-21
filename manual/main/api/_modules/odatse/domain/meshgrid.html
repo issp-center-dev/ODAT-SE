@@ -322,9 +322,9 @@
 <div class="viewcode-block" id="MeshGrid">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MeshGrid</span><span class="p">(</span><span class="n">DomainBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    MeshGrid class for handling grid data for the data analysis framework.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># whole grid and local chunk: list of vectors.</span>
     <span class="c1"># These are initialised per-instance in __init__; declared here only as</span>
@@ -340,7 +340,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">param</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the MeshGrid object.</span>
 
 <span class="sd">        Parameters</span>
@@ -349,7 +349,7 @@
 <span class="sd">            Information object containing algorithm parameters.</span>
 <span class="sd">        param : dict, optional</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
 
         <span class="c1"># per-instance defaults so distinct MeshGrid objects never share a list</span>
@@ -357,10 +357,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_local</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;param&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;param&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">"param"</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"param"</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param not defined&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param not defined"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -370,9 +370,9 @@
 <div class="viewcode-block" id="MeshGrid.do_split">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.do_split">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">do_split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Split the grid data among MPI processes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">())[</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()]</span>
@@ -386,15 +386,15 @@
 <div class="viewcode-block" id="MeshGrid._setup">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid based on provided parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"mesh_path"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_from_file</span><span class="p">(</span><span class="n">info_param</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_grid</span><span class="p">(</span><span class="n">info_param</span><span class="p">)</span></div>
@@ -403,24 +403,24 @@
 <div class="viewcode-block" id="MeshGrid._setup_from_file">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup_from_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid from a file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: mesh_path not defined&quot;</span><span class="p">)</span>
-        <span class="n">mesh_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;mesh_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"mesh_path"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: mesh_path not defined"</span><span class="p">)</span>
+        <span class="n">mesh_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"mesh_path"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;mesh_path not found: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">"mesh_path not found: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">))</span>
 
-        <span class="n">comments</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
-        <span class="n">delimiter</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">skiprows</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;skiprows&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"comments"</span><span class="p">,</span> <span class="s2">"#"</span><span class="p">)</span>
+        <span class="n">delimiter</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"delimiter"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">skiprows</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skiprows"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># load mesh file and distribute</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
@@ -443,28 +443,28 @@
 <div class="viewcode-block" id="MeshGrid._setup_grid">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid._setup_grid">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid based on min, max, and num lists.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.min_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">min_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;min_list&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.min_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">min_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"min_list"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;max_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.max_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">max_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;max_list&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"max_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.max_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">max_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"max_list"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;num_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.num_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">num_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;num_list&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"num_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.num_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">num_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"num_list"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: lengths of min_list, max_list, num_list do not match&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: lengths of min_list, max_list, num_list do not match"</span><span class="p">)</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">mn</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">nm</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">,</span> <span class="n">num_list</span><span class="p">)</span>
@@ -472,7 +472,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">xs</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">xs</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">'xy'</span><span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">]</span>
@@ -481,8 +481,8 @@
 
 <div class="viewcode-block" id="MeshGrid.store_file">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.store_file">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">store_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Store the grid data to a file.</span>
 
 <span class="sd">        Parameters</span>
@@ -491,7 +491,7 @@
 <span class="sd">            Path to the file where the grid data will be stored.</span>
 <span class="sd">        header</span>
 <span class="sd">            Header to be included in the file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1">#if odatse.mpi.algrank() is not None and odatse.mpi.algrank() == 0:</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -502,7 +502,7 @@
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.from_file">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mesh_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a MeshGrid object from a file.</span>
 
 <span class="sd">        Parameters</span>
@@ -514,15 +514,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        MeshGrid</span>
 <span class="sd">            a MeshGrid object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mesh_path&quot;</span><span class="p">:</span> <span class="n">mesh_path</span><span class="p">})</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span><span class="s2">"mesh_path"</span><span class="p">:</span> <span class="n">mesh_path</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="MeshGrid.from_dict">
 <a class="viewcode-back" href="../../../odatse.domain.meshgrid.html#odatse.domain.meshgrid.MeshGrid.from_dict">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a MeshGrid object from a dictionary of parameters.</span>
 
 <span class="sd">        Parameters</span>
@@ -534,28 +534,28 @@
 <span class="sd">        -------</span>
 <span class="sd">        MeshGrid</span>
 <span class="sd">            a MeshGrid object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">ms</span> <span class="o">=</span> <span class="n">MeshGrid</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
-        <span class="s1">&#39;min_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s1">&#39;max_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s1">&#39;num_list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span>
+        <span class="s1">'min_list'</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s1">'max_list'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s1">'num_list'</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span>
     <span class="p">})</span>
-    <span class="n">ms</span><span class="o">.</span><span class="n">store_file</span><span class="p">(</span><span class="s2">&quot;meshfile.dat&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;sample mesh data&quot;</span><span class="p">)</span>
+    <span class="n">ms</span><span class="o">.</span><span class="n">store_file</span><span class="p">(</span><span class="s2">"meshfile.dat"</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">"sample mesh data"</span><span class="p">)</span>
 
-    <span class="n">ms2</span> <span class="o">=</span> <span class="n">MeshGrid</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;meshfile.dat&quot;</span><span class="p">)</span>
+    <span class="n">ms2</span> <span class="o">=</span> <span class="n">MeshGrid</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">"meshfile.dat"</span><span class="p">)</span>
     <span class="c1">#ms2.do_split()</span>
 
     <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">ms2</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">(),</span> <span class="n">ms2</span><span class="o">.</span><span class="n">grid_local</span><span class="p">)</span>
 
-    <span class="n">ms2</span><span class="o">.</span><span class="n">store_file</span><span class="p">(</span><span class="s2">&quot;meshfile2.dat&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;store again&quot;</span><span class="p">)</span>
+    <span class="n">ms2</span><span class="o">.</span><span class="n">store_file</span><span class="p">(</span><span class="s2">"meshfile2.dat"</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">"store again"</span><span class="p">)</span>
 </pre></div>
 
                 </article>

@@ -506,18 +506,18 @@
 <p>メインプログラム用の入力ファイル <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> を作成します。記述方法の詳細については「入力ファイル」の項を参照してください。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">base</span><span class="p">]</span>
 <span class="n">dimension</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">"output"</span>
 
 <span class="p">[</span><span class="n">solver</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
-<span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;himmelblau&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"analytical"</span>
+<span class="n">function_name</span> <span class="o">=</span> <span class="s2">"himmelblau"</span>
 
 <span class="p">[</span><span class="n">runner</span><span class="p">]</span>
 <span class="p">[</span><span class="n">runner</span><span class="o">.</span><span class="n">log</span><span class="p">]</span>
 <span class="n">interval</span> <span class="o">=</span> <span class="mi">20</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ttopt&quot;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">"ttopt"</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">12345</span>
 
 <span class="p">[</span><span class="n">algorithm</span><span class="o">.</span><span class="n">param</span><span class="p">]</span>
@@ -586,7 +586,7 @@
 <section id="id4">
 <h2>計算結果の可視化<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">output/ttopt_history.txt</span></code> の 2 列目・3 列目は、各記録時点での最良点の <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code> に対応します。サンプル付属の <code class="docutils literal notranslate"><span class="pre">plot.py</span></code> を使うと、Himmelblau 関数の等高線上にその軌跡を重ねて PDF に保存できます。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ./plot.py --xcol=1 --ycol=2 --format=&quot;-o&quot; --output=output/res.pdf output/ttopt_history.txt
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 ./plot.py --xcol=1 --ycol=2 --format="-o" --output=output/res.pdf output/ttopt_history.txt
 </pre></div>
 </div>
 <p>上記を実行すると <code class="docutils literal notranslate"><span class="pre">output/res.pdf</span></code> が作成され、等高線の上に TTOpt による最良点の更新の履歴がプロットされます。

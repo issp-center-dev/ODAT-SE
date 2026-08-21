@@ -331,14 +331,14 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">MapperMPIAlgorithm</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Algorithm class that evaluates the objective function at random points.</span>
 <span class="sd">    Inherits from odatse.algorithm.mapper_mpi_base.Algorithm.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">mesh_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
 
     <span class="c1"># --cont extends the run with additional points. Supported for the</span>
-    <span class="c1"># &quot;random&quot; mode and for the nested quasi-random sequences (sobol,</span>
+    <span class="c1"># "random" mode and for the nested quasi-random sequences (sobol,</span>
     <span class="c1"># halton); rejected for latin (see _check_continue).</span>
     <span class="n">_continuable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -347,9 +347,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
                  <span class="n">runner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+                 <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Algorithm instance.</span>
 
 <span class="sd">        Parameters</span>
@@ -359,20 +359,20 @@
 <span class="sd">        runner : Runner</span>
 <span class="sd">            Optional runner object for submitting tasks.</span>
 <span class="sd">        run_mode : str</span>
-<span class="sd">            Mode to run the algorithm, defaults to &quot;initial&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Mode to run the algorithm, defaults to "initial".</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
-        <span class="n">info_mode</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">info_mode</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">info_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s2">"random"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="n">info_mode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">info_mode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="s2">"random"</span><span class="p">)</span>
 
-        <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param"</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span> <span class="o">=</span> <span class="n">mode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span> <span class="o">=</span> <span class="n">info_mode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="s2">&quot;sobol&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;quasi-random&quot;</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span> <span class="o">=</span> <span class="n">info_mode</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sequence"</span><span class="p">,</span> <span class="s2">"sobol"</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"quasi-random"</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="c1"># scipy QMC engine used to generate the sequence (algorithm rank 0</span>
         <span class="c1"># only, None elsewhere). Kept on the instance and included in the</span>
         <span class="c1"># checkpoint so that --cont can draw further points of the same</span>
@@ -381,14 +381,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"random"</span><span class="p">:</span>
                 <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_random_iterator</span><span class="p">(</span><span class="n">info_param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;quasi-random&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"quasi-random"</span><span class="p">:</span>
                 <span class="n">seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span>
-                <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quasi_random_iterator</span><span class="p">(</span><span class="n">info_param</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.mode.mode = </span><span class="si">{}</span><span class="s2"> is not supported&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.mode.mode = </span><span class="si">{}</span><span class="s2"> is not supported"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span>
             <span class="c1"># delayed setup</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span> <span class="o">=</span> <span class="nb">iter</span>
         <span class="k">else</span><span class="p">:</span>
@@ -398,30 +398,30 @@
 <div class="viewcode-block" id="Algorithm._random_iterator">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm._random_iterator">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_random_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid based on min, max, and num lists.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.min_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;min_list&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.min_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"min_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;max_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.max_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;max_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"max_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.max_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"max_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;num_points&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.num_points is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">num_points</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;num_points&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"num_points"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.num_points is not defined in the input"</span><span class="p">)</span>
+        <span class="n">num_points</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"num_points"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: lengths of min_list and max_list do not match&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: lengths of min_list and max_list do not match"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: num_points must be positive&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: num_points must be positive"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_min_list</span> <span class="o">=</span> <span class="n">min_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_max_list</span> <span class="o">=</span> <span class="n">max_list</span>
@@ -433,7 +433,7 @@
 <div class="viewcode-block" id="Algorithm._quasi_random_iterator">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm._quasi_random_iterator">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_quasi_random_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup a quasi-random (low-discrepancy) point sequence.</span>
 
 <span class="sd">        Parameters</span>
@@ -441,32 +441,32 @@
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the points.</span>
 <span class="sd">        seq : str</span>
-<span class="sd">            Sequence type: &quot;sobol&quot;, &quot;halton&quot;, or &quot;latin&quot;.</span>
+<span class="sd">            Sequence type: "sobol", "halton", or "latin".</span>
 <span class="sd">        seed : int, optional</span>
 <span class="sd">            Seed for the scrambling of the sequence. The sequence is</span>
 <span class="sd">            generated on the algorithm-rank-0 process only, so a single</span>
 <span class="sd">            integer makes the whole point set reproducible independently</span>
 <span class="sd">            of the MPI configuration. If None, the scrambling differs</span>
 <span class="sd">            from run to run.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">qmc</span>
 
-        <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.min_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;min_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.min_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"min_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;max_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.max_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;max_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"max_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.max_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"max_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;num_points&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.num_points is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">num_points</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;num_points&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"num_points"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.num_points is not defined in the input"</span><span class="p">)</span>
+        <span class="n">num_points</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"num_points"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: lengths of min_list and max_list do not match&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: lengths of min_list and max_list do not match"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: num_points must be positive&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: num_points must be positive"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_min_list</span> <span class="o">=</span> <span class="n">min_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_max_list</span> <span class="o">=</span> <span class="n">max_list</span>
@@ -475,19 +475,19 @@
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">&quot;sobol&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">"sobol"</span><span class="p">:</span>
                 <span class="n">sampler</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">Sobol</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">&quot;halton&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">"halton"</span><span class="p">:</span>
                 <span class="n">sampler</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">Halton</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">&quot;latin&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">seq</span> <span class="o">==</span> <span class="s2">"latin"</span><span class="p">:</span>
                 <span class="n">sampler</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">LatinHypercube</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">strength</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">optimization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown sequence type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"unknown sequence type </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>
 
             <span class="c1"># generate samples on rank 0 all at once</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
-            <span class="c1">#print(&quot;discrepancy=&quot;, qmc.discrepancy(sample))</span>
+            <span class="c1">#print("discrepancy=", qmc.discrepancy(sample))</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">)</span>
 
             <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">sample</span><span class="p">)]</span>
@@ -499,86 +499,86 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a checkpoint snapshot including the sequence generator.</span>
+<span class="w">        </span><span class="sd">"""Return a checkpoint snapshot including the sequence generator.</span>
 
 <span class="sd">        Extends the mapper snapshot with the scipy QMC engine (algorithm</span>
 <span class="sd">        rank 0 only, None elsewhere). The engine state advances as points</span>
 <span class="sd">        are drawn, so a restored engine continues the sequence exactly</span>
 <span class="sd">        where the previous run left off, which makes --cont possible even</span>
 <span class="sd">        without an explicit seed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;sampler&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">"sampler"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span>
         <span class="k">return</span> <span class="n">state</span>
 
 <div class="viewcode-block" id="Algorithm._apply_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm._apply_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore algorithm state; in continue mode also extend the run.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore algorithm state; in continue mode also extend the run.</span>
 
-<span class="sd">        For ``mode=&quot;continue&quot;`` the point set is extended to the num_points</span>
+<span class="sd">        For ``mode="continue"`` the point set is extended to the num_points</span>
 <span class="sd">        of the new input: the previously evaluated points are kept (restored</span>
 <span class="sd">        from the checkpoint) and only the additional points are evaluated.</span>
-<span class="sd">        This is supported for the &quot;random&quot; mode and for the sobol/halton</span>
+<span class="sd">        This is supported for the "random" mode and for the sobol/halton</span>
 <span class="sd">        quasi-random sequences, whose point sets are nested (the first N</span>
 <span class="sd">        points of a longer sequence are exactly the N points of the shorter</span>
 <span class="sd">        one). It is rejected for latin, whose design is not nested.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"continue"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_continue</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampler&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sampler"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"continue"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_extend_points</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._check_continue">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm._check_continue">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_continue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the new input is a legal extension of the old run.&quot;&quot;&quot;</span>
-        <span class="n">prev</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span>
-        <span class="n">prev_mode_tbl</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">prev_mode</span> <span class="o">=</span> <span class="n">prev_mode_tbl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Validate that the new input is a legal extension of the old run."""</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"info"</span><span class="p">]</span>
+        <span class="n">prev_mode_tbl</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">prev_mode</span> <span class="o">=</span> <span class="n">prev_mode_tbl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="s2">"random"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prev_mode</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;cannot continue: algorithm.mode.mode changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">"cannot continue: algorithm.mode.mode changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">prev_mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span><span class="p">))</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span> <span class="o">==</span> <span class="s2">&quot;quasi-random&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span> <span class="o">==</span> <span class="s2">&quot;latin&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span> <span class="o">==</span> <span class="s2">"quasi-random"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span> <span class="o">==</span> <span class="s2">"latin"</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;continue mode is not supported for the latin sequence: &quot;</span>
-                    <span class="s2">&quot;a Latin hypercube design is not nested (the design for a &quot;</span>
-                    <span class="s2">&quot;larger number of points does not contain the design for &quot;</span>
-                    <span class="s2">&quot;a smaller one), so the previous evaluations cannot be &quot;</span>
-                    <span class="s2">&quot;reused. Start a new run instead.&quot;</span><span class="p">)</span>
-            <span class="n">prev_seq</span> <span class="o">=</span> <span class="n">prev_mode_tbl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="s2">&quot;sobol&quot;</span><span class="p">)</span>
+                    <span class="s2">"continue mode is not supported for the latin sequence: "</span>
+                    <span class="s2">"a Latin hypercube design is not nested (the design for a "</span>
+                    <span class="s2">"larger number of points does not contain the design for "</span>
+                    <span class="s2">"a smaller one), so the previous evaluations cannot be "</span>
+                    <span class="s2">"reused. Start a new run instead."</span><span class="p">)</span>
+            <span class="n">prev_seq</span> <span class="o">=</span> <span class="n">prev_mode_tbl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sequence"</span><span class="p">,</span> <span class="s2">"sobol"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">prev_seq</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;cannot continue: algorithm.mode.sequence changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">"cannot continue: algorithm.mode.sequence changed from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="n">prev_seq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence</span><span class="p">))</span>
-        <span class="n">prev_param</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_list&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_min_list</span><span class="p">)</span> \
-           <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_list&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_list</span><span class="p">):</span>
+        <span class="n">prev_param</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"min_list"</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_min_list</span><span class="p">)</span> \
+           <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_list"</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;cannot continue: algorithm.param.min_list/max_list changed &quot;</span>
-                <span class="s2">&quot;from the previous run&quot;</span><span class="p">)</span>
-        <span class="n">prev_n</span> <span class="o">=</span> <span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_points&quot;</span><span class="p">)</span>
+                <span class="s2">"cannot continue: algorithm.param.min_list/max_list changed "</span>
+                <span class="s2">"from the previous run"</span><span class="p">)</span>
+        <span class="n">prev_n</span> <span class="o">=</span> <span class="n">prev_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"num_points"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prev_n</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span> <span class="o">&lt;</span> <span class="n">prev_n</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;cannot continue: num_points (</span><span class="si">{}</span><span class="s2">) is smaller than in the &quot;</span>
-                <span class="s2">&quot;previous run (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span><span class="p">,</span> <span class="n">prev_n</span><span class="p">))</span></div>
+                <span class="s2">"cannot continue: num_points (</span><span class="si">{}</span><span class="s2">) is smaller than in the "</span>
+                <span class="s2">"previous run (</span><span class="si">{}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span><span class="p">,</span> <span class="n">prev_n</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._extend_points">
 <a class="viewcode-back" href="../../../odatse.algorithm.random_search.html#odatse.algorithm.random_search.Algorithm._extend_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_extend_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extend the iterator with the additional points (continue mode).&quot;&quot;&quot;</span>
-        <span class="n">prev_n</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">][</span><span class="s2">&quot;param&quot;</span><span class="p">][</span><span class="s2">&quot;num_points&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="sd">"""Extend the iterator with the additional points (continue mode)."""</span>
+        <span class="n">prev_n</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"info"</span><span class="p">][</span><span class="s2">"param"</span><span class="p">][</span><span class="s2">"num_points"</span><span class="p">]</span>
         <span class="n">add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span> <span class="o">-</span> <span class="n">prev_n</span>
         <span class="k">if</span> <span class="n">add</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_mode</span> <span class="o">==</span> <span class="s2">"random"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="o">.</span><span class="n">_extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_points</span><span class="p">)</span>
             <span class="k">return</span>
 
@@ -591,9 +591,9 @@
             <span class="n">ok</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;cannot continue: the checkpoint does not contain the state &quot;</span>
-                <span class="s2">&quot;of the sequence generator (it may have been created by an &quot;</span>
-                <span class="s2">&quot;older version of ODAT-SE)&quot;</span><span class="p">)</span>
+                <span class="s2">"cannot continue: the checkpoint does not contain the state "</span>
+                <span class="s2">"of the sequence generator (it may have been created by an "</span>
+                <span class="s2">"older version of ODAT-SE)"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">qmc</span>

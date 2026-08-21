@@ -332,7 +332,7 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class to represent the Bayesian optimization algorithm.</span>
 
 <span class="sd">    Attributes</span>
@@ -361,7 +361,7 @@
 <span class="sd">        The list of function values.</span>
 <span class="sd">    param_list : list[np.ndarray]</span>
 <span class="sd">        The list of parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Algorithm.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm.__init__">[docs]</a>
@@ -370,9 +370,9 @@
         <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Constructs all the necessary attributes for the Algorithm object.</span>
 
 <span class="sd">        Parameters</span>
@@ -384,35 +384,35 @@
 <span class="sd">        domain : optional</span>
 <span class="sd">            The domain object (default is None).</span>
 <span class="sd">        run_mode : str, optional</span>
-<span class="sd">            The run mode (default is &quot;initial&quot;).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            The run mode (default is "initial").</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
             <span class="k">return</span>
 
-        <span class="n">info_bayes</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bayes&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">info_bayes</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bayes"</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># CHECK: deprecated parameters</span>
-        <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;random_max_num_probes&quot;</span><span class="p">,</span> <span class="s2">&quot;bayes_max_num_probes&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;interval&quot;</span><span class="p">,</span> <span class="s2">&quot;num_rand_basis&quot;</span><span class="p">):</span>
+        <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"random_max_num_probes"</span><span class="p">,</span> <span class="s2">"bayes_max_num_probes"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">,</span> <span class="s2">"interval"</span><span class="p">,</span> <span class="s2">"num_rand_basis"</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">info_param</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_bayes</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: algorithm.param.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is deprecated. Use algorithm.bayes.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> .&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WARNING: algorithm.param.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is deprecated. Use algorithm.bayes.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> ."</span><span class="p">)</span>
                 <span class="n">info_bayes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_max_num_probes&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bayes_max_num_probes&quot;</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;TS&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_rand_basis</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_rand_basis&quot;</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_max_num_probes</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"random_max_num_probes"</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bayes_max_num_probes</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bayes_max_num_probes"</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"score"</span><span class="p">,</span> <span class="s2">"TS"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"interval"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_rand_basis</span> <span class="o">=</span> <span class="n">info_bayes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"num_rand_basis"</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;# parameter&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;random_max_num_probes = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">random_max_num_probes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bayes_max_num_probes = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bayes_max_num_probes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;score = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;interval = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;num_rand_basis = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_rand_basis</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"# parameter"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"random_max_num_probes = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">random_max_num_probes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bayes_max_num_probes = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bayes_max_num_probes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"score = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"interval = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"num_rand_basis = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_rand_basis</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">domain</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">odatse</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">MeshGrid</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
@@ -423,31 +423,31 @@
         <span class="n">X_normalized</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">centering</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_list</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span>
         <span class="n">comm</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">physbo</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">physbo</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s2">"3"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">policy</span><span class="p">(</span><span class="n">test_X</span><span class="o">=</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">physbo</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">Policy</span><span class="p">(</span><span class="n">test_X</span><span class="o">=</span><span class="n">X_normalized</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;seed&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
-            <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">&quot;seed&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"seed"</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"seed"</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_history</span> <span class="o">=</span> <span class="s2">&quot;history.npz&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_training</span> <span class="o">=</span> <span class="s2">&quot;training.npz&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_predictor</span> <span class="o">=</span> <span class="s2">&quot;predictor.dump&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_history</span> <span class="o">=</span> <span class="s2">"history.npz"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_training</span> <span class="o">=</span> <span class="s2">"training.npz"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_predictor</span> <span class="o">=</span> <span class="s2">"predictor.dump"</span></div>
 
 
 <div class="viewcode-block" id="Algorithm._initialize">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm._initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initializes the algorithm parameters and timers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;random_search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;bayes_search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"random_search"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"bayes_search"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_show_parameters</span><span class="p">()</span></div>
 
@@ -461,15 +461,15 @@
 <div class="viewcode-block" id="Algorithm._run">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm._run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Runs the Bayesian optimization process.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span>
         <span class="n">mesh_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_list</span>
 
         <span class="k">class</span><span class="w"> </span><span class="nc">simulator</span><span class="p">:</span>
             <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">                Simulates the function evaluation for a given action.</span>
 
 <span class="sd">                Parameters</span>
@@ -481,7 +481,7 @@
 <span class="sd">                -------</span>
 <span class="sd">                float</span>
 <span class="sd">                    The negative function value.</span>
-<span class="sd">                &quot;&quot;&quot;</span>
+<span class="sd">                """</span>
                 <span class="n">a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">mesh_list</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
@@ -494,13 +494,13 @@
         <span class="n">fx_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx_list</span>
         <span class="n">param_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">):</span>
             <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
             <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">random_search</span><span class="p">(</span>
                 <span class="n">max_num_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_max_num_probes</span><span class="p">,</span> <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">()</span>
             <span class="p">)</span>
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;random_search&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"random_search"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">)</span>
@@ -523,7 +523,7 @@
                 <span class="n">num_rand_basis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_rand_basis</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;bayes_search&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"bayes_search"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -549,54 +549,54 @@
 <div class="viewcode-block" id="Algorithm._post">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm._post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Finalizes the algorithm execution and writes the results to a file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">label_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_list</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;BayesData.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_BD</span><span class="p">:</span>
-                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#step&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"BayesData.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_BD</span><span class="p">:</span>
+                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"#step"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_list</span><span class="p">:</span>
-                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; fx&quot;</span><span class="p">)</span>
+                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" fx"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_list</span><span class="p">:</span>
-                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_action&quot;</span><span class="p">)</span>
-                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; fx_action</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_action"</span><span class="p">)</span>
+                <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">" fx_action</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">fx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx_list</span><span class="p">):</span>
                     <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
                     <span class="n">best_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_action</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
                     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_list</span><span class="p">[</span><span class="n">best_idx</span><span class="p">][</span><span class="mi">1</span><span class="p">:]:</span>
-                        <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">[</span><span class="n">step</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">[</span><span class="n">step</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
                     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_list</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">1</span><span class="p">:]:</span>
-                        <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">fx</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best Solution:&quot;</span><span class="p">)</span>
+                        <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="n">file_BD</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">fx</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Best Solution:"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span></div>
+                <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">"="</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xopt</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span></div>
 
 
     <span class="c1"># Bayes-specific fields (simple getattr/setattr).</span>
-    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">,</span> <span class="s2">&quot;param_list&quot;</span><span class="p">,</span> <span class="s2">&quot;fx_list&quot;</span><span class="p">]</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"istep"</span><span class="p">,</span> <span class="s2">"param_list"</span><span class="p">,</span> <span class="s2">"fx_list"</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a checkpoint snapshot, extending the base with the global RNG.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a checkpoint snapshot, extending the base with the global RNG."""</span>
         <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
-        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;random_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">"random_number"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">state</span>
 
 <div class="viewcode-block" id="Algorithm._save_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm._save_state">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the current state of the algorithm to a file.</span>
+<span class="w">        </span><span class="sd">"""Save the current state of the algorithm to a file.</span>
 
 <span class="sd">        Extends the base implementation with physbo policy files.</span>
 <span class="sd">        The pickle snapshot (including the global numpy RNG captured in</span>
 <span class="sd">        ``__getstate__``) is written by ``super()._save_state()``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_save_state</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_history</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_history</span><span class="p">),</span>
                          <span class="n">file_training</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_training</span><span class="p">),</span>
@@ -605,8 +605,8 @@
 
 <div class="viewcode-block" id="Algorithm._apply_state">
 <a class="viewcode-back" href="../../../odatse.algorithm.bayes.html#odatse.algorithm.bayes.Algorithm._apply_state">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore algorithm state from a checkpoint snapshot.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore algorithm state from a checkpoint snapshot.</span>
 
 <span class="sd">        Delegates MPI validation, timer restore, parameter check, and the</span>
 <span class="sd">        instance RNG restore to the base class; additionally restores the</span>
@@ -622,14 +622,14 @@
 <span class="sd">        data : dict</span>
 <span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
 <span class="sd">        mode : str</span>
-<span class="sd">            ``&quot;resume&quot;`` or ``&quot;continue&quot;``; forwarded to the base class.</span>
+<span class="sd">            ``"resume"`` or ``"continue"``; forwarded to the base class.</span>
 <span class="sd">            Bayes optimisation does not distinguish between the two modes.</span>
 <span class="sd">        restore_rng : bool</span>
 <span class="sd">            When *True* (default) both RNG states are restored from *data*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">restore_rng</span><span class="p">:</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;random_number&quot;</span><span class="p">])</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"random_number"</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">_checkpoint_attrs</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_history</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_history</span><span class="p">),</span>

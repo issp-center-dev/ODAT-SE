@@ -324,7 +324,7 @@
 
 <span class="c1"># step and walker are stored as ints; Tstr, fx, xs are kept as raw strings so</span>
 <span class="c1"># that exact serialised values are round-tripped without floating-point loss.</span>
-<span class="n">Entry</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Entry&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;walker&quot;</span><span class="p">,</span> <span class="s2">&quot;Tstr&quot;</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">,</span> <span class="s2">&quot;xs&quot;</span><span class="p">])</span>
+<span class="n">Entry</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"Entry"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"step"</span><span class="p">,</span> <span class="s2">"walker"</span><span class="p">,</span> <span class="s2">"Tstr"</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">,</span> <span class="s2">"xs"</span><span class="p">])</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -334,13 +334,13 @@
 <div class="viewcode-block" id="_parse_result_line">
 <a class="viewcode-back" href="../../../odatse.util.separateT.html#odatse.util.separateT._parse_result_line">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_result_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mpirank</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nwalkers</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Entry</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse one line from ``result.txt`` into an :class:`Entry`.</span>
+<span class="w">    </span><span class="sd">"""Parse one line from ``result.txt`` into an :class:`Entry`.</span>
 
 <span class="sd">    Returns ``None`` for blank or comment-only lines.</span>
 <span class="sd">    The *walker* field is remapped from a rank-local index to a global index.</span>
 <span class="sd">    *Tstr*, *fx*, and *xs* are kept as raw strings to preserve exact values.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="sd">    """</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -361,7 +361,7 @@
     <span class="n">T2rank</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">]]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Append each entry into the destination-rank bucket it belongs to.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Append each entry into the destination-rank bucket it belongs to."""</span>
     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
         <span class="n">results</span><span class="p">[</span><span class="n">T2rank</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">Tstr</span><span class="p">]][</span><span class="n">entry</span><span class="o">.</span><span class="n">Tstr</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span></div>
 
@@ -370,12 +370,12 @@
 <div class="viewcode-block" id="_merge_results">
 <a class="viewcode-back" href="../../../odatse.util.separateT.html#odatse.util.separateT._merge_results">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_merge_results</span><span class="p">(</span><span class="n">results2</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge per-source dicts received from alltoall into a single dict.</span>
+<span class="w">    </span><span class="sd">"""Merge per-source dicts received from alltoall into a single dict.</span>
 
 <span class="sd">    ``results2[0]`` is mutated in-place and returned; the caller owns the object</span>
 <span class="sd">    (alltoall in mpi4py returns fresh objects, and in the serial path this is the</span>
 <span class="sd">    same dict that will be cleared at the start of the next chunk).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">merged</span> <span class="o">=</span> <span class="n">results2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">results2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
@@ -387,7 +387,7 @@
 <div class="viewcode-block" id="_clear_results">
 <a class="viewcode-back" href="../../../odatse.util.separateT.html#odatse.util.separateT._clear_results">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_clear_results</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reset all entry lists to empty so the structure can be reused each chunk.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Reset all entry lists to empty so the structure can be reused each chunk."""</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
             <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
@@ -397,14 +397,14 @@
 <div class="viewcode-block" id="_write_entries_to_file">
 <a class="viewcode-back" href="../../../odatse.util.separateT.html#odatse.util.separateT._write_entries_to_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_entries_to_file</span><span class="p">(</span><span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">],</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sort *entries* by step number and append them to *filepath*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Sort *entries* by step number and append them to *filepath*."""</span>
     <span class="n">entries</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">walker</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">fx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">walker</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">fx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">:</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
@@ -417,14 +417,14 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_result_T_entries</span><span class="p">(</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read ``result_T&lt;idx&gt;.txt`` and return a list of ``(step, fx, x)`` tuples.</span>
+<span class="w">    </span><span class="sd">"""Read ``result_T&lt;idx&gt;.txt`` and return a list of ``(step, fx, x)`` tuples.</span>
 
 <span class="sd">    Comment lines and blank lines are skipped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">samples</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f_in</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -443,7 +443,7 @@
     <span class="n">thermalization_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">dbeta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute statistics for one temperature from a list of MC samples.</span>
+<span class="w">    </span><span class="sd">"""Compute statistics for one temperature from a list of MC samples.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -466,7 +466,7 @@
 <span class="sd">        ``0.0`` when ``dbeta == 0.0`` or N == 0.</span>
 <span class="sd">    acceptance : float</span>
 <span class="sd">        Fraction of steps where x changed.  ``nan`` if N == 0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dlogZ</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">f_base</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">fx_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -541,10 +541,10 @@
     <span class="n">use_beta</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Separates and processes temperature data for the data analysis framework.</span>
 
-<span class="sd">    Reads each rank&#39;s ``result.txt``, redistributes entries to the rank that owns</span>
+<span class="sd">    Reads each rank's ``result.txt``, redistributes entries to the rank that owns</span>
 <span class="sd">    their temperature via MPI alltoall, and writes per-temperature ``result_T*.txt``</span>
 <span class="sd">    files.  Large files are processed in chunks of *buffer_size* lines so that</span>
 <span class="sd">    memory usage is bounded.</span>
@@ -564,7 +564,7 @@
 <span class="sd">    buffer_size : int, optional</span>
 <span class="sd">        Maximum number of lines read per chunk (rounded up to a multiple of</span>
 <span class="sd">        *nwalkers*).  Default is 10000.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">comm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mpisize</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mpirank</span> <span class="o">=</span> <span class="mi">0</span>
@@ -580,8 +580,8 @@
     <span class="c1"># ambiguous case explicitly instead of producing wrong output.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Ts</span><span class="p">)))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ts</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;separateT requires distinct temperature/beta values, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;but got duplicates in </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">Ts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"separateT requires distinct temperature/beta values, "</span>
+            <span class="sa">f</span><span class="s2">"but got duplicates in </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">Ts</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="c1"># Round up so that each buffer covers whole walker-groups.</span>
@@ -604,13 +604,13 @@
     <span class="n">local_Ts</span> <span class="o">=</span> <span class="n">Ts</span><span class="p">[</span><span class="n">mpirank</span> <span class="o">*</span> <span class="n">nwalkers</span> <span class="p">:</span> <span class="p">(</span><span class="n">mpirank</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">nwalkers</span><span class="p">]</span>
 
     <span class="c1"># Write per-temperature output file headers.</span>
-    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;beta&quot;</span> <span class="k">if</span> <span class="n">use_beta</span> <span class="k">else</span> <span class="s2">&quot;T&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">"beta"</span> <span class="k">if</span> <span class="n">use_beta</span> <span class="k">else</span> <span class="s2">"T"</span>
     <span class="k">for</span> <span class="n">T</span> <span class="ow">in</span> <span class="n">local_Ts</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;result_T</span><span class="si">{</span><span class="n">T2idx</span><span class="p">[</span><span class="n">T</span><span class="p">]</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"result_T</span><span class="si">{</span><span class="n">T2idx</span><span class="p">[</span><span class="n">T</span><span class="p">]</span><span class="si">}</span><span class="s2">.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"# </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Read result.txt in chunks, redistribute each chunk, and write to output.</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="s2">&quot;result.txt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">proc_dir</span> <span class="o">/</span> <span class="s2">"result.txt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">_clear_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
             <span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -618,7 +618,7 @@
 
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">):</span>
                 <span class="n">raw</span> <span class="o">=</span> <span class="n">f_in</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">raw</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">raw</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
                     <span class="n">reached_eof</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">break</span>
                 <span class="n">entry</span> <span class="o">=</span> <span class="n">_parse_result_line</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">mpirank</span><span class="p">,</span> <span class="n">nwalkers</span><span class="p">)</span>
@@ -631,7 +631,7 @@
 
             <span class="k">for</span> <span class="n">T</span> <span class="ow">in</span> <span class="n">local_Ts</span><span class="p">:</span>
                 <span class="n">_write_entries_to_file</span><span class="p">(</span>
-                    <span class="n">merged</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)],</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;result_T</span><span class="si">{</span><span class="n">T2idx</span><span class="p">[</span><span class="n">T</span><span class="p">]</span><span class="si">}</span><span class="s2">.txt&quot;</span>
+                    <span class="n">merged</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">T</span><span class="p">)],</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"result_T</span><span class="si">{</span><span class="n">T2idx</span><span class="p">[</span><span class="n">T</span><span class="p">]</span><span class="si">}</span><span class="s2">.txt"</span>
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">reached_eof</span><span class="p">:</span>
@@ -647,7 +647,7 @@
     <span class="n">thermalization_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">comm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MPI</span><span class="o">.</span><span class="n">Comm</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate and save statistical quantities (means and errors of f(x) and partition function) from separated files generated by separateT.</span>
 
 <span class="sd">    This function reads the separated files, ``result_T&lt;Tindex&gt;.txt`` in ``output_dir``,</span>
@@ -673,7 +673,7 @@
 <span class="sd">        Number of steps to discard for thermalization.</span>
 <span class="sd">    comm : MPI.Comm, optional</span>
 <span class="sd">        MPI communicator for parallel processing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">comm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mpisize</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">mpirank</span> <span class="o">=</span> <span class="mi">0</span>
@@ -705,7 +705,7 @@
             <span class="n">lowerTindex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">dbeta</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-        <span class="n">samples</span> <span class="o">=</span> <span class="n">_read_result_T_entries</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;result_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">_read_result_T_entries</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"result_T</span><span class="si">{</span><span class="n">Tindex</span><span class="si">}</span><span class="s2">.txt"</span><span class="p">)</span>
         <span class="n">mean</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">dlogZ</span><span class="p">,</span> <span class="n">acceptance</span> <span class="o">=</span> <span class="n">_compute_temperature_statistics</span><span class="p">(</span>
             <span class="n">samples</span><span class="p">,</span> <span class="n">thermalization_steps</span><span class="p">,</span> <span class="n">dbeta</span>
         <span class="p">)</span>
@@ -732,26 +732,26 @@
 
     <span class="k">if</span> <span class="n">mpirank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">dlogZ_acc</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;fx.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $1: 1/T</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $2: mean of f(x)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $3: standard error of f(x)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $4: number of replicas [Not used for exchange MC]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $5: log(Z/Z0)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# $6: acceptance ratio</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"fx.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $1: 1/T</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $2: mean of f(x)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $3: standard error of f(x)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $4: number of replicas [Not used for exchange MC]</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $5: log(Z/Z0)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"# $6: acceptance ratio</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">Tindices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">numT</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">T_is_ascending</span><span class="p">:</span>
                 <span class="n">Tindices</span> <span class="o">=</span> <span class="n">Tindices</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">Tindex</span> <span class="ow">in</span> <span class="n">Tindices</span><span class="p">:</span>
                 <span class="n">dlogZ_acc</span> <span class="o">+=</span> <span class="n">dlogZs</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span>
                 <span class="n">T</span> <span class="o">=</span> <span class="n">Ts</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mi">1</span><span class="o">/</span><span class="n">T</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">fx_means</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">fx_errors</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">numT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">dlogZ_acc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">acceptances</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="mi">1</span><span class="o">/</span><span class="n">T</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">fx_means</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">fx_errors</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">numT</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">dlogZ_acc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">acceptances</span><span class="p">[</span><span class="n">Tindex</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
 
 </pre></div>
 

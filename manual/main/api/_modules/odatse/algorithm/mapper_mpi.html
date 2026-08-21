@@ -325,10 +325,10 @@
 <div class="viewcode-block" id="Algorithm">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi.html#odatse.algorithm.mapper_mpi.Algorithm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">MapperMPIAlgorithm</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Algorithm class for mapping the objective function over a set of points.</span>
 <span class="sd">    Inherits from odatse.algorithm.mapper_mpi_base.Algorithm.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Algorithm.__init__">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi.html#odatse.algorithm.mapper_mpi.Algorithm.__init__">[docs]</a>
@@ -336,9 +336,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the Algorithm instance.</span>
 
 <span class="sd">        Parameters</span>
@@ -348,13 +348,13 @@
 <span class="sd">        runner : Runner</span>
 <span class="sd">            Optional runner object for submitting tasks.</span>
 <span class="sd">        run_mode : str</span>
-<span class="sd">            Mode to run the algorithm, defaults to &quot;initial&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Mode to run the algorithm, defaults to "initial".</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">run_on_algorithm</span><span class="p">():</span>
-            <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="n">info_param</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s2">"mesh_path"</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_mesh_file</span><span class="p">(</span><span class="n">info_param</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_mesh_info</span><span class="p">(</span><span class="n">info_param</span><span class="p">)</span>
@@ -365,24 +365,24 @@
 <div class="viewcode-block" id="Algorithm._read_mesh_file">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi.html#odatse.algorithm.mapper_mpi.Algorithm._read_mesh_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_mesh_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid from a file.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;mesh_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: mesh_path not defined&quot;</span><span class="p">)</span>
-        <span class="n">mesh_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;mesh_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"mesh_path"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: mesh_path not defined"</span><span class="p">)</span>
+        <span class="n">mesh_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">info_param</span><span class="p">[</span><span class="s2">"mesh_path"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;mesh_path not found: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">"mesh_path not found: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">))</span>
 
-        <span class="n">comments</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comments&quot;</span><span class="p">,</span> <span class="s2">&quot;#&quot;</span><span class="p">)</span>
-        <span class="n">delimiter</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">skiprows</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;skiprows&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"comments"</span><span class="p">,</span> <span class="s2">"#"</span><span class="p">)</span>
+        <span class="n">delimiter</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"delimiter"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">skiprows</span> <span class="o">=</span> <span class="n">info_param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skiprows"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># mesh data format: index x1 x2 ...</span>
@@ -399,28 +399,28 @@
 <div class="viewcode-block" id="Algorithm._find_mesh_info">
 <a class="viewcode-back" href="../../../odatse.algorithm.mapper_mpi.html#odatse.algorithm.mapper_mpi.Algorithm._find_mesh_info">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_mesh_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info_param</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup the grid based on min, max, and num lists.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        info_param</span>
 <span class="sd">            Dictionary containing parameters for setting up the grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;min_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.min_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;min_list&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"min_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.min_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">min_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"min_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;max_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.max_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;max_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"max_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.max_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">max_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"max_list"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">&quot;num_list&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: algorithm.param.num_list is not defined in the input&quot;</span><span class="p">)</span>
-        <span class="n">num_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">&quot;num_list&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"num_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: algorithm.param.num_list is not defined in the input"</span><span class="p">)</span>
+        <span class="n">num_list</span> <span class="o">=</span> <span class="n">info_param</span><span class="p">[</span><span class="s2">"num_list"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: lengths of min_list, max_list, num_list do not match&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ERROR: lengths of min_list, max_list, num_list do not match"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">MeshIterator</span><span class="p">(</span><span class="n">min_list</span><span class="p">,</span> <span class="n">max_list</span><span class="p">,</span> <span class="n">num_list</span><span class="p">)</span></div>
 </div>

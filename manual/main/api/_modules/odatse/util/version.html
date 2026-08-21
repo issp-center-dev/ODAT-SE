@@ -317,11 +317,11 @@
 <div class="viewcode-block" id="parse_version">
 <a class="viewcode-back" href="../../../odatse.util.version.html#odatse.util.version.parse_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_version</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ncomponents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a dotted version string into a tuple of integers.</span>
+<span class="w">    </span><span class="sd">"""Parse a dotted version string into a tuple of integers.</span>
 
 <span class="sd">    Intended for numeric comparison of package versions, where a plain</span>
-<span class="sd">    string comparison is wrong (e.g. &quot;1.10.0&quot; &lt; &quot;1.2.0&quot;) and a bare</span>
-<span class="sd">    int() per component crashes on pre-release suffixes (e.g. &quot;1.16.0rc1&quot;).</span>
+<span class="sd">    string comparison is wrong (e.g. "1.10.0" &lt; "1.2.0") and a bare</span>
+<span class="sd">    int() per component crashes on pre-release suffixes (e.g. "1.16.0rc1").</span>
 
 <span class="sd">    Only the leading digits of each component are used; a component</span>
 <span class="sd">    without leading digits and everything after it are ignored. The</span>
@@ -330,7 +330,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    version : str</span>
-<span class="sd">        Dotted version string, e.g. &quot;1.16.0rc1&quot;.</span>
+<span class="sd">        Dotted version string, e.g. "1.16.0rc1".</span>
 <span class="sd">    ncomponents : int</span>
 <span class="sd">        Number of components in the returned tuple.</span>
 
@@ -338,10 +338,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    tuple</span>
 <span class="sd">        Tuple of ncomponents integers, e.g. (1, 16, 0).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">comps</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="n">ncomponents</span><span class="p">]:</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[:</span><span class="n">ncomponents</span><span class="p">]:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[0-9]+"</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">break</span>
         <span class="n">comps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()))</span>

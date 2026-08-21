@@ -589,7 +589,7 @@ It is defined as a subclass of <code class="docutils literal notranslate"><span 
 <section id="init">
 <h3><code class="docutils literal notranslate"><span class="pre">__init__</span></code><a class="headerlink" href="#init" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span><span class="p">):</span>
+             <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
     <span class="c1"># read algorithm-specific parameters from info ...</span>
 </pre></div>
@@ -617,7 +617,7 @@ Must not use the runner (the initial evaluation should be done in <code class="d
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># Called after the checkpoint dispatch and before the main loop.</span>
     <span class="c1"># Good place to initialize timers or open output files.</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 </pre></div>
 </div>
 <p>Called after <code class="docutils literal notranslate"><span class="pre">_initialize()</span></code> or <code class="docutils literal notranslate"><span class="pre">_load_state()</span></code> and before <code class="docutils literal notranslate"><span class="pre">_run()</span></code>.</p>
@@ -630,8 +630,8 @@ Must not use the runner (the initial evaluation should be done in <code class="d
     <span class="c1"># The checkpoint dispatch (init/resume/continue) has already been</span>
     <span class="c1"># performed by prepare(); start the main loop directly.</span>
 
-    <span class="c1"># For &quot;init&quot; mode, perform the initial evaluation here.</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">):</span>
+    <span class="c1"># For "init" mode, perform the initial evaluation here.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
         <span class="o">...</span>
 
@@ -673,7 +673,7 @@ actions that are specific to the very first evaluation step (<code class="docuti
 <h3><code class="docutils literal notranslate"><span class="pre">_post</span></code> (required)<a class="headerlink" href="#post-required" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="c1"># Write results to files, gather from MPI ranks, …</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>Post-processes the algorithm results and returns them as a dictionary.
@@ -684,20 +684,20 @@ Called from <code class="docutils literal notranslate"><span class="pre">output_
 <p>Declare a class variable <code class="docutils literal notranslate"><span class="pre">_checkpoint_attrs</span></code> listing the attribute names that must
 be saved and restored at each checkpoint:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">,</span> <span class="s2">&quot;best_x&quot;</span><span class="p">,</span> <span class="s2">&quot;best_fx&quot;</span><span class="p">]</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"istep"</span><span class="p">,</span> <span class="s2">"best_x"</span><span class="p">,</span> <span class="s2">"best_fx"</span><span class="p">]</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">__getstate__()</span></code> in the base class walks the MRO and collects every field listed in
 <code class="docutils literal notranslate"><span class="pre">_checkpoint_attrs</span></code> automatically; no override is needed for simple cases.</p>
 <p>For custom restore logic (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code>-mode semantics), override <code class="docutils literal notranslate"><span class="pre">_apply_state()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span>
                  <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
     <span class="c1"># restore algorithm-specific fields:</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">istep</span>  <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;istep&quot;</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_x&quot;</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;best_fx&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">istep</span>  <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"istep"</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"best_x"</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"best_fx"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"continue"</span><span class="p">:</span>
         <span class="c1"># extend the schedule or advance counters as needed</span>
         <span class="o">...</span>
 </pre></div>
@@ -711,11 +711,11 @@ be saved and restored at each checkpoint:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grid-search algorithm example.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Grid-search algorithm example."""</span>
 
-    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;icount&quot;</span><span class="p">,</span> <span class="s2">&quot;best_x&quot;</span><span class="p">,</span> <span class="s2">&quot;best_fx&quot;</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">]</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"icount"</span><span class="p">,</span> <span class="s2">"best_x"</span><span class="p">,</span> <span class="s2">"best_fx"</span><span class="p">,</span> <span class="s2">"results"</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="s2">&quot;initial&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="s2">"initial"</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>   <span class="c1"># read from info</span>
 
@@ -726,7 +726,7 @@ be saved and restored at each checkpoint:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">next_chk_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icount</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span>
@@ -737,7 +737,7 @@ be saved and restored at each checkpoint:</p>
             <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icount</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
             <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">][</span><span class="s2">&quot;submit&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_sta</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_sta</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">fx</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">fx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">:</span>
@@ -756,9 +756,9 @@ be saved and restored at each checkpoint:</p>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;result.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fx = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="s2">&quot;fx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"result.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fx = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">,</span> <span class="s2">"fx"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">}</span>
 </pre></div>
 </div>
 </section>

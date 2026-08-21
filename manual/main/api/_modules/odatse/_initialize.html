@@ -318,7 +318,7 @@
 <div class="viewcode-block" id="initialize">
 <a class="viewcode-back" href="../../odatse._initialize.html#odatse._initialize.initialize">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize for main function by parsing commandline arguments and loading input files</span>
 
 <span class="sd">    Parameters</span>
@@ -332,47 +332,47 @@
 <span class="sd">    -------</span>
 <span class="sd">    Tuple(Info, str)</span>
 <span class="sd">        an Info object having parameter values, and a run_mode string</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-    <span class="c1"># Record the start of the &quot;init&quot; phase for time.log. Everything from here</span>
+    <span class="c1"># Record the start of the "init" phase for time.log. Everything from here</span>
     <span class="c1"># up to Algorithm.main() (argument parsing, input loading, solver and</span>
-    <span class="c1"># algorithm construction) is attributed to &quot;init&quot;.</span>
+    <span class="c1"># algorithm construction) is attributed to "init".</span>
     <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Open framework for data analysis&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Open framework for data analysis"</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;inputfile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;input file with TOML format&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"inputfile"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"input file with TOML format"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--version"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"version"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 
     <span class="n">mode_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
-    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;initial start (default)&quot;</span><span class="p">)</span>
-    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--resume&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;resume interrupted run&quot;</span><span class="p">)</span>
-    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--cont&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;continue from previous run&quot;</span><span class="p">)</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--init"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"initial start (default)"</span><span class="p">)</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--resume"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"resume interrupted run"</span><span class="p">)</span>
+    <span class="n">mode_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--cont"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"continue from previous run"</span><span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--reset_rand&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;new random number series in resume or continue mode&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--reset_rand"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"new random number series in resume or continue mode"</span><span class="p">)</span>
     
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--nalg&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;# of processes for search algorithm&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--nsolve&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;# of processes for solver&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--nalg"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"# of processes for search algorithm"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--nsolve"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"# of processes for solver"</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
     <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">nalg</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nalg</span><span class="p">,</span> <span class="n">nsolve</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nsolve</span><span class="p">)</span>
 
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">init</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"initial"</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"resume"</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reset_rand</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;resume-resetrand&quot;</span>
+            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"resume-resetrand"</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">cont</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;continue&quot;</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"continue"</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reset_rand</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;continue-resetrand&quot;</span>
+            <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"continue-resetrand"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">&quot;initial&quot;</span>  <span class="c1"># default</span>
+        <span class="n">run_mode</span> <span class="o">=</span> <span class="s2">"initial"</span>  <span class="c1"># default</span>
 
     <span class="n">info</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">inputfile</span><span class="p">)</span>
     <span class="n">info</span><span class="o">.</span><span class="n">_start_time</span> <span class="o">=</span> <span class="n">time_sta</span>
