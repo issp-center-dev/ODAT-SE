@@ -55,7 +55,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'ODAT-SE'
 copyright = u'2020, Institute for Solid State Physics, University of Tokyo'
-author = u'2DMAT Developer team'
+author = u'ODAT-SE Developer team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
