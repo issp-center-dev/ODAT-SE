@@ -64,7 +64,7 @@ jobs:
     - name: Push
       env:
         GIT_USER: "ODAT-SE Developers"
-        GIT_EMAIL: "2dmat-dev@issp.u-tokyo.ac.jp"
+        GIT_EMAIL: "odatse-dev@issp.u-tokyo.ac.jp"
         TARGET_NAME: ${{ env.GITHUB_REF_SLUG }}
       run: |
           cd ${GITHUB_WORKSPACE}

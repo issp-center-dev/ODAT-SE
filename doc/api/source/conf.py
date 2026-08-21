@@ -10,7 +10,7 @@ import sys
 
 project = 'ODAT-SE API'
 copyright = '2020-, ISSP, UTokyo'
-author = '2DMAT Developers'
+author = 'ODAT-SE Developers'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
