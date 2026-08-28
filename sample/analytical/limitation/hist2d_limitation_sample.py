@@ -12,7 +12,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
-import tomli
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 import sys
 import os
 import datetime
@@ -34,7 +37,7 @@ class Param:
     def __init__(self, inputfile, burn_in, nproc=1):
         # Load TOML configuration file
         with open(inputfile, "rb") as f:
-            dict_toml = tomli.load(f)
+            dict_toml = tomllib.load(f)
 
         # Extract basic parameters
         self.output_dir = dict_toml["base"].get("output_dir", ".")
