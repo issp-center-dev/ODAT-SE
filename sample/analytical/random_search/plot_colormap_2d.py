@@ -34,7 +34,8 @@ file_input = open("output/ColorMap.txt", "r")
 lines = file_input.readlines()
 file_input.close()
 for line in lines:
-    if line.strip():  # Skip empty lines
+    line = line.split("#", 1)[0].strip()  # Remove comments and surrounding whitespace
+    if line:  # Skip empty and comment-only lines
         data = line.split()  # Split line by whitespace
         x.append(float(data[0]))  # First column: x coordinate
         y.append(float(data[1]))  # Second column: y coordinate
