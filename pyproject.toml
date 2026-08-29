@@ -2,7 +2,7 @@
 name = "ODAT-SE"
 dynamic = ["version"]
 description = "Open Data Analysis Tool for Science and Engineering"
-authors = [{ name = "2DMAT developers", email = "2dmat-dev@issp.u-tokyo.ac.jp" }]
+authors = [{ name = "ODAT-SE developers", email = "odatse-dev@issp.u-tokyo.ac.jp" }]
 requires-python = ">=3.9"
 readme = "README.md"
 license = "MPL-2.0"
@@ -67,5 +67,5 @@ dev = [
     "sphinx>=7.4.7",
     "sphinx-copybutton>=0.5.2",
     "pydata-sphinx-theme>=0.16.1",
-    "sphinxcontrib-mermaid>=1.0.0",
+    "sphinxcontrib-mermaid>=1.2.3",
 ]

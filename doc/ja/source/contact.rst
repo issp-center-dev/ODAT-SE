@@ -22,4 +22,4 @@ ODAT-SE に関するお問い合わせはこちらにお寄せください。
 
   研究に関連するトピックなどGitHubのIssuesで相談しづらいことを問い合わせる際には、以下の連絡先までご連絡ください。
 
-  E-mail: ``2dmat-dev__at__issp.u-tokyo.ac.jp`` (``__at__`` を @ に変更してください)
+  E-mail: ``odatse-dev__at__issp.u-tokyo.ac.jp`` (``__at__`` を @ に変更してください)

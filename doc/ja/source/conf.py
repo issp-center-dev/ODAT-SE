@@ -18,7 +18,7 @@ from theme_shared import HTML_CONTEXT, HTML_CSS_FILES, get_theme_options, get_ve
 
 project = u'ODAT-SE'
 copyright = u'2020, Institute for Solid State Physics, University of Tokyo'
-author = u'2DMAT Developer team'
+author = u'ODAT-SE Developer team'
 
 # The short X.Y version and the full version, including alpha/beta/rc tags,
 # read from src/odatse/_version.py
