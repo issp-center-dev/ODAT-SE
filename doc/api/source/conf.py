@@ -22,7 +22,12 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
 ]
+
+# Remove shell prompts when copying command examples.
+copybutton_prompt_text = r"\$ "
+copybutton_prompt_is_regexp = True
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

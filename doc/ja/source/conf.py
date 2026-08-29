@@ -32,7 +32,12 @@ version, release = get_version_info()
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
     'sphinxcontrib.mermaid',
+    'sphinx_copybutton',
 ]
+
+# Remove shell prompts when copying command examples.
+copybutton_prompt_text = r"\$ "
+copybutton_prompt_is_regexp = True
 
 # Let mermaid diagrams take their natural height instead of the extension's
 # fixed 500px box, which leaves large blank margins around wide, flat charts.
