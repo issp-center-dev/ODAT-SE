@@ -27,22 +27,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../_static/documentation_options.js?v=aa1e424a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/translations.js?v=4755f45a"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'input/algorithm';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -517,18 +520,11 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p>
 <p>形式: 整数</p>
-<dl class="simple">
-<dt>説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。</dt><dd><p>各アルゴリズムプロセスに対して、 <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">algrank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> の値が実際の種として用いられます( <code class="docutils literal notranslate"><span class="pre">algrank</span></code> はアルゴリズム層でのプロセスランクで、ソルバー並列数 <code class="docutils literal notranslate"><span class="pre">nsolve</span></code> に依存しません)。
-省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState">Numpy の既定の方法</a> で初期化されます。</p>
-</dd>
-</dl>
+<p>説明: 初期値のランダム生成やモンテカルロ更新などで用いる擬似乱数生成器の種を指定します。各アルゴリズムプロセスに対して、 <code class="docutils literal notranslate"><span class="pre">seed</span> <span class="pre">+</span> <span class="pre">algrank</span> <span class="pre">*</span> <span class="pre">seed_delta</span></code> の値が実際の種として用いられます( <code class="docutils literal notranslate"><span class="pre">algrank</span></code> はアルゴリズム層でのプロセスランクで、ソルバー並列数 <code class="docutils literal notranslate"><span class="pre">nsolve</span></code> に依存しません)。省略した場合は <a class="reference external" href="https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState">Numpy の既定の方法</a> で初期化されます。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">seed_delta</span></code></p>
 <p>形式: 整数 (default: 314159)</p>
-<dl class="simple">
-<dt>説明: 擬似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。</dt><dd><p>詳しくは <code class="docutils literal notranslate"><span class="pre">seed</span></code> を参照してください。</p>
-</dd>
-</dl>
+<p>説明: 擬似乱数生成器の種について、MPI プロセスごとの値を計算する際に用いられます。詳しくは <code class="docutils literal notranslate"><span class="pre">seed</span></code> を参照してください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint</span></code></p>
 <p>形式: 真偽値 (default: false)</p>
@@ -598,8 +594,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -633,7 +629,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0 で構築されています。
+  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0 で構築されています。
 </p></div>
       
     </div>

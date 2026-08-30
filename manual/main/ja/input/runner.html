@@ -27,22 +27,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../_static/documentation_options.js?v=aa1e424a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=a5fa425f"></script>
     <script src="../_static/translations.js?v=4755f45a"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'input/runner';</script>
@@ -516,17 +519,11 @@
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">A</span></code></p>
 <p>形式: リストのリスト、あるいは文字列 (default: [])</p>
-<dl class="simple">
-<dt>説明: <span class="math notranslate nohighlight">\(M \times N\)</span> の変換行列 <span class="math notranslate nohighlight">\(A\)</span> ( <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> を <span class="math notranslate nohighlight">\(M\)</span> 次元の <span class="math notranslate nohighlight">\(y\)</span> に写します)。空のリストを渡した場合、単位行列とみなされます。</dt><dd><p>文字列として与える場合はそのまま行列の要素を空白および改行で区切って並べてください。</p>
-</dd>
-</dl>
+<p>説明: <span class="math notranslate nohighlight">\(M \times N\)</span> の変換行列 <span class="math notranslate nohighlight">\(A\)</span> ( <span class="math notranslate nohighlight">\(N\)</span> 次元のパラメータ <span class="math notranslate nohighlight">\(x\)</span> を <span class="math notranslate nohighlight">\(M\)</span> 次元の <span class="math notranslate nohighlight">\(y\)</span> に写します)。空のリストを渡した場合、単位行列とみなされます。文字列として与える場合はそのまま行列の要素を空白および改行で区切って並べてください。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p>
 <p>形式: リスト、あるいは文字列 (default: [])</p>
-<dl class="simple">
-<dt>説明: <span class="math notranslate nohighlight">\(M\)</span> 次元の平行移動ベクトル <span class="math notranslate nohighlight">\(b\)</span> 。空のリストを渡した場合、ゼロベクトルとみなされます。</dt><dd><p>文字列として与える場合はそのままベクトルの要素を空白区切りで並べてください。</p>
-</dd>
-</dl>
+<p>説明: <span class="math notranslate nohighlight">\(M\)</span> 次元の平行移動ベクトル <span class="math notranslate nohighlight">\(b\)</span> 。空のリストを渡した場合、ゼロベクトルとみなされます。文字列として与える場合はそのままベクトルの要素を空白区切りで並べてください。</p>
 </li>
 </ul>
 <p>行列の指定方法について、例えば、</p>
@@ -565,20 +562,11 @@ A_{M,1} x_{1} + A_{M,2} x_{2} + &amp;... + A_{M,N} x_{N} + b_{M} &gt; 0\end{spli
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">co_a</span></code></p>
 <p>形式: リストのリスト、あるいは文字列 (default: [])</p>
-<dl class="simple">
-<dt>説明: 制約式の行列 <span class="math notranslate nohighlight">\(A\)</span> を設定します。</dt><dd><p>行数は制約式数 <span class="math notranslate nohighlight">\(M\)</span> 、列数は探索変数の数 <span class="math notranslate nohighlight">\(N\)</span> である必要があります。
-<code class="docutils literal notranslate"><span class="pre">co_b</span></code> を同時に定義する必要があります。</p>
-</dd>
-</dl>
+<p>説明: 制約式の行列 <span class="math notranslate nohighlight">\(A\)</span> を設定します。行数は制約式数 <span class="math notranslate nohighlight">\(M\)</span> 、列数は探索変数の数 <span class="math notranslate nohighlight">\(N\)</span> である必要があります。<code class="docutils literal notranslate"><span class="pre">co_b</span></code> を同時に定義する必要があります。</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">co_b</span></code></p>
 <p>形式: リストのリスト、あるいは文字列 (default: [])</p>
-<dl class="simple">
-<dt>説明: 制約式の縦ベクトル <span class="math notranslate nohighlight">\(b\)</span> を設定します。</dt><dd><p>次元数が制約式数 <span class="math notranslate nohighlight">\(M\)</span> の縦ベクトルを設定する必要があります。
-<code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[[0],</span> <span class="pre">[-1]]</span></code> のように縦ベクトル（リストのリスト）として指定してください（ <code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">-1]</span></code> のような1次元リストはエラーになります）。
-<code class="docutils literal notranslate"><span class="pre">co_a</span></code> を同時に定義する必要があります。</p>
-</dd>
-</dl>
+<p>説明: 制約式の縦ベクトル <span class="math notranslate nohighlight">\(b\)</span> を設定します。次元数が制約式数 <span class="math notranslate nohighlight">\(M\)</span> の縦ベクトルを設定する必要があります。<code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[[0],</span> <span class="pre">[-1]]</span></code> のように縦ベクトル（リストのリスト）として指定してください（ <code class="docutils literal notranslate"><span class="pre">co_b</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">-1]</span></code> のような1次元リストはエラーになります）。<code class="docutils literal notranslate"><span class="pre">co_a</span></code> を同時に定義する必要があります。</p>
 </li>
 </ul>
 <p>行列の指定方法は <code class="docutils literal notranslate"><span class="pre">[runner.mapping]</span></code> セクションと同様です。例えば、</p>
@@ -716,8 +704,8 @@ A_{M,1} x_{1} + A_{M,2} x_{2} + &amp;... + A_{M,N} x_{N} + b_{M} &gt; 0\end{spli
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -751,7 +739,7 @@ A_{M,1} x_{1} + A_{M,2} x_{2} + &amp;... + A_{M,N} x_{N} + b_{M} &gt; 0\end{spli
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0 で構築されています。
+  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0 で構築されています。
 </p></div>
       
     </div>

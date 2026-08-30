@@ -81,6 +81,7 @@ Create a file called ``my_solver.py`` with the following content.
 
     # Run
     result = algorithm.main()
+    print(f"Solution:\nx1 = {result['x'][0]}\nx2 = {result['x'][1]}")
 
 **Key points:**
 
@@ -137,8 +138,8 @@ When complete, output similar to the following is displayed:
 
 .. code-block:: text
 
-    Iterations: 43
-    Function evaluations: 82
+    Iterations: 42
+    Function evaluations: 81
     Solution:
     x1 = 2.9999999...
     x2 = 1.9999999...
