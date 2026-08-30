@@ -22,7 +22,7 @@ Results are written to standard output and a plot of the results is saved to a f
 When multiple FILEs are specified, the average and standard deviation of their model evidence values are calculated and a plot with error bars is generated.
 
 .. note::
-   * Python 3.9 or higher is required, as for ODAT-SE itself.
+   * Python 3.9 or higher is required (the same requirement as ODAT-SE itself).
    * All calculations are performed on a logarithmic scale for numerical stability.
    * The x-axis (beta) in plots is always displayed on a logarithmic scale.
 
