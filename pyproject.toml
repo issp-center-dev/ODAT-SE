@@ -65,6 +65,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "sphinx>=7.4.7",
+    "sphinx-copybutton>=0.5.2",
     "pydata-sphinx-theme>=0.16.1",
     "sphinxcontrib-mermaid>=1.2.3",
 ]

@@ -23,6 +23,8 @@ def get_version_info() -> tuple:
 
 def get_theme_options() -> dict:
     return {
+        "pygments_light_style": "a11y-high-contrast-light",
+        "pygments_dark_style": "a11y-high-contrast-light",
         "navbar_align": "left",
         "navigation_depth": 3,
         "show_prev_next": True,

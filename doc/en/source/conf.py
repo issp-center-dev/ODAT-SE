@@ -34,7 +34,12 @@ from theme_shared import HTML_CONTEXT, HTML_CSS_FILES, get_theme_options, get_ve
 # ones.
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'sphinxcontrib.mermaid']
+    'sphinxcontrib.mermaid',
+    'sphinx_copybutton']
+
+# Remove shell prompts when copying command examples.
+copybutton_prompt_text = r"\$ "
+copybutton_prompt_is_regexp = True
 
 # Let mermaid diagrams take their natural height instead of the extension's
 # fixed 500px box, which leaves large blank margins around wide, flat charts.

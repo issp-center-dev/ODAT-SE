@@ -81,6 +81,7 @@ Step 1: ソルバーを定義する
 
     # 実行
     result = algorithm.main()
+    print(f"Solution:\nx1 = {result['x'][0]}\nx2 = {result['x'][1]}")
 
 **ポイント:**
 
@@ -137,8 +138,8 @@ Step 3: 実行して結果を確認する
 
 .. code-block:: text
 
-    Iterations: 43
-    Function evaluations: 82
+    Iterations: 42
+    Function evaluations: 81
     Solution:
     x1 = 2.9999999...
     x2 = 1.9999999...
