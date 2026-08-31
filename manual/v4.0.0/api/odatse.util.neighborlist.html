@@ -1,0 +1,1041 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>odatse.util.neighborlist module &#8212; ODAT-SE API  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=a5fa425f"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'odatse.util.neighborlist';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.util.read_matrix module" href="odatse.util.read_matrix.html" />
+    <link rel="prev" title="odatse.util.mapping module" href="odatse.util.mapping.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE API  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="odatse.html">odatse package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._algorithm.html">odatse.algorithm._algorithm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._iterator.html">odatse.algorithm._iterator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.bayes.html">odatse.algorithm.bayes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.exchange.html">odatse.algorithm.exchange module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.gather.html">odatse.algorithm.gather module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.global_search.html">odatse.algorithm.global_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi.html">odatse.algorithm.mapper_mpi module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi_base.html">odatse.algorithm.mapper_mpi_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.min_search.html">odatse.algorithm.min_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.montecarlo.html">odatse.algorithm.montecarlo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.pamc.html">odatse.algorithm.pamc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.random_search.html">odatse.algorithm.random_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.state.html">odatse.algorithm.state module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.ttopt.html">odatse.algorithm.ttopt module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain._domain.html">odatse.domain._domain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.meshgrid.html">odatse.domain.meshgrid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.region.html">odatse.domain.region module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.scripts.html">odatse.scripts package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.extract_combined.html">odatse.scripts.extract_combined module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_1D_histogram.html">odatse.scripts.plt_1D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_2D_histogram.html">odatse.scripts.plt_2D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_model_evidence.html">odatse.scripts.plt_model_evidence module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.separateT.html">odatse.scripts.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.summarize_each_T.html">odatse.scripts.summarize_each_T module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver._solver.html">odatse.solver._solver module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.analytical.html">odatse.solver.analytical module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.function.html">odatse.solver.function module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="odatse.util.html">odatse.util package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.data_writer.html">odatse.util.data_writer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.graph.html">odatse.util.graph module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.limitation.html">odatse.util.limitation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.logger.html">odatse.util.logger module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.mapping.html">odatse.util.mapping module</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">odatse.util.neighborlist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_matrix.html">odatse.util.read_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_ts.html">odatse.util.read_ts module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.resampling.html">odatse.util.resampling module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.separateT.html">odatse.util.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.toml.html">odatse.util.toml module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.version.html">odatse.util.version module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.__main__.html">odatse.__main__ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._info.html">odatse._info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._initialize.html">odatse._initialize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._main.html">odatse._main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._runner.html">odatse._runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._version.html">odatse._version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.exception.html">odatse.exception module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.mpi.html">odatse.mpi module</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">odatse</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.html" class="nav-link">odatse package</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.util.html" class="nav-link">odatse.util package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">odatse.util.neighborlist module</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-odatse.util.neighborlist">
+<span id="odatse-util-neighborlist-module"></span><h1>odatse.util.neighborlist module<a class="headerlink" href="#module-odatse.util.neighborlist" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">Cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to represent a grid of cells for spatial partitioning.</p>
+<p>This class divides a spatial region into a grid of cells to efficiently
+find neighboring points within a specified radius. Each cell contains
+a set of point indices that fall within its spatial boundaries.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.cells">
+<span class="sig-name descname"><span class="pre">cells</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.cells" title="Link to this definition">#</a></dt>
+<dd><p>List of sets, where each set contains indices of points in that cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[set[int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.dimension">
+<span class="sig-name descname"><span class="pre">dimension</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.dimension" title="Link to this definition">#</a></dt>
+<dd><p>Number of spatial dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.mins">
+<span class="sig-name descname"><span class="pre">mins</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.mins" title="Link to this definition">#</a></dt>
+<dd><p>Minimum coordinates of the grid in each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.maxs">
+<span class="sig-name descname"><span class="pre">maxs</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.maxs" title="Link to this definition">#</a></dt>
+<dd><p>Maximum coordinates of the grid in each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.Ns">
+<span class="sig-name descname"><span class="pre">Ns</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.Ns" title="Link to this definition">#</a></dt>
+<dd><p>Number of cells in each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.ncell">
+<span class="sig-name descname"><span class="pre">ncell</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.ncell" title="Link to this definition">#</a></dt>
+<dd><p>Total number of cells in the grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.cellsize">
+<span class="sig-name descname"><span class="pre">cellsize</span></span><a class="headerlink" href="#odatse.util.neighborlist.Cells.cellsize" title="Link to this definition">#</a></dt>
+<dd><p>Size of each cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">,</span> <span class="n">cellsize</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point_index</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">4.7</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell_index</span> <span class="o">=</span> <span class="n">cells</span><span class="o">.</span><span class="n">coord2cellindex</span><span class="p">(</span><span class="n">point_coords</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">point_index</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Initialize the Cells object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mins</strong> (<em>np.ndarray</em>) – The minimum coordinates of the grid in each dimension.</p></li>
+<li><p><strong>maxs</strong> (<em>np.ndarray</em>) – The maximum coordinates of the grid in each dimension.</p></li>
+<li><p><strong>cellsize</strong> (<em>float</em>) – The size of each cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This method initializes the object’s attributes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">,</span> <span class="n">cellsize</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the Cells object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mins</strong> (<em>np.ndarray</em>) – The minimum coordinates of the grid in each dimension.</p></li>
+<li><p><strong>maxs</strong> (<em>np.ndarray</em>) – The maximum coordinates of the grid in each dimension.</p></li>
+<li><p><strong>cellsize</strong> (<em>float</em>) – The size of each cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This method initializes the object’s attributes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">,</span> <span class="n">cellsize</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.cellcoord2cellindex">
+<span class="sig-name descname"><span class="pre">cellcoord2cellindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.cellcoord2cellindex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.cellcoord2cellindex" title="Link to this definition">#</a></dt>
+<dd><p>Convert cell coordinates to a cell index.</p>
+<p>This method converts multi-dimensional cell coordinates to a single
+index that uniquely identifies the cell in the flat cells list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ns</strong> (<em>np.ndarray</em>) – The cell coordinates (integer indices for each dimension).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the cell in the flat cells list.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">cellcoord2cellindex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="go">8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.cellindex2cellcoord">
+<span class="sig-name descname"><span class="pre">cellindex2cellcoord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.cellindex2cellcoord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.cellindex2cellcoord" title="Link to this definition">#</a></dt>
+<dd><p>Convert a cell index to cell coordinates.</p>
+<p>This method is the inverse of cellcoord2cellindex and converts a flat cell
+index back to multi-dimensional cell coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – The index of the cell in the flat cells list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cell coordinates (integer indices for each dimension).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">cellindex2cellcoord</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">array([1, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.coord2cellcoord">
+<span class="sig-name descname"><span class="pre">coord2cellcoord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.coord2cellcoord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.coord2cellcoord" title="Link to this definition">#</a></dt>
+<dd><p>Convert spatial coordinates to cell coordinates.</p>
+<p>Cell coordinates are integer indices that identify the position of a cell
+within the grid along each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – The spatial coordinates of a point.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The cell coordinates (integer indices for each dimension).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">coord2cellcoord</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">]))</span>
+<span class="go">array([1, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.coord2cellindex">
+<span class="sig-name descname"><span class="pre">coord2cellindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.coord2cellindex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.coord2cellindex" title="Link to this definition">#</a></dt>
+<dd><p>Convert spatial coordinates to a cell index.</p>
+<p>This method transforms a point’s spatial coordinates into the index
+of the cell containing it, by first converting to cell coordinates
+and then to a cell index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – The spatial coordinates of a point.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the cell containing the point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">coord2cellindex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">]))</span>
+<span class="go">8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.neighborcells">
+<span class="sig-name descname"><span class="pre">neighborcells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.neighborcells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.neighborcells" title="Link to this definition">#</a></dt>
+<dd><p>Get the indices of neighboring cells, including the cell itself.</p>
+<p>This method returns the indices of all cells that are adjacent to the specified
+cell in all dimensions, along with the cell itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – The index of the cell.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The indices of the neighboring cells (including the cell itself).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[int]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbors</span> <span class="o">=</span> <span class="n">cells</span><span class="o">.</span><span class="n">neighborcells</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>  <span class="c1"># interior cell [1, 1]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span>  <span class="c1"># 3x3 neighborhood in 2D</span>
+<span class="go">9</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.Cells.out_of_bound">
+<span class="sig-name descname"><span class="pre">out_of_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#Cells.out_of_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.Cells.out_of_bound" title="Link to this definition">#</a></dt>
+<dd><p>Check if cell coordinates are out of bounds.</p>
+<p>This method verifies whether the given cell coordinates are within
+the valid range of the grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ns</strong> (<em>np.ndarray</em>) – The cell coordinates to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the coordinates are out of bounds, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span> <span class="o">=</span> <span class="n">Cells</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span> <span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">out_of_bound</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cells</span><span class="o">.</span><span class="n">out_of_bound</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.load_neighbor_list">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">load_neighbor_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#load_neighbor_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.load_neighbor_list" title="Link to this definition">#</a></dt>
+<dd><p>Load a neighbor list from a file.</p>
+<p>The file format is expected to have one line per node, with the first number
+being the node index and subsequent numbers being its neighbors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>PathLike</em>) – The path to the file containing the neighbor list.</p></li>
+<li><p><strong>nnodes</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of nodes. If None, it will be determined from the file
+by counting the number of non-empty lines.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The neighbor list loaded from the file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example file content:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 0 1 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 1 0 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 2 0 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">load_neighbor_list</span><span class="p">(</span><span class="s2">"neighborlist.txt"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span>
+<span class="go">[[1, 2], [0, 2], [0, 1]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.main">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.main" title="Link to this definition">#</a></dt>
+<dd><p>Command-line utility for creating neighbor lists from mesh data files.</p>
+<p>This function parses command-line arguments and creates a neighbor list file
+from a given input mesh file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This function is the main entry point for the command-line utility.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.make_neighbor_list">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">make_neighbor_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_selfloop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_allpairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#make_neighbor_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.make_neighbor_list" title="Link to this definition">#</a></dt>
+<dd><p>Create a neighbor list for given points.</p>
+<p>This function serves as a unified interface to create neighbor lists,
+choosing between cell-based or naive implementation based on the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – The coordinates of the points (N x D array where N is the number of points
+and D is the dimensionality).</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – The radius within which points are considered neighbors.</p></li>
+<li><p><strong>allow_selfloop</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to allow a point to be its own neighbor, by default False.</p></li>
+<li><p><strong>check_allpairs</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use the naive all-pairs approach instead of the cell-based one,
+by default False.</p></li>
+<li><p><strong>show_progress</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to show a progress bar during computation, by default False.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – The MPI communicator for parallel processing, by default None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists, where each inner list contains the indices of
+neighboring points for a given point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">make_neighbor_list</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span>
+<span class="go">[[1, 2], [0, 2], [0, 1], []]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Force all-pairs algorithm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">make_neighbor_list</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">check_allpairs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span>
+<span class="go">[[1, 2], [0, 2], [0, 1], []]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.make_neighbor_list_cell">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">make_neighbor_list_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_selfloop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#make_neighbor_list_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.make_neighbor_list_cell" title="Link to this definition">#</a></dt>
+<dd><p>Create a neighbor list using cell-based spatial partitioning.</p>
+<p>This function uses the Cells class to efficiently find neighboring points
+within the specified radius by only considering points in adjacent cells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – The coordinates of the points (N x D array where N is the number of points
+and D is the dimensionality).</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – The radius within which points are considered neighbors.</p></li>
+<li><p><strong>allow_selfloop</strong> (<em>bool</em>) – Whether to allow a point to be its own neighbor.</p></li>
+<li><p><strong>show_progress</strong> (<em>bool</em>) – Whether to show a progress bar during computation.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – The MPI communicator for parallel processing, by default None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists, where each inner list contains the indices of
+neighboring points for a given point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">make_neighbor_list_cell</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">allow_selfloop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>                                       <span class="n">show_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span>
+<span class="go">[[1, 2], [0, 2], [0, 1], []]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.make_neighbor_list_naive">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">make_neighbor_list_naive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_selfloop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MPI.Comm</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#make_neighbor_list_naive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.make_neighbor_list_naive" title="Link to this definition">#</a></dt>
+<dd><p>Create a neighbor list using a naive all-pairs approach.</p>
+<p>This function computes the distance between all pairs of points to find
+neighbors within the specified radius. This is less efficient than the
+cell-based approach for large point sets but may be more straightforward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – The coordinates of the points (N x D array where N is the number of points
+and D is the dimensionality).</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – The radius within which points are considered neighbors.</p></li>
+<li><p><strong>allow_selfloop</strong> (<em>bool</em>) – Whether to allow a point to be its own neighbor.</p></li>
+<li><p><strong>show_progress</strong> (<em>bool</em>) – Whether to show a progress bar during computation.</p></li>
+<li><p><strong>comm</strong> (<em>MPI.Comm</em><em>, </em><em>optional</em>) – The MPI communicator for parallel processing, by default None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists, where each inner list contains the indices of
+neighboring points for a given point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="n">make_neighbor_list_naive</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">allow_selfloop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>                                        <span class="n">show_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span>
+<span class="go">[[1, 2], [0, 2], [0, 1], []]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="odatse.util.neighborlist.write_neighbor_list">
+<span class="sig-prename descclassname"><span class="pre">odatse.util.neighborlist.</span></span><span class="sig-name descname"><span class="pre">write_neighbor_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnlist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/util/neighborlist.html#write_neighbor_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.util.neighborlist.write_neighbor_list" title="Link to this definition">#</a></dt>
+<dd><p>Write the neighbor list to a file.</p>
+<p>The file format has one line per node, with the first number being the
+node index and subsequent numbers being its neighbors. Optional metadata
+can be included as comments at the beginning of the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The path to the output file.</p></li>
+<li><p><strong>nnlist</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The neighbor list to write.</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em>, </em><em>optional</em>) – The neighborhood radius, written as a comment in the file, by default None.</p></li>
+<li><p><strong>unit</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The unit lengths for each coordinate dimension, written as a comment
+in the file, by default None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This function writes the neighbor list to a file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">neighbor_list</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write_neighbor_list</span><span class="p">(</span><span class="s2">"neighborlist.txt"</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">unit</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="odatse.util.mapping.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">odatse.util.mapping module</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="odatse.util.read_matrix.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">odatse.util.read_matrix module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells"><code class="docutils literal notranslate"><span class="pre">Cells</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.cells"><code class="docutils literal notranslate"><span class="pre">Cells.cells</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.dimension"><code class="docutils literal notranslate"><span class="pre">Cells.dimension</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.mins"><code class="docutils literal notranslate"><span class="pre">Cells.mins</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.maxs"><code class="docutils literal notranslate"><span class="pre">Cells.maxs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.Ns"><code class="docutils literal notranslate"><span class="pre">Cells.Ns</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.ncell"><code class="docutils literal notranslate"><span class="pre">Cells.ncell</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.cellsize"><code class="docutils literal notranslate"><span class="pre">Cells.cellsize</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.__init__"><code class="docutils literal notranslate"><span class="pre">Cells.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.cellcoord2cellindex"><code class="docutils literal notranslate"><span class="pre">Cells.cellcoord2cellindex()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.cellindex2cellcoord"><code class="docutils literal notranslate"><span class="pre">Cells.cellindex2cellcoord()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.coord2cellcoord"><code class="docutils literal notranslate"><span class="pre">Cells.coord2cellcoord()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.coord2cellindex"><code class="docutils literal notranslate"><span class="pre">Cells.coord2cellindex()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.neighborcells"><code class="docutils literal notranslate"><span class="pre">Cells.neighborcells()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.Cells.out_of_bound"><code class="docutils literal notranslate"><span class="pre">Cells.out_of_bound()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.load_neighbor_list"><code class="docutils literal notranslate"><span class="pre">load_neighbor_list()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.make_neighbor_list"><code class="docutils literal notranslate"><span class="pre">make_neighbor_list()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.make_neighbor_list_cell"><code class="docutils literal notranslate"><span class="pre">make_neighbor_list_cell()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.make_neighbor_list_naive"><code class="docutils literal notranslate"><span class="pre">make_neighbor_list_naive()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.util.neighborlist.write_neighbor_list"><code class="docutils literal notranslate"><span class="pre">write_neighbor_list()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/odatse.util.neighborlist.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020-, ISSP, UTokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

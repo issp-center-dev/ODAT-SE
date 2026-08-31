@@ -1,0 +1,1014 @@
+
+<!DOCTYPE html>
+
+
+<html lang="ja" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>レプリカ交換モンテカルロ法 exchange &#8212; ODAT-SE 4.0.0 ドキュメント</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=aa1e424a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=a5fa425f"></script>
+    <script src="../_static/translations.js?v=4755f45a"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'algorithm/exchange';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="ポピュレーションアニーリングモンテカルロ法 pamc" href="pamc.html" />
+    <link rel="prev" title="テンソル列最適化 ttopt" href="ttopt.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="ja"/>
+  <meta name="docsearch:version" content="4.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">本文へスキップ</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>トップに戻る</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="バージョン警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="サイトナビゲーション">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 4.0.0 ドキュメント</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="このページでは">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    ODAT-SEとは
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    インストール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    チュートリアル
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    マニュアル
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    ツール
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    拡張
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    ギャラリー
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    謝辞
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    問い合わせ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="セクションナビゲーション">
+  <p class="bd-links__title" role="heading" aria-level="1">セクションナビゲーション</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../manual/command.html">odatse コマンド</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../input/index.html">入力ファイル</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../input/algorithm.html"><code class="docutils literal notranslate"><span class="pre">[algorithm]</span></code> セクション</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../input/runner.html"><code class="docutils literal notranslate"><span class="pre">[runner]</span></code> セクション</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../output.html">出力ファイル</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">探索アルゴリズム</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="minsearch.html">局所最適化アルゴリズムによる最適値探索 <code class="docutils literal notranslate"><span class="pre">minsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_search.html">大域最適化 <code class="docutils literal notranslate"><span class="pre">global_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper_mpi.html">グリッド型探索 <code class="docutils literal notranslate"><span class="pre">mapper</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_search.html">ランダム探索 <code class="docutils literal notranslate"><span class="pre">random_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayes.html">ベイズ最適化 <code class="docutils literal notranslate"><span class="pre">bayes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttopt.html">テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">レプリカ交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pamc.html">ポピュレーションアニーリングモンテカルロ法 <code class="docutils literal notranslate"><span class="pre">pamc</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../solver/index.html">順問題ソルバー</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../solver/analytical.html"><code class="docutils literal notranslate"><span class="pre">analytical</span></code> ソルバー</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="パンくずリスト" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="ホーム">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../manual/index.html" class="nav-link">マニュアル</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">探索アルゴリズム</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">レプリカ交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="exchange">
+<h1>レプリカ交換モンテカルロ法 <code class="docutils literal notranslate"><span class="pre">exchange</span></code><a class="headerlink" href="#exchange" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">exchange</span></code> はレプリカ交換モンテカルロ法を用いてパラメータ探索を行う <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> です。</p>
+<section id="id1">
+<h2>前準備<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>MPI並列を利用する場合は、あらかじめ <a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> をインストールしておきます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install mpi4py
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>入力パラメータ<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>サブセクション <code class="docutils literal notranslate"><span class="pre">param</span></code> と <code class="docutils literal notranslate"><span class="pre">exchange</span></code> を持ちます。</p>
+<section id="algorithm-param">
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション<a class="headerlink" href="#algorithm-param" title="Link to this heading">#</a></h3>
+<p>探索空間を定義します。
+<code class="docutils literal notranslate"><span class="pre">mesh_path</span></code> キーが存在する場合、または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は離散空間を、そうでない場合は連続空間を探索します。</p>
+<ul>
+<li><p>連続空間</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最小値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: パラメータが取りうる最大値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: モンテカルロ更新の際の変化幅(ガウス分布の標準偏差)です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pbc_list</span></code></p>
+<p>形式: 真偽値のリスト (default: 各パラメータで false)。</p>
+<p>説明: 各パラメータでローカル更新の候補点を生成する際に周期的境界条件(PBC)を使うかどうか。長さは dimension と一致させます。</p>
+</li>
+<li><p>状態提案について</p>
+<ul class="simple">
+<li><p>モンテカルロ更新では現在の状態を中心としたガウス分布に従って候補点を提案します。
+候補点のパラメータ <code class="docutils literal notranslate"><span class="pre">d</span></code> が [min_list[d], max_list[d]) の範囲をはみ出した場合:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pbc_list[d]</span> <span class="pre">=</span> <span class="pre">true</span></code> の場合、周期 [min_list[d], max_list[d]) にラップして範囲内に収めます。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pbc_list[d]</span> <span class="pre">=</span> <span class="pre">false</span></code> の場合、提案は棄却されます。</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>離散空間</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mesh_path</span></code></p>
+<p>形式: ファイルパス</p>
+<p>説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p>
+<p>形式: 文字列。 (default: &quot;#&quot;)</p>
+<p>説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delimiter</span></code></p>
+<p>形式: 文字列。 (default: 空白文字)</p>
+<p>説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は <code class="docutils literal notranslate"><span class="pre">&quot;,&quot;</span></code> を指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skiprows</span></code></p>
+<p>形式: 整数。 (default: 0)</p>
+<p>説明: メッシュ定義ファイルの先頭から読み飛ばす行数。ヘッダ行をスキップする場合に指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code></p>
+<p>形式: ファイルパス</p>
+<p>説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。省略した場合は <code class="docutils literal notranslate"><span class="pre">radius</span></code> で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p>
+<p>形式: 実数</p>
+<p>説明: 隣接点とみなす範囲。 <code class="docutils literal notranslate"><span class="pre">neighborlist_path</span></code> を省略した場合または <code class="docutils literal notranslate"><span class="pre">use_grid</span></code> が true の場合は必須です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_grid</span></code></p>
+<p>形式: 真偽値</p>
+<p>説明: true の場合、均質なメッシュを <code class="docutils literal notranslate"><span class="pre">min_list</span></code>, <code class="docutils literal notranslate"><span class="pre">max_list</span></code>, <code class="docutils literal notranslate"><span class="pre">num_list</span></code> パラメータから生成します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの下端を指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_list</span></code></p>
+<p>形式: 実数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの上端を指定します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_list</span></code></p>
+<p>形式: 整数のリスト。長さはdimensionの値と一致させます。</p>
+<p>説明: メッシュの各パラメータに沿った格子点数を指定します。</p>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="algorithm-exchange">
+<h3><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code> セクション<a class="headerlink" href="#algorithm-exchange" title="Link to this heading">#</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">numsteps</span></code></p>
+<p>形式: 整数。</p>
+<p>説明: モンテカルロ更新を行う回数。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numsteps_exchange</span></code></p>
+<p>形式: 整数。</p>
+<p>説明: 「温度」のレプリカ交換を行う頻度。この回数だけモンテカルロ更新を行ったらレプリカ交換を実行します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numsteps_thermalization</span></code></p>
+<p>形式: 整数。</p>
+<p>説明: モンテカルロ平均を計算する際に、初期緩和として無視するモンテカルロ更新の数。 デフォルトは <code class="docutils literal notranslate"><span class="pre">numsteps</span></code> の10%です。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tmin</span></code></p>
+<p>形式: 実数。</p>
+<p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最小値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tmax</span></code></p>
+<p>形式: 実数。</p>
+<p>説明: 「温度」(<span class="math notranslate nohighlight">\(T\)</span>)の最大値。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmin</span></code></p>
+<p>形式: 実数。</p>
+<p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最小値。
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bmax</span></code></p>
+<p>形式: 実数。</p>
+<p>説明: 「逆温度」(<span class="math notranslate nohighlight">\(\beta = 1/T\)</span>)の最大値。
+温度の範囲 (<code class="docutils literal notranslate"><span class="pre">Tmin</span></code>, <code class="docutils literal notranslate"><span class="pre">Tmax</span></code>) または逆温度の範囲 (<code class="docutils literal notranslate"><span class="pre">bmin</span></code>, <code class="docutils literal notranslate"><span class="pre">bmax</span></code>) の、いずれか一方の組だけを指定してください。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tlogspace</span></code></p>
+<p>形式: 真偽値。 (default: true)</p>
+<p>説明: 「温度」を各レプリカに割り当てる際に、対数空間で等分割するか否かを指定します。true のときは対数空間で等分割します。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code></p>
+<p>形式: 整数。 (default: 1)</p>
+<p>説明: ひとつのMPI プロセスが担当するレプリカの数。
+総レプリカ数は「MPI プロセス数 × <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code>」で与えられます。
+レプリカ交換モンテカルロ法では温度点はレプリカごとに1つ割り当てられるため、<code class="docutils literal notranslate"><span class="pre">Tmin</span></code> から <code class="docutils literal notranslate"><span class="pre">Tmax</span></code> の間に生成される温度点の数は総レプリカ数に一致します。
+使用する温度点の数を増やすには、MPI プロセス数または <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> を増やしてください。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">separate_T</span></code></p>
+<p>形式: 真偽値。 (default: true)</p>
+<p>説明: モンテカルロステップのログを温度ごとに分割したファイル (<code class="docutils literal notranslate"><span class="pre">result_T*.txt</span></code>) に出力するかどうか。
+<code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code> が true の場合は無効になります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">export_combined_files</span></code></p>
+<p>形式: 真偽値。 (default: false)</p>
+<p>説明: <code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> や <code class="docutils literal notranslate"><span class="pre">result.txt</span></code> の内容を、プロセスごとの個別ファイルの代わりに単一の結合ファイル <code class="docutils literal notranslate"><span class="pre">combined.txt</span></code> にまとめて出力するかどうか。
+結合ファイルからの個別ファイルの抽出には <code class="docutils literal notranslate"><span class="pre">odatse_extract_combined</span></code> ツールを使用します (<a class="reference internal" href="../post/tools/extract_combined.html"><span class="doc">odatse_extract_combined</span></a> 参照)。</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p><strong>開発者向け</strong>: レプリカデータの収集に用いる MPI 通信は、環境変数 <code class="docutils literal notranslate"><span class="pre">ODATSE_USE_MPI_BUFFERED=1</span></code> を設定すると、オブジェクトベースの通信 (<code class="docutils literal notranslate"><span class="pre">gather</span></code>) からバッファベースの通信 (<code class="docutils literal notranslate"><span class="pre">Gather</span></code>) に切り替わります。
+通常は設定不要ですが、大規模並列実行時の性能チューニングの選択肢として用意されています。</p>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>アルゴリズム補助ファイル<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>メッシュ定義ファイル<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>本ファイルで探索するグリッド空間を定義します。
+1列目にメッシュのインデックス (実際には使用されません)、
+2列目以降は探索空間の座標を指定します。</p>
+<p>以下、サンプルを記載します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span> <span class="mf">6.000000</span> <span class="mf">6.000000</span>
+<span class="mi">2</span> <span class="mf">6.000000</span> <span class="mf">5.750000</span>
+<span class="mi">3</span> <span class="mf">6.000000</span> <span class="mf">5.500000</span>
+<span class="mi">4</span> <span class="mf">6.000000</span> <span class="mf">5.250000</span>
+<span class="mi">5</span> <span class="mf">6.000000</span> <span class="mf">5.000000</span>
+<span class="mi">6</span> <span class="mf">6.000000</span> <span class="mf">4.750000</span>
+<span class="mi">7</span> <span class="mf">6.000000</span> <span class="mf">4.500000</span>
+<span class="mi">8</span> <span class="mf">6.000000</span> <span class="mf">4.250000</span>
+<span class="mi">9</span> <span class="mf">6.000000</span> <span class="mf">4.000000</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>近傍リスト定義ファイル<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>離散空間をモンテカルロ法で探索する場合、各点 <span class="math notranslate nohighlight">\(i\)</span> ごとに次に移動できる点 <span class="math notranslate nohighlight">\(j\)</span> を定めておく必要があります。
+そのために必要なのが近傍リスト定義ファイルです。</p>
+<p>1列目に始点の番号 <span class="math notranslate nohighlight">\(i\)</span> を記載し、
+2列目以降に <span class="math notranslate nohighlight">\(i\)</span> から移動できる終点 <span class="math notranslate nohighlight">\(j\)</span> を列挙します。</p>
+<p>近傍リスト定義ファイルをメッシュ定義ファイルから生成するツール <code class="docutils literal notranslate"><span class="pre">odatse_neighborlist</span></code> が提供されています。
+詳細は <a class="reference internal" href="../tool.html"><span class="doc">関連ツール</span></a> を参照してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span>
+<span class="mi">4</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span>
+<span class="mi">5</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">7</span> <span class="mi">8</span> <span class="mi">9</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>出力ファイル<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<p>以下のファイルでは、各レプリカの状態を追跡する単位を walker と呼びます（1プロセスあたり <code class="docutils literal notranslate"><span class="pre">nreplica_per_proc</span></code> 個）。</p>
+<section id="rank-trial-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code><a class="headerlink" href="#rank-trial-txt" title="Link to this heading">#</a></h3>
+<p>各レプリカについて、モンテカルロ更新で提案（試行）されたパラメータ候補と、対応する目的関数の値です。
+1列目にステップ数、2列目にプロセス内の walker 番号、3列目にレプリカの温度、4列目に目的関数の値、5列目以降にパラメータが記載されます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.0758494287185766</span> <span class="mf">2.811346329442423</span> <span class="mf">3.691101784194861</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.08566823949124412</span> <span class="mf">3.606664760390988</span> <span class="mf">3.2093903670436497</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
+</pre></div>
+</div>
+</section>
+<section id="rank-result-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code><a class="headerlink" href="#rank-result-txt" title="Link to this heading">#</a></h3>
+<p>各レプリカについて、採択・棄却判定を経て採択されたパラメータの系列と、対応する目的関数の値です（棄却された場合は直前の状態が維持されます）。
+<code class="docutils literal notranslate"><span class="pre">trial.txt</span></code> と同一の書式です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># step walker T fx z1 z2</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">1</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.07830821484593968</span> <span class="mf">3.682008067401509</span> <span class="mf">3.9502750191292586</span>
+<span class="mi">3</span> <span class="mi">0</span> <span class="mf">0.004999999999999999</span> <span class="mf">0.06273922648753057</span> <span class="mf">4.330900869594549</span> <span class="mf">4.311333132184154</span>
+</pre></div>
+</div>
+</section>
+<section id="best-result-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code><a class="headerlink" href="#best-result-txt" title="Link to this heading">#</a></h3>
+<p>サンプリングされた全データのうち、目的関数の値が最小となったパラメータと、対応する目的関数の値です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nprocs</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">step</span> <span class="o">=</span> <span class="mi">65</span>
+<span class="n">walker</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">fx</span> <span class="o">=</span> <span class="mf">0.008233957976993406</span>
+<span class="n">z1</span> <span class="o">=</span> <span class="mf">4.221129370933539</span>
+<span class="n">z2</span> <span class="o">=</span> <span class="mf">5.139591716517661</span>
+</pre></div>
+</div>
+</section>
+<section id="result-t-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code><a class="headerlink" href="#result-t-txt" title="Link to this heading">#</a></h3>
+<p>サンプリング結果を温度ごとにまとめ直したものです。
+<code class="docutils literal notranslate"><span class="pre">#</span></code> は温度点の番号です。
+ファイルの1列目はステップ数、2列目は全体での walker 番号、3列目は目的関数の値、 4列目以降は探索パラメータの値です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># T = 1.0</span>
+<span class="mi">0</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">1</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">2</span> <span class="mi">15</span> <span class="mf">28.70157662892569</span> <span class="mf">3.3139009347685118</span> <span class="o">-</span><span class="mf">4.20946994566609</span>
+<span class="mi">3</span> <span class="mi">15</span> <span class="mf">28.98676409223712</span> <span class="mf">3.7442621319489637</span> <span class="o">-</span><span class="mf">3.868754990884034</span>
+</pre></div>
+</div>
+</section>
+<section id="fx-txt">
+<h3><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code><a class="headerlink" href="#fx-txt" title="Link to this heading">#</a></h3>
+<p>各温度ごとに、全レプリカの情報をまとめたものです。
+1列目には逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数</p>
+<div class="math notranslate nohighlight">
+\[\log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)}\]</div>
+<p>が、6列目にはモンテカルロ更新の採択率が出力されます。
+ここで <span class="math notranslate nohighlight">\(\beta_0\)</span> は計算している <span class="math notranslate nohighlight">\(\beta\)</span> の最小値です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># $1: 1/T</span>
+<span class="c1"># $2: mean of f(x)</span>
+<span class="c1"># $3: standard error of f(x)</span>
+<span class="c1"># $4: number of replicas [Not used for exchange MC]</span>
+<span class="c1"># $5: log(Z/Z0)</span>
+<span class="c1"># $6: acceptance ratio</span>
+<span class="mf">0.01</span> <span class="mf">71.1757607526179</span> <span class="mf">0.7074887893238192</span> <span class="mi">80</span> <span class="mf">0.0</span> <span class="mf">0.906</span>
+<span class="mf">0.011236548001387516</span> <span class="mf">71.64077624599895</span> <span class="mf">0.6352374919714137</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.08478181677306895</span> <span class="mf">0.9014444444444445</span>
+<span class="mf">0.012626001098748564</span> <span class="mf">65.8095785630431</span> <span class="mf">0.6095581760655332</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.18096066826346802</span> <span class="mf">0.8936666666666667</span>
+<span class="mf">0.014187266741165962</span> <span class="mf">60.51980595731712</span> <span class="mf">0.5843304334378878</span> <span class="mi">80</span> <span class="o">-</span><span class="mf">0.2798580927722558</span> <span class="mf">0.8766666666666667</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>リスタート<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<p>コンストラクタの引数 <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> に実行モードを指定します。
+以下はそれぞれ <code class="docutils literal notranslate"><span class="pre">odatse</span></code> コマンドの引数の <code class="docutils literal notranslate"><span class="pre">--init</span></code>, <code class="docutils literal notranslate"><span class="pre">--resume</span></code>, <code class="docutils literal notranslate"><span class="pre">--cont</span></code> に対応します。
+各モードの動作は次のとおりです。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code> (デフォルト)</p>
+<p>初期化して実行します。
+チェックポイント機能が有効な場合、以下のタイミングで実行時の状態をファイルに出力します。</p>
+<ol class="arabic simple">
+<li><p>指定したステップ数または実行時間が経過したとき</p></li>
+<li><p>実行の終了時</p></li>
+</ol>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code></p>
+<p>実行が中断した際に、最も新しいチェックポイントから実行を再開します。
+並列数などの計算条件は前と同じにする必要があります。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p>
+<p>終了時の状態からサンプリングの繰り返しを継続して実行するモードです。
+<code class="docutils literal notranslate"><span class="pre">numsteps</span></code> の値を増やしてプログラムを実行してください。
+繰り返しステップカウントはそのまま引き継がれます。</p>
+<p>例: 前の計算で <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">1000</span></code> として 1000ステップ計算した後、次の計算で <code class="docutils literal notranslate"><span class="pre">numsteps</span> <span class="pre">=</span> <span class="pre">2000</span></code> として continue モードで実行すると、1001ステップ目から 2000ステップ目までの計算を行います。</p>
+</li>
+</ul>
+</section>
+<section id="id8">
+<h2>アルゴリズム解説<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<section id="id9">
+<h3>マルコフ連鎖モンテカルロ法<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>モンテカルロ法(モンテカルロサンプリング)では、パラメータ空間中を動き回る walker <span class="math notranslate nohighlight">\(\vec{x}\)</span> を重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に従って確率的に動かすことで目的関数の最適化を行います。
+重み <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> として、「温度」 <span class="math notranslate nohighlight">\(T &gt; 0\)</span> を導入して <span class="math notranslate nohighlight">\(W(\vec{x}) = e^{-f(\vec{x})/T}\)</span> とすることが一般的です(ボルツマン重み)。
+ほとんどの場合において、 <span class="math notranslate nohighlight">\(W\)</span> に基づいて直接サンプリングする (walker を生成する) のは不可能なので、 walker を確率的に少しずつ動かすことで、頻度分布が <span class="math notranslate nohighlight">\(W\)</span> に従うように時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> を生成します (マルコフ連鎖モンテカルロ法, MCMC)。
+<span class="math notranslate nohighlight">\(\vec{x}\)</span> から <span class="math notranslate nohighlight">\(\vec{x}'\)</span> へ遷移する確率を <span class="math notranslate nohighlight">\(p(\vec{x}' | \vec{x})\)</span> とすると、</p>
+<div class="math notranslate nohighlight">
+\[W(\vec{x}') = \sum_{\vec{x}} p(\vec{x}' | \vec{x}) W(\vec{x})\]</div>
+<p>となるように <span class="math notranslate nohighlight">\(p\)</span> を定めれば(釣り合い条件)、時系列 <span class="math notranslate nohighlight">\(\{\vec{x}_t\}\)</span> の頻度分布が <span class="math notranslate nohighlight">\(W(\vec{x})\)</span> に収束することが示されます。 <a class="footnote-reference brackets" href="#mcmc-condition" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+実際の計算では、より強い制約である詳細釣り合い条件</p>
+<div class="math notranslate nohighlight">
+\[p(\vec{x} | \vec{x}') W(\vec{x}') =  W(\vec{x})p(\vec{x}' | \vec{x})\]</div>
+<p>を課すことがほとんどです。 両辺で <span class="math notranslate nohighlight">\(\vec{x}\)</span> についての和を取ると釣り合い条件に帰着します。</p>
+<p><span class="math notranslate nohighlight">\(p\)</span> を求めるアルゴリズムはいくつか提案されていますが、 ODAT-SE では Metropolis-Hastings 法 (MH法) を用います。
+MH 法では、遷移プロセスを提案プロセスと採択プロセスとに分割します。</p>
+<ol class="arabic">
+<li><p>提案確率 <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t)\)</span> で候補点 <span class="math notranslate nohighlight">\(\vec{x}\)</span> を生成します</p>
+<p>提案確率 <span class="math notranslate nohighlight">\(P\)</span> としては <span class="math notranslate nohighlight">\(\vec{x}_t\)</span> を中心とした一様分布やガウス関数などの扱いやすいものを利用します</p>
+</li>
+<li><p>提案された候補点 <span class="math notranslate nohighlight">\(\vec{x}\)</span> を採択確率 <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span> で受け入れ、 <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}\)</span> とします</p>
+<p>受け入れなかった場合は <span class="math notranslate nohighlight">\(\vec{x}_{t+1} = \vec{x}_t\)</span> とします</p>
+</li>
+</ol>
+<p>採択確率 <span class="math notranslate nohighlight">\(Q(\vec{x} | \vec{x}_t)\)</span> は</p>
+<div class="math notranslate nohighlight">
+\[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})P(\vec{x}_t | \vec{x}) }{W(\vec{x}_t) P(\vec{x} | \vec{x}_t)} \right]\]</div>
+<p>とします。
+この定義が詳細釣り合い条件を満たすことは、詳細釣り合いの式に代入することで簡単に確かめられます。
+特に、重みとしてボルツマン因子を、提案確率として対称なもの <span class="math notranslate nohighlight">\(P(\vec{x} | \vec{x}_t) = P(\vec{x}_t | \vec{x})\)</span> を用いたときには、</p>
+<div class="math notranslate nohighlight">
+\[Q(\vec{x} | \vec{x}_t) = \min\left[1, \frac{W(\vec{x})}{W(\vec{x}_t)} \right]
+                       = \min\left[1, \exp\left(-\frac{f(\vec{x}) - f(\vec{x}_t)}{T}\right) \right]\]</div>
+<p>というさらに簡単な形になります。</p>
+<p><span class="math notranslate nohighlight">\(\Delta f = f(\vec{x}) - f(\vec{x}_t)\)</span> とおいて、
+<span class="math notranslate nohighlight">\(\Delta f \le 0\)</span> のときに <span class="math notranslate nohighlight">\(Q = 1\)</span> となることを踏まえると、
+MH 法によるMCMC は次のようになります。</p>
+<ol class="arabic simple">
+<li><p>現在地点の近くからランダムに次の座標の候補を選び、目的関数 <span class="math notranslate nohighlight">\(f\)</span> の値を調べる</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta f \le 0\)</span> ならば(山を下る方向ならば)移動する</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta f &gt; 0\)</span> ならば採択確率 <span class="math notranslate nohighlight">\(Q = e^{-\Delta f / T}\)</span> で移動する</p></li>
+<li><p>1-3 を適当な回数繰り返す</p></li>
+</ol>
+<p>得られた時系列のうち、目的関数の値が一番小さいものを最適解とします。
+3 番のプロセスのおかげで、 <span class="math notranslate nohighlight">\(\Delta f \sim T\)</span> ぐらいの山を乗り越えられるので、局所最適解にトラップされた場合にも脱出可能です。</p>
+</section>
+<section id="id11">
+<h3>レプリカ交換モンテカルロ法<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>モンテカルロ法による最適化では、温度 <span class="math notranslate nohighlight">\(T\)</span> は非常に重要なハイパーパラメータとなっています。
+モンテカルロ法では、温度 <span class="math notranslate nohighlight">\(T\)</span> 程度の山を乗り越えられますが、逆にそれ以上の深さの谷からは容易に脱出できません。
+そのため、局所解へのトラップを防ぐためには温度を上げる必要があります。
+一方で、 <span class="math notranslate nohighlight">\(T\)</span> よりも小さい谷は谷として見えなくなるため、得られる <span class="math notranslate nohighlight">\(\min f(\vec{x})\)</span> の精度も <span class="math notranslate nohighlight">\(T\)</span> 程度になり、精度を上げるためには温度を下げる必要があります。
+ここから、最適解を探すためには温度 <span class="math notranslate nohighlight">\(T\)</span> を注意深く決める必要があることがわかります。</p>
+<p>この問題を解決する方法として、温度 <span class="math notranslate nohighlight">\(T\)</span> を固定せずに更新していくというものがあります。
+たとえば、焼きなまし法 (simulated annealing) では、温度をステップごとに徐々に下げていきます。
+焼戻し法 (simulated tempering) は、温度をハイパーパラメータではなく、サンプリングすべきパラメータとして扱い、(詳細)釣り合い条件を満たすように更新することで、加熱と冷却を実現します。温度を下げることで谷の詳細を調べ、温度を上げることで谷から脱出します。
+レプリカ交換モンテカルロ法 (replica exchange Monte Carlo) は焼戻し法をさらに発展させた手法で、並列焼戻し法 (parallel tempering) とも呼ばれます。
+レプリカ交換モンテカルロ法では、レプリカと呼ばれる複数の系を、それぞれ異なる温度で並列にモンテカルロシミュレーションします。
+そして、ある一定間隔で、(詳細)釣り合い条件を満たすように他のレプリカと温度を交換します。
+焼戻し法と同様に、温度を上下することで谷を調べたり脱出したりするのですが、各温度点について、かならずレプリカのどれかが対応しているため、全体として特定の温度に偏ることがなくなります。
+また、複数の MPI プロセスを用意してそれぞれレプリカを担当させることで簡単に並列化可能です。
+数多くのレプリカを用意することで温度間隔が狭まると、温度交換の採択率も上がるため、大規模並列計算に特に向いたアルゴリズムです。
+有限温度由来の「ぼやけ」がどうしても生まれるので、モンテカルロ法で得られた解を初期値として <a class="reference internal" href="minsearch.html"><span class="doc">局所最適化アルゴリズムによる最適値探索 minsearch</span></a> を実行することを推奨します。</p>
+<p class="rubric">脚注</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="mcmc-condition" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">1</a><span class="fn-bracket">]</span></span>
+<p>正確には、収束のためには非周期性とエルゴード性も必要です。</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ttopt.html"
+       title="前のページ">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">前へ</p>
+        <p class="prev-next-title">テンソル列最適化 <code class="docutils literal notranslate"><span class="pre">ttopt</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pamc.html"
+       title="次ページ">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">次へ</p>
+        <p class="prev-next-title">ポピュレーションアニーリングモンテカルロ法 <code class="docutils literal notranslate"><span class="pre">pamc</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> このページでは
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">前準備</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">入力パラメータ</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-param"><code class="docutils literal notranslate"><span class="pre">[algorithm.param]</span></code> セクション</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-exchange"><code class="docutils literal notranslate"><span class="pre">[algorithm.exchange]</span></code> セクション</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">アルゴリズム補助ファイル</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">メッシュ定義ファイル</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">近傍リスト定義ファイル</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">出力ファイル</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rank-trial-txt"><code class="docutils literal notranslate"><span class="pre">RANK/trial.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rank-result-txt"><code class="docutils literal notranslate"><span class="pre">RANK/result.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-result-txt"><code class="docutils literal notranslate"><span class="pre">best_result.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#result-t-txt"><code class="docutils literal notranslate"><span class="pre">result_T#.txt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fx-txt"><code class="docutils literal notranslate"><span class="pre">fx.txt</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">リスタート</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">アルゴリズム解説</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">マルコフ連鎖モンテカルロ法</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">レプリカ交換モンテカルロ法</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4 を使用して作成されました。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0 で構築されています。
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

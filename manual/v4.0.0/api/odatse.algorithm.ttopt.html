@@ -1,0 +1,834 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>odatse.algorithm.ttopt module &#8212; ODAT-SE API  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=a5fa425f"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'odatse.algorithm.ttopt';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="odatse.domain package" href="odatse.domain.html" />
+    <link rel="prev" title="odatse.algorithm.state module" href="odatse.algorithm.state.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE API  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="odatse.html">odatse package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="odatse.algorithm.html">odatse.algorithm package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._algorithm.html">odatse.algorithm._algorithm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm._iterator.html">odatse.algorithm._iterator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.bayes.html">odatse.algorithm.bayes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.exchange.html">odatse.algorithm.exchange module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.gather.html">odatse.algorithm.gather module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.global_search.html">odatse.algorithm.global_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi.html">odatse.algorithm.mapper_mpi module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.mapper_mpi_base.html">odatse.algorithm.mapper_mpi_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.min_search.html">odatse.algorithm.min_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.montecarlo.html">odatse.algorithm.montecarlo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.pamc.html">odatse.algorithm.pamc module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.random_search.html">odatse.algorithm.random_search module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.algorithm.state.html">odatse.algorithm.state module</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">odatse.algorithm.ttopt module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.domain.html">odatse.domain package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain._domain.html">odatse.domain._domain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.meshgrid.html">odatse.domain.meshgrid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.domain.region.html">odatse.domain.region module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.scripts.html">odatse.scripts package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.extract_combined.html">odatse.scripts.extract_combined module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_1D_histogram.html">odatse.scripts.plt_1D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_2D_histogram.html">odatse.scripts.plt_2D_histogram module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.plt_model_evidence.html">odatse.scripts.plt_model_evidence module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.separateT.html">odatse.scripts.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.scripts.summarize_each_T.html">odatse.scripts.summarize_each_T module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.solver.html">odatse.solver package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver._solver.html">odatse.solver._solver module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.analytical.html">odatse.solver.analytical module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.solver.function.html">odatse.solver.function module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="odatse.util.html">odatse.util package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.data_writer.html">odatse.util.data_writer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.graph.html">odatse.util.graph module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.limitation.html">odatse.util.limitation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.logger.html">odatse.util.logger module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.mapping.html">odatse.util.mapping module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.neighborlist.html">odatse.util.neighborlist module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_matrix.html">odatse.util.read_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.read_ts.html">odatse.util.read_ts module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.resampling.html">odatse.util.resampling module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.separateT.html">odatse.util.separateT module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.toml.html">odatse.util.toml module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="odatse.util.version.html">odatse.util.version module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.__main__.html">odatse.__main__ module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._info.html">odatse._info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._initialize.html">odatse._initialize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._main.html">odatse._main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._runner.html">odatse._runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse._version.html">odatse._version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.exception.html">odatse.exception module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="odatse.mpi.html">odatse.mpi module</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">odatse</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.html" class="nav-link">odatse package</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="odatse.algorithm.html" class="nav-link">odatse.algorithm package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">odatse.algorithm.ttopt module</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-odatse.algorithm.ttopt">
+<span id="odatse-algorithm-ttopt-module"></span><h1>odatse.algorithm.ttopt module<a class="headerlink" href="#module-odatse.algorithm.ttopt" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">odatse.algorithm.ttopt.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse.domain.region.html#odatse.domain.region.Region" title="odatse.domain.region.Region"><span class="pre">Region</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="odatse.algorithm._algorithm.html#odatse.algorithm._algorithm.AlgorithmBase" title="odatse.algorithm._algorithm.AlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmBase</span></code></a></p>
+<p>Tensor-Train Optimization (TTOpt) algorithm implementation.</p>
+<p>This class implements the TTOpt algorithm. It is an optimization method
+that searches for function minima by considering an implicit tensor-train
+decomposition of a large tensor whose elements correspond to evaluation
+of the target function at various points in the parameter space.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.bounds" title="Link to this definition">#</a></dt>
+<dd><p>Lower and upper bounds along each dimension.
+It is constructed from a Domain object based on the min_list and max_list parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.p_points">
+<span class="sig-name descname"><span class="pre">p_points</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.p_points" title="Link to this definition">#</a></dt>
+<dd><p>The number of coarse modes in the parameter space for each dimension (default: [2]*n_dim).
+Each dimension is effectively discretized into p^q uniformly-spaced points. It is recommended to have p=2 along each dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.q_points">
+<span class="sig-name descname"><span class="pre">q_points</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.q_points" title="Link to this definition">#</a></dt>
+<dd><p>The number of fine submodes in the parameter space for each dimension (default: [1]*n_dim).
+Each dimension is effectively discretized into p^q uniformly-spaced points. This parameter determines the fineness of each mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.r_max">
+<span class="sig-name descname"><span class="pre">r_max</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.r_max" title="Link to this definition">#</a></dt>
+<dd><p>The maximum rank of the implicit tensor-train decomposition (default: 4).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.max_f_eval">
+<span class="sig-name descname"><span class="pre">max_f_eval</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.max_f_eval" title="Link to this definition">#</a></dt>
+<dd><p>The maximum number of function evaluations (default: 10000).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.maxvol_tol">
+<span class="sig-name descname"><span class="pre">maxvol_tol</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.maxvol_tol" title="Link to this definition">#</a></dt>
+<dd><p>The tolerance needed for early stopping in the maxvol subroutine.
+Meaningful values are larger than 1 (default: 1.001).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.maxvol_max_it">
+<span class="sig-name descname"><span class="pre">maxvol_max_it</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.maxvol_max_it" title="Link to this definition">#</a></dt>
+<dd><p>The maximum number of maxvol iterations each time the maxvol subroutine is called (default: 1000).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.save_eval_history">
+<span class="sig-name descname"><span class="pre">save_eval_history</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.save_eval_history" title="Link to this definition">#</a></dt>
+<dd><p>If True, stream <code class="docutils literal notranslate"><span class="pre">ttopt_eval_history.txt</span></code> under the output directory while running (rank 0
+only; default: True). Rows are flushed when the in-memory buffer reaches
+<code class="docutils literal notranslate"><span class="pre">eval_history_buffer_rows</span></code> points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.eval_history_buffer_rows">
+<span class="sig-name descname"><span class="pre">eval_history_buffer_rows</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.eval_history_buffer_rows" title="Link to this definition">#</a></dt>
+<dd><p>Number of evaluation rows to buffer in memory before appending to disk (default: 256).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.init_points">
+<span class="sig-name descname"><span class="pre">init_points</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.init_points" title="Link to this definition">#</a></dt>
+<dd><p>Initial points in physical coordinates to evaluate at the start of optimization. (default: None).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.xopt">
+<span class="sig-name descname"><span class="pre">xopt</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.xopt" title="Link to this definition">#</a></dt>
+<dd><p>The optimal solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.fopt">
+<span class="sig-name descname"><span class="pre">fopt</span></span><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.fopt" title="Link to this definition">#</a></dt>
+<dd><p>The optimal function value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Initialize the Algorithm class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode to run the algorithm in, by default “initial”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse._info.html#odatse._info.Info" title="odatse._info.Info"><span class="pre">Info</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Runner</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="odatse.domain.region.html#odatse.domain.region.Region" title="odatse.domain.region.Region"><span class="pre">Region</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'initial'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the Algorithm class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>info</strong> (<em>odatse.Info</em>) – Information object containing algorithm parameters.</p></li>
+<li><p><strong>runner</strong> (<em>odatse.Runner</em><em>, </em><em>optional</em>) – Runner object for executing the algorithm.</p></li>
+<li><p><strong>run_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode to run the algorithm in, by default “initial”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._apply_state">
+<span class="sig-name descname"><span class="pre">_apply_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._apply_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._apply_state" title="Link to this definition">#</a></dt>
+<dd><p>Restore algorithm state from a checkpoint snapshot.</p>
+<p>Validates the MPI configuration and structural consistency (n_q_dims),
+optionally restores the RNG, then applies all fields listed in
+<code class="docutils literal notranslate"><span class="pre">_checkpoint_attrs</span></code>.  The structural fields rebuilt by
+<code class="docutils literal notranslate"><span class="pre">_setup_structure()</span></code> (grids, n_points, etc.) are not restored from the
+checkpoint because they are deterministic functions of the
+configuration parameters.</p>
+<p>Must be called <em>after</em> <code class="docutils literal notranslate"><span class="pre">_setup_structure()</span></code> so that <code class="docutils literal notranslate"><span class="pre">self.n_q_dims</span></code>
+reflects the current configuration and can be compared with the saved
+value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – Snapshot previously produced by <code class="docutils literal notranslate"><span class="pre">__getstate__</span></code>.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code>; TTOpt treats them identically.</p></li>
+<li><p><strong>restore_rng</strong> (<em>bool</em>) – When <em>True</em>, restore the RNG state from <em>data</em>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._init_counters">
+<span class="sig-name descname"><span class="pre">_init_counters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._init_counters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._init_counters" title="Link to this definition">#</a></dt>
+<dd><p>Reset evaluation counters and the eval-history file handle.</p>
+<p>Called on every run mode so that the history file is opened fresh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._init_poi">
+<span class="sig-name descname"><span class="pre">_init_poi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._init_poi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._init_poi" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate init_points and initialize poi/tt_ranks via maxvol.</p>
+<p>Called only for fresh runs (mode <code class="docutils literal notranslate"><span class="pre">&quot;initial&quot;</span></code>).  On resume the
+poi and tt_ranks are restored from the checkpoint instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._initialize">
+<span class="sig-name descname"><span class="pre">_initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._initialize" title="Link to this definition">#</a></dt>
+<dd><p>Set up initial algorithm state for a fresh run (init mode).</p>
+<p>Called by <code class="docutils literal notranslate"><span class="pre">prepare()</span></code> when <code class="docutils literal notranslate"><span class="pre">mode</span></code> starts with <code class="docutils literal notranslate"><span class="pre">&quot;init&quot;</span></code>.
+Must not use the runner (evaluation happens later in <code class="docutils literal notranslate"><span class="pre">_run()</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._load_state">
+<span class="sig-name descname"><span class="pre">_load_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'resume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restore_rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._load_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._load_state" title="Link to this definition">#</a></dt>
+<dd><p>Read a checkpoint file and defer applying it until <code class="docutils literal notranslate"><span class="pre">_prepare()</span></code>.</p>
+<p>The snapshot is <em>not</em> applied here: <code class="docutils literal notranslate"><span class="pre">_prepare()</span></code> first rebuilds the
+deterministic structural fields (which would otherwise clobber the
+restored poi/tt_ranks/counters), and only then calls <code class="docutils literal notranslate"><span class="pre">_apply_state</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Path to the checkpoint file.</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;resume&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code>.  TTOpt does not distinguish between
+them: the evaluation budget <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> is re-read from the input
+file on every run and is deliberately not checkpointed, while
+<code class="docutils literal notranslate"><span class="pre">f_eval_count</span></code> is.  Raising <code class="docutils literal notranslate"><span class="pre">max_f_eval</span></code> and restarting therefore
+extends the search in either mode.</p></li>
+<li><p><strong>restore_rng</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the RNG state should be restored when the snapshot is
+applied.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._post">
+<span class="sig-name descname"><span class="pre">_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._post" title="Link to this definition">#</a></dt>
+<dd><p>Collect the best solution across ranks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._prepare">
+<span class="sig-name descname"><span class="pre">_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._prepare" title="Link to this definition">#</a></dt>
+<dd><p>Prepare the TT decomposition structure and (for fresh runs) the initial poi.</p>
+<p>The deterministic structural fields are always rebuilt from config and
+the counters reset.  On resume the checkpoint snapshot (already read by
+prepare()’s dispatch into <code class="docutils literal notranslate"><span class="pre">self._resume_data</span></code>) is applied <em>here</em>,
+after the structural rebuild, so that the restored poi/tt_ranks/counters
+are not clobbered by <code class="docutils literal notranslate"><span class="pre">_setup_structure()</span></code>/<code class="docutils literal notranslate"><span class="pre">_init_counters()</span></code>.  For a
+fresh run the initial poi is built from <code class="docutils literal notranslate"><span class="pre">init_points</span></code> instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._run">
+<span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._run" title="Link to this definition">#</a></dt>
+<dd><p>Execute the main algorithm loop.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">init</span></code> mode, perform the initial evaluation here before
+entering the main loop.  Call <code class="docutils literal notranslate"><span class="pre">_save_state()</span></code> at the appropriate
+points inside the loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._save_state">
+<span class="sig-name descname"><span class="pre">_save_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._save_state" title="Link to this definition">#</a></dt>
+<dd><p>Save the current algorithm state to a checkpoint file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="odatse.algorithm.ttopt.Algorithm._setup_structure">
+<span class="sig-name descname"><span class="pre">_setup_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/odatse/algorithm/ttopt.html#Algorithm._setup_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#odatse.algorithm.ttopt.Algorithm._setup_structure" title="Link to this definition">#</a></dt>
+<dd><p>Set up structural fields derived from config parameters.</p>
+<p>Called on every run mode (init and resume).  These fields are
+deterministic functions of the configuration and do not need to be
+checkpointed, but they must exist before <code class="docutils literal notranslate"><span class="pre">_run()</span></code> can use them.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="odatse.algorithm.state.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">odatse.algorithm.state module</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="odatse.domain.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">odatse.domain package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm"><code class="docutils literal notranslate"><span class="pre">Algorithm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.bounds"><code class="docutils literal notranslate"><span class="pre">Algorithm.bounds</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.p_points"><code class="docutils literal notranslate"><span class="pre">Algorithm.p_points</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.q_points"><code class="docutils literal notranslate"><span class="pre">Algorithm.q_points</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.r_max"><code class="docutils literal notranslate"><span class="pre">Algorithm.r_max</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.max_f_eval"><code class="docutils literal notranslate"><span class="pre">Algorithm.max_f_eval</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.maxvol_tol"><code class="docutils literal notranslate"><span class="pre">Algorithm.maxvol_tol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.maxvol_max_it"><code class="docutils literal notranslate"><span class="pre">Algorithm.maxvol_max_it</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.save_eval_history"><code class="docutils literal notranslate"><span class="pre">Algorithm.save_eval_history</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.eval_history_buffer_rows"><code class="docutils literal notranslate"><span class="pre">Algorithm.eval_history_buffer_rows</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.init_points"><code class="docutils literal notranslate"><span class="pre">Algorithm.init_points</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.xopt"><code class="docutils literal notranslate"><span class="pre">Algorithm.xopt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.fopt"><code class="docutils literal notranslate"><span class="pre">Algorithm.fopt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm.__init__"><code class="docutils literal notranslate"><span class="pre">Algorithm.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._apply_state"><code class="docutils literal notranslate"><span class="pre">Algorithm._apply_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._init_counters"><code class="docutils literal notranslate"><span class="pre">Algorithm._init_counters()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._init_poi"><code class="docutils literal notranslate"><span class="pre">Algorithm._init_poi()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._initialize"><code class="docutils literal notranslate"><span class="pre">Algorithm._initialize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._load_state"><code class="docutils literal notranslate"><span class="pre">Algorithm._load_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._post"><code class="docutils literal notranslate"><span class="pre">Algorithm._post()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._prepare"><code class="docutils literal notranslate"><span class="pre">Algorithm._prepare()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._run"><code class="docutils literal notranslate"><span class="pre">Algorithm._run()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._save_state"><code class="docutils literal notranslate"><span class="pre">Algorithm._save_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odatse.algorithm.ttopt.Algorithm._setup_structure"><code class="docutils literal notranslate"><span class="pre">Algorithm._setup_structure()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/odatse.algorithm.ttopt.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020-, ISSP, UTokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

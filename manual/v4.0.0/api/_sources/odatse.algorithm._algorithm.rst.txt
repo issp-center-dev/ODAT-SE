@@ -1,0 +1,7 @@
+odatse.algorithm.\_algorithm module
+===================================
+
+.. automodule:: odatse.algorithm._algorithm
+   :members:
+   :private-members:
+   :show-inheritance:

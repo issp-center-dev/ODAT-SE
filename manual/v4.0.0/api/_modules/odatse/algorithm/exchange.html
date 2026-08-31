@@ -1,0 +1,895 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>odatse.algorithm.exchange &#8212; ODAT-SE API  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=a5fa425f"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/odatse/algorithm/exchange';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE API  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../modules.html">
+    odatse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../algorithm.html" class="nav-link">odatse.algorithm</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">odatse.algorithm.exchange</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for odatse.algorithm.exchange</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># ODAT-SE -- an open framework for data analysis</span>
+<span class="c1"># Copyright (C) 2020- The University of Tokyo</span>
+<span class="c1">#</span>
+<span class="c1"># This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.</span>
+<span class="c1"># If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse.algorithm.montecarlo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.read_ts</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_Ts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.separateT</span><span class="w"> </span><span class="kn">import</span> <span class="n">separateT</span><span class="p">,</span> <span class="n">calculate_statistics_from_separated_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.util.data_writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataWriter</span>
+
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+
+<div class="viewcode-block" id="Algorithm">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Algorithm</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">montecarlo</span><span class="o">.</span><span class="n">AlgorithmBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Replica Exchange Monte Carlo (REMC) Algorithm Implementation.</span>
+
+<span class="sd">    This class implements the Replica Exchange Monte Carlo algorithm, also known as</span>
+<span class="sd">    Parallel Tempering. The algorithm runs multiple replicas of the system at different</span>
+<span class="sd">    temperatures and periodically attempts to swap configurations between adjacent</span>
+<span class="sd">    temperature levels.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    numsteps : int</span>
+<span class="sd">        Total number of Monte Carlo steps to perform.</span>
+<span class="sd">    numsteps_exchange : int</span>
+<span class="sd">        Number of steps between exchange attempts.</span>
+<span class="sd">    numsteps_thermalization : int</span>
+<span class="sd">        Number of steps to discard for thermalization.</span>
+<span class="sd">    fx : np.ndarray</span>
+<span class="sd">        Current energy/objective function values.</span>
+<span class="sd">    istep : int</span>
+<span class="sd">        Current step number.</span>
+<span class="sd">    nreplica : int</span>
+<span class="sd">        Total number of replicas across all processes.</span>
+<span class="sd">    Tindex : np.ndarray</span>
+<span class="sd">        Temperature indices for current replicas.</span>
+<span class="sd">    rep2T : np.ndarray</span>
+<span class="sd">        Mapping from replica index to temperature index.</span>
+<span class="sd">    T2rep : np.ndarray</span>
+<span class="sd">        Mapping from temperature index to replica index.</span>
+<span class="sd">    exchange_direction : bool</span>
+<span class="sd">        Direction for attempting exchanges (alternates between True/False).</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># Coordinate bounds/steps live on self.statespace; the walker state is in</span>
+    <span class="c1"># self.state (see montecarlo.AlgorithmBase / state.py).</span>
+
+    <span class="n">numsteps</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">numsteps_exchange</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="n">fx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">istep</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">nreplica</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">Tindex</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">rep2T</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">T2rep</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+
+    <span class="n">exchange_direction</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="c1"># Exchange-specific fields appended to the MC base checkpoint.</span>
+    <span class="n">_checkpoint_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"nreplica"</span><span class="p">,</span> <span class="s2">"Tindex"</span><span class="p">,</span> <span class="s2">"rep2T"</span><span class="p">,</span> <span class="s2">"T2rep"</span><span class="p">,</span> <span class="s2">"exchange_direction"</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Algorithm.__init__">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">info</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Info</span><span class="p">,</span>
+        <span class="n">runner</span><span class="p">:</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"initial"</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the Algorithm class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        info : odatse.Info</span>
+<span class="sd">            Information object containing algorithm parameters.</span>
+<span class="sd">        runner : odatse.Runner, optional</span>
+<span class="sd">            Runner object for executing the algorithm.</span>
+<span class="sd">        run_mode : str, optional</span>
+<span class="sd">            Mode to run the algorithm in, by default "initial".</span>
+<span class="sd">        """</span>
+        <span class="n">info_exchange</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"exchange"</span><span class="p">]</span>
+        <span class="n">nwalkers</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nreplica_per_proc"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+            <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+            <span class="n">nwalkers</span><span class="o">=</span><span class="n">nwalkers</span><span class="p">,</span>
+            <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="o">=</span> <span class="n">read_Ts</span><span class="p">(</span><span class="n">info_exchange</span><span class="p">,</span> <span class="n">numT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">numsteps</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="p">[</span><span class="s2">"numsteps"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_exchange</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="p">[</span><span class="s2">"numsteps_exchange"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_thermalization</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"numsteps_thermalization"</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">numsteps</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"export_combined_files"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">separate_T</span> <span class="o">=</span> <span class="n">info_exchange</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"separate_T"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._initialize">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._initialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the algorithm parameters and state.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Initialize base class first</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+
+        <span class="c1"># Set up temperature indices for each walker</span>
+        <span class="c1"># Each process handles a contiguous block of temperature indices</span>
+        <span class="c1"># based on its rank and number of walkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="p">((</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Initialize mappings between replica and temperature indices</span>
+        <span class="c1"># Initially, replica i has temperature i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rep2T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">)</span>  <span class="c1"># Maps replica index -&gt; temperature index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">)</span>  <span class="c1"># Maps temperature index -&gt; replica index</span>
+
+        <span class="c1"># Initialize exchange direction - alternates between True/False</span>
+        <span class="c1"># to ensure all adjacent pairs get chance to exchange</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exchange_direction</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_parameters</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._run">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run the algorithm.</span>
+<span class="sd">        """</span>
+        <span class="c1"># dispatch は prepare() が処理済み</span>
+
+        <span class="c1"># Get current beta (inverse temperature) values for each replica</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
+
+        <span class="c1"># Set up output file writers</span>
+        <span class="n">write_mode</span> <span class="o">=</span> <span class="s2">"w"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"a"</span>
+        <span class="n">item_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"step"</span><span class="p">,</span>
+            <span class="s2">"walker"</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">"beta"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="k">else</span> <span class="s2">"T"</span><span class="p">),</span>
+            <span class="s2">"fx"</span><span class="p">,</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="c1"># Create writers for both trial moves and accepted results</span>
+        <span class="n">fp_trial</span> <span class="o">=</span> <span class="n">DataWriter</span><span class="p">(</span><span class="s2">"trial.txt"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">write_mode</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="n">item_list</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">)</span>
+        <span class="n">fp_result</span> <span class="o">=</span> <span class="n">DataWriter</span><span class="p">(</span><span class="s2">"result.txt"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">write_mode</span><span class="p">,</span> <span class="n">item_list</span><span class="o">=</span><span class="n">item_list</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_writer</span><span class="p">(</span><span class="n">fp_trial</span><span class="p">,</span> <span class="n">fp_result</span><span class="p">)</span>
+
+        <span class="c1"># For new runs, evaluate initial configuration</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"init"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">fp_trial</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_result</span><span class="p">(</span><span class="n">fp_result</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Track best solution found</span>
+            <span class="n">minidx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_x</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">minidx</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="n">minidx</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Set up checkpointing intervals</span>
+        <span class="n">next_checkpoint_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span>
+        <span class="n">next_checkpoint_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span>
+
+        <span class="c1"># Main simulation loop</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps</span><span class="p">:</span>
+            <span class="c1"># Attempt replica exchange periodically</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">numsteps_exchange</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">time_sta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_exchange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exchange_direction</span><span class="p">)</span>
+                <span class="c1"># Alternate exchange direction for next attempt</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">exchange_direction</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exchange_direction</span>
+                <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"exchange"</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_end</span> <span class="o">-</span> <span class="n">time_sta</span>
+                <span class="c1"># Update beta values after exchange</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">]</span>
+
+            <span class="c1"># Perform local Monte Carlo updates</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_update</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Handle checkpointing if enabled</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">:</span>
+                <span class="n">time_now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">&gt;=</span> <span class="n">next_checkpoint_step</span> <span class="ow">or</span> <span class="n">time_now</span> <span class="o">&gt;=</span> <span class="n">next_checkpoint_time</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">)</span>
+                    <span class="n">next_checkpoint_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">istep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_steps</span>
+                    <span class="n">next_checkpoint_time</span> <span class="o">=</span> <span class="n">time_now</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_interval</span>
+
+        <span class="c1"># Clean up file handles</span>
+        <span class="n">fp_trial</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">fp_result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"complete main process : rank </span><span class="si">{:08d}</span><span class="s2">/</span><span class="si">{:08d}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">(),</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()))</span>
+
+        <span class="c1"># Save final state for possible continuation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._exchange">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._exchange">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Attempt temperature exchanges between replicas.</span>
+
+<span class="sd">        This method implements the core replica exchange logic, attempting to swap</span>
+<span class="sd">        temperatures between adjacent replicas based on the Metropolis criterion:</span>
+<span class="sd">        P(accept) = min(1, exp((β_j - β_i)(E_i - E_j)))</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction : bool</span>
+<span class="sd">            If True, attempt exchanges between even-odd pairs.</span>
+<span class="sd">            If False, attempt exchanges between odd-even pairs.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exchange_single_walker</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exchange_multi_walker</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__exchange_single_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Handle temperature exchanges for single walker per process case.</span>
+
+<span class="sd">        This method implements the exchange logic when each process has only one walker,</span>
+<span class="sd">        requiring MPI communication to coordinate exchanges between processes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction : bool</span>
+<span class="sd">            If True, attempt exchanges between even-odd pairs.</span>
+<span class="sd">            If False, attempt exchanges between odd-even pairs.</span>
+<span class="sd">        """</span>
+        <span class="c1"># This path identifies each replica with exactly one MPI rank: T2rep</span>
+        <span class="c1"># entries are used directly as Send/Recv ranks, and MPI ranks are</span>
+        <span class="c1"># iterated as replica indices below (range(1, nreplica)). That identity</span>
+        <span class="c1"># holds only when there is one replica per process, i.e.</span>
+        <span class="c1"># nreplica == algsize (guaranteed here because nwalkers == 1). Guard it</span>
+        <span class="c1"># so a future change cannot silently corrupt T2rep or deadlock on a bad</span>
+        <span class="c1"># rank.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">==</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">"single-walker exchange requires one replica per process "</span>
+            <span class="sa">f</span><span class="s2">"(nreplica == algsize), got nreplica=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"algsize=</span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+        <span class="n">comm</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span>
+
+        <span class="n">comm</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">direction</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">other_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">is_main</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">other_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">is_main</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">other_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">is_main</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">other_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">is_main</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">ibuf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">fbuf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">other_index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">:</span>
+            <span class="n">other_rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">[</span><span class="n">other_index</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">is_main</span><span class="p">:</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">Recv</span><span class="p">(</span><span class="n">fbuf</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">other_fx</span> <span class="o">=</span> <span class="n">fbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">other_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">logp</span> <span class="o">=</span> <span class="p">(</span><span class="n">other_beta</span> <span class="o">-</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">other_fx</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">logp</span> <span class="o">&gt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logp</span><span class="p">):</span>
+                    <span class="n">ibuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">comm</span><span class="o">.</span><span class="n">Send</span><span class="p">(</span><span class="n">ibuf</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ibuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">comm</span><span class="o">.</span><span class="n">Send</span><span class="p">(</span><span class="n">ibuf</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">Send</span><span class="p">(</span><span class="n">fbuf</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">Recv</span><span class="p">(</span><span class="n">ibuf</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ibuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">comm</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">other_rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">):</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">Recv</span><span class="p">(</span><span class="n">ibuf</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">other_rank</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">[</span><span class="n">ibuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">other_rank</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ibuf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">Send</span><span class="p">(</span><span class="n">ibuf</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">Bcast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__exchange_multi_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Handle temperature exchanges for multiple walkers per process case.</span>
+
+<span class="sd">        This method implements the exchange logic when each process has multiple walkers,</span>
+<span class="sd">        requiring collective MPI operations to coordinate exchanges across all processes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction : bool</span>
+<span class="sd">            If True, attempt exchanges between even-odd pairs.</span>
+<span class="sd">            If False, attempt exchanges between odd-even pairs.</span>
+<span class="sd">        """</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fx_all</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fx</span><span class="p">)</span>
+            <span class="n">fx_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fx_all</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fx_all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fx</span>
+
+        <span class="n">rep2T_diff</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">T2rep_diff</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">irep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rank</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span> <span class="p">(</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">):</span>
+            <span class="n">iT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rep2T</span><span class="p">[</span><span class="n">irep</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">iT</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">jT</span> <span class="o">=</span> <span class="n">iT</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">direction</span> <span class="k">else</span> <span class="n">iT</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">jT</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">jT</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">jrep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">[</span><span class="n">jT</span><span class="p">]</span>
+            <span class="n">fdiff</span> <span class="o">=</span> <span class="n">fx_all</span><span class="p">[</span><span class="n">jrep</span><span class="p">]</span> <span class="o">-</span> <span class="n">fx_all</span><span class="p">[</span><span class="n">irep</span><span class="p">]</span>
+            <span class="n">bdiff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">jT</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">[</span><span class="n">iT</span><span class="p">]</span>
+            <span class="n">logp</span> <span class="o">=</span> <span class="n">fdiff</span> <span class="o">*</span> <span class="n">bdiff</span>
+            <span class="k">if</span> <span class="n">logp</span> <span class="o">&gt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logp</span><span class="p">):</span>
+                <span class="n">rep2T_diff</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">irep</span><span class="p">,</span> <span class="n">jT</span><span class="p">))</span>  <span class="c1"># this means self.rep2T[irep] = jT</span>
+                <span class="n">rep2T_diff</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">jrep</span><span class="p">,</span> <span class="n">iT</span><span class="p">))</span>
+                <span class="n">T2rep_diff</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">iT</span><span class="p">,</span> <span class="n">jrep</span><span class="p">))</span>
+                <span class="n">T2rep_diff</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">jT</span><span class="p">,</span> <span class="n">irep</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rep2T_diff</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">rep2T_diff</span><span class="p">)</span>
+            <span class="n">rep2T_diff</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">rep2T_diff</span><span class="p">))</span>  <span class="c1"># flatten</span>
+            <span class="n">T2rep_diff</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="n">T2rep_diff</span><span class="p">)</span>
+            <span class="n">T2rep_diff</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">T2rep_diff</span><span class="p">))</span>  <span class="c1"># flatten</span>
+
+        <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="n">rep2T_diff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rep2T</span><span class="p">[</span><span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="n">T2rep_diff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T2rep</span><span class="p">[</span><span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rep2T</span><span class="p">[</span><span class="n">rank</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span> <span class="p">:</span> <span class="p">(</span><span class="n">rank</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Algorithm._prepare">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._prepare">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Prepare the algorithm for execution.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"submit"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">[</span><span class="s2">"run"</span><span class="p">][</span><span class="s2">"exchange"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._post">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._post">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Post-process the results of the algorithm.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Separate results by temperature if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_T</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_combined_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"start separateT </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+            <span class="c1"># Convert beta to temperature if needed</span>
+            <span class="n">Ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span>
+
+            <span class="c1"># Organize results by temperature</span>
+            <span class="n">separateT</span><span class="p">(</span>
+                <span class="n">Ts</span><span class="o">=</span><span class="n">Ts</span><span class="p">,</span>
+                <span class="n">nwalkers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nwalkers</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">comm</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">(),</span>
+                <span class="n">use_beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_as_beta</span><span class="p">,</span>
+                <span class="n">buffer_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">calculate_statistics_from_separated_files</span><span class="p">(</span>
+                <span class="n">Ts</span><span class="o">=</span><span class="n">Ts</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">thermalization_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numsteps_thermalization</span><span class="p">,</span>
+                <span class="n">comm</span><span class="o">=</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">(),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Gather best results from all processes</span>
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># NOTE:</span>
+            <span class="c1"># ``gather`` seems not to work with many processes (say, 32) in some MPI implementation.</span>
+            <span class="c1"># ``Gather`` and ``allgather`` seem to work fine.</span>
+            <span class="c1"># Since the performance is not so important here, we use ``allgather`` for simplicity.</span>
+            <span class="n">comm</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algcomm</span><span class="p">()</span>
+            <span class="n">best_fx</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">)</span>
+            <span class="n">best_x</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">)</span>
+            <span class="n">best_istep</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">)</span>
+            <span class="n">best_iwalker</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">allgather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">best_fx</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_fx</span><span class="p">]</span>
+            <span class="n">best_x</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_x</span><span class="p">]</span>
+            <span class="n">best_istep</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_istep</span><span class="p">]</span>
+            <span class="n">best_iwalker</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">best_iwalker</span><span class="p">]</span>
+
+        <span class="c1"># Find process with best overall solution</span>
+        <span class="n">best_rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">best_fx</span><span class="p">)</span>
+
+        <span class="c1"># Write best result to file (rank 0 only)</span>
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"best_result.txt"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nprocs = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rank = </span><span class="si">{</span><span class="n">best_rank</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step = </span><span class="si">{</span><span class="n">best_istep</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"walker = </span><span class="si">{</span><span class="n">best_iwalker</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fx = </span><span class="si">{</span><span class="n">best_fx</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span> <span class="n">best_x</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="c1"># Print summary to stdout</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Best Result:"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  rank = </span><span class="si">{</span><span class="n">best_rank</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  step = </span><span class="si">{</span><span class="n">best_istep</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  walker = </span><span class="si">{</span><span class="n">best_iwalker</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  fx = </span><span class="si">{</span><span class="n">best_fx</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_list</span><span class="p">,</span> <span class="n">best_x</span><span class="p">[</span><span class="n">best_rank</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="c1"># Return best solution information</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="n">best_x</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
+            <span class="s2">"fx"</span><span class="p">:</span> <span class="n">best_fx</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
+            <span class="s2">"nprocs"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span><span class="p">,</span>
+            <span class="s2">"rank"</span><span class="p">:</span> <span class="n">best_rank</span><span class="p">,</span>
+            <span class="s2">"step"</span><span class="p">:</span> <span class="n">best_istep</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
+            <span class="s2">"walker"</span><span class="p">:</span> <span class="n">best_iwalker</span><span class="p">[</span><span class="n">best_rank</span><span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Algorithm._apply_state">
+<a class="viewcode-back" href="../../../odatse.algorithm.exchange.html#odatse.algorithm.exchange.Algorithm._apply_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="n">restore_rng</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Restore algorithm state from a checkpoint snapshot.</span>
+
+<span class="sd">        Delegates MPI validation, RNG restore, and MC-layer fields to the</span>
+<span class="sd">        base class, validates the replica count, then applies exchange-specific</span>
+<span class="sd">        fields and propagates the restored RNG to the state space.</span>
+
+<span class="sd">        REMC does not distinguish between resume and continue modes; ``mode``</span>
+<span class="sd">        is accepted for API consistency with PAMC and forwarded to super().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Snapshot previously produced by ``__getstate__``.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            ``"resume"`` or ``"continue"``; forwarded to the base class.</span>
+<span class="sd">        restore_rng : bool</span>
+<span class="sd">            When *True* (default) the RNG state is restored from *data*;</span>
+<span class="sd">            when *False* a fresh RNG state is kept (``--reset_rand`` mode).</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_state</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">restore_rng</span><span class="o">=</span><span class="n">restore_rng</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">nreplica</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">"nreplica"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">_checkpoint_attrs</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statespace</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020-, ISSP, UTokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

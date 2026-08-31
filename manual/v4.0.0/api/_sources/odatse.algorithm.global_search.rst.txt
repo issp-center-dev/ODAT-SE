@@ -1,0 +1,7 @@
+odatse.algorithm.global\_search module
+======================================
+
+.. automodule:: odatse.algorithm.global_search
+   :members:
+   :private-members:
+   :show-inheritance:

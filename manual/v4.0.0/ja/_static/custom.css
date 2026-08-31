@@ -1,0 +1,302 @@
+/* ODAT-SE custom theme colors - haiku-inspired palette.
+ *
+ * Palette derived from the classic Sphinx "haiku" theme:
+ *   headings / accents  #0c3762 (navy)
+ *   links               #dc3c01 (orange red) -> darkened to #c53601 for AA
+ *   note / warning      pale green / pale yellow boxes
+ * The site is pinned to light mode (html_context default_mode = "light" and
+ * the theme switcher is not shown), and the same palette is assigned to
+ * html[data-theme="dark"] as a safeguard for visitors who still have a dark
+ * preference stored in localStorage.
+ *
+ * Color roles follow pydata-sphinx-theme semantics:
+ *   --pst-color-background     page background
+ *   --pst-color-on-background  background of elevated surfaces (header,
+ *                              dropdowns, dialogs, admonitions, kbd, cards)
+ *   --pst-color-surface        background of sunken surfaces (code blocks)
+ * All text/background pairs below meet WCAG AA (>= 4.5:1). Where the
+ * original haiku colors fall short (link #dc3c01 on white is 4.0:1), the
+ * darkened variants #c53601 (4.9:1) and #a52d00 (7.1:1) are used.
+ */
+
+html[data-theme="light"],
+html[data-theme="dark"] {
+    --pst-color-primary: #0c3762;
+    --pst-color-primary-highlight: #a52d00;
+    --pst-color-secondary: #c53601;
+    --pst-color-link: #c53601;
+    --pst-color-link-hover: #a52d00;
+    --pst-color-link-higher-contrast: #a52d00;
+
+    --pst-color-text-base: #333333;
+    --pst-color-heading: #0c3762;
+
+    --pst-color-background: #ffffff;
+    --pst-color-on-background: #ffffff;
+    --pst-color-surface: #eeeeee;
+    --pst-color-border: #e0e0e0;
+}
+
+/* Navbar styling - two-row layout (mode-independent) */
+.bd-header .bd-header__inner {
+    flex-wrap: wrap;
+}
+
+/* Title row: full width */
+.bd-header .navbar-header-items__start {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Nav row: full width, centered */
+.bd-header .navbar-header-items {
+    width: 100%;
+}
+
+/* Header: light gradient strip in the spirit of haiku's page top, with a
+   navy rule below (the theme paints the header with --pst-color-on-background,
+   so override it explicitly here) */
+html[data-theme="light"] .bd-header,
+html[data-theme="dark"] .bd-header {
+    background: linear-gradient(#f2f2f2, #ffffff) !important;
+    border-bottom: 2px solid #0c3762;
+}
+
+/* Navbar links and icons */
+html[data-theme="light"] .bd-header .navbar-nav .nav-link,
+html[data-theme="light"] .bd-header .nav-link,
+html[data-theme="dark"] .bd-header .navbar-nav .nav-link,
+html[data-theme="dark"] .bd-header .nav-link {
+    color: #0c3762 !important;
+}
+
+html[data-theme="light"] .bd-header .navbar-nav .nav-link:hover,
+html[data-theme="light"] .bd-header .nav-link:hover,
+html[data-theme="dark"] .bd-header .navbar-nav .nav-link:hover,
+html[data-theme="dark"] .bd-header .nav-link:hover {
+    color: #a52d00 !important;
+}
+
+html[data-theme="light"] .bd-header .navbar-icon-links a,
+html[data-theme="light"] .bd-header .navbar-icon-links i,
+html[data-theme="light"] .bd-header .navbar-icon-links svg,
+html[data-theme="dark"] .bd-header .navbar-icon-links a,
+html[data-theme="dark"] .bd-header .navbar-icon-links i,
+html[data-theme="dark"] .bd-header .navbar-icon-links svg {
+    color: #0c3762 !important;
+}
+
+html[data-theme="light"] .bd-header .navbar-icon-links a:hover,
+html[data-theme="light"] .bd-header .navbar-icon-links a:hover i,
+html[data-theme="light"] .bd-header .navbar-icon-links a:hover svg,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover i,
+html[data-theme="dark"] .bd-header .navbar-icon-links a:hover svg {
+    color: #a52d00 !important;
+}
+
+/* Hide keyboard shortcut hint (Ctrl+K) in search field */
+.search-button__kbd-shortcut {
+    display: none !important;
+}
+
+/* Project name / logo text (including inner .logo__title) */
+html[data-theme="light"] .bd-header .navbar-brand,
+html[data-theme="light"] .bd-header .navbar-brand .logo__title,
+html[data-theme="light"] .bd-header .navbar-brand p,
+html[data-theme="dark"] .bd-header .navbar-brand,
+html[data-theme="dark"] .bd-header .navbar-brand .logo__title,
+html[data-theme="dark"] .bd-header .navbar-brand p {
+    color: #0c3762 !important;
+}
+
+/* "More" dropdown toggle button */
+html[data-theme="light"] .bd-header .btn.dropdown-toggle,
+html[data-theme="dark"] .bd-header .btn.dropdown-toggle {
+    color: #0c3762 !important;
+}
+
+html[data-theme="light"] .bd-header .btn.dropdown-toggle:hover,
+html[data-theme="dark"] .bd-header .btn.dropdown-toggle:hover {
+    color: #a52d00 !important;
+}
+
+/* Active/current nav link highlight (the theme puts .active/.current on the
+   li.nav-item, not on the anchor) */
+html[data-theme="light"] .bd-header .navbar-nav li.nav-item.active > .nav-link,
+html[data-theme="light"] .bd-header .navbar-nav li.nav-item.current > .nav-link,
+html[data-theme="dark"] .bd-header .navbar-nav li.nav-item.active > .nav-link,
+html[data-theme="dark"] .bd-header .navbar-nav li.nav-item.current > .nav-link {
+    color: #a52d00 !important;
+    border-bottom: 2px solid #c53601;
+}
+
+/* Dropdown menu on navbar */
+html[data-theme="light"] .bd-header .dropdown-menu,
+html[data-theme="dark"] .bd-header .dropdown-menu {
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+}
+
+html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item,
+html[data-theme="dark"] .bd-header .dropdown-menu .dropdown-item {
+    color: #0c3762 !important;
+}
+
+html[data-theme="light"] .bd-header .dropdown-menu .dropdown-item:hover,
+html[data-theme="dark"] .bd-header .dropdown-menu .dropdown-item:hover {
+    color: #a52d00 !important;
+    background-color: #eeeeee;
+}
+
+/* Sidebar active item (anchor carries .current; some levels mark the li) */
+.bd-sidebar .nav .active > a,
+.bd-sidebar .nav a.current {
+    color: var(--pst-color-primary) !important;
+    font-weight: 600;
+}
+
+/* Headings - haiku navy */
+h1, h2, h3, h4, h5, h6 {
+    color: #0c3762;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: #0c3762;
+}
+
+/* Visited links in the article body - haiku purple (6.9:1 on white) */
+.bd-article a:visited {
+    color: #551a8b;
+}
+
+/* Admonitions - haiku's pale green (note family) and pale yellow (warning) */
+html[data-theme="light"] .admonition,
+html[data-theme="dark"] .admonition {
+    background-color: #f0faea;
+    border: 1px solid #cfe8c2;
+    border-left: 4px solid #4c8b3b;
+    color: #333333;
+}
+
+html[data-theme="light"] .admonition .admonition-title,
+html[data-theme="dark"] .admonition .admonition-title {
+    background-color: #e0f3d3;
+    color: #245217;
+    font-weight: 600;
+}
+
+html[data-theme="light"] .admonition.warning,
+html[data-theme="light"] .admonition.caution,
+html[data-theme="dark"] .admonition.warning,
+html[data-theme="dark"] .admonition.caution {
+    background-color: #fffbdc;
+    border-color: #ede2a8;
+    border-left-color: #a98a00;
+}
+
+html[data-theme="light"] .admonition.warning .admonition-title,
+html[data-theme="light"] .admonition.caution .admonition-title,
+html[data-theme="dark"] .admonition.warning .admonition-title,
+html[data-theme="dark"] .admonition.caution .admonition-title {
+    background-color: #faf3c0;
+    color: #6b5900;
+}
+
+html[data-theme="light"] .admonition.important,
+html[data-theme="light"] .admonition.danger,
+html[data-theme="light"] .admonition.error,
+html[data-theme="dark"] .admonition.important,
+html[data-theme="dark"] .admonition.danger,
+html[data-theme="dark"] .admonition.error {
+    background-color: #fdeeea;
+    border-color: #f0cfc5;
+    border-left-color: #b03425;
+}
+
+html[data-theme="light"] .admonition.important .admonition-title,
+html[data-theme="light"] .admonition.danger .admonition-title,
+html[data-theme="light"] .admonition.error .admonition-title,
+html[data-theme="dark"] .admonition.important .admonition-title,
+html[data-theme="dark"] .admonition.danger .admonition-title,
+html[data-theme="dark"] .admonition.error .admonition-title {
+    background-color: #f8ddd4;
+    color: #7c1d10;
+}
+
+/* Tables - navy header row */
+html[data-theme="light"] table.docutils,
+html[data-theme="light"] table.table,
+html[data-theme="dark"] table.docutils,
+html[data-theme="dark"] table.table {
+    border-collapse: collapse;
+    border: 1px solid #cccccc;
+}
+
+html[data-theme="light"] table.docutils th,
+html[data-theme="light"] table.table th,
+html[data-theme="dark"] table.docutils th,
+html[data-theme="dark"] table.table th {
+    background-color: #0c3762 !important;
+    color: #ffffff !important;
+    border: 1px solid #0a2c4e;
+    padding: 8px 12px;
+}
+
+html[data-theme="light"] table.docutils td,
+html[data-theme="light"] table.table td,
+html[data-theme="dark"] table.docutils td,
+html[data-theme="dark"] table.table td {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+}
+
+/* Base cell text color; spans (links, inline code) inherit or keep their own */
+html[data-theme="light"] table.docutils td p,
+html[data-theme="light"] table.docutils td li,
+html[data-theme="light"] table.table td p,
+html[data-theme="light"] table.table td li,
+html[data-theme="dark"] table.docutils td p,
+html[data-theme="dark"] table.docutils td li,
+html[data-theme="dark"] table.table td p,
+html[data-theme="dark"] table.table td li {
+    color: #333333 !important;
+}
+
+html[data-theme="light"] table.docutils tr:nth-child(even) td,
+html[data-theme="light"] table.table tr:nth-child(even) td,
+html[data-theme="dark"] table.docutils tr:nth-child(even) td,
+html[data-theme="dark"] table.table tr:nth-child(even) td {
+    background-color: #f5f5f5 !important;
+}
+
+/* Inline code / literals - haiku's neutral gray, consistent inside and
+   outside tables */
+html[data-theme="light"] code.docutils.literal,
+html[data-theme="light"] .docutils.literal,
+html[data-theme="dark"] code.docutils.literal,
+html[data-theme="dark"] .docutils.literal {
+    background-color: #eeeeee;
+    color: #333333 !important;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+}
+
+/* Code blocks - haiku's light gray */
+html[data-theme="light"] .highlight,
+html[data-theme="dark"] .highlight {
+    background: #eeeeee !important;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}

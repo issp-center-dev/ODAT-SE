@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Two-level MPI parallelization of the solver &#8212; ODAT-SE 4.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ef7c5f12" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=412b359c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=3304f9e4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=a5fa425f"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/parallel_solver';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manual" href="../manual/index.html" />
+    <link rel="prev" title="Adding a direct problem solver" href="solver_simple.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="4.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">ODAT-SE 4.0.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../introduction.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start.html">
+    Start
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../manual/index.html">
+    Manual
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tools/index.html">
+    Tools
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customize/index.html">
+    Customize
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq/index.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgement.html">
+    Credits
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact.html">
+    Contact
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/issp-center-dev/ODAT-SE" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Minimization of an analytical function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="minsearch.html">Search by Nelder-Mead method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapper.html">Grid search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random_search.html">Random search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bayes.html">Search by Bayesian optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ttopt.html">Tensor train optimization (TTOpt)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exchange.html">Search by replica exchange Monte Carlo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pamc.html">Search by population annealing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitation.html">Replica Exchange Monte Carlo search with limitation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="solver_simple.html">Adding a direct problem solver</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Two-level MPI parallelization of the solver</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Two-level MPI parallelization of the solver</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="two-level-mpi-parallelization-of-the-solver">
+<h1>Two-level MPI parallelization of the solver<a class="headerlink" href="#two-level-mpi-parallelization-of-the-solver" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>This tutorial shows how to write a custom solver that exploits two levels of
+MPI parallelism within the ODAT-SE framework. The sample files are located in
+<code class="docutils literal notranslate"><span class="pre">sample/parallel_solver</span></code> relative to the root of the repository; the main
+script is named <code class="docutils literal notranslate"><span class="pre">parallel_solver.py</span></code>.</p>
+<section id="two-levels-of-parallelism">
+<h3>Two levels of parallelism<a class="headerlink" href="#two-levels-of-parallelism" title="Link to this heading">#</a></h3>
+<p>The workflow of ODAT-SE has two stages: a search <em>algorithm</em> proposes candidate
+points in the parameter space, and a <em>solver</em> evaluates the objective function
+at those points. ODAT-SE can parallelize both stages with MPI at the same time:</p>
+<ul class="simple">
+<li><p><strong>Algorithm-layer parallelism</strong> (<code class="docutils literal notranslate"><span class="pre">nalg</span></code> processes): the search space is
+distributed across independent evaluations.</p></li>
+<li><p><strong>Solver-layer parallelism</strong> (<code class="docutils literal notranslate"><span class="pre">nsolve</span></code> processes per group): the work of a
+single evaluation is distributed within a group of processes.</p></li>
+</ul>
+<p>The total number of MPI processes is <code class="docutils literal notranslate"><span class="pre">nalg</span> <span class="pre">×</span> <span class="pre">nsolve</span></code>.</p>
+<p>The number of processes for each layer is given on the command line with
+<code class="docutils literal notranslate"><span class="pre">--nalg</span></code> and <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code>; <code class="docutils literal notranslate"><span class="pre">odatse.initialize()</span></code> forwards them to
+<code class="docutils literal notranslate"><span class="pre">odatse.mpi.setup()</span></code>. For example,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">6</span><span class="w"> </span>python3<span class="w"> </span>parallel_solver.py<span class="w"> </span>--nalg<span class="w"> </span><span class="m">3</span><span class="w"> </span>--nsolve<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<p>runs with 3 algorithm processes and 2 solver processes per group, 6 MPI ranks
+in total.</p>
+<p>Thread-level parallelism inside each solver process (for example the BLAS
+routines called by NumPy) is controlled separately through the
+<code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> environment variable; ODAT-SE itself does not manage
+threads.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>ODAT-SE does not control the number of threads per solver process, so this
+has to be done outside the library. The usual way is an environment variable
+such as <code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> (for example <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">OMP_NUM_THREADS=2</span></code> before
+launching the job). Alternatively, the thread count can be set
+programmatically inside the solver with a library such as <code class="docutils literal notranslate"><span class="pre">threadpoolctl</span></code>,
+for example by wrapping the heavy computation in
+<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">threadpoolctl.threadpool_limits(limits=n_threads):</span> <span class="pre">...</span></code>.</p>
+</div>
+</section>
+<section id="how-the-two-layers-are-set-up">
+<h3>How the two layers are set up<a class="headerlink" href="#how-the-two-layers-are-set-up" title="Link to this heading">#</a></h3>
+<p>When ODAT-SE runs under MPI, <code class="docutils literal notranslate"><span class="pre">odatse.mpi.setup(nalg=...,</span> <span class="pre">nsolve=...)</span></code> splits
+the global communicator (<code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>) into <code class="docutils literal notranslate"><span class="pre">nalg</span></code> solver
+subcommunicators (<code class="docutils literal notranslate"><span class="pre">solcomm</span></code>), each with <code class="docutils literal notranslate"><span class="pre">nsolve</span></code> processes. The process
+with rank 0 in each <code class="docutils literal notranslate"><span class="pre">solcomm</span></code> acts as the group <em>controller</em> and participates
+in the search algorithm; the controllers together form the algorithm
+subcommunicator (<code class="docutils literal notranslate"><span class="pre">algcomm</span></code>). Because the controller is the lowest rank of each
+group, global rank 0 is always a controller.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">odatse.mpi</span></code> module provides the following accessors. The global-layer
+ones and <code class="docutils literal notranslate"><span class="pre">enabled()</span></code> are available immediately; the solver- and
+algorithm-layer ones require <code class="docutils literal notranslate"><span class="pre">setup()</span></code> to have been called.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">odatse.mpi.comm()</span></code> / <code class="docutils literal notranslate"><span class="pre">size()</span></code> / <code class="docutils literal notranslate"><span class="pre">rank()</span></code>: the global communicator, its
+size, and this process’s rank in it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">odatse.mpi.solcomm()</span></code> / <code class="docutils literal notranslate"><span class="pre">solsize()</span></code> / <code class="docutils literal notranslate"><span class="pre">solrank()</span></code>: the solver
+subcommunicator, its size (<code class="docutils literal notranslate"><span class="pre">nsolve</span></code>), and this process’s rank in it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">odatse.mpi.algcomm()</span></code> / <code class="docutils literal notranslate"><span class="pre">algsize()</span></code> / <code class="docutils literal notranslate"><span class="pre">algrank()</span></code>: the algorithm
+subcommunicator, its size (<code class="docutils literal notranslate"><span class="pre">nalg</span></code>), and this process’s rank in it.
+<code class="docutils literal notranslate"><span class="pre">algcomm()</span></code> returns <code class="docutils literal notranslate"><span class="pre">None</span></code> on solver-worker processes; <code class="docutils literal notranslate"><span class="pre">algsize()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">algrank()</span></code> return the values of the group controller (broadcast to the
+workers), so they can be used to identify the group on any process.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">odatse.mpi.run_on_algorithm()</span></code>: <code class="docutils literal notranslate"><span class="pre">True</span></code> on the group controllers
+(<code class="docutils literal notranslate"><span class="pre">solrank()</span> <span class="pre">==</span> <span class="pre">0</span></code>), <code class="docutils literal notranslate"><span class="pre">False</span></code> on the solver workers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">odatse.mpi.enabled()</span></code>: whether MPI is available (<code class="docutils literal notranslate"><span class="pre">False</span></code> when the
+environment variable <code class="docutils literal notranslate"><span class="pre">ODATSE_NOMPI=1</span></code> is set).</p></li>
+</ul>
+</section>
+<section id="master-worker-execution">
+<h3>Master-worker execution<a class="headerlink" href="#master-worker-execution" title="Link to this heading">#</a></h3>
+<p>Within each solver group a master-worker scheme keeps the controller and the
+workers synchronized. This is handled entirely by the framework, so the solver
+author does not have to write a worker loop.</p>
+<ul class="simple">
+<li><p>The controller (<code class="docutils literal notranslate"><span class="pre">solrank()</span> <span class="pre">==</span> <span class="pre">0</span></code>) runs the algorithm’s <code class="docutils literal notranslate"><span class="pre">prepare()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">run()</span></code>, and <code class="docutils literal notranslate"><span class="pre">post()</span></code> as usual. Whenever the algorithm evaluates a
+candidate <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">Runner.submit()</span></code> broadcasts <code class="docutils literal notranslate"><span class="pre">x</span></code> and the extra <code class="docutils literal notranslate"><span class="pre">args</span></code>
+to the whole solver group and then calls the solver’s <code class="docutils literal notranslate"><span class="pre">evaluate(x,</span> <span class="pre">args)</span></code>.</p></li>
+<li><p>The workers (<code class="docutils literal notranslate"><span class="pre">solrank()</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>) sit in a loop inside the framework, receive
+the broadcast <code class="docutils literal notranslate"><span class="pre">x</span></code> / <code class="docutils literal notranslate"><span class="pre">args</span></code>, and call the same <code class="docutils literal notranslate"><span class="pre">evaluate(x,</span> <span class="pre">args)</span></code>. Their
+return value is discarded.</p></li>
+</ul>
+<p>In other words, <code class="docutils literal notranslate"><span class="pre">evaluate(x,</span> <span class="pre">args)</span></code> is invoked on <strong>every</strong> process of a
+solver group with the <strong>same</strong> <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">args</span></code>. The solver body is then free
+to distribute the work of that single evaluation across the group using
+<code class="docutils literal notranslate"><span class="pre">solcomm</span></code> collectives. When the algorithm finishes, the framework signals the
+workers to leave their loop.</p>
+</section>
+<section id="custom-solver-example">
+<h3>Custom solver example<a class="headerlink" href="#custom-solver-example" title="Link to this heading">#</a></h3>
+<p>As a toy problem we look for the integer seed in <code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">…,</span> <span class="pre">20}</span></code> that minimizes
+the average largest singular value of <code class="docutils literal notranslate"><span class="pre">nmats</span></code> random matrices of size
+<code class="docutils literal notranslate"><span class="pre">matsize</span> <span class="pre">×</span> <span class="pre">matsize</span></code>. The solver is a subclass of <code class="docutils literal notranslate"><span class="pre">odatse.solver.SolverBase</span></code>
+(the full script is <code class="docutils literal notranslate"><span class="pre">sample/parallel_solver/parallel_solver.py</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odatse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odatse.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">choose_algorithm</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ParallelSolver</span><span class="p">(</span><span class="n">odatse</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">SolverBase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">enabled</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"This sample requires MPI (do not set ODATSE_NOMPI=1)"</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmats</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"nmats"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"matsize"</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nalg: </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algsize</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nsolve: </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solsize</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">comm</span><span class="p">()</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_testfunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">compute_uv</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seeds</span><span class="p">):</span>  <span class="c1"># called by all solcomm ranks</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">prng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+                <span class="n">mats</span> <span class="o">=</span> <span class="p">[</span><span class="n">prng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matsize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matsize</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nmats</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mats</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">mats</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solcomm</span><span class="p">()</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">mats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">mats</span><span class="p">,</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solsize</span><span class="p">())[</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solrank</span><span class="p">()]</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_testfunc</span><span class="p">(</span><span class="n">mats</span><span class="p">))</span>
+        <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solcomm</span><span class="p">()</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solcomm</span><span class="p">()</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">results</span><span class="p">),</span> <span class="n">op</span><span class="o">=</span><span class="n">MPI</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmats</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">seeds</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"algrank: </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span><span class="si">}</span><span class="s2">, seeds: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">seeds</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute</span><span class="p">(</span><span class="n">seeds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">solrank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"algrank: </span><span class="si">{</span><span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">algrank</span><span class="p">()</span><span class="si">}</span><span class="s2">, results: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+<p>The objective value is computed in <code class="docutils literal notranslate"><span class="pre">evaluate</span></code>. Note that <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> runs on
+every rank of the solver group: the controller (<code class="docutils literal notranslate"><span class="pre">solrank()</span> <span class="pre">==</span> <span class="pre">0</span></code>) generates
+the <code class="docutils literal notranslate"><span class="pre">nmats</span></code> random matrices for each seed, broadcasts them over <code class="docutils literal notranslate"><span class="pre">solcomm</span></code>,
+each rank computes the largest singular value of its own slice with
+<code class="docutils literal notranslate"><span class="pre">_testfunc</span></code>, and the partial sums are reduced across the group before being
+averaged. The solver only evaluates the objective function; tracking the best
+solution is the algorithm’s responsibility (see below).</p>
+</section>
+<section id="driver-and-input-file">
+<h3>Driver and input file<a class="headerlink" href="#driver-and-input-file" title="Link to this heading">#</a></h3>
+<p>The script builds the ODAT-SE pipeline in its <code class="docutils literal notranslate"><span class="pre">main()</span></code>. It parses <code class="docutils literal notranslate"><span class="pre">--nalg</span></code>
+/ <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code>, hands them to <code class="docutils literal notranslate"><span class="pre">odatse.initialize()</span></code> (which calls
+<code class="docutils literal notranslate"><span class="pre">odatse.mpi.setup()</span></code>), constructs the solver and runner, chooses the
+algorithm, and runs it. <code class="docutils literal notranslate"><span class="pre">alg.main()</span></code> returns the optimum found by the
+algorithm as a dictionary; for the <code class="docutils literal notranslate"><span class="pre">mapper</span></code> algorithm it holds the keys
+<code class="docutils literal notranslate"><span class="pre">x</span></code> (coordinates of the minimum), <code class="docutils literal notranslate"><span class="pre">fx</span></code> (objective value there), and
+<code class="docutils literal notranslate"><span class="pre">index</span></code> (mesh index of the minimum). The best solution over all solver
+groups has already been reduced across <code class="docutils literal notranslate"><span class="pre">algcomm</span></code> inside the algorithm, so the
+driver just reads it from the return value:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'-m'</span><span class="p">,</span> <span class="s1">'--nalg'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'# of processes for search algorithm'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'-n'</span><span class="p">,</span> <span class="s1">'--nsolve'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'# of processes for solver'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">nalg</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">nsolve</span> <span class="o">==</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">comm</span><span class="p">()</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"input.toml"</span><span class="p">,</span> <span class="s2">"--init"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"--nalg=</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">nalg</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"--nsolve=</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">nsolve</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+    <span class="n">info</span><span class="p">,</span> <span class="n">run_mode</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">nmats</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">"param"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nmats"</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">matsize</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">solver</span><span class="p">[</span><span class="s2">"param"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"matsize"</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"output_dir"</span><span class="p">,</span> <span class="s2">"./output"</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">ParallelSolver</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">nmats</span><span class="o">=</span><span class="n">nmats</span><span class="p">,</span> <span class="n">matsize</span><span class="o">=</span><span class="n">matsize</span><span class="p">)</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">odatse</span><span class="o">.</span><span class="n">Runner</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+    <span class="n">alg_module</span> <span class="o">=</span> <span class="n">choose_algorithm</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">algorithm</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+    <span class="n">alg</span> <span class="o">=</span> <span class="n">alg_module</span><span class="o">.</span><span class="n">Algorithm</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="n">run_mode</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">odatse</span><span class="o">.</span><span class="n">mpi</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">opt_x=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"opt_fx=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'fx'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"opt_index=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'index'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The input file <code class="docutils literal notranslate"><span class="pre">input.toml</span></code> selects the <code class="docutils literal notranslate"><span class="pre">mapper</span></code> algorithm and sets the
+search range and the solver parameters:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[base]</span>
+<span class="n">dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"output"</span>
+
+<span class="k">[solver]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"custom"</span>
+
+<span class="k">[solver.param]</span>
+<span class="n">nmats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+<span class="n">matsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span>
+
+<span class="k">[algorithm]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"mapper"</span>
+
+<span class="k">[algorithm.param]</span>
+<span class="n">min_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">max_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+<span class="n">num_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">[solver.param]</span></code> holds the parameters read in <code class="docutils literal notranslate"><span class="pre">main()</span></code> (<code class="docutils literal notranslate"><span class="pre">nmats</span></code> and
+<code class="docutils literal notranslate"><span class="pre">matsize</span></code>, the number and size of the random matrices). The <code class="docutils literal notranslate"><span class="pre">[solver]</span> <span class="pre">name</span></code>
+is nominal: <code class="docutils literal notranslate"><span class="pre">parallel_solver.py</span></code> instantiates <code class="docutils literal notranslate"><span class="pre">ParallelSolver</span></code> directly, so
+this string only labels the run. Because the algorithm is <code class="docutils literal notranslate"><span class="pre">mapper</span></code>, ODAT-SE
+sweeps the <code class="docutils literal notranslate"><span class="pre">num_list</span> <span class="pre">=</span> <span class="pre">[20]</span></code> grid points (the integer seeds <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">20</span></code>)
+and distributes them across the <code class="docutils literal notranslate"><span class="pre">nalg</span></code> solver-group controllers.</p>
+<p>The values of <code class="docutils literal notranslate"><span class="pre">nalg</span></code> and <code class="docutils literal notranslate"><span class="pre">nsolve</span></code> are passed on the command line, not
+through <code class="docutils literal notranslate"><span class="pre">input.toml</span></code>.</p>
+</section>
+<section id="running">
+<h3>Running<a class="headerlink" href="#running" title="Link to this heading">#</a></h3>
+<p>The number of MPI processes must equal <code class="docutils literal notranslate"><span class="pre">nalg</span> <span class="pre">×</span> <span class="pre">nsolve</span></code>. For 3 algorithm
+processes and 2 solver processes per group (6 ranks in total), with 2 BLAS
+threads per process:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">2</span>
+mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">6</span><span class="w"> </span>python3<span class="w"> </span>parallel_solver.py<span class="w"> </span>--nalg<span class="w"> </span><span class="m">3</span><span class="w"> </span>--nsolve<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<p>The sample’s <code class="docutils literal notranslate"><span class="pre">do.sh</span></code> runs a smaller configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">2</span>
+mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">4</span><span class="w"> </span>python3<span class="w"> </span>parallel_solver.py<span class="w"> </span>-m<span class="w"> </span><span class="m">2</span><span class="w"> </span>-n<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<p>(<code class="docutils literal notranslate"><span class="pre">-m</span></code> / <code class="docutils literal notranslate"><span class="pre">-n</span></code> are the short forms of <code class="docutils literal notranslate"><span class="pre">--nalg</span></code> / <code class="docutils literal notranslate"><span class="pre">--nsolve</span></code>.) When viewing
+the process activity (with <code class="docutils literal notranslate"><span class="pre">top</span></code> or a similar tool), you should see the MPI
+<code class="docutils literal notranslate"><span class="pre">python</span></code> processes each using up to <code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span> <span class="pre">×</span> <span class="pre">100</span> <span class="pre">%</span></code> CPU during the
+solver step.</p>
+<p>This sample requires MPI: it uses <code class="docutils literal notranslate"><span class="pre">comm</span></code> and <code class="docutils literal notranslate"><span class="pre">solcomm</span></code> collectives throughout.
+Do <strong>not</strong> set <code class="docutils literal notranslate"><span class="pre">ODATSE_NOMPI=1</span></code> (<code class="docutils literal notranslate"><span class="pre">odatse.mpi.enabled()</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> in that
+mode and the communicators are unavailable). Even a single-process run must be
+launched under <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> / <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">1</span><span class="w"> </span>python3<span class="w"> </span>parallel_solver.py<span class="w"> </span>--nalg<span class="w"> </span><span class="m">1</span><span class="w"> </span>--nsolve<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="solver_simple.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Adding a direct problem solver</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../manual/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Manual</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-levels-of-parallelism">Two levels of parallelism</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-two-layers-are-set-up">How the two layers are set up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#master-worker-execution">Master-worker execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-solver-example">Custom solver example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#driver-and-input-file">Driver and input file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running">Running</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2020, Institute for Solid State Physics, University of Tokyo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

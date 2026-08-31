@@ -1,0 +1,7 @@
+odatse.algorithm.state module
+=============================
+
+.. automodule:: odatse.algorithm.state
+   :members:
+   :private-members:
+   :show-inheritance:

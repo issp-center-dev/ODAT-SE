@@ -1,0 +1,7 @@
+odatse.util.limitation module
+=============================
+
+.. automodule:: odatse.util.limitation
+   :members:
+   :private-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+odatse.algorithm.bayes module
+=============================
+
+.. automodule:: odatse.algorithm.bayes
+   :members:
+   :private-members:
+   :show-inheritance:
