@@ -8,4 +8,4 @@
 
 # The single source of truth for the package version.
 # pyproject.toml (via hatchling) and the Sphinx manuals read the version from this file.
-__version__ = "4.0.0"
+__version__ = "4.1-dev"
