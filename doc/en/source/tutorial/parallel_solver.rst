@@ -99,6 +99,14 @@ to distribute the work of that single evaluation across the group using
 ``solcomm`` collectives. When the algorithm finishes, the framework signals the
 workers to leave their loop.
 
+If ``evaluate`` raises an exception on a worker, the worker reports the error
+(with its global rank) to the standard error and aborts the whole MPI job via
+``MPI_Abort``. A worker is not a member of the algorithm communicator and cannot
+report its failure to the controller, which may already be waiting in a
+``solcomm`` collective, so the job is aborted rather than left hanging.
+Note that ``ignore_error`` in the ``[runner]`` section only applies to an
+exception raised on the controller.
+
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
 

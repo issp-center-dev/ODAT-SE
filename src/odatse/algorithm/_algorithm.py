@@ -14,6 +14,7 @@ import os
 import pathlib
 import pickle
 import copy
+import traceback
 
 import numpy as np
 
@@ -550,18 +551,31 @@ class AlgorithmBase(metaclass=ABCMeta):
             assert odatse.mpi.solrank() > 0
             signal = np.array([0])
             xp = np.zeros(self.runner.solver.dimension)
-            while True:
-                odatse.mpi.solcomm().Bcast(signal, root=0)
-                if signal[0] == odatse.mpi.MSG_FINISHED:
-                    break
-                elif signal[0] == odatse.mpi.MSG_ABORT:
-                    sys.exit(0)
-                elif signal[0] == odatse.mpi.MSG_EVALUATE:
-                    odatse.mpi.solcomm().Bcast(xp, root=0)
-                    args = odatse.mpi.solcomm().bcast(None, root=0)
-                    self.runner.solver.evaluate(xp, args)
-                else:
-                    raise ValueError(f"Unknown signal: {signal[0]}")
+            try:
+                while True:
+                    odatse.mpi.solcomm().Bcast(signal, root=0)
+                    if signal[0] == odatse.mpi.MSG_FINISHED:
+                        break
+                    elif signal[0] == odatse.mpi.MSG_ABORT:
+                        sys.exit(0)
+                    elif signal[0] == odatse.mpi.MSG_EVALUATE:
+                        odatse.mpi.solcomm().Bcast(xp, root=0)
+                        args = odatse.mpi.solcomm().bcast(None, root=0)
+                        self.runner.solver.evaluate(xp, args)
+                    else:
+                        raise ValueError(f"Unknown signal: {signal[0]}")
+            except Exception as e:
+                # A solver worker is outside the algorithm-layer consensus in
+                # _reach_consensus() (it is not a member of algcomm), so it has
+                # no way to report a failure to its solrank-0 controller. The
+                # controller may already be blocked in a solcomm collective
+                # inside solver.evaluate(), or will block in the next Bcast of
+                # the control signal, so letting the exception propagate would
+                # hang the whole job. Report the error and abort the job.
+                traceback.print_exc()
+                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {e}",
+                      file=sys.stderr, flush=True)
+                odatse.mpi.comm().Abort(1)
             return None
 
     def write_timer(self, filename: Path):
