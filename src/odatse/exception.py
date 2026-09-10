@@ -50,3 +50,28 @@ class CheckpointError(Error):
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
+
+
+class SolverError(Error):
+    """
+    Exception raised on a solver-group controller when ``solver.evaluate()``
+    failed on a worker rank of the group with an exception that is not a
+    ``RuntimeError``.
+
+    Failures that are ``RuntimeError`` on every failing rank are re-raised as
+    a plain ``RuntimeError`` instead, so that ``ignore_error`` applies to
+    them. This class is deliberately *not* a ``RuntimeError``: a worker that
+    died with, e.g., ``ValueError`` or ``MemoryError`` must not be silently
+    turned into ``NaN``.
+
+    Parameters
+    ----------
+    message : str
+        explanation, including the global rank(s) that failed
+    """
+
+    rank_local = True
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message

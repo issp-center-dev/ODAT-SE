@@ -561,17 +561,21 @@ class AlgorithmBase(metaclass=ABCMeta):
                     elif signal[0] == odatse.mpi.MSG_EVALUATE:
                         odatse.mpi.solcomm().Bcast(xp, root=0)
                         args = odatse.mpi.solcomm().bcast(None, root=0)
-                        self.runner.solver.evaluate(xp, args)
+                        # An exception raised by solver.evaluate() is caught
+                        # inside serve() and reported to the controller through
+                        # the solver-group status exchange (Runner._evaluate_group),
+                        # where it becomes an ordinary evaluate failure subject
+                        # to ignore_error. Nothing propagates out of serve().
+                        self.runner.serve(xp, args)
                     else:
                         raise ValueError(f"Unknown signal: {signal[0]}")
             except Exception as e:
-                # A solver worker is outside the algorithm-layer consensus in
-                # _reach_consensus() (it is not a member of algcomm), so it has
-                # no way to report a failure to its solrank-0 controller. The
-                # controller may already be blocked in a solcomm collective
-                # inside solver.evaluate(), or will block in the next Bcast of
-                # the control signal, so letting the exception propagate would
-                # hang the whole job. Report the error and abort the job.
+                # Last resort for failures outside solver.evaluate() (a corrupt
+                # control message, an unpicklable args, ...). A solver worker is
+                # outside the algorithm-layer consensus in _reach_consensus()
+                # (it is not a member of algcomm) and the controller is, or will
+                # be, blocked in a solcomm collective, so letting the exception
+                # propagate would hang the whole job. Report and abort instead.
                 traceback.print_exc()
                 print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {e}",
                       file=sys.stderr, flush=True)

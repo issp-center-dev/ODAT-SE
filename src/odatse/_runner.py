@@ -7,6 +7,8 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from abc import ABCMeta, abstractmethod
+import sys
+import traceback
 
 import numpy as np
 
@@ -15,11 +17,11 @@ import odatse.util.read_matrix
 import odatse.util.mapping
 import odatse.util.limitation
 from odatse.util.logger import Logger
-from odatse.exception import InputError
+from odatse.exception import InputError, SolverError
 
 # type hints
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 from . import mpi
 
 
@@ -134,18 +136,118 @@ class Runner(object):
                 odatse.mpi.solcomm().Bcast(xp, root=0)
                 odatse.mpi.solcomm().bcast(args, root=0) # args is not array, so we use bcast instead of Bcast
 
-            try:
-                result = self.solver.evaluate(xp, args)
-            except RuntimeError as err:
-                if self.ignore_error:
+            result, error = self._evaluate_group(xp, args)
+            if error is not None:
+                if self.ignore_error and isinstance(error, RuntimeError):
                     result = np.nan
                 else:
-                    raise
+                    raise error
 
         else:
             result = np.inf
         self.logger.count(x, args, result)
         return result
+
+    def serve(self, xp: np.ndarray, args: tuple = ()) -> None:
+        """
+        Worker-side counterpart of ``submit()``.
+
+        Called by the framework on solver-worker ranks (``solrank() > 0``)
+        with the ``xp`` / ``args`` broadcast by the controller. It evaluates
+        the solver on this rank and takes part in the status exchange of the
+        solver group; whether a failure is ignored or propagated is decided on
+        the controller, so nothing is raised here.
+
+        Parameters
+        ----------
+        xp : np.ndarray
+            Input array (already mapped by the controller).
+        args : tuple, optional
+            Additional arguments.
+        """
+        self._evaluate_group(xp, args)
+
+    def _evaluate_group(
+            self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[Exception]]:
+        """
+        Call ``solver.evaluate()`` on this rank and agree on the outcome
+        across the solver group.
+
+        Every rank of the solver group (controller and workers) calls this
+        for the same ``xp`` / ``args``. After the local ``evaluate()`` the
+        ranks exchange their success status in one ``allgather`` on
+        ``solcomm``, so that a failure on any rank is seen by all of them and
+        no rank is left blocked in the next control-signal broadcast.
+
+        Returns
+        -------
+        result : float
+            The local return value of ``evaluate()`` (``NaN`` if it raised).
+        error : Exception or None
+            ``None`` when every rank succeeded. Otherwise the exception to be
+            raised on the controller:
+
+            * this rank's own exception, if it is the only failure;
+            * a ``RuntimeError`` summarising all failures, when every failing
+              rank raised a ``RuntimeError`` (so ``ignore_error`` applies);
+            * a ``SolverError`` otherwise (not covered by ``ignore_error``).
+
+        Notes
+        -----
+        The status exchange is a collective on ``solcomm`` and is placed
+        *after* ``evaluate()``. It therefore cannot rescue a solver that
+        raises on some ranks *before* a collective inside ``evaluate()`` that
+        the other ranks still enter; such a mismatch of collectives is the
+        solver's responsibility (see the parallel-solver tutorial).
+        """
+        own_error: Optional[Exception] = None
+        result = np.nan
+        try:
+            result = self.solver.evaluate(xp, args)
+        except Exception as e:
+            own_error = e
+
+        if odatse.mpi.solsize() == 1:
+            return result, own_error
+
+        # One entry per rank: None on success, (is_runtime_error, summary) on failure.
+        if own_error is None:
+            own_status = None
+        else:
+            own_status = (
+                isinstance(own_error, RuntimeError),
+                f"[rank {odatse.mpi.rank()}] {type(own_error).__name__}: {own_error}",
+            )
+        statuses = odatse.mpi.solcomm().allgather(own_status)
+        failures = [s for s in statuses if s is not None]
+
+        if not failures:
+            return result, None
+
+        ignorable = all(is_rte for is_rte, _ in failures)
+
+        if odatse.mpi.solrank() > 0:
+            # The controller decides whether the failure is ignored. Print the
+            # traceback here only when it will not be, so that ignore_error does
+            # not flood stderr on solvers that fail routinely in some regions.
+            if own_error is not None and not (ignorable and self.ignore_error):
+                traceback.print_exception(type(own_error), own_error, own_error.__traceback__)
+                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {own_error}",
+                      file=sys.stderr, flush=True)
+            return result, own_error
+
+        # controller
+        if len(failures) == 1 and own_error is not None:
+            return result, own_error
+
+        summary = (
+            f"solver.evaluate() failed on {len(failures)} rank(s) of the solver group:\n"
+            + "\n".join(f"  {msg}" for _, msg in failures)
+        )
+        error: Exception = RuntimeError(summary) if ignorable else SolverError(summary)
+        if own_error is not None:
+            error.__cause__ = own_error
+        return result, error
 
     def post(self) -> None:
         """

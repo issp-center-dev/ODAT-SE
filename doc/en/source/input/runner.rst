@@ -11,6 +11,7 @@ It has three subsections, ``mapping``, ``limitation``, and ``log`` .
 
   Description:
   A parameter to specify whether a RuntimeError raised within the direct problem solver is ignored and the calculation is continued with NaN as the result. Note that only the RuntimeError exceptions are captured.
+  When the solver is parallelized (``--nsolve`` greater than 1), an evaluation is ignored only if every rank of the solver group that failed raised a RuntimeError; see :doc:`../tutorial/parallel_solver`.
 
 
 ``[runner.mapping]`` section

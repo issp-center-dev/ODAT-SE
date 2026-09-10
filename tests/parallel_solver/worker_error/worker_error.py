@@ -1,15 +1,25 @@
-# Regression test for an exception raised on a solver worker (solrank > 0).
+# Regression test for an exception raised inside solver.evaluate() when the
+# solver group has more than one rank (--nsolve > 1).
 #
-# A worker is not a member of the algorithm communicator, so it cannot take
-# part in the per-phase error consensus. Before the fix, an exception in
-# solver.evaluate() on a worker killed only that process and left its
-# controller (solrank == 0) blocked forever in a solcomm collective or in the
-# next control-signal Bcast. Now the worker reports the error and aborts the
-# whole job, so mpirun exits with a non-zero status instead of hanging.
+# A worker (solrank > 0) is not a member of the algorithm communicator, so it
+# cannot take part in the per-phase error consensus. Originally an exception on
+# a worker killed only that process and left its controller blocked forever;
+# then it aborted the whole job with MPI_Abort, which also killed jobs whose
+# failure would have been ignored on the controller (ignore_error = true).
 #
-# FAILMODE selects where the worker raises relative to the collective inside
-# evaluate(): "before" leaves the controller stuck in allgather(), "after"
-# leaves it stuck in the next Bcast of the control signal.
+# Now every rank of the solver group exchanges its evaluate() status after the
+# call (Runner._evaluate_group), so a failure on any rank becomes an ordinary
+# evaluate failure on the controller: ignored (NaN) when ignore_error is set
+# and every failing rank raised a RuntimeError, propagated otherwise.
+#
+# FAILMODE selects which rank(s) raise at evaluation FAIL_AT, always *after*
+# the collective inside evaluate() (raising before it on a subset of ranks is
+# a mismatch of collectives and is the solver's responsibility):
+#   worker      solrank == 1 only
+#   controller  solrank == 0 only
+#   all         every rank of the group
+# FAILTYPE selects the exception class: runtime (RuntimeError) or value
+# (ValueError, which ignore_error must not swallow).
 
 # Prefer the source tree over any installed odatse package, so that the tests
 # always exercise the working copy. The path must be absolute because odatse
@@ -21,8 +31,11 @@ import numpy as np
 import odatse
 from odatse.algorithm import choose_algorithm
 
-FAILMODE = os.environ.get("FAILMODE", "after")
-FAIL_AT = 3  # evaluation count at which the worker raises
+FAILMODE = os.environ.get("FAILMODE", "worker")
+FAILTYPE = os.environ.get("FAILTYPE", "runtime")
+FAIL_AT = 3  # evaluation count at which the selected rank(s) raise
+
+_EXC = {"runtime": RuntimeError, "value": ValueError}[FAILTYPE]
 
 
 class ParallelSolver(odatse.solver.SolverBase):
@@ -36,15 +49,18 @@ class ParallelSolver(odatse.solver.SolverBase):
 
     def evaluate(self, xs, args):
         self.count += 1
-        fail = odatse.mpi.solrank() == 1 and self.count == FAIL_AT
-
-        if fail and FAILMODE == "before":
-            raise RuntimeError("worker failed before collective")
 
         fs = odatse.mpi.solcomm().allgather(self._func(xs))
 
-        if fail and FAILMODE == "after":
-            raise RuntimeError("worker failed after collective")
+        if self.count == FAIL_AT:
+            solrank = odatse.mpi.solrank()
+            fail = (
+                (FAILMODE == "worker" and solrank == 1)
+                or (FAILMODE == "controller" and solrank == 0)
+                or FAILMODE == "all"
+            )
+            if fail:
+                raise _EXC(f"{FAILMODE} failed at evaluation {FAIL_AT}")
 
         return float(np.average(fs))
 
