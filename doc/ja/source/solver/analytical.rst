@@ -68,13 +68,13 @@
 
   - ``griewank``
 
-    - Griewank 型関数
+    - `Griewank 関数 <https://en.wikipedia.org/wiki/Griewank_function>`_
 
       .. math::
 
-          f(\vec{x}) = 1 + \frac{1}{4000}\sum_{i=1}^N x_i^2 + \prod_{i=1}^N \cos\!\left(\frac{x_i}{\sqrt{i}}\right)
+          f(\vec{x}) = 1 + \frac{1}{4000}\sum_{i=1}^N x_i^2 - \prod_{i=1}^N \cos\!\left(\frac{x_i}{\sqrt{i}}\right)
 
-    - 注意: 余弦積の項を加算（減算ではない）しているため、標準の Griewank 関数とは異なります。
+    - 大域最適値: :math:`f(\vec{x}^*) = 0 \quad (\forall_i\, x_i^* = 0)` 。多数の局所最適解を持ちます。
 
   - ``himmelblau``
 
