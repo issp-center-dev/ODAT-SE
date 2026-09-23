@@ -135,7 +135,7 @@ def griewank(xs: np.ndarray) -> float:
     -----
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
-    return 1+(np.sum(xs**2,axis=0)/4000)+np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1))),axis=0)
+    return 1+(np.sum(xs**2,axis=0)/4000)-np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1))),axis=0)
 
 def himmelblau(xs: np.ndarray) -> float:
     """
