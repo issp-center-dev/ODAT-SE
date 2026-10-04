@@ -107,9 +107,7 @@ class MeshGrid(DomainBase):
         # load mesh file and distribute
         if odatse.mpi.run_on_algorithm():
             if odatse.mpi.algrank() == 0:
-                _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
-                if _data.ndim == 1:
-                    _data = _data.reshape(-1, 1)
+                _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
             else:
                 _data = None
 

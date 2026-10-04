@@ -71,9 +71,7 @@ class Algorithm(MapperMPIAlgorithm):
 
         if odatse.mpi.rank() == 0:
             # mesh data format: index x1 x2 ...
-            _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
-            if _data.ndim == 1:
-                _data = _data.reshape(-1, 1)
+            _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
             data = [[int(idx), *v] for idx, *v in _data]
         else:
             data = None
