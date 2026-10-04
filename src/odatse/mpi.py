@@ -8,7 +8,7 @@
 
 import os
 import numpy as np
-from typing import Optional
+from typing import Optional, Tuple
 
 _NOMPI = os.environ.get("ODATSE_NOMPI", "0") != "0"
 
@@ -46,7 +46,7 @@ class _CheckpointMixin:
         import odatse.mpi as _mod
         current = _mod._ctx
 
-        if not getattr(current, "_ready", True):
+        if not current.ready():
             raise RuntimeError(
                 "odatse.mpi.setup() must be called before restoring state"
             )
@@ -77,12 +77,15 @@ class _NoMPIContext(_CheckpointMixin):
     """Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).
 
     All accessors return values consistent with single-process execution.
-    setup() accepts nalg and nsolve but ignores them.
+    setup() accepts nalg, nsolve and comm but ignores them, and ready() is
+    always True because there is nothing to partition.
     """
 
-    def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None) -> None:
+    def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None,
+              comm=None) -> None:
         pass
 
+    def ready(self) -> bool:                return True
     def comm(self):                         return None
     def size(self) -> int:                  return 1
     def rank(self) -> int:                  return 0
@@ -114,46 +117,50 @@ if not _NOMPI:
         * Algorithm layer : algcomm / algsize / algrank
         * Solver layer    : solcomm / solsize / solrank
 
-        Call setup() exactly once after MPI_Init to partition the global
-        communicator. Solver-layer and algorithm-layer accessors raise
-        RuntimeError if called before setup().
+        Call setup() after MPI_Init to partition the global communicator,
+        which is MPI.COMM_WORLD unless another intracommunicator is passed to
+        setup(). Solver-layer and algorithm-layer accessors raise RuntimeError
+        if called before setup(); ready() tells whether setup() has been
+        called. Calling setup() again with the same effective configuration
+        is a no-op, and with a different one raises RuntimeError.
         """
 
         def __init__(self) -> None:
             self._ready: bool = False
             self._comm = MPI.COMM_WORLD
+            self._nalg: Optional[int] = None
+            self._nsolve: Optional[int] = None
 
             self._solcomm = MPI.COMM_SELF
             self._solsize: int = 1
             self._solrank: int = 0
 
-            self._algcomm = MPI.COMM_WORLD
+            self._algcomm = self._comm
             self._algsize: int = self._comm.size
             self._algrank: int = self._comm.rank
 
-        def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None) -> None:
-            """Partition the global communicator.
+        @staticmethod
+        def _resolve_comm(comm):
+            """Return the communicator to partition (MPI.COMM_WORLD by default)."""
+            if comm is None:
+                return MPI.COMM_WORLD
+            if not isinstance(comm, MPI.Intracomm):
+                raise TypeError(
+                    f"comm must be an MPI intracommunicator, got {type(comm).__name__}"
+                )
+            if comm == MPI.COMM_NULL:
+                raise ValueError("comm must not be MPI.COMM_NULL")
+            return comm
 
-            Parameters
-            ----------
-            nalg:
-                Number of MPI processes for the search algorithm.
-            nsolve:
-                Number of MPI processes per solver group.
-
-            Exactly one of nalg/nsolve may be None; the missing value is
-            derived from the total process count. If both are None, all
-            processes are assigned to the algorithm layer (nsolve=1).
-            """
-            if self._ready:
-                raise RuntimeError("setup() must be called only once")
-
+        @staticmethod
+        def _resolve_layout(nalg: Optional[int], nsolve: Optional[int],
+                            total: int) -> Tuple[int, int]:
+            """Validate nalg/nsolve against the process count and fill in the
+            missing one, returning the effective (nalg, nsolve)."""
             if nalg is not None and nalg <= 0:
                 raise ValueError(f"nalg must be a positive integer, got {nalg}")
             if nsolve is not None and nsolve <= 0:
                 raise ValueError(f"nsolve must be a positive integer, got {nsolve}")
-
-            total = self._comm.size
 
             if nalg is not None and nsolve is not None:
                 if nalg * nsolve != total:
@@ -176,6 +183,56 @@ if not _NOMPI:
             else:
                 nalg = total
                 nsolve = 1
+            return nalg, nsolve
+
+        def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None,
+                  comm=None) -> None:
+            """Partition the global communicator.
+
+            Parameters
+            ----------
+            nalg:
+                Number of MPI processes for the search algorithm.
+            nsolve:
+                Number of MPI processes per solver group.
+            comm:
+                Intracommunicator to partition. Defaults to MPI.COMM_WORLD.
+                It becomes the global communicator returned by comm(); the
+                caller keeps ownership (it is never freed here) and must keep
+                it alive while ODAT-SE is in use. setup() is collective over
+                this communicator: every rank of it must call setup() with
+                the same arguments.
+
+            Exactly one of nalg/nsolve may be None; the missing value is
+            derived from the total process count of the communicator. If both
+            are None, all processes are assigned to the algorithm layer
+            (nsolve=1).
+
+            setup() may be called again. If the effective configuration (the
+            same communicator object, and the same nalg/nsolve after the
+            derivation above) equals the current one, the call does nothing;
+            otherwise RuntimeError is raised. All checks are local and happen
+            before any collective, so raising here cannot leave other ranks
+            blocked.
+            """
+            comm = self._resolve_comm(comm)
+
+            if self._ready:
+                if comm != self._comm:
+                    raise RuntimeError(
+                        "setup() has already been called with a different communicator"
+                    )
+                nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
+                if (nalg, nsolve) != (self._nalg, self._nsolve):
+                    raise RuntimeError(
+                        "setup() has already been called with a different layout: "
+                        f"current nalg={self._nalg}, nsolve={self._nsolve}; "
+                        f"requested nalg={nalg}, nsolve={nsolve}"
+                    )
+                return
+
+            nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
+            self._comm = comm
 
             # Solver intracommunicator: nsolve processes per group
             color = self._comm.rank // nsolve
@@ -202,15 +259,21 @@ if not _NOMPI:
                 sr = self._solcomm.bcast(sr, root=0)
                 self._algsize, self._algrank = int(sr[0]), int(sr[1])
 
+            self._nalg, self._nsolve = nalg, nsolve
             self._ready = True
 
             # self._print_status()
+
+        def ready(self) -> bool:
+            """Return True once setup() has been called."""
+            return self._ready
 
         def _require_ready(self) -> None:
             if not self._ready:
                 raise RuntimeError("odatse.mpi.setup() has not been called")
 
-        # --- Global MPI (available before setup) ---
+        # --- Global MPI (available before setup, when they refer to
+        #     MPI.COMM_WORLD; after setup(comm=...) they refer to that comm) ---
 
         def comm(self):
             return self._comm
@@ -256,6 +319,8 @@ if not _NOMPI:
             return self._algrank
 
         def run_on_algorithm(self) -> bool:
+            """Return True on the controller of a solver group (solrank == 0)."""
+            self._require_ready()
             return self._solrank == 0
 
         # --- debug ---
@@ -310,7 +375,7 @@ MSG_EVALUATE =  1
 # ------------------------------------------------------------------ #
 
 __all__ = [
-    "setup",
+    "setup", "ready",
     "comm", "size", "rank",
     "solcomm", "solsize", "solrank",
     "algcomm", "algsize", "algrank",
@@ -320,7 +385,9 @@ __all__ = [
     "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE",
 ]
 
-def setup(*, nalg=None, nsolve=None):   _ctx.setup(nalg=nalg, nsolve=nsolve)
+def setup(*, nalg=None, nsolve=None, comm=None):
+    _ctx.setup(nalg=nalg, nsolve=nsolve, comm=comm)
+def ready() -> bool:                    return _ctx.ready()
 def comm():                             return _ctx.comm()
 def size() -> int:                      return _ctx.size()
 def rank() -> int:                      return _ctx.rank()

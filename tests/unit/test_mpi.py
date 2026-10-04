@@ -43,7 +43,10 @@ def test_other_algorithm_process_error_is_exception():
 
 def test_nompi_context_reports_serial_values():
     ctx = mpi._NoMPIContext()
+    assert ctx.ready() is True   # nothing to partition: ready even before setup()
     ctx.setup(nalg=8, nsolve=4)  # arguments are accepted but ignored
+    ctx.setup(nalg=2, comm=object())  # ... and so are a repeated call and comm
+    assert ctx.ready() is True
     assert ctx.size() == 1
     assert ctx.rank() == 0
     assert ctx.algsize() == 1
@@ -74,7 +77,9 @@ def test_module_singleton_matches_build():
     """
     if mpi.enabled():
         assert isinstance(mpi._ctx, mpi._MPIContext)
+        assert mpi.ready() is True   # conftest has called setup()
     else:
+        assert mpi.ready() is True
         assert isinstance(mpi._ctx, mpi._NoMPIContext)
         assert mpi.size() == 1
         assert mpi.rank() == 0
@@ -105,9 +110,26 @@ def test_global_accessors_work_before_setup():
 def test_layer_accessors_raise_before_setup():
     ctx = mpi._MPIContext()
     for accessor in (ctx.solsize, ctx.solrank, ctx.solcomm,
-                     ctx.algsize, ctx.algrank, ctx.algcomm):
+                     ctx.algsize, ctx.algrank, ctx.algcomm,
+                     ctx.run_on_algorithm):
         with pytest.raises(RuntimeError):
             accessor()
+
+
+@needs_mpi
+def test_ready_reports_whether_setup_was_called():
+    ctx = mpi._MPIContext()
+    assert ctx.ready() is False
+    ctx.setup()
+    assert ctx.ready() is True
+
+
+@needs_mpi
+def test_failed_setup_leaves_context_not_ready():
+    ctx = mpi._MPIContext()
+    with pytest.raises(ValueError):
+        ctx.setup(nalg=0)
+    assert ctx.ready() is False
 
 
 @needs_mpi
@@ -153,12 +175,152 @@ def test_default_setup_assigns_all_to_algorithm_layer():
     assert ctx.algcomm() is not None
 
 
+# --------------------------------------------------------------------------- #
+#  MPI context: repeated setup()
+# --------------------------------------------------------------------------- #
+
 @needs_mpi
-def test_setup_twice_raises():
+def test_setup_again_with_same_configuration_is_noop():
+    from mpi4py import MPI
+    total = MPI.COMM_WORLD.size
     ctx = mpi._MPIContext()
     ctx.setup()
-    with pytest.raises(RuntimeError):
-        ctx.setup()
+    solcomm, algcomm = ctx.solcomm(), ctx.algcomm()
+
+    # every spelling of the same effective configuration is accepted ...
+    ctx.setup()
+    ctx.setup(nalg=total)
+    ctx.setup(nsolve=1)
+    ctx.setup(nalg=total, nsolve=1)
+    ctx.setup(comm=MPI.COMM_WORLD)
+
+    # ... and nothing is re-partitioned
+    assert ctx.solcomm() is solcomm
+    assert ctx.algcomm() is algcomm
+    assert ctx.algsize() == total
+
+
+@needs_mpi
+def test_setup_again_with_different_layout_raises():
+    total = mpi.size()
+    if total % 2 != 0:
+        pytest.skip("needs an even number of ranks")
+    ctx = mpi._MPIContext()
+    ctx.setup()                       # nalg=total, nsolve=1
+    with pytest.raises(RuntimeError, match="different layout"):
+        ctx.setup(nsolve=2)
+    assert ctx.solsize() == 1         # the first configuration is kept
+
+
+@needs_mpi
+def test_setup_again_with_different_communicator_raises():
+    from mpi4py import MPI
+    ctx = mpi._MPIContext()
+    ctx.setup()
+    dup = MPI.COMM_WORLD.Dup()        # congruent, but a different communicator
+    try:
+        with pytest.raises(RuntimeError, match="different communicator"):
+            ctx.setup(comm=dup)
+        assert ctx.comm() == MPI.COMM_WORLD
+    finally:
+        dup.Free()
+
+
+@needs_mpi
+def test_setup_again_still_validates_arguments():
+    total = mpi.size()
+    ctx = mpi._MPIContext()
+    ctx.setup()
+    with pytest.raises(ValueError):
+        ctx.setup(nalg=0)
+    with pytest.raises(ValueError):
+        ctx.setup(nalg=total + 1)     # not a divisor: invalid, not "different"
+
+
+def test_module_setup_is_idempotent():
+    """conftest has already called setup(); a library embedding ODAT-SE can
+    call it again defensively with the same (default) configuration."""
+    mpi.setup()
+    assert mpi.ready() is True
+
+
+# --------------------------------------------------------------------------- #
+#  MPI context: external communicator
+# --------------------------------------------------------------------------- #
+
+@needs_mpi
+def test_setup_with_duplicated_communicator():
+    from mpi4py import MPI
+    dup = MPI.COMM_WORLD.Dup()
+    try:
+        ctx = mpi._MPIContext()
+        ctx.setup(comm=dup)
+        assert ctx.comm() == dup
+        assert ctx.comm() != MPI.COMM_WORLD
+        assert ctx.size() == MPI.COMM_WORLD.size
+        assert ctx.rank() == MPI.COMM_WORLD.rank
+        assert ctx.algsize() == MPI.COMM_WORLD.size
+        assert ctx.solsize() == 1
+        ctx.setup(comm=dup)           # same communicator object: no-op
+    finally:
+        dup.Free()
+
+
+@needs_mpi
+def test_setup_with_sub_communicator():
+    """ODAT-SE can be confined to a subset of the ranks of a larger job:
+    sizes, ranks and the layout all refer to the communicator passed in."""
+    from mpi4py import MPI
+    world = MPI.COMM_WORLD
+    sub = world.Split(color=world.rank % 2, key=world.rank)
+    try:
+        ctx = mpi._MPIContext()
+        ctx.setup(comm=sub)
+        assert ctx.comm() == sub
+        assert ctx.size() == sub.size
+        assert ctx.rank() == sub.rank
+        assert ctx.algsize() == sub.size
+        assert ctx.algrank() == sub.rank
+        assert ctx.algcomm().size == sub.size
+        assert ctx.run_on_algorithm() is True
+        # the layout is validated against the sub-communicator, not COMM_WORLD
+        with pytest.raises(ValueError):
+            mpi._MPIContext().setup(nalg=sub.size + 1, comm=sub)
+    finally:
+        sub.Free()
+
+
+@needs_mpi
+def test_setup_with_sub_communicator_and_solver_groups():
+    from mpi4py import MPI
+    world = MPI.COMM_WORLD
+    if world.size % 4 != 0:
+        pytest.skip("needs a multiple of 4 ranks")
+    sub = world.Split(color=world.rank % 2, key=world.rank)
+    try:
+        ctx = mpi._MPIContext()
+        ctx.setup(nsolve=2, comm=sub)
+        assert ctx.solsize() == 2
+        assert ctx.algsize() == sub.size // 2
+        assert ctx.run_on_algorithm() == (ctx.solrank() == 0)
+        assert 0 <= ctx.algrank() < ctx.algsize()
+    finally:
+        sub.Free()
+
+
+@needs_mpi
+def test_setup_rejects_invalid_communicator():
+    from mpi4py import MPI
+    ctx = mpi._MPIContext()
+    with pytest.raises(TypeError):
+        ctx.setup(comm="COMM_WORLD")
+    with pytest.raises(TypeError):
+        ctx.setup(comm=MPI.COMM_NULL)   # not an intracommunicator
+    freed = MPI.COMM_WORLD.Dup()
+    freed.Free()                        # an intracommunicator handle that is now null
+    with pytest.raises(ValueError):
+        ctx.setup(comm=freed)
+    assert ctx.ready() is False
 
 
 @needs_mpi

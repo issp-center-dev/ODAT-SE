@@ -135,9 +135,28 @@ MPI コミュニケータへのアクセスを提供するモジュールです�
 mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOMPI`` が設定された場合は、非 MPI のスタブとして動作します。
 二層並列（アルゴリズム層 × ソルバーグループ）の詳細は :doc:`../tutorial/parallel_solver` を参照してください。
 
-- ``setup(nalg=None, nsolve=None)`` : コミュニケータを分割します。 ``Solver`` / ``Algorithm`` の構築前に一度だけ呼ぶ必要があります（ ``odatse.initialize()`` を使う場合は内部で呼ばれます）。
-- ``comm()`` / ``size()`` / ``rank()`` : 全体のコミュニケータとそのサイズ・ランク。
+- ``setup(nalg=None, nsolve=None, comm=None)`` : コミュニケータを分割します。 ``Solver`` / ``Algorithm`` の構築前に呼ぶ必要があります（ ``odatse.initialize()`` を使う場合は内部で呼ばれます）。 ``comm`` は分割対象のイントラコミュニケータで、省略時は ``MPI.COMM_WORLD`` です。同じ実効的な構成（同一のコミュニケータオブジェクト、かつ省略値を補った後の ``nalg`` / ``nsolve`` が同じ）で再度呼び出した場合は何もせず、異なる構成で呼び出した場合は ``RuntimeError`` を送出します。
+- ``ready()`` : ``setup()`` が呼び出し済みかどうか（非 MPI のスタブでは常に ``True`` ）。
+- ``comm()`` / ``size()`` / ``rank()`` : 全体のコミュニケータとそのサイズ・ランク。 ``setup()`` の前は ``MPI.COMM_WORLD`` を、後は ``setup()`` に渡したコミュニケータを指します。
 - ``algcomm()`` / ``algsize()`` / ``algrank()`` : アルゴリズム層のコミュニケータとそのサイズ・ランク。
 - ``solcomm()`` / ``solsize()`` / ``solrank()`` : ソルバーグループのコミュニケータとそのサイズ・ランク。
 - ``run_on_algorithm()`` : 呼び出したプロセスがアルゴリズム層に属するかどうか。
 - ``enabled()`` : MPI が利用可能かどうか（ ``ODATSE_NOMPI`` 設定時は ``False`` ）。
+
+``algcomm()`` , ``solcomm()`` とそのサイズ・ランクのアクセサ、および ``run_on_algorithm()`` は、 ``setup()`` の前に呼ぶと ``RuntimeError`` を送出します。
+
+ODAT-SE を別の MPI プログラムの中からライブラリとして使う場合、そのプログラムが既に ``setup()`` を呼んでいるかどうかは分かりません。 ``ready()`` で確認し、必要な場合にのみコミュニケータを分割してください。
+
+.. code-block:: python
+
+    import odatse.mpi
+
+    if not odatse.mpi.ready():
+        odatse.mpi.setup(comm=my_comm)   # my_comm: ODAT-SE が使ってよいランクの集合
+
+コミュニケータを渡す場合の注意:
+
+- ``setup()`` は ``comm`` 上の集団操作です。 ``comm`` の全ランクが同じ引数で呼び出す必要があります。 ``nalg * nsolve`` は ``comm`` のサイズに一致しなければなりません。
+- ``comm`` の所有権は呼び出し側にあります。ODAT-SE は ``comm`` を解放しません。ODAT-SE の使用中は有効なまま保持してください。
+- 複製（ ``comm.Dup()`` ）は別のコミュニケータとして扱われます。元のコミュニケータで ``setup()`` を呼んだ後に複製を渡すと ``RuntimeError`` になります。
+- ソルバーワーカーが ``evaluate`` の外側で失敗した場合、ODAT-SE は ``comm`` に対して ``MPI_Abort`` を呼びます。MPI の実装によっては ``comm`` のランクだけでなくジョブ全体が終了します。
