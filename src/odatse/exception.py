@@ -55,14 +55,16 @@ class CheckpointError(Error):
 class SolverError(Error):
     """
     Exception raised on a solver-group controller when ``solver.evaluate()``
-    failed on a worker rank of the group with an exception that is not a
+    failed on at least one worker rank of the group and at least one of the
+    failing ranks (worker or controller) raised something other than a
     ``RuntimeError``.
 
     Failures that are ``RuntimeError`` on every failing rank are re-raised as
     a plain ``RuntimeError`` instead, so that ``ignore_error`` applies to
-    them. This class is deliberately *not* a ``RuntimeError``: a worker that
-    died with, e.g., ``ValueError`` or ``MemoryError`` must not be silently
-    turned into ``NaN``.
+    them, and a failure on the controller alone is re-raised unchanged. This
+    class is deliberately *not* a ``RuntimeError``: a rank that died with,
+    e.g., ``ValueError`` or ``MemoryError`` must not be silently turned into
+    ``NaN``.
 
     Parameters
     ----------

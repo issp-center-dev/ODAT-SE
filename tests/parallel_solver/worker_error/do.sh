@@ -39,7 +39,9 @@ run_case() {
   echo "=== $name (FAILMODE=$mode FAILTYPE=$type $input) ==="
   rm -rf output timed_out.flag
   log=log_$name.txt
-  FAILMODE=$mode FAILTYPE=$type run_with_timeout $LIMIT \
+  # env(1) rather than "VAR=... function": whether an assignment prefixed to a
+  # shell-function call reaches the child processes is unspecified in POSIX.
+  run_with_timeout $LIMIT env FAILMODE=$mode FAILTYPE=$type \
     mpirun -np 4 ${PYTHON:-python3} worker_error.py --nalg 2 --nsolve 2 "$input" > "$log" 2>&1
 }
 

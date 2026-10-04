@@ -201,6 +201,27 @@ def test_group_mixed_types_is_solver_error_with_cause(monkeypatch):
         _runner(own, ignore_error=True).submit(X)
 
 
+def test_group_controller_other_exception_with_worker_failure_is_solver_error(monkeypatch):
+    # SolverError is not only "a worker raised a non-RuntimeError": a
+    # non-RuntimeError on the controller combined with any worker failure
+    # also yields it ...
+    _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE], global_rank=2)
+    own = ValueError("controller boom")
+    _, error = _runner(own)._evaluate_group(X, ())
+    assert isinstance(error, SolverError)
+    assert error.__cause__ is own
+    with pytest.raises(SolverError):
+        _runner(own, ignore_error=True).submit(X)
+
+
+def test_group_only_controller_failed_other_exception_is_unchanged(monkeypatch):
+    # ... whereas the controller failing alone re-raises its own exception.
+    _fake_group(monkeypatch, solrank=0, others=[OK])
+    own = ValueError("controller boom")
+    _, error = _runner(own)._evaluate_group(X, ())
+    assert error is own
+
+
 def test_group_worker_serve_never_raises(monkeypatch, capsys):
     comm = _fake_group(monkeypatch, solrank=1, others=[OK], global_rank=3)
     _runner(RuntimeError("worker boom")).serve(X, ())   # must not raise

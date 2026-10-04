@@ -111,10 +111,13 @@ evaluation:
 - If ``ignore_error = true`` is set in the ``[runner]`` section and every
   failing rank raised a ``RuntimeError``, the evaluation is ignored and its
   value becomes ``NaN``, exactly as for a controller-only failure.
-- Otherwise the controller raises: a ``RuntimeError`` listing the global
-  rank(s) that failed and their messages, or ``odatse.exception.SolverError``
-  when a worker raised something other than ``RuntimeError`` (such a failure
-  is never turned into ``NaN``). The error propagates through the usual
+- Otherwise the controller raises. If only the controller failed, its own
+  exception is re-raised unchanged. If a worker failed, the controller raises
+  a ``RuntimeError`` listing the global rank(s) that failed and their messages
+  when every failing rank raised a ``RuntimeError``, and
+  ``odatse.exception.SolverError`` when any failing rank (worker or
+  controller) raised something else (such a failure is never turned into
+  ``NaN``). The error propagates through the usual
   algorithm-layer consensus, the workers are told to leave their loop, and the
   job terminates with a non-zero status. A worker whose error is not ignored
   prints its traceback (tagged with its global rank) to the standard error.
@@ -140,6 +143,12 @@ the next collective and raise on every rank:
         if failures:
             raise RuntimeError("; ".join(failures))
         return self._combine(comm.allgather(part))
+
+A failure must be reported by raising an exception derived from ``Exception``.
+Do not call ``sys.exit()`` inside ``evaluate``: ``SystemExit`` (like
+``KeyboardInterrupt``) is not an ``Exception``, so the rank leaves without
+taking part in the status exchange and the rest of the solver group waits for
+it indefinitely.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
 receiving the broadcast ``args``) cannot be reported this way; the worker
