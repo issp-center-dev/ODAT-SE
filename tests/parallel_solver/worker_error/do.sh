@@ -106,8 +106,11 @@ expect_failure all_runtime all runtime input.toml \
 # odatse.exception.SolverError on the controller and fails the job. (The
 # script calls Algorithm.main() directly, so the error is an uncaught
 # traceback here; odatse.main() would print it as "ERROR: ..." instead.)
+# Match the "main() raised" line that worker_error.py prints in one write:
+# the traceback's own "SolverError: ..." line is written piecewise and can be
+# torn apart by the output of the other controller.
 expect_failure worker_value_ignore worker value input_ignore.toml \
-  "SolverError: solver.evaluate() failed on 1 rank(s)" \
+  "main() raised SolverError: solver.evaluate() failed on 1 rank(s)" \
   "ValueError: worker failed at evaluation 3"
 
 if [ $res -eq 0 ]; then

@@ -72,7 +72,16 @@ def main():
     solver = ParallelSolver(info)
     runner = odatse.Runner(solver, info)
     alg = choose_algorithm(info.algorithm["name"]).Algorithm(info, runner, run_mode=run_mode)
-    alg.main()
+    try:
+        alg.main()
+    except Exception as e:
+        # Report the exception in a single write for do.sh to grep. The
+        # interpreter prints the last line of an uncaught traceback in several
+        # writes ("SolverError", ": ", message), and both controllers fail at
+        # the same evaluation, so their stderr can interleave inside that line.
+        print(f"[rank {odatse.mpi.rank()}] main() raised {type(e).__name__}: {e}",
+              file=sys.stderr, flush=True)
+        raise
 
 
 if __name__ == "__main__":
