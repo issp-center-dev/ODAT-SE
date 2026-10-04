@@ -100,7 +100,7 @@ This software was developed with the support of "*Project for advancement of sof
 
 [source/main]: https://github.com/issp-center-dev/ODAT-SE/
 <!-- [source/develop]: https://github.com/issp-center-dev/ODAT-SE/tree/develop -->
-[ci/main/badge]: https://github.com/issp-center-dev/ODAT-SE/workflows/Test/badge.svg?branch=main
+[ci/main/badge]: https://github.com/issp-center-dev/ODAT-SE/actions/workflows/main.yml/badge.svg?branch=main
 [ci/main/uri]: https://github.com/issp-center-dev/ODAT-SE/actions?query=branch%3Amain
 [doc/en/badge]: https://img.shields.io/badge/doc-English-blue.svg
 [doc/ja/badge]: https://img.shields.io/badge/doc-Japanese-blue.svg
