@@ -100,7 +100,8 @@ class Cells:
         self.dimension = len(mins)
         self.mins = mins
         Ls = (maxs - mins) * 1.001
-        self.Ns = np.ceil(Ls / cellsize).astype(np.int64)
+        # at least one cell per dimension, even when all points share a coordinate
+        self.Ns = np.maximum(np.ceil(Ls / cellsize).astype(np.int64), 1)
         self.maxs = self.mins + cellsize * self.Ns
         self.cellsize = cellsize
         self.ncell = typing.cast(int, np.prod(self.Ns))

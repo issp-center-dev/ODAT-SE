@@ -93,3 +93,14 @@ def test_mpi_parallel_matches_serial():
     assert len(serial) == len(parallel)
     for a, b in zip(serial, parallel):
         assert a == b
+
+
+def test_cell_method_handles_zero_extent_dimension():
+    """Points sharing a coordinate give a zero-width bounding box along that
+    axis; the grid must still have one cell there instead of none."""
+    X = np.array([[1.0, 0.0], [1.0, 0.5], [1.0, 3.0]])
+
+    nl_cell = make_neighbor_list_cell(X, 1.0, allow_selfloop=False, show_progress=False)
+    nl_naive = make_neighbor_list_naive(X, 1.0, allow_selfloop=False, show_progress=False)
+
+    assert [sorted(a) for a in nl_cell] == [sorted(a) for a in nl_naive] == [[1], [0], []]
