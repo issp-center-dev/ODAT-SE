@@ -26,7 +26,7 @@ def load_data(filename: str) -> tuple:
         - beta: inverse temperature values
         - logz: log evidence values
     """
-    fx_data = np.loadtxt(filename, unpack=True, comments="#")
+    fx_data = np.loadtxt(filename, unpack=True, comments="#", ndmin=2)
     if fx_data.ndim != 2 or fx_data.shape[0] < 5:
         raise ValueError(
             f"{filename}: expected at least 5 columns "
@@ -158,7 +158,11 @@ def auto_range(beta, log_pdb, focus_factor=0.5):
     near_max_mask = (valid_log_pdb > log_pdb_max - drop_threshold)
     
     # Method 2: Use gradient to find where the curve starts dropping sharply
-    gradient = np.gradient(valid_log_pdb)
+    # np.gradient needs at least two points; a single point has no slope
+    if len(valid_log_pdb) > 1:
+        gradient = np.gradient(valid_log_pdb)
+    else:
+        gradient = np.zeros_like(valid_log_pdb)
     
     # Find the region around maximum where gradient is relatively small
     gradient_threshold = np.percentile(np.abs(gradient), 75)
