@@ -17,7 +17,7 @@ import odatse.util.read_matrix
 import odatse.util.mapping
 import odatse.util.limitation
 from odatse.util.logger import Logger
-from odatse.exception import InputError, SolverError
+from odatse.exception import InputError, SolverError, is_ignorable, describe_error
 
 # type hints
 from pathlib import Path
@@ -138,7 +138,7 @@ class Runner(object):
 
             result, error = self._evaluate_group(xp, args)
             if error is not None:
-                if self.ignore_error and self._is_ignorable(error):
+                if self.ignore_error and is_ignorable(error):
                     result = np.nan
                 else:
                     raise error
@@ -169,27 +169,10 @@ class Runner(object):
         """
         self._evaluate_group(xp, args)
 
-    @staticmethod
-    def _is_ignorable(error: BaseException) -> bool:
-        """
-        Whether ``ignore_error`` may turn this ``evaluate()`` failure into
-        ``NaN``. This is the single definition of the policy; the status
-        exchange and the worker-side reporting rely on it too.
-        """
-        return isinstance(error, RuntimeError)
-
-    @staticmethod
-    def _describe_error(error: BaseException) -> str:
-        """
-        ``"ExceptionType: message"`` for the status exchange. Formatting the
-        message must not fail: a rank that raised here would skip the
-        collective that every other rank of the group is about to enter.
-        """
-        try:
-            msg = str(error)
-        except Exception:
-            msg = "<unprintable exception>"
-        return f"{type(error).__name__}: {msg}"
+    # the policy and the message helper live in odatse.exception; kept here
+    # as aliases for callers that reach them through the Runner
+    _is_ignorable = staticmethod(is_ignorable)
+    _describe_error = staticmethod(describe_error)
 
     def _evaluate_group(
             self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[BaseException]]:
@@ -211,9 +194,9 @@ class Runner(object):
             ``None`` when every rank succeeded. Otherwise the exception to be
             raised on the controller:
 
-            * this rank's own exception, if it is the only failure (this
-              includes ``SystemExit`` / ``KeyboardInterrupt``, which are
-              re-raised as such);
+            * this rank's own exception, if it is the only failure
+              (``SystemExit`` / ``KeyboardInterrupt`` on the controller are
+              wrapped into a ``SolverError`` first);
             * a ``RuntimeError`` summarising all failures, when every failing
               rank raised a ``RuntimeError`` (so ``ignore_error`` applies);
             * a ``SolverError`` otherwise (not covered by ``ignore_error``).
@@ -224,7 +207,9 @@ class Runner(object):
         *after* ``evaluate()``. It therefore cannot rescue a solver that
         raises on some ranks *before* a collective inside ``evaluate()`` that
         the other ranks still enter; such a mismatch of collectives is the
-        solver's responsibility (see the parallel-solver tutorial).
+        solver's responsibility (see the parallel-solver tutorial). When the
+        exchange receives entries that are not status tuples, which is how
+        that mismatch shows up here, the job is aborted instead of hanging.
         """
         own_error: Optional[BaseException] = None
         result = np.nan
@@ -238,6 +223,10 @@ class Runner(object):
             own_error = e
 
         if odatse.mpi.solsize() == 1:
+            # no group to agree with: SystemExit / KeyboardInterrupt keep
+            # their usual meaning
+            if own_error is not None and not isinstance(own_error, Exception):
+                raise own_error
             return result, own_error
 
         # One entry per rank: None on success, (is_ignorable, summary) on failure.
@@ -247,10 +236,25 @@ class Runner(object):
             own_status = None
         else:
             own_status = (
-                self._is_ignorable(own_error),
-                f"[rank {odatse.mpi.rank()}] {self._describe_error(own_error)}",
+                is_ignorable(own_error),
+                f"[rank {odatse.mpi.rank()}] {describe_error(own_error)}",
             )
         statuses = odatse.mpi.solcomm().allgather(own_status)
+
+        # Entries of another shape mean the allgather was paired with a
+        # collective of the solver itself, i.e. evaluate() raised on some
+        # ranks before a solcomm collective the others still entered. The
+        # group is desynchronised beyond repair; abort rather than hang.
+        if not all(s is None or (isinstance(s, tuple) and len(s) == 2
+                                 and isinstance(s[0], bool) and isinstance(s[1], str))
+                   for s in statuses):
+            print(f"[rank {odatse.mpi.rank()}] ERROR: mismatched collectives inside "
+                  "solver.evaluate(): some ranks raised before a solcomm collective "
+                  "that the others entered; aborting the job",
+                  file=sys.stderr, flush=True)
+            odatse.mpi.comm().Abort(1)
+            raise RuntimeError("mismatched collectives inside solver.evaluate()")
+
         failures = [s for s in statuses if s is not None]
 
         if not failures:
@@ -267,11 +271,23 @@ class Runner(object):
             if own_error is not None and not (ignorable and self.ignore_error):
                 traceback.print_exception(type(own_error), own_error, own_error.__traceback__)
                 print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker raised in evaluate(), "
-                      f"reported to the controller: {self._describe_error(own_error)}",
+                      f"reported to the controller: {describe_error(own_error)}",
                       file=sys.stderr, flush=True)
             return result, own_error
 
         # controller
+        if own_error is not None and not isinstance(own_error, Exception):
+            # SystemExit / KeyboardInterrupt on the controller: the phase
+            # wrappers and the algorithm-layer consensus handle Exceptions
+            # only, so hand it over as a SolverError (never ignorable) to
+            # terminate the job cleanly on every algorithm rank
+            wrapped = SolverError(
+                f"solver.evaluate() raised {describe_error(own_error)} on the "
+                f"controller (global rank {odatse.mpi.rank()})"
+            )
+            wrapped.__cause__ = own_error
+            own_error = wrapped
+
         if len(failures) == 1 and own_error is not None:
             return result, own_error
 

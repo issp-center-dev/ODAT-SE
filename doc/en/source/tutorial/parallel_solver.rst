@@ -147,10 +147,16 @@ the next collective and raise on every rank:
 A failure should be reported by raising an exception derived from
 ``Exception``. ``SystemExit`` (from ``sys.exit()``) and ``KeyboardInterrupt``
 raised inside ``evaluate`` are caught as well and take part in the status
-exchange, so that no rank is left waiting, but they are never ignored: on a
-worker they terminate the job through ``odatse.exception.SolverError`` on the
-controller, and on the controller they propagate after the workers have been
-told to leave their loop.
+exchange, so that no rank is left waiting, but they are never ignored: whether
+raised on a worker or on the controller, the controller raises
+``odatse.exception.SolverError`` and the job terminates through the usual
+algorithm-layer consensus.
+
+If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
+the other ranks still enter (the mismatch described below), the status
+exchange receives data that is not a status, and the framework aborts the
+whole job via ``MPI_Abort`` with the message ``mismatched collectives inside
+solver.evaluate()`` instead of hanging.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
 receiving the broadcast ``args``) cannot be reported this way either; the

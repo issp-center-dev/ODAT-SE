@@ -76,3 +76,26 @@ class SolverError(Error):
     """
 
     rank_local = True
+
+
+def is_ignorable(error: BaseException) -> bool:
+    """
+    Whether ``[runner] ignore_error`` may turn this ``solver.evaluate()``
+    failure into ``NaN``: only a ``RuntimeError``. This is the single
+    definition of the policy, used by the controller's decision, by the
+    solver-group status exchange and by the worker-side reporting.
+    """
+    return isinstance(error, RuntimeError)
+
+
+def describe_error(error: BaseException) -> str:
+    """
+    ``"ExceptionType: message"`` for messages that must never fail to be
+    built (a rank that raised while formatting would skip a collective the
+    other ranks are entering).
+    """
+    try:
+        msg = str(error)
+    except Exception:
+        msg = "<unprintable exception>"
+    return f"{type(error).__name__}: {msg}"

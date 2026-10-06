@@ -282,6 +282,8 @@ def test_group_worker_unprintable_exception_is_described(monkeypatch):
 
 
 def test_is_ignorable_is_the_single_policy():
+    from odatse.exception import is_ignorable
+    assert odatse.Runner._is_ignorable is is_ignorable
     assert odatse.Runner._is_ignorable(RuntimeError("x"))
     assert odatse.Runner._is_ignorable(_Unprintable())
     assert not odatse.Runner._is_ignorable(ValueError("x"))
@@ -298,14 +300,37 @@ def test_describe_error_never_raises():
 # --------------------------------------------------------------------------- #
 
 @pytest.mark.parametrize("exc", [SystemExit(3), KeyboardInterrupt()])
-def test_group_controller_base_exception_joins_exchange_then_propagates(monkeypatch, exc):
+def test_group_controller_base_exception_joins_exchange_then_is_solver_error(monkeypatch, exc):
     """Not an Exception, but it must still enter the status exchange (the
-    workers are waiting in it) and is then re-raised as such on the
-    controller; ignore_error never applies."""
+    workers are waiting in it). It is then handed over as a SolverError,
+    which the phase wrappers and the algorithm-layer consensus (Exception
+    only) can terminate the job with; ignore_error never applies."""
     comm = _fake_group(monkeypatch, solrank=0, others=[OK])
-    with pytest.raises(type(exc)):
+    with pytest.raises(SolverError, match=type(exc).__name__ + ".*controller") as excinfo:
         _runner(exc, ignore_error=True).submit(X)
     assert comm.calls == 1
+    assert type(excinfo.value.__cause__) is type(exc)
+
+
+@pytest.mark.parametrize("exc", [SystemExit(3), KeyboardInterrupt()])
+def test_single_rank_base_exception_keeps_its_meaning(exc):
+    """With no solver group there is nobody to agree with: sys.exit() and
+    Ctrl-C inside evaluate() behave as they always did."""
+    with pytest.raises(type(exc)):
+        _runner(exc, ignore_error=True).submit(X)
+
+
+def test_group_garbage_in_exchange_aborts_instead_of_hanging(monkeypatch, capsys):
+    """If evaluate() raised on some ranks before a solcomm collective the
+    others entered, this rank's status allgather pairs with the solver's own
+    collective and receives its data. That is detected and the job aborted."""
+    _fake_group(monkeypatch, solrank=0, others=[1.5])   # a float, not a status
+    aborted = []
+    monkeypatch.setattr(mpi, "comm", lambda: type("C", (), {"Abort": lambda self, code: aborted.append(code)})())
+    with pytest.raises(RuntimeError, match="mismatched collectives"):
+        _runner()._evaluate_group(X, ())
+    assert aborted == [1]
+    assert "mismatched collectives inside solver.evaluate()" in capsys.readouterr().err
 
 
 def test_group_worker_system_exit_is_reported_not_raised(monkeypatch, capsys):
