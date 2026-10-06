@@ -70,8 +70,8 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
         try:
             part = self._compute_my_part(x)
             failed = None
-        except RuntimeError as e:
-            part, failed = None, str(e)
+        except Exception as e:          # any failure, so that no rank skips the allgather
+            part, failed = None, f"{type(e).__name__}: {e}"
         failures = [f for f in comm.allgather(failed) if f is not None]
         if failures:
             raise RuntimeError("; ".join(failures))
