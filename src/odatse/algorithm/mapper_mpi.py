@@ -75,11 +75,18 @@ class Algorithm(MapperMPIAlgorithm):
         if odatse.mpi.algrank() == 0:
             # mesh data format: index x1 x2 ...
             _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
-            _check_mesh_columns(_data, mesh_path, self.dimension)
-            data = [[int(idx), *v] for idx, *v in _data]
+            ncols = _data.shape[1]
         else:
-            data = None
+            _data = None
+            ncols = None
 
+        # validate on every algorithm rank (the other ranks are about to enter
+        # the scatter in ListIterator), so that a wrong file terminates all
+        if odatse.mpi.algsize() > 1:
+            ncols = odatse.mpi.algcomm().bcast(ncols, root=0)
+        _check_mesh_columns(ncols, mesh_path)
+
+        data = [[int(idx), *v] for idx, *v in _data] if _data is not None else None
         return ListIterator(data)
 
     def _find_mesh_info(self, info_param):

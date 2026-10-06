@@ -6,13 +6,18 @@ export PYTHONUNBUFFERED=1
 rm -f output_transform/ColorMap.txt
 
 # Run the odatse_main.py script with the input_transform.toml configuration file
-${PYTHON:-python3} ../../src/odatse_main.py input_transform.toml
+${PYTHON:-python3} ../../src/odatse_main.py input_transform.toml || { echo "TEST FAILED (input_transform.toml run failed)"; exit 1; }
 
 # Remove the existing ColorMap.txt file from the output_meshlist directory
 rm -f output_meshlist/ColorMap.txt
 
 # Run the odatse_main.py script with the input_meshlist.toml configuration file
-${PYTHON:-python3} ../../src/odatse_main.py input_meshlist.toml
+${PYTHON:-python3} ../../src/odatse_main.py input_meshlist.toml || { echo "TEST FAILED (input_meshlist.toml run failed)"; exit 1; }
+
+# A missing result file must not pass as a zero difference
+for f in output_transform/ColorMap.txt output_meshlist/ColorMap.txt; do
+  [ -f "$f" ] || { echo "TEST FAILED ($f was not written)"; exit 1; }
+done
 
 # Calculate the difference between the ColorMap.txt files from both outputs
 res=$(

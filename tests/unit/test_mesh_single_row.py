@@ -37,11 +37,10 @@ def test_meshgrid_reads_multiple_rows():
     assert mesh.grid == [[0, 0.5, -0.25], [1, 1.0, 2.0]]
 
 
-def _mapper(dimension=2):
+def _mapper():
     """A mapper Algorithm with only what _read_mesh_file() needs."""
     alg = Algorithm.__new__(Algorithm)
     alg.root_dir = Path(".")
-    alg.dimension = dimension
     return alg
 
 
@@ -59,37 +58,35 @@ def test_mapper_reads_single_row_as_one_point():
         assert points == [(0, [0.5, -0.25])]
 
 
-@pytest.mark.parametrize("text", ["0\n1\n2\n", "0 0.5\n1 1.0\n"])
-def test_meshgrid_rejects_wrong_column_count(text):
-    """With the dimension known from the input, a mesh file whose rows do
-    not have ``dimension + 1`` columns is an input error, reported at load
-    time rather than as an AssertionError inside Runner.submit()."""
+def test_meshgrid_accepts_more_coordinates_than_the_algorithm_dimension():
+    """The coordinate count is not tied to the algorithm dimension: a mesh
+    may hold the points in the solver's coordinates (tests/transform uses
+    base.dimension = 1 with a two-coordinate mesh and a 2-D solver)."""
     info = odatse.Info({
-        "base": {"dimension": 2},
-        "algorithm": {"name": "mapper", "param": {"mesh_path": _write_mesh(text)}},
+        "base": {"dimension": 1},
+        "algorithm": {"name": "mapper", "param": {"mesh_path": _write_mesh("0 0.5 -0.25\n")}},
         "solver": {"name": "analytical"},
     })
+    mesh = MeshGrid(info)
+    if mpi.run_on_algorithm():
+        assert mesh.grid == [[0, 0.5, -0.25]]
+
+
+def test_meshgrid_rejects_index_only_file():
+    """A file without coordinates is an input error, reported at load time
+    on every algorithm rank rather than as an AssertionError inside
+    Runner.submit() (or a hang of the ranks waiting in the broadcast)."""
     if not mpi.run_on_algorithm():
         return   # solver workers do not read the mesh
-    with pytest.raises(InputError, match="expected 3 columns"):
-        MeshGrid(info)
-
-
-def test_meshgrid_without_dimension_rejects_index_only_file():
-    """Constructed from a bare param dict the dimension is unknown, but an
-    index-only file still has no coordinates and is rejected."""
-    if not mpi.run_on_algorithm():
-        return
     with pytest.raises(InputError, match="at least 2 columns"):
         MeshGrid(param={"mesh_path": _write_mesh("0\n1\n")})
 
 
-@pytest.mark.parametrize("text", ["0\n1\n2\n", "0 0.5\n1 1.0\n"])
-def test_mapper_rejects_wrong_column_count(text):
-    if mpi.algrank() != 0:
-        return   # only algorithm rank 0 reads the file
-    with pytest.raises(InputError, match="expected 3 columns"):
-        _mapper(dimension=2)._read_mesh_file({"mesh_path": _write_mesh(text)})
+def test_mapper_rejects_index_only_file():
+    """Every algorithm rank raises (the column count is broadcast before the
+    check), so the ranks that would otherwise enter the scatter leave too."""
+    with pytest.raises(InputError, match="at least 2 columns"):
+        _mapper()._read_mesh_file({"mesh_path": _write_mesh("0\n1\n2\n")})
 
 
 def test_neighborlist_main_accepts_single_row(monkeypatch):
