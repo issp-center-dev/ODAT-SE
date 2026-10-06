@@ -11,12 +11,6 @@ Two layers are covered:
   be exercised on a single process (the real multi-rank protocol is covered
   by tests/parallel_solver/worker_error).
 """
-import os
-import sys
-
-SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
-sys.path.insert(0, SOURCE_PATH)
-
 import numpy as np
 import pytest
 
@@ -108,6 +102,7 @@ class _FakeSolcomm:
 
     def allgather(self, own):
         self.calls += 1
+        self.sent = own              # this rank's entry, as handed to MPI
         return self.others[:self.me] + [own] + self.others[self.me:]
 
     # submit() broadcasts the control message, x and args before evaluating
@@ -227,7 +222,11 @@ def test_group_worker_serve_never_raises(monkeypatch, capsys):
     _runner(RuntimeError("worker boom")).serve(X, ())   # must not raise
     assert comm.calls == 1
     err = capsys.readouterr().err
-    assert "[rank 3] ERROR: solver worker failed: worker boom" in err
+    # wording differs from the MPI_Abort path ("solver worker failed") so a
+    # log tells the two apart
+    assert ("[rank 3] ERROR: solver worker raised in evaluate(), reported to the controller: "
+            "RuntimeError: worker boom") in err
+    assert "solver worker failed" not in err
     assert "Traceback" in err
 
 
@@ -248,3 +247,47 @@ def test_group_worker_is_silent_when_only_controller_failed(monkeypatch, capsys)
     _runner().serve(X, ())
     assert comm.calls == 1
     assert capsys.readouterr().err == ""
+
+
+# --------------------------------------------------------------------------- #
+#  Robustness of the status exchange itself
+# --------------------------------------------------------------------------- #
+
+class _Unprintable(RuntimeError):
+    """An exception whose message cannot be rendered."""
+    def __str__(self):
+        raise ValueError("no message for you")
+
+
+def test_group_unprintable_exception_still_joins_the_exchange(monkeypatch):
+    """Building the status entry must not raise: a rank that failed here
+    would skip the allgather the other ranks are entering and hang them. The
+    failure is still reported, with a placeholder message, and is ignorable
+    because it is a RuntimeError."""
+    comm = _fake_group(monkeypatch, solrank=0, others=[OK])
+    result, error = _runner(_Unprintable())._evaluate_group(X, ())
+    assert comm.calls == 1
+    assert isinstance(error, _Unprintable)
+    assert np.isnan(result)
+    assert np.isnan(_runner(_Unprintable(), ignore_error=True).submit(X))
+
+
+def test_group_worker_unprintable_exception_is_described(monkeypatch):
+    """The entry exchanged for a failing rank is a plain (bool, str) pair even
+    when the exception cannot be rendered."""
+    comm = _fake_group(monkeypatch, solrank=1, others=[OK], global_rank=3)
+    _runner(_Unprintable())._evaluate_group(X, ())
+    assert comm.calls == 1
+    assert comm.sent == (True, "[rank 3] _Unprintable: <unprintable exception>")
+
+
+def test_is_ignorable_is_the_single_policy():
+    assert odatse.Runner._is_ignorable(RuntimeError("x"))
+    assert odatse.Runner._is_ignorable(_Unprintable())
+    assert not odatse.Runner._is_ignorable(ValueError("x"))
+    assert not odatse.Runner._is_ignorable(SolverError("x"))
+
+
+def test_describe_error_never_raises():
+    assert odatse.Runner._describe_error(ValueError("boom")) == "ValueError: boom"
+    assert odatse.Runner._describe_error(_Unprintable()) == "_Unprintable: <unprintable exception>"

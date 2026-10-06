@@ -9,8 +9,15 @@
 class Error(Exception):
     """Base class of exceptions in odatse
 
+    Parameters
+    ----------
+    message : str
+        explanation
+
     Attributes
     ----------
+    message : str
+        the explanation passed to the constructor
     rank_local : bool
         True when the error occurred on this MPI rank specifically (e.g. a
         checkpoint I/O failure re-raised through the phase consensus
@@ -20,6 +27,10 @@ class Error(Exception):
     """
 
     rank_local = False
+
+    def __init__(self, message: str = "") -> None:
+        super().__init__(message)
+        self.message = message
 
 
 class InputError(Error):
@@ -32,10 +43,6 @@ class InputError(Error):
         explanation
     """
 
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-        self.message = message
-
 
 class CheckpointError(Error):
     """
@@ -46,10 +53,6 @@ class CheckpointError(Error):
     message : str
         explanation
     """
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-        self.message = message
 
 
 class SolverError(Error):
@@ -73,7 +76,3 @@ class SolverError(Error):
     """
 
     rank_local = True
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-        self.message = message

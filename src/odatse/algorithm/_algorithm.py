@@ -551,13 +551,15 @@ class AlgorithmBase(metaclass=ABCMeta):
             assert odatse.mpi.solrank() > 0
             signal = np.array([0])
             xp = np.zeros(self.runner.solver.dimension)
+            aborted = False
             try:
                 while True:
                     odatse.mpi.solcomm().Bcast(signal, root=0)
                     if signal[0] == odatse.mpi.MSG_FINISHED:
                         break
                     elif signal[0] == odatse.mpi.MSG_ABORT:
-                        sys.exit(0)
+                        aborted = True
+                        break
                     elif signal[0] == odatse.mpi.MSG_EVALUATE:
                         odatse.mpi.solcomm().Bcast(xp, root=0)
                         args = odatse.mpi.solcomm().bcast(None, root=0)
@@ -569,17 +571,24 @@ class AlgorithmBase(metaclass=ABCMeta):
                         self.runner.serve(xp, args)
                     else:
                         raise ValueError(f"Unknown signal: {signal[0]}")
-            except Exception as e:
+            except BaseException as e:
                 # Last resort for failures outside solver.evaluate() (a corrupt
-                # control message, an unpicklable args, ...). A solver worker is
-                # outside the algorithm-layer consensus in _reach_consensus()
-                # (it is not a member of algcomm) and the controller is, or will
-                # be, blocked in a solcomm collective, so letting the exception
-                # propagate would hang the whole job. Report and abort instead.
+                # control message, an unpicklable args, ...) and for
+                # SystemExit / KeyboardInterrupt raised inside evaluate(), which
+                # are not Exceptions and therefore bypass the status exchange
+                # in Runner.serve(). A solver worker is outside the
+                # algorithm-layer consensus in _reach_consensus() (it is not a
+                # member of algcomm) and the controller is, or will be, blocked
+                # in a solcomm collective, so letting the exception propagate
+                # (or the process exit) would hang the whole job. Report and
+                # abort instead.
                 traceback.print_exc()
-                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {e}",
+                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: "
+                      f"{type(e).__name__}: {e}",
                       file=sys.stderr, flush=True)
                 odatse.mpi.comm().Abort(1)
+            if aborted:
+                sys.exit(0)
             return None
 
     def write_timer(self, filename: Path):

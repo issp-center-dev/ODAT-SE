@@ -146,14 +146,18 @@ the next collective and raise on every rank:
 
 A failure must be reported by raising an exception derived from ``Exception``.
 Do not call ``sys.exit()`` inside ``evaluate``: ``SystemExit`` (like
-``KeyboardInterrupt``) is not an ``Exception``, so the rank leaves without
-taking part in the status exchange and the rest of the solver group waits for
-it indefinitely.
+``KeyboardInterrupt``) is not an ``Exception`` and is not reported through the
+status exchange. On a worker it is caught by the worker loop, which prints it
+and aborts the whole job via ``MPI_Abort`` (see below), so the job terminates
+instead of hanging, but ``ignore_error`` cannot apply to it.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
-receiving the broadcast ``args``) cannot be reported this way; the worker
-prints the error and aborts the whole job via ``MPI_Abort`` so that the
-controller is not left hanging.
+receiving the broadcast ``args``) cannot be reported this way either; the
+worker prints the error and aborts the whole job via ``MPI_Abort`` so that the
+controller is not left hanging. The two paths are told apart in the log: a
+failure reported to the controller is printed as ``ERROR: solver worker raised
+in evaluate(), reported to the controller: ...`` (only when it is not ignored),
+the abort path as ``ERROR: solver worker failed: ...``.
 
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~

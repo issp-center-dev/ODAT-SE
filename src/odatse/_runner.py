@@ -138,7 +138,7 @@ class Runner(object):
 
             result, error = self._evaluate_group(xp, args)
             if error is not None:
-                if self.ignore_error and isinstance(error, RuntimeError):
+                if self.ignore_error and self._is_ignorable(error):
                     result = np.nan
                 else:
                     raise error
@@ -166,6 +166,28 @@ class Runner(object):
             Additional arguments.
         """
         self._evaluate_group(xp, args)
+
+    @staticmethod
+    def _is_ignorable(error: BaseException) -> bool:
+        """
+        Whether ``ignore_error`` may turn this ``evaluate()`` failure into
+        ``NaN``. This is the single definition of the policy; the status
+        exchange and the worker-side reporting rely on it too.
+        """
+        return isinstance(error, RuntimeError)
+
+    @staticmethod
+    def _describe_error(error: BaseException) -> str:
+        """
+        ``"ExceptionType: message"`` for the status exchange. Formatting the
+        message must not fail: a rank that raised here would skip the
+        collective that every other rank of the group is about to enter.
+        """
+        try:
+            msg = str(error)
+        except Exception:
+            msg = "<unprintable exception>"
+        return f"{type(error).__name__}: {msg}"
 
     def _evaluate_group(
             self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[Exception]]:
@@ -210,13 +232,15 @@ class Runner(object):
         if odatse.mpi.solsize() == 1:
             return result, own_error
 
-        # One entry per rank: None on success, (is_runtime_error, summary) on failure.
+        # One entry per rank: None on success, (is_ignorable, summary) on failure.
+        # Only plain Python types are exchanged, so that the collective cannot
+        # fail on an exception object that does not pickle.
         if own_error is None:
             own_status = None
         else:
             own_status = (
-                isinstance(own_error, RuntimeError),
-                f"[rank {odatse.mpi.rank()}] {type(own_error).__name__}: {own_error}",
+                self._is_ignorable(own_error),
+                f"[rank {odatse.mpi.rank()}] {self._describe_error(own_error)}",
             )
         statuses = odatse.mpi.solcomm().allgather(own_status)
         failures = [s for s in statuses if s is not None]
@@ -224,15 +248,18 @@ class Runner(object):
         if not failures:
             return result, None
 
-        ignorable = all(is_rte for is_rte, _ in failures)
+        ignorable = all(is_ign for is_ign, _ in failures)
 
         if odatse.mpi.solrank() > 0:
             # The controller decides whether the failure is ignored. Print the
             # traceback here only when it will not be, so that ignore_error does
             # not flood stderr on solvers that fail routinely in some regions.
+            # The wording differs from the MPI_Abort path in AlgorithmBase.main()
+            # ("solver worker failed") so that a log tells the two apart.
             if own_error is not None and not (ignorable and self.ignore_error):
                 traceback.print_exception(type(own_error), own_error, own_error.__traceback__)
-                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {own_error}",
+                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker raised in evaluate(), "
+                      f"reported to the controller: {self._describe_error(own_error)}",
                       file=sys.stderr, flush=True)
             return result, own_error
 

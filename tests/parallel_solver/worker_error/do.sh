@@ -65,8 +65,15 @@ expect_failure() {
   echo "ok: failed with status $status and the error was reported"
 }
 
+# The mesh has NPOINTS points (num_list in input.toml). They are split over
+# the --nalg 2 controllers, and each solver group fails exactly once, at its
+# FAIL_AT-th evaluation (worker_error.py), so exactly NNAN rows of the
+# colormap must be NaN and every other row must hold a finite value.
+NPOINTS=25
+NNAN=2
+
 # expect_ignored NAME FAILMODE FAILTYPE INPUT: the job must complete with
-# status 0 and the failed evaluations must appear as NaN in the colormap.
+# status 0, with exactly the failed evaluations as NaN in the colormap.
 expect_ignored() {
   run_case "$1" "$2" "$3" "$4"
   if [ $timed_out -ne 0 ]; then
@@ -75,13 +82,18 @@ expect_ignored() {
   if [ $status -ne 0 ]; then
     echo "FAILED: job exited with status $status (see $log)"; res=1; return
   fi
-  if ! grep -qi nan output/ColorMap.txt; then
-    echo "FAILED: no NaN in output/ColorMap.txt"; res=1; return
+  nrows=$(grep -v '^#' output/ColorMap.txt | grep -c .)
+  nnan=$(grep -v '^#' output/ColorMap.txt | grep -ci nan)
+  if [ "$nrows" -ne $NPOINTS ]; then
+    echo "FAILED: expected $NPOINTS rows in output/ColorMap.txt, got $nrows"; res=1; return
+  fi
+  if [ "$nnan" -ne $NNAN ]; then
+    echo "FAILED: expected exactly $NNAN NaN rows in output/ColorMap.txt, got $nnan"; res=1; return
   fi
   if grep -q "ERROR" "$log"; then
     echo "FAILED: an ignored error was still reported in $log"; res=1; return
   fi
-  echo "ok: completed with NaN for the failed evaluations"
+  echo "ok: completed with exactly $NNAN NaN rows for the failed evaluations"
 }
 
 # A RuntimeError on a worker is propagated by the controller when ignore_error
@@ -90,7 +102,7 @@ expect_ignored() {
 expect_failure worker_runtime worker runtime input.toml \
   "solver.evaluate() failed on 1 rank(s)" \
   "RuntimeError: worker failed at evaluation 3" \
-  "ERROR: solver worker failed"
+  "ERROR: solver worker raised in evaluate(), reported to the controller"
 
 # ... and ignored (NaN) when ignore_error = true, exactly like a controller
 # failure. This is the case MPI_Abort on the worker used to kill.
