@@ -9,37 +9,91 @@
 from typing import Sequence, Union, Any
 
 from pathlib import Path
+import warnings
 import numpy as np
 
 import odatse
 from odatse.exception import InputError
 from ._domain import DomainBase
 
-def check_mesh_columns(ncols: int, mesh_path) -> None:
+def load_mesh_file(root_dir, info_param: dict, *, root_only: bool = False):
     """
-    Check the column count of a mesh file read with ``np.loadtxt(..., ndmin=2)``.
+    Read a mesh file on algorithm rank 0 and validate it on every algorithm rank.
 
-    Each row must be ``index x1 ... xD`` with at least one coordinate, i.e.
-    at least two columns. A file without coordinates used to produce
-    coordinate-less points and an ``AssertionError`` deep inside
-    ``Runner.submit``. The number of coordinates is not compared with the
-    ``dimension`` of the algorithm: a mesh may hold the points in the
-    solver's coordinates (see ``tests/transform``), and the solver dimension
-    is checked when a point is evaluated.
+    This is the single mesh-file reader, shared by ``MeshGrid`` (used by
+    ``bayes``, ``exchange`` and ``pamc``) and by ``mapper``. It must be
+    called on every rank of the algorithm layer (it is collective over
+    ``algcomm``), and only there.
 
-    Must be called identically on every rank that takes part in the
-    following collectives, so that a wrong file terminates all of them.
+    Parameters
+    ----------
+    root_dir : Path
+        Directory that a relative ``mesh_path`` is resolved against.
+    info_param : dict
+        ``mesh_path`` (required) and the optional ``comments``, ``delimiter``
+        and ``skiprows`` passed to ``numpy.loadtxt``.
+    root_only : bool
+        If True, the rows are returned on algorithm rank 0 only (``None``
+        elsewhere); otherwise they are broadcast to every algorithm rank.
+
+    Returns
+    -------
+    np.ndarray or None
+        2-D array of rows ``index x1 ... xD``.
 
     Raises
     ------
     odatse.exception.InputError
-        if there are fewer than two columns.
+        on every algorithm rank, when the file cannot be read, has no data
+        rows, or has no coordinate columns (fewer than two columns). The
+        number of coordinates is not compared with the ``dimension`` of the
+        algorithm: a mesh may hold the points in the solver's coordinates
+        (see ``tests/transform``), and the solver dimension is checked when a
+        point is evaluated.
     """
+    if "mesh_path" not in info_param:
+        raise InputError("mesh_path not defined")
+    mesh_path = root_dir / Path(info_param["mesh_path"]).expanduser()
+
+    comments = info_param.get("comments", "#")
+    delimiter = info_param.get("delimiter", None)
+    skiprows = info_param.get("skiprows", 0)
+
+    # Read on one rank; the outcome (shape or error) is agreed on every
+    # algorithm rank before anything else happens, so that a bad file makes
+    # all of them raise instead of leaving the others in a collective.
+    data = None
+    outcome = None
+    if odatse.mpi.algrank() == 0:
+        try:
+            if not mesh_path.exists():
+                raise FileNotFoundError(f"mesh_path not found: {mesh_path}")
+            with warnings.catch_warnings():
+                # an empty file is reported below, not by numpy
+                warnings.simplefilter("ignore", UserWarning)
+                data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter,
+                                  skiprows=skiprows, ndmin=2)
+            outcome = ("ok", data.shape)
+        except Exception as e:
+            outcome = ("error", f"{type(e).__name__}: {e}")
+    if odatse.mpi.algsize() > 1:
+        outcome = odatse.mpi.algcomm().bcast(outcome, root=0)
+
+    kind, detail = outcome
+    if kind == "error":
+        raise InputError(f"cannot read mesh file {mesh_path}: {detail}")
+    nrows, ncols = detail
+    if nrows == 0:
+        raise InputError(f"mesh file {mesh_path}: no data rows")
     if ncols < 2:
         raise InputError(
             f"mesh file {mesh_path}: expected at least 2 columns "
             f"(index and at least one coordinate), got {ncols}"
         )
+
+    if not root_only and odatse.mpi.algsize() > 1:
+        data = odatse.mpi.algcomm().bcast(data, root=0)
+    return data
 
 
 class MeshGrid(DomainBase):
@@ -121,29 +175,9 @@ class MeshGrid(DomainBase):
         info_param
             Dictionary containing parameters for setting up the grid.
         """
-        if "mesh_path" not in info_param:
-            raise ValueError("ERROR: mesh_path not defined")
-        mesh_path = self.root_dir / Path(info_param["mesh_path"]).expanduser()
-
-        if not mesh_path.exists():
-            raise FileNotFoundError("mesh_path not found: {}".format(mesh_path))
-
-        comments = info_param.get("comments", "#")
-        delimiter = info_param.get("delimiter", None)
-        skiprows = info_param.get("skiprows", 0)
-
-        # load mesh file and distribute
+        # load mesh file (validated on every algorithm rank) and distribute
         if odatse.mpi.run_on_algorithm():
-            if odatse.mpi.algrank() == 0:
-                _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
-            else:
-                _data = None
-
-            if odatse.mpi.algsize() > 1:
-                _data = odatse.mpi.algcomm().bcast(_data, root=0)
-
-            # after the broadcast, so that every algorithm rank raises
-            check_mesh_columns(_data.shape[1], mesh_path)
+            _data = load_mesh_file(self.root_dir, info_param)
         else:
             _data = []
 

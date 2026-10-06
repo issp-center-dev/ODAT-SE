@@ -12,7 +12,7 @@ import odatse
 import odatse.mpi as mpi
 import odatse.util.neighborlist as neighborlist
 from odatse.algorithm.mapper_mpi import Algorithm
-from odatse.domain.meshgrid import MeshGrid
+from odatse.domain.meshgrid import MeshGrid, load_mesh_file
 from odatse.exception import InputError
 
 
@@ -72,19 +72,39 @@ def test_meshgrid_accepts_more_coordinates_than_the_algorithm_dimension():
         assert mesh.grid == [[0, 0.5, -0.25]]
 
 
-def test_meshgrid_rejects_index_only_file():
-    """A file without coordinates is an input error, reported at load time
-    on every algorithm rank rather than as an AssertionError inside
-    Runner.submit() (or a hang of the ranks waiting in the broadcast)."""
+@pytest.mark.parametrize("text, message", [
+    ("0\n1\n", "at least 2 columns"),            # index only
+    ("# header only\n", "no data rows"),          # empty
+    ("0 abc 1.0\n", "cannot read mesh file"),     # not numeric
+])
+def test_load_mesh_file_rejects_bad_files_on_every_rank(text, message):
+    """A bad mesh file is an InputError at load time, raised identically on
+    every algorithm rank (the outcome of the read is broadcast before any
+    other collective), rather than an AssertionError inside Runner.submit()
+    or a hang of the ranks waiting in the broadcast / scatter."""
     if not mpi.run_on_algorithm():
         return   # solver workers do not read the mesh
+    with pytest.raises(InputError, match=message):
+        load_mesh_file(Path("."), {"mesh_path": _write_mesh(text)})
+
+
+def test_load_mesh_file_missing_file_is_input_error():
+    if not mpi.run_on_algorithm():
+        return
+    with pytest.raises(InputError, match="not found"):
+        load_mesh_file(Path("."), {"mesh_path": "does_not_exist.txt"})
+
+
+def test_meshgrid_rejects_index_only_file():
+    if not mpi.run_on_algorithm():
+        return
     with pytest.raises(InputError, match="at least 2 columns"):
         MeshGrid(param={"mesh_path": _write_mesh("0\n1\n")})
 
 
 def test_mapper_rejects_index_only_file():
-    """Every algorithm rank raises (the column count is broadcast before the
-    check), so the ranks that would otherwise enter the scatter leave too."""
+    """The mapper goes through the same reader, so every algorithm rank
+    raises before entering the scatter in ListIterator."""
     with pytest.raises(InputError, match="at least 2 columns"):
         _mapper()._read_mesh_file({"mesh_path": _write_mesh("0\n1\n2\n")})
 

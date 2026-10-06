@@ -683,7 +683,11 @@ Note:
     X = np.zeros((0, 0))
 
     if mpi.rank() == 0:
-        X = np.loadtxt(inputfile, ndmin=2)
+        import warnings
+        with warnings.catch_warnings():
+            # an empty file is reported below, not by numpy
+            warnings.simplefilter("ignore", UserWarning)
+            X = np.loadtxt(inputfile, ndmin=2)
 
     sh = X.shape
     if mpi.algsize() > 1:
