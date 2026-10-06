@@ -44,10 +44,13 @@ def test_other_algorithm_process_error_is_exception():
 def test_nompi_context_reports_serial_values():
     ctx = mpi._NoMPIContext()
     assert ctx.ready() is True   # nothing to partition: ready even before setup()
-    ctx.setup(nalg=8, nsolve=4)  # arguments are accepted but ignored
-    ctx.setup(nalg=2)            # ... and so is a repeated call
-    # a communicator cannot be honoured without MPI: ignored with a warning
-    with pytest.warns(RuntimeWarning, match="setup\\(comm=...\\) is ignored"):
+    ctx.setup()                  # the serial layout: nothing to warn about
+    ctx.setup(nalg=1, nsolve=1)
+    # a layout or a communicator cannot be honoured without MPI: the
+    # arguments are ignored, with a warning naming them
+    with pytest.warns(RuntimeWarning, match=r"setup\(nalg=8, nsolve=4\) is ignored"):
+        ctx.setup(nalg=8, nsolve=4)
+    with pytest.warns(RuntimeWarning, match=r"setup\(comm\) is ignored"):
         ctx.setup(comm=object())
     assert ctx.ready() is True
     assert ctx.size() == 1

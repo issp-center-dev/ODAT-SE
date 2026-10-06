@@ -53,22 +53,22 @@ def initialize(argv: Optional[Sequence[str]] = None):
 
     args = parser.parse_args(argv)
 
-    if odatse.mpi.ready():
-        # setup() has already been called, e.g. by a host program that embeds
-        # ODAT-SE and confines it to its own communicator with
-        # setup(comm=...). Keep that configuration: without --nalg/--nsolve
-        # nothing is requested, and with them setup() (which refers to the
-        # current communicator) checks that the requested layout agrees with
-        # the existing one.
-        if args.nalg is not None or args.nsolve is not None:
-            try:
-                odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
-            except RuntimeError as e:
-                raise odatse.exception.InputError(
-                    f"--nalg/--nsolve conflict with the MPI layout already set up: {e}"
-                ) from e
-    else:
-        odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
+    # setup() may already have been called, e.g. by a host program that
+    # embeds ODAT-SE and confines it to its own communicator with
+    # setup(comm=...). Keep that configuration when --nalg/--nsolve are not
+    # given (nothing is requested); otherwise setup(), which refers to the
+    # current communicator, checks that the requested layout agrees with the
+    # existing one. Invalid or conflicting values are input errors, reported
+    # by odatse.main() on one line with exit status 1.
+    if not (odatse.mpi.ready() and args.nalg is None and args.nsolve is None):
+        try:
+            odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
+        except ValueError as e:
+            raise odatse.exception.InputError(f"invalid --nalg/--nsolve: {e}") from e
+        except RuntimeError as e:
+            raise odatse.exception.InputError(
+                f"--nalg/--nsolve conflict with the MPI layout already set up: {e}"
+            ) from e
 
 
     if args.init is True:

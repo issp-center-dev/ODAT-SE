@@ -13,16 +13,12 @@ import odatse
 import odatse.mpi as mpi
 
 
-class _Sentinel:
-    """Stands in for a communicator object; only identity matters here."""
-
-
 @pytest.fixture
 def mpi_stub(monkeypatch):
-    """Replace setup()/ready()/comm() by stubs and Info.from_file() by a
+    """Replace setup()/ready() by recording stubs and Info.from_file() by a
     dummy; returns the list of setup() calls as (nalg, nsolve, comm)."""
     calls = []
-    state = {"ready": False, "comm": _Sentinel()}
+    state = {"ready": False}
 
     def setup(*, nalg=None, nsolve=None, comm=None):
         calls.append((nalg, nsolve, comm))
@@ -30,7 +26,6 @@ def mpi_stub(monkeypatch):
 
     monkeypatch.setattr(mpi, "setup", setup)
     monkeypatch.setattr(mpi, "ready", lambda: state["ready"])
-    monkeypatch.setattr(mpi, "comm", lambda: state["comm"])
     dummy = {"base": {"dimension": 1}, "algorithm": {"name": "mapper"}, "solver": {"name": "analytical"}}
     monkeypatch.setattr(odatse.Info, "from_file", classmethod(lambda cls, f: cls(dummy)))
     state["calls"] = calls
@@ -63,6 +58,21 @@ def test_initialize_checks_requested_layout_against_existing_setup(mpi_stub):
     mpi_stub["ready"] = True
     odatse.initialize(["input.toml", "--nsolve", "2"])
     assert mpi_stub["calls"] == [(None, 2, None)]
+
+
+def test_initialize_reports_invalid_layout_as_input_error(mpi_stub, monkeypatch):
+    """An invalid --nalg/--nsolve (ValueError from setup()) is an input
+    error as well, before or after an earlier setup()."""
+    from odatse.exception import InputError
+
+    def invalid_setup(*, nalg=None, nsolve=None, comm=None):
+        raise ValueError("nalg must be a positive integer, got 0")
+    monkeypatch.setattr(mpi, "setup", invalid_setup)
+    with pytest.raises(InputError, match="invalid --nalg/--nsolve.*positive integer"):
+        odatse.initialize(["input.toml", "--nalg", "0"])
+    mpi_stub["ready"] = True
+    with pytest.raises(InputError, match="invalid --nalg/--nsolve"):
+        odatse.initialize(["input.toml", "--nalg", "0"])
 
 
 def test_initialize_reports_layout_conflict_as_input_error(mpi_stub, monkeypatch):

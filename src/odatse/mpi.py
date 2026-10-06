@@ -77,21 +77,29 @@ class _NoMPIContext(_CheckpointMixin):
     """Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).
 
     All accessors return values consistent with single-process execution.
-    setup() accepts nalg, nsolve and comm but ignores them (a non-None comm
-    draws a RuntimeWarning), and ready() is always True because there is
-    nothing to partition.
+    setup() accepts nalg, nsolve and comm but ignores them (a RuntimeWarning
+    is emitted when a communicator or a layout other than 1x1 is requested),
+    and ready() is always True because there is nothing to partition.
     """
 
     def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None,
               comm=None) -> None:
+        requested = []
         if comm is not None:
-            # A real communicator cannot be honoured here: every process would
-            # run as an independent serial instance writing the same files.
+            requested.append("comm")
+        if nalg is not None and nalg != 1:
+            requested.append(f"nalg={nalg}")
+        if nsolve is not None and nsolve != 1:
+            requested.append(f"nsolve={nsolve}")
+        if requested:
+            # Neither a communicator nor a layout can be honoured here: every
+            # process runs as an independent serial instance writing the same
+            # files, which is what the caller should learn about.
             import warnings
             warnings.warn(
-                "odatse.mpi.setup(comm=...) is ignored because MPI is disabled "
-                "(ODATSE_NOMPI is set or mpi4py is not available); every process "
-                "runs as an independent serial instance",
+                f"odatse.mpi.setup({', '.join(requested)}) is ignored because MPI "
+                "is disabled (ODATSE_NOMPI is set or mpi4py is not available); "
+                "every process runs as an independent serial instance",
                 RuntimeWarning, stacklevel=3,
             )
 
