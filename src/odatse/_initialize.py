@@ -65,7 +65,9 @@ def initialize(argv: Optional[Sequence[str]] = None):
             odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
         except ValueError as e:
             raise odatse.exception.InputError(f"invalid --nalg/--nsolve: {e}") from e
-        except RuntimeError as e:
+        except odatse.mpi.SetupConflictError as e:
+            # only the explicit conflict check; an MPI failure inside setup()
+            # (mpi4py's MPI.Exception is a RuntimeError too) propagates as is
             raise odatse.exception.InputError(
                 f"--nalg/--nsolve conflict with the MPI layout already set up: {e}"
             ) from e

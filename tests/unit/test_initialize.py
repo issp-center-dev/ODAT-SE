@@ -82,7 +82,7 @@ def test_initialize_reports_layout_conflict_as_input_error(mpi_stub, monkeypatch
     from odatse.exception import InputError
 
     def conflicting_setup(*, nalg=None, nsolve=None, comm=None):
-        raise RuntimeError("setup() has already been called with a different layout")
+        raise mpi.SetupConflictError("setup() has already been called with a different layout")
     mpi_stub["ready"] = True
     monkeypatch.setattr(mpi, "setup", conflicting_setup)
     with pytest.raises(InputError, match="different layout") as excinfo:
@@ -93,3 +93,57 @@ def test_initialize_reports_layout_conflict_as_input_error(mpi_stub, monkeypatch
 def test_initialize_run_mode(mpi_stub):
     _, run_mode = odatse.initialize(["input.toml", "--resume", "--reset_rand"])
     assert run_mode == "resume-resetrand"
+
+
+def test_initialize_lets_other_runtime_errors_through(mpi_stub, monkeypatch):
+    """A RuntimeError that is not the conflict check (e.g. an MPI failure
+    inside setup(); mpi4py's MPI.Exception is a RuntimeError) is not
+    disguised as a --nalg/--nsolve problem."""
+    from odatse.exception import InputError
+
+    class MPIFailure(RuntimeError):
+        pass
+
+    def failing_setup(*, nalg=None, nsolve=None, comm=None):
+        raise MPIFailure("MPI_Comm_split failed")
+    monkeypatch.setattr(mpi, "setup", failing_setup)
+    with pytest.raises(MPIFailure):
+        odatse.initialize(["input.toml", "--nsolve", "2"])
+
+
+needs_mpi = pytest.mark.skipif(not mpi.enabled() or not hasattr(mpi, "_MPIContext"),
+                               reason="requires mpi4py")
+
+
+@needs_mpi
+def test_initialize_after_external_setup_uses_the_real_context(monkeypatch):
+    """End to end on the real MPI context: a host partitions its own
+    communicator, then initialize() keeps it (no flags), accepts the same
+    layout (--nsolve 1) and rejects another one (--nsolve 2) as InputError.
+    The module singleton is swapped for a fresh context for the duration."""
+    from mpi4py import MPI
+    from odatse.exception import InputError
+
+    dummy = {"base": {"dimension": 1}, "algorithm": {"name": "mapper"}, "solver": {"name": "analytical"}}
+    monkeypatch.setattr(odatse.Info, "from_file", classmethod(lambda cls, f: cls(dummy)))
+
+    dup = MPI.COMM_WORLD.Dup()
+    fresh = mpi._MPIContext()
+    monkeypatch.setattr(mpi, "_ctx", fresh)
+    try:
+        mpi.setup(comm=dup)
+        solcomm = mpi.solcomm()
+
+        odatse.initialize(["input.toml"])
+        assert mpi.comm() == dup and mpi.solcomm() is solcomm   # kept, not re-partitioned
+
+        odatse.initialize(["input.toml", "--nsolve", "1"])
+        assert mpi.comm() == dup and mpi.solcomm() is solcomm
+
+        if dup.size % 2 == 0:
+            with pytest.raises(InputError, match="conflict with the MPI layout"):
+                odatse.initialize(["input.toml", "--nsolve", "2"])
+        with pytest.raises(InputError, match="invalid --nalg/--nsolve"):
+            odatse.initialize(["input.toml", "--nalg", "0"])
+    finally:
+        dup.Free()

@@ -12,6 +12,15 @@ from typing import Optional, Tuple
 
 _NOMPI = os.environ.get("ODATSE_NOMPI", "0") != "0"
 
+
+class SetupConflictError(RuntimeError):
+    """setup() was called again with a different communicator or layout.
+
+    A RuntimeError, so that callers catching that still work; a distinct
+    class so that a conflict can be told apart from an MPI failure
+    (mpi4py's MPI.Exception is a RuntimeError as well).
+    """
+
 if not _NOMPI:
     try:
         from mpi4py import MPI
@@ -241,7 +250,7 @@ if not _NOMPI:
             setup() may be called again. If the effective configuration (the
             same communicator, and the same nalg/nsolve after the derivation
             above) equals the current one, the call does nothing; otherwise
-            RuntimeError is raised. Communicators are compared as MPI handles
+            SetupConflictError (a RuntimeError) is raised. Communicators are compared as MPI handles
             (mpi4py's ``==``), so two Python objects wrapping the same handle
             count as the same communicator, while a duplicate (``Dup()``)
             does not. All checks are local and happen before any collective,
@@ -254,11 +263,11 @@ if not _NOMPI:
 
             if self._ready:
                 if comm != self._comm:
-                    raise RuntimeError(
+                    raise SetupConflictError(
                         "setup() has already been called with a different communicator"
                     )
                 if (nalg, nsolve) != (self._nalg, self._nsolve):
-                    raise RuntimeError(
+                    raise SetupConflictError(
                         "setup() has already been called with a different layout: "
                         f"current nalg={self._nalg}, nsolve={self._nsolve}; "
                         f"requested nalg={nalg}, nsolve={nsolve}"
@@ -412,7 +421,7 @@ MSG_EVALUATE =  1
 # ------------------------------------------------------------------ #
 
 __all__ = [
-    "setup", "ready",
+    "setup", "ready", "SetupConflictError",
     "comm", "size", "rank",
     "solcomm", "solsize", "solrank",
     "algcomm", "algsize", "algrank",
