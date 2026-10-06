@@ -86,15 +86,23 @@ class _NoMPIContext(_CheckpointMixin):
     """Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).
 
     All accessors return values consistent with single-process execution.
-    setup() accepts nalg, nsolve and comm but ignores them (a RuntimeWarning
-    is emitted when a communicator or a layout other than 1x1 is requested),
-    and ready() is always True because there is nothing to partition.
+    setup() validates nalg/nsolve like the MPI build but otherwise ignores
+    its arguments (a RuntimeWarning is emitted when a layout other than 1x1
+    or a communicator of more than one rank is requested), and ready() is
+    always True because there is nothing to partition.
     """
 
     def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None,
               comm=None) -> None:
+        # the same argument validation as the MPI build, so that the CLI
+        # rejects --nalg 0 regardless of the backend
+        if nalg is not None and nalg <= 0:
+            raise ValueError(f"nalg must be a positive integer, got {nalg}")
+        if nsolve is not None and nsolve <= 0:
+            raise ValueError(f"nsolve must be a positive integer, got {nsolve}")
         requested = []
-        if comm is not None:
+        if comm is not None and getattr(comm, "size", None) != 1:
+            # a one-rank communicator loses nothing; anything else does
             requested.append("comm")
         if nalg is not None and nalg != 1:
             requested.append(f"nalg={nalg}")
@@ -247,10 +255,14 @@ if not _NOMPI:
             local, while the partitioning below is collective, so a rank that
             skips it leaves the others blocked.
 
-            setup() may be called again. If the effective configuration (the
-            same communicator, and the same nalg/nsolve after the derivation
-            above) equals the current one, the call does nothing; otherwise
-            SetupConflictError (a RuntimeError) is raised. Communicators are compared as MPI handles
+            setup() may be called again. With both nalg and nsolve omitted
+            it keeps the current layout, whatever it is; with a layout given,
+            or on the first call, the effective configuration (the
+            communicator, and nalg/nsolve after the derivation above) must
+            equal the current one for the call to be a no-op, otherwise
+            SetupConflictError (a RuntimeError) is raised. A library that
+            only needs "some" partition of its communicator can therefore
+            call setup(comm=my_comm) unconditionally. Communicators are compared as MPI handles
             (mpi4py's ``==``), so two Python objects wrapping the same handle
             count as the same communicator, while a duplicate (``Dup()``)
             does not. All checks are local and happen before any collective,
@@ -259,7 +271,10 @@ if not _NOMPI:
             comm = self._resolve_comm(comm)
             # argument errors (ValueError) take precedence over a conflict
             # with an earlier call (RuntimeError), whatever the state
-            nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
+            if self._ready and nalg is None and nsolve is None:
+                nalg, nsolve = self._nalg, self._nsolve   # nothing requested: keep
+            else:
+                nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
 
             if self._ready:
                 if comm != self._comm:
@@ -281,26 +296,38 @@ if not _NOMPI:
             # Solver intracommunicator: nsolve processes per group
             color = comm.rank // nsolve
             solcomm = comm.Split(color=color, key=comm.rank)
-            solsize = solcomm.size
-            assert solsize == nsolve
-            solrank = solcomm.rank
+            handles = [solcomm]       # freed if a later step fails
+            try:
+                solsize = solcomm.size
+                assert solsize == nsolve
+                solrank = solcomm.rank
 
-            # Algorithm intracommunicator: one representative per solver group (solrank==0)
-            world_group = comm.Get_group()
-            alg_group = world_group.Incl([c * nsolve for c in range(nalg)])
-            algcomm = comm.Create(alg_group)
+                # Algorithm intracommunicator: one representative per solver group (solrank==0)
+                world_group = comm.Get_group()
+                handles.append(world_group)
+                alg_group = world_group.Incl([c * nsolve for c in range(nalg)])
+                handles.append(alg_group)
+                algcomm = comm.Create(alg_group)
+                if algcomm != MPI.COMM_NULL:
+                    handles.append(algcomm)
+                    algsize = algcomm.size
+                    algrank = algcomm.rank
+                    sr = np.array([algsize, algrank])
+                    solcomm.bcast(sr, root=0)
+                else:
+                    algcomm = None
+                    sr = np.array([0, 0])
+                    sr = solcomm.bcast(sr, root=0)
+                    algsize, algrank = int(sr[0]), int(sr[1])
+            except BaseException:
+                for h in handles:
+                    try:
+                        h.Free()
+                    except Exception:
+                        pass
+                raise
             alg_group.Free()
             world_group.Free()
-            if algcomm != MPI.COMM_NULL:
-                algsize = algcomm.size
-                algrank = algcomm.rank
-                sr = np.array([algsize, algrank])
-                solcomm.bcast(sr, root=0)
-            else:
-                algcomm = None
-                sr = np.array([0, 0])
-                sr = solcomm.bcast(sr, root=0)
-                algsize, algrank = int(sr[0]), int(sr[1])
 
             self._comm = comm
             self._solcomm, self._solsize, self._solrank = solcomm, solsize, solrank

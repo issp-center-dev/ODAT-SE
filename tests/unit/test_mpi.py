@@ -46,6 +46,9 @@ def test_nompi_context_reports_serial_values():
     assert ctx.ready() is True   # nothing to partition: ready even before setup()
     ctx.setup()                  # the serial layout: nothing to warn about
     ctx.setup(nalg=1, nsolve=1)
+    ctx.setup(comm=type("OneRank", (), {"size": 1})())   # loses nothing: silent
+    with pytest.raises(ValueError):
+        ctx.setup(nalg=0)        # validated like the MPI build
     # a layout or a communicator cannot be honoured without MPI: the
     # arguments are ignored, with a warning naming them
     with pytest.warns(RuntimeWarning, match=r"setup\(nalg=8, nsolve=4\) is ignored"):
@@ -213,9 +216,28 @@ def test_setup_again_with_different_layout_raises():
         pytest.skip("needs an even number of ranks")
     ctx = mpi._MPIContext()
     ctx.setup()                       # nalg=total, nsolve=1
-    with pytest.raises(RuntimeError, match="different layout"):
+    with pytest.raises(mpi.SetupConflictError, match="different layout"):
         ctx.setup(nsolve=2)
     assert ctx.solsize() == 1         # the first configuration is kept
+
+
+@needs_mpi
+def test_setup_without_layout_keeps_the_current_one():
+    """Both nalg and nsolve omitted means "nothing requested", whatever the
+    current layout is, so that setup(comm=...) can be called unconditionally
+    by a library that only needs some partition."""
+    from mpi4py import MPI
+    total = MPI.COMM_WORLD.size
+    if total % 2 != 0:
+        pytest.skip("needs an even number of ranks")
+    ctx = mpi._MPIContext()
+    ctx.setup(nsolve=2)
+    solcomm = ctx.solcomm()
+    ctx.setup()                       # keeps nsolve=2, no re-partitioning
+    ctx.setup(comm=MPI.COMM_WORLD)
+    assert ctx.solsize() == 2 and ctx.solcomm() is solcomm
+    with pytest.raises(mpi.SetupConflictError, match="different layout"):
+        ctx.setup(nsolve=1)           # an explicit layout is still compared
 
 
 @needs_mpi

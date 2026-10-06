@@ -42,13 +42,12 @@ def test_initialize_without_layout_partitions_with_defaults(mpi_stub):
     assert mpi_stub["calls"] == [(None, None, None)]
 
 
-def test_initialize_keeps_existing_setup_when_no_layout_requested(mpi_stub):
-    """setup(comm=sub) by the host, then initialize() without --nalg/--nsolve:
-    the existing partition is kept and setup() is not called again (it would
-    otherwise try to partition MPI.COMM_WORLD and raise)."""
+def test_initialize_always_calls_setup(mpi_stub):
+    """initialize() has no special case: setup() itself keeps an existing
+    partition when nothing is requested (see test_mpi.py)."""
     mpi_stub["ready"] = True
     odatse.initialize(["input.toml"])
-    assert mpi_stub["calls"] == []
+    assert mpi_stub["calls"] == [(None, None, None)]
 
 
 def test_initialize_checks_requested_layout_against_existing_setup(mpi_stub):
@@ -131,7 +130,7 @@ def test_initialize_after_external_setup_uses_the_real_context(monkeypatch):
     fresh = mpi._MPIContext()
     monkeypatch.setattr(mpi, "_ctx", fresh)
     try:
-        mpi.setup(comm=dup)
+        mpi.setup(comm=dup, nsolve=1)
         solcomm = mpi.solcomm()
 
         odatse.initialize(["input.toml"])
