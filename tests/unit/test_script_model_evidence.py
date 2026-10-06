@@ -46,6 +46,14 @@ def test_load_data_rejects_too_few_columns(tmp_path):
         mod.load_data(str(fx))
 
 
+def test_load_data_rejects_empty_file(tmp_path):
+    fx = tmp_path / "fx.txt"
+    fx.write_text("# only a header\n")
+
+    with pytest.raises(ValueError, match="no data rows"):
+        mod.load_data(str(fx))
+
+
 def test_auto_range_single_point():
     """np.gradient cannot take a single point; the range must still enclose it."""
     beta_min, beta_max, y_min, y_max = mod.auto_range(np.array([2.0]), np.array([-8.0]))

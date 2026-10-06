@@ -30,6 +30,8 @@ def load_data(filename: str) -> tuple:
     # (columns, rows), so the column count is the first axis.
     fx_data = np.loadtxt(filename, unpack=True, comments="#", ndmin=2)
     ncols, nrows = fx_data.shape
+    if nrows == 0:
+        raise ValueError(f"{filename}: no data rows")
     if ncols < 5:
         raise ValueError(
             f"{filename}: expected at least 5 columns "

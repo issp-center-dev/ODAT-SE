@@ -51,12 +51,12 @@ def test_mapper_reads_single_row_as_one_point():
 
     it = alg._read_mesh_file({"mesh_path": _write_mesh("0 0.5 -0.25\n")})
 
-    assert it._total_points == 1
-    # the point lands on exactly one rank; the others hold nothing
-    points = [list(p) for p in it._data]
-    assert points in ([], [[0, 0.5, -0.25]])
+    # iterate through the public interface: (index, coordinates) pairs;
+    # the point lands on exactly one rank, the others hold nothing
+    points = [(idx, list(x)) for idx, x in it]
+    assert points in ([], [(0, [0.5, -0.25])])
     if mpi.algsize() == 1:
-        assert points == [[0, 0.5, -0.25]]
+        assert points == [(0, [0.5, -0.25])]
 
 
 @pytest.mark.parametrize("text", ["0\n1\n2\n", "0 0.5\n1 1.0\n"])
