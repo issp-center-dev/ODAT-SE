@@ -51,7 +51,17 @@ def initialize(argv: Optional[Sequence[str]] = None):
     parser.add_argument("--nsolve", type=int, default=None, help="# of processes for solver")
 
     args = parser.parse_args(argv)
-    odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
+
+    if odatse.mpi.ready():
+        # setup() has already been called, e.g. by a host program that embeds
+        # ODAT-SE and confines it to its own communicator with
+        # setup(comm=...). Keep that configuration: without --nalg/--nsolve
+        # nothing is requested, and with them setup() checks that the
+        # requested layout agrees with the existing one (raising otherwise).
+        if args.nalg is not None or args.nsolve is not None:
+            odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve, comm=odatse.mpi.comm())
+    else:
+        odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
 
 
     if args.init is True:

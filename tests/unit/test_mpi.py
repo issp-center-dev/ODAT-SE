@@ -315,12 +315,16 @@ def test_setup_rejects_invalid_communicator():
     with pytest.raises(TypeError):
         ctx.setup(comm="COMM_WORLD")
     with pytest.raises(TypeError):
-        ctx.setup(comm=MPI.COMM_NULL)   # not an intracommunicator
+        ctx.setup(comm=MPI.COMM_SELF.Get_group())   # not a communicator at all
+    # both spellings of a null handle are rejected with the same error
+    with pytest.raises(ValueError):
+        ctx.setup(comm=MPI.COMM_NULL)
     freed = MPI.COMM_WORLD.Dup()
     freed.Free()                        # an intracommunicator handle that is now null
     with pytest.raises(ValueError):
         ctx.setup(comm=freed)
     assert ctx.ready() is False
+    assert ctx.comm() == MPI.COMM_WORLD  # a failed setup() leaves comm() unchanged
 
 
 @needs_mpi

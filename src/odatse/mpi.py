@@ -119,10 +119,11 @@ if not _NOMPI:
 
         Call setup() after MPI_Init to partition the global communicator,
         which is MPI.COMM_WORLD unless another intracommunicator is passed to
-        setup(). Solver-layer and algorithm-layer accessors raise RuntimeError
-        if called before setup(); ready() tells whether setup() has been
-        called. Calling setup() again with the same effective configuration
-        is a no-op, and with a different one raises RuntimeError.
+        setup(). Solver-layer and algorithm-layer accessors (including
+        run_on_algorithm()) raise RuntimeError if called before setup();
+        ready() tells whether setup() has been called. Calling setup() again
+        with the same effective configuration is a no-op, and with a
+        different one raises RuntimeError.
         """
 
         def __init__(self) -> None:
@@ -144,12 +145,14 @@ if not _NOMPI:
             """Return the communicator to partition (MPI.COMM_WORLD by default)."""
             if comm is None:
                 return MPI.COMM_WORLD
+            if isinstance(comm, MPI.Comm) and comm == MPI.COMM_NULL:
+                # MPI.COMM_NULL itself, or a communicator that has been freed
+                raise ValueError("comm must not be a null communicator "
+                                 "(MPI.COMM_NULL or a freed communicator)")
             if not isinstance(comm, MPI.Intracomm):
                 raise TypeError(
                     f"comm must be an MPI intracommunicator, got {type(comm).__name__}"
                 )
-            if comm == MPI.COMM_NULL:
-                raise ValueError("comm must not be MPI.COMM_NULL")
             return comm
 
         @staticmethod
@@ -209,20 +212,24 @@ if not _NOMPI:
             (nsolve=1).
 
             setup() may be called again. If the effective configuration (the
-            same communicator object, and the same nalg/nsolve after the
-            derivation above) equals the current one, the call does nothing;
-            otherwise RuntimeError is raised. All checks are local and happen
-            before any collective, so raising here cannot leave other ranks
-            blocked.
+            same communicator, and the same nalg/nsolve after the derivation
+            above) equals the current one, the call does nothing; otherwise
+            RuntimeError is raised. Communicators are compared as MPI handles
+            (mpi4py's ``==``), so two Python objects wrapping the same handle
+            count as the same communicator, while a duplicate (``Dup()``)
+            does not. All checks are local and happen before any collective,
+            so raising here cannot leave other ranks blocked.
             """
             comm = self._resolve_comm(comm)
 
+            if self._ready and comm != self._comm:
+                raise RuntimeError(
+                    "setup() has already been called with a different communicator"
+                )
+
+            nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
+
             if self._ready:
-                if comm != self._comm:
-                    raise RuntimeError(
-                        "setup() has already been called with a different communicator"
-                    )
-                nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
                 if (nalg, nsolve) != (self._nalg, self._nsolve):
                     raise RuntimeError(
                         "setup() has already been called with a different layout: "
@@ -231,34 +238,37 @@ if not _NOMPI:
                     )
                 return
 
-            nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
-            self._comm = comm
+            # The new communicators are built in locals and stored only once
+            # every collective has succeeded, so that a failure below leaves
+            # the context untouched (still not ready, comm() unchanged).
 
             # Solver intracommunicator: nsolve processes per group
-            color = self._comm.rank // nsolve
-            self._solcomm = self._comm.Split(color=color, key=self._comm.rank)
-            self._solsize = self._solcomm.size
-            assert self._solsize == nsolve
-            self._solrank = self._solcomm.rank
+            color = comm.rank // nsolve
+            solcomm = comm.Split(color=color, key=comm.rank)
+            solsize = solcomm.size
+            assert solsize == nsolve
+            solrank = solcomm.rank
 
             # Algorithm intracommunicator: one representative per solver group (solrank==0)
-            algcomm = self._comm.Create(
-                self._comm.Get_group().Incl([c * nsolve for c in range(nalg)])
-            )
+            world_group = comm.Get_group()
+            alg_group = world_group.Incl([c * nsolve for c in range(nalg)])
+            algcomm = comm.Create(alg_group)
+            alg_group.Free()
+            world_group.Free()
             if algcomm != MPI.COMM_NULL:
-                self._algcomm = algcomm
-                self._algsize = algcomm.size
-                self._algrank = algcomm.rank
-                sr = np.array([self._algsize, self._algrank])
-                self._solcomm.bcast(sr, root=0)
+                algsize = algcomm.size
+                algrank = algcomm.rank
+                sr = np.array([algsize, algrank])
+                solcomm.bcast(sr, root=0)
             else:
-                self._algcomm = None
-                self._algsize = 0
-                self._algrank = 0
-                sr = np.array([self._algsize, self._algrank])
-                sr = self._solcomm.bcast(sr, root=0)
-                self._algsize, self._algrank = int(sr[0]), int(sr[1])
+                algcomm = None
+                sr = np.array([0, 0])
+                sr = solcomm.bcast(sr, root=0)
+                algsize, algrank = int(sr[0]), int(sr[1])
 
+            self._comm = comm
+            self._solcomm, self._solsize, self._solrank = solcomm, solsize, solrank
+            self._algcomm, self._algsize, self._algrank = algcomm, algsize, algrank
             self._nalg, self._nsolve = nalg, nsolve
             self._ready = True
 
