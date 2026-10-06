@@ -77,7 +77,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
             raise RuntimeError("; ".join(failures))
         return self._combine(comm.allgather(part))
 
-失敗は ``Exception`` から派生した例外の送出によって報告してください。 ``evaluate`` 内で ``sys.exit()`` を呼んではいけません。 ``SystemExit`` は( ``KeyboardInterrupt`` と同様に) ``Exception`` ではないため、成否の交換では報告されません。ワーカー上ではワーカーループがこれを捕捉し、エラーを出力して ``MPI_Abort`` により MPI ジョブ全体を中断します(後述)。ジョブはハングせずに終了しますが、 ``ignore_error`` は適用されません。
+失敗は ``Exception`` から派生した例外の送出によって報告してください。 ``evaluate`` 内で送出された ``SystemExit`` ( ``sys.exit()`` によるもの)や ``KeyboardInterrupt`` も捕捉されて成否の交換に参加するため、待ち続けるランクは生じませんが、これらは決して無視されません。ワーカー上で送出された場合はコントローラ上の ``odatse.exception.SolverError`` としてジョブを終了させ、コントローラ上で送出された場合はワーカーにループを抜けるよう通知した後にそのまま伝播します。
 
 ワーカー上で ``evaluate`` の **外側** (例えばブロードキャストされた ``args`` の受信中)で送出された例外もこの方法では報告できません。この場合ワーカーはエラーを出力し、コントローラをハングさせないよう ``MPI_Abort`` により MPI ジョブ全体を中断します。ログでは 2 つの経路を区別できます。コントローラに報告された失敗は(無視されない場合にのみ) ``ERROR: solver worker raised in evaluate(), reported to the controller: ...`` と出力され、中断経路は ``ERROR: solver worker failed: ...`` と出力されます。
 

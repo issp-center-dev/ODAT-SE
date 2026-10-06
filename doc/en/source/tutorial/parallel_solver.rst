@@ -144,12 +144,13 @@ the next collective and raise on every rank:
             raise RuntimeError("; ".join(failures))
         return self._combine(comm.allgather(part))
 
-A failure must be reported by raising an exception derived from ``Exception``.
-Do not call ``sys.exit()`` inside ``evaluate``: ``SystemExit`` (like
-``KeyboardInterrupt``) is not an ``Exception`` and is not reported through the
-status exchange. On a worker it is caught by the worker loop, which prints it
-and aborts the whole job via ``MPI_Abort`` (see below), so the job terminates
-instead of hanging, but ``ignore_error`` cannot apply to it.
+A failure should be reported by raising an exception derived from
+``Exception``. ``SystemExit`` (from ``sys.exit()``) and ``KeyboardInterrupt``
+raised inside ``evaluate`` are caught as well and take part in the status
+exchange, so that no rank is left waiting, but they are never ignored: on a
+worker they terminate the job through ``odatse.exception.SolverError`` on the
+controller, and on the controller they propagate after the workers have been
+told to leave their loop.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
 receiving the broadcast ``args``) cannot be reported this way either; the

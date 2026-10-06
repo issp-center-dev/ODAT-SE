@@ -66,15 +66,16 @@ expect_failure() {
 }
 
 # The mesh has NPOINTS points (num_list in input.toml). They are split over
-# the --nalg 2 controllers, and each solver group fails exactly once, at its
+# the --nalg 2 controllers, and a solver group fails exactly once, at its
 # FAIL_AT-th evaluation (worker_error.py), so exactly NNAN rows of the
-# colormap must be NaN and every other row must hold a finite value.
+# colormap must be NaN (one per failing group) and every other row must hold
+# a finite value.
 NPOINTS=25
-NNAN=2
 
-# expect_ignored NAME FAILMODE FAILTYPE INPUT: the job must complete with
-# status 0, with exactly the failed evaluations as NaN in the colormap.
+# expect_ignored NAME FAILMODE FAILTYPE INPUT NNAN: the job must complete with
+# status 0, with exactly the NNAN failed evaluations as NaN in the colormap.
 expect_ignored() {
+  NNAN=$5
   run_case "$1" "$2" "$3" "$4"
   if [ $timed_out -ne 0 ]; then
     echo "FAILED: job hung (killed after ${LIMIT}s)"; res=1; return
@@ -106,9 +107,17 @@ expect_failure worker_runtime worker runtime input.toml \
 
 # ... and ignored (NaN) when ignore_error = true, exactly like a controller
 # failure. This is the case MPI_Abort on the worker used to kill.
-expect_ignored worker_ignored worker runtime input_ignore.toml
-expect_ignored controller_ignored controller runtime input_ignore.toml
-expect_ignored all_ignored all runtime input_ignore.toml
+expect_ignored worker_ignored worker runtime input_ignore.toml 2
+expect_ignored controller_ignored controller runtime input_ignore.toml 2
+expect_ignored all_ignored all runtime input_ignore.toml 2
+
+# Only one solver group fails (the worker of the first group). Without
+# ignore_error the failure reaches the healthy group's controller through the
+# algorithm-layer consensus, which must release its own workers (no hang);
+# with ignore_error only that group's evaluation becomes NaN.
+expect_failure onegroup_runtime rank1 runtime input.toml \
+  "RuntimeError: rank1 failed at evaluation 3"
+expect_ignored onegroup_ignored rank1 runtime input_ignore.toml 1
 
 # Every rank raising without ignore_error still terminates cleanly.
 expect_failure all_runtime all runtime input.toml \

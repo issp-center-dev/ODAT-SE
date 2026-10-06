@@ -541,7 +541,11 @@ class AlgorithmBase(metaclass=ABCMeta):
                 self.__signal_workers(odatse.mpi.MSG_ABORT)
                 sys.exit(0)
 
-            except Exception:
+            except BaseException:
+                # Also SystemExit / KeyboardInterrupt (e.g. raised by
+                # solver.evaluate() on this controller and re-raised after the
+                # solver-group status exchange): the workers are back in the
+                # control-signal Bcast and must be released.
                 self.__signal_workers(odatse.mpi.MSG_ABORT)
                 raise
 
@@ -573,19 +577,23 @@ class AlgorithmBase(metaclass=ABCMeta):
                         raise ValueError(f"Unknown signal: {signal[0]}")
             except BaseException as e:
                 # Last resort for failures outside solver.evaluate() (a corrupt
-                # control message, an unpicklable args, ...) and for
-                # SystemExit / KeyboardInterrupt raised inside evaluate(), which
-                # are not Exceptions and therefore bypass the status exchange
-                # in Runner.serve(). A solver worker is outside the
+                # control message, an unpicklable args, Ctrl-C while waiting
+                # for the control signal, ...); a failure inside evaluate() is
+                # reported through the status exchange in Runner.serve() and
+                # never gets here. A solver worker is outside the
                 # algorithm-layer consensus in _reach_consensus() (it is not a
                 # member of algcomm) and the controller is, or will be, blocked
                 # in a solcomm collective, so letting the exception propagate
                 # (or the process exit) would hang the whole job. Report and
                 # abort instead.
-                traceback.print_exc()
-                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: "
-                      f"{type(e).__name__}: {e}",
-                      file=sys.stderr, flush=True)
+                if isinstance(e, KeyboardInterrupt):
+                    print(f"[rank {odatse.mpi.rank()}] solver worker interrupted, aborting the job",
+                          file=sys.stderr, flush=True)
+                else:
+                    traceback.print_exc()
+                    print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: "
+                          f"{self.runner._describe_error(e)}",
+                          file=sys.stderr, flush=True)
                 odatse.mpi.comm().Abort(1)
             if aborted:
                 sys.exit(0)

@@ -156,7 +156,9 @@ class Runner(object):
         with the ``xp`` / ``args`` broadcast by the controller. It evaluates
         the solver on this rank and takes part in the status exchange of the
         solver group; whether a failure is ignored or propagated is decided on
-        the controller, so nothing is raised here.
+        the controller, so nothing is raised here (not even ``SystemExit`` or
+        ``KeyboardInterrupt`` from ``evaluate()``: they are reported to the
+        controller, which terminates the job).
 
         Parameters
         ----------
@@ -190,7 +192,7 @@ class Runner(object):
         return f"{type(error).__name__}: {msg}"
 
     def _evaluate_group(
-            self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[Exception]]:
+            self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[BaseException]]:
         """
         Call ``solver.evaluate()`` on this rank and agree on the outcome
         across the solver group.
@@ -205,11 +207,13 @@ class Runner(object):
         -------
         result : float
             The local return value of ``evaluate()`` (``NaN`` if it raised).
-        error : Exception or None
+        error : BaseException or None
             ``None`` when every rank succeeded. Otherwise the exception to be
             raised on the controller:
 
-            * this rank's own exception, if it is the only failure;
+            * this rank's own exception, if it is the only failure (this
+              includes ``SystemExit`` / ``KeyboardInterrupt``, which are
+              re-raised as such);
             * a ``RuntimeError`` summarising all failures, when every failing
               rank raised a ``RuntimeError`` (so ``ignore_error`` applies);
             * a ``SolverError`` otherwise (not covered by ``ignore_error``).
@@ -222,11 +226,15 @@ class Runner(object):
         the other ranks still enter; such a mismatch of collectives is the
         solver's responsibility (see the parallel-solver tutorial).
         """
-        own_error: Optional[Exception] = None
+        own_error: Optional[BaseException] = None
         result = np.nan
         try:
             result = self.solver.evaluate(xp, args)
-        except Exception as e:
+        except BaseException as e:
+            # Also SystemExit (sys.exit() inside evaluate) and
+            # KeyboardInterrupt: they must take part in the status exchange
+            # below, or the other ranks of the group wait in it forever. They
+            # are never ignorable (not RuntimeError), so they terminate the job.
             own_error = e
 
         if odatse.mpi.solsize() == 1:
@@ -271,7 +279,7 @@ class Runner(object):
             f"solver.evaluate() failed on {len(failures)} rank(s) of the solver group:\n"
             + "\n".join(f"  {msg}" for _, msg in failures)
         )
-        error: Exception = RuntimeError(summary) if ignorable else SolverError(summary)
+        error: BaseException = RuntimeError(summary) if ignorable else SolverError(summary)
         if own_error is not None:
             error.__cause__ = own_error
         return result, error

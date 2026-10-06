@@ -291,3 +291,31 @@ def test_is_ignorable_is_the_single_policy():
 def test_describe_error_never_raises():
     assert odatse.Runner._describe_error(ValueError("boom")) == "ValueError: boom"
     assert odatse.Runner._describe_error(_Unprintable()) == "_Unprintable: <unprintable exception>"
+
+
+# --------------------------------------------------------------------------- #
+#  SystemExit / KeyboardInterrupt inside evaluate()
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("exc", [SystemExit(3), KeyboardInterrupt()])
+def test_group_controller_base_exception_joins_exchange_then_propagates(monkeypatch, exc):
+    """Not an Exception, but it must still enter the status exchange (the
+    workers are waiting in it) and is then re-raised as such on the
+    controller; ignore_error never applies."""
+    comm = _fake_group(monkeypatch, solrank=0, others=[OK])
+    with pytest.raises(type(exc)):
+        _runner(exc, ignore_error=True).submit(X)
+    assert comm.calls == 1
+
+
+def test_group_worker_system_exit_is_reported_not_raised(monkeypatch, capsys):
+    comm = _fake_group(monkeypatch, solrank=1, others=[OK], global_rank=3)
+    _runner(SystemExit(3)).serve(X, ())   # must not raise, must not exit
+    assert comm.calls == 1
+    assert comm.sent == (False, "[rank 3] SystemExit: 3")
+
+
+def test_group_worker_system_exit_becomes_solver_error_on_controller(monkeypatch):
+    _fake_group(monkeypatch, solrank=0, others=[(False, "[rank 3] SystemExit: 3")])
+    with pytest.raises(SolverError, match=r"\[rank 3\] SystemExit: 3"):
+        _runner(ignore_error=True).submit(X)

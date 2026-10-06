@@ -18,6 +18,8 @@
 #   worker      solrank == 1 only
 #   controller  solrank == 0 only
 #   all         every rank of the group
+#   rank1       global rank 1 only, i.e. the worker of the first solver group:
+#               the other group stays healthy and must still terminate
 # FAILTYPE selects the exception class: runtime (RuntimeError) or value
 # (ValueError, which ignore_error must not swallow).
 
@@ -58,6 +60,7 @@ class ParallelSolver(odatse.solver.SolverBase):
                 (FAILMODE == "worker" and solrank == 1)
                 or (FAILMODE == "controller" and solrank == 0)
                 or FAILMODE == "all"
+                or (FAILMODE == "rank1" and odatse.mpi.rank() == 1)
             )
             if fail:
                 raise _EXC(f"{FAILMODE} failed at evaluation {FAIL_AT}")
