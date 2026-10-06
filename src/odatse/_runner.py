@@ -50,6 +50,25 @@ class Run(metaclass=ABCMeta):
         pass
 
 
+# Entries of the solver-group status exchange are tagged, so that data of a
+# solver collective that was mistakenly paired with the exchange (see
+# Runner._evaluate_group) is not taken for a status: a solver's own
+# allgather(None) would otherwise look like "every rank succeeded".
+_STATUS_TAG = "odatse.runner.status"
+
+
+def _status_entry(is_ignorable_: bool = None, summary: str = None) -> tuple:
+    """``(tag, None)`` for success, ``(tag, (is_ignorable, summary))`` otherwise."""
+    return (_STATUS_TAG, None if summary is None else (is_ignorable_, summary))
+
+
+def _is_status_entry(entry) -> bool:
+    return (isinstance(entry, tuple) and len(entry) == 2 and entry[0] == _STATUS_TAG
+            and (entry[1] is None
+                 or (isinstance(entry[1], tuple) and len(entry[1]) == 2
+                     and isinstance(entry[1][0], bool) and isinstance(entry[1][1], str))))
+
+
 class Runner(object):
     #solver: "odatse.solver.SolverBase"
     logger: Logger
@@ -224,25 +243,24 @@ class Runner(object):
                 raise own_error
             return result, own_error
 
-        # One entry per rank: None on success, (is_ignorable, summary) on failure.
-        # Only plain Python types are exchanged, so that the collective cannot
-        # fail on an exception object that does not pickle.
+        # One tagged entry per rank: (tag, None) on success,
+        # (tag, (is_ignorable, summary)) on failure. Only plain Python types
+        # are exchanged, so that the collective cannot fail on an exception
+        # object that does not pickle.
         if own_error is None:
-            own_status = None
+            own_status = _status_entry()
         else:
-            own_status = (
+            own_status = _status_entry(
                 is_ignorable(own_error),
                 f"[rank {odatse.mpi.rank()}] {describe_error(own_error)}",
             )
         statuses = odatse.mpi.solcomm().allgather(own_status)
 
-        # Entries of another shape mean the allgather was paired with a
+        # Entries without the tag mean the allgather was paired with a
         # collective of the solver itself, i.e. evaluate() raised on some
         # ranks before a solcomm collective the others still entered. The
         # group is desynchronised beyond repair; abort rather than hang.
-        if not all(s is None or (isinstance(s, tuple) and len(s) == 2
-                                 and isinstance(s[0], bool) and isinstance(s[1], str))
-                   for s in statuses):
+        if not all(_is_status_entry(s) for s in statuses):
             print(f"[rank {odatse.mpi.rank()}] ERROR: mismatched collectives inside "
                   "solver.evaluate(): some ranks raised before a solcomm collective "
                   "that the others entered; aborting the job",
@@ -250,7 +268,7 @@ class Runner(object):
             odatse.mpi.comm().Abort(1)
             raise RuntimeError("mismatched collectives inside solver.evaluate()")
 
-        failures = [s for s in statuses if s is not None]
+        failures = [s[1] for s in statuses if s[1] is not None]
 
         if not failures:
             return result, None

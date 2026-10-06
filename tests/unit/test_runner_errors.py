@@ -114,10 +114,22 @@ class _FakeSolcomm:
         return obj
 
 
+def _tag(entry):
+    """Wrap a test's plain status (None or (bool, str)) the way the exchange
+    does; anything else is passed through as foreign data."""
+    from odatse._runner import _status_entry
+    if entry is None:
+        return _status_entry()
+    if isinstance(entry, tuple) and len(entry) == 2 and isinstance(entry[0], bool):
+        return _status_entry(*entry)
+    return entry
+
+
 def _fake_group(monkeypatch, solrank, others, nsolve=2, global_rank=None):
     """Make odatse.mpi report a solver group of ``nsolve`` ranks in which this
-    process is ``solrank`` and the other ranks' statuses are ``others``."""
-    comm = _FakeSolcomm(others, solrank)
+    process is ``solrank`` and the other ranks' statuses are ``others``
+    (plain None / (bool, str), tagged here as the exchange does)."""
+    comm = _FakeSolcomm([_tag(o) for o in others], solrank)
     monkeypatch.setattr(mpi, "solsize", lambda: nsolve)
     monkeypatch.setattr(mpi, "solrank", lambda: solrank)
     monkeypatch.setattr(mpi, "solcomm", lambda: comm)
@@ -278,7 +290,7 @@ def test_group_worker_unprintable_exception_is_described(monkeypatch):
     comm = _fake_group(monkeypatch, solrank=1, others=[OK], global_rank=3)
     _runner(_Unprintable())._evaluate_group(X, ())
     assert comm.calls == 1
-    assert comm.sent == (True, "[rank 3] _Unprintable: <unprintable exception>")
+    assert comm.sent == _tag((True, "[rank 3] _Unprintable: <unprintable exception>"))
 
 
 def test_is_ignorable_is_the_single_policy():
@@ -299,6 +311,8 @@ def test_error_base_class_accepts_extra_args():
     from odatse.exception import Error
     e = Error("msg", 42)
     assert e.message == "msg" and e.args == ("msg", 42)
+    with pytest.raises(TypeError):
+        Error()                         # a message is still required
 
 
 # --------------------------------------------------------------------------- #
@@ -326,11 +340,18 @@ def test_single_rank_base_exception_keeps_its_meaning(exc):
         _runner(exc, ignore_error=True).submit(X)
 
 
-def test_group_garbage_in_exchange_aborts_instead_of_hanging(monkeypatch, capsys):
+@pytest.mark.parametrize("foreign", [1.5, None, (True, "looks like a status")])
+def test_group_garbage_in_exchange_aborts_instead_of_hanging(monkeypatch, capsys, foreign):
     """If evaluate() raised on some ranks before a solcomm collective the
     others entered, this rank's status allgather pairs with the solver's own
-    collective and receives its data. That is detected and the job aborted."""
-    _fake_group(monkeypatch, solrank=0, others=[1.5])   # a float, not a status
+    collective and receives its data. Entries are tagged, so even a solver's
+    None or a status-shaped tuple is recognised as foreign; the job is
+    aborted instead of hanging."""
+    from odatse._runner import _is_status_entry
+    assert not _is_status_entry(foreign)
+    _fake_group(monkeypatch, solrank=0, others=[])
+    comm = mpi.solcomm()
+    comm.others = [foreign]            # bypass _tag: raw data from the solver
     aborted = []
     monkeypatch.setattr(mpi, "comm", lambda: type("C", (), {"Abort": lambda self, code: aborted.append(code)})())
     with pytest.raises(RuntimeError, match="mismatched collectives"):
@@ -343,7 +364,7 @@ def test_group_worker_system_exit_is_reported_not_raised(monkeypatch, capsys):
     comm = _fake_group(monkeypatch, solrank=1, others=[OK], global_rank=3)
     _runner(SystemExit(3)).serve(X, ())   # must not raise, must not exit
     assert comm.calls == 1
-    assert comm.sent == (False, "[rank 3] SystemExit: 3")
+    assert comm.sent == _tag((False, "[rank 3] SystemExit: 3"))
 
 
 def test_group_worker_system_exit_becomes_solver_error_on_controller(monkeypatch):

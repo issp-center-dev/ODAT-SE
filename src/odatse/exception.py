@@ -28,7 +28,7 @@ class Error(Exception):
 
     rank_local = False
 
-    def __init__(self, message: str = "", *args) -> None:
+    def __init__(self, message: str, *args) -> None:
         super().__init__(message, *args)
         self.message = message
 
