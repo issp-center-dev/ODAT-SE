@@ -231,6 +231,7 @@ def test_setup_again_with_different_communicator_raises():
 
 @needs_mpi
 def test_setup_again_still_validates_arguments():
+    from mpi4py import MPI
     total = mpi.size()
     ctx = mpi._MPIContext()
     ctx.setup()
@@ -238,6 +239,12 @@ def test_setup_again_still_validates_arguments():
         ctx.setup(nalg=0)
     with pytest.raises(ValueError):
         ctx.setup(nalg=total + 1)     # not a divisor: invalid, not "different"
+    dup = MPI.COMM_WORLD.Dup()
+    try:
+        with pytest.raises(ValueError):
+            ctx.setup(nalg=0, comm=dup)   # ... even combined with another communicator
+    finally:
+        dup.Free()
 
 
 def test_module_setup_is_idempotent():
@@ -264,7 +271,11 @@ def test_setup_with_duplicated_communicator():
         assert ctx.rank() == MPI.COMM_WORLD.rank
         assert ctx.algsize() == MPI.COMM_WORLD.size
         assert ctx.solsize() == 1
-        ctx.setup(comm=dup)           # same communicator object: no-op
+        ctx.setup(comm=dup)           # same communicator: no-op
+        ctx.setup()                   # None now means dup, not COMM_WORLD: no-op
+        assert ctx.comm() == dup
+        with pytest.raises(RuntimeError, match="different communicator"):
+            ctx.setup(comm=MPI.COMM_WORLD)
     finally:
         dup.Free()
 
@@ -317,8 +328,12 @@ def test_setup_rejects_invalid_communicator():
     ctx = mpi._MPIContext()
     with pytest.raises(TypeError):
         ctx.setup(comm="COMM_WORLD")
-    with pytest.raises(TypeError):
-        ctx.setup(comm=MPI.COMM_SELF.Get_group())   # not a communicator at all
+    group = MPI.COMM_SELF.Get_group()
+    try:
+        with pytest.raises(TypeError):
+            ctx.setup(comm=group)       # not a communicator at all
+    finally:
+        group.Free()
     # both spellings of a null handle are rejected with the same error
     with pytest.raises(ValueError):
         ctx.setup(comm=MPI.COMM_NULL)

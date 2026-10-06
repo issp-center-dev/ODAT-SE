@@ -18,7 +18,7 @@ class _Sentinel:
 
 
 @pytest.fixture
-def mpi_stub(monkeypatch, tmp_path):
+def mpi_stub(monkeypatch):
     """Replace setup()/ready()/comm() by stubs and Info.from_file() by a
     dummy; returns the list of setup() calls as (nalg, nsolve, comm)."""
     calls = []
@@ -58,11 +58,26 @@ def test_initialize_keeps_existing_setup_when_no_layout_requested(mpi_stub):
 
 def test_initialize_checks_requested_layout_against_existing_setup(mpi_stub):
     """With --nalg/--nsolve after an earlier setup(), the request is passed
-    to setup() together with the *current* communicator, so that setup()
-    accepts the same layout and rejects a different one."""
+    to setup(), which refers to the current communicator and accepts the
+    same layout."""
     mpi_stub["ready"] = True
     odatse.initialize(["input.toml", "--nsolve", "2"])
-    assert mpi_stub["calls"] == [(None, 2, mpi_stub["comm"])]
+    assert mpi_stub["calls"] == [(None, 2, None)]
+
+
+def test_initialize_reports_layout_conflict_as_input_error(mpi_stub, monkeypatch):
+    """A conflicting --nalg/--nsolve is an input error, so that odatse.main()
+    reports it on one line and exits with status 1 instead of dumping a raw
+    RuntimeError traceback on every rank."""
+    from odatse.exception import InputError
+
+    def conflicting_setup(*, nalg=None, nsolve=None, comm=None):
+        raise RuntimeError("setup() has already been called with a different layout")
+    mpi_stub["ready"] = True
+    monkeypatch.setattr(mpi, "setup", conflicting_setup)
+    with pytest.raises(InputError, match="different layout") as excinfo:
+        odatse.initialize(["input.toml", "--nsolve", "4"])
+    assert isinstance(excinfo.value.__cause__, RuntimeError)
 
 
 def test_initialize_run_mode(mpi_stub):

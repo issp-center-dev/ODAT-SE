@@ -157,14 +157,15 @@ See :doc:`../tutorial/parallel_solver` for the details of the two-level parallel
 
 ``algcomm()`` , ``solcomm()`` , their size and rank accessors, and ``run_on_algorithm()`` raise ``RuntimeError`` before ``setup()`` . This includes everything built on them: besides ``Solver`` / ``Algorithm``, a ``MeshGrid`` that reads or distributes a mesh file (``MeshGrid(info)``, ``MeshGrid.from_file()``, ``store_file()``, ``do_split()``) also needs ``setup()`` first.
 
-When ODAT-SE is used as a library inside another MPI program, that program may or may not have called ``setup()`` already. Check ``ready()`` and partition a communicator only when needed:
+When ODAT-SE is used as a library inside another MPI program, that program may or may not have called ``setup()`` already. Because ``setup()`` is idempotent, call it unconditionally with the communicator you need:
 
 .. code-block:: python
 
     import odatse.mpi
 
-    if not odatse.mpi.ready():
-        odatse.mpi.setup(comm=my_comm)   # my_comm: the ranks ODAT-SE may use
+    odatse.mpi.setup(comm=my_comm)   # my_comm: the ranks ODAT-SE may use
+
+This is a no-op when the same configuration is already in place and raises ``RuntimeError`` when a different one is, which is what you want: guarding the call with ``if not odatse.mpi.ready():`` instead would silently accept whatever partition the host happened to set up (for example all of ``MPI.COMM_WORLD``), and the collectives inside ODAT-SE would then involve ranks that never enter it. ``ready()`` is for querying the state, not for deciding whether to call ``setup()``.
 
 Notes on passing a communicator:
 

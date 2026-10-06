@@ -150,11 +150,13 @@ if not _NOMPI:
             self._algsize: int = self._comm.size
             self._algrank: int = self._comm.rank
 
-        @staticmethod
-        def _resolve_comm(comm):
-            """Return the communicator to partition (MPI.COMM_WORLD by default)."""
+        def _resolve_comm(self, comm):
+            """Return the communicator to partition. None means the current
+            global communicator: MPI.COMM_WORLD before setup(), and the
+            communicator given to setup() afterwards (so a bare setup() after
+            setup(comm=sub) refers to sub, not to MPI.COMM_WORLD)."""
             if comm is None:
-                return MPI.COMM_WORLD
+                return self._comm
             if isinstance(comm, MPI.Comm) and comm == MPI.COMM_NULL:
                 # MPI.COMM_NULL itself, or a communicator that has been freed
                 raise ValueError("comm must not be a null communicator "
@@ -209,8 +211,10 @@ if not _NOMPI:
             nsolve:
                 Number of MPI processes per solver group.
             comm:
-                Intracommunicator to partition. Defaults to MPI.COMM_WORLD.
-                It becomes the global communicator returned by comm(); the
+                Intracommunicator to partition. None means the current global
+                communicator (MPI.COMM_WORLD unless an earlier setup() was
+                given another one). It becomes the global communicator
+                returned by comm(); the
                 caller keeps ownership (it is never freed here) and must keep
                 it alive while ODAT-SE is in use. setup() is collective over
                 this communicator: every rank of it must call setup() with
@@ -236,15 +240,15 @@ if not _NOMPI:
             so raising here cannot leave other ranks blocked.
             """
             comm = self._resolve_comm(comm)
-
-            if self._ready and comm != self._comm:
-                raise RuntimeError(
-                    "setup() has already been called with a different communicator"
-                )
-
+            # argument errors (ValueError) take precedence over a conflict
+            # with an earlier call (RuntimeError), whatever the state
             nalg, nsolve = self._resolve_layout(nalg, nsolve, comm.size)
 
             if self._ready:
+                if comm != self._comm:
+                    raise RuntimeError(
+                        "setup() has already been called with a different communicator"
+                    )
                 if (nalg, nsolve) != (self._nalg, self._nsolve):
                     raise RuntimeError(
                         "setup() has already been called with a different layout: "

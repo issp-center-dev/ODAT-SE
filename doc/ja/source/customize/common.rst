@@ -145,14 +145,15 @@ mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOM
 
 ``algcomm()`` , ``solcomm()`` とそのサイズ・ランクのアクセサ、および ``run_on_algorithm()`` は、 ``setup()`` の前に呼ぶと ``RuntimeError`` を送出します。これらの上に構築されたものも同様で、 ``Solver`` / ``Algorithm`` のほか、メッシュファイルを読み込み・分配する ``MeshGrid`` （ ``MeshGrid(info)`` 、 ``MeshGrid.from_file()`` 、 ``store_file()`` 、 ``do_split()`` ）も ``setup()`` の後に使う必要があります。
 
-ODAT-SE を別の MPI プログラムの中からライブラリとして使う場合、そのプログラムが既に ``setup()`` を呼んでいるかどうかは分かりません。 ``ready()`` で確認し、必要な場合にのみコミュニケータを分割してください。
+ODAT-SE を別の MPI プログラムの中からライブラリとして使う場合、そのプログラムが既に ``setup()`` を呼んでいるかどうかは分かりません。 ``setup()`` は冪等なので、必要なコミュニケータを指定して無条件に呼び出してください。
 
 .. code-block:: python
 
     import odatse.mpi
 
-    if not odatse.mpi.ready():
-        odatse.mpi.setup(comm=my_comm)   # my_comm: ODAT-SE が使ってよいランクの集合
+    odatse.mpi.setup(comm=my_comm)   # my_comm: ODAT-SE が使ってよいランクの集合
+
+同じ構成が既に設定されていれば何もせず、異なる構成が設定されていれば ``RuntimeError`` になります。 ``if not odatse.mpi.ready():`` で呼び出しを囲むと、ホストが設定した分割（例えば ``MPI.COMM_WORLD`` 全体）を黙って受け入れてしまい、ODAT-SE 内部の集団操作に ODAT-SE に入らないランクが含まれることになるため避けてください。 ``ready()`` は状態の問い合わせ用であり、 ``setup()`` を呼ぶかどうかの判断には使いません。
 
 コミュニケータを渡す場合の注意:
 

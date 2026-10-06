@@ -9,6 +9,7 @@
 from typing import Optional, Sequence
 
 import odatse
+import odatse.exception
 
 def initialize(argv: Optional[Sequence[str]] = None):
     """
@@ -56,10 +57,16 @@ def initialize(argv: Optional[Sequence[str]] = None):
         # setup() has already been called, e.g. by a host program that embeds
         # ODAT-SE and confines it to its own communicator with
         # setup(comm=...). Keep that configuration: without --nalg/--nsolve
-        # nothing is requested, and with them setup() checks that the
-        # requested layout agrees with the existing one (raising otherwise).
+        # nothing is requested, and with them setup() (which refers to the
+        # current communicator) checks that the requested layout agrees with
+        # the existing one.
         if args.nalg is not None or args.nsolve is not None:
-            odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve, comm=odatse.mpi.comm())
+            try:
+                odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
+            except RuntimeError as e:
+                raise odatse.exception.InputError(
+                    f"--nalg/--nsolve conflict with the MPI layout already set up: {e}"
+                ) from e
     else:
         odatse.mpi.setup(nalg=args.nalg, nsolve=args.nsolve)
 
