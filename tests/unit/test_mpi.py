@@ -45,7 +45,10 @@ def test_nompi_context_reports_serial_values():
     ctx = mpi._NoMPIContext()
     assert ctx.ready() is True   # nothing to partition: ready even before setup()
     ctx.setup(nalg=8, nsolve=4)  # arguments are accepted but ignored
-    ctx.setup(nalg=2, comm=object())  # ... and so are a repeated call and comm
+    ctx.setup(nalg=2)            # ... and so is a repeated call
+    # a communicator cannot be honoured without MPI: ignored with a warning
+    with pytest.warns(RuntimeWarning, match="setup\\(comm=...\\) is ignored"):
+        ctx.setup(comm=object())
     assert ctx.ready() is True
     assert ctx.size() == 1
     assert ctx.rank() == 0

@@ -77,13 +77,23 @@ class _NoMPIContext(_CheckpointMixin):
     """Stub used when MPI is not available or disabled (ODATSE_NOMPI=1).
 
     All accessors return values consistent with single-process execution.
-    setup() accepts nalg, nsolve and comm but ignores them, and ready() is
-    always True because there is nothing to partition.
+    setup() accepts nalg, nsolve and comm but ignores them (a non-None comm
+    draws a RuntimeWarning), and ready() is always True because there is
+    nothing to partition.
     """
 
     def setup(self, *, nalg: Optional[int] = None, nsolve: Optional[int] = None,
               comm=None) -> None:
-        pass
+        if comm is not None:
+            # A real communicator cannot be honoured here: every process would
+            # run as an independent serial instance writing the same files.
+            import warnings
+            warnings.warn(
+                "odatse.mpi.setup(comm=...) is ignored because MPI is disabled "
+                "(ODATSE_NOMPI is set or mpi4py is not available); every process "
+                "runs as an independent serial instance",
+                RuntimeWarning, stacklevel=3,
+            )
 
     def ready(self) -> bool:                return True
     def comm(self):                         return None
@@ -210,6 +220,11 @@ if not _NOMPI:
             derived from the total process count of the communicator. If both
             are None, all processes are assigned to the algorithm layer
             (nsolve=1).
+
+            ready() must be the same on every rank of comm when setup() is
+            called: the no-op return for an already configured context is
+            local, while the partitioning below is collective, so a rank that
+            skips it leaves the others blocked.
 
             setup() may be called again. If the effective configuration (the
             same communicator, and the same nalg/nsolve after the derivation

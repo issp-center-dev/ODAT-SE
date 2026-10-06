@@ -168,7 +168,7 @@ When ODAT-SE is used as a library inside another MPI program, that program may o
 
 Notes on passing a communicator:
 
-- ``setup()`` is collective over ``comm`` : every rank of ``comm`` must call it with the same arguments. ``nalg * nsolve`` must equal the size of ``comm`` .
+- ``setup()`` is collective over ``comm`` : every rank of ``comm`` must call it with the same arguments, and ``ready()`` must be the same on all of them (a rank on which ``setup()`` was already called returns at once while the others wait in the collective). ``nalg * nsolve`` must equal the size of ``comm`` .
 - Call ``setup(comm=...)`` *before* loading the input: ``Info.from_file()`` broadcasts the input over ``comm()``, which is ``MPI.COMM_WORLD`` until ``setup()`` has been called, so loading the input first on a subset of the ranks deadlocks. ``odatse.initialize()`` called afterwards keeps the partition made by ``setup(comm=...)`` (see above).
 - There is no way to undo ``setup()``: the partition lives for the rest of the process, and a later ``setup()`` with another communicator or layout raises ``RuntimeError``.
 - The caller keeps ownership of ``comm`` . ODAT-SE does not free it, and it must stay valid while ODAT-SE is in use.
