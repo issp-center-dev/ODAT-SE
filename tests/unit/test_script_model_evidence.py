@@ -41,7 +41,8 @@ def test_load_data_rejects_too_few_columns(tmp_path):
     fx = tmp_path / "fx.txt"
     fx.write_text("1.0\n2.0\n3.0\n")
 
-    with pytest.raises(ValueError, match="at least 5 columns"):
+    # the message reports columns and rows of the file, not the unpacked shape
+    with pytest.raises(ValueError, match=r"at least 5 columns.*got 1 column\(s\) in 3 row\(s\)"):
         mod.load_data(str(fx))
 
 

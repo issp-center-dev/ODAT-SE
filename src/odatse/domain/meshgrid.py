@@ -6,13 +6,43 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Sequence, Union, Any
+from typing import Sequence, Union, Any, Optional
 
 from pathlib import Path
 import numpy as np
 
 import odatse
+from odatse.exception import InputError
 from ._domain import DomainBase
+
+def check_mesh_columns(data: np.ndarray, mesh_path, dimension: Optional[int] = None) -> None:
+    """
+    Check the column count of a mesh file read with ``np.loadtxt(..., ndmin=2)``.
+
+    Each row must be ``index x1 ... xD``. With ``dimension`` given, exactly
+    ``dimension + 1`` columns are required; otherwise at least two (an index
+    and one coordinate). A file that fails this check used to produce
+    coordinate-less points and an ``AssertionError`` deep inside
+    ``Runner.submit``.
+
+    Raises
+    ------
+    odatse.exception.InputError
+        if the column count does not match.
+    """
+    ncols = data.shape[1]
+    if dimension is not None:
+        if ncols != dimension + 1:
+            raise InputError(
+                f"mesh file {mesh_path}: expected {dimension + 1} columns "
+                f"(index and {dimension} coordinates), got {ncols}"
+            )
+    elif ncols < 2:
+        raise InputError(
+            f"mesh file {mesh_path}: expected at least 2 columns "
+            f"(index and at least one coordinate), got {ncols}"
+        )
+
 
 class MeshGrid(DomainBase):
     """
@@ -46,6 +76,12 @@ class MeshGrid(DomainBase):
         # per-instance defaults so distinct MeshGrid objects never share a list
         self.grid = []
         self.grid_local = []
+
+        # number of coordinates per mesh point, used to validate a mesh file;
+        # None (unknown) when constructed from a bare ``param`` dict
+        self.dimension: Optional[int] = None
+        if info:
+            self.dimension = info.algorithm.get("dimension") or info.base.get("dimension")
 
         if info:
             if "param" in info.algorithm:
@@ -108,6 +144,7 @@ class MeshGrid(DomainBase):
         if odatse.mpi.run_on_algorithm():
             if odatse.mpi.algrank() == 0:
                 _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
+                check_mesh_columns(_data, mesh_path, self.dimension)
             else:
                 _data = None
 

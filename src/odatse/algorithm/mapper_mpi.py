@@ -12,6 +12,7 @@ import numpy as np
 import odatse
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
 from ._iterator import MeshIterator, ListIterator
+from odatse.domain.meshgrid import check_mesh_columns as _check_mesh_columns
 
 
 class Algorithm(MapperMPIAlgorithm):
@@ -69,9 +70,12 @@ class Algorithm(MapperMPIAlgorithm):
         delimiter = info_param.get("delimiter", None)
         skiprows = info_param.get("skiprows", 0)
 
-        if odatse.mpi.rank() == 0:
+        # ListIterator scatters the rows from algorithm rank 0 over algcomm,
+        # so the file is read on that rank (the same one MeshGrid uses).
+        if odatse.mpi.algrank() == 0:
             # mesh data format: index x1 x2 ...
             _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows, ndmin=2)
+            _check_mesh_columns(_data, mesh_path, self.dimension)
             data = [[int(idx), *v] for idx, *v in _data]
         else:
             data = None

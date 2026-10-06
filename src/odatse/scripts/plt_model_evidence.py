@@ -26,11 +26,14 @@ def load_data(filename: str) -> tuple:
         - beta: inverse temperature values
         - logz: log evidence values
     """
+    # ndmin=2 keeps a one-row file 2-D; with unpack=True the result is
+    # (columns, rows), so the column count is the first axis.
     fx_data = np.loadtxt(filename, unpack=True, comments="#", ndmin=2)
-    if fx_data.ndim != 2 or fx_data.shape[0] < 5:
+    ncols, nrows = fx_data.shape
+    if ncols < 5:
         raise ValueError(
             f"{filename}: expected at least 5 columns "
-            f"(beta ... log(Z/Z0) in column 5), got shape {fx_data.shape}"
+            f"(beta ... log(Z/Z0) in column 5), got {ncols} column(s) in {nrows} row(s)"
         )
     beta = fx_data[0]  # First column: beta (1/T)
     logz = fx_data[4]  # Fifth column: log(Z/Z0)
