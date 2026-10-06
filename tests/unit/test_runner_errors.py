@@ -283,16 +283,22 @@ def test_group_worker_unprintable_exception_is_described(monkeypatch):
 
 def test_is_ignorable_is_the_single_policy():
     from odatse.exception import is_ignorable
-    assert odatse.Runner._is_ignorable is is_ignorable
-    assert odatse.Runner._is_ignorable(RuntimeError("x"))
-    assert odatse.Runner._is_ignorable(_Unprintable())
-    assert not odatse.Runner._is_ignorable(ValueError("x"))
-    assert not odatse.Runner._is_ignorable(SolverError("x"))
+    assert is_ignorable(RuntimeError("x"))
+    assert is_ignorable(_Unprintable())
+    assert not is_ignorable(ValueError("x"))
+    assert not is_ignorable(SolverError("x"))
 
 
 def test_describe_error_never_raises():
-    assert odatse.Runner._describe_error(ValueError("boom")) == "ValueError: boom"
-    assert odatse.Runner._describe_error(_Unprintable()) == "_Unprintable: <unprintable exception>"
+    from odatse.exception import describe_error
+    assert describe_error(ValueError("boom")) == "ValueError: boom"
+    assert describe_error(_Unprintable()) == "_Unprintable: <unprintable exception>"
+
+
+def test_error_base_class_accepts_extra_args():
+    from odatse.exception import Error
+    e = Error("msg", 42)
+    assert e.message == "msg" and e.args == ("msg", 42)
 
 
 # --------------------------------------------------------------------------- #

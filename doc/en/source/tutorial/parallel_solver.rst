@@ -153,10 +153,13 @@ raised on a worker or on the controller, the controller raises
 algorithm-layer consensus.
 
 If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
-the other ranks still enter (the mismatch described below), the status
-exchange receives data that is not a status, and the framework aborts the
-whole job via ``MPI_Abort`` with the message ``mismatched collectives inside
-solver.evaluate()`` instead of hanging.
+the other ranks still enter (the mismatch described above), the behaviour is
+undefined in MPI. When the solver's collective happens to be a pickle-based
+``allgather``, the status exchange receives data that is not a status and
+the framework aborts the whole job via ``MPI_Abort`` with the message
+``mismatched collectives inside solver.evaluate()``; with other collectives
+(``Bcast``, ``Allreduce``, ...) the job typically hangs. Keeping the
+collectives matched remains the solver's responsibility.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
 receiving the broadcast ``args``) cannot be reported this way either; the

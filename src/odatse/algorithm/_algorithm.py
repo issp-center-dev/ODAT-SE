@@ -19,7 +19,6 @@ import traceback
 import numpy as np
 
 import odatse
-import odatse.exception
 import odatse.util.limitation
 from odatse import exception, mpi
 
@@ -593,7 +592,7 @@ class AlgorithmBase(metaclass=ABCMeta):
                 else:
                     traceback.print_exc()
                     print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: "
-                          f"{odatse.exception.describe_error(e)}",
+                          f"{exception.describe_error(e)}",
                           file=sys.stderr, flush=True)
                 odatse.mpi.comm().Abort(1)
             if aborted:

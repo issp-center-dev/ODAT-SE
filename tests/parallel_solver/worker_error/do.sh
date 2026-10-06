@@ -91,7 +91,9 @@ expect_ignored() {
   if [ "$nnan" -ne $NNAN ]; then
     echo "FAILED: expected exactly $NNAN NaN rows in output/ColorMap.txt, got $nnan"; res=1; return
   fi
-  if grep -q "ERROR" "$log"; then
+  # only the framework's own messages count (an MPI runtime may print
+  # unrelated diagnostics containing "ERROR")
+  if grep -q -e "ERROR: solver worker" -e "main() raised" -e "ERROR: mismatched collectives" "$log"; then
     echo "FAILED: an ignored error was still reported in $log"; res=1; return
   fi
   echo "ok: completed with exactly $NNAN NaN rows for the failed evaluations"

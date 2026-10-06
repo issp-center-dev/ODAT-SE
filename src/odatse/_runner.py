@@ -169,11 +169,6 @@ class Runner(object):
         """
         self._evaluate_group(xp, args)
 
-    # the policy and the message helper live in odatse.exception; kept here
-    # as aliases for callers that reach them through the Runner
-    _is_ignorable = staticmethod(is_ignorable)
-    _describe_error = staticmethod(describe_error)
-
     def _evaluate_group(
             self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[BaseException]]:
         """

@@ -28,8 +28,8 @@ class Error(Exception):
 
     rank_local = False
 
-    def __init__(self, message: str = "") -> None:
-        super().__init__(message)
+    def __init__(self, message: str = "", *args) -> None:
+        super().__init__(message, *args)
         self.message = message
 
 
@@ -58,9 +58,11 @@ class CheckpointError(Error):
 class SolverError(Error):
     """
     Exception raised on a solver-group controller when ``solver.evaluate()``
-    failed on at least one worker rank of the group and at least one of the
-    failing ranks (worker or controller) raised something other than a
-    ``RuntimeError``.
+    failed in the group in a way that must never be ignored: at least one
+    worker rank failed and at least one of the failing ranks (worker or
+    controller) raised something other than a ``RuntimeError``, or the
+    controller itself raised ``SystemExit`` / ``KeyboardInterrupt`` (which
+    cannot travel through the algorithm-layer consensus as they are).
 
     Failures that are ``RuntimeError`` on every failing rank are re-raised as
     a plain ``RuntimeError`` instead, so that ``ignore_error`` applies to
