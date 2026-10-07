@@ -100,7 +100,8 @@ class Cells:
         self.dimension = len(mins)
         self.mins = mins
         Ls = (maxs - mins) * 1.001
-        self.Ns = np.ceil(Ls / cellsize).astype(np.int64)
+        # at least one cell per dimension, even when all points share a coordinate
+        self.Ns = np.maximum(np.ceil(Ls / cellsize).astype(np.int64), 1)
         self.maxs = self.mins + cellsize * self.Ns
         self.cellsize = cellsize
         self.ncell = typing.cast(int, np.prod(self.Ns))
@@ -682,10 +683,28 @@ Note:
     X = np.zeros((0, 0))
 
     if mpi.rank() == 0:
-        X = np.loadtxt(inputfile)
+        import warnings
+        with warnings.catch_warnings():
+            # an empty file is reported below, not by numpy
+            warnings.simplefilter("ignore", UserWarning)
+            X = np.loadtxt(inputfile, ndmin=2)
+
+    sh = X.shape
+    if mpi.algsize() > 1:
+        sh = mpi.algcomm().bcast(sh, root=0)
+
+    # Every rank checks the shape so that all of them leave together: a file
+    # with only an index column (shape (N, 1)) would otherwise give D = 0 and
+    # an all-pairs neighbor list instead of an error, and an empty file would
+    # fail later with an obscure numpy message.
+    if sh[0] < 1 or sh[1] < 2:
+        if mpi.rank() == 0:
+            print(f"ERROR: {inputfile} must have at least one row and two columns "
+                  f"(index and at least one coordinate), got {sh[0]} row(s) and "
+                  f"{sh[1]} column(s)", file=sys.stderr)
+        sys.exit(1)
 
     if mpi.algsize() > 1:
-        sh = mpi.algcomm().bcast(X.shape, root=0)
         if mpi.rank() != 0:
             X = np.zeros(sh)
         mpi.algcomm().Bcast(X, root=0)
