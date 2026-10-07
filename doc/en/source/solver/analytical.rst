@@ -67,13 +67,13 @@ The ``function_name`` parameter in the ``solver`` section specifies the function
 
   - ``griewank``
 
-    - Griewank-type function
+    - `Griewank function <https://en.wikipedia.org/wiki/Griewank_function>`_
 
       .. math::
 
-          f(\vec{x}) = 1 + \frac{1}{4000}\sum_{i=1}^N x_i^2 + \prod_{i=1}^N \cos\!\left(\frac{x_i}{\sqrt{i}}\right)
+          f(\vec{x}) = 1 + \frac{1}{4000}\sum_{i=1}^N x_i^2 - \prod_{i=1}^N \cos\!\left(\frac{x_i}{\sqrt{i}}\right)
 
-    - Note: the cosine product term is added (not subtracted), so this differs from the standard Griewank function.
+    - Global minimum: :math:`f(\vec{x}^*) = 0` at :math:`\forall_i\, x_i^* = 0`. Has many local minima.
 
   - ``himmelblau``
 

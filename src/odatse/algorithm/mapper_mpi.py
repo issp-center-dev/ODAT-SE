@@ -12,6 +12,7 @@ import numpy as np
 import odatse
 from .mapper_mpi_base import Algorithm as MapperMPIAlgorithm
 from ._iterator import MeshIterator, ListIterator
+from odatse.domain.meshgrid import load_mesh_file
 
 
 class Algorithm(MapperMPIAlgorithm):
@@ -58,26 +59,11 @@ class Algorithm(MapperMPIAlgorithm):
         info_param
             Dictionary containing parameters for setting up the grid.
         """
-        if "mesh_path" not in info_param:
-            raise ValueError("ERROR: mesh_path not defined")
-        mesh_path = self.root_dir / Path(info_param["mesh_path"]).expanduser()
-
-        if not mesh_path.exists():
-            raise FileNotFoundError("mesh_path not found: {}".format(mesh_path))
-
-        comments = info_param.get("comments", "#")
-        delimiter = info_param.get("delimiter", None)
-        skiprows = info_param.get("skiprows", 0)
-
-        if odatse.mpi.rank() == 0:
-            # mesh data format: index x1 x2 ...
-            _data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter, skiprows=skiprows)
-            if _data.ndim == 1:
-                _data = _data.reshape(-1, 1)
-            data = [[int(idx), *v] for idx, *v in _data]
-        else:
-            data = None
-
+        # The shared reader validates the file on every algorithm rank;
+        # ListIterator then scatters the rows from algorithm rank 0.
+        # mesh data format: index x1 x2 ...
+        _data = load_mesh_file(self.root_dir, info_param, root_only=True)
+        data = [[int(idx), *v] for idx, *v in _data] if _data is not None else None
         return ListIterator(data)
 
     def _find_mesh_info(self, info_param):
