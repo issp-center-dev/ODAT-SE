@@ -17,7 +17,7 @@ import odatse.util.read_matrix
 import odatse.util.mapping
 import odatse.util.limitation
 from odatse.util.logger import Logger
-from odatse.exception import InputError, SolverError, is_ignorable, describe_error
+from odatse.exception import InputError, SolverError, SolverRuntimeError, is_ignorable, describe_error
 
 # type hints
 from pathlib import Path
@@ -222,8 +222,9 @@ class Runner(object):
             * this rank's own exception, if it is the only failure
               (``SystemExit`` / ``KeyboardInterrupt`` on the controller are
               wrapped into a ``SolverError`` first);
-            * a ``RuntimeError`` summarising all failures, when every failing
-              rank raised a ``RuntimeError`` (so ``ignore_error`` applies);
+            * a ``SolverRuntimeError`` (a ``RuntimeError``) summarising all
+              failures, when every failing rank raised a ``RuntimeError`` (so
+              ``ignore_error`` applies);
             * a ``SolverError`` otherwise (not covered by ``ignore_error``).
 
         Notes
@@ -319,7 +320,7 @@ class Runner(object):
             f"solver.evaluate() failed on {len(failures)} rank(s) of the solver group:\n"
             + "\n".join(f"  {msg}" for _, msg in failures)
         )
-        error: BaseException = RuntimeError(summary) if ignorable else SolverError(summary)
+        error: BaseException = SolverRuntimeError(summary) if ignorable else SolverError(summary)
         if own_error is not None:
             error.__cause__ = own_error
         return result, error
