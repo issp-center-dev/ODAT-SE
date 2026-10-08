@@ -106,6 +106,10 @@ class _FakeSolcomm:
         prepared entry is the plain success entry."""
         from odatse._runner import _status_entry
         self.reductions += 1
+        # what the real buffer collective requires of its arguments
+        for buf in (sendbuf, recvbuf):
+            assert isinstance(buf, np.ndarray) and buf.shape == (1,) and buf.dtype == np.int32
+        assert sendbuf[0] in (0, 1)
         others_failed = sum(0 if o == _status_entry() else 1 for o in self.others)
         recvbuf[0] = sendbuf[0] + others_failed
 
