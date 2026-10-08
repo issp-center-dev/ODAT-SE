@@ -127,22 +127,42 @@ def test_initialize_after_external_setup_uses_the_real_context(monkeypatch):
     monkeypatch.setattr(odatse.Info, "from_file", classmethod(lambda cls, f: cls(dummy)))
 
     dup = MPI.COMM_WORLD.Dup()
+    # a non-default solver layout when the rank count allows it
+    nsolve = 2 if dup.size % 2 == 0 else 1
     fresh = mpi._MPIContext()
     monkeypatch.setattr(mpi, "_ctx", fresh)
     try:
-        mpi.setup(comm=dup, nsolve=1)
+        mpi.setup(comm=dup, nsolve=nsolve)
         solcomm = mpi.solcomm()
+        assert mpi.solsize() == nsolve
 
+        # Info.from_file() is stubbed, so initialize() is local here and can
+        # be called on every rank of dup
         odatse.initialize(["input.toml"])
         assert mpi.comm() == dup and mpi.solcomm() is solcomm   # kept, not re-partitioned
+        assert mpi.solsize() == nsolve
 
-        odatse.initialize(["input.toml", "--nsolve", "1"])
+        odatse.initialize(["input.toml", "--nsolve", str(nsolve)])
         assert mpi.comm() == dup and mpi.solcomm() is solcomm
 
-        if dup.size % 2 == 0:
+        # a valid but different layout is a conflict (an invalid one would be
+        # "invalid", tested below)
+        other = 1 if nsolve == 2 else dup.size
+        if other != nsolve:
             with pytest.raises(InputError, match="conflict with the MPI layout"):
-                odatse.initialize(["input.toml", "--nsolve", "2"])
+                odatse.initialize(["input.toml", "--nsolve", str(other)])
         with pytest.raises(InputError, match="invalid --nalg/--nsolve"):
             odatse.initialize(["input.toml", "--nalg", "0"])
+
+        # an MPI failure inside setup() is not disguised as a layout problem
+        def mpi_failure(*, nalg=None, nsolve=None, comm=None):
+            raise MPI.Exception(MPI.ERR_COMM)
+        monkeypatch.setattr(mpi, "setup", mpi_failure)
+        with pytest.raises(MPI.Exception):
+            odatse.initialize(["input.toml", "--nsolve", str(nsolve)])
     finally:
+        if fresh.ready():
+            if fresh._algcomm is not None:
+                fresh._algcomm.Free()
+            fresh._solcomm.Free()
         dup.Free()

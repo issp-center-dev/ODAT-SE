@@ -102,6 +102,30 @@ def test_module_singleton_matches_build():
         assert mpi.solcomm() is None
 
 
+# Contexts built by the MPI tests own a solver and possibly an algorithm
+# communicator; free them at teardown so that repeated runs under mpirun do
+# not accumulate handles (freeing the caller's dup/sub does not free them).
+_live_contexts = []
+
+
+def _new_ctx():
+    ctx = _new_ctx()
+    _live_contexts.append(ctx)
+    return ctx
+
+
+@pytest.fixture(autouse=True)
+def _release_contexts():
+    yield
+    while _live_contexts:
+        ctx = _live_contexts.pop()
+        if not ctx.ready():
+            continue
+        if ctx._algcomm is not None:
+            ctx._algcomm.Free()
+        ctx._solcomm.Free()
+
+
 # --------------------------------------------------------------------------- #
 #  MPI context: accessors and setup() validation
 # --------------------------------------------------------------------------- #
@@ -109,7 +133,7 @@ def test_module_singleton_matches_build():
 @needs_mpi
 def test_global_accessors_work_before_setup():
     from mpi4py import MPI
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     assert ctx.size() == MPI.COMM_WORLD.size
     assert ctx.rank() == MPI.COMM_WORLD.rank
     assert ctx.enabled() is True
@@ -117,7 +141,7 @@ def test_global_accessors_work_before_setup():
 
 @needs_mpi
 def test_layer_accessors_raise_before_setup():
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     for accessor in (ctx.solsize, ctx.solrank, ctx.solcomm,
                      ctx.algsize, ctx.algrank, ctx.algcomm,
                      ctx.run_on_algorithm):
@@ -127,7 +151,7 @@ def test_layer_accessors_raise_before_setup():
 
 @needs_mpi
 def test_ready_reports_whether_setup_was_called():
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     assert ctx.ready() is False
     ctx.setup()
     assert ctx.ready() is True
@@ -135,7 +159,7 @@ def test_ready_reports_whether_setup_was_called():
 
 @needs_mpi
 def test_failed_setup_leaves_context_not_ready():
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     with pytest.raises(ValueError):
         ctx.setup(nalg=0)
     assert ctx.ready() is False
@@ -145,7 +169,7 @@ def test_failed_setup_leaves_context_not_ready():
 @pytest.mark.parametrize("kwargs", [{"nalg": 0}, {"nsolve": 0}, {"nalg": -1}])
 def test_setup_rejects_nonpositive(kwargs):
     # Validation happens before any collective, so raising here is safe.
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     with pytest.raises(ValueError):
         ctx.setup(**kwargs)
 
@@ -153,7 +177,7 @@ def test_setup_rejects_nonpositive(kwargs):
 @needs_mpi
 def test_setup_rejects_inconsistent_product():
     total = mpi.size()
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     with pytest.raises(ValueError):
         ctx.setup(nalg=total + 1, nsolve=total + 1)
 
@@ -161,7 +185,7 @@ def test_setup_rejects_inconsistent_product():
 @needs_mpi
 def test_setup_rejects_nondivisible():
     total = mpi.size()
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     with pytest.raises(ValueError):
         ctx.setup(nalg=total + 1)  # total is never divisible by total+1
 
@@ -174,7 +198,7 @@ def test_setup_rejects_nondivisible():
 def test_default_setup_assigns_all_to_algorithm_layer():
     from mpi4py import MPI
     total = MPI.COMM_WORLD.size
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup()
     assert ctx.solsize() == 1
     assert ctx.solrank() == 0
@@ -192,7 +216,7 @@ def test_default_setup_assigns_all_to_algorithm_layer():
 def test_setup_again_with_same_configuration_is_noop():
     from mpi4py import MPI
     total = MPI.COMM_WORLD.size
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup()
     solcomm, algcomm = ctx.solcomm(), ctx.algcomm()
 
@@ -214,7 +238,7 @@ def test_setup_again_with_different_layout_raises():
     total = mpi.size()
     if total % 2 != 0:
         pytest.skip("needs an even number of ranks")
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup()                       # nalg=total, nsolve=1
     with pytest.raises(mpi.SetupConflictError, match="different layout"):
         ctx.setup(nsolve=2)
@@ -230,7 +254,7 @@ def test_setup_without_layout_keeps_the_current_one():
     total = MPI.COMM_WORLD.size
     if total % 2 != 0:
         pytest.skip("needs an even number of ranks")
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup(nsolve=2)
     solcomm = ctx.solcomm()
     ctx.setup()                       # keeps nsolve=2, no re-partitioning
@@ -243,7 +267,7 @@ def test_setup_without_layout_keeps_the_current_one():
 @needs_mpi
 def test_setup_again_with_different_communicator_raises():
     from mpi4py import MPI
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup()
     dup = MPI.COMM_WORLD.Dup()        # congruent, but a different communicator
     try:
@@ -258,7 +282,7 @@ def test_setup_again_with_different_communicator_raises():
 def test_setup_again_still_validates_arguments():
     from mpi4py import MPI
     total = mpi.size()
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup()
     with pytest.raises(ValueError):
         ctx.setup(nalg=0)
@@ -288,7 +312,7 @@ def test_setup_with_duplicated_communicator():
     from mpi4py import MPI
     dup = MPI.COMM_WORLD.Dup()
     try:
-        ctx = mpi._MPIContext()
+        ctx = _new_ctx()
         ctx.setup(comm=dup)
         assert ctx.comm() == dup
         assert ctx.comm() != MPI.COMM_WORLD
@@ -313,7 +337,7 @@ def test_setup_with_sub_communicator():
     world = MPI.COMM_WORLD
     sub = world.Split(color=world.rank % 2, key=world.rank)
     try:
-        ctx = mpi._MPIContext()
+        ctx = _new_ctx()
         ctx.setup(comm=sub)
         assert ctx.comm() == sub
         assert ctx.size() == sub.size
@@ -324,7 +348,7 @@ def test_setup_with_sub_communicator():
         assert ctx.run_on_algorithm() is True
         # the layout is validated against the sub-communicator, not COMM_WORLD
         with pytest.raises(ValueError):
-            mpi._MPIContext().setup(nalg=sub.size + 1, comm=sub)
+            _new_ctx().setup(nalg=sub.size + 1, comm=sub)
     finally:
         sub.Free()
 
@@ -337,7 +361,7 @@ def test_setup_with_sub_communicator_and_solver_groups():
         pytest.skip("needs a multiple of 4 ranks")
     sub = world.Split(color=world.rank % 2, key=world.rank)
     try:
-        ctx = mpi._MPIContext()
+        ctx = _new_ctx()
         ctx.setup(nsolve=2, comm=sub)
         assert ctx.solsize() == 2
         assert ctx.algsize() == sub.size // 2
@@ -350,7 +374,7 @@ def test_setup_with_sub_communicator_and_solver_groups():
 @needs_mpi
 def test_setup_rejects_invalid_communicator():
     from mpi4py import MPI
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     with pytest.raises(TypeError):
         ctx.setup(comm="COMM_WORLD")
     group = MPI.COMM_SELF.Get_group()
@@ -377,7 +401,7 @@ def test_solver_layer_split():
     if total % 2 != 0:
         pytest.skip("needs an even number of ranks")
 
-    ctx = mpi._MPIContext()
+    ctx = _new_ctx()
     ctx.setup(nsolve=2)
 
     assert ctx.solsize() == 2
