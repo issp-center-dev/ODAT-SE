@@ -16,7 +16,7 @@ import pytest
 
 import odatse
 import odatse.mpi as mpi
-from odatse.exception import SolverError
+from odatse.exception import SolverError, SolverRuntimeError
 
 
 def _info(ignore_error=False):
@@ -152,7 +152,9 @@ def test_group_all_succeed(monkeypatch):
 def test_group_worker_runtime_error_is_runtime_error_on_controller(monkeypatch):
     comm = _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE])
     result, error = _runner()._evaluate_group(X, ())
-    assert type(error) is RuntimeError
+    assert type(error) is SolverRuntimeError
+    assert isinstance(error, RuntimeError) and isinstance(error, SolverError)
+    assert error.rank_local                 # reported from this controller
     assert "failed on 1 rank(s)" in str(error)
     assert "[rank 3] RuntimeError: worker boom" in str(error)
     assert error.__cause__ is None          # the controller itself succeeded
@@ -191,7 +193,7 @@ def test_group_controller_and_worker_failed_lists_both(monkeypatch):
     _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE], global_rank=2)
     own = RuntimeError("controller boom")
     _, error = _runner(own)._evaluate_group(X, ())
-    assert type(error) is RuntimeError
+    assert type(error) is SolverRuntimeError
     assert "failed on 2 rank(s)" in str(error)
     assert "[rank 2] RuntimeError: controller boom" in str(error)
     assert "[rank 3] RuntimeError: worker boom" in str(error)
@@ -404,3 +406,37 @@ def test_group_worker_system_exit_becomes_solver_error_on_controller(monkeypatch
     _fake_group(monkeypatch, solrank=0, others=[(False, "[rank 3] SystemExit: 3")])
     with pytest.raises(SolverError, match=r"\[rank 3\] SystemExit: 3"):
         _runner(ignore_error=True).submit(X)
+
+
+def test_solver_runtime_error_is_reported_by_the_cli_boundary(monkeypatch, capsys):
+    """A non-ignored worker RuntimeError used to surface as a raw traceback
+    on every failing controller; as a SolverRuntimeError it goes through the
+    same one-line, rank-tagged report as every other framework error."""
+    from odatse._main import main
+
+    # the real summary: a heading followed by one line per failing rank
+    _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE])
+    _, err = _runner()._evaluate_group(X, ())
+    assert type(err) is SolverRuntimeError
+
+    def boom(argv):
+        raise err
+    monkeypatch.setattr(odatse, "initialize", boom)
+    monkeypatch.setattr(odatse.mpi, "rank", lambda: 2)
+    monkeypatch.setattr(odatse.mpi, "size", lambda: 4)
+
+    with pytest.raises(SystemExit) as excinfo:
+        main([])
+    assert excinfo.value.code == 1
+    err_out = capsys.readouterr().err
+    assert err_out == (
+        "[rank 2] ERROR: solver.evaluate() failed on 1 rank(s) of the solver group:\n"
+        "  [rank 3] RuntimeError: worker boom\n"
+    )
+    assert "Traceback" not in err_out
+
+
+def test_solver_runtime_error_is_ignorable():
+    from odatse.exception import is_ignorable
+    assert is_ignorable(SolverRuntimeError("x"))
+    assert not is_ignorable(SolverError("x"))
