@@ -91,6 +91,13 @@ expect_ignored() {
   if [ "$nnan" -ne $NNAN ]; then
     echo "FAILED: expected exactly $NNAN NaN rows in output/ColorMap.txt, got $nnan"; res=1; return
   fi
+  # every other row must hold a finite number (the solver returns the
+  # Himmelblau value, which is finite on the mesh)
+  nbad=$(grep -v '^#' output/ColorMap.txt | grep -vi nan \
+         | awk '{ v = $NF; if (v ~ /[iI]nf/ || v + 0 != v) bad++ } END { print bad + 0 }')
+  if [ "$nbad" -ne 0 ]; then
+    echo "FAILED: $nbad non-finite or non-numeric value(s) in output/ColorMap.txt"; res=1; return
+  fi
   # only the framework's own messages count (an MPI runtime may print
   # unrelated diagnostics containing "ERROR")
   if grep -q -e "ERROR: solver worker" -e "main() raised" -e "ERROR: mismatched collectives" "$log"; then
@@ -120,6 +127,22 @@ expect_ignored all_ignored all runtime input_ignore.toml 2
 expect_failure onegroup_runtime rank1 runtime input.toml \
   "RuntimeError: rank1 failed at evaluation 3"
 expect_ignored onegroup_ignored rank1 runtime input_ignore.toml 1
+
+# sys.exit() inside evaluate() (not an Exception) must neither hang the
+# group nor be ignored: the controller raises SolverError, on a worker as
+# well as on the controller itself.
+expect_failure worker_exit worker exit input_ignore.toml \
+  "main() raised SolverError" \
+  "SystemExit: worker failed at evaluation 3"
+expect_failure controller_exit controller exit input_ignore.toml \
+  "main() raised SolverError" \
+  "SystemExit: controller failed at evaluation 3"
+
+# A worker raising *before* the solver's own allgather pairs that allgather
+# with the status exchange. The entries are tagged, so the mismatch is
+# detected and the job aborted instead of hanging.
+expect_failure before_mismatch before runtime input.toml \
+  "mismatched collectives inside solver.evaluate()"
 
 # Every rank raising without ignore_error still terminates cleanly.
 expect_failure all_runtime all runtime input.toml \

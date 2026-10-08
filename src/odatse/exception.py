@@ -28,7 +28,10 @@ class Error(Exception):
 
     rank_local = False
 
-    def __init__(self, message: str, *args) -> None:
+    def __init__(self, message: str = "", *args) -> None:
+        # message is optional so that Error() and pickling of an argument-less
+        # instance keep working as they did when Exception's constructor was
+        # inherited; the subclasses document a message as required
         super().__init__(message, *args)
         self.message = message
 
@@ -98,6 +101,8 @@ def describe_error(error: BaseException) -> str:
     """
     try:
         msg = str(error)
-    except Exception:
+    except BaseException:
+        # also SystemExit / KeyboardInterrupt from a broken __str__: nothing
+        # may escape here, the collective must be entered
         msg = "<unprintable exception>"
     return f"{type(error).__name__}: {msg}"

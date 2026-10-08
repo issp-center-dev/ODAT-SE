@@ -307,12 +307,43 @@ def test_describe_error_never_raises():
     assert describe_error(_Unprintable()) == "_Unprintable: <unprintable exception>"
 
 
-def test_error_base_class_accepts_extra_args():
-    from odatse.exception import Error
+def test_error_base_class_constructor_compatibility():
+    import pickle
+    from odatse.exception import Error, SolverError
     e = Error("msg", 42)
     assert e.message == "msg" and e.args == ("msg", 42)
-    with pytest.raises(TypeError):
-        Error()                         # a message is still required
+    assert Error().message == ""        # argument-less construction still works
+    for exc in (Error(), Error("m"), SolverError("s"), Error("m", 1)):
+        back = pickle.loads(pickle.dumps(exc))
+        assert type(back) is type(exc) and back.args == exc.args and back.message == exc.message
+
+
+class _ExitingStr(RuntimeError):
+    """__str__ raises something that is not an Exception."""
+    def __str__(self):
+        raise SystemExit(5)
+
+
+def test_describe_error_survives_base_exception_in_str():
+    from odatse.exception import describe_error
+    assert describe_error(_ExitingStr()) == "_ExitingStr: <unprintable exception>"
+
+
+def test_group_controller_joins_exchange_even_if_str_exits(monkeypatch):
+    comm = _fake_group(monkeypatch, solrank=0, others=[OK])
+    assert np.isnan(_runner(_ExitingStr(), ignore_error=True).submit(X))
+    assert comm.calls == 1
+
+
+@pytest.mark.parametrize("foreign", [
+    (np.array(["a", "b"]), None),          # == on the tag would be elementwise
+    (np.array([1.0, 2.0]), np.zeros(2)),
+    ("odatse.runner.status", np.zeros(2)),
+    object(),
+])
+def test_is_status_entry_never_raises_on_foreign_data(foreign):
+    from odatse._runner import _is_status_entry
+    assert _is_status_entry(foreign) is False
 
 
 # --------------------------------------------------------------------------- #

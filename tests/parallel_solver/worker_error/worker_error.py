@@ -20,8 +20,13 @@
 #   all         every rank of the group
 #   rank1       global rank 1 only, i.e. the worker of the first solver group:
 #               the other group stays healthy and must still terminate
-# FAILTYPE selects the exception class: runtime (RuntimeError) or value
-# (ValueError, which ignore_error must not swallow).
+#   before      solrank == 1 raises *before* the collective inside evaluate():
+#               a mismatch of collectives, which the framework can only
+#               detect (and abort) because the solver's collective is a
+#               pickle-based allgather
+# FAILTYPE selects the exception class: runtime (RuntimeError), value
+# (ValueError, which ignore_error must not swallow) or exit (SystemExit from
+# sys.exit(), which must not hang the group and is never ignored).
 
 # Prefer the source tree over any installed odatse package, so that the tests
 # always exercise the working copy. The path must be absolute because odatse
@@ -37,7 +42,7 @@ FAILMODE = os.environ.get("FAILMODE", "worker")
 FAILTYPE = os.environ.get("FAILTYPE", "runtime")
 FAIL_AT = 3  # evaluation count at which the selected rank(s) raise
 
-_EXC = {"runtime": RuntimeError, "value": ValueError}[FAILTYPE]
+_EXC = {"runtime": RuntimeError, "value": ValueError, "exit": SystemExit}[FAILTYPE]
 
 
 class ParallelSolver(odatse.solver.SolverBase):
@@ -51,6 +56,9 @@ class ParallelSolver(odatse.solver.SolverBase):
 
     def evaluate(self, xs, args):
         self.count += 1
+
+        if FAILMODE == "before" and self.count == FAIL_AT and odatse.mpi.solrank() == 1:
+            raise _EXC(f"before failed at evaluation {FAIL_AT}")
 
         fs = odatse.mpi.solcomm().allgather(self._func(xs))
 
@@ -77,7 +85,7 @@ def main():
     alg = choose_algorithm(info.algorithm["name"]).Algorithm(info, runner, run_mode=run_mode)
     try:
         alg.main()
-    except Exception as e:
+    except BaseException as e:
         # Report the exception in a single write for do.sh to grep. The
         # interpreter prints the last line of an uncaught traceback in several
         # writes ("SolverError", ": ", message), and both controllers fail at

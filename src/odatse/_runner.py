@@ -63,10 +63,21 @@ def _status_entry(is_ignorable_: bool = None, summary: str = None) -> tuple:
 
 
 def _is_status_entry(entry) -> bool:
-    return (isinstance(entry, tuple) and len(entry) == 2 and entry[0] == _STATUS_TAG
-            and (entry[1] is None
-                 or (isinstance(entry[1], tuple) and len(entry[1]) == 2
-                     and isinstance(entry[1][0], bool) and isinstance(entry[1][1], str))))
+    """True for an entry made by _status_entry(). Foreign data (anything a
+    solver collective may carry, e.g. numpy arrays whose == is elementwise)
+    must give False without raising."""
+    try:
+        if not (isinstance(entry, tuple) and len(entry) == 2):
+            return False
+        tag, status = entry
+        if not (isinstance(tag, str) and tag == _STATUS_TAG):
+            return False
+        if status is None:
+            return True
+        return (isinstance(status, tuple) and len(status) == 2
+                and isinstance(status[0], bool) and isinstance(status[1], str))
+    except Exception:
+        return False
 
 
 class Runner(object):
