@@ -414,7 +414,10 @@ def test_solver_runtime_error_is_reported_by_the_cli_boundary(monkeypatch, capsy
     same one-line, rank-tagged report as every other framework error."""
     from odatse._main import main
 
-    err = SolverRuntimeError("solver.evaluate() failed on 1 rank(s) of the solver group")
+    # the real summary: a heading followed by one line per failing rank
+    _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE])
+    _, err = _runner()._evaluate_group(X, ())
+    assert type(err) is SolverRuntimeError
 
     def boom(argv):
         raise err
@@ -425,7 +428,12 @@ def test_solver_runtime_error_is_reported_by_the_cli_boundary(monkeypatch, capsy
     with pytest.raises(SystemExit) as excinfo:
         main([])
     assert excinfo.value.code == 1
-    assert "[rank 2] ERROR: solver.evaluate() failed on 1 rank(s)" in capsys.readouterr().err
+    err_out = capsys.readouterr().err
+    assert err_out == (
+        "[rank 2] ERROR: solver.evaluate() failed on 1 rank(s) of the solver group:\n"
+        "  [rank 3] RuntimeError: worker boom\n"
+    )
+    assert "Traceback" not in err_out
 
 
 def test_solver_runtime_error_is_ignorable():
