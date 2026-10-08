@@ -97,8 +97,17 @@ class _FakeSolcomm:
     def __init__(self, others, me):
         self.others = list(others)   # entries of the other ranks, in rank order
         self.me = me                 # this rank's position in the group
-        self.calls = 0               # allgather() calls (the status exchange)
+        self.reductions = 0          # Allreduce() calls (the failure flag)
+        self.calls = 0               # allgather() calls (the failure details)
         self.broadcasts = 0          # Bcast()/bcast() calls (the control protocol)
+
+    def Allreduce(self, sendbuf, recvbuf, op=None):
+        """Sum of the 0/1 flags: an other rank counts as failed unless its
+        prepared entry is the plain success entry."""
+        from odatse._runner import _status_entry
+        self.reductions += 1
+        others_failed = sum(0 if o == _status_entry() else 1 for o in self.others)
+        recvbuf[0] = sendbuf[0] + others_failed
 
     def allgather(self, own):
         self.calls += 1
@@ -146,7 +155,8 @@ def test_group_all_succeed(monkeypatch):
     comm = _fake_group(monkeypatch, solrank=0, others=[OK])
     result, error = _runner()._evaluate_group(X, ())
     assert result == 1.0 and error is None
-    assert comm.calls == 1
+    # the all-succeeded path costs one flag reduction and no object exchange
+    assert comm.reductions == 1 and comm.calls == 0
 
 
 def test_group_worker_runtime_error_is_runtime_error_on_controller(monkeypatch):
@@ -404,3 +414,20 @@ def test_group_worker_system_exit_becomes_solver_error_on_controller(monkeypatch
     _fake_group(monkeypatch, solrank=0, others=[(False, "[rank 3] SystemExit: 3")])
     with pytest.raises(SolverError, match=r"\[rank 3\] SystemExit: 3"):
         _runner(ignore_error=True).submit(X)
+
+
+def test_group_failure_path_costs_one_reduction_and_one_exchange(monkeypatch):
+    comm = _fake_group(monkeypatch, solrank=0, others=[WORKER_RTE])
+    _runner()._evaluate_group(X, ())
+    assert comm.reductions == 1 and comm.calls == 1
+
+
+def test_group_worker_success_entry_is_sent_only_on_failure(monkeypatch):
+    """A succeeding worker takes part in the details exchange only when some
+    other rank failed (the flag told it so)."""
+    comm = _fake_group(monkeypatch, solrank=1, others=[OK])
+    _runner().serve(X, ())
+    assert comm.reductions == 1 and comm.calls == 0
+    comm = _fake_group(monkeypatch, solrank=1, others=[(True, "[rank 2] RuntimeError: controller boom")])
+    _runner().serve(X, ())
+    assert comm.reductions == 1 and comm.calls == 1

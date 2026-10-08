@@ -102,8 +102,10 @@ workers to leave their loop.
 Errors inside ``evaluate``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After every call of ``evaluate`` the framework exchanges the success status
-of all ranks of the solver group in one collective on ``solcomm``. An
+After every call of ``evaluate`` the ranks of the solver group agree on
+whether any of them failed in one small collective on ``solcomm`` (an
+``Allreduce`` of a flag; the details are exchanged only when some rank
+failed). An
 exception raised on **any** rank of the group, worker or controller, is
 therefore seen by the controller and handled there as a failure of that
 evaluation:
@@ -154,12 +156,8 @@ algorithm-layer consensus.
 
 If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
 the other ranks still enter (the mismatch described above), the behaviour is
-undefined in MPI. When the solver's collective happens to be a pickle-based
-``allgather``, the status exchange receives data that is not a status and
-the framework aborts the whole job via ``MPI_Abort`` with the message
-``mismatched collectives inside solver.evaluate()``; with other collectives
-(``Bcast``, ``Allreduce``, ...) the job typically hangs. Keeping the
-collectives matched remains the solver's responsibility.
+undefined in MPI and the job typically hangs; the framework cannot detect
+it. Keeping the collectives matched remains the solver's responsibility.
 
 An exception raised on a worker *outside* ``evaluate`` (for example while
 receiving the broadcast ``args``) cannot be reported this way either; the
