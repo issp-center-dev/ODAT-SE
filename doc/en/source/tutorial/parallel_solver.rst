@@ -99,13 +99,75 @@ to distribute the work of that single evaluation across the group using
 ``solcomm`` collectives. When the algorithm finishes, the framework signals the
 workers to leave their loop.
 
-If ``evaluate`` raises an exception on a worker, the worker reports the error
-(with its global rank) to the standard error and aborts the whole MPI job via
-``MPI_Abort``. A worker is not a member of the algorithm communicator and cannot
-report its failure to the controller, which may already be waiting in a
-``solcomm`` collective, so the job is aborted rather than left hanging.
-Note that ``ignore_error`` in the ``[runner]`` section only applies to an
-exception raised on the controller.
+Errors inside ``evaluate``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+After every call of ``evaluate`` the framework exchanges the success status
+of all ranks of the solver group in one collective on ``solcomm``. An
+exception raised on **any** rank of the group, worker or controller, is
+therefore seen by the controller and handled there as a failure of that
+evaluation:
+
+- If ``ignore_error = true`` is set in the ``[runner]`` section and every
+  failing rank raised a ``RuntimeError``, the evaluation is ignored and its
+  value becomes ``NaN``, exactly as for a controller-only failure.
+- Otherwise the controller raises. If only the controller failed, its own
+  exception is re-raised unchanged. If a worker failed, the controller raises
+  a ``RuntimeError`` listing the global rank(s) that failed and their messages
+  when every failing rank raised a ``RuntimeError``, and
+  ``odatse.exception.SolverError`` when any failing rank (worker or
+  controller) raised something else (such a failure is never turned into
+  ``NaN``). The error propagates through the usual
+  algorithm-layer consensus, the workers are told to leave their loop, and the
+  job terminates with a non-zero status. A worker whose error is not ignored
+  prints its traceback (tagged with its global rank) to the standard error.
+
+The status exchange takes place *after* ``evaluate`` returns or raises on each
+rank. It cannot rescue a solver that raises on some ranks *before* a
+``solcomm`` collective that the other ranks still enter: the ranks would then
+be in different collectives, which is undefined behaviour in MPI (typically a
+hang). As with any collective inside ``evaluate``, keeping them matched is the
+solver's responsibility. A robust pattern is to agree on a local failure before
+the next collective and raise on every rank:
+
+.. code-block:: python
+
+    def evaluate(self, x, args):
+        comm = odatse.mpi.solcomm()
+        try:
+            part = self._compute_my_part(x)
+            failed = None
+        except Exception as e:          # any failure, so that no rank skips the allgather
+            part, failed = None, f"{type(e).__name__}: {e}"
+        failures = [f for f in comm.allgather(failed) if f is not None]
+        if failures:
+            raise RuntimeError("; ".join(failures))
+        return self._combine(comm.allgather(part))
+
+A failure should be reported by raising an exception derived from
+``Exception``. ``SystemExit`` (from ``sys.exit()``) and ``KeyboardInterrupt``
+raised inside ``evaluate`` are caught as well and take part in the status
+exchange, so that no rank is left waiting, but they are never ignored: whether
+raised on a worker or on the controller, the controller raises
+``odatse.exception.SolverError`` and the job terminates through the usual
+algorithm-layer consensus.
+
+If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
+the other ranks still enter (the mismatch described above), the behaviour is
+undefined in MPI. When the solver's collective happens to be a pickle-based
+``allgather``, the status exchange receives data that is not a status and
+the framework aborts the whole job via ``MPI_Abort`` with the message
+``mismatched collectives inside solver.evaluate()``; with other collectives
+(``Bcast``, ``Allreduce``, ...) the job typically hangs. Keeping the
+collectives matched remains the solver's responsibility.
+
+An exception raised on a worker *outside* ``evaluate`` (for example while
+receiving the broadcast ``args``) cannot be reported this way either; the
+worker prints the error and aborts the whole job via ``MPI_Abort`` so that the
+controller is not left hanging. The two paths are told apart in the log: a
+failure reported to the controller is printed as ``ERROR: solver worker raised
+in evaluate(), reported to the controller: ...`` (only when it is not ignored),
+the abort path as ``ERROR: solver worker failed: ...``.
 
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
