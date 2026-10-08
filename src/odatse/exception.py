@@ -28,12 +28,19 @@ class Error(Exception):
 
     rank_local = False
 
-    def __init__(self, message: str = "", *args) -> None:
-        # message is optional so that Error() and pickling of an argument-less
-        # instance keep working as they did when Exception's constructor was
-        # inherited; the subclasses document a message as required
-        super().__init__(message, *args)
-        self.message = message
+    _NO_MESSAGE = object()
+
+    def __init__(self, message=_NO_MESSAGE, *args) -> None:
+        # An omitted message keeps Exception's argument-less behaviour
+        # (args == (), as when the constructor was inherited), so that
+        # Error() and pickling of such an instance are unchanged; the
+        # subclasses document a message as required.
+        if message is Error._NO_MESSAGE:
+            super().__init__(*args)
+            self.message = ""
+        else:
+            super().__init__(message, *args)
+            self.message = message
 
 
 class InputError(Error):

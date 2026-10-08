@@ -312,8 +312,10 @@ def test_error_base_class_constructor_compatibility():
     from odatse.exception import Error, SolverError
     e = Error("msg", 42)
     assert e.message == "msg" and e.args == ("msg", 42)
-    assert Error().message == ""        # argument-less construction still works
-    for exc in (Error(), Error("m"), SolverError("s"), Error("m", 1)):
+    e0 = Error()                        # argument-less construction still works ...
+    assert e0.message == "" and e0.args == () and repr(e0) == "Error()"
+    assert Error("").args == ("",)      # ... and an explicit empty message is kept
+    for exc in (Error(), Error(""), Error("m"), SolverError("s"), Error("m", 1)):
         back = pickle.loads(pickle.dumps(exc))
         assert type(back) is type(exc) and back.args == exc.args and back.message == exc.message
 
