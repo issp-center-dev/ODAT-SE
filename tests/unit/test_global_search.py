@@ -397,3 +397,25 @@ def test_reserved_param_raises(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="managed by ODAT-SE"):
         _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                            global_search_params={"workers": 4}, run=False)
+
+
+def test_system_exit_in_objective_propagates(tmp_path, monkeypatch):
+    """sys.exit() inside the objective is not an Exception. It is captured
+    like any other failure of a chunk (so that under MPI every rank reaches
+    the gather and the phase consensus) and then re-raised as it is."""
+    monkeypatch.chdir(tmp_path)
+    calls = [0]
+
+    def exiting(x):
+        calls[0] += 1
+        if calls[0] > 5:
+            raise SystemExit(7)
+        return float(np.sum(x * x))
+
+    with pytest.raises(SystemExit) as excinfo:
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           fn=exiting,
+                           global_search_params={"maxiter": 10, "popsize": 6})
+    # rank 0 (and the serial case) re-raises the original; under MPI the
+    # other ranks leave with SystemExit(0)
+    assert excinfo.value.code in (7, 0)

@@ -158,3 +158,36 @@ def test_phase_wrapper_passes_base_exception_through_consensus(phase, exc, monke
     with pytest.raises(type(exc)):
         getattr(alg, phase)()
     assert seen == [(exc, 0)]
+
+
+@pytest.mark.parametrize("exc_type", [SystemExit, KeyboardInterrupt])
+def test_base_exception_on_one_rank_releases_the_others(exc_type):
+    """The motivating case: sys.exit() / Ctrl-C in a phase hook on one
+    algorithm rank only. That rank re-raises it after the consensus, every
+    other rank raises OtherAlgorithmProcessError, and nobody is left in the
+    Allreduce (this test would time out under mpirun before the fix)."""
+    if not (mpi.enabled() and mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+
+    alg = _bare()
+    alg.runner = _StubRunner()
+    alg.proc_dir = "."
+    alg.status = AlgorithmStatus.PREPARE
+
+    def failing_run():
+        if mpi.algrank() == 0:
+            raise exc_type(3)
+    alg._run = failing_run
+
+    try:
+        alg.run()
+        outcome = "returned"
+    except exc_type:
+        outcome = "own"
+    except mpi.OtherAlgorithmProcessError:
+        outcome = "other"
+
+    expected = "own" if mpi.algrank() == 0 else "other"
+    assert outcome == expected
+    outcomes = mpi.algcomm().allgather(outcome)
+    assert len(outcomes) == mpi.algsize() and outcomes.count("own") == 1
