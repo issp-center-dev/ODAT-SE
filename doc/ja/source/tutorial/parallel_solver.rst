@@ -77,7 +77,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
             raise RuntimeError("; ".join(failures))
         return self._combine(comm.allgather(part))
 
-失敗は ``Exception`` から派生した例外の送出によって報告してください。 ``evaluate`` 内で送出された ``SystemExit`` ( ``sys.exit()`` によるもの)や ``KeyboardInterrupt`` も捕捉されて成否の交換に参加するため、待ち続けるランクは生じませんが、これらは決して無視されません。ワーカー上で送出された場合もコントローラ上で送出された場合も、コントローラが ``odatse.exception.SolverError`` を送出し、通常のアルゴリズム層の合意によってジョブが終了します。
+失敗は ``Exception`` から派生した例外の送出によって報告してください。 ``evaluate`` 内で送出された ``SystemExit`` ( ``sys.exit()`` によるもの)や ``KeyboardInterrupt`` も捕捉されて成否の交換に参加するため、待ち続けるランクは生じませんが、これらは決して無視されません。ワーカー上で送出された場合もコントローラ上で送出された場合も、コントローラが ``odatse.exception.SolverError`` を送出し、通常のアルゴリズム層の合意によってジョブが終了します。 ``nsolve = 1`` の場合はソルバーグループがないためそのまま伝播しますが、その場合もアルゴリズム層の合意を経由するので、他のアルゴリズムランクは待ち続けることなく解放されます。
 
 ``evaluate`` が一部のランクで ``solcomm`` の集団操作の **前** に例外を送出し、他のランクがその集団操作に入ってしまった場合(前述の不整合)、MPI としての動作は未定義です。ソルバー側の集団操作がたまたま pickle ベースの ``allgather`` であれば、成否の交換は成否情報ではないデータを受け取り、フレームワークは ``mismatched collectives inside solver.evaluate()`` というメッセージとともに ``MPI_Abort`` でジョブ全体を中断します。それ以外の集団操作( ``Bcast`` 、 ``Allreduce`` など)では通常ハングします。集団操作の整合を保つのは引き続きソルバーの責任です。
 

@@ -258,13 +258,15 @@ class AlgorithmBase(metaclass=ABCMeta):
     # Framework wrappers – called by main().  Do NOT override in subclasses.
     # ------------------------------------------------------------------
 
-    def _reach_consensus(self, error: Optional[Exception], ok: "np.ndarray") -> None:
+    def _reach_consensus(self, error: Optional[BaseException], ok: "np.ndarray") -> None:
         """Collectively agree on whether *every* algorithm rank succeeded.
 
         Every algorithm rank must call this exactly once per phase, regardless
         of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when
         this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the
-        exception this rank caught (or ``None``).
+        exception this rank caught (or ``None``). ``SystemExit`` and
+        ``KeyboardInterrupt`` take part like any other failure, so that the
+        other ranks are released, and are then re-raised as they are.
 
         A single ``Allreduce`` shares the success flags, then:
 
@@ -335,7 +337,9 @@ class AlgorithmBase(metaclass=ABCMeta):
             # algorithm-specific preparation
             self._prepare()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt: they must reach the
+            # consensus below, or the other algorithm ranks wait in it forever
             error = e
 
         self._reach_consensus(error, ok)
@@ -369,7 +373,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             os.chdir(self.proc_dir)
             self._run()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt (see prepare())
             error = e
         finally:
             os.chdir(original_dir)
@@ -401,7 +406,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             os.chdir(self.output_dir)
             result = self._post()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt (see prepare())
             error = e
         finally:
             os.chdir(original_dir)

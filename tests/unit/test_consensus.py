@@ -113,3 +113,48 @@ def test_reach_consensus_leaves_foreign_exceptions_unmarked():
     with pytest.raises(ValueError):
         alg._reach_consensus(err, np.array([0]))
     assert not hasattr(err, "rank_local")
+
+
+# --- SystemExit / KeyboardInterrupt go through the consensus too ---
+
+def test_reach_consensus_reraises_base_exception():
+    alg = _bare()
+    with pytest.raises(SystemExit):
+        alg._reach_consensus(SystemExit(3), np.array([0]))
+
+
+@pytest.mark.parametrize("phase", ["prepare", "run", "post"])
+@pytest.mark.parametrize("exc", [SystemExit(2), KeyboardInterrupt()])
+def test_phase_wrapper_passes_base_exception_through_consensus(phase, exc, monkeypatch):
+    """sys.exit() or Ctrl-C inside a phase hook is handed to _reach_consensus
+    like any other failure (ok = 0), so that the other algorithm ranks are
+    released instead of waiting in the Allreduce, and is then re-raised as
+    it is. Before, the wrappers caught Exception only, so these bypassed the
+    consensus and hung the other ranks."""
+    alg = _bare()
+    alg.runner = _StubRunner()
+    alg.mode = "init"
+    alg.proc_dir = "."
+    alg.output_dir = "."
+
+    def failing():
+        raise exc
+    if phase == "prepare":
+        alg.status = AlgorithmStatus.INIT
+        alg._initialize = failing
+    elif phase == "run":
+        alg.status = AlgorithmStatus.PREPARE
+        alg._run = failing
+    else:
+        alg.status = AlgorithmStatus.RUN
+        alg._post = failing
+
+    seen = []
+    def spy(error, ok):
+        seen.append((error, int(ok[0])))
+        raise error
+    monkeypatch.setattr(alg, "_reach_consensus", spy)
+
+    with pytest.raises(type(exc)):
+        getattr(alg, phase)()
+    assert seen == [(exc, 0)]

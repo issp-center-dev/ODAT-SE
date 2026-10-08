@@ -249,7 +249,8 @@ class Runner(object):
 
         if odatse.mpi.solsize() == 1:
             # no group to agree with: SystemExit / KeyboardInterrupt keep
-            # their usual meaning
+            # their usual meaning (the phase wrappers still pass them through
+            # the algorithm-layer consensus before they propagate)
             if own_error is not None and not isinstance(own_error, Exception):
                 raise own_error
             return result, own_error
