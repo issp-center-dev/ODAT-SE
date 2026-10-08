@@ -1,4 +1,10 @@
 add_test(
+  NAME parallel_init_error
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/init_error
+  )
+
+add_test(
   NAME parallel_bayes_grid
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/bayes_grid
