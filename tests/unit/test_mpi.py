@@ -109,7 +109,7 @@ _live_contexts = []
 
 
 def _new_ctx():
-    ctx = _new_ctx()
+    ctx = mpi._MPIContext()
     _live_contexts.append(ctx)
     return ctx
 
