@@ -79,6 +79,7 @@ have been called and raise ``RuntimeError`` otherwise.
 - ``odatse.mpi.enabled()``: whether MPI is available (``False`` when the
   environment variable ``ODATSE_NOMPI=1`` is set).
 - ``odatse.mpi.ready()``: whether ``setup()`` has been called.
+- ``odatse.mpi.reset()``: undoes ``setup()`` so that it can be called again with another configuration.
 
 ``setup()`` splits ``MPI_COMM_WORLD`` by default. To run ODAT-SE on a subset of
 the ranks of a larger MPI program, pass that intracommunicator as

@@ -49,6 +49,8 @@ def test_nompi_context_reports_serial_values():
     ctx.setup(comm=type("OneRank", (), {"size": 1})())   # loses nothing: silent
     with pytest.raises(ValueError):
         ctx.setup(nalg=0)        # validated like the MPI build
+    ctx.reset()                  # nothing to undo: still ready
+    assert ctx.ready() is True
     # a layout or a communicator cannot be honoured without MPI: the
     # arguments are ignored, with a warning naming them
     with pytest.warns(RuntimeWarning, match=r"setup\(nalg=8, nsolve=4\) is ignored"):
@@ -118,12 +120,7 @@ def _new_ctx():
 def _release_contexts():
     yield
     while _live_contexts:
-        ctx = _live_contexts.pop()
-        if not ctx.ready():
-            continue
-        if ctx._algcomm is not None:
-            ctx._algcomm.Free()
-        ctx._solcomm.Free()
+        _live_contexts.pop().reset()
 
 
 # --------------------------------------------------------------------------- #
@@ -243,6 +240,58 @@ def test_setup_again_with_different_layout_raises():
     with pytest.raises(mpi.SetupConflictError, match="different layout"):
         ctx.setup(nsolve=2)
     assert ctx.solsize() == 1         # the first configuration is kept
+
+
+@needs_mpi
+def test_reset_undoes_setup():
+    """reset() frees the partition and returns to the pre-setup state, after
+    which setup() accepts any communicator and layout again."""
+    from mpi4py import MPI
+    ctx = _new_ctx()
+    ctx.reset()                               # no-op before setup()
+    assert ctx.ready() is False
+
+    dup = MPI.COMM_WORLD.Dup()
+    try:
+        ctx.setup(comm=dup)
+        assert ctx.ready() and ctx.comm() == dup
+        solcomm, algcomm = ctx.solcomm(), ctx.algcomm()
+        ctx.reset()
+        assert ctx.ready() is False
+        assert ctx.comm() == MPI.COMM_WORLD   # back to the default
+        # the owned communicators are freed, the caller's one is not
+        assert solcomm == MPI.COMM_NULL
+        assert algcomm is None or algcomm == MPI.COMM_NULL
+        assert dup.size == MPI.COMM_WORLD.size
+        for accessor in (ctx.solcomm, ctx.algcomm, ctx.run_on_algorithm):
+            with pytest.raises(RuntimeError):
+                accessor()
+
+        ctx.setup()                           # another communicator: no conflict
+        assert ctx.ready() and ctx.comm() == MPI.COMM_WORLD
+        ctx.reset()
+        ctx.reset()                           # idempotent
+        assert ctx.ready() is False
+    finally:
+        dup.Free()
+
+
+@needs_mpi
+def test_reset_allows_a_different_layout():
+    from mpi4py import MPI
+    total = MPI.COMM_WORLD.size
+    if total % 2 != 0:
+        pytest.skip("needs an even number of ranks")
+    ctx = _new_ctx()
+    ctx.setup(nsolve=2)
+    assert ctx.solsize() == 2
+    ctx.reset()
+    ctx.setup(nsolve=1)                       # would be a conflict without reset()
+    assert ctx.solsize() == 1 and ctx.algsize() == total
+
+
+def test_module_level_reset_exists():
+    assert "reset" in mpi.__all__ and callable(mpi.reset)
 
 
 @needs_mpi

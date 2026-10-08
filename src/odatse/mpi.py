@@ -121,6 +121,7 @@ class _NoMPIContext(_CheckpointMixin):
             )
 
     def ready(self) -> bool:                return True
+    def reset(self) -> None:                pass
     def comm(self):                         return None
     def size(self) -> int:                  return 1
     def rank(self) -> int:                  return 0
@@ -158,7 +159,8 @@ if not _NOMPI:
         run_on_algorithm()) raise RuntimeError if called before setup();
         ready() tells whether setup() has been called. Calling setup() again
         with the same effective configuration is a no-op, and with a
-        different one raises RuntimeError.
+        different one raises RuntimeError. reset() undoes setup(), after
+        which setup() may be called again with any configuration.
         """
 
         def __init__(self) -> None:
@@ -341,6 +343,29 @@ if not _NOMPI:
             """Return True once setup() has been called."""
             return self._ready
 
+        def reset(self) -> None:
+            """Undo setup().
+
+            Frees the solver and algorithm communicators built by setup() and
+            returns to the state before it: ready() is False and comm()
+            refers to MPI.COMM_WORLD again. The communicator given to setup()
+            is not freed (the caller owns it). A no-op when setup() has not
+            been called.
+
+            reset() is collective over the communicator given to setup():
+            every rank of it must call reset(). Afterwards setup() may be
+            called again, with any communicator and layout, which lets a
+            host program run ODAT-SE on one communicator and later on
+            another. Objects that captured the old communicators (a Runner,
+            an Algorithm, a restored checkpoint) must not be used afterwards.
+            """
+            if not self._ready:
+                return
+            if self._algcomm is not None:
+                self._algcomm.Free()
+            self._solcomm.Free()
+            self.__init__()
+
         def _require_ready(self) -> None:
             if not self._ready:
                 raise RuntimeError("odatse.mpi.setup() has not been called")
@@ -448,7 +473,7 @@ MSG_EVALUATE =  1
 # ------------------------------------------------------------------ #
 
 __all__ = [
-    "setup", "ready", "SetupConflictError",
+    "setup", "ready", "reset", "SetupConflictError",
     "comm", "size", "rank",
     "solcomm", "solsize", "solrank",
     "algcomm", "algsize", "algrank",
@@ -461,6 +486,7 @@ __all__ = [
 def setup(*, nalg=None, nsolve=None, comm=None):
     _ctx.setup(nalg=nalg, nsolve=nsolve, comm=comm)
 def ready() -> bool:                    return _ctx.ready()
+def reset() -> None:                    _ctx.reset()
 def comm():                             return _ctx.comm()
 def size() -> int:                      return _ctx.size()
 def rank() -> int:                      return _ctx.rank()

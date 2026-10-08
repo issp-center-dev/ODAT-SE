@@ -43,6 +43,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 - ``odatse.mpi.run_on_algorithm()``: グループのコントローラ(``solrank() == 0``)では ``True``、ソルバーワーカーでは ``False``。
 - ``odatse.mpi.enabled()``: MPI が利用可能かどうか(環境変数 ``ODATSE_NOMPI=1`` が設定されている場合は ``False``)。
 - ``odatse.mpi.ready()``: ``setup()`` が呼び出し済みかどうか。
+- ``odatse.mpi.reset()``: ``setup()`` を取り消し、別の構成で再度呼べるようにします。
 
 ``setup()`` は既定では ``MPI_COMM_WORLD`` を分割します。より大きな MPI プログラムの一部のランクで ODAT-SE を実行する場合は、そのイントラコミュニケータを ``setup(comm=...)`` として渡します。詳細は :doc:`../customize/common` を参照してください。
 

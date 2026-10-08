@@ -161,8 +161,5 @@ def test_initialize_after_external_setup_uses_the_real_context(monkeypatch):
         with pytest.raises(MPI.Exception):
             odatse.initialize(["input.toml", "--nsolve", str(nsolve)])
     finally:
-        if fresh.ready():
-            if fresh._algcomm is not None:
-                fresh._algcomm.Free()
-            fresh._solcomm.Free()
+        fresh.reset()
         dup.Free()
