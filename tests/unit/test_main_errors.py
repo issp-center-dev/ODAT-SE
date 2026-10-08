@@ -41,8 +41,9 @@ def test_choose_solver_analytical_ok():
 def test_main_converts_input_error_to_exit(monkeypatch):
     """At the CLI boundary, a domain error (odatse.exception.Error) is reported
     and turned into a non-zero exit status rather than propagating a raw
-    exception. (initialize() is stubbed because it would otherwise call
-    mpi.setup() a second time within the test session.)"""
+    exception. (initialize() is stubbed because it would otherwise try to
+    load an input file that does not exist in the isolated working
+    directory.)"""
     def boom(argv):
         raise InputError("simulated input error")
     monkeypatch.setattr(odatse, "initialize", boom)
