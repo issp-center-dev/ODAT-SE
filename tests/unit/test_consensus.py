@@ -187,7 +187,8 @@ def test_base_exception_on_one_rank_releases_the_others(exc_type):
     except mpi.OtherAlgorithmProcessError:
         outcome = "other"
 
-    expected = "own" if mpi.algrank() == 0 else "other"
-    assert outcome == expected
+    # gather before asserting, so that a wrong outcome on one rank cannot
+    # leave the others waiting in this collective
     outcomes = mpi.algcomm().allgather(outcome)
-    assert len(outcomes) == mpi.algsize() and outcomes.count("own") == 1
+    expected = ["own"] + ["other"] * (mpi.algsize() - 1)
+    assert outcomes == expected
