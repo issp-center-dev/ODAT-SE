@@ -255,9 +255,14 @@ def test_reset_undoes_setup():
     try:
         ctx.setup(comm=dup)
         assert ctx.ready() and ctx.comm() == dup
+        solcomm, algcomm = ctx.solcomm(), ctx.algcomm()
         ctx.reset()
         assert ctx.ready() is False
         assert ctx.comm() == MPI.COMM_WORLD   # back to the default
+        # the owned communicators are freed, the caller's one is not
+        assert solcomm == MPI.COMM_NULL
+        assert algcomm is None or algcomm == MPI.COMM_NULL
+        assert dup.size == MPI.COMM_WORLD.size
         for accessor in (ctx.solcomm, ctx.algcomm, ctx.run_on_algorithm):
             with pytest.raises(RuntimeError):
                 accessor()
