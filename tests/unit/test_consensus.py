@@ -113,3 +113,82 @@ def test_reach_consensus_leaves_foreign_exceptions_unmarked():
     with pytest.raises(ValueError):
         alg._reach_consensus(err, np.array([0]))
     assert not hasattr(err, "rank_local")
+
+
+# --- SystemExit / KeyboardInterrupt go through the consensus too ---
+
+def test_reach_consensus_reraises_base_exception():
+    alg = _bare()
+    with pytest.raises(SystemExit):
+        alg._reach_consensus(SystemExit(3), np.array([0]))
+
+
+@pytest.mark.parametrize("phase", ["prepare", "run", "post"])
+@pytest.mark.parametrize("exc", [SystemExit(2), KeyboardInterrupt()])
+def test_phase_wrapper_passes_base_exception_through_consensus(phase, exc, monkeypatch):
+    """sys.exit() or Ctrl-C inside a phase hook is handed to _reach_consensus
+    like any other failure (ok = 0), so that the other algorithm ranks are
+    released instead of waiting in the Allreduce, and is then re-raised as
+    it is. Before, the wrappers caught Exception only, so these bypassed the
+    consensus and hung the other ranks."""
+    alg = _bare()
+    alg.runner = _StubRunner()
+    alg.mode = "init"
+    alg.proc_dir = "."
+    alg.output_dir = "."
+
+    def failing():
+        raise exc
+    if phase == "prepare":
+        alg.status = AlgorithmStatus.INIT
+        alg._initialize = failing
+    elif phase == "run":
+        alg.status = AlgorithmStatus.PREPARE
+        alg._run = failing
+    else:
+        alg.status = AlgorithmStatus.RUN
+        alg._post = failing
+
+    seen = []
+    def spy(error, ok):
+        seen.append((error, int(ok[0])))
+        raise error
+    monkeypatch.setattr(alg, "_reach_consensus", spy)
+
+    with pytest.raises(type(exc)):
+        getattr(alg, phase)()
+    assert seen == [(exc, 0)]
+
+
+@pytest.mark.parametrize("exc_type", [SystemExit, KeyboardInterrupt])
+def test_base_exception_on_one_rank_releases_the_others(exc_type):
+    """The motivating case: sys.exit() / Ctrl-C in a phase hook on one
+    algorithm rank only. That rank re-raises it after the consensus, every
+    other rank raises OtherAlgorithmProcessError, and nobody is left in the
+    Allreduce (this test would time out under mpirun before the fix)."""
+    if not (mpi.enabled() and mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+
+    alg = _bare()
+    alg.runner = _StubRunner()
+    alg.proc_dir = "."
+    alg.status = AlgorithmStatus.PREPARE
+
+    def failing_run():
+        if mpi.algrank() == 0:
+            raise exc_type(3)
+    alg._run = failing_run
+
+    try:
+        alg.run()
+        outcome = "returned"
+    except exc_type:
+        outcome = "own"
+    except mpi.OtherAlgorithmProcessError:
+        outcome = "other"
+
+    # gather before asserting, so that a wrong outcome on one rank cannot
+    # leave the others waiting in this collective
+    outcomes = mpi.algcomm().allgather(outcome)
+    expected = ["own"] + ["other"] * (mpi.algsize() - 1)
+    assert outcomes == expected

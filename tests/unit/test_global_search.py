@@ -397,3 +397,35 @@ def test_reserved_param_raises(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="managed by ODAT-SE"):
         _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
                            global_search_params={"workers": 4}, run=False)
+
+
+@pytest.mark.parametrize("exc_type", [SystemExit, KeyboardInterrupt])
+def test_base_exception_in_objective_propagates(tmp_path, monkeypatch, exc_type):
+    """sys.exit() / Ctrl-C inside the objective is not an Exception. It is
+    captured like any other failure of a chunk, so that under MPI every rank
+    reaches the gather and the phase consensus, and then re-raised as it is.
+
+    Under MPI the objective fails on algorithm rank 1 only (a worker of the
+    chunk evaluation): rank 0 re-raises the error it received through the
+    gather, rank 1 re-raises its own after the loop, and the unaffected
+    ranks leave with SystemExit(0) through main()."""
+    import odatse.mpi as mpi
+    monkeypatch.chdir(tmp_path)
+    failing_rank = 1 if mpi.algsize() > 1 else 0
+    calls = [0]
+
+    def failing(x):
+        calls[0] += 1
+        if mpi.algrank() == failing_rank and calls[0] > 2:
+            raise exc_type(7)
+        return float(np.sum(x * x))
+
+    expected = exc_type if mpi.algrank() in (0, failing_rank) else SystemExit
+    with pytest.raises(expected) as excinfo:
+        _run_global_search(tmp_path, unit_list=[1.0, 1.0], record=[],
+                           fn=failing,
+                           global_search_params={"maxiter": 10, "popsize": 6})
+    if mpi.algrank() in (0, failing_rank):
+        assert excinfo.value.args == (7,)      # the original error, unchanged
+    else:
+        assert excinfo.value.code == 0
