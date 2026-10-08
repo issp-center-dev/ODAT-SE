@@ -207,9 +207,12 @@ class Runner(object):
 
         Every rank of the solver group (controller and workers) calls this
         for the same ``xp`` / ``args``. After the local ``evaluate()`` the
-        ranks exchange their success status in one ``allgather`` on
-        ``solcomm``, so that a failure on any rank is seen by all of them and
-        no rank is left blocked in the next control-signal broadcast.
+        ranks agree on whether any of them failed with one ``Allreduce`` of
+        a flag on ``solcomm`` (a buffer collective, no pickling: this is all
+        the common all-succeeded path costs); only when some rank failed do
+        they exchange the details in an ``allgather``. A failure on any rank
+        is thus seen by all of them and no rank is left blocked in the next
+        control-signal broadcast.
 
         Returns
         -------
@@ -232,9 +235,11 @@ class Runner(object):
         *after* ``evaluate()``. It therefore cannot rescue a solver that
         raises on some ranks *before* a collective inside ``evaluate()`` that
         the other ranks still enter; such a mismatch of collectives is the
-        solver's responsibility (see the parallel-solver tutorial). When the
-        exchange receives entries that are not status tuples, which is how
-        that mismatch shows up here, the job is aborted instead of hanging.
+        solver's responsibility (see the parallel-solver tutorial); such a
+        mismatch pairs the flag ``Allreduce`` with the solver's collective,
+        which is undefined in MPI and typically hangs. Should the failure
+        path's ``allgather`` ever receive entries that are not status
+        tuples, the job is aborted rather than left to hang.
         """
         own_error: Optional[BaseException] = None
         result = np.nan
@@ -254,10 +259,19 @@ class Runner(object):
                 raise own_error
             return result, own_error
 
-        # One tagged entry per rank: (tag, None) on success,
-        # (tag, (is_ignorable, summary)) on failure. Only plain Python types
-        # are exchanged, so that the collective cannot fail on an exception
-        # object that does not pickle.
+        # Agree on "did anyone fail?" with one small buffer collective. This
+        # is the only cost of a successful evaluation; the default reduction
+        # (sum) of the 0/1 flags is nonzero iff some rank failed.
+        failed = np.array([0 if own_error is None else 1], dtype=np.int32)
+        any_failed = np.zeros_like(failed)
+        odatse.mpi.solcomm().Allreduce(failed, any_failed)
+        if any_failed[0] == 0:
+            return result, None
+
+        # Some rank failed: exchange the details. One tagged entry per rank:
+        # (tag, None) on success, (tag, (is_ignorable, summary)) on failure.
+        # Only plain Python types are exchanged, so that the collective
+        # cannot fail on an exception object that does not pickle.
         if own_error is None:
             own_status = _status_entry()
         else:
@@ -268,9 +282,9 @@ class Runner(object):
         statuses = odatse.mpi.solcomm().allgather(own_status)
 
         # Entries without the tag mean the allgather was paired with a
-        # collective of the solver itself, i.e. evaluate() raised on some
-        # ranks before a solcomm collective the others still entered. The
-        # group is desynchronised beyond repair; abort rather than hang.
+        # collective of the solver itself (a desynchronised group, e.g. after
+        # evaluate() raised on some ranks before a solcomm collective the
+        # others still entered). Beyond repair; abort rather than hang.
         if not all(_is_status_entry(s) for s in statuses):
             print(f"[rank {odatse.mpi.rank()}] ERROR: mismatched collectives inside "
                   "solver.evaluate(): some ranks raised before a solcomm collective "

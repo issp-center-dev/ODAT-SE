@@ -20,10 +20,6 @@
 #   all         every rank of the group
 #   rank1       global rank 1 only, i.e. the worker of the first solver group:
 #               the other group stays healthy and must still terminate
-#   before      solrank == 1 raises *before* the collective inside evaluate():
-#               a mismatch of collectives, which the framework can only
-#               detect (and abort) because the solver's collective is a
-#               pickle-based allgather
 # FAILTYPE selects the exception class: runtime (RuntimeError), value
 # (ValueError, which ignore_error must not swallow) or exit (SystemExit from
 # sys.exit(), which must not hang the group and is never ignored).
@@ -56,9 +52,6 @@ class ParallelSolver(odatse.solver.SolverBase):
 
     def evaluate(self, xs, args):
         self.count += 1
-
-        if FAILMODE == "before" and self.count == FAIL_AT and odatse.mpi.solrank() == 1:
-            raise _EXC(f"before failed at evaluation {FAIL_AT}")
 
         fs = odatse.mpi.solcomm().allgather(self._func(xs))
 

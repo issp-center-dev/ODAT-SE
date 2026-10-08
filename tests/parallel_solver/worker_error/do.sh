@@ -138,12 +138,6 @@ expect_failure controller_exit controller exit input_ignore.toml \
   "main() raised SolverError" \
   "SystemExit: controller failed at evaluation 3"
 
-# A worker raising *before* the solver's own allgather pairs that allgather
-# with the status exchange. The entries are tagged, so the mismatch is
-# detected and the job aborted instead of hanging.
-expect_failure before_mismatch before runtime input.toml \
-  "mismatched collectives inside solver.evaluate()"
-
 # Every rank raising without ignore_error still terminates cleanly.
 expect_failure all_runtime all runtime input.toml \
   "RuntimeError: all failed at evaluation 3"
