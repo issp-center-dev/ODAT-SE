@@ -1,0 +1,59 @@
+Developer Guide
+====================
+
+ODAT-SE is a framework that solves inverse problems by combining a forward problem solver ``Solver`` with a search algorithm ``Algorithm``.
+In addition to the built-in ``Solver`` and ``Algorithm``, users can define and use their own.
+
+.. only:: html
+
+   .. mermaid::
+
+      flowchart LR
+          A["<b>Algorithm</b><br/>(search)"] -->|"proposes parameter x"| R["<b>Runner</b><br/>(bridge)"]
+          R -->|"coordinate transform<br/>&amp; constraints"| S["<b>Solver</b><br/>(objective)"]
+          S -->|"computes f(x)"| R
+          R -->|"returns f(x)"| A
+
+.. only:: latex
+
+   .. code-block:: text
+
+      ┌────────────┐     ┌────────┐     ┌────────────┐
+      │ Algorithm  │────→│ Runner │────→│   Solver   │
+      │ (search)   │←────│(bridge)│←────│(objective) │
+      └────────────┘     └────────┘     └────────────┘
+        proposes          coordinate      computes
+        parameter x       transform       f(x) and
+                          & constraints    returns it
+
+This chapter first explains **how to add a custom solver** through a hands-on tutorial,
+then provides API details.
+
+:doc:`tutorial_solver`
+    A tutorial for optimizing your own objective function with ODAT-SE. Provides a complete, copy-paste-ready example covering file creation, execution, and result verification. Start here if you are new to customization.
+
+:doc:`solver`
+    API reference for the ``Solver`` class. Details on inheriting ``SolverBase`` and implementing the ``evaluate`` method.
+
+:doc:`algorithm`
+    API reference for the ``Algorithm`` class. How to define custom search algorithms.
+
+:doc:`common`
+    Explanation of the shared classes ``Info``, ``Runner``, ``Mapping``, and ``Limitation``, the initialization function ``odatse.initialize``, and the MPI accessors ``odatse.mpi``.
+
+:doc:`usage`
+    Code example for combining custom Solver / Algorithm and running them.
+
+`API Reference <../../api/index.html>`_
+    Reference of all public APIs, generated automatically from the docstrings in the source code.
+    Consult it for the modules not covered in this chapter (``odatse.util.*``, ``odatse.domain.*``, ``odatse.mpi``, etc.).
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   tutorial_solver
+   solver
+   algorithm
+   common
+   usage

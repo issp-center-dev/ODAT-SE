@@ -1,0 +1,7 @@
+odatse.algorithm.\_iterator module
+==================================
+
+.. automodule:: odatse.algorithm._iterator
+   :members:
+   :private-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+odatse.scripts.plt\_2D\_histogram module
+========================================
+
+.. automodule:: odatse.scripts.plt_2D_histogram
+   :members:
+   :private-members:
+   :show-inheritance:

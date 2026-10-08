@@ -1,0 +1,7 @@
+odatse.util.version module
+==========================
+
+.. automodule:: odatse.util.version
+   :members:
+   :private-members:
+   :show-inheritance:

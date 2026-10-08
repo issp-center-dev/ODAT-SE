@@ -1,0 +1,7 @@
+odatse.scripts.summarize\_each\_T module
+========================================
+
+.. automodule:: odatse.scripts.summarize_each_T
+   :members:
+   :private-members:
+   :show-inheritance:

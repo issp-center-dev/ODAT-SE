@@ -1,0 +1,7 @@
+odatse.algorithm.ttopt module
+=============================
+
+.. automodule:: odatse.algorithm.ttopt
+   :members:
+   :private-members:
+   :show-inheritance:

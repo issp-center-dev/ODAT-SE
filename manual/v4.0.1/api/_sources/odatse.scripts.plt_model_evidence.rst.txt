@@ -1,0 +1,7 @@
+odatse.scripts.plt\_model\_evidence module
+==========================================
+
+.. automodule:: odatse.scripts.plt_model_evidence
+   :members:
+   :private-members:
+   :show-inheritance:
