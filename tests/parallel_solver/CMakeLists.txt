@@ -94,6 +94,10 @@ add_test(
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/worker_error
   )
 
+# The bayes tests exit with status 77 when the optional dependency physbo is
+# not installed; report them as skipped rather than failed.
+set_tests_properties(parallel_bayes_grid parallel_bayes_meshfile PROPERTIES SKIP_RETURN_CODE 77)
+
 # The do.sh scripts run "mpirun ... ${PYTHON:-python3}". Point PYTHON at the
 # interpreter CMake resolved (see top-level CMakeLists.txt) so mpirun does not
 # fall back to the system python3, which lacks the installed packages.

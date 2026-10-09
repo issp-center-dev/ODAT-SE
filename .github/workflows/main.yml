@@ -49,6 +49,8 @@ jobs:
           python -m pip install scipy tomli mpi4py pytest
           python -m pip install .
           python -m pip install physbo
+          # the bayes tests skip themselves without physbo; make sure CI runs them
+          python -c "import physbo"
 
       - name: run
         run: |
