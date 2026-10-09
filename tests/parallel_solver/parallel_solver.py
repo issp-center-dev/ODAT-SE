@@ -86,4 +86,10 @@ def main(argv: Optional[Sequence[str]] = None):
         print(f"time: {elapsed_time:.6f}s")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed during the set-up or the run and reports
+        # its error; leave quietly, as the odatse command does, so that the
+        # job ends with the status of that process
+        sys.exit(0)

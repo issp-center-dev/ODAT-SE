@@ -63,7 +63,8 @@ run solver_no_nsolve   2 solver 1
 # --- a script that builds the objects itself (tests/parallel_solver/
 # parallel_solver.py, which follows the tutorial): the output directory
 # cannot be created on one process. There is no one-line report outside the
-# odatse command; the job must just end with a non-zero status.
+# odatse command: the failing process prints its traceback, the others leave
+# quietly, and the job ends with a non-zero status.
 for rank in 1 2; do
   echo "=== driver_makedirs_rank$rank ==="
   rm -rf output
@@ -80,6 +81,9 @@ for rank in 1 2; do
     res=1
   elif ! grep -q "PermissionError: injected makedirs failure" "$log"; then
     echo "FAILED: the injected failure was not reported (exit status $status)"
+    res=1
+  elif grep -q "OtherAlgorithmProcessError" "$log"; then
+    echo "FAILED: the processes that did not fail printed a traceback"
     res=1
   else
     echo "ok: terminated with status $status"

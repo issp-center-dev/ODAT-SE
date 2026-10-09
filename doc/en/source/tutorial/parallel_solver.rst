@@ -142,7 +142,19 @@ If the block raises on any process, every process raises when it leaves the
 block: the failing ones their own exception, the others
 ``odatse.mpi.OtherAlgorithmProcessError``. The same rules apply as for the
 construction of the algorithm: every process must run the block, and any
-collective communication inside it must stay balanced.
+collective communication inside it must stay balanced. Catch
+``odatse.mpi.OtherAlgorithmProcessError`` at the top of the script and exit
+with status 0, as the ``odatse`` command does. Otherwise every process prints
+a traceback, and ``mpirun`` may end the job before the failing process has
+reported its error:
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except odatse.mpi.OtherAlgorithmProcessError:
+            sys.exit(0)  # another process failed and reports its error
 
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +166,7 @@ the average largest singular value of ``nmats`` random matrices of size
 
 .. code-block:: python
 
-    import os, time, argparse
+    import os, sys, time, argparse
     import numpy as np
     from mpi4py import MPI
     import odatse

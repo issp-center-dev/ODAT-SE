@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os, time, argparse
+import os, sys, time, argparse
 import numpy as np
 from mpi4py import MPI
 import odatse
@@ -112,4 +112,10 @@ def main():
         print(f"time: {elapsed_time:.6f}s")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed during the set-up or the run and reports
+        # its error; leave quietly, as the odatse command does, so that the
+        # job ends with the status of that process
+        sys.exit(0)

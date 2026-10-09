@@ -69,6 +69,16 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 ブロック内でいずれかのプロセスが例外を送出すると、ブロックを抜ける際にすべてのプロセスが例外を送出します。失敗したプロセスは自身の例外を、それ以外のプロセスは ``odatse.mpi.OtherAlgorithmProcessError`` を送出します。アルゴリズムの構築と同じく、すべてのプロセスがこのブロックを実行する必要があり、ブロック内の集団通信は全プロセスで呼び出しがそろうようにしてください。
 
+スクリプトの最上位では ``odatse`` コマンドと同じように ``odatse.mpi.OtherAlgorithmProcessError`` を捕捉し、終了ステータス 0 で終了してください。捕捉しないと、すべてのプロセスがトレースバックを出力し、失敗したプロセスがエラーを報告する前に ``mpirun`` がジョブを終了させることがあります。
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except odatse.mpi.OtherAlgorithmProcessError:
+            sys.exit(0)  # 失敗したほかのプロセスがエラーを報告する
+
 カスタムソルバーの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,7 +86,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 .. code-block:: python
 
-    import os, time, argparse
+    import os, sys, time, argparse
     import numpy as np
     from mpi4py import MPI
     import odatse
