@@ -3,6 +3,16 @@ add_test(
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/init_error
   )
+# upper bound independent of the timeout inside do.sh (a hang is the
+# failure mode these tests look for)
+set_tests_properties(parallel_init_error PROPERTIES TIMEOUT 300)
+
+add_test(
+  NAME parallel_construction_consensus
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/construction_consensus
+  )
+set_tests_properties(parallel_construction_consensus PROPERTIES TIMEOUT 300)
 
 add_test(
   NAME parallel_bayes_grid

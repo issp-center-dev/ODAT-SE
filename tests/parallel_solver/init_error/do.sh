@@ -13,38 +13,22 @@ export PYTHONUNBUFFERED=1
 export OMPI_MCA_rmaps_base_oversubscribe=1
 
 # Seconds allowed for one run. A hang is the failure mode under test, so the
-# run is killed (and the test fails) when this expires.
+# run is killed (and the test fails) when this expires; timeout.py exits
+# with status 124 in that case (SIGTERM first, then SIGKILL).
 LIMIT=60
-
-# run_with_timeout LIMIT CMD...: run CMD, kill it after LIMIT seconds.
-# Sets $status to the exit status of CMD and $timed_out to 1 if it was killed.
-run_with_timeout() {
-  limit=$1; shift
-  timed_out=0
-  "$@" &
-  pid=$!
-  ( sleep "$limit"; kill "$pid" 2>/dev/null && touch timed_out.flag ) &
-  wd=$!
-  wait "$pid"
-  status=$?
-  kill "$wd" 2>/dev/null
-  wait "$wd" 2>/dev/null
-  if [ -f timed_out.flag ]; then
-    timed_out=1
-    rm -f timed_out.flag
-  fi
-}
+TIMEOUT="${PYTHON:-python3} ../../test_utilities/timeout.py"
 
 res=0
 
 # --- the mesh file does not exist: every process must leave, status != 0
 echo "=== missing mesh file ==="
-rm -rf output timed_out.flag
+rm -rf output
 log=log_missing.txt
-run_with_timeout $LIMIT \
+$TIMEOUT $LIMIT \
   mpirun -np 4 ${PYTHON:-python3} ../../../src/odatse_main.py --nalg 2 --nsolve 2 input_missing.toml > "$log" 2>&1
+status=$?
 
-if [ $timed_out -ne 0 ]; then
+if [ $status -eq 124 ]; then
   echo "FAILED: job hung (killed after ${LIMIT}s)"
   res=1
 elif [ $status -eq 0 ]; then
@@ -62,12 +46,13 @@ fi
 
 # --- control: the same layout with a valid (one-point) mesh file completes
 echo "=== valid mesh file ==="
-rm -rf output timed_out.flag
+rm -rf output
 log=log_valid.txt
-run_with_timeout $LIMIT \
+$TIMEOUT $LIMIT \
   mpirun -np 4 ${PYTHON:-python3} ../../../src/odatse_main.py --nalg 2 --nsolve 2 input_valid.toml > "$log" 2>&1
+status=$?
 
-if [ $timed_out -ne 0 ]; then
+if [ $status -eq 124 ]; then
   echo "FAILED: job hung (killed after ${LIMIT}s)"
   res=1
 elif [ $status -ne 0 ]; then
