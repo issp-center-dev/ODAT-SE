@@ -6,6 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from abc import ABCMeta as _ABCMeta
 import contextlib
 import os
 import numpy as np
@@ -317,7 +318,7 @@ __all__ = [
     "algcomm", "algsize", "algrank",
     "run_on_algorithm",
     "enabled",
-    "fail_together",
+    "fail_together", "FailTogetherMeta",
     "OtherAlgorithmProcessError",
     "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE",
 ]
@@ -417,12 +418,69 @@ def fail_together():
     collective calls inside a block must stay balanced (a process that
     raises before such a call leaves the others waiting in it). Before
     ``setup()``, it only lets the exception propagate.
+
+    The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this
+    agreement on their own (``FailTogetherMeta``); inside a block they leave
+    it to the block, so that a process failing anywhere in the block, before
+    or after a construction, agrees exactly once with the others.
     """
+    global _block_depth
+    _block_depth += 1
     try:
         yield
     except BaseException as e:
         # also SystemExit / KeyboardInterrupt: the other processes must be
         # released before it propagates
+        _block_depth -= 1
         _agree_on_failure(e)
         raise  # not reached: _agree_on_failure() re-raises e
+    _block_depth -= 1
     _agree_on_failure(None)
+
+
+# Nesting depth of fail_together() blocks on this process. Inside a block the
+# constructors of FailTogetherMeta classes do not agree on their own: the
+# block does when it is left. Otherwise a process that fails in the block
+# before a construction the others reach would perform one agreement while
+# they perform two (the construction's and the block's), and the second
+# would wait forever.
+_block_depth = 0
+
+
+class FailTogetherMeta(_ABCMeta):
+    """Metaclass whose instances are constructed inside ``fail_together()``.
+
+    It is the metaclass of ``SolverBase``, ``Runner`` and ``AlgorithmBase``,
+    so that ``Solver(info)``, ``Runner(solver, info)`` and
+    ``Algorithm(info, runner)`` are protected whatever code calls them: the
+    ``odatse`` command, a user-written main, or a host program that embeds
+    ODAT-SE. These constructors run on every process of the job, the solver
+    workers included, and may fail on some of them only (a data file missing
+    on one node, an invalid ``mesh_path`` detected by the algorithm ranks
+    that read the mesh); a process that leaves the set-up through such an
+    exception would otherwise leave the others waiting in the next collective
+    (issues #101, #112). ``fail_together()`` remains available for the
+    caller's own code between the constructions.
+
+    Wrapping the construction here covers the whole constructor of every
+    subclass, including the part that runs after ``super().__init__()``, and
+    third-party subclasses without any change on their side.
+    ``Cls.__new__(Cls)`` does not go through ``__call__`` and is therefore
+    not affected. The rules of ``fail_together()`` apply: every process must
+    construct the same objects in the same order (constructing one on some
+    processes only hangs), and collectives inside a constructor must stay
+    balanced.
+
+    Inside an explicit ``fail_together()`` block the constructors do not
+    agree on their own; the block does, when it is left. The block is then
+    the only agreement, however many objects it constructs and wherever in
+    it a process fails (``odatse.main()`` and the parallel-solver example
+    build the solver and the runner inside such a block).
+    """
+
+    def __call__(cls, *args, **kwargs):
+        if _block_depth > 0:
+            # an enclosing fail_together() block agrees when it is left
+            return super().__call__(*args, **kwargs)
+        with fail_together():
+            return super().__call__(*args, **kwargs)
