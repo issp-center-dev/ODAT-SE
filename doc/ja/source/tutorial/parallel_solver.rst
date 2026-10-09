@@ -59,6 +59,16 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 この合意のため、独自のスクリプトから ODAT-SE を利用する場合には、ワーカーを含むジョブのすべてのプロセスで、同じアルゴリズムを同じ順序で構築する必要があります。一部のプロセスだけでアルゴリズムを構築すると、ハングします。また、独自アルゴリズムの ``__init__`` で集団通信を行う場合は、全プロセスで呼び出しがそろうようにしてください。その呼び出しより前に例外を送出したプロセスがあると、ほかのプロセスはその集団通信で待ち続けます。
 
+同じことはアルゴリズムの構築より前にも起こります。ソルバーやランナーの生成が一部のプロセスでのみ失敗すると、ほかのプロセスは ``Algorithm(...)`` に進み、失敗したプロセスをそこで待ち続けます。そのため ``odatse`` コマンドは、この準備処理を ``odatse.mpi.fail_together()`` の中で実行します。 ``odatse.mpi.fail_together()`` は、任意のコードブロックに同じ合意を適用するものです。独自のスクリプトでも、下の例のように使用してください。
+
+.. code-block:: python
+
+    with odatse.mpi.fail_together():
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+
+ブロック内でいずれかのプロセスが例外を送出すると、ブロックを抜ける際にすべてのプロセスが例外を送出します。失敗したプロセスは自身の例外を、それ以外のプロセスは ``odatse.mpi.OtherAlgorithmProcessError`` を送出します。アルゴリズムの構築と同じく、すべてのプロセスがこのブロックを実行する必要があり、ブロック内の集団通信は全プロセスで呼び出しがそろうようにしてください。
+
 カスタムソルバーの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,7 +96,6 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
             if odatse.mpi.rank() == 0:
                 print(f"nalg: {odatse.mpi.algsize()}")
                 print(f"nsolve: {odatse.mpi.solsize()}")
-            odatse.mpi.comm().barrier()
 
         def _testfunc(self, mats):
             return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
@@ -142,12 +151,12 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
         nmats = info.solver["param"].get("nmats", 50)
         matsize = info.solver["param"].get("matsize", 1000)
 
-        output_dir = info.base.get("output_dir", "./output")
-        os.makedirs(output_dir, exist_ok=True)
-
-        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
+        with odatse.mpi.fail_together():
+            output_dir = info.base.get("output_dir", "./output")
+            os.makedirs(output_dir, exist_ok=True)
+            solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 
