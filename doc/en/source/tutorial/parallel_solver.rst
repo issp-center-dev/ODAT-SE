@@ -118,6 +118,13 @@ into a silent exit with status 0, so that the job ends with the status of the
 failing process). Without this agreement the workers would enter their loop
 and wait forever for a controller that has already exited.
 
+Because of this agreement, every process of the job, the workers included,
+must construct the same algorithms in the same order when you drive ODAT-SE
+from your own script; constructing an algorithm on some processes only hangs.
+In a custom algorithm, keep any collective communication in ``__init__``
+balanced across the processes: a process that raises before such a call
+leaves the others waiting in it.
+
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
 

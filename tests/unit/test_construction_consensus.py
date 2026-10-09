@@ -109,3 +109,36 @@ def test_new_bypasses_the_consensus():
     """Tests build bare instances with __new__; no collective is issued."""
     alg = _Alg.__new__(_Alg)
     assert not hasattr(alg, "constructed")
+
+
+class _BaseAlg(_Alg):
+    """Runs the real AlgorithmBase.__init__, which holds a collective
+    (the algcomm synchronisation after creating the per-rank directory)."""
+
+    def __init__(self, info):
+        AlgorithmBase.__init__(self, info)
+        self.constructed = True
+
+
+def test_directory_failure_on_one_rank_before_the_base_synchronisation(monkeypatch):
+    """A rank that cannot create its output directory must not leave the
+    other algorithm ranks in the synchronisation of the base constructor:
+    every rank leaves Algorithm(...), the failing one with its own error."""
+    import pathlib
+    import odatse
+
+    info = odatse.Info({
+        "base": {"dimension": 2, "output_dir": "output"},
+        "algorithm": {"name": "test"},
+        "solver": {},
+    })
+    fail_rank = mpi.algsize() - 1
+    if mpi.algrank() == fail_rank:
+        def _mkdir(self, *args, **kwargs):
+            raise PermissionError(f"injected mkdir failure: {self}")
+        monkeypatch.setattr(pathlib.Path, "mkdir", _mkdir)
+        with pytest.raises(PermissionError, match="injected mkdir failure"):
+            _BaseAlg(info)
+    else:
+        with pytest.raises(mpi.OtherAlgorithmProcessError):
+            _BaseAlg(info)

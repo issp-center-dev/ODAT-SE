@@ -114,6 +114,15 @@ class _AlgorithmMeta(ABCMeta):
     covers the whole constructor of every subclass, including the part that
     runs after ``super().__init__()``. ``Algorithm.__new__(Algorithm)`` does
     not go through ``__call__`` and is therefore not affected.
+
+    Since every construction issues collectives once ``odatse.mpi.setup()``
+    has been called, every process of the job, the solver workers included,
+    must construct the same algorithms in the same order; constructing an
+    algorithm on some processes only (or nesting constructions unevenly)
+    hangs. As with the phase hooks, collectives inside a subclass
+    constructor must stay balanced: a process that raises before such a
+    collective leaves the others waiting in it. The one collective of
+    ``AlgorithmBase.__init__`` is failure-safe in this sense.
     """
 
     def __call__(cls, *args, **kwargs):
@@ -291,15 +300,28 @@ class AlgorithmBase(metaclass=_AlgorithmMeta):
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
-        # create directory for each rank in case every rank has some output
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        # Some cache of the filesystem may delay making a dictionary
-        # especially when mkdir just after removing the old one
-        while not self.proc_dir.is_dir():
-            time.sleep(0.1)
+        mkdir_error: Optional[Exception] = None
+        try:
+            # create directory for each rank in case every rank has some output
+            self.proc_dir.mkdir(parents=True, exist_ok=True)
+            # Some cache of the filesystem may delay making a dictionary
+            # especially when mkdir just after removing the old one
+            while not self.proc_dir.is_dir():
+                time.sleep(0.1)
+        except Exception as e:
+            mkdir_error = e
 
-        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
-            odatse.mpi.algcomm().Barrier()
+        # Synchronise the algorithm ranks. An Allreduce of the success flags
+        # rather than a Barrier: a rank that failed to create its directory
+        # (e.g. a PermissionError on one node only) must not leave the others
+        # here while it goes on to the construction consensus. Every rank
+        # raises instead, and all of them reach that consensus.
+        if odatse.mpi.algcomm() is not None:
+            self._reach_consensus(
+                mkdir_error, np.array([0 if mkdir_error is not None else 1])
+            )
+        elif mkdir_error is not None:
+            raise mkdir_error
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
