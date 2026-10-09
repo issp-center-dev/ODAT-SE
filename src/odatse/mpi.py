@@ -6,6 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import contextlib
 import os
 import numpy as np
 from typing import Optional
@@ -316,6 +317,7 @@ __all__ = [
     "algcomm", "algsize", "algrank",
     "run_on_algorithm",
     "enabled",
+    "fail_together",
     "OtherAlgorithmProcessError",
     "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE",
 ]
@@ -332,3 +334,95 @@ def algsize() -> int:                   return _ctx.algsize()
 def algrank() -> int:                   return _ctx.algrank()
 def run_on_algorithm() -> bool:         return _ctx.run_on_algorithm()
 def enabled() -> bool:                  return _ctx.enabled()
+
+
+# ------------------------------------------------------------------ #
+#  Failing together
+# ------------------------------------------------------------------ #
+
+def _agree_on_failure(error: Optional[BaseException]) -> None:
+    """Collectively agree on whether *error* (this process's exception, or
+    ``None``) occurred on any process of the job, and raise on every process
+    when it did.
+
+    Three small collectives share the outcome:
+
+    1. the processes of each solver group agree on ``solcomm``;
+    2. the controllers agree across the groups on ``algcomm``;
+    3. each controller broadcasts the verdict to its workers on ``solcomm``.
+
+    Then a process that failed re-raises its own exception and every other
+    process raises ``OtherAlgorithmProcessError``. Before ``setup()`` has been
+    called there is no layout to agree on, and *error* is re-raised unchanged.
+    """
+    ready = getattr(_ctx, "_ready", True)
+    if ready:
+        ok = np.array([0 if error is not None else 1])
+
+        if solsize() > 1:
+            total = np.array([0])
+            solcomm().Allreduce(ok, total)
+            group_ok = bool(total[0] == solsize())
+        else:
+            group_ok = error is None
+
+        all_ok = group_ok
+        if run_on_algorithm() and algsize() > 1:
+            flag = np.array([1 if group_ok else 0])
+            total = np.array([0])
+            algcomm().Allreduce(flag, total)
+            all_ok = bool(total[0] == algsize())
+
+        if solsize() > 1:
+            # the workers are not in algcomm: they learn the verdict from
+            # their controller, which has just taken part in the agreement
+            all_ok = solcomm().bcast(all_ok, root=0)
+    else:
+        all_ok = error is None
+
+    if error is not None:
+        from odatse import exception
+        if ready and isinstance(error, exception.Error):
+            # this rank's own failure: have the CLI boundary report it
+            # from this rank (rank 0 may have no error to print)
+            error.rank_local = True
+        raise error
+    if not all_ok:
+        raise OtherAlgorithmProcessError()
+
+
+@contextlib.contextmanager
+def fail_together():
+    """Context manager: if the block raises on any process, raise on all.
+
+    Use it around set-up code that every process of the job runs and that
+    may fail on some processes only (a file that is missing on one node, for
+    example)::
+
+        with odatse.mpi.fail_together():
+            solver = Solver(info)
+            runner = odatse.Runner(solver, info)
+
+    When the block completes everywhere, nothing happens. Otherwise, after
+    every process has left the block, a process whose block raised re-raises
+    its own exception (an ``odatse.exception.Error`` is marked
+    ``rank_local``, so that the ``odatse`` command reports it from that
+    process) and every other process raises ``OtherAlgorithmProcessError``.
+    Without this, the processes that succeeded would go on into the next
+    collective and wait forever for the one that failed.
+
+    The exit of the block is itself a collective once ``setup()`` has been
+    called: every process of the job, the solver workers included, must
+    enter the same ``fail_together()`` blocks in the same order, and
+    collective calls inside a block must stay balanced (a process that
+    raises before such a call leaves the others waiting in it). Before
+    ``setup()``, it only lets the exception propagate.
+    """
+    try:
+        yield
+    except BaseException as e:
+        # also SystemExit / KeyboardInterrupt: the other processes must be
+        # released before it propagates
+        _agree_on_failure(e)
+        raise  # not reached: _agree_on_failure() re-raises e
+    _agree_on_failure(None)

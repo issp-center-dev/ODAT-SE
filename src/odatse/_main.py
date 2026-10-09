@@ -60,18 +60,22 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
     try:
         info, run_mode = odatse.initialize(argv)
 
-        alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+        # the set-up may fail on some processes only (a file that is missing
+        # on one node, for example); the others must not go on and wait in
+        # the construction of the algorithm for the process that failed
+        with odatse.mpi.fail_together():
+            alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
 
-        Solver = choose_solver(info)
-        solver = Solver(info)
-        runner = odatse.Runner(solver, info)
+            Solver = choose_solver(info)
+            solver = Solver(info)
+            runner = odatse.Runner(solver, info)
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
 
         return alg.main()
     except odatse.mpi.OtherAlgorithmProcessError:
-        # another process failed while the algorithm was being constructed
-        # (the construction consensus, see odatse.algorithm._algorithm); that
-        # process reports its error and exits with status 1, this one leaves
+        # another process failed during the set-up or while the algorithm
+        # was being constructed (odatse.mpi.fail_together); that process
+        # reports its error and exits with status 1, this one leaves
         # quietly, as AlgorithmBase.main() does for a failure in a phase
         sys.exit(0)
     except exception.Error as e:

@@ -36,66 +36,6 @@ class AlgorithmStatus(IntEnum):
     PREPARE = 2
     RUN = 3
 
-def _mpi_ready() -> bool:
-    """Whether odatse.mpi.setup() has been called (True for the non-MPI stub)."""
-    ready = getattr(odatse.mpi, "ready", None)
-    if ready is not None:
-        return ready()
-    return getattr(odatse.mpi._ctx, "_ready", True)
-
-
-def _agree_on_construction(error: Optional[BaseException]) -> None:
-    """Collectively agree on whether the algorithm was constructed on *every*
-    process of the job, and raise on every process when it was not.
-
-    Called by ``_AlgorithmMeta.__call__`` on every process, controllers and
-    solver workers alike, after ``Algorithm(...)`` returned or raised.
-    ``error`` is the exception the constructor raised on this process (or
-    ``None``). Three small collectives share the outcome:
-
-    1. the processes of each solver group agree on ``solcomm``;
-    2. the controllers agree across the groups on ``algcomm``
-       (as ``_reach_consensus()`` does for the phases);
-    3. each controller broadcasts the verdict to its workers on ``solcomm``.
-
-    Then, as in ``_reach_consensus()``, a process that failed re-raises its
-    own exception and every other process raises
-    ``OtherAlgorithmProcessError``. A failure during construction therefore
-    cannot leave the solver workers waiting in their control loop for a
-    controller that never reaches ``main()``, nor the other algorithm ranks
-    waiting in the consensus of the prepare phase.
-    """
-    ok = np.array([0 if error is not None else 1])
-
-    if odatse.mpi.solsize() > 1:
-        total = np.array([0])
-        odatse.mpi.solcomm().Allreduce(ok, total)
-        group_ok = bool(total[0] == odatse.mpi.solsize())
-    else:
-        group_ok = error is None
-
-    all_ok = group_ok
-    if odatse.mpi.run_on_algorithm() and odatse.mpi.algsize() > 1:
-        flag = np.array([1 if group_ok else 0])
-        total = np.array([0])
-        odatse.mpi.algcomm().Allreduce(flag, total)
-        all_ok = bool(total[0] == odatse.mpi.algsize())
-
-    if odatse.mpi.solsize() > 1:
-        # the workers are not in algcomm: they learn the verdict from their
-        # controller, which has just taken part in the algorithm-layer agreement
-        all_ok = odatse.mpi.solcomm().bcast(all_ok, root=0)
-
-    if error is not None:
-        if isinstance(error, exception.Error):
-            # this rank's own failure: have the CLI boundary report it
-            # from this rank (rank 0 may have no error to print)
-            error.rank_local = True
-        raise error
-    if not all_ok:
-        raise odatse.mpi.OtherAlgorithmProcessError()
-
-
 class _AlgorithmMeta(ABCMeta):
     """Metaclass of ``AlgorithmBase``: construction takes part in a consensus.
 
@@ -126,21 +66,10 @@ class _AlgorithmMeta(ABCMeta):
     """
 
     def __call__(cls, *args, **kwargs):
-        error: Optional[BaseException] = None
-        obj = None
-        try:
-            obj = super().__call__(*args, **kwargs)
-        except BaseException as e:
-            # also SystemExit / KeyboardInterrupt: the other processes must
-            # be released before it propagates
-            error = e
-
-        if _mpi_ready():
-            _agree_on_construction(error)
-        elif error is not None:
-            # odatse.mpi.setup() not called (no layer to agree with)
-            raise error
-        return obj
+        # every process leaves with an exception if the constructor raised
+        # on any of them (odatse.mpi.fail_together, a no-op before setup())
+        with odatse.mpi.fail_together():
+            return super().__call__(*args, **kwargs)
 
 
 class AlgorithmBase(metaclass=_AlgorithmMeta):

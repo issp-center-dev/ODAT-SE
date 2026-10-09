@@ -29,7 +29,6 @@ class ParallelSolver(odatse.solver.SolverBase):
         if odatse.mpi.rank()==0:
             print(f"nalg: {odatse.mpi.algsize()}")
             print(f"nsolve: {odatse.mpi.solsize()}")
-        odatse.mpi.comm().barrier()
 
     def _func(self, xs):
         x, y = xs
@@ -66,12 +65,13 @@ def main(argv: Optional[Sequence[str]] = None):
     if odatse.mpi.rank() == 0:
         print(f"total mpi: {odatse.mpi.size()}")
 
-    output_dir = info.base.get("output_dir", "./output")
-    os.makedirs(output_dir, exist_ok=True)
-
-    solver = ParallelSolver(info)
-    runner = odatse.Runner(solver, info)
-    alg_module = choose_algorithm(info.algorithm["name"])
+    # raise on every process if the set-up fails on some of them only
+    with odatse.mpi.fail_together():
+        output_dir = info.base.get("output_dir", "./output")
+        os.makedirs(output_dir, exist_ok=True)
+        solver = ParallelSolver(info)
+        runner = odatse.Runner(solver, info)
+        alg_module = choose_algorithm(info.algorithm["name"])
     alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
 
     time0 = time.time()
@@ -86,4 +86,10 @@ def main(argv: Optional[Sequence[str]] = None):
         print(f"time: {elapsed_time:.6f}s")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed during the set-up or the run and reports
+        # its error; leave quietly, as the odatse command does, so that the
+        # job ends with the status of that process
+        sys.exit(0)
