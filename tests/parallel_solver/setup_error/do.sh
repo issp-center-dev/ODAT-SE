@@ -90,6 +90,37 @@ for rank in 1 2; do
   fi
 done
 
+# --- a script that builds the solver and the runner itself *without*
+# fail_together() (plain_driver.py): the constructors carry the agreement
+# (odatse.mpi.FailTogetherMeta), so the job must still end on every process.
+# There is no one-line report outside the odatse command; the injected
+# error must appear and the job must end with a non-zero status.
+for spec in "solver 1" "solver 2" "runner 3"; do
+  where=${spec% *}; rank=${spec#* }
+  echo "=== plain_driver_${where}_rank$rank ==="
+  rm -rf output
+  log=log_plain_driver_${where}_rank$rank.txt
+  DRIVER=plain_driver.py FAIL_WHERE=$where FAIL_RANK=$rank $TIMEOUT $LIMIT \
+    mpirun -np 4 ${PYTHON:-python3} run.py --nalg 2 --nsolve 2 input.toml > "$log" 2>&1
+  status=$?
+
+  if [ $status -eq 124 ]; then
+    echo "FAILED: job hung (killed after ${LIMIT}s)"
+    res=1
+  elif [ $status -eq 0 ]; then
+    echo "FAILED: job exited with status 0 despite the failure"
+    res=1
+  elif ! grep -q "InputError: injected $where failure" "$log"; then
+    echo "FAILED: the injected failure was not reported (exit status $status)"
+    res=1
+  elif grep -q "OtherAlgorithmProcessError" "$log"; then
+    echo "FAILED: the processes that did not fail printed a traceback"
+    res=1
+  else
+    echo "ok: terminated with status $status"
+  fi
+done
+
 # --- control: the same command without a failure completes
 echo "=== no failure ==="
 rm -rf output

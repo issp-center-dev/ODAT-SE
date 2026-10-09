@@ -7,7 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import sys
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from enum import IntEnum
 import time
 import os
@@ -36,44 +36,21 @@ class AlgorithmStatus(IntEnum):
     PREPARE = 2
     RUN = 3
 
-class _AlgorithmMeta(ABCMeta):
-    """Metaclass of ``AlgorithmBase``: construction takes part in a consensus.
-
-    ``Algorithm(info, runner)`` is called on every process of the job, the
-    solver workers included. The constructor may fail on some of them only
-    (an invalid ``mesh_path``, for example, is detected on the algorithm
-    ranks, which read the mesh, and not on the workers). The phase wrappers
-    (``prepare()`` / ``run()`` / ``post()``) agree on failures through
-    ``_reach_consensus()``, and ``main()`` releases the workers when a phase
-    fails, but neither is reached when the constructor raises: the workers
-    would enter their control loop in ``main()`` and wait forever for a
-    controller that has already exited (see
-    https://github.com/issp-center-dev/ODAT-SE/issues/101).
-
-    Wrapping the construction here, rather than in ``AlgorithmBase.__init__``,
-    covers the whole constructor of every subclass, including the part that
-    runs after ``super().__init__()``. ``Algorithm.__new__(Algorithm)`` does
-    not go through ``__call__`` and is therefore not affected.
-
-    Since every construction issues collectives once ``odatse.mpi.setup()``
-    has been called, every process of the job, the solver workers included,
-    must construct the same algorithms in the same order; constructing an
-    algorithm on some processes only (or nesting constructions unevenly)
-    hangs. As with the phase hooks, collectives inside a subclass
-    constructor must stay balanced: a process that raises before such a
-    collective leaves the others waiting in it. The one collective of
-    ``AlgorithmBase.__init__`` is failure-safe in this sense.
-    """
-
-    def __call__(cls, *args, **kwargs):
-        # every process leaves with an exception if the constructor raised
-        # on any of them (odatse.mpi.fail_together, a no-op before setup())
-        with odatse.mpi.fail_together():
-            return super().__call__(*args, **kwargs)
-
-
-class AlgorithmBase(metaclass=_AlgorithmMeta):
+class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
     """Base class for algorithms, providing common functionality and structure.
+
+    Construction takes part in the agreement of ``odatse.mpi.fail_together()``
+    (``FailTogetherMeta``): ``Algorithm(info, runner)`` is called on every
+    process of the job, the solver workers included, and may fail on some of
+    them only (an invalid ``mesh_path``, for example, is detected on the
+    algorithm ranks, which read the mesh, and not on the workers). The phase
+    wrappers below agree on failures through ``_reach_consensus()`` and
+    ``main()`` releases the workers when a phase fails, but neither is reached
+    when the constructor raises; the metaclass closes that gap (issue #101).
+    Collectives inside a subclass constructor must stay balanced across the
+    processes: a process that raises before such a collective leaves the
+    others waiting in it. The one collective of ``AlgorithmBase.__init__`` is
+    failure-safe in this sense.
 
     Lifecycle
     ---------

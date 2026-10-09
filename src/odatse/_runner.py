@@ -48,7 +48,11 @@ class Run(metaclass=ABCMeta):
         pass
 
 
-class Runner(object):
+class Runner(metaclass=mpi.FailTogetherMeta):
+    # Construction takes part in the agreement of odatse.mpi.fail_together():
+    # a failure on some processes only (e.g. a mapping matrix file missing on
+    # one node) makes every process leave Runner(...), instead of leaving the
+    # others waiting in the next collective (issue #112).
     #solver: "odatse.solver.SolverBase"
     logger: Logger
 

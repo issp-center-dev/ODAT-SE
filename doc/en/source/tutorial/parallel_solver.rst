@@ -126,23 +126,32 @@ balanced across the processes: a process that raises before such a call
 leaves the others waiting in it.
 
 The same can happen before the algorithm is constructed: if creating the
-solver or the runner fails on some processes only, the others go on into
-``Algorithm(...)`` and wait there for the processes that failed. The
-``odatse`` command therefore runs this set-up inside
-``odatse.mpi.fail_together()``, which applies the same agreement to any block
-of code. Use it in your own script as well, as the example below does:
+solver or the runner fails on some processes only, the others would go on
+into ``Algorithm(...)`` and wait there for the processes that failed. The
+constructors of ``Solver`` (any subclass of ``SolverBase``) and ``Runner``
+therefore carry the same agreement as ``Algorithm``, so that ``Solver(info)``
+and ``Runner(solver, info)`` end on every process whatever code calls them:
+the ``odatse`` command, your own script, or a program that embeds ODAT-SE.
+
+Code of your own that runs between these constructions and may fail on some
+processes only (creating a directory, reading a data file) can be given the
+same agreement with ``odatse.mpi.fail_together()``, as the ``odatse`` command
+and the example below do:
 
 .. code-block:: python
 
     with odatse.mpi.fail_together():
+        os.makedirs(output_dir, exist_ok=True)
         solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
         runner = odatse.Runner(solver, info)
 
 If the block raises on any process, every process raises when it leaves the
 block: the failing ones their own exception, the others
-``odatse.mpi.OtherAlgorithmProcessError``. The same rules apply as for the
-construction of the algorithm: every process must run the block, and any
-collective communication inside it must stay balanced. Catch
+``odatse.mpi.OtherAlgorithmProcessError``. Inside such a block the
+constructors leave the agreement to the block, so a process may fail
+anywhere in it, before or after a construction. The same rules apply as for
+the constructors: every process must run the block, and any collective
+communication inside it must stay balanced. Catch
 ``odatse.mpi.OtherAlgorithmProcessError`` at the top of the script and exit
 with status 0, as the ``odatse`` command does. Otherwise every process prints
 a traceback, and ``mpirun`` may end the job before the failing process has
