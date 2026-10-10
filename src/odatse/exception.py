@@ -50,3 +50,22 @@ class CheckpointError(Error):
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
+
+
+class LoadError(InputError):
+    """
+    Exception raised when data read on one process for the others could not
+    be read or distributed (``odatse.util.io``).
+
+    Raised on *every* process of the scope of the read (the job, the
+    algorithm ranks, or one solver group), so that no process is left
+    waiting in the collective that distributes the data. On the process that
+    performed the read the original exception is attached as ``__cause__``.
+    An ``InputError``, not a ``RuntimeError``: ``ignore_error`` never turns
+    a missing data file into ``NaN``.
+
+    Parameters
+    ----------
+    message : str
+        explanation, naming what was read and the rank that failed
+    """
