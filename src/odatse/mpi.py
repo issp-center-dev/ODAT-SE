@@ -9,6 +9,7 @@
 from abc import ABCMeta as _ABCMeta
 import contextlib
 import os
+import pickle
 import numpy as np
 from typing import Optional
 
@@ -484,3 +485,73 @@ class FailTogetherMeta(_ABCMeta):
             return super().__call__(*args, **kwargs)
         with fail_together():
             return super().__call__(*args, **kwargs)
+
+
+# ------------------------------------------------------------------ #
+#  Reading on one process for the others
+# ------------------------------------------------------------------ #
+
+def _describe(error: BaseException) -> str:
+    """``"Type: message"``; never raises (a broken __str__ must not make the
+    reading process skip the collective below)."""
+    try:
+        msg = str(error)
+    except BaseException:
+        msg = "<unprintable exception>"
+    return f"{type(error).__name__}: {msg}"
+
+
+def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: bool = True):
+    """Call ``loader()`` on rank ``root`` of ``comm`` and hand its result to
+    every rank of ``comm``; if the read fails, every rank raises.
+
+    The mechanism behind ``odatse.util.io.load()`` (the user-facing entry
+    point, which also chooses the communicator from a scope name). Collective
+    over ``comm``: every rank of it must call this in the same order.
+
+    The root packs the outcome, either ``("ok", pickled data)`` or
+    ``("error", rank, description)``, and broadcasts it in one collective.
+    The data is pickled on the root *before* the broadcast, inside the
+    ``try``, so that an object that cannot be pickled is reported as a
+    failure instead of raising in the broadcast after a success was
+    announced; and a failing root still enters the collective. Every rank
+    then raises the same ``odatse.exception.LoadError`` (the root with the
+    original exception as ``__cause__``), or returns the data.
+
+    With ``distribute=False`` only the outcome is shared: the data is
+    returned on the root and ``None`` on the other ranks (for data that the
+    root will scatter itself).
+
+    ``comm`` of ``None`` (the non-MPI stub) or of size 1: a plain
+    ``loader()`` call, wrapped in ``LoadError`` on failure for uniform
+    reporting.
+    """
+    from odatse import exception
+
+    if comm is None or comm.size == 1:
+        try:
+            return loader()
+        except Exception as e:
+            raise exception.LoadError(f"cannot read {what}: {_describe(e)}") from e
+
+    data = None
+    original = None
+    payload = None
+    if comm.rank == root:
+        try:
+            data = loader()
+            payload = ("ok", pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL) if distribute else None)
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt: the collective must be entered
+            original = e
+            payload = ("error", rank(), _describe(e))
+    payload = comm.bcast(payload, root=root)
+
+    if payload[0] == "error":
+        err = exception.LoadError(f"cannot read {what} (failed on rank {payload[1]}): {payload[2]}")
+        if original is not None:
+            raise err from original
+        raise err
+    if comm.rank == root:
+        return data
+    return pickle.loads(payload[1]) if distribute else None

@@ -235,6 +235,46 @@ each rank computes the largest singular value of its own slice with
 averaged. The solver only evaluates the objective function; tracking the best
 solution is the algorithm's responsibility (see below).
 
+Reading files in a solver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A solver often reads a file: reference data or an input template in its
+constructor, or a file written by an external program during ``evaluate``.
+Read it through ``odatse.util.io``. In a serial run this is a plain read; in a
+parallel run one process reads and the others receive the data, and if the
+read fails every process raises the same ``odatse.exception.LoadError``
+instead of waiting in the broadcast for the process that failed (a file
+missing or unreadable on one node would otherwise hang the job).
+
+.. code-block:: python
+
+    import odatse.util.io as oio
+
+    class MySolver(odatse.solver.SolverBase):
+        def __init__(self, info):
+            super().__init__(info)
+            # read once by one process, received by every process of the job
+            self.reference = oio.loadtxt(info.solver["reference_path"])
+            self.template = oio.read_text(info.solver["template_path"])
+
+        def evaluate(self, xs, args):
+            ...
+            # read by the controller of the group, received by its workers
+            result = oio.loadtxt("result.dat", scope="solver")
+            ...
+
+``scope`` selects who receives the data, and therefore which processes must
+make the call (the read and the distribution are a collective; every process
+of the scope must call it, in the same order): ``"job"`` (the default) every
+process of the job, for data read once in a constructor; ``"solver"`` the
+controller and the workers of one group, for a file read inside ``evaluate``;
+``"algorithm"`` the algorithm ranks only (the framework uses it for the mesh
+and the neighbor list). ``oio.load(loader, scope=...)`` does the same for any
+``loader()`` of your own; ``read_text``, ``read_bytes``, ``load_toml``,
+``loadtxt`` and ``load_json`` are shortcuts for the common cases. When every
+process reads its own copy of a file there is nothing to distribute, and the
+agreements described above are all that is needed.
+
 Driver and input file
 ~~~~~~~~~~~~~~~~~~~~~~~
 

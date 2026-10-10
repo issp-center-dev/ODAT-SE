@@ -154,3 +154,12 @@ See :doc:`../tutorial/parallel_solver` for the details of the two-level parallel
 - ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
 - ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).
 - ``fail_together()`` : A context manager. If the block raises on any process of the job, every process raises when it leaves the block (the failing ones their own exception, the others ``odatse.mpi.OtherAlgorithmProcessError``). The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this agreement automatically; use it for set-up code of your own that may fail on some processes only (see :doc:`../tutorial/parallel_solver`).
+
+
+``odatse.util.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Reading files in a parallel run: one process reads, the others receive the data, and a failed read raises the same ``odatse.exception.LoadError`` (an ``InputError``) on every process of the scope instead of leaving the others waiting in the broadcast. In a serial run the functions are plain reads. See :doc:`../tutorial/parallel_solver` for the scopes and an example.
+
+- ``load(loader, scope="job", root=0, what=None, distribute=True)`` : Calls ``loader()`` on the root process of the scope (``"job"``: every process; ``"algorithm"``: the algorithm ranks; ``"solver"``: one solver group) and hands its result to the other processes of the scope.
+- ``read_text(path)`` / ``read_bytes(path)`` / ``load_toml(path)`` / ``loadtxt(path, **kwargs)`` / ``load_json(path)`` : Shortcuts for the common cases; all take the same ``scope`` and ``root`` keywords.

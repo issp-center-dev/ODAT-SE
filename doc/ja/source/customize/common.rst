@@ -142,3 +142,12 @@ mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOM
 - ``run_on_algorithm()`` : 呼び出したプロセスがアルゴリズム層に属するかどうか。
 - ``enabled()`` : MPI が利用可能かどうか（ ``ODATSE_NOMPI`` 設定時は ``False`` ）。
 - ``fail_together()`` : コンテキストマネージャ。ブロック内でジョブのいずれかのプロセスが例外を送出すると、ブロックを抜ける際にすべてのプロセスが例外を送出します（失敗したプロセスは自身の例外、それ以外は ``odatse.mpi.OtherAlgorithmProcessError`` ）。 ``Solver`` / ``Runner`` / ``Algorithm`` のコンストラクタは自動的にこの合意を行います。一部のプロセスだけが失敗しうる独自のセットアップコードに使ってください（ :doc:`../tutorial/parallel_solver` を参照）。
+
+
+``odatse.util.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+並列実行でのファイルの読み込みを行うモジュールです。1つのプロセスが読み、他のプロセスがデータを受け取ります。読み込みに失敗した場合は、スコープ内のすべてのプロセスが同じ ``odatse.exception.LoadError`` （ ``InputError`` の派生）を送出し、他のプロセスがブロードキャストで待ち続けることはありません。逐次実行では単にファイルを読むだけです。スコープと使用例は :doc:`../tutorial/parallel_solver` を参照してください。
+
+- ``load(loader, scope="job", root=0, what=None, distribute=True)`` : スコープ（ ``"job"`` : すべてのプロセス、 ``"algorithm"`` : アルゴリズムランク、 ``"solver"`` : 1つのソルバーグループ）の root プロセスで ``loader()`` を呼び、その結果をスコープ内の他のプロセスに渡します。
+- ``read_text(path)`` / ``read_bytes(path)`` / ``load_toml(path)`` / ``loadtxt(path, **kwargs)`` / ``load_json(path)`` : よくある場合の近道。いずれも同じ ``scope`` と ``root`` キーワードを取ります。
