@@ -503,55 +503,87 @@ def _describe(error: BaseException) -> str:
 
 def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: bool = True):
     """Call ``loader()`` on rank ``root`` of ``comm`` and hand its result to
-    every rank of ``comm``; if the read fails, every rank raises.
+    every rank of ``comm``; if the read fails anywhere, every rank raises.
 
     The mechanism behind ``odatse.util.io.load()`` (the user-facing entry
     point, which also chooses the communicator from a scope name). Collective
     over ``comm``: every rank of it must call this in the same order.
 
-    The root packs the outcome, either ``("ok", pickled data)`` or
-    ``("error", rank, description)``, and broadcasts it in one collective.
-    The data is pickled on the root *before* the broadcast, inside the
-    ``try``, so that an object that cannot be pickled is reported as a
-    failure instead of raising in the broadcast after a success was
-    announced; and a failing root still enters the collective. Every rank
-    then raises the same ``odatse.exception.LoadError`` (the root with the
-    original exception as ``__cause__``), or returns the data.
+    1. The root packs the outcome, either ``("ok", pickled data, what)`` or
+       ``("error", message)``, and broadcasts it in one collective. The data
+       is pickled on the root *before* the broadcast, inside the ``try``, so
+       that an object that cannot be pickled is reported as a failure
+       instead of raising in the broadcast after a success was announced;
+       a failing root (also on ``SystemExit`` / ``KeyboardInterrupt``) still
+       enters the collective. The message is built on the root, so every
+       rank reports the same ``what``.
+    2. The receivers unpack the data, and all ranks agree on the outcome of
+       that step (one ``allgather``) before any of them returns: an object
+       that pickles on the root but cannot be rebuilt on a receiver (a class
+       that cannot be imported there, a ``__reduce__`` callable that raises)
+       is a ``LoadError`` on every rank, not a raw exception on one.
 
-    With ``distribute=False`` only the outcome is shared: the data is
-    returned on the root and ``None`` on the other ranks (for data that the
-    root will scatter itself).
+    Every rank then raises the same ``odatse.exception.LoadError`` (the rank
+    that failed with the original exception as ``__cause__``), or returns
+    the data. With ``distribute=False`` only the outcome of the read is
+    shared: the data is returned on the root and ``None`` on the other ranks
+    (for data that the root will scatter itself), and step 2 is skipped.
 
     ``comm`` of ``None`` (the non-MPI stub) or of size 1: a plain
     ``loader()`` call, wrapped in ``LoadError`` on failure for uniform
-    reporting.
+    reporting. ``root`` is validated against the size in every case, so a
+    wrong value shows up in serial testing too.
     """
     from odatse import exception
 
-    if comm is None or comm.size == 1:
+    size = 1 if comm is None else comm.size
+    if not 0 <= root < size:
+        raise ValueError(f"root must be a rank of the communicator (0..{size - 1}), got {root}")
+
+    if size == 1:
         try:
             return loader()
         except Exception as e:
             raise exception.LoadError(f"cannot read {what}: {_describe(e)}") from e
 
+    # 1. read on the root; share the outcome
     data = None
     original = None
     payload = None
     if comm.rank == root:
         try:
             data = loader()
-            payload = ("ok", pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL) if distribute else None)
+            blob = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL) if distribute else None
+            payload = ("ok", blob, what)
         except BaseException as e:
             # also SystemExit / KeyboardInterrupt: the collective must be entered
             original = e
-            payload = ("error", rank(), _describe(e))
+            payload = ("error", f"cannot read {what} (failed on rank {rank()}): {_describe(e)}")
     payload = comm.bcast(payload, root=root)
 
     if payload[0] == "error":
-        err = exception.LoadError(f"cannot read {what} (failed on rank {payload[1]}): {payload[2]}")
+        err = exception.LoadError(payload[1])
         if original is not None:
             raise err from original
         raise err
-    if comm.rank == root:
-        return data
-    return pickle.loads(payload[1]) if distribute else None
+
+    if not distribute:
+        return data   # None on the receivers
+
+    # 2. unpack on the receivers; agree on the outcome before anyone returns
+    _, blob, root_what = payload
+    problem = None
+    if comm.rank != root:
+        try:
+            data = pickle.loads(blob)
+        except BaseException as e:
+            original = e
+            problem = f"rank {rank()}: {_describe(e)}"
+    problems = [p for p in comm.allgather(problem) if p is not None]
+    if problems:
+        err = exception.LoadError(
+            f"cannot unpack {root_what} on the receiving rank(s): " + "; ".join(problems))
+        if original is not None:
+            raise err from original
+        raise err
+    return data

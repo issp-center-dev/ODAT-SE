@@ -124,3 +124,69 @@ def test_missing_file_names_the_file():
     with pytest.raises(LoadError, match="cannot read file does_not_exist.dat") as excinfo:
         oio.read_text("does_not_exist.dat")
     assert "FileNotFoundError" in str(excinfo.value)
+
+
+# --- review points of PR #118 -------------------------------------------------
+
+def _boom(*args):
+    raise RuntimeError("cannot be rebuilt here")
+
+
+class _Unrebuildable:
+    """Pickles fine (its __reduce__ returns a tuple), but unpickling calls
+    _boom and raises on the receiving process."""
+    def __reduce__(self):
+        return (_boom, ())
+
+
+def test_failure_to_unpickle_on_a_receiver_is_a_load_error_everywhere():
+    """The root returned the object; a receiver cannot rebuild it. Every
+    rank, the root included, must raise the same LoadError, and a collective
+    issued afterwards must still complete (nobody is out of step)."""
+    if _parallel():
+        with pytest.raises(LoadError, match="cannot unpack reference data") as excinfo:
+            oio.load(_Unrebuildable, what="reference data")
+        err = excinfo.value
+        assert "RuntimeError: cannot be rebuilt here" in str(err)
+        if mpi.rank() == 0:
+            assert err.__cause__ is None          # the root did not fail itself
+        else:
+            assert isinstance(err.__cause__, RuntimeError)
+        # the group is still in step
+        assert mpi.comm().allreduce(1) == mpi.size()
+    else:
+        assert isinstance(oio.load(_Unrebuildable), _Unrebuildable)
+
+
+def test_message_names_the_root_file_on_every_rank():
+    """Each rank asks for its own path; the file is read on the root only, so
+    the error must name the root's path everywhere, not the local one."""
+    with pytest.raises(LoadError) as excinfo:
+        oio.read_text(f"absent_on_rank_{mpi.rank()}.txt")
+    assert "absent_on_rank_0.txt" in str(excinfo.value)
+    if mpi.rank() != 0:
+        assert f"absent_on_rank_{mpi.rank()}.txt" not in str(excinfo.value)
+
+
+def test_nonzero_root():
+    if _parallel():
+        last = mpi.size() - 1
+        assert oio.load(lambda: mpi.rank(), root=last) == last
+    else:
+        with pytest.raises(ValueError, match="root"):
+            oio.load(lambda: 0, root=1)
+
+
+def test_info_from_file_raises_load_error_with_the_cause(tmp_path):
+    import odatse
+    with pytest.raises(LoadError, match="input file") as excinfo:
+        odatse.Info.from_file(str(tmp_path / "does_not_exist.toml"))
+    if mpi.rank() == 0:
+        assert isinstance(excinfo.value.__cause__, FileNotFoundError)
+
+    broken = tmp_path / "broken.toml"
+    broken.write_text("[base\n")
+    with pytest.raises(LoadError) as excinfo:
+        odatse.Info.from_file(str(broken))
+    if mpi.rank() == 0:
+        assert "Decode" in type(excinfo.value.__cause__).__name__
