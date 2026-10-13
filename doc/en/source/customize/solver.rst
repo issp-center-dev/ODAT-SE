@@ -77,4 +77,4 @@
   .. note::
      When the solver parallelization is used (``--nsolve`` greater than 1), ``evaluate`` is called on all MPI ranks in the solver group with the same ``x`` and ``args``.
      The division of roles among the ranks should be implemented within the solver. See :doc:`../tutorial/parallel_solver` for details.
-     An exception raised by ``evaluate`` on a worker rank (``solrank() > 0``) aborts the whole MPI job; ``ignore_error`` applies only to the controller rank (``solrank() == 0``).
+     An exception raised by ``evaluate`` on any rank of the solver group is reported to the controller rank (``solrank() == 0``) and handled there: ``ignore_error`` applies when every failing rank raised a ``RuntimeError``; otherwise the job terminates with an error. Collectives inside ``evaluate`` must stay matched across the group even when a rank fails.

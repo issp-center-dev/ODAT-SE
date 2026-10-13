@@ -10,6 +10,7 @@
   形式: 真偽値 (default: false)
 
   説明: 順問題ソルバーの実行時に RuntimeError が生じた場合に、値として NaN を返して計算を続行します。false の場合は RuntimeError を送出し、通常はプログラムを終了させます。RuntimeError 以外は捕捉しません。
+  ソルバー並列 (``--nsolve`` が 2 以上) の場合、失敗したソルバーグループ内の全ランクの例外が RuntimeError であるときに限りその評価は無視されます。詳細は :doc:`../tutorial/parallel_solver` を参照してください。
 
 
 ``[runner.mapping]`` セクション
