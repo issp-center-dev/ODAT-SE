@@ -113,8 +113,9 @@ evaluation:
   value becomes ``NaN``, exactly as for a controller-only failure.
 - Otherwise the controller raises. If only the controller failed, its own
   exception is re-raised unchanged. If a worker failed, the controller raises
-  a ``RuntimeError`` listing the global rank(s) that failed and their messages
-  when every failing rank raised a ``RuntimeError``, and
+  ``odatse.exception.SolverRuntimeError`` (a ``RuntimeError``, so
+  ``ignore_error`` applies to it) listing the global rank(s) that failed and
+  their messages when every failing rank raised a ``RuntimeError``, and
   ``odatse.exception.SolverError`` when any failing rank (worker or
   controller) raised something else (such a failure is never turned into
   ``NaN``). The error propagates through the usual

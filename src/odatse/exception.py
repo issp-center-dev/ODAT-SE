@@ -74,8 +74,8 @@ class SolverError(Error):
     controller itself raised ``SystemExit`` / ``KeyboardInterrupt`` (which
     cannot travel through the algorithm-layer consensus as they are).
 
-    Failures that are ``RuntimeError`` on every failing rank are re-raised as
-    a plain ``RuntimeError`` instead, so that ``ignore_error`` applies to
+    Failures that are ``RuntimeError`` on every failing rank are raised as
+    ``SolverRuntimeError`` instead, so that ``ignore_error`` applies to
     them, and a failure on the controller alone is re-raised unchanged. This
     class is deliberately *not* a ``RuntimeError``: a rank that died with,
     e.g., ``ValueError`` or ``MemoryError`` must not be silently turned into
@@ -88,6 +88,25 @@ class SolverError(Error):
     """
 
     rank_local = True
+
+
+class SolverRuntimeError(SolverError, RuntimeError):
+    """
+    Exception raised on a solver-group controller when ``solver.evaluate()``
+    failed on at least one worker rank of the group and every failing rank
+    raised a ``RuntimeError``.
+
+    Being a ``RuntimeError``, it is covered by ``ignore_error`` (see
+    ``is_ignorable``) exactly as a ``RuntimeError`` on the controller alone.
+    Being a ``SolverError``, it is reported by ``odatse.main()`` on one line
+    from the failing controller, like every other error of the framework,
+    instead of surfacing as a raw traceback on each controller.
+
+    Parameters
+    ----------
+    message : str
+        explanation, including the global rank(s) that failed
+    """
 
 
 def is_ignorable(error: BaseException) -> bool:
