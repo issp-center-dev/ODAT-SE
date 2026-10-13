@@ -420,11 +420,21 @@ def fail_together():
     ``setup()``, it only lets the exception propagate.
 
     The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this
-    agreement on their own (``FailTogetherMeta``); inside a block they leave
-    it to the block, so that a process failing anywhere in the block, before
-    or after a construction, agrees exactly once with the others.
+    agreement on their own (``FailTogetherMeta``). Blocks nest: only the
+    outermost block of a process agrees, an inner block (an explicit one, or
+    the one of a construction) only lets the exception through, so that a
+    process failing anywhere in the outermost block, before or after an
+    inner one, agrees exactly once with the others.
     """
     global _block_depth
+    if _block_depth > 0:
+        # an enclosing block agrees when it is left
+        _block_depth += 1
+        try:
+            yield
+        finally:
+            _block_depth -= 1
+        return
     _block_depth += 1
     try:
         yield
@@ -438,11 +448,12 @@ def fail_together():
     _agree_on_failure(None)
 
 
-# Nesting depth of fail_together() blocks on this process. Inside a block the
-# constructors of FailTogetherMeta classes do not agree on their own: the
-# block does when it is left. Otherwise a process that fails in the block
-# before a construction the others reach would perform one agreement while
-# they perform two (the construction's and the block's), and the second
+# Nesting depth of fail_together() blocks on this process (process-global,
+# not per thread: ODAT-SE does not construct these objects from threads).
+# Only the outermost block agrees (inner blocks include the constructions of
+# FailTogetherMeta classes). Otherwise a process that fails in the outer block
+# before an inner block the others reach would perform one agreement while
+# they perform two (the inner block's and the outer one's), and the second
 # would wait forever.
 _block_depth = 0
 
@@ -464,23 +475,22 @@ class FailTogetherMeta(_ABCMeta):
 
     Wrapping the construction here covers the whole constructor of every
     subclass, including the part that runs after ``super().__init__()``, and
-    third-party subclasses without any change on their side.
+    third-party subclasses without any change on their side (a subclass that
+    declares a metaclass of its own must derive it from this one).
     ``Cls.__new__(Cls)`` does not go through ``__call__`` and is therefore
     not affected. The rules of ``fail_together()`` apply: every process must
     construct the same objects in the same order (constructing one on some
     processes only hangs), and collectives inside a constructor must stay
     balanced.
 
-    Inside an explicit ``fail_together()`` block the constructors do not
-    agree on their own; the block does, when it is left. The block is then
+    Inside a ``fail_together()`` block the constructors do not agree on
+    their own; the outermost block does, when it is left. The block is then
     the only agreement, however many objects it constructs and wherever in
     it a process fails (``odatse.main()`` and the parallel-solver example
     build the solver and the runner inside such a block).
     """
 
     def __call__(cls, *args, **kwargs):
-        if _block_depth > 0:
-            # an enclosing fail_together() block agrees when it is left
-            return super().__call__(*args, **kwargs)
+        # inside an enclosing block this agrees nothing (see fail_together())
         with fail_together():
             return super().__call__(*args, **kwargs)
