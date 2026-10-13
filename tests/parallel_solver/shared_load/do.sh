@@ -77,6 +77,10 @@ elif [ $status -eq 0 ]; then
 elif ! grep -q "ERROR: cannot read neighbor list missing_neighborlist.txt" "$log"; then
   echo "FAILED: the error was not reported (exit status $status)"
   res=1
+elif [ "$(grep -c "ERROR: cannot read neighbor list missing_neighborlist.txt" "$log")" -ne 1 ]; then
+  # the LoadError is raised on both ranks; only the rank that read reports it
+  echo "FAILED: the error was reported more than once"
+  res=1
 elif grep -q "Traceback" "$log"; then
   echo "FAILED: a traceback was printed instead of the one-line report"
   res=1

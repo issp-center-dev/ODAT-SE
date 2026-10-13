@@ -152,10 +152,30 @@ def test_failure_to_unpickle_on_a_receiver_is_a_load_error_everywhere():
             assert err.__cause__ is None          # the root did not fail itself
         else:
             assert isinstance(err.__cause__, RuntimeError)
+        assert err.report_rank == 0               # reported by the root, not the receivers
         # the group is still in step
         assert mpi.comm().allreduce(1) == mpi.size()
     else:
         assert isinstance(oio.load(_Unrebuildable), _Unrebuildable)
+
+
+def test_load_error_is_reported_by_the_root_only():
+    """Every process of the scope raises the LoadError, and the agreement
+    that ends a constructor marks each of them rank_local; without a
+    designated reporter the odatse command would print the same line once
+    per process. report_rank names the global rank of the root, in a serial
+    run too."""
+    def loader():
+        raise FileNotFoundError("boom.dat is not here")
+
+    with pytest.raises(LoadError) as excinfo:
+        oio.load(loader)
+    assert excinfo.value.report_rank == 0
+    if _parallel():
+        last = mpi.size() - 1
+        with pytest.raises(LoadError) as excinfo:
+            oio.load(loader, root=last)
+        assert excinfo.value.report_rank == last
 
 
 def test_message_names_the_root_file_on_every_rank():

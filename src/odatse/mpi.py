@@ -531,11 +531,14 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
     over ``comm``: every rank of it must call this in the same order.
 
     1. The root reads and pickles the data inside a ``try`` and broadcasts a
-       small header, either ``("ok", number of bytes, what)`` or
-       ``("error", message)``. An object that cannot be pickled is therefore
-       reported as a failure, and a failing root (also on ``SystemExit`` /
-       ``KeyboardInterrupt``) still enters the collective. The message is
-       built on the root, so every rank reports the same ``what``.
+       small header, either ``("ok", number of bytes, what, root's global
+       rank)`` or ``("error", message, root's global rank)``. An object that
+       cannot be pickled is therefore reported as a failure, and a failing
+       root (also on ``SystemExit`` / ``KeyboardInterrupt``) still enters
+       the collective. The message is built on the root, so every rank
+       reports the same ``what``; the root's global rank becomes
+       ``report_rank`` of every ``LoadError`` raised below, so that the
+       ``odatse`` command prints it once.
     2. The receivers allocate a buffer for the bytes (the root takes a view
        of its pickle), and all ranks agree on the outcome (one
        ``allgather``): a rank that cannot hold the data makes every rank
@@ -577,44 +580,54 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
         try:
             return loader()
         except Exception as e:
-            raise exception.LoadError(f"cannot read {what}: {_describe(e)}") from e
+            err = exception.LoadError(f"cannot read {what}: {_describe(e)}")
+            err.report_rank = rank()
+            raise err from e
+
+    original = None
+    root_rank = None   # global rank of the root, learned from the header
+
+    def fail(message):
+        # the same LoadError on every rank; the root of the read is the one
+        # that reports it (odatse.exception.Error.report_rank), so that the
+        # odatse command prints the line once and not once per process
+        err = exception.LoadError(message)
+        err.report_rank = root_rank
+        if original is not None:
+            raise err from original
+        raise err
 
     def agree(problem, message):
         # every rank learns whether the step failed anywhere; raise everywhere if so
         problems = [p for p in comm.allgather(problem) if p is not None]
         if problems:
-            err = exception.LoadError(f"{message}: " + "; ".join(problems))
-            if original is not None:
-                raise err from original
-            raise err
+            fail(f"{message}: " + "; ".join(problems))
 
-    # 1. read and pickle on the root; share the outcome
+    # 1. read and pickle on the root; share the outcome (and the root's
+    # global rank, for the report)
     data = None
     blob = None
-    original = None
     header = None
     if comm.rank == root:
         try:
             data = loader()
             if distribute:
                 blob = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
-            header = ("ok", 0 if blob is None else len(blob), what)
+            header = ("ok", 0 if blob is None else len(blob), what, rank())
         except BaseException as e:
             # also SystemExit / KeyboardInterrupt: the collective must be entered
             original = e
-            header = ("error", f"cannot read {what} (failed on rank {rank()}): {_describe(e)}")
+            header = ("error", f"cannot read {what} (failed on rank {rank()}): {_describe(e)}", rank())
     header = comm.bcast(header, root=root)
+    root_rank = header[-1]
 
     if header[0] == "error":
-        err = exception.LoadError(header[1])
-        if original is not None:
-            raise err from original
-        raise err
+        fail(header[1])
 
     if not distribute:
         return data   # None on the receivers
 
-    _, nbytes, root_what = header
+    _, nbytes, root_what, _ = header
 
     # 2. a buffer on every rank (a view of the pickle on the root), or nobody
     # enters the transfer

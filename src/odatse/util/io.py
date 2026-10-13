@@ -96,7 +96,8 @@ def load(loader: Callable[[], Any], *, scope: str = "job", root: int = 0,
         on every process of the scope, when ``loader()`` raised on the root,
         its result could not be pickled, or a receiver could not hold or
         rebuild it. The process that failed attaches the original exception
-        as ``__cause__``.
+        as ``__cause__``; ``report_rank`` is the global rank of the root, so
+        that the ``odatse`` command reports the error once, from it.
 
     Notes
     -----
