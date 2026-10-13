@@ -68,6 +68,12 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
 
         return alg.main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed while the algorithm was being constructed
+        # (the construction consensus, see odatse.algorithm._algorithm); that
+        # process reports its error and exits with status 1, this one leaves
+        # quietly, as AlgorithmBase.main() does for a failure in a phase
+        sys.exit(0)
     except exception.Error as e:
         # rank-local errors (see exception.Error.rank_local) exist only on the
         # rank that failed, so gating on rank 0 would silence them entirely
