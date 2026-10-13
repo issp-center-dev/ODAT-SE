@@ -61,8 +61,9 @@ subcommunicator (``algcomm``). Because the controller is the lowest rank of each
 group, global rank 0 is always a controller.
 
 The ``odatse.mpi`` module provides the following accessors. The global-layer
-ones and ``enabled()`` are available immediately; the solver- and
-algorithm-layer ones require ``setup()`` to have been called.
+ones, ``enabled()`` and ``ready()`` are available immediately; the solver- and
+algorithm-layer ones, including ``run_on_algorithm()``, require ``setup()`` to
+have been called and raise ``RuntimeError`` otherwise.
 
 - ``odatse.mpi.comm()`` / ``size()`` / ``rank()``: the global communicator, its
   size, and this process's rank in it.
@@ -77,6 +78,11 @@ algorithm-layer ones require ``setup()`` to have been called.
   (``solrank() == 0``), ``False`` on the solver workers.
 - ``odatse.mpi.enabled()``: whether MPI is available (``False`` when the
   environment variable ``ODATSE_NOMPI=1`` is set).
+- ``odatse.mpi.ready()``: whether ``setup()`` has been called.
+
+``setup()`` splits ``MPI_COMM_WORLD`` by default. To run ODAT-SE on a subset of
+the ranks of a larger MPI program, pass that intracommunicator as
+``setup(comm=...)``; see :doc:`../customize/common` for the details.
 
 Master-worker execution
 ~~~~~~~~~~~~~~~~~~~~~~~~~
