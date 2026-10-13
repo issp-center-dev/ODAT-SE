@@ -153,3 +153,4 @@ See :doc:`../tutorial/parallel_solver` for the details of the two-level parallel
 - ``solcomm()`` / ``solsize()`` / ``solrank()`` : The communicator of the solver group and its size and rank.
 - ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
 - ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).
+- ``fail_together()`` : A context manager. If the block raises on any process of the job, every process raises when it leaves the block (the failing ones their own exception, the others ``odatse.mpi.OtherAlgorithmProcessError``). The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this agreement automatically; use it for set-up code of your own that may fail on some processes only (see :doc:`../tutorial/parallel_solver`).

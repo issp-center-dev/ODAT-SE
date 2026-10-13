@@ -91,9 +91,9 @@ def test_system_exit_in_the_block_releases_the_others():
 
 
 def test_nested_blocks_stay_balanced():
-    """The inner block raises on every process (its own error on the failing
-    one, OtherAlgorithmProcessError on the others); the outer block then
-    sees a failure everywhere and lets each exception through unchanged."""
+    """Only the outer block agrees: the inner one lets the failing process's
+    error through, and the outer block raises it there and
+    OtherAlgorithmProcessError on the others."""
     if _last_rank():
         with pytest.raises(RuntimeError, match="injected"):
             with mpi.fail_together():
@@ -147,3 +147,31 @@ def test_main_releases_every_rank_when_the_set_up_fails_on_one(monkeypatch, caps
     else:
         assert excinfo.value.code == 0
         assert "ERROR" not in err
+
+
+@pytest.mark.parametrize("fails", [False, True])
+def test_only_the_outermost_block_agrees(monkeypatch, fails):
+    """Inner blocks do not agree and restore the depth on every exit; the
+    outermost block agrees exactly once."""
+    calls = []
+    def agree(e):
+        calls.append(e)
+        if e is not None:
+            raise e
+    monkeypatch.setattr(mpi, "_agree_on_failure", agree)
+    def body():
+        with mpi.fail_together():
+            assert mpi._block_depth == 1
+            with mpi.fail_together():
+                assert mpi._block_depth == 2
+                with mpi.fail_together():
+                    if fails:
+                        raise RuntimeError("injected")
+            assert mpi._block_depth == 1
+    if fails:
+        with pytest.raises(RuntimeError, match="injected"):
+            body()
+    else:
+        body()
+    assert len(calls) == 1
+    assert mpi._block_depth == 0
