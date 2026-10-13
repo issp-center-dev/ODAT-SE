@@ -132,6 +132,12 @@ constructors of ``Solver`` (any subclass of ``SolverBase``) and ``Runner``
 therefore carry the same agreement as ``Algorithm``, so that ``Solver(info)``
 and ``Runner(solver, info)`` end on every process whatever code calls them:
 the ``odatse`` command, your own script, or a program that embeds ODAT-SE.
+As for the algorithm, every process must therefore construct them:
+constructing a solver on some processes only (for example on rank 0, to
+evaluate the best point after ``alg.main()``) waits forever. Construct it on
+every process and restrict only the evaluation to the processes that need it.
+A solver class that declares a metaclass of its own must derive it from
+``odatse.mpi.FailTogetherMeta``.
 
 Code of your own that runs between these constructions and may fail on some
 processes only (creating a directory, reading a data file) can be given the
@@ -147,9 +153,10 @@ and the example below do:
 
 If the block raises on any process, every process raises when it leaves the
 block: the failing ones their own exception, the others
-``odatse.mpi.OtherAlgorithmProcessError``. Inside such a block the
-constructors leave the agreement to the block, so a process may fail
-anywhere in it, before or after a construction. The same rules apply as for
+``odatse.mpi.OtherAlgorithmProcessError``. Blocks nest: only the outermost
+block agrees, and the constructors and any inner ``fail_together()`` block
+inside it leave the agreement to it, so a process may fail anywhere in it,
+before or after a construction or an inner block. The same rules apply as for
 the constructors: every process must run the block, and any collective
 communication inside it must stay balanced. Catch
 ``odatse.mpi.OtherAlgorithmProcessError`` at the top of the script and exit

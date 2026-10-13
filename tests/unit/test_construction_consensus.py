@@ -265,3 +265,37 @@ def test_constructor_outside_a_block_agrees_on_its_own(info):
             _Solver(info)
     # and the depth counter is back to zero afterwards
     assert mpi._block_depth == 0
+
+
+class _SolverWithInnerBlock(odatse.solver.SolverBase):
+    """A constructor with a fail_together() block of its own, failing on one
+    rank *before* that block."""
+    fail_rank = None
+
+    def __init__(self, info):
+        super().__init__(info)
+        if mpi.algrank() == self.fail_rank:
+            raise exception.InputError("injected failure before the inner block")
+        with mpi.fail_together():
+            pass
+
+    def evaluate(self, x, args=()):
+        return 0.0
+
+
+@pytest.mark.parametrize("enclosing_block", [False, True])
+def test_failure_before_an_inner_block_in_a_constructor(info, enclosing_block):
+    """Only the outermost block agrees: the failing rank agrees once (the
+    construction's, or the enclosing block's), and so must the others,
+    who also pass through the inner block; otherwise they hang in their
+    second agreement."""
+    _SolverWithInnerBlock.fail_rank = mpi.algsize() - 1
+    expected = (exception.InputError if mpi.algrank() == _SolverWithInnerBlock.fail_rank
+                else mpi.OtherAlgorithmProcessError)
+    with pytest.raises(expected):
+        if enclosing_block:
+            with mpi.fail_together():
+                _SolverWithInnerBlock(info)
+        else:
+            _SolverWithInnerBlock(info)
+    assert mpi._block_depth == 0
