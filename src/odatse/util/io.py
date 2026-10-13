@@ -93,9 +93,10 @@ def load(loader: Callable[[], Any], *, scope: str = "job", root: int = 0,
     Raises
     ------
     odatse.exception.LoadError
-        on every process of the scope, when ``loader()`` raised on the root
-        or its result could not be pickled. The root attaches the original
-        exception as ``__cause__``.
+        on every process of the scope, when ``loader()`` raised on the root,
+        its result could not be pickled, or a receiver could not hold or
+        rebuild it. The process that failed attaches the original exception
+        as ``__cause__``.
 
     Notes
     -----

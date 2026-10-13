@@ -511,6 +511,17 @@ def _describe(error: BaseException) -> str:
     return f"{type(error).__name__}: {msg}"
 
 
+# Bytes per Bcast when the pickled data is sent: below the 2**31 element
+# count of MPI-3, so that data of any size can be sent on any MPI stack.
+_CHUNK_BYTES = 1 << 30
+
+
+def _alloc_buffer(nbytes: int) -> np.ndarray:
+    """Receive buffer for the pickled data (a function, so that tests can
+    make the allocation fail)."""
+    return np.empty(nbytes, dtype=np.uint8)
+
+
 def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: bool = True):
     """Call ``loader()`` on rank ``root`` of ``comm`` and hand its result to
     every rank of ``comm``; if the read fails anywhere, every rank raises.
@@ -519,25 +530,37 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
     point, which also chooses the communicator from a scope name). Collective
     over ``comm``: every rank of it must call this in the same order.
 
-    1. The root packs the outcome, either ``("ok", pickled data, what)`` or
-       ``("error", message)``, and broadcasts it in one collective. The data
-       is pickled on the root *before* the broadcast, inside the ``try``, so
-       that an object that cannot be pickled is reported as a failure
-       instead of raising in the broadcast after a success was announced;
-       a failing root (also on ``SystemExit`` / ``KeyboardInterrupt``) still
-       enters the collective. The message is built on the root, so every
-       rank reports the same ``what``.
-    2. The receivers unpack the data, and all ranks agree on the outcome of
-       that step (one ``allgather``) before any of them returns: an object
-       that pickles on the root but cannot be rebuilt on a receiver (a class
-       that cannot be imported there, a ``__reduce__`` callable that raises)
-       is a ``LoadError`` on every rank, not a raw exception on one.
+    1. The root reads and pickles the data inside a ``try`` and broadcasts a
+       small header, either ``("ok", number of bytes, what)`` or
+       ``("error", message)``. An object that cannot be pickled is therefore
+       reported as a failure, and a failing root (also on ``SystemExit`` /
+       ``KeyboardInterrupt``) still enters the collective. The message is
+       built on the root, so every rank reports the same ``what``.
+    2. The receivers allocate a buffer for the bytes (the root takes a view
+       of its pickle), and all ranks agree on the outcome (one
+       ``allgather``): a rank that cannot hold the data makes every rank
+       raise instead of leaving the others in the transfer.
+    3. The bytes are sent with ``Bcast`` in chunks of ``_CHUNK_BYTES``, from
+       the root's pickle without another copy, so the size is not limited by
+       the element count of an MPI call.
+    4. The receivers unpickle the data, and all ranks agree on the outcome
+       (one ``allgather``) before any of them returns: an object that pickles
+       on the root but cannot be rebuilt on a receiver (a class that cannot be
+       imported there, a ``__reduce__`` callable that raises) is a
+       ``LoadError`` on every rank, not a raw exception on one.
 
     Every rank then raises the same ``odatse.exception.LoadError`` (the rank
     that failed with the original exception as ``__cause__``), or returns
     the data. With ``distribute=False`` only the outcome of the read is
     shared: the data is returned on the root and ``None`` on the other ranks
-    (for data that the root will scatter itself), and step 2 is skipped.
+    (for data that the root will scatter itself), and steps 2 to 4 are
+    skipped.
+
+    A ``SystemExit`` or ``KeyboardInterrupt`` on the root becomes a
+    ``LoadError`` (an ``Exception``) on every rank, the root included: the
+    phase wrappers of ``AlgorithmBase`` agree on failures of type
+    ``Exception`` only, so a root re-raising the original exception there
+    would skip that agreement and leave the others waiting in it.
 
     ``comm`` of ``None`` (the non-MPI stub) or of size 1: a plain
     ``loader()`` call, wrapped in ``LoadError`` on failure for uniform
@@ -556,23 +579,34 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
         except Exception as e:
             raise exception.LoadError(f"cannot read {what}: {_describe(e)}") from e
 
-    # 1. read on the root; share the outcome
+    def agree(problem, message):
+        # every rank learns whether the step failed anywhere; raise everywhere if so
+        problems = [p for p in comm.allgather(problem) if p is not None]
+        if problems:
+            err = exception.LoadError(f"{message}: " + "; ".join(problems))
+            if original is not None:
+                raise err from original
+            raise err
+
+    # 1. read and pickle on the root; share the outcome
     data = None
+    blob = None
     original = None
-    payload = None
+    header = None
     if comm.rank == root:
         try:
             data = loader()
-            blob = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL) if distribute else None
-            payload = ("ok", blob, what)
+            if distribute:
+                blob = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
+            header = ("ok", 0 if blob is None else len(blob), what)
         except BaseException as e:
             # also SystemExit / KeyboardInterrupt: the collective must be entered
             original = e
-            payload = ("error", f"cannot read {what} (failed on rank {rank()}): {_describe(e)}")
-    payload = comm.bcast(payload, root=root)
+            header = ("error", f"cannot read {what} (failed on rank {rank()}): {_describe(e)}")
+    header = comm.bcast(header, root=root)
 
-    if payload[0] == "error":
-        err = exception.LoadError(payload[1])
+    if header[0] == "error":
+        err = exception.LoadError(header[1])
         if original is not None:
             raise err from original
         raise err
@@ -580,20 +614,33 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
     if not distribute:
         return data   # None on the receivers
 
-    # 2. unpack on the receivers; agree on the outcome before anyone returns
-    _, blob, root_what = payload
+    _, nbytes, root_what = header
+
+    # 2. a buffer on every rank (a view of the pickle on the root), or nobody
+    # enters the transfer
+    problem = None
+    try:
+        if comm.rank == root:
+            buf = np.frombuffer(blob, dtype=np.uint8)
+        else:
+            buf = _alloc_buffer(nbytes)
+    except BaseException as e:
+        original = e
+        problem = f"rank {rank()}: {_describe(e)}"
+    agree(problem, f"cannot transfer {root_what} ({nbytes} bytes)")
+
+    # 3. the bytes, in chunks
+    for start in range(0, nbytes, _CHUNK_BYTES):
+        comm.Bcast(buf[start:start + _CHUNK_BYTES], root=root)
+
+    # 4. unpack on the receivers; agree on the outcome before anyone returns
     problem = None
     if comm.rank != root:
         try:
-            data = pickle.loads(blob)
+            data = pickle.loads(buf)
         except BaseException as e:
             original = e
             problem = f"rank {rank()}: {_describe(e)}"
-    problems = [p for p in comm.allgather(problem) if p is not None]
-    if problems:
-        err = exception.LoadError(
-            f"cannot unpack {root_what} on the receiving rank(s): " + "; ".join(problems))
-        if original is not None:
-            raise err from original
-        raise err
+        del buf
+    agree(problem, f"cannot unpack {root_what} on the receiving rank(s)")
     return data

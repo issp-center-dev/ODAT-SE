@@ -19,7 +19,11 @@ res=0
 
 # --- the solver reads inside evaluate() with scope "solver": only the
 # controller of each group reads, so a worker (rank 1) looking for a missing
-# file changes nothing, while a controller (rank 2) doing so ends the job
+# file changes nothing, while a controller (rank 2) doing so ends the job.
+# Every process of that group raises the same LoadError inside evaluate();
+# the worker then ends the job through its failure path (MPI_Abort until the
+# status exchange of #97 is in), so this case checks that the job ends and
+# that the failed read is reported, not that every process exits on its own
 echo "=== evaluate: missing file on a worker (rank 1): completes ==="
 rm -rf output
 log=log_worker.txt
@@ -36,7 +40,7 @@ else
   echo "ok: completed; the worker never reads"
 fi
 
-echo "=== evaluate: missing file on a controller (rank 2): every process leaves ==="
+echo "=== evaluate: missing file on a controller (rank 2): the job ends ==="
 rm -rf output
 log=log_controller.txt
 FAIL_RANK=2 $TIMEOUT $LIMIT \

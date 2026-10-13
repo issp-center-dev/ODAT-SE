@@ -190,3 +190,56 @@ def test_info_from_file_raises_load_error_with_the_cause(tmp_path):
         odatse.Info.from_file(str(broken))
     if mpi.rank() == 0:
         assert "Decode" in type(excinfo.value.__cause__).__name__
+
+
+def test_data_is_sent_in_chunks(monkeypatch):
+    """The pickled bytes are sent in chunks of _CHUNK_BYTES; a chunk size
+    that does not divide the size must still deliver the data intact."""
+    monkeypatch.setattr(mpi, "_CHUNK_BYTES", 1000)
+    array = np.arange(10_001, dtype=np.float64)
+    received = oio.load(lambda: {"array": array, "label": "x" * 333})
+    np.testing.assert_array_equal(received["array"], array)
+    assert received["label"] == "x" * 333
+
+
+def test_failure_to_allocate_on_a_receiver_is_a_load_error_everywhere(monkeypatch):
+    """A receiver that cannot hold the data must not leave the others in the
+    transfer: every rank raises the same LoadError, and a collective issued
+    afterwards still completes."""
+    if not _parallel():
+        pytest.skip("nothing is sent in a serial run")
+    failing = mpi.size() - 1
+    if mpi.rank() == failing:
+        def _alloc(nbytes):
+            raise MemoryError(f"injected: cannot allocate {nbytes} bytes")
+        monkeypatch.setattr(mpi, "_alloc_buffer", _alloc)
+    with pytest.raises(LoadError, match="cannot transfer reference data") as excinfo:
+        oio.load(lambda: list(range(100)), what="reference data")
+    err = excinfo.value
+    assert f"rank {failing}: MemoryError: injected" in str(err)
+    if mpi.rank() == failing:
+        assert isinstance(err.__cause__, MemoryError)
+    else:
+        assert err.__cause__ is None
+    assert mpi.comm().allreduce(1) == mpi.size()
+
+
+def test_failure_to_prepare_the_transfer_on_the_root(monkeypatch):
+    """The root read and pickled the data but cannot set up the send buffer:
+    the same LoadError on every rank, and nobody enters the transfer."""
+    if not _parallel():
+        pytest.skip("nothing is sent in a serial run")
+    if mpi.rank() == 0:
+        def _frombuffer(*args, **kwargs):
+            raise MemoryError("injected: no send buffer")
+        monkeypatch.setattr(mpi.np, "frombuffer", _frombuffer)
+    with pytest.raises(LoadError, match="cannot transfer reference data") as excinfo:
+        oio.load(lambda: list(range(100)), what="reference data")
+    monkeypatch.undo()
+    err = excinfo.value
+    assert "rank 0: MemoryError: injected" in str(err)
+    if mpi.rank() == 0:
+        assert isinstance(err.__cause__, MemoryError)
+    else:
+        assert err.__cause__ is None
+    assert mpi.comm().allreduce(1) == mpi.size()
