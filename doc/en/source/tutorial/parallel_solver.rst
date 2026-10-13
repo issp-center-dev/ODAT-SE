@@ -150,7 +150,13 @@ raised inside ``evaluate`` are caught as well and take part in the status
 exchange, so that no rank is left waiting, but they are never ignored: whether
 raised on a worker or on the controller, the controller raises
 ``odatse.exception.SolverError`` and the job terminates through the usual
-algorithm-layer consensus.
+algorithm-layer consensus. With ``nsolve = 1`` there is no solver group and
+they propagate as they are, but still through the algorithm-layer consensus,
+so the other algorithm ranks are released rather than left waiting, provided
+that every algorithm rank reaches that consensus: collectives inside an
+algorithm (such as the chunk evaluation of ``global_search``) must stay
+balanced across ranks even when one of them fails, as they must for any other
+exception.
 
 If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
 the other ranks still enter (the mismatch described above), the behaviour is
