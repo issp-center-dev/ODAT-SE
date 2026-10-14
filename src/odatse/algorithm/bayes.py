@@ -187,8 +187,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             if self.istep >= self.bayes_max_num_probes:
                 res = copy.deepcopy(self.policy.history)
 
-        next_checkpoint_step = self.istep + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self.istep)
 
         while self.istep < self.bayes_max_num_probes:
             intv = 0 if self.istep % self.interval == 0 else -1
@@ -206,15 +205,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
             self.istep += 1
 
-            if self.checkpoint:
-                time_now = time.time()
-                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    self.fx_list = fx_list
-                    self.param_list = param_list
+            if self._checkpoint_due(self.istep):
+                self.fx_list = fx_list
+                self.param_list = param_list
 
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.istep + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+                self._save_state(self.checkpoint_file)
 
         self.best_fx, self.best_action = res.export_all_sequence_best_fx()
         self.xopt = mesh_list[int(self.best_action[-1]), 1:]

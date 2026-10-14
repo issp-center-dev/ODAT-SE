@@ -179,8 +179,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.best_iwalker = 0
 
         # Set up checkpointing intervals
-        next_checkpoint_step = self.istep + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self.istep)
 
         # Main simulation loop
         while self.istep < self.numsteps:
@@ -201,13 +200,9 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.local_update(beta)
             self.istep += 1
 
-            # Handle checkpointing if enabled
-            if self.checkpoint:
-                time_now = time.time()
-                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.istep + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # Handle checkpointing if enabled (decided on rank 0 for all ranks)
+            if self._checkpoint_due(self.istep):
+                self._save_state(self.checkpoint_file)
 
         # Clean up file handles
         fp_trial.close()
