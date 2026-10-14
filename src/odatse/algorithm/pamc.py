@@ -382,7 +382,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         file_trial = DataWriter("trial.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
         file_result = DataWriter("result.txt", mode=write_mode, item_list=item_list, combined=self.export_combined_files)
-        self._set_writer(file_trial, file_result)
 
         item_list_weight = [
             "Tindex",
@@ -394,6 +393,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             *self.label_list,
         ]
         file_weight = DataWriter("weight.txt", mode=write_mode, item_list=item_list_weight, combined=self.export_combined_files)
+        self._set_writer(file_trial, file_result, file_weight)
 
         return { "trial": file_trial, "result": file_result, "weight": file_weight }
 
