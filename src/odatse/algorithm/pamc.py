@@ -279,8 +279,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.best_istep = 0
             self.best_iwalker = 0
 
-        next_checkpoint_step = self.istep + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self.istep)
 
         if self.verbose:
             print("\u03b2 mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
@@ -342,13 +341,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
             self.Tindex += 1
 
-            if self.checkpoint:
-                time_now = time.time()
-                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    print(">>> checkpoint")
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.istep + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # decided on rank 0 for all ranks
+            if self._checkpoint_due(self.istep):
+                print(">>> checkpoint")
+                self._save_state(self.checkpoint_file)
 
         # store final state for continuation
         if self.checkpoint:

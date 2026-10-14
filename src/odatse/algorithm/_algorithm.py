@@ -506,6 +506,43 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
     # Checkpoint helpers – concrete implementations in the base class.
     # ------------------------------------------------------------------
 
+    def _start_checkpoint_schedule(self, step: int) -> None:
+        """Arm the next checkpoint: due after ``checkpoint_steps`` more steps
+        or ``checkpoint_interval`` more seconds, counted from *step* and now.
+
+        Call once before the main loop (``step`` is the restored position on
+        resume); ``_checkpoint_due()`` re-arms it after every checkpoint.
+        """
+        self._next_checkpoint_step = step + self.checkpoint_steps
+        self._next_checkpoint_time = time.time() + self.checkpoint_interval
+
+    def _checkpoint_due(self, step: int) -> bool:
+        """Whether a checkpoint is due at *step*; re-arms the schedule if so.
+
+        Always ``False`` when checkpointing is off. For a lockstep algorithm
+        (``_checkpoint_step_key`` set) in a parallel run the decision is taken
+        on algorithm rank 0 and broadcast, so that every rank writes its
+        checkpoint at the same step: the time condition evaluated against
+        each rank's own clock would otherwise fire at different steps on
+        different ranks, and the ranks could not be resumed together (see
+        ``_load_data()``). Collective over the algorithm ranks in that case:
+        every rank must call it once per step.
+        """
+        if not self.checkpoint:
+            return False
+        if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
+            due = None
+            if odatse.mpi.algrank() == 0:
+                due = bool(step >= self._next_checkpoint_step
+                           or time.time() >= self._next_checkpoint_time)
+            due = odatse.mpi.algcomm().bcast(due, root=0)
+        else:
+            due = bool(step >= self._next_checkpoint_step
+                       or time.time() >= self._next_checkpoint_time)
+        if due:
+            self._start_checkpoint_schedule(step)
+        return due
+
     def _save_state(self, filename) -> None:
         """Save a checkpoint snapshot to *filename*.
 
@@ -692,18 +729,39 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         """
         if ngen is None:
             ngen = self._checkpoint_generations
+        tmp = Path(filename + ".tmp")
+        problem = None
+        original = None
         try:
-            fn = Path(filename + ".tmp")
-            with open(fn, "wb") as f:
+            with open(tmp, "wb") as f:
                 pickle.dump(data, f)
                 # Make sure the new checkpoint is durable on disk before it
                 # replaces the current one below.
                 f.flush()
                 os.fsync(f.fileno())
         except Exception as e:
-            raise exception.CheckpointError(
-                f"failed to save checkpoint to {filename}: {e}"
-            ) from e
+            original = e
+            problem = f"failed to save checkpoint to {filename}: {e}"
+
+        if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
+            # Two-phase commit for lockstep ranks: the new checkpoints are
+            # published (renamed into place below) only once every rank has
+            # finished writing its own, so a stop during the write of one rank
+            # (long for a large state) cannot leave the ranks with checkpoints
+            # from different steps; the window shrinks to the renames. The
+            # agreement is the barrier, and it also shares a failed write: it
+            # raises on every rank, so no rank goes on without the others.
+            reports = odatse.mpi.algcomm().allgather((odatse.mpi.rank(), problem))
+            problems = [p for _, p in reports if p is not None]
+            if problems:
+                tmp.unlink(missing_ok=True)
+                err = exception.CheckpointError("; ".join(problems))
+                err.report_rank = reports[0][0]
+                if original is not None:
+                    raise err from original
+                raise err
+        elif problem is not None:
+            raise exception.CheckpointError(problem) from original
 
         # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
         # (os.replace is an atomic O(1) rename on every platform; shutil.move

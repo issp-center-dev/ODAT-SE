@@ -468,8 +468,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             # both exceeds max_f_eval and changes the reported optimum.
             return
 
-        next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self.f_eval_count)
 
         run = self.runner
         sweeps = [
@@ -581,13 +580,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
             first_pass = False
 
-            # Checkpoint after each complete double sweep (r2l + l2r).
-            if self.checkpoint:
-                time_now = time.time()
-                if self.f_eval_count >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.f_eval_count + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # Checkpoint after each complete double sweep (r2l + l2r);
+            # decided on rank 0 for all ranks.
+            if self._checkpoint_due(self.f_eval_count):
+                self._save_state(self.checkpoint_file)
 
     def _save_state(self, filename) -> None:
         """Save the current algorithm state to a checkpoint file."""
