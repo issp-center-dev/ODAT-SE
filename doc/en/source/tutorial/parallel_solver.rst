@@ -193,6 +193,53 @@ In a custom algorithm, keep any collective communication in ``__init__``
 balanced across the processes: a process that raises before such a call
 leaves the others waiting in it.
 
+The same can happen before the algorithm is constructed: if creating the
+solver or the runner fails on some processes only, the others would go on
+into ``Algorithm(...)`` and wait there for the processes that failed. The
+constructors of ``Solver`` (any subclass of ``SolverBase``) and ``Runner``
+therefore carry the same agreement as ``Algorithm``, so that ``Solver(info)``
+and ``Runner(solver, info)`` end on every process whatever code calls them:
+the ``odatse`` command, your own script, or a program that embeds ODAT-SE.
+As for the algorithm, every process must therefore construct them:
+constructing a solver on some processes only (for example on rank 0, to
+evaluate the best point after ``alg.main()``) waits forever. Construct it on
+every process and restrict only the evaluation to the processes that need it.
+A solver class that declares a metaclass of its own must derive it from
+``odatse.mpi.FailTogetherMeta``.
+
+Code of your own that runs between these constructions and may fail on some
+processes only (creating a directory, reading a data file) can be given the
+same agreement with ``odatse.mpi.fail_together()``, as the ``odatse`` command
+and the example below do:
+
+.. code-block:: python
+
+    with odatse.mpi.fail_together():
+        os.makedirs(output_dir, exist_ok=True)
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+
+If the block raises on any process, every process raises when it leaves the
+block: the failing ones their own exception, the others
+``odatse.mpi.OtherAlgorithmProcessError``. Blocks nest: only the outermost
+block agrees, and the constructors and any inner ``fail_together()`` block
+inside it leave the agreement to it, so a process may fail anywhere in it,
+before or after a construction or an inner block. The same rules apply as for
+the constructors: every process must run the block, and any collective
+communication inside it must stay balanced. Catch
+``odatse.mpi.OtherAlgorithmProcessError`` at the top of the script and exit
+with status 0, as the ``odatse`` command does. Otherwise every process prints
+a traceback, and ``mpirun`` may end the job before the failing process has
+reported its error:
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except odatse.mpi.OtherAlgorithmProcessError:
+            sys.exit(0)  # another process failed and reports its error
+
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -203,7 +250,7 @@ the average largest singular value of ``nmats`` random matrices of size
 
 .. code-block:: python
 
-    import os, time, argparse
+    import os, sys, time, argparse
     import numpy as np
     from mpi4py import MPI
     import odatse
@@ -223,7 +270,6 @@ the average largest singular value of ``nmats`` random matrices of size
             if odatse.mpi.rank() == 0:
                 print(f"nalg: {odatse.mpi.algsize()}")
                 print(f"nsolve: {odatse.mpi.solsize()}")
-            odatse.mpi.comm().barrier()
 
         def _testfunc(self, mats):
             return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
@@ -293,12 +339,12 @@ driver just reads it from the return value:
         nmats = info.solver["param"].get("nmats", 50)
         matsize = info.solver["param"].get("matsize", 1000)
 
-        output_dir = info.base.get("output_dir", "./output")
-        os.makedirs(output_dir, exist_ok=True)
-
-        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
+        with odatse.mpi.fail_together():
+            output_dir = info.base.get("output_dir", "./output")
+            os.makedirs(output_dir, exist_ok=True)
+            solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 

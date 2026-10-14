@@ -144,6 +144,7 @@ mpi4py がインストールされていない環境や環境変数 ``ODATSE_NOM
 - ``solcomm()`` / ``solsize()`` / ``solrank()`` : ソルバーグループのコミュニケータとそのサイズ・ランク。
 - ``run_on_algorithm()`` : 呼び出したプロセスがアルゴリズム層に属するかどうか。
 - ``enabled()`` : MPI が利用可能かどうか（ ``ODATSE_NOMPI`` 設定時は ``False`` ）。
+- ``fail_together()`` : コンテキストマネージャ。ブロック内でジョブのいずれかのプロセスが例外を送出すると、ブロックを抜ける際にすべてのプロセスが例外を送出します（失敗したプロセスは自身の例外、それ以外は ``odatse.mpi.OtherAlgorithmProcessError`` ）。 ``Solver`` / ``Runner`` / ``Algorithm`` のコンストラクタは自動的にこの合意を行います。一部のプロセスだけが失敗しうる独自のセットアップコードに使ってください（ :doc:`../tutorial/parallel_solver` を参照）。
 
 ``algcomm()`` , ``solcomm()`` とそのサイズ・ランクのアクセサ、および ``run_on_algorithm()`` は、 ``setup()`` の前に呼ぶと ``RuntimeError`` を送出します。これらの上に構築されたものも同様で、 ``Solver`` / ``Algorithm`` のほか、メッシュファイルを読み込み・分配する ``MeshGrid`` （ ``MeshGrid(info)`` 、 ``MeshGrid.from_file()`` 、 ``store_file()`` 、 ``do_split()`` ）も ``setup()`` の後に使う必要があります。
 

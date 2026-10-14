@@ -156,6 +156,7 @@ In the non-MPI stub (mpi4py missing or ``ODATSE_NOMPI`` set) ``setup()`` validat
 - ``solcomm()`` / ``solsize()`` / ``solrank()`` : The communicator of the solver group and its size and rank.
 - ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
 - ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).
+- ``fail_together()`` : A context manager. If the block raises on any process of the job, every process raises when it leaves the block (the failing ones their own exception, the others ``odatse.mpi.OtherAlgorithmProcessError``). The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this agreement automatically; use it for set-up code of your own that may fail on some processes only (see :doc:`../tutorial/parallel_solver`).
 
 ``algcomm()`` , ``solcomm()`` , their size and rank accessors, and ``run_on_algorithm()`` raise ``RuntimeError`` before ``setup()`` . This includes everything built on them: besides ``Solver`` / ``Algorithm``, a ``MeshGrid`` that reads or distributes a mesh file (``MeshGrid(info)``, ``MeshGrid.from_file()``, ``store_file()``, ``do_split()``) also needs ``setup()`` first.
 

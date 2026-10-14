@@ -15,6 +15,13 @@ add_test(
 set_tests_properties(parallel_construction_consensus PROPERTIES TIMEOUT 300)
 
 add_test(
+  NAME parallel_setup_error
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/setup_error
+  )
+set_tests_properties(parallel_setup_error PROPERTIES TIMEOUT 300)
+
+add_test(
   NAME parallel_bayes_grid
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/bayes_grid

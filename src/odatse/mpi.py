@@ -6,6 +6,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from abc import ABCMeta as _ABCMeta
+import contextlib
 import os
 import numpy as np
 from typing import Optional, Tuple
@@ -454,6 +456,7 @@ __all__ = [
     "algcomm", "algsize", "algrank",
     "run_on_algorithm",
     "enabled",
+    "fail_together", "FailTogetherMeta",
     "OtherAlgorithmProcessError",
     "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE",
 ]
@@ -472,3 +475,162 @@ def algsize() -> int:                   return _ctx.algsize()
 def algrank() -> int:                   return _ctx.algrank()
 def run_on_algorithm() -> bool:         return _ctx.run_on_algorithm()
 def enabled() -> bool:                  return _ctx.enabled()
+
+
+# ------------------------------------------------------------------ #
+#  Failing together
+# ------------------------------------------------------------------ #
+
+def _agree_on_failure(error: Optional[BaseException]) -> None:
+    """Collectively agree on whether *error* (this process's exception, or
+    ``None``) occurred on any process of the job, and raise on every process
+    when it did.
+
+    Three small collectives share the outcome:
+
+    1. the processes of each solver group agree on ``solcomm``;
+    2. the controllers agree across the groups on ``algcomm``;
+    3. each controller broadcasts the verdict to its workers on ``solcomm``.
+
+    Then a process that failed re-raises its own exception and every other
+    process raises ``OtherAlgorithmProcessError``. Before ``setup()`` has been
+    called there is no layout to agree on, and *error* is re-raised unchanged.
+    """
+    ready = getattr(_ctx, "_ready", True)
+    if ready:
+        ok = np.array([0 if error is not None else 1])
+
+        if solsize() > 1:
+            total = np.array([0])
+            solcomm().Allreduce(ok, total)
+            group_ok = bool(total[0] == solsize())
+        else:
+            group_ok = error is None
+
+        all_ok = group_ok
+        if run_on_algorithm() and algsize() > 1:
+            flag = np.array([1 if group_ok else 0])
+            total = np.array([0])
+            algcomm().Allreduce(flag, total)
+            all_ok = bool(total[0] == algsize())
+
+        if solsize() > 1:
+            # the workers are not in algcomm: they learn the verdict from
+            # their controller, which has just taken part in the agreement
+            all_ok = solcomm().bcast(all_ok, root=0)
+    else:
+        all_ok = error is None
+
+    if error is not None:
+        from odatse import exception
+        if ready and isinstance(error, exception.Error):
+            # this rank's own failure: have the CLI boundary report it
+            # from this rank (rank 0 may have no error to print)
+            error.rank_local = True
+        raise error
+    if not all_ok:
+        raise OtherAlgorithmProcessError()
+
+
+@contextlib.contextmanager
+def fail_together():
+    """Context manager: if the block raises on any process, raise on all.
+
+    Use it around set-up code that every process of the job runs and that
+    may fail on some processes only (a file that is missing on one node, for
+    example)::
+
+        with odatse.mpi.fail_together():
+            solver = Solver(info)
+            runner = odatse.Runner(solver, info)
+
+    When the block completes everywhere, nothing happens. Otherwise, after
+    every process has left the block, a process whose block raised re-raises
+    its own exception (an ``odatse.exception.Error`` is marked
+    ``rank_local``, so that the ``odatse`` command reports it from that
+    process) and every other process raises ``OtherAlgorithmProcessError``.
+    Without this, the processes that succeeded would go on into the next
+    collective and wait forever for the one that failed.
+
+    The exit of the block is itself a collective once ``setup()`` has been
+    called: every process of the job, the solver workers included, must
+    enter the same ``fail_together()`` blocks in the same order, and
+    collective calls inside a block must stay balanced (a process that
+    raises before such a call leaves the others waiting in it). Before
+    ``setup()``, it only lets the exception propagate.
+
+    The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this
+    agreement on their own (``FailTogetherMeta``). Blocks nest: only the
+    outermost block of a process agrees, an inner block (an explicit one, or
+    the one of a construction) only lets the exception through, so that a
+    process failing anywhere in the outermost block, before or after an
+    inner one, agrees exactly once with the others.
+    """
+    global _block_depth
+    if _block_depth > 0:
+        # an enclosing block agrees when it is left
+        _block_depth += 1
+        try:
+            yield
+        finally:
+            _block_depth -= 1
+        return
+    _block_depth += 1
+    try:
+        yield
+    except BaseException as e:
+        # also SystemExit / KeyboardInterrupt: the other processes must be
+        # released before it propagates
+        _block_depth -= 1
+        _agree_on_failure(e)
+        raise  # not reached: _agree_on_failure() re-raises e
+    _block_depth -= 1
+    _agree_on_failure(None)
+
+
+# Nesting depth of fail_together() blocks on this process (process-global,
+# not per thread: ODAT-SE does not construct these objects from threads).
+# Only the outermost block agrees (inner blocks include the constructions of
+# FailTogetherMeta classes). Otherwise a process that fails in the outer block
+# before an inner block the others reach would perform one agreement while
+# they perform two (the inner block's and the outer one's), and the second
+# would wait forever.
+_block_depth = 0
+
+
+class FailTogetherMeta(_ABCMeta):
+    """Metaclass whose instances are constructed inside ``fail_together()``.
+
+    It is the metaclass of ``SolverBase``, ``Runner`` and ``AlgorithmBase``,
+    so that ``Solver(info)``, ``Runner(solver, info)`` and
+    ``Algorithm(info, runner)`` are protected whatever code calls them: the
+    ``odatse`` command, a user-written main, or a host program that embeds
+    ODAT-SE. These constructors run on every process of the job, the solver
+    workers included, and may fail on some of them only (a data file missing
+    on one node, an invalid ``mesh_path`` detected by the algorithm ranks
+    that read the mesh); a process that leaves the set-up through such an
+    exception would otherwise leave the others waiting in the next collective
+    (issues #101, #112). ``fail_together()`` remains available for the
+    caller's own code between the constructions.
+
+    Wrapping the construction here covers the whole constructor of every
+    subclass, including the part that runs after ``super().__init__()``, and
+    third-party subclasses without any change on their side (a subclass that
+    declares a metaclass of its own must derive it from this one).
+    ``Cls.__new__(Cls)`` does not go through ``__call__`` and is therefore
+    not affected. The rules of ``fail_together()`` apply: every process must
+    construct the same objects in the same order (constructing one on some
+    processes only hangs), and collectives inside a constructor must stay
+    balanced.
+
+    Inside a ``fail_together()`` block the constructors do not agree on
+    their own; the outermost block does, when it is left. The block is then
+    the only agreement, however many objects it constructs and wherever in
+    it a process fails (``odatse.main()`` and the parallel-solver example
+    build the solver and the runner inside such a block).
+    """
+
+    def __call__(cls, *args, **kwargs):
+        # inside an enclosing block this agrees nothing (see fail_together())
+        with fail_together():
+            return super().__call__(*args, **kwargs)

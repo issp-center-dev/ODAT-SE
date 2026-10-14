@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os, time, argparse
+import os, sys, time, argparse
 import numpy as np
 from mpi4py import MPI
 import odatse
@@ -40,7 +40,6 @@ class ParallelSolver(odatse.solver.SolverBase):
         if odatse.mpi.rank()==0:
             print(f"nalg: {odatse.mpi.algsize()}")
             print(f"nsolve: {odatse.mpi.solsize()}")
-        odatse.mpi.comm().barrier()
 
     def _testfunc(self, mats):
         return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
@@ -92,12 +91,13 @@ def main():
     nmats = info.solver["param"].get("nmats", 50)
     matsize = info.solver["param"].get("matsize", 1000)
 
-    output_dir = info.base.get("output_dir", "./output")
-    os.makedirs(output_dir, exist_ok=True)
-
-    solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-    runner = odatse.Runner(solver, info)
-    alg_module = choose_algorithm(info.algorithm["name"])
+    # raise on every process if the set-up fails on some of them only
+    with odatse.mpi.fail_together():
+        output_dir = info.base.get("output_dir", "./output")
+        os.makedirs(output_dir, exist_ok=True)
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+        alg_module = choose_algorithm(info.algorithm["name"])
     alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
     time0 = time.time()
     result = alg.main()
@@ -112,4 +112,10 @@ def main():
         print(f"time: {elapsed_time:.6f}s")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed during the set-up or the run and reports
+        # its error; leave quietly, as the odatse command does, so that the
+        # job ends with the status of that process
+        sys.exit(0)

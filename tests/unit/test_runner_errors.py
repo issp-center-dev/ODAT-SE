@@ -113,6 +113,13 @@ class _FakeSolcomm:
         self.broadcasts += 1
         return obj
 
+    # The construction agreement (odatse.mpi.fail_together, run by the
+    # metaclass of Solver and Runner when the test builds them) reduces a
+    # success flag over the group and broadcasts the verdict; every rank of
+    # the fake group constructs successfully.
+    def Allreduce(self, sendbuf, recvbuf):
+        recvbuf[...] = sendbuf * (len(self.others) + 1)
+
 
 def _tag(entry):
     """Wrap a test's plain status (None or (bool, str)) the way the exchange

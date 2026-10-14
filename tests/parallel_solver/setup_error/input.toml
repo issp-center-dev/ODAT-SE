@@ -1,0 +1,15 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+num_list = [3, 3]
