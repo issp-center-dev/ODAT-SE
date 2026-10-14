@@ -7,11 +7,13 @@ from different steps block in the first collective. ``_load_data()`` of a
 lockstep algorithm (``_checkpoint_step_key`` set) therefore shares the steps
 of the generations each rank has and picks the newest one every rank has.
 
-These tests run serially: the algorithm communicator is replaced by a stub
-whose ``allgather`` returns this rank's report together with the reports
-the test prescribes for the other ranks. The algorithm objects are made
-without ``__init__`` (the construction consensus of ``FailTogetherMeta``
-would otherwise run against the stub).
+These tests do not communicate: the algorithm communicator is replaced by a
+stub whose ``allgather`` returns this rank's report together with the
+reports the test prescribes for the other ranks, and the tests of the
+serial path pin ``algsize()`` to 1 (the unit tests also run under ``mpirun
+-np 2`` / ``-np 4``, where the real size would select the collective path).
+The algorithm objects are made without ``__init__`` (the construction
+consensus of ``FailTogetherMeta`` would otherwise run against the stub).
 """
 
 import os
@@ -100,22 +102,29 @@ def ckpt(tmp_path):
     return str(tmp_path / "status.pickle")
 
 
+@pytest.fixture
+def serial(monkeypatch):
+    """A single algorithm rank, whatever the launcher: the serial path."""
+    monkeypatch.setattr(mpi, "algsize", lambda: 1)
+    monkeypatch.setattr(mpi, "algrank", lambda: 0)
+
+
 # --- serial / independent ranks: the current file, unchanged behaviour ---
 
-def test_serial_loads_the_current_checkpoint(ckpt):
+def test_serial_loads_the_current_checkpoint(ckpt, serial):
     _write_generations(ckpt, [300, 200, 100])
     data = _Lockstep.__new__(_Lockstep)._load_data(ckpt)
     assert data["istep"] == 300
 
 
-def test_serial_falls_back_to_previous_generation_when_current_is_missing(ckpt):
+def test_serial_falls_back_to_previous_generation_when_current_is_missing(ckpt, serial):
     _write_generations(ckpt, [300, 200])
     os.remove(ckpt)
     data = _Lockstep.__new__(_Lockstep)._load_data(ckpt)
     assert data["istep"] == 200
 
 
-def test_serial_missing_checkpoint_raises(ckpt):
+def test_serial_missing_checkpoint_raises(ckpt, serial):
     with pytest.raises(CheckpointError, match="does not exist"):
         _Lockstep.__new__(_Lockstep)._load_data(ckpt)
 
@@ -241,7 +250,7 @@ def test_runner_failure_on_another_rank_raises_here(ckpt, monkeypatch):
         _Lockstep.__new__(_Lockstep)._load_data(ckpt)
 
 
-def test_runner_failure_in_serial_resume_is_raised_as_is(ckpt):
+def test_runner_failure_in_serial_resume_is_raised_as_is(ckpt, serial):
     """Without the agreement there is nothing to carry the failure through:
     the runner's exception comes out of prepare() unchanged."""
     _write_generations(ckpt, [300])
