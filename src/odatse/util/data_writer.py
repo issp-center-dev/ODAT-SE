@@ -7,6 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
+import os
 
 def basicConfig(combined_filename=None, combined_mode=None):
     return BaseWriter.basicConfig(combined_filename, combined_mode)
@@ -74,6 +75,41 @@ class BaseWriter:
 
     def close(self):
         self._close()
+
+    def flush(self):
+        """Write out the buffered lines and make them durable on disk.
+
+        Called when a checkpoint is written, so that the file on disk holds
+        everything written up to the checkpoint even if the process is
+        killed right afterwards.
+        """
+        if self.fp:
+            self.fp.flush()
+            os.fsync(self.fp.fileno())
+
+    def tell(self):
+        """The current position in the file (``None`` when it is closed).
+
+        Together with ``truncate()`` this lets a resumed run drop the lines
+        written after the checkpoint it restarts from.
+        """
+        if self.fp is None:
+            return None
+        self.fp.flush()
+        return self.fp.tell()
+
+    def truncate(self, position):
+        """Cut the file back to *position* (a value from ``tell()``).
+
+        For a writer opened in append mode on resume: the lines the
+        interrupted run wrote after its last checkpoint (possibly a partial
+        line) are removed, and the resumed run appends after the checkpoint.
+        """
+        if self.fp is None or position is None:
+            return
+        self.fp.flush()
+        self.fp.truncate(position)
+        self._logger.debug(f"truncate: file={self.filename}, position={position}")
 
     def _write(self, *args):
         """

@@ -20,22 +20,19 @@ rm -rf output2
 # Run the command with the second input file and measure the time taken
 time $CMD input2.toml
 
-# Define the result files to compare
-# resfile=output1/best_result.txt
-# reffile=output2/best_result.txt
-resfile=output1/result_T0.txt
-reffile=output2/result_T0.txt
-
-# Compare the result files and store the result of the comparison
-echo diff $resfile $reffile
+# Compare every result file of the reference run: the per-rank trial.txt
+# and result.txt as well (the continued run appends to them, and must not
+# lose or repeat lines around the checkpoint it continues from), not only
+# the derived result_T*.txt and best_result.txt.
 res=0
-diff $resfile $reffile || res=$?
+for f in $(cd output2 && find . -name '*.txt' | sort); do
+  echo diff output1/$f output2/$f
+  diff output1/$f output2/$f || { res=$?; echo "TEST FAILED: output1/$f and output2/$f differ"; }
+done
 
-# Check the result of the comparison and print the appropriate message
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
 else
-  echo TEST FAILED: $resfile and $reffile differ
   false
 fi

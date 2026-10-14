@@ -21,26 +21,19 @@ rm -rf output2
 # Run the command with input2.toml
 time $CMD input2.toml
 
-# Define the result and reference files for comparison
-# resfile=output1/best_result.txt
-# reffile=output2/best_result.txt
-resfile=output1/fx.txt
-reffile=output2/fx.txt
-
-# Print the diff command to be executed
-echo diff $resfile $reffile
-
-# Initialize the result variable
+# Compare every result file of the reference run: the per-rank trial.txt,
+# result.txt and weight.txt as well (the continued run appends to them, and
+# must not lose or repeat lines around the checkpoint it continues from),
+# not only the derived fx.txt and best_result.txt.
 res=0
+for f in $(cd output2 && find . -name '*.txt' | sort); do
+  echo diff output1/$f output2/$f
+  diff output1/$f output2/$f || { res=$?; echo "TEST FAILED: output1/$f and output2/$f differ"; }
+done
 
-# Compare the result and reference files, update the result variable if they differ
-diff $resfile $reffile || res=$?
-
-# Check the result of the diff command and print the appropriate message
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
 else
-  echo TEST FAILED: $resfile and $reffile differ
   false
 fi

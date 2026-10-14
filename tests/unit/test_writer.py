@@ -184,3 +184,48 @@ def test_write_text_combined_none():
     dw._close_combined()
     assert True
     Path("combined.txt").unlink()
+
+
+def test_flush_tell_truncate_for_resume(tmp_path):
+    """
+    A resumed run cuts the file back to the position recorded at the
+    checkpoint and appends from there.
+
+    Tests:
+    - flush() makes the buffered lines visible on disk
+    - tell() gives the position after the flushed lines
+    - truncate(position) on a writer reopened in append mode drops what was
+      written after that position, including a partial line
+    - tell() is None on a closed writer
+    """
+    fn = tmp_path / "result.txt"
+    dw = DataWriter(str(fn), item_list=["step", "x"])
+    dw.write(0, 1.0)
+    dw.write(1, 2.0)
+    dw.flush()
+    assert fn.read_text() == "# step x\n0 1.0\n1 2.0\n"
+    position = dw.tell()
+    assert position == len("# step x\n0 1.0\n1 2.0\n")
+    # the interrupted run goes on past the checkpoint
+    dw.write(2, 3.0)
+    dw.close()
+    assert dw.tell() is None
+    with open(fn, "a") as f:
+        f.write("3 4")   # a partial line, cut by the kill
+    assert fn.read_text() == "# step x\n0 1.0\n1 2.0\n2 3.0\n3 4"
+
+    resumed = DataWriter(str(fn), mode="a", item_list=["step", "x"])
+    resumed.truncate(position)
+    resumed.write(2, 3.5)
+    resumed.close()
+    assert fn.read_text() == "# step x\n0 1.0\n1 2.0\n2 3.5\n"
+
+
+def test_truncate_ignores_none_and_closed_writer(tmp_path):
+    fn = tmp_path / "result.txt"
+    dw = DataWriter(str(fn), item_list=["a"])
+    dw.write(1)
+    dw.truncate(None)   # nothing recorded: leave the file alone
+    dw.close()
+    dw.truncate(0)      # closed: no-op, no error
+    assert fn.read_text() == "# a\n1\n"
