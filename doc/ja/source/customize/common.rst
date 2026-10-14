@@ -25,7 +25,7 @@
   - ``Runner`` が用いる入力パラメータ
 
 
-``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキー(省略可)を持つ ``dict`` を渡して初期化できます。また、クラスメソッド ``from_file`` に TOML形式の入力ファイルへのパスを渡して作成することもできます。
+``Info`` は ``base``, ``solver``, ``algorithm``, ``runner`` の4つのキー(省略可)を持つ ``dict`` を渡して初期化できます。また、クラスメソッド ``from_file`` に TOML形式の入力ファイルへのパスを渡して作成することもできます。ファイルが読めない、または TOML として解釈できない場合は、逐次実行でも ``odatse.exception.LoadError`` （ ``InputError`` の派生）を送出します。元の ``FileNotFoundError`` や TOML の解析エラーは ``__cause__`` として付属します。
 
 
 ``base`` について
@@ -166,3 +166,12 @@ ODAT-SE を別の MPI プログラムの中からライブラリとして使う�
 - ``comm`` の所有権は呼び出し側にあります。ODAT-SE は ``comm`` を解放しません。ODAT-SE の使用中は有効なまま保持してください。
 - 複製（ ``comm.Dup()`` ）は別のコミュニケータとして扱われます。元のコミュニケータで ``setup()`` を呼んだ後に複製を渡すと ``RuntimeError`` になります。
 - ソルバーワーカーが ``evaluate`` の外側で失敗した場合、ODAT-SE は ``comm`` に対して ``MPI_Abort`` を呼びます。MPI の実装によっては ``comm`` のランクだけでなくジョブ全体が終了します。
+
+
+``odatse.util.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+並列実行でのファイルの読み込みを行うモジュールです。1つのプロセスが読み、他のプロセスがデータを受け取ります。読み込みに失敗した場合は、スコープ内のすべてのプロセスが同じ ``odatse.exception.LoadError`` （ ``InputError`` の派生）を送出し、他のプロセスがブロードキャストで待ち続けることはありません。 ``odatse`` コマンドはこのエラーを、読み込みを行ったプロセスから1回だけ報告します。逐次実行では単にファイルを読むだけです。スコープと使用例は :doc:`../tutorial/parallel_solver` を参照してください。
+
+- ``load(loader, scope="job", root=0, what=None, distribute=True)`` : スコープ（ ``"job"`` : すべてのプロセス、 ``"algorithm"`` : アルゴリズムランク、 ``"solver"`` : 1つのソルバーグループ）の root プロセスで ``loader()`` を呼び、その結果をスコープ内の他のプロセスに渡します。
+- ``read_text(path)`` / ``read_bytes(path)`` / ``load_toml(path)`` / ``loadtxt(path, **kwargs)`` / ``load_json(path)`` : よくある場合の近道。いずれも同じ ``scope`` と ``root`` キーワードを取ります。

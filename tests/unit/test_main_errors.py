@@ -78,6 +78,34 @@ def test_main_reports_rank_local_error_from_owning_rank(monkeypatch, capsys):
     assert "simulated per-rank failure" in captured.err
 
 
+@pytest.mark.parametrize("this_rank, reported", [(2, True), (1, False)])
+def test_main_error_with_a_reporting_rank_prints_once(monkeypatch, capsys, this_rank, reported):
+    """A LoadError is raised on every process of the scope of a read, and the
+    agreement that ends the set-up marks each of them rank_local; the rank
+    that performed the read (report_rank) reports it and the others stay
+    silent, so the log carries the line once and not once per process."""
+    from odatse.exception import LoadError
+
+    err = LoadError("cannot read reference data (failed on rank 2): boom")
+    err.rank_local = True
+    err.report_rank = 2
+
+    def boom(argv):
+        raise err
+    monkeypatch.setattr(odatse, "initialize", boom)
+    monkeypatch.setattr(odatse.mpi, "rank", lambda: this_rank)
+    monkeypatch.setattr(odatse.mpi, "size", lambda: 4)
+
+    with pytest.raises(SystemExit) as excinfo:
+        main([])
+    assert excinfo.value.code == 1
+    captured = capsys.readouterr().err
+    if reported:
+        assert captured.strip() == "[rank 2] ERROR: cannot read reference data (failed on rank 2): boom"
+    else:
+        assert captured == ""
+
+
 def test_main_global_error_prints_only_on_rank0(monkeypatch, capsys):
     """Errors raised identically on all ranks (e.g. config errors) keep the
     rank-0 gate so a bad input file is not reported once per process."""

@@ -29,7 +29,7 @@ It contains the following four instance variables.
 
 An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``base``, ``solver``, ``algorithm``, and ``runner``. (Some of them can be omitted.)
 Each sub dictionary is set to the corresponding field of ``Info``.
-Alternatively, it can be created by passing to the class method ``from_file`` a path to an input file in TOML format.
+Alternatively, it can be created by passing to the class method ``from_file`` a path to an input file in TOML format. A file that cannot be read or parsed raises ``odatse.exception.LoadError`` (an ``InputError``), in a serial run as well; the original ``FileNotFoundError`` or TOML decoding error is attached to it as ``__cause__``.
 
 
 ``base`` items
@@ -178,3 +178,12 @@ Notes on passing a communicator:
 - The caller keeps ownership of ``comm`` . ODAT-SE does not free it, and it must stay valid while ODAT-SE is in use.
 - A duplicate (``comm.Dup()``) is a different communicator: passing it after ``setup()`` has been called with the original raises ``RuntimeError`` .
 - ODAT-SE calls ``MPI_Abort`` on ``comm`` when a solver worker fails outside ``evaluate`` . Depending on the MPI implementation this terminates the whole job, not only the ranks of ``comm`` .
+
+
+``odatse.util.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Reading files in a parallel run: one process reads, the others receive the data, and a failed read raises the same ``odatse.exception.LoadError`` (an ``InputError``) on every process of the scope instead of leaving the others waiting in the broadcast; the ``odatse`` command reports it once, from the process that read. In a serial run the functions are plain reads. See :doc:`../tutorial/parallel_solver` for the scopes and an example.
+
+- ``load(loader, scope="job", root=0, what=None, distribute=True)`` : Calls ``loader()`` on the root process of the scope (``"job"``: every process; ``"algorithm"``: the algorithm ranks; ``"solver"``: one solver group) and hands its result to the other processes of the scope.
+- ``read_text(path)`` / ``read_bytes(path)`` / ``load_toml(path)`` / ``loadtxt(path, **kwargs)`` / ``load_json(path)`` : Shortcuts for the common cases; all take the same ``scope`` and ``root`` keywords.

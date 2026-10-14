@@ -13,6 +13,7 @@ import warnings
 import numpy as np
 
 import odatse
+import odatse.util.io
 from odatse.exception import InputError
 from ._domain import DomainBase
 
@@ -59,41 +60,31 @@ def load_mesh_file(root_dir, info_param: dict, *, root_only: bool = False):
     delimiter = info_param.get("delimiter", None)
     skiprows = info_param.get("skiprows", 0)
 
-    # Read on one rank; the outcome (shape or error) is agreed on every
-    # algorithm rank before anything else happens, so that a bad file makes
-    # all of them raise instead of leaving the others in a collective.
-    data = None
-    outcome = None
-    if odatse.mpi.algrank() == 0:
-        try:
-            if not mesh_path.exists():
-                raise FileNotFoundError(f"mesh_path not found: {mesh_path}")
-            with warnings.catch_warnings():
-                # an empty file is reported below, not by numpy
-                warnings.simplefilter("ignore", UserWarning)
-                data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter,
-                                  skiprows=skiprows, ndmin=2)
-            outcome = ("ok", data.shape)
-        except Exception as e:
-            outcome = ("error", f"{type(e).__name__}: {e}")
-    if odatse.mpi.algsize() > 1:
-        outcome = odatse.mpi.algcomm().bcast(outcome, root=0)
+    def read():
+        if not mesh_path.exists():
+            raise FileNotFoundError(f"mesh_path not found: {mesh_path}")
+        with warnings.catch_warnings():
+            # an empty file is reported below, not by numpy
+            warnings.simplefilter("ignore", UserWarning)
+            data = np.loadtxt(mesh_path, comments=comments, delimiter=delimiter,
+                              skiprows=skiprows, ndmin=2)
+        nrows, ncols = data.shape
+        if nrows == 0:
+            raise InputError(f"mesh file {mesh_path}: no data rows")
+        if ncols < 2:
+            raise InputError(
+                f"mesh file {mesh_path}: expected at least 2 columns "
+                f"(index and at least one coordinate), got {ncols}"
+            )
+        return data
 
-    kind, detail = outcome
-    if kind == "error":
-        raise InputError(f"cannot read mesh file {mesh_path}: {detail}")
-    nrows, ncols = detail
-    if nrows == 0:
-        raise InputError(f"mesh file {mesh_path}: no data rows")
-    if ncols < 2:
-        raise InputError(
-            f"mesh file {mesh_path}: expected at least 2 columns "
-            f"(index and at least one coordinate), got {ncols}"
-        )
-
-    if not root_only and odatse.mpi.algsize() > 1:
-        data = odatse.mpi.algcomm().bcast(data, root=0)
-    return data
+    # Read and validated on algorithm rank 0; the outcome is shared with every
+    # algorithm rank before anything else happens (odatse.util.io.load), so a
+    # bad file makes all of them raise instead of leaving the others in a
+    # collective. With root_only the rows stay on rank 0 (the mapper scatters
+    # them itself); the outcome is still shared.
+    return odatse.util.io.load(read, scope="algorithm", what=f"mesh file {mesh_path}",
+                               distribute=not root_only)
 
 
 class MeshGrid(DomainBase):
