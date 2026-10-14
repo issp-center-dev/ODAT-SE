@@ -9,7 +9,9 @@ of the generations each rank has and picks the newest one every rank has.
 
 These tests run serially: the algorithm communicator is replaced by a stub
 whose ``allgather`` returns this rank's report together with the reports
-the test prescribes for the other ranks.
+the test prescribes for the other ranks. The algorithm objects are made
+without ``__init__`` (the construction consensus of ``FailTogetherMeta``
+would otherwise run against the stub).
 """
 
 import os
@@ -19,15 +21,17 @@ import sys
 SOURCE_PATH = os.path.join(os.path.dirname(__file__), '../../src')
 sys.path.insert(0, SOURCE_PATH)
 
+import numpy as np
 import pytest
 
 import odatse.mpi as mpi
-from odatse.algorithm._algorithm import AlgorithmBase
+from odatse.algorithm._algorithm import AlgorithmBase, AlgorithmStatus
 from odatse.exception import CheckpointError
 
 
 class _Lockstep(AlgorithmBase):
     _checkpoint_step_key = "istep"
+    mode = "resume"
 
     def __init__(self):
         pass
@@ -51,15 +55,21 @@ class _Independent(_Lockstep):
 
 class _Comm:
     """Stand-in for the algorithm communicator: ``allgather`` returns the
-    local report followed by the prescribed reports of the other ranks."""
+    local report followed by the prescribed reports of the other ranks;
+    ``Allreduce`` (the phase consensus) adds the other ranks' success flags."""
 
-    def __init__(self, others):
+    def __init__(self, others, others_ok=None):
         self.others = others
+        self.size = len(others) + 1
+        self.others_ok = len(others) if others_ok is None else others_ok
         self.calls = 0
 
     def allgather(self, report):
         self.calls += 1
         return [report] + list(self.others)
+
+    def Allreduce(self, send, recv):
+        recv[0] = send[0] + self.others_ok
 
 
 def _write_generations(path, steps):
@@ -71,9 +81,9 @@ def _write_generations(path, steps):
             pickle.dump({"istep": step, "tag": f"gen{i}"}, f)
 
 
-def _parallel(monkeypatch, others, size=None):
-    comm = _Comm(others)
-    monkeypatch.setattr(mpi, "algsize", lambda: size or len(others) + 1)
+def _parallel(monkeypatch, others, others_ok=None):
+    comm = _Comm(others, others_ok)
+    monkeypatch.setattr(mpi, "algsize", lambda: comm.size)
     monkeypatch.setattr(mpi, "algrank", lambda: 0)
     monkeypatch.setattr(mpi, "rank", lambda: 0)
     monkeypatch.setattr(mpi, "algcomm", lambda: comm)
@@ -81,7 +91,8 @@ def _parallel(monkeypatch, others, size=None):
 
 
 def _report(steps, problem=None, grank=1):
-    return (grank, sorted(steps, reverse=True), problem)
+    """What another rank contributes to the agreement (odatse.mpi.agree)."""
+    return (grank, problem, sorted(steps, reverse=True))
 
 
 @pytest.fixture
@@ -187,3 +198,53 @@ def test_unreadable_generation_is_skipped_with_a_warning(ckpt, monkeypatch, caps
     data = _Lockstep.__new__(_Lockstep)._load_data(ckpt)
     assert data["istep"] == 200
     assert "skipping unreadable checkpoint" in capsys.readouterr().out
+
+
+# --- a failure before the dispatch is carried through the agreement ---
+
+class _FailingRunner:
+    def prepare(self, proc_dir):
+        raise RuntimeError("injected runner failure")
+
+    def post(self):
+        pass
+
+
+def _resuming(ckpt, runner):
+    alg = _Lockstep.__new__(_Lockstep)
+    alg.mode = "resume"
+    alg.runner = runner
+    alg.proc_dir = os.path.dirname(ckpt)
+    alg.checkpoint_file = ckpt
+    return alg
+
+
+def test_runner_failure_before_resume_is_shared_then_raised(ckpt, monkeypatch):
+    """prepare() on a rank whose runner.prepare() failed still enters the
+    agreement (the other ranks would otherwise wait in it), reports the
+    failure there, and raises it afterwards with the original as the cause."""
+    _write_generations(ckpt, [300])
+    comm = _parallel(monkeypatch, [_report([300])], others_ok=0)
+    alg = _resuming(ckpt, _FailingRunner())
+    with pytest.raises(CheckpointError, match="injected runner failure") as info:
+        alg.prepare()
+    assert comm.calls == 1
+    assert isinstance(info.value.__cause__, RuntimeError)
+    assert info.value.report_rank == 0
+    assert not hasattr(alg, "status") or alg.status < AlgorithmStatus.PREPARE
+
+
+def test_runner_failure_on_another_rank_raises_here(ckpt, monkeypatch):
+    _write_generations(ckpt, [300])
+    _parallel(monkeypatch, [_report([], problem="rank 1: RuntimeError: injected runner failure")])
+    with pytest.raises(CheckpointError, match="rank 1: RuntimeError"):
+        _Lockstep.__new__(_Lockstep)._load_data(ckpt)
+
+
+def test_runner_failure_in_serial_resume_is_raised_as_is(ckpt):
+    """Without the agreement there is nothing to carry the failure through:
+    the runner's exception comes out of prepare() unchanged."""
+    _write_generations(ckpt, [300])
+    alg = _resuming(ckpt, _FailingRunner())
+    with pytest.raises(RuntimeError, match="injected runner failure"):
+        alg.prepare()

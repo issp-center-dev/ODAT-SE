@@ -361,7 +361,18 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         ok = np.array([0])
         try:
             # runner lifecycle starts (commit 936e48: moved here from run())
-            self.runner.prepare(self.proc_dir)
+            try:
+                self.runner.prepare(self.proc_dir)
+            except Exception as e:
+                # The resume dispatch of a lockstep algorithm is itself a
+                # collective (the agreement on the checkpoint step in
+                # _load_common_data) that every rank must enter: a rank that
+                # failed here takes part with its error and raises it after
+                # the agreement, instead of skipping to _reach_consensus()
+                # and leaving the others waiting in the agreement.
+                if not self._resume_is_collective():
+                    raise
+                self._failed_before_load = e
 
             # checkpoint dispatch
             if self.mode.startswith("init"):
@@ -747,9 +758,18 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         dict
             Dictionary containing the loaded data.
         """
-        if self._checkpoint_step_key is None or odatse.mpi.algsize() <= 1:
-            return self._load_latest_data(filename)
-        return self._load_common_data(filename)
+        if self._resume_is_collective():
+            return self._load_common_data(filename)
+        return self._load_latest_data(filename)
+
+    def _resume_is_collective(self) -> bool:
+        """Whether loading the checkpoint is a collective over the algorithm
+        ranks (``_load_common_data``): a resume or continue of a lockstep
+        algorithm in a parallel run."""
+        mode = getattr(self, "mode", None)
+        return (self._checkpoint_step_key is not None
+                and odatse.mpi.algsize() > 1
+                and (mode is None or mode.startswith(("resume", "continue"))))
 
     def _load_latest_data(self, filename) -> dict:
         # Prefer the current checkpoint, but fall back to the previous
@@ -779,60 +799,69 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         key = self._checkpoint_step_key
         comm = odatse.mpi.algcomm()
         myrank = odatse.mpi.algrank()
+        # a failure of this rank before the dispatch (see prepare()): it is
+        # shared like a missing checkpoint and raised after the agreement
+        earlier = getattr(self, "_failed_before_load", None)
 
-        # 1. every generation this rank has, newest first: {step: (file, data)}
-        #    (a step written twice, e.g. the final checkpoint of pamc, keeps
-        #    the newest file). Nothing raises before the allgather below.
+        # 1. the step of every generation this rank has: {step: file}, the
+        #    newest file for a step written twice (the final checkpoint of
+        #    pamc). Only the step is kept: a snapshot can be large, and the
+        #    chosen one is read again below. Nothing raises before the
+        #    agreement.
         files = [Path(filename)] + [
             Path(f"{filename}.{i}") for i in range(1, self._checkpoint_generations + 1)
         ]
         found = {}
         problems = []
-        for fn in files:
-            if not fn.exists():
-                continue
-            try:
-                with open(fn, "rb") as f:
-                    data = pickle.load(f)
-                step = int(data[key])
-            except Exception as e:
-                problems.append(f"{fn}: {e}")
-                continue
-            found.setdefault(step, (fn, data))
-        if not found:
-            problems.insert(0, f"no readable checkpoint {filename} on rank {myrank}")
-        elif problems:
-            print(f"WARNING: rank {myrank}: skipping unreadable checkpoint(s): " + "; ".join(problems))
+        if earlier is not None:
+            problems.append(f"rank {myrank}: {odatse.mpi._describe(earlier)}")
+        else:
+            for fn in files:
+                if not fn.exists():
+                    continue
+                try:
+                    with open(fn, "rb") as f:
+                        step = int(pickle.load(f)[key])
+                except Exception as e:
+                    problems.append(f"{fn}: {e}")
+                    continue
+                found.setdefault(step, fn)
+            if not found:
+                problems.insert(0, f"no readable checkpoint {filename} on rank {myrank}")
+            elif problems:
+                print(f"WARNING: rank {myrank}: skipping unreadable checkpoint(s): " + "; ".join(problems))
+                problems = []
 
-        # 2. share the available steps (and the global rank, for the report)
-        report = (odatse.mpi.rank(), sorted(found, reverse=True),
-                  "; ".join(problems) if not found else None)
-        reports = comm.allgather(report)
+        # 2. share the outcome and the available steps
+        reports = odatse.mpi.agree(comm, "; ".join(problems) or None, sorted(found, reverse=True))
 
         def fail(message):
             # the same error on every rank, printed once (from the global rank
-            # of algorithm rank 0; see exception.Error.report_rank)
+            # of algorithm rank 0; see exception.Error.report_rank), with the
+            # original exception as the cause on the rank that failed
             err = exception.CheckpointError(message)
             err.report_rank = reports[0][0]
+            if earlier is not None:
+                raise err from earlier
             raise err
 
-        missing = [r for r in range(len(reports)) if reports[r][2] is not None]
-        if missing:
-            fail("cannot resume: " + "; ".join(reports[r][2] for r in missing))
+        failures = [problem for _, problem, _ in reports if problem is not None]
+        if failures:
+            fail("cannot resume: " + "; ".join(failures))
 
-        common = set(reports[0][1])
-        for _, steps, _ in reports[1:]:
+        common = set(reports[0][2])
+        for _, _, steps in reports[1:]:
             common &= set(steps)
         if not common:
             fail(
                 "cannot resume: the checkpoints of the algorithm ranks have no "
                 f"{key} in common (they were written at different steps): "
-                + ", ".join(f"rank {r}: {steps}" for r, (_, steps, _) in enumerate(reports))
+                + ", ".join(f"rank {r}: {steps}" for r, (_, _, steps) in enumerate(reports))
             )
 
         # 3. the newest step every rank has
         step = max(common)
-        fn, data = found[step]
+        fn = found[step]
         newest = max(found)
         if step != newest:
             print(
@@ -840,12 +869,19 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
                 f"is not on every rank; resuming from {key} = {step} ({fn})"
             )
         if myrank == 0:
-            behind = [r for r, (_, steps, _) in enumerate(reports) if max(steps) != step]
+            behind = [r for r, (_, _, steps) in enumerate(reports) if max(steps) != step]
             if behind:
                 print(
                     f"WARNING: resuming every rank from {key} = {step}, the newest "
                     f"checkpoint common to all ranks (newer ones on rank(s) {behind})"
                 )
+        try:
+            with open(fn, "rb") as f:
+                data = pickle.load(f)
+        except Exception as e:
+            raise exception.CheckpointError(
+                f"failed to read checkpoint from {fn}: {e}"
+            ) from e
         print("load_state: load from {}".format(fn))
         return data
 
