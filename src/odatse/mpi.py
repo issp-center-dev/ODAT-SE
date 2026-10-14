@@ -641,6 +641,40 @@ class FailTogetherMeta(_ABCMeta):
 #  Reading on one process for the others
 # ------------------------------------------------------------------ #
 
+def agree(comm, problem=None, payload=None):
+    """Share this rank's outcome with every rank of ``comm`` in one
+    ``allgather``, so that a failure on one rank is seen by all of them.
+
+    Parameters
+    ----------
+    comm
+        The communicator (``None`` or size 1: no communication).
+    problem : str, optional
+        What went wrong on this rank, or ``None`` when it succeeded.
+    payload
+        Anything picklable to share alongside (the steps of the checkpoints
+        this rank has, for instance).
+
+    Returns
+    -------
+    list
+        One ``(global rank, problem, payload)`` tuple per rank of ``comm``,
+        in rank order.
+
+    Notes
+    -----
+    Collective over ``comm``: every rank must call it, whether or not it
+    failed. That is the point: the ranks that succeeded learn of a failure
+    here instead of waiting for the failed rank in a later collective. The
+    caller raises the same error on every rank when any ``problem`` is set
+    (``exception.Error.report_rank`` names the rank that prints it).
+    """
+    report = (rank(), problem, payload)
+    if comm is None or comm.size == 1:
+        return [report]
+    return comm.allgather(report)
+
+
 def _describe(error: BaseException) -> str:
     """``"Type: message"``; never raises (a broken __str__ must not make the
     reading process skip the collective below)."""
@@ -737,9 +771,9 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
             raise err from original
         raise err
 
-    def agree(problem, message):
+    def check(problem, message):
         # every rank learns whether the step failed anywhere; raise everywhere if so
-        problems = [p for p in comm.allgather(problem) if p is not None]
+        problems = [p for _, p, _ in agree(comm, problem) if p is not None]
         if problems:
             fail(f"{message}: " + "; ".join(problems))
 
@@ -780,7 +814,7 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
     except BaseException as e:
         original = e
         problem = f"rank {rank()}: {_describe(e)}"
-    agree(problem, f"cannot transfer {root_what} ({nbytes} bytes)")
+    check(problem, f"cannot transfer {root_what} ({nbytes} bytes)")
 
     # 3. the bytes, in chunks
     for start in range(0, nbytes, _CHUNK_BYTES):
@@ -795,5 +829,5 @@ def _distribute(loader, comm, *, root: int = 0, what: str = "data", distribute: 
             original = e
             problem = f"rank {rank()}: {_describe(e)}"
         del buf
-    agree(problem, f"cannot unpack {root_what} on the receiving rank(s)")
+    check(problem, f"cannot unpack {root_what} on the receiving rank(s)")
     return data
