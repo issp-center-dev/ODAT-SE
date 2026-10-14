@@ -60,18 +60,20 @@ def _make(cls=_Lockstep, checkpoint=True, steps=10, interval=1.0e9):
 
 class _Comm:
     """Stand-in for the algorithm communicator of a 2-rank run seen from one
-    rank: ``bcast`` hands back what rank 0 decided (``root_value`` when this
-    rank is not rank 0), ``allgather`` appends the prescribed other report."""
+    rank: ``bcast`` hands back what rank 0 decided (``root_value`` when set,
+    i.e. when this rank is not rank 0), ``allgather`` appends the prescribed
+    other report (``(global rank, problem, payload)``, see odatse.mpi.agree)."""
 
     def __init__(self, root_value=None, other=None):
         self.root_value = root_value
         self.other = other
+        self.size = 2
         self.bcasts = 0
         self.allgathers = 0
 
     def bcast(self, value, root=0):
         self.bcasts += 1
-        return value if value is not None else self.root_value
+        return value if self.root_value is None else self.root_value
 
     def allgather(self, report):
         self.allgathers += 1
@@ -195,7 +197,7 @@ def test_serial_write_failure_raises(tmp_path):
 
 
 def test_parallel_write_agrees_before_publishing(ckpt, monkeypatch):
-    comm = _Comm(other=(1, None))
+    comm = _Comm(other=(1, None, None))
     _parallel(monkeypatch, 0, comm)
     alg = _make()
     alg._save_data({"istep": 1}, ckpt)
@@ -205,11 +207,11 @@ def test_parallel_write_agrees_before_publishing(ckpt, monkeypatch):
 
 
 def test_failure_on_another_rank_withholds_this_ranks_checkpoint(ckpt, monkeypatch):
-    comm = _Comm(other=(1, None))
+    comm = _Comm(other=(1, None, None))
     _parallel(monkeypatch, 0, comm)
     alg = _make()
     alg._save_data({"istep": 1}, ckpt)   # the previous, published checkpoint
-    comm.other = (1, "failed to save checkpoint to status.pickle: disk full")
+    comm.other = (1, "failed to save checkpoint to status.pickle: disk full", None)
     comm.allgathers = 0
     with pytest.raises(CheckpointError, match="disk full") as info:
         alg._save_data({"istep": 2}, ckpt)
@@ -221,7 +223,7 @@ def test_failure_on_another_rank_withholds_this_ranks_checkpoint(ckpt, monkeypat
 
 
 def test_failure_here_still_enters_the_agreement(tmp_path, monkeypatch):
-    comm = _Comm(other=(1, None))
+    comm = _Comm(other=(1, None, None))
     _parallel(monkeypatch, 0, comm)
     alg = _make()
     with pytest.raises(CheckpointError, match="failed to save checkpoint") as info:
@@ -231,7 +233,7 @@ def test_failure_here_still_enters_the_agreement(tmp_path, monkeypatch):
 
 
 def test_independent_ranks_write_without_agreement(ckpt, monkeypatch):
-    comm = _Comm(other=(1, None))
+    comm = _Comm(other=(1, None, None))
     _parallel(monkeypatch, 0, comm)
     alg = _make(_Independent)
     alg._save_data({"istep": 1}, ckpt)

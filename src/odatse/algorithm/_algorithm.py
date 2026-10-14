@@ -530,15 +530,11 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         """
         if not self.checkpoint:
             return False
+        due = bool(step >= self._next_checkpoint_step
+                   or time.time() >= self._next_checkpoint_time)
         if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
-            due = None
-            if odatse.mpi.algrank() == 0:
-                due = bool(step >= self._next_checkpoint_step
-                           or time.time() >= self._next_checkpoint_time)
+            # rank 0's decision for everyone
             due = odatse.mpi.algcomm().bcast(due, root=0)
-        else:
-            due = bool(step >= self._next_checkpoint_step
-                       or time.time() >= self._next_checkpoint_time)
         if due:
             self._start_checkpoint_schedule(step)
         return due
@@ -751,8 +747,8 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
             # from different steps; the window shrinks to the renames. The
             # agreement is the barrier, and it also shares a failed write: it
             # raises on every rank, so no rank goes on without the others.
-            reports = odatse.mpi.algcomm().allgather((odatse.mpi.rank(), problem))
-            problems = [p for _, p in reports if p is not None]
+            reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
+            problems = [p for _, p, _ in reports if p is not None]
             if problems:
                 tmp.unlink(missing_ok=True)
                 err = exception.CheckpointError("; ".join(problems))
