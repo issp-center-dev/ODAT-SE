@@ -8,9 +8,11 @@ steps). ``_save_data()`` agrees on the outcome of the temporary-file write
 before any rank renames it into place, so a failed write on one rank raises
 on every rank and no rank publishes a checkpoint the others do not have.
 
-These tests run serially with a stub algorithm communicator. The algorithm
-objects are made without ``__init__`` (the construction consensus of
-``FailTogetherMeta`` would otherwise run against the stub).
+These tests do not communicate: the parallel cases use a stub algorithm
+communicator, the serial cases pin ``algsize()`` to 1 (the unit tests also
+run under ``mpirun -np 2`` / ``-np 4``). The algorithm objects are made
+without ``__init__`` (the construction consensus of ``FailTogetherMeta``
+would otherwise run against the stub).
 """
 
 import os
@@ -91,9 +93,17 @@ def _clock(monkeypatch, now):
     monkeypatch.setattr("odatse.algorithm._algorithm.time.time", lambda: now[0])
 
 
+@pytest.fixture
+def serial(monkeypatch):
+    """A single algorithm rank, whatever the launcher (the unit tests also
+    run under mpirun -np 2 / -np 4): the non-collective path."""
+    monkeypatch.setattr(mpi, "algsize", lambda: 1)
+    monkeypatch.setattr(mpi, "algrank", lambda: 0)
+
+
 # --- _checkpoint_due ---
 
-def test_serial_step_condition():
+def test_serial_step_condition(serial):
     alg = _make(steps=10)
     alg._start_checkpoint_schedule(0)
     assert not alg._checkpoint_due(9)
@@ -103,14 +113,14 @@ def test_serial_step_condition():
     assert alg._checkpoint_due(20)
 
 
-def test_schedule_starts_from_the_restored_step():
+def test_schedule_starts_from_the_restored_step(serial):
     alg = _make(steps=10)
     alg._start_checkpoint_schedule(25)
     assert not alg._checkpoint_due(34)
     assert alg._checkpoint_due(35)
 
 
-def test_serial_time_condition(monkeypatch):
+def test_serial_time_condition(monkeypatch, serial):
     now = [1000.0]
     _clock(monkeypatch, now)
     alg = _make(steps=10 ** 9, interval=5.0)
@@ -181,7 +191,7 @@ def _load(fn):
         return pickle.load(f)
 
 
-def test_serial_write_publishes_and_rotates(ckpt):
+def test_serial_write_publishes_and_rotates(ckpt, serial):
     alg = _make()
     alg._save_data({"istep": 1}, ckpt)
     alg._save_data({"istep": 2}, ckpt)
@@ -190,7 +200,7 @@ def test_serial_write_publishes_and_rotates(ckpt):
     assert not os.path.exists(ckpt + ".tmp")
 
 
-def test_serial_write_failure_raises(tmp_path):
+def test_serial_write_failure_raises(tmp_path, serial):
     alg = _make()
     with pytest.raises(CheckpointError, match="failed to save checkpoint"):
         alg._save_data({"istep": 1}, str(tmp_path / "missing_dir" / "status.pickle"))
