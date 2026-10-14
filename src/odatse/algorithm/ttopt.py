@@ -171,6 +171,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     tt_ranks: np.ndarray
     poi: list[Optional[np.ndarray]]
 
+    # The ranks broadcast the TT cores and gather the evaluations collectively
+    # during the run, so on resume they must all restart from the same
+    # evaluation count (see ``AlgorithmBase._load_data()``).
+    _checkpoint_step_key = "f_eval_count"
+
     # Fields saved and restored at every checkpoint.
     # n_q_dims is included for structural consistency validation on resume.
     _checkpoint_attrs: list[str] = [
