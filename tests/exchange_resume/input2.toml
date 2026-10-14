@@ -1,0 +1,24 @@
+# Reference: the same run in one shot (no checkpoint, no delay).
+[base]
+dimension = 2
+output_dir = "output2"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
+
+[algorithm.exchange]
+numsteps = 500
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"

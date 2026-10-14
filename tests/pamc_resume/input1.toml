@@ -1,0 +1,33 @@
+# Part 1: initial run, interrupted right after its first checkpoint (at the
+# end of every temperature stage: checkpoint_steps = numsteps_annealing).
+# solver.delay slows each evaluation so that the run has several seconds
+# left when it is interrupted, whatever the machine speed.
+[base]
+dimension = 1
+output_dir = "output1"
+
+[algorithm]
+name = "pamc"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 50
+
+[algorithm.param]
+min_list = [-10.0]
+max_list = [10.0]
+step_list = [0.25]
+
+[algorithm.pamc]
+numsteps_annealing = 50
+Tnum = 5
+bmin = 0.0
+bmax = 10.0
+Tlogspace = false
+nreplica_per_proc = 20
+fix_num_walkers = false
+resampling_interval = 3
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
+delay = 0.002
