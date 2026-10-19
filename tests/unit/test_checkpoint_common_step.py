@@ -209,6 +209,25 @@ def test_unreadable_generation_is_skipped_with_a_warning(ckpt, monkeypatch, caps
     assert "skipping unreadable checkpoint" in capsys.readouterr().out
 
 
+def test_error_checking_a_generation_still_enters_the_collective(ckpt, monkeypatch):
+    # Path.exists() raises for anything but "not found" (PermissionError on
+    # an unsearchable directory, for instance); that must be shared like an
+    # unreadable checkpoint, not raised before the agreement
+    _write_generations(ckpt, [300, 200])
+    real_exists = os.path.exists
+
+    def exists(self, *args, **kwargs):
+        if str(self) == ckpt:
+            raise PermissionError(13, "Permission denied", str(self))
+        return real_exists(self)
+
+    monkeypatch.setattr("pathlib.Path.exists", exists)
+    comm = _parallel(monkeypatch, [_report([300, 200])])
+    data = _Lockstep.__new__(_Lockstep)._load_data(ckpt)
+    assert data["istep"] == 200
+    assert comm.calls == 1
+
+
 # --- a failure before the dispatch is carried through the agreement ---
 
 class _FailingRunner:
