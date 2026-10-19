@@ -55,7 +55,9 @@ for r in range(nranks):
 if any(s != steps[0] for s in steps[1:]):
     print('ERROR: the ranks wrote their checkpoints at different steps')
     sys.exit(1)
-if len(steps[0]) < 2 or steps[0][1] >= steps[0][0]:
+# some generation older than the final checkpoint; not necessarily .1, which
+# has the final step too when the timer fired on the last step
+if len(steps[0]) < 2 or min(steps[0]) >= steps[0][0]:
     print('ERROR: no timer-driven checkpoint before the final one')
     sys.exit(1)
 " || fail "the checkpoints do not agree across the ranks"
