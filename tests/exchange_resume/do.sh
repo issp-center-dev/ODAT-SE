@@ -70,7 +70,9 @@ rm -rf output2
 time $CMD input2.toml || fail "the reference run failed"
 
 # --- Compare: every .txt file of the reference run ---
-for f in $(cd output2 && find . -name '*.txt' | sort); do
+files=$(cd output2 && find . -name '*.txt' | sort)
+[ -n "$files" ] || fail "no result files in output2"
+for f in $files; do
   echo "diff output1/$f output2/$f"
   diff output1/$f output2/$f || fail "output1/$f and output2/$f differ"
 done
