@@ -109,6 +109,10 @@ class BaseWriter:
             return
         self.fp.flush()
         self.fp.truncate(position)
+        # truncate() leaves the stream position at the old end of the file;
+        # move it too, so that tell() is right before the next write (a
+        # checkpoint taken before this writer writes again records it)
+        self.fp.seek(position)
         self._logger.debug(f"truncate: file={self.filename}, position={position}")
 
     def _write(self, *args):

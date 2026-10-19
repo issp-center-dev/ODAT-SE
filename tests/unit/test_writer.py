@@ -221,6 +221,27 @@ def test_flush_tell_truncate_for_resume(tmp_path):
     assert fn.read_text() == "# step x\n0 1.0\n1 2.0\n2 3.5\n"
 
 
+def test_tell_right_after_truncate(tmp_path):
+    """
+    A writer that does not write between the cut on resume and the next
+    checkpoint (a pamc rank without walkers, for instance) must record the
+    position it was cut back to, not the old end of the file: a later resume
+    would otherwise extend the file with NUL bytes.
+    """
+    fn = tmp_path / "result.txt"
+    dw = DataWriter(str(fn), item_list=["step", "x"])
+    dw.write(0, 1.0)
+    position = dw.tell()
+    dw.write(1, 2.0)
+    dw.close()
+
+    resumed = DataWriter(str(fn), mode="a", item_list=["step", "x"])
+    resumed.truncate(position)
+    assert resumed.tell() == position
+    resumed.close()
+    assert fn.read_text() == "# step x\n0 1.0\n"
+
+
 def test_truncate_ignores_none_and_closed_writer(tmp_path):
     fn = tmp_path / "result.txt"
     dw = DataWriter(str(fn), item_list=["a"])
