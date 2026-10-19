@@ -817,9 +817,11 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
             problems.append(f"rank {myrank}: {odatse.mpi._describe(earlier)}")
         else:
             for fn in files:
-                if not fn.exists():
-                    continue
                 try:
+                    # inside the try: exists() raises OSError for anything
+                    # but "not found" (e.g. PermissionError)
+                    if not fn.exists():
+                        continue
                     with open(fn, "rb") as f:
                         step = int(pickle.load(f)[key])
                 except Exception as e:
