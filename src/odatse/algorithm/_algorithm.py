@@ -95,16 +95,28 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
     # them all by walking the MRO.
     _checkpoint_attrs: list[str] = []
 
-    # Key of the snapshot field that counts the progress of the run (the
-    # Monte Carlo step, the number of evaluations) when the algorithm ranks
-    # advance in lockstep, i.e. when they take part in collectives during the
-    # run.  ``_load_data()`` then makes every rank resume from a checkpoint
-    # of the same step (see there); ranks that restarted from different
-    # steps would run different numbers of iterations and block in the first
-    # collective.  ``None`` (the default) for algorithms whose ranks do not
-    # communicate during the run (mapper, random_search, bayes): a different
-    # position per rank is then legitimate.
+    # Name of the progress counter of the run (the Monte Carlo step, the
+    # number of evaluations) when the algorithm ranks advance in lockstep,
+    # i.e. when they take part in collectives during the run.
+    # ``_load_data()`` then makes every rank resume from a checkpoint of the
+    # same progress (see there); ranks that restarted from different steps
+    # would run different numbers of iterations and block in the first
+    # collective.  By default it is the key of the snapshot field that
+    # ``_checkpoint_step()`` reads; an algorithm whose counter is not a single
+    # field overrides that method and sets the name used in messages here.
+    # ``None`` (the default) for algorithms whose ranks do not communicate
+    # during the run (mapper, random_search, bayes): a different position per
+    # rank is then legitimate.
     _checkpoint_step_key: Optional[str] = None
+
+    def _checkpoint_step(self, data: dict):
+        """The progress recorded in the snapshot *data*, a value that is the
+        same on every algorithm rank at a given checkpoint and increases from
+        one checkpoint to the next (comparable, picklable). The default reads
+        the field named by ``_checkpoint_step_key``; pamc overrides it
+        (``istep`` is not in lockstep there when a rank runs out of walkers).
+        """
+        return data[self._checkpoint_step_key]
 
     # Number of previous checkpoints kept next to the current one
     # (``status.pickle.1`` ... ``status.pickle.<n>``).
@@ -791,12 +803,14 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         ranks' writes leaves the ranks with checkpoints from different
         steps. Ranks restarted from different steps would run different
         numbers of iterations and block in the first collective. The ranks
-        therefore agree on the step to restart from: each reads the step of
-        every generation it has (``filename``, ``filename.1``, ...), one
-        ``allgather`` shares them, and every rank loads the newest step that
-        all of them have, with a warning on the ranks that skip a newer one.
-        If there is no such step, or a rank has no readable checkpoint at
-        all, every rank raises the same ``CheckpointError``.
+        therefore agree on the step to restart from: each reads the progress
+        (``_checkpoint_step()``) of every generation it has (``filename``,
+        ``filename.1``, ...), one ``allgather`` shares them, and every rank
+        loads the newest step that all of them have, with a warning on the
+        ranks that skip a newer one. If there is no such step, or a rank has
+        no readable checkpoint at all, every rank raises the same
+        ``CheckpointError``. In continue mode there is no fallback: the
+        latest checkpoint must be the same on every rank.
 
         Collective over the algorithm ranks in that case: every rank enters
         the ``allgather`` whether or not its own read succeeded, so a failure
@@ -877,7 +891,7 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
                     if not fn.exists():
                         continue
                     with open(fn, "rb") as f:
-                        step = int(pickle.load(f)[key])
+                        step = self._checkpoint_step(pickle.load(f))
                 except Exception as e:
                     problems.append(f"{fn}: {e}")
                     continue
@@ -919,6 +933,22 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         step = max(common)
         fn = found[step]
         newest = max(found)
+        if (getattr(self, "mode", None) or "").startswith("continue"):
+            # --cont extends a finished run from its final checkpoint, and an
+            # older generation is an intermediate one that the continuation
+            # would misread (pamc, for instance, advances the temperature once
+            # more): no fallback here, the final checkpoint must be on every
+            # rank
+            latest = [steps[0] for _, _, steps in reports]
+            if any(s != step for s in latest):
+                fail(
+                    "cannot continue: the latest checkpoints of the algorithm "
+                    f"ranks are from different steps ({key}): "
+                    + ", ".join(f"rank {r}: {s}" for r, s in enumerate(latest))
+                    + "; --cont needs the final checkpoint of the finished run on "
+                    "every rank (--resume restarts from the newest checkpoint "
+                    "common to all ranks)"
+                )
         if step != newest:
             print(
                 f"WARNING: rank {myrank}: the latest checkpoint ({key} = {newest}) "

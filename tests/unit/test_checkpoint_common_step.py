@@ -276,3 +276,73 @@ def test_runner_failure_in_serial_resume_is_raised_as_is(ckpt, serial):
     alg = _resuming(ckpt, _FailingRunner())
     with pytest.raises(RuntimeError, match="injected runner failure"):
         alg.prepare()
+
+
+# --- the progress need not be a single field (pamc) ---
+
+class _Paired(_Lockstep):
+    """Progress is a pair, as for pamc: the temperature index and the
+    position in the resampling cycle."""
+    _checkpoint_step_key = "(Tindex, index_from_reset)"
+
+    def _checkpoint_step(self, data):
+        return (data["Tindex"], data["index_from_reset"])
+
+
+def _write_pairs(path, pairs):
+    for i, (t, k) in enumerate(pairs):
+        fn = path if i == 0 else f"{path}.{i}"
+        with open(fn, "wb") as f:
+            pickle.dump({"Tindex": t, "index_from_reset": k, "istep": 7}, f)
+
+
+def test_progress_pair_falls_back_to_the_newest_common_pair(ckpt, monkeypatch, capsys):
+    # this rank: final (20, 2), periodic (20, 1), (19, 1); the other rank
+    # stopped before the final one. istep is 7 in every generation (a rank
+    # without walkers) and must not matter.
+    _write_pairs(ckpt, [(20, 2), (20, 1), (19, 1)])
+    _parallel(monkeypatch, [_report([(20, 1), (19, 1)])])
+    data = _Paired.__new__(_Paired)._load_data(ckpt)
+    assert (data["Tindex"], data["index_from_reset"]) == (20, 1)
+    out = capsys.readouterr().out
+    assert "(Tindex, index_from_reset) = (20, 1)" in out
+
+
+def test_progress_pair_no_common_pair_names_the_counter(ckpt, monkeypatch):
+    _write_pairs(ckpt, [(20, 2), (20, 1)])
+    _parallel(monkeypatch, [_report([(18, 1), (17, 1)])])
+    with pytest.raises(CheckpointError, match=r"no \(Tindex, index_from_reset\) in common"):
+        _Paired.__new__(_Paired)._load_data(ckpt)
+
+
+# --- continue mode: the final checkpoint on every rank, no fallback ---
+
+def _continuing(cls=_Lockstep):
+    alg = cls.__new__(cls)
+    alg.mode = "continue"
+    return alg
+
+
+def test_continue_loads_the_shared_latest_checkpoint(ckpt, monkeypatch):
+    _write_generations(ckpt, [300, 200])
+    _parallel(monkeypatch, [_report([300, 200]), _report([300, 100])])
+    data = _continuing()._load_data(ckpt)
+    assert data["istep"] == 300
+
+
+def test_continue_refuses_to_fall_back(ckpt, monkeypatch):
+    # a common older generation exists, but --cont must not use it
+    _write_generations(ckpt, [300, 200])
+    _parallel(monkeypatch, [_report([200, 100])])
+    with pytest.raises(CheckpointError, match="cannot continue: the latest checkpoints") as info:
+        _continuing()._load_data(ckpt)
+    assert "rank 0: 300, rank 1: 200" in str(info.value)
+    assert "--resume" in str(info.value)
+
+
+def test_resume_mode_still_falls_back(ckpt, monkeypatch):
+    _write_generations(ckpt, [300, 200])
+    _parallel(monkeypatch, [_report([200, 100])])
+    alg = _Lockstep.__new__(_Lockstep)
+    alg.mode = "resume-resetrand"
+    assert alg._load_data(ckpt)["istep"] == 200

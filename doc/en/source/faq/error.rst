@@ -150,7 +150,7 @@ You tried to restart with ``--resume`` but the checkpoint file is not found. Che
 ``cannot resume: the checkpoints of the algorithm ranks have no istep in common``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In a parallel run of ``exchange``, ``pamc`` or ``ttopt`` (``f_eval_count`` instead of ``istep``), every rank must restart from a checkpoint of the same step, since the ranks communicate with each other during the run.
+In a parallel run of ``exchange``, ``pamc`` or ``ttopt``, every rank must restart from a checkpoint of the same step, since the ranks communicate with each other during the run (the message names ``f_eval_count`` for ``ttopt`` and the pair ``(Tindex, index_from_reset)`` for ``pamc``, whose ``istep`` stops on a rank that ran out of walkers).
 Rank 0 decides when the ranks write, and the new files are put in place only once every rank has written its own, so the ranks normally hold checkpoints of the same step.
 If they differ nevertheless, the ranks fall back together to the most recent step that every rank has, using the previous generations ``status.pickle.1`` ... ``status.pickle.3`` where needed, and print a warning.
 This error means that no step is common to all ranks: the message lists the steps each rank has.
@@ -158,6 +158,8 @@ This happens when checkpoint files were removed or copied between ranks, or were
 Restart the calculation from the beginning.
 
 ``cannot resume: no readable checkpoint ... on rank N`` is the same check when a rank has no checkpoint file at all, or none that can be read.
+
+``cannot continue: the latest checkpoints of the algorithm ranks are from different steps`` is the corresponding message of ``--cont``, which does not fall back to an older generation: it needs the final state of the finished run on every rank. Use ``--resume`` to restart from the newest checkpoint common to all ranks, then ``--cont`` once that run has finished.
 
 
 Problems with calculation results
