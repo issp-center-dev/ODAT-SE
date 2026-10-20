@@ -279,7 +279,15 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         if self.mode.startswith("init"):
             beta = self.betas[self.Tindex]
-            self.fx = self._evaluate(self.state)
+            # the resampling and the first temperature's collectives follow:
+            # a failure in the initial evaluation is shared like one inside
+            # the loop (see below)
+            error = None
+            try:
+                self.fx = self._evaluate(self.state)
+            except Exception as e:
+                error = e
+            self._agree_or_fail(error)
             if self.anneal_from_beta0:
                 # Anneal from beta=0 and resample
                 # In _resample, self.logZ is updated
@@ -312,18 +320,27 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             Tindex = self.Tindex
             beta = self.betas[self.Tindex]
 
+            # A failure of this rank during the sampling (a solver error) is
+            # shared with the other ranks right after it, before the
+            # collectives of this temperature (participation ratio,
+            # resampling, checkpoint), instead of leaving them waiting there.
+            error = None
             if self.nwalkers != 0:
-                for _ in range(self.numsteps_for_T[Tindex]):
-                    self.local_update(
-                        beta,
-                        extra_info_to_write=[
-                            np.exp(self.logweights),
-                            self.walker_ancestors,
-                        ],
-                    )
-                    self.istep += 1
+                try:
+                    for _ in range(self.numsteps_for_T[Tindex]):
+                        self.local_update(
+                            beta,
+                            extra_info_to_write=[
+                                np.exp(self.logweights),
+                                self.walker_ancestors,
+                            ],
+                        )
+                        self.istep += 1
+                except Exception as e:
+                    error = e
             else : #self.nwalkers == 0
                 pass
+            self._agree_or_fail(error)
 
             # print(">>> istep={}".format(self.istep))
 
@@ -368,11 +385,15 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 print(">>> checkpoint")
                 self._save_state(self.checkpoint_file)
 
-        # store final state for continuation (without the agreement of the
-        # lockstep ranks, see exchange)
+        # store final state for continuation. With the agreement of the
+        # lockstep ranks, unlike exchange: a failure in the loop is raised at
+        # the agreement of its temperature, so every rank that gets here has
+        # passed the last one, and collectives (the gather below, the
+        # barrier) still follow, which a failed write on one rank must not
+        # leave the others waiting in.
         if self.checkpoint:
             print(">>> store final state")
-            self._save_state(self.checkpoint_file, agree=False)
+            self._save_state(self.checkpoint_file)
 
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)

@@ -796,7 +796,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 assert odatse.mpi.algcomm() is not None
                 split = np.array_split(np.arange(len(eval_idxs)), odatse.mpi.algsize())
                 my_local_idxs = split[odatse.mpi.algrank()]
-                my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
+                # a solver failure on this rank is shared before the
+                # allgather, instead of leaving the other ranks waiting in it
+                error = None
+                my_f_vals = []
+                try:
+                    my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
+                except Exception as e:
+                    error = e
+                self._agree_or_fail(error)
                 all_f_vals = odatse.mpi.algcomm().allgather(my_f_vals)
                 eval_f_vals = [v for sublist in all_f_vals for v in sublist]
             else:

@@ -166,7 +166,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
         # For new runs, evaluate initial configuration
         if self.mode.startswith("init"):
-            self.fx = self._evaluate(self.state)
+            # the first replica exchange follows: a failure in the initial
+            # evaluation is shared like one inside the loop (see below)
+            error = None
+            try:
+                self.fx = self._evaluate(self.state)
+            except Exception as e:
+                error = e
+            self._agree_or_fail(error)
             self._write_result(fp_trial)
             self._write_result(fp_result)
             self.istep += 1
@@ -181,7 +188,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         # Set up checkpointing intervals
         self._start_checkpoint_schedule(self.istep)
 
-        # Main simulation loop
+        # Main simulation loop. A failure of this rank inside a step (a
+        # solver error) is kept in `error` and shared with the other ranks at
+        # the next synchronisation point (_agree_or_fail), before their next
+        # collective; until then this rank only counts the steps.
+        error = None
         while self.istep < self.numsteps:
             # Attempt replica exchange periodically
             if self.istep % self.numsteps_exchange == 0:
@@ -197,18 +208,29 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 beta = self.betas[self.Tindex]
 
             # Perform local Monte Carlo updates
-            self.local_update(beta)
+            if error is None:
+                try:
+                    self.local_update(beta)
+                except Exception as e:
+                    error = e
             self.istep += 1
 
-            # Checkpointing, decided on rank 0 for all ranks: only just before
-            # a replica exchange, where the ranks synchronise anyway (the
-            # decision is a collective; at every step it would turn a solver
-            # failure on one rank into a hang of the others). A checkpoint
-            # taken here precedes the exchange of this step, which the resumed
-            # run then performs first, as the uninterrupted run did.
-            if (self.istep % self.numsteps_exchange == 0 and self.istep < self.numsteps
-                    and self._checkpoint_due(self.istep)):
-                self._save_state(self.checkpoint_file)
+            # Synchronisation point, just before the next replica exchange:
+            # share a failure, then the checkpoint decision (rank 0 decides
+            # for all ranks; a collective, so only here and not at every
+            # step). A checkpoint taken here precedes the exchange of this
+            # step, which the resumed run then performs first, as the
+            # uninterrupted run did.
+            if self.istep % self.numsteps_exchange == 0 and self.istep < self.numsteps:
+                self._agree_or_fail(error)
+                if self._checkpoint_due(self.istep):
+                    self._save_state(self.checkpoint_file)
+
+        # No collective follows in this phase (the final checkpoint is written
+        # without agreement), so a failure after the last synchronisation
+        # point is raised here and met by the other ranks in the consensus.
+        if error is not None:
+            raise error
 
         # Save final state for possible continuation, before the output files
         # are closed so that it records their positions too (a --cont run

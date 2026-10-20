@@ -124,6 +124,15 @@ add_test(
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/worker_error
   )
 
+add_test(
+  NAME parallel_inloop_error
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/inloop_error
+  )
+# upper bound independent of the timeout inside do.sh (a hang is the
+# failure mode this test looks for)
+set_tests_properties(parallel_inloop_error PROPERTIES TIMEOUT 600)
+
 # The bayes tests exit with status 77 when the optional dependency physbo is
 # not installed; report them as skipped rather than failed.
 set_tests_properties(parallel_bayes_grid parallel_bayes_meshfile PROPERTIES SKIP_RETURN_CODE 77)

@@ -1,0 +1,22 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[algorithm]
+name = "ttopt"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 1
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+
+[algorithm.ttopt]
+p_points = [2, 2]
+q_points = [20, 20]
+r_max = 2
+max_f_eval = 1000

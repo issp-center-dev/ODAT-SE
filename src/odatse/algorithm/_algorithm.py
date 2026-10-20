@@ -558,6 +558,37 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
             self._start_checkpoint_schedule(step)
         return due
 
+    def _agree_or_fail(self, error: Optional[BaseException] = None) -> None:
+        """Share a failure of this rank with the other algorithm ranks at a
+        synchronisation point of the main loop, and raise if any rank failed.
+
+        The phase wrappers agree on failures only after the phase
+        (``_reach_consensus``). A rank that raises inside the loop of a
+        lockstep algorithm therefore left the others waiting in the next
+        collective of the loop. The loops now keep such an exception as
+        *error*, skip their work up to the next synchronisation point, and
+        call this just before its collective: one ``allgather`` shares who
+        failed; the rank that failed re-raises its own exception, the others
+        raise ``odatse.mpi.OtherAlgorithmProcessError`` (which the ``odatse``
+        command does not print), and all of them meet in the phase
+        consensus as for a failure outside the loop.
+
+        Collective over the algorithm ranks for a lockstep algorithm in a
+        parallel run; a plain re-raise of *error* otherwise.
+        """
+        if self._checkpoint_step_key is None or odatse.mpi.algsize() <= 1:
+            if error is not None:
+                raise error
+            return
+        problem = None
+        if error is not None:
+            problem = f"rank {odatse.mpi.algrank()}: {odatse.mpi._describe(error)}"
+        reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
+        if error is not None:
+            raise error
+        if any(p is not None for _, p, _ in reports):
+            raise odatse.mpi.OtherAlgorithmProcessError()
+
     def _snapshot(self) -> dict:
         """The snapshot to write at a checkpoint: ``__getstate__()``.
 
