@@ -585,10 +585,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             if self._checkpoint_due(self.f_eval_count):
                 self._save_state(self.checkpoint_file)
 
-    def _save_state(self, filename) -> None:
-        """Save the current algorithm state to a checkpoint file."""
-        self._save_data(self.__getstate__(), filename)
-
     def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
         """Restore algorithm state from a checkpoint snapshot.
 

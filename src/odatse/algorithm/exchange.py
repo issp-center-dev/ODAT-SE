@@ -200,8 +200,14 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.local_update(beta)
             self.istep += 1
 
-            # Handle checkpointing if enabled (decided on rank 0 for all ranks)
-            if self._checkpoint_due(self.istep):
+            # Checkpointing, decided on rank 0 for all ranks: only just before
+            # a replica exchange, where the ranks synchronise anyway (the
+            # decision is a collective; at every step it would turn a solver
+            # failure on one rank into a hang of the others). A checkpoint
+            # taken here precedes the exchange of this step, which the resumed
+            # run then performs first, as the uninterrupted run did.
+            if (self.istep % self.numsteps_exchange == 0 and self.istep < self.numsteps
+                    and self._checkpoint_due(self.istep)):
                 self._save_state(self.checkpoint_file)
 
         # Clean up file handles
@@ -209,9 +215,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         fp_result.close()
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
-        # Save final state for possible continuation
+        # Save final state for possible continuation. Without the agreement
+        # of the lockstep ranks: a rank that failed in the loop is waiting in
+        # the phase consensus, and the others must not wait for it here.
         if self.checkpoint:
-            self._save_state(self.checkpoint_file)
+            self._save_state(self.checkpoint_file, agree=False)
 
     def _exchange(self, direction: bool) -> None:
         """

@@ -368,10 +368,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 print(">>> checkpoint")
                 self._save_state(self.checkpoint_file)
 
-        # store final state for continuation
+        # store final state for continuation (without the agreement of the
+        # lockstep ranks, see exchange)
         if self.checkpoint:
             print(">>> store final state")
-            self._save_state(self.checkpoint_file)
+            self._save_state(self.checkpoint_file, agree=False)
 
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)

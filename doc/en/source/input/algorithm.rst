@@ -65,6 +65,7 @@ The ``name`` determines the type of algorithm. Each parameter is defined for eac
   Description:
   A parameter to specify the iteration steps between the previous and next checkpoints. One iteration step corresponds to one evaluation of a grid point in the mapper algorithm, one evaluation of Bayesian search in the bayes algorithm, and one local update in the Monte Carlo (exchange and PAMC) algorithms.
   The default value is a sufficiently large number of steps. To use checkpointing, set ``checkpoint = true`` and specify at least one of ``checkpoint_steps`` and ``checkpoint_interval``.
+  The algorithms whose MPI ranks advance in lockstep take their checkpoints only where the ranks synchronise: ``exchange`` just before a replica exchange (every ``numsteps_exchange`` steps), ``pamc`` at the end of a temperature, and ``ttopt`` at the end of a double sweep. Both ``checkpoint_steps`` and ``checkpoint_interval`` are therefore honoured at the next such point.
 
 - ``checkpoint_interval``
 
