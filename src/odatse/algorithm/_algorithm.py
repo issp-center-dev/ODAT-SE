@@ -95,16 +95,28 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
     # them all by walking the MRO.
     _checkpoint_attrs: list[str] = []
 
-    # Key of the snapshot field that counts the progress of the run (the
-    # Monte Carlo step, the number of evaluations) when the algorithm ranks
-    # advance in lockstep, i.e. when they take part in collectives during the
-    # run.  ``_load_data()`` then makes every rank resume from a checkpoint
-    # of the same step (see there); ranks that restarted from different
-    # steps would run different numbers of iterations and block in the first
-    # collective.  ``None`` (the default) for algorithms whose ranks do not
-    # communicate during the run (mapper, random_search, bayes): a different
-    # position per rank is then legitimate.
+    # Name of the progress counter of the run (the Monte Carlo step, the
+    # number of evaluations) when the algorithm ranks advance in lockstep,
+    # i.e. when they take part in collectives during the run.
+    # ``_load_data()`` then makes every rank resume from a checkpoint of the
+    # same progress (see there); ranks that restarted from different steps
+    # would run different numbers of iterations and block in the first
+    # collective.  By default it is the key of the snapshot field that
+    # ``_checkpoint_step()`` reads; an algorithm whose counter is not a single
+    # field overrides that method and sets the name used in messages here.
+    # ``None`` (the default) for algorithms whose ranks do not communicate
+    # during the run (mapper, random_search, bayes): a different position per
+    # rank is then legitimate.
     _checkpoint_step_key: Optional[str] = None
+
+    def _checkpoint_step(self, data: dict):
+        """The progress recorded in the snapshot *data*, a value that is the
+        same on every algorithm rank at a given checkpoint and increases from
+        one checkpoint to the next (comparable, picklable). The default reads
+        the field named by ``_checkpoint_step_key``; pamc overrides it
+        (``istep`` is not in lockstep there when a rank runs out of walkers).
+        """
+        return data[self._checkpoint_step_key]
 
     # Number of previous checkpoints kept next to the current one
     # (``status.pickle.1`` ... ``status.pickle.<n>``).
@@ -525,8 +537,15 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         checkpoint at the same step: the time condition evaluated against
         each rank's own clock would otherwise fire at different steps on
         different ranks, and the ranks could not be resumed together (see
-        ``_load_data()``). Collective over the algorithm ranks in that case:
-        every rank must call it once per step.
+        ``_load_data()``).
+
+        Collective over the algorithm ranks in that case, so call it only at
+        a point where the ranks synchronise anyway (just before the next
+        replica exchange, at the end of a temperature, after a sweep), and
+        with the same *step* on every rank. Called at every step it would
+        turn a failure on one rank (a solver error) into a hang of the
+        others, where they would otherwise finish the loop and meet the
+        failed rank in the phase consensus.
         """
         if not self.checkpoint:
             return False
@@ -539,18 +558,43 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
             self._start_checkpoint_schedule(step)
         return due
 
-    def _save_state(self, filename) -> None:
+    def _snapshot(self) -> dict:
+        """The snapshot to write at a checkpoint: ``__getstate__()``.
+
+        Override to do work that must precede the snapshot (flushing output
+        files whose positions the snapshot records), calling
+        ``super()._snapshot()`` last. A failure here is shared with the
+        other ranks by ``_save_state()`` like a failed write.
+        """
+        return self.__getstate__()
+
+    def _save_state(self, filename, *, agree=True) -> None:
         """Save a checkpoint snapshot to *filename*.
 
-        Uses ``__getstate__()`` to collect all fields declared in
-        ``_checkpoint_attrs`` across the MRO, then delegates to
-        ``_save_data()`` for versioned pickle storage.
+        Takes the snapshot (``_snapshot()``, which collects all fields
+        declared in ``_checkpoint_attrs`` across the MRO), then delegates to
+        ``_save_data()`` for versioned pickle storage. A failure to take the
+        snapshot is handed to ``_save_data()`` as a problem, so that the
+        rank still takes part in the agreement of lockstep ranks there.
+
+        ``agree=False`` writes without that agreement: for the final
+        checkpoint after the main loop, where the ranks are no longer in
+        lockstep (a rank that failed in the loop has left for the phase
+        consensus, and the others must not wait for it in the agreement).
 
         Override in subclasses **only** when extra files must be written
         alongside the pickle (e.g. an external policy object).  In that
         case call ``super()._save_state(filename)`` first.
         """
-        self._save_data(self.__getstate__(), filename)
+        data = None
+        problem = None
+        cause = None
+        try:
+            data = self._snapshot()
+        except Exception as e:
+            cause = e
+            problem = f"failed to take the checkpoint snapshot for {filename}: {e}"
+        self._save_data(data, filename, problem=problem, cause=cause, agree=agree)
 
     def _load_state(self, filename, mode="resume", restore_rng=True) -> None:
         """Load a checkpoint snapshot from *filename* and apply it.
@@ -709,71 +753,109 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
             output_file("run")
             output_file("post")
 
-    def _save_data(self, data, filename="state.pickle", ngen=None) -> None:
+    def _save_data(self, data, filename="state.pickle", ngen=None, *,
+                   problem=None, cause=None, agree=True) -> None:
         """
         Save data to a file with versioning.
 
         Parameters
         ----------
         data
-            Data to be saved.
+            Data to be saved (ignored when *problem* is given).
         filename
             Name of the file to save the data.
         ngen : int, optional
             Number of generations for versioning; ``_checkpoint_generations``
             (3) by default.
+        problem : str, optional
+            A failure of this rank before the write (taking the snapshot):
+            nothing is written, and the failure is shared with the other
+            lockstep ranks, or raised, like a failed write.
+        cause : Exception, optional
+            The exception behind *problem*, chained to the error raised.
+        agree : bool
+            Whether the lockstep ranks agree on the outcome before and
+            after publishing (see ``_save_state``).
         """
         if ngen is None:
             ngen = self._checkpoint_generations
         tmp = Path(filename + ".tmp")
-        problem = None
-        original = None
-        try:
-            with open(tmp, "wb") as f:
-                pickle.dump(data, f)
-                # Make sure the new checkpoint is durable on disk before it
-                # replaces the current one below.
-                f.flush()
-                os.fsync(f.fileno())
-        except Exception as e:
-            original = e
-            problem = f"failed to save checkpoint to {filename}: {e}"
+        lockstep = agree and self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1
 
-        if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
-            # Two-phase commit for lockstep ranks: the new checkpoints are
-            # published (renamed into place below) only once every rank has
-            # finished writing its own, so a stop during the write of one rank
-            # (long for a large state) cannot leave the ranks with checkpoints
-            # from different steps; the window shrinks to the renames. The
-            # agreement is the barrier, and it also shares a failed write: it
-            # raises on every rank, so no rank goes on without the others.
+        def fail(problems, original):
+            # the same error on every rank, printed once (from the global rank
+            # of algorithm rank 0; see exception.Error.report_rank)
+            err = exception.CheckpointError("; ".join(problems))
+            if lockstep:
+                err.report_rank = reports[0][0]
+            if original is not None:
+                raise err from original
+            raise err
+
+        # 1. the new checkpoint, in a temporary file
+        if problem is None:
+            try:
+                with open(tmp, "wb") as f:
+                    pickle.dump(data, f)
+                    # Make sure the new checkpoint is durable on disk before it
+                    # replaces the current one below.
+                    f.flush()
+                    os.fsync(f.fileno())
+            except Exception as e:
+                cause = e
+                problem = f"failed to save checkpoint to {filename}: {e}"
+
+        # 2. Two-phase commit for lockstep ranks: the new checkpoints are
+        #    published (renamed into place below) only once every rank has
+        #    finished writing its own, so a stop during the write of one rank
+        #    (long for a large state) cannot leave the ranks with checkpoints
+        #    from different steps; the window shrinks to the renames. The
+        #    agreement is the barrier, and it also shares a failed write: it
+        #    raises on every rank, so no rank goes on without the others.
+        if lockstep:
             reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
             problems = [p for _, p, _ in reports if p is not None]
-            if problems:
+        else:
+            problems = [problem] if problem is not None else []
+        if problems:
+            try:
                 tmp.unlink(missing_ok=True)
-                err = exception.CheckpointError("; ".join(problems))
-                err.report_rank = reports[0][0]
-                if original is not None:
-                    raise err from original
-                raise err
-        elif problem is not None:
-            raise exception.CheckpointError(problem) from original
+            except OSError as e:
+                # keep the agreed error, not this one
+                print(f"WARNING: could not remove {tmp}: {e}")
+            fail(problems, cause)
 
-        # Rotate the older backup generations: .(ngen-1) -> .ngen, ..., .1 -> .2
-        # (os.replace is an atomic O(1) rename on every platform; shutil.move
-        # would fall back to copy+delete on Windows when the target exists)
-        for idx in range(ngen-1, 0, -1):
-            fn_from = Path(filename + "." + str(idx))
-            fn_to = Path(filename + "." + str(idx+1))
-            if fn_from.exists():
-                os.replace(fn_from, fn_to)
-        # Move the current checkpoint aside to .1 with an atomic rename (O(1),
-        # no re-read/re-write of the pickle), then atomically swap in the new
-        # one. There is a tiny window between the two renames in which
-        # `filename` is absent; `_load_data` covers it by falling back to .1.
-        if ngen > 0 and Path(filename).exists():
-            os.replace(Path(filename), Path(filename + "." + str(1)))
-        os.replace(Path(filename + ".tmp"), Path(filename))
+        # 3. publish: rotate the older backup generations
+        #    .(ngen-1) -> .ngen, ..., .1 -> .2 (os.replace is an atomic O(1)
+        #    rename on every platform; shutil.move would fall back to
+        #    copy+delete on Windows when the target exists), move the current
+        #    checkpoint aside to .1, then atomically swap in the new one.
+        #    There is a tiny window between the two renames in which
+        #    `filename` is absent; `_load_data` covers it by falling back to
+        #    .1. The outcome is shared too (one more cheap agreement), so a
+        #    failed rename on one rank does not leave the others waiting in
+        #    the next collective of the run.
+        problem = None
+        cause = None
+        try:
+            for idx in range(ngen-1, 0, -1):
+                fn_from = Path(filename + "." + str(idx))
+                fn_to = Path(filename + "." + str(idx+1))
+                if fn_from.exists():
+                    os.replace(fn_from, fn_to)
+            if ngen > 0 and Path(filename).exists():
+                os.replace(Path(filename), Path(filename + "." + str(1)))
+            os.replace(tmp, Path(filename))
+        except OSError as e:
+            cause = e
+            problem = f"failed to publish checkpoint {filename}: {e}"
+        if lockstep:
+            reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
+            problems = [p for _, p, _ in reports if p is not None]
+        else:
+            problems = [problem] if problem is not None else []
+        if problems:
+            fail(problems, cause)
         print("save_state: write to {}".format(filename))
 
     def _load_data(self, filename="state.pickle") -> dict:
@@ -791,12 +873,14 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         ranks' writes leaves the ranks with checkpoints from different
         steps. Ranks restarted from different steps would run different
         numbers of iterations and block in the first collective. The ranks
-        therefore agree on the step to restart from: each reads the step of
-        every generation it has (``filename``, ``filename.1``, ...), one
-        ``allgather`` shares them, and every rank loads the newest step that
-        all of them have, with a warning on the ranks that skip a newer one.
-        If there is no such step, or a rank has no readable checkpoint at
-        all, every rank raises the same ``CheckpointError``.
+        therefore agree on the step to restart from: each reads the progress
+        (``_checkpoint_step()``) of every generation it has (``filename``,
+        ``filename.1``, ...), one ``allgather`` shares them, and every rank
+        loads the newest step that all of them have, with a warning on the
+        ranks that skip a newer one. If there is no such step, or a rank has
+        no readable checkpoint at all, every rank raises the same
+        ``CheckpointError``. In continue mode there is no fallback: the
+        latest checkpoint must be the same on every rank.
 
         Collective over the algorithm ranks in that case: every rank enters
         the ``allgather`` whether or not its own read succeeded, so a failure
@@ -877,7 +961,7 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
                     if not fn.exists():
                         continue
                     with open(fn, "rb") as f:
-                        step = int(pickle.load(f)[key])
+                        step = self._checkpoint_step(pickle.load(f))
                 except Exception as e:
                     problems.append(f"{fn}: {e}")
                     continue
@@ -919,6 +1003,22 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         step = max(common)
         fn = found[step]
         newest = max(found)
+        if (getattr(self, "mode", None) or "").startswith("continue"):
+            # --cont extends a finished run from its final checkpoint, and an
+            # older generation is an intermediate one that the continuation
+            # would misread (pamc, for instance, advances the temperature once
+            # more): no fallback here, the final checkpoint must be on every
+            # rank
+            latest = [steps[0] for _, _, steps in reports]
+            if any(s != step for s in latest):
+                fail(
+                    "cannot continue: the latest checkpoints of the algorithm "
+                    f"ranks are from different steps ({key}): "
+                    + ", ".join(f"rank {r}: {s}" for r, s in enumerate(latest))
+                    + "; --cont needs the final checkpoint of the finished run on "
+                    "every rank (--resume restarts from the newest checkpoint "
+                    "common to all ranks)"
+                )
         if step != newest:
             print(
                 f"WARNING: rank {myrank}: the latest checkpoint ({key} = {newest}) "

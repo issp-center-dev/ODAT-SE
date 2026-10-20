@@ -108,6 +108,14 @@ class BaseWriter:
         if self.fp is None or position is None:
             return
         self.fp.flush()
+        size = os.fstat(self.fp.fileno()).st_size
+        if size < position:
+            # truncate() would pad the file with NUL bytes up to the position
+            raise ValueError(
+                f"{self.filename} is shorter ({size} bytes) than the position "
+                f"recorded in the checkpoint ({position} bytes): was it removed "
+                "or rewritten since the checkpoint, or the output layout changed?"
+            )
         self.fp.truncate(position)
         # truncate() leaves the stream position at the old end of the file;
         # move it too, so that tell() is right before the next write (a

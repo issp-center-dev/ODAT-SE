@@ -25,6 +25,8 @@ time $CMD input2.toml || { echo "TEST FAILED: input2.toml failed"; exit 1; }
 # lose or repeat lines around the checkpoint it continues from), not only
 # the derived result_T*.txt and best_result.txt.
 files=$(cd output2 && find . -name '*.txt' | sort)
+files1=$(cd output1 && find . -name '*.txt' | sort)
+[ "$files1" = "$files" ] || { echo "output1: $files1"; echo "output2: $files"; echo "TEST FAILED: output1 and output2 do not hold the same result files"; exit 1; }
 [ -n "$files" ] || { echo "TEST FAILED: no result files in output2"; exit 1; }
 res=0
 for f in $files; do

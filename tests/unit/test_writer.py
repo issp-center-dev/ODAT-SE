@@ -1,3 +1,4 @@
+import os
 import pytest
 from pathlib import Path
 from odatse.util.data_writer import DataWriter, TextWriter, basicConfig
@@ -249,4 +250,18 @@ def test_truncate_ignores_none_and_closed_writer(tmp_path):
     dw.truncate(None)   # nothing recorded: leave the file alone
     dw.close()
     dw.truncate(0)      # closed: no-op, no error
+    assert fn.read_text() == "# a\n1\n"
+
+
+def test_truncate_refuses_to_extend_a_shorter_file(tmp_path):
+    """A recorded position beyond the end of the file (the file was removed
+    or rewritten) is an error, not a file padded with NUL bytes."""
+    fn = tmp_path / "result.txt"
+    dw = DataWriter(str(fn), item_list=["a"])
+    dw.write(1)
+    dw.close()
+    short = DataWriter(str(fn), mode="a", item_list=["a"])
+    with pytest.raises(ValueError, match="shorter"):
+        short.truncate(os.path.getsize(fn) + 10)
+    short.close()
     assert fn.read_text() == "# a\n1\n"

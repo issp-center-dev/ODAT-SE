@@ -60,6 +60,7 @@
 
   説明: 次のチェックポイントまでの繰り返し回数を指定します。繰り返し回数は、mapper の場合はグリッド点の数、bayes の場合は探索点の評価回数、モンテカルロ法(exchange, pamc) の場合は local update の回数です。
   デフォルト値は十分大きな数が設定されています。チェックポイント機能を利用するには、 ``checkpoint = true`` を指定した上で、 ``checkpoint_steps`` または ``checkpoint_interval`` の少なくとも一方を設定してください。
+  MPI のランクが足並みを揃えて進むアルゴリズムでは、チェックポイントはランク同士が同期する箇所でのみ書かれます。``exchange`` はレプリカ交換の直前（``numsteps_exchange`` ステップごと）、``pamc`` は温度の終わり、``ttopt`` は double sweep の終わりです。``checkpoint_steps`` と ``checkpoint_interval`` のいずれも、条件を満たした後の次のその箇所で反映されます。
 
 - ``checkpoint_interval``
 

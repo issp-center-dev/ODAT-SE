@@ -16,6 +16,7 @@ import numpy as np
 
 import odatse
 import odatse.domain
+from odatse import exception
 from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
@@ -335,18 +336,39 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         self.fp_result = fp_result
         self._writers = [fp_trial, fp_result, *others]
         offsets = getattr(self, "_output_offsets", None) or {}
-        for writer in self._writers:
-            if writer is not None and writer.filename in offsets:
-                writer.truncate(offsets[writer.filename])
+        problem = None
+        cause = None
+        try:
+            for writer in self._writers:
+                if writer is not None and writer.filename in offsets:
+                    writer.truncate(offsets[writer.filename])
+        except Exception as e:
+            cause = e
+            problem = f"cannot restore the output files of rank {odatse.mpi.algrank()}: {e}"
+        if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
+            # lockstep ranks, at the start of the run: a failure on one rank
+            # is raised on every rank, so that the others do not go on into
+            # the first collective of the loop without it
+            reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
+            problems = [p for _, p, _ in reports if p is not None]
+            if problems:
+                err = exception.CheckpointError("; ".join(problems))
+                err.report_rank = reports[0][0]
+                if cause is not None:
+                    raise err from cause
+                raise err
+        elif problem is not None:
+            raise exception.CheckpointError(problem) from cause
 
-    def _save_state(self, filename) -> None:
-        """Flush the output files before the checkpoint is written, so that
-        the files on disk and the checkpoint agree on how far the run got
-        (``__getstate__`` records their positions)."""
+    def _snapshot(self) -> dict:
+        """Flush the output files before the snapshot is taken, so that the
+        files on disk and the checkpoint agree on how far the run got
+        (``__getstate__`` records their positions). A failure to flush is
+        shared with the other ranks by ``_save_state`` like a failed write."""
         for writer in getattr(self, "_writers", []):
             if writer is not None:
                 writer.flush()
-        super()._save_state(filename)
+        return super()._snapshot()
 
     def __getstate__(self) -> dict:
         """Extend the base snapshot with the positions of the output files

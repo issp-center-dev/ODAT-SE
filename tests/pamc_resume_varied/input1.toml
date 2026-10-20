@@ -1,0 +1,34 @@
+# Part 1: initial run, interrupted right after its first checkpoint (at the
+# end of every temperature stage).  Two walkers per rank and resampling at
+# every temperature: the populations of some ranks drop to zero during the
+# run, so their istep stops while the others go on.  solver.delay slows each
+# evaluation so that the run has several seconds left when it is interrupted.
+[base]
+dimension = 1
+output_dir = "output1"
+
+[algorithm]
+name = "pamc"
+seed = 1
+checkpoint = true
+checkpoint_steps = 5
+
+[algorithm.param]
+min_list = [-10.0]
+max_list = [10.0]
+step_list = [0.25]
+
+[algorithm.pamc]
+numsteps_annealing = 5
+Tnum = 21
+bmin = 0.0
+bmax = 10.0
+Tlogspace = false
+nreplica_per_proc = 2
+fix_num_replicas = false
+resampling_interval = 1
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
+delay = 0.1

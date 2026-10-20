@@ -211,9 +211,18 @@ def test_parallel_write_agrees_before_publishing(ckpt, monkeypatch):
     _parallel(monkeypatch, 0, comm)
     alg = _make()
     alg._save_data({"istep": 1}, ckpt)
-    assert comm.allgathers == 1
-    assert _load(ckpt)["istep"] == 1
-    assert not os.path.exists(ckpt + ".tmp")
+    seen = []
+    # at the first agreement (after the write) the previous checkpoint must
+    # still be the published one, and the new one must still be the
+    # temporary file; the second agreement follows the publication
+    def allgather(report):
+        seen.append((_load(ckpt)["istep"], os.path.exists(ckpt + ".tmp")))
+        return [report, comm.other]
+    comm.allgather = allgather
+    alg._save_data({"istep": 2}, ckpt)
+    assert seen == [(1, True), (2, False)]
+    assert _load(ckpt)["istep"] == 2
+    assert _load(ckpt + ".1")["istep"] == 1
 
 
 def test_failure_on_another_rank_withholds_this_ranks_checkpoint(ckpt, monkeypatch):
@@ -249,3 +258,76 @@ def test_independent_ranks_write_without_agreement(ckpt, monkeypatch):
     alg._save_data({"istep": 1}, ckpt)
     assert comm.allgathers == 0
     assert _load(ckpt)["istep"] == 1
+
+
+def test_snapshot_failure_is_shared_like_a_failed_write(ckpt, monkeypatch):
+    """A failure in _snapshot() (e.g. flushing an output file) on this rank
+    still enters the agreement and is raised on every rank."""
+    comm = _Comm(other=(1, None, None))
+    _parallel(monkeypatch, 0, comm)
+    alg = _make()
+
+    def snapshot():
+        raise OSError("flush failed")
+    alg._snapshot = snapshot
+    with pytest.raises(CheckpointError, match="snapshot .*flush failed") as info:
+        alg._save_state(ckpt)
+    assert comm.allgathers == 1
+    assert isinstance(info.value.__cause__, OSError)
+    assert not os.path.exists(ckpt) and not os.path.exists(ckpt + ".tmp")
+
+
+def test_snapshot_failure_on_another_rank_withholds_this_ranks_checkpoint(ckpt, monkeypatch):
+    comm = _Comm(other=(1, "failed to take the checkpoint snapshot for status.pickle: flush failed", None))
+    _parallel(monkeypatch, 0, comm)
+    alg = _make()
+    alg.__getstate__ = lambda: {"istep": 1}
+    with pytest.raises(CheckpointError, match="flush failed"):
+        alg._save_state(ckpt)
+    assert not os.path.exists(ckpt) and not os.path.exists(ckpt + ".tmp")
+
+
+def test_publish_failure_is_shared(ckpt, monkeypatch):
+    """A failed rename after the first agreement is shared by a second one."""
+    comm = _Comm(other=(1, None, None))
+    _parallel(monkeypatch, 0, comm)
+    alg = _make()
+    real_replace = os.replace
+
+    def replace(src, dst):
+        if str(dst) == ckpt:
+            raise OSError("rename failed")
+        real_replace(src, dst)
+    monkeypatch.setattr("odatse.algorithm._algorithm.os.replace", replace)
+    with pytest.raises(CheckpointError, match="publish .*rename failed") as info:
+        alg._save_data({"istep": 1}, ckpt)
+    assert comm.allgathers == 2
+    assert isinstance(info.value.__cause__, OSError)
+
+
+def test_publish_failure_on_another_rank_raises_here(ckpt, monkeypatch):
+    comm = _Comm(other=(1, None, None))
+    _parallel(monkeypatch, 0, comm)
+    alg = _make()
+    calls = []
+
+    def allgather(report):
+        calls.append(report)
+        if len(calls) == 2:   # the publication agreement: the other rank failed
+            return [report, (1, "failed to publish checkpoint status.pickle: rename failed", None)]
+        return [report, comm.other]
+    comm.allgather = allgather
+    with pytest.raises(CheckpointError, match="rename failed"):
+        alg._save_data({"istep": 1}, ckpt)
+    assert _load(ckpt)["istep"] == 1   # this rank's own publication went through
+
+
+def test_unlink_error_does_not_replace_the_agreed_error(ckpt, monkeypatch, capsys):
+    comm = _Comm(other=(1, "failed to save checkpoint to status.pickle: disk full", None))
+    _parallel(monkeypatch, 0, comm)
+    alg = _make()
+    monkeypatch.setattr("odatse.algorithm._algorithm.Path.unlink",
+                        lambda self, missing_ok=False: (_ for _ in ()).throw(PermissionError("no")))
+    with pytest.raises(CheckpointError, match="disk full"):
+        alg._save_data({"istep": 1}, ckpt)
+    assert "could not remove" in capsys.readouterr().out

@@ -75,6 +75,8 @@ time $CMD input2.toml || fail "the reference run failed"
 
 # --- Compare: every .txt file of the reference run ---
 files=$(cd output2 && find . -name '*.txt' | sort)
+files1=$(cd output1 && find . -name '*.txt' | sort)
+[ "$files1" = "$files" ] || { echo "output1: $files1"; echo "output2: $files"; echo "TEST FAILED: output1 and output2 do not hold the same result files"; exit 1; }
 [ -n "$files" ] || fail "no result files in output2"
 for f in $files; do
   echo "diff output1/$f output2/$f"

@@ -107,6 +107,13 @@ add_test(
 set_tests_properties(pamc_resume PROPERTIES TIMEOUT 600)
 
 add_test(
+  NAME pamc_resume_varied
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_resume_varied
+  )
+set_tests_properties(pamc_resume_varied PROPERTIES TIMEOUT 600)
+
+add_test(
   NAME pamc_continue
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc_continue
