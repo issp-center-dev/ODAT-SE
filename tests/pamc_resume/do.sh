@@ -16,8 +16,9 @@
 #               (0.002 s per evaluation, 20 walkers per rank) leaves several
 #               seconds between that checkpoint and the end of the run, so
 #               the interruption lands mid-run.
-#   Check     : the checkpoints of the two ranks are from the same step,
-#               strictly inside the run.
+#   Check     : the two ranks have a checkpoint of a common step strictly
+#               inside the run (their newest generations may differ by one,
+#               since the signal reaches the ranks at different times).
 #   Resume    : --resume input1.toml continues from that checkpoint.
 #   Reference : input2.toml runs the same problem to completion in one shot
 #               (no delay, no checkpoint) and writes results to output2/.
@@ -48,9 +49,13 @@ rm -rf output1
 ${INTERRUPT} -n $NP 'output1/*/status.pickle' 120s $CMD input1.toml \
   || fail "the run was not interrupted after its first checkpoint"
 
-# --- Check: one and the same mid-run step on every rank ---
+# --- Check: a mid-run step that every rank has a checkpoint for ---
+# The signal reaches the ranks at different times, so the newest generation
+# may differ by one between ranks when it arrives during a publication; the
+# resume then agrees on the newest step common to all ranks. That step must
+# exist and be strictly inside the run.
 PYTHONPATH=../../src ${PYTHON:-python3} -c "
-import pickle, sys
+import glob, pickle, sys
 try:
     import tomllib
 except ImportError:
@@ -60,11 +65,18 @@ with open('input1.toml', 'rb') as f:
 numsteps = p['numsteps_annealing'] * p['Tnum']
 steps = []
 for r in range($NP):
-    with open(f'output1/{r}/status.pickle', 'rb') as f:
-        steps.append(pickle.load(f)['istep'])
-print(f'checkpoints at istep = {steps} (total steps = {numsteps})')
-sys.exit(0 if len(set(steps)) == 1 and 0 < steps[0] < numsteps else 1)
-" || fail "the checkpoints are not from one and the same step in the middle of the run"
+    mine = set()
+    for fn in glob.glob(f'output1/{r}/status.pickle*'):
+        try:
+            with open(fn, 'rb') as f:
+                mine.add(pickle.load(f)['istep'])
+        except Exception:
+            pass   # a temporary file cut by the interruption
+    steps.append(sorted(mine, reverse=True))
+common = set.intersection(*map(set, steps))
+print(f'checkpoints at istep = {steps} (total steps = {numsteps}); common to all ranks: {sorted(common, reverse=True)}')
+sys.exit(0 if common and 0 < max(common) < numsteps else 1)
+" || fail "the ranks have no common checkpoint from the middle of the run"
 
 # --- Resume: continue from the checkpoint ---
 time $CMD --resume input1.toml || fail "the resumed run failed"

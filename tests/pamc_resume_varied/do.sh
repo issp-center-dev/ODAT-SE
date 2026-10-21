@@ -20,8 +20,10 @@
 #               of the 21 temperatures).  The solver delay (0.03 s per
 #               evaluation) leaves several seconds between that checkpoint
 #               and the end of the run, so the interruption lands mid-run.
-#   Check     : the checkpoints of the four ranks are from the same
-#               temperature, strictly inside the run.
+#   Check     : the four ranks have a checkpoint of a common temperature
+#               strictly inside the run (their newest generations may differ
+#               by one, since the signal reaches the ranks at different
+#               times).
 #   Resume    : --resume input1.toml continues from that checkpoint.
 #   Reference : input2.toml runs the same problem to completion in one shot
 #               (no delay, no checkpoint) and writes results to output2/.
@@ -52,9 +54,14 @@ rm -rf output1
 ${INTERRUPT} -n $NP 'output1/*/status.pickle' 120s $CMD input1.toml \
   || fail "the run was not interrupted after its first checkpoint"
 
-# --- Check: one and the same mid-run temperature on every rank ---
+# --- Check: a mid-run temperature that every rank has a checkpoint for ---
+# The signal reaches the ranks at different times, so the newest generation
+# may differ by one between ranks when it arrives during a publication; the
+# resume then agrees on the newest (Tindex, index_from_reset) common to all
+# ranks. That one must exist and be strictly inside the run. istep differs
+# between the ranks by design (a rank without walkers does not advance it).
 PYTHONPATH=../../src ${PYTHON:-python3} -c "
-import pickle, sys
+import glob, pickle, sys
 try:
     import tomllib
 except ImportError:
@@ -63,13 +70,19 @@ with open('input1.toml', 'rb') as f:
     numT = tomllib.load(f)['algorithm']['pamc']['Tnum']
 progress = []
 for r in range($NP):
-    with open(f'output1/{r}/status.pickle', 'rb') as f:
-        d = pickle.load(f)
-        progress.append((d['Tindex'], d['index_from_reset'], d['istep'], d['nwalkers']))
-print('checkpoints at (Tindex, index_from_reset, istep, nwalkers) =', progress, f'(Tnum = {numT})')
-same = len(set(p[:2] for p in progress)) == 1
-sys.exit(0 if same and 0 < progress[0][0] < numT - 1 else 1)
-" || fail "the checkpoints are not from one and the same temperature in the middle of the run"
+    mine = set()
+    for fn in glob.glob(f'output1/{r}/status.pickle*'):
+        try:
+            with open(fn, 'rb') as f:
+                d = pickle.load(f)
+            mine.add((d['Tindex'], d['index_from_reset']))
+        except Exception:
+            pass   # a temporary file cut by the interruption
+    progress.append(sorted(mine, reverse=True))
+common = set.intersection(*map(set, progress))
+print('checkpoints at (Tindex, index_from_reset) =', progress, f'(Tnum = {numT}); common to all ranks:', sorted(common, reverse=True))
+sys.exit(0 if common and 0 < max(common)[0] < numT - 1 else 1)
+" || fail "the ranks have no common checkpoint from the middle of the run"
 
 # --- Resume: continue from the checkpoint ---
 time $CMD --resume input1.toml || fail "the resumed run failed"
