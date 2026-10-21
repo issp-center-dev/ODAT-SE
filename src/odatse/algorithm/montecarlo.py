@@ -92,6 +92,11 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         "naccepted", "ntrial",
     ]
 
+    # The ranks exchange replicas / resample collectively during the run, so
+    # on resume they must all restart from the same step (see
+    # ``AlgorithmBase._load_data()``).
+    _checkpoint_step_key = "istep"
+
     def __init__(
         self,
         info: odatse.Info,

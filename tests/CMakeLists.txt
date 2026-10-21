@@ -71,6 +71,15 @@ add_test(
   )
 
 add_test(
+  NAME exchange_resume_mismatch
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/exchange_resume_mismatch
+  )
+# upper bound independent of the timeout inside do.sh (a hang is the
+# failure mode this test looks for)
+set_tests_properties(exchange_resume_mismatch PROPERTIES TIMEOUT 1200)
+
+add_test(
   NAME mapper_resume
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/mapper_resume

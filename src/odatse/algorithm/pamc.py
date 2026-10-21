@@ -106,6 +106,24 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
     # Fields restored with slice assignment or special logic are still listed
     # here so that ``__getstate__`` saves them; ``_apply_state`` handles them
     # explicitly rather than via the generic setattr loop.
+    # The progress the ranks agree on when resuming (see
+    # AlgorithmBase._load_data). istep is not in lockstep here: a rank whose
+    # population dropped to zero (fix_num_replicas = false) skips the
+    # sampling loop and its istep stops. The temperature index and the
+    # position in the resampling cycle advance on every rank together; the
+    # pair also tells the last periodic checkpoint (Tindex already advanced
+    # to numT - 1) from the final one (index_from_reset one higher).
+    _checkpoint_step_key = "(Tindex, index_from_reset)"
+
+    def _checkpoint_step(self, data: dict):
+        return (int(data["Tindex"]), int(data["index_from_reset"]))
+
+    def _steps_done(self) -> int:
+        """Local updates done by the temperatures completed so far: the step
+        count the checkpoint schedule is measured in. Equal on every rank,
+        unlike ``istep``, which stops on a rank without walkers."""
+        return int(np.sum(self.numsteps_for_T[:self.Tindex]))
+
     _checkpoint_attrs: list[str] = [
         "betas", "nwalkers", "input_as_beta", "numsteps_for_T",
         "Tindex", "index_from_reset",
@@ -279,7 +297,11 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.best_istep = 0
             self.best_iwalker = 0
 
-        next_checkpoint_step = self.istep + self.checkpoint_steps
+        # The step count the checkpoint schedule is measured in: the steps of
+        # the temperatures done so far, the same on every rank (istep stops
+        # on a rank that ran out of walkers; the ranks must checkpoint at the
+        # same temperatures to be resumable together).
+        next_checkpoint_step = self._steps_done() + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
         if self.verbose:
@@ -344,10 +366,10 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
             if self.checkpoint:
                 time_now = time.time()
-                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
+                if self._steps_done() >= next_checkpoint_step or time_now >= next_checkpoint_time:
                     print(">>> checkpoint")
                     self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.istep + self.checkpoint_steps
+                    next_checkpoint_step = self._steps_done() + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
         # store final state for continuation

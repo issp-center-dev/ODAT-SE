@@ -117,7 +117,13 @@ The content of the file depends on the algorithm.
 Checkpointing is supported by ``exchange``, ``pamc``, ``mapper``, ``random_search``, ``bayes``, and ``ttopt``.
 ``minsearch`` and ``global_search`` do not write a checkpoint even when ``algorithm.checkpoint`` is set to true.
 
+The previous three checkpoints are kept next to the current one as ``status.pickle.1``, ``status.pickle.2`` and ``status.pickle.3`` (the most recent first).
+
 The checkpoint feature allows you to resume calculations from the last saved state if a long calculation is interrupted.
 To resume, run the program with the same input file and the same MPI process layout using ``odatse --resume input.toml``.
+Each rank of the algorithm layer writes its checkpoint independently, so a run stopped between the writes of two ranks leaves them with checkpoints from different steps.
+For ``exchange``, ``pamc`` and ``ttopt``, whose ranks advance in lockstep, ``--resume`` then restarts every rank from the most recent step that every rank has a checkpoint for (possibly a previous generation on some ranks, which is reported as a warning).
+If there is no such step, or a rank has no readable checkpoint at all, the program stops with an error on every rank instead of waiting forever in the first communication.
+``--cont`` does not fall back to an older generation, since it needs the final state of the finished run: the latest checkpoint must be the same on every rank, otherwise the program stops with an error.
 To continue from a previous run while extending the calculation, use ``odatse --cont input.toml``.
 If you want to use a new random number sequence when resuming or continuing, add the ``--reset_rand`` option.
