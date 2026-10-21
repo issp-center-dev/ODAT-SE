@@ -171,7 +171,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             error = None
             try:
                 self.fx = self._evaluate(self.state)
-            except Exception as e:
+            except BaseException as e:
                 error = e
             self._agree_or_fail(error)
             self._write_result(fp_trial)
@@ -211,7 +211,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             if error is None:
                 try:
                     self.local_update(beta)
-                except Exception as e:
+                except BaseException as e:
                     error = e
             self.istep += 1
 

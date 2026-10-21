@@ -802,7 +802,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 my_f_vals = []
                 try:
                     my_f_vals = [runner.submit(eval_pois[k]) for k in my_local_idxs]
-                except Exception as e:
+                except BaseException as e:
                     error = e
                 self._agree_or_fail(error)
                 all_f_vals = odatse.mpi.algcomm().allgather(my_f_vals)

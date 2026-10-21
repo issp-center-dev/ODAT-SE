@@ -285,7 +285,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             error = None
             try:
                 self.fx = self._evaluate(self.state)
-            except Exception as e:
+            except BaseException as e:
                 error = e
             self._agree_or_fail(error)
             if self.anneal_from_beta0:
@@ -336,7 +336,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                             ],
                         )
                         self.istep += 1
-                except Exception as e:
+                except BaseException as e:
                     error = e
             else : #self.nwalkers == 0
                 pass

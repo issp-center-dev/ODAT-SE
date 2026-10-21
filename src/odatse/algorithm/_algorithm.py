@@ -579,6 +579,10 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
         command does not print), and all of them meet in the phase
         consensus as for a failure outside the loop.
 
+        *error* may be any ``BaseException``: the loops catch ``SystemExit``
+        and ``KeyboardInterrupt`` too (a ``sys.exit()`` inside the solver),
+        since the phase wrappers pass those through the consensus as well.
+
         Collective over the algorithm ranks for a lockstep algorithm in a
         parallel run; a plain re-raise of *error* otherwise.
         """

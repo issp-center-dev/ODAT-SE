@@ -36,16 +36,21 @@ run_with_timeout() {
 res=0
 rm -f log_*.txt
 
-# expect_failure NAME INPUT FAIL_AT: rank 1 raises at its FAIL_AT-th
-# evaluation; the job must exit non-zero without hanging, and the log must
+# expect_failure NAME INPUT FAIL_AT [FAILTYPE]: rank 1 raises ValueError (or
+# calls sys.exit with FAILTYPE=exit) at its FAIL_AT-th evaluation; the job
+# must exit non-zero without hanging, and the log must
 # hold the error from rank 1, while rank 0 leaves quietly (main() turns the
 # OtherAlgorithmProcessError of the consensus into sys.exit(0)).
 expect_failure() {
-  name=$1; input=$2; at=$3
-  echo "=== $name ($input, failure on rank 1 at evaluation $at) ==="
+  name=$1; input=$2; at=$3; type=${4:-value}
+  case $type in
+    value) reported="main() raised ValueError: injected failure on rank 1 at evaluation $at" ;;
+    exit)  reported="main() raised SystemExit: injected exit on rank 1 at evaluation $at" ;;
+  esac
+  echo "=== $name ($input, $type failure on rank 1 at evaluation $at) ==="
   rm -rf output timed_out.flag
   log=log_$name.txt
-  run_with_timeout $LIMIT env FAIL_RANK=1 FAIL_AT=$at \
+  run_with_timeout $LIMIT env FAIL_RANK=1 FAIL_AT=$at FAILTYPE=$type \
     mpirun -np 2 ${PYTHON:-python3} inloop_error.py "$input" > "$log" 2>&1
   if [ $timed_out -ne 0 ]; then
     echo "FAILED: job hung (killed after ${LIMIT}s)"; res=1; return
@@ -53,7 +58,7 @@ expect_failure() {
   if [ $status -eq 0 ]; then
     echo "FAILED: job exited with status 0 despite the error"; res=1; return
   fi
-  if ! grep -q "\[rank 1\] main() raised ValueError: injected failure on rank 1 at evaluation $at" "$log"; then
+  if ! grep -q "\[rank 1\] $reported" "$log"; then
     echo "FAILED: the error of rank 1 was not reported (exit status $status)"; res=1; return
   fi
   if ! grep -q "\[rank 0\] main() raised SystemExit: 0" "$log"; then
@@ -74,6 +79,11 @@ expect_failure pamc_initial         pamc.toml 5
 expect_failure pamc_sampling        pamc.toml 50
 # ttopt: the evaluations of a sweep are split over the ranks and gathered
 expect_failure ttopt_sweep          ttopt.toml 100
+# sys.exit() inside the solver (a SystemExit, not an Exception) is shared the
+# same way; before, it skipped the agreement and the consensus
+expect_failure exchange_exit        exchange.toml 5   exit
+expect_failure pamc_exit            pamc.toml 50      exit
+expect_failure ttopt_exit           ttopt.toml 100    exit
 
 rm -rf output
 if [ $res -eq 0 ]; then
