@@ -126,5 +126,6 @@ For ``exchange``, ``pamc`` and ``ttopt``, whose ranks advance in lockstep, rank 
 Should they nevertheless differ (a stop during the final renames, files removed by hand), ``--resume`` restarts every rank from the most recent step that every rank has a checkpoint for (possibly a previous generation on some ranks, which is reported as a warning).
 If there is no such step, or a rank has no readable checkpoint at all, the program stops with an error on every rank instead of waiting forever in the first communication.
 ``--cont`` does not fall back to an older generation, since it needs the final state of the finished run: the latest checkpoint must be the same on every rank, otherwise the program stops with an error.
+For ``exchange`` and ``pamc``, the result files (``trial.txt``, ``result.txt``, ``weight.txt``) are flushed to disk at every checkpoint and, on resume, cut back to the position they had at that checkpoint before the run appends to them, so that the output of a resumed run is identical to that of an uninterrupted one.
 To continue from a previous run while extending the calculation, use ``odatse --cont input.toml``.
 If you want to use a new random number sequence when resuming or continuing, add the ``--reset_rand`` option.

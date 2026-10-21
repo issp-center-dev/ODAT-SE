@@ -10,37 +10,34 @@ CMD="mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py"
 rm -rf output1
 
 # Run the command with input1a.toml
-time $CMD input1a.toml
+time $CMD input1a.toml || { echo "TEST FAILED: input1a.toml failed"; exit 1; }
 
 # Run the command with input1b.toml in continuation mode
-time $CMD --cont input1b.toml
+time $CMD --cont input1b.toml || { echo "TEST FAILED: --cont input1b.toml failed"; exit 1; }
 
 # Remove the output2 directory if it exists
 rm -rf output2
 
 # Run the command with input2.toml
-time $CMD input2.toml
+time $CMD input2.toml || { echo "TEST FAILED: input2.toml failed"; exit 1; }
 
-# Define the result and reference files for comparison
-# resfile=output1/best_result.txt
-# reffile=output2/best_result.txt
-resfile=output1/fx.txt
-reffile=output2/fx.txt
-
-# Print the diff command to be executed
-echo diff $resfile $reffile
-
-# Initialize the result variable
+# Compare every result file of the reference run: the per-rank trial.txt,
+# result.txt and weight.txt as well (the continued run appends to them, and
+# must not lose or repeat lines around the checkpoint it continues from),
+# not only the derived fx.txt and best_result.txt.
+files=$(cd output2 && find . -name '*.txt' | sort)
+files1=$(cd output1 && find . -name '*.txt' | sort)
+[ "$files1" = "$files" ] || { echo "output1: $files1"; echo "output2: $files"; echo "TEST FAILED: output1 and output2 do not hold the same result files"; exit 1; }
+[ -n "$files" ] || { echo "TEST FAILED: no result files in output2"; exit 1; }
 res=0
+for f in $files; do
+  echo diff output1/$f output2/$f
+  diff output1/$f output2/$f || { res=$?; echo "TEST FAILED: output1/$f and output2/$f differ"; }
+done
 
-# Compare the result and reference files, update the result variable if they differ
-diff $resfile $reffile || res=$?
-
-# Check the result of the diff command and print the appropriate message
 if [ $res -eq 0 ]; then
   echo TEST PASS
   true
 else
-  echo TEST FAILED: $resfile and $reffile differ
   false
 fi

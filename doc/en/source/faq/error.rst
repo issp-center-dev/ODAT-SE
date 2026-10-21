@@ -162,6 +162,14 @@ Restart the calculation from the beginning.
 ``cannot continue: the latest checkpoints of the algorithm ranks are from different steps`` is the corresponding message of ``--cont``, which does not fall back to an older generation: it needs the final state of the finished run on every rank. Use ``--resume`` to restart from the newest checkpoint common to all ranks, then ``--cont`` once that run has finished.
 
 
+``cannot restore the output files of rank N: ... is shorter ... than the position recorded in the checkpoint``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On resume, ``exchange`` and ``pamc`` cut their result files (``trial.txt``, ``result.txt``, ``weight.txt`` in the folder of each rank) back to the positions recorded in the checkpoint, so that the resumed run appends exactly where the checkpoint left off.
+A file shorter than the recorded position cannot be the file the checkpoint was written for: it was removed or rewritten since, or the output layout changed between the runs (``export_combined_files``).
+Restore the output directory of the interrupted run as it was, with the same input file, or restart the calculation from the beginning.
+
+
 Problems with calculation results
 =================================
 

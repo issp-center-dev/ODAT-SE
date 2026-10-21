@@ -1,0 +1,29 @@
+# Part 1: initial run, interrupted right after its first checkpoint (every
+# 100 of 500 steps). solver.delay slows each evaluation so that the run has
+# several seconds left when it is interrupted, whatever the machine speed.
+[base]
+dimension = 2
+output_dir = "output1"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 100
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
+
+[algorithm.exchange]
+numsteps = 500
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+delay = 0.01

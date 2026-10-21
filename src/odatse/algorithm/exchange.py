@@ -210,16 +210,19 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                     and self._checkpoint_due(self.istep)):
                 self._save_state(self.checkpoint_file)
 
+        # Save final state for possible continuation, before the output files
+        # are closed so that it records their positions too (a --cont run
+        # interrupted before its first checkpoint then restarts from here
+        # without repeating lines). Without the agreement of the lockstep
+        # ranks: a rank that failed in the loop is waiting in the phase
+        # consensus, and the others must not wait for it here.
+        if self.checkpoint:
+            self._save_state(self.checkpoint_file, agree=False)
+
         # Clean up file handles
         fp_trial.close()
         fp_result.close()
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
-
-        # Save final state for possible continuation. Without the agreement
-        # of the lockstep ranks: a rank that failed in the loop is waiting in
-        # the phase consensus, and the others must not wait for it here.
-        if self.checkpoint:
-            self._save_state(self.checkpoint_file, agree=False)
 
     def _exchange(self, direction: bool) -> None:
         """

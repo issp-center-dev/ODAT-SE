@@ -16,6 +16,7 @@ import numpy as np
 
 import odatse
 import odatse.domain
+from odatse import exception
 from odatse.algorithm.state import ContinuousStateSpace, DiscreteStateSpace
 
 class AlgorithmBase(odatse.algorithm.AlgorithmBase):
@@ -318,9 +319,70 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
             self.best_iwalker = typing.cast(int, minidx)
         self._write_result(self.fp_result, extras=extra_info_to_write)
 
-    def _set_writer(self, fp_trial, fp_result):
+    def _set_writer(self, fp_trial, fp_result, *others):
+        """Register the output writers of the run.
+
+        On resume (writers opened in append mode) each file is first cut back
+        to the position recorded in the checkpoint that is being restored
+        (``_output_offsets``), so that the lines the interrupted run wrote
+        after that checkpoint, possibly a partial line, are dropped and the
+        resumed run appends exactly where the checkpoint left off: the output
+        of a resumed run is then identical to that of an uninterrupted one.
+        A checkpoint written before this was recorded (an older version, or
+        the final checkpoint of a finished run on ``--cont``) carries no
+        offsets and leaves the files as they are.
+        """
         self.fp_trial = fp_trial
         self.fp_result = fp_result
+        self._writers = [fp_trial, fp_result, *others]
+        offsets = getattr(self, "_output_offsets", None) or {}
+        problem = None
+        cause = None
+        try:
+            for writer in self._writers:
+                if writer is not None and writer.filename in offsets:
+                    writer.truncate(offsets[writer.filename])
+        except Exception as e:
+            cause = e
+            problem = f"cannot restore the output files of rank {odatse.mpi.algrank()}: {e}"
+        if self._checkpoint_step_key is not None and odatse.mpi.algsize() > 1:
+            # lockstep ranks, at the start of the run: a failure on one rank
+            # is raised on every rank, so that the others do not go on into
+            # the first collective of the loop without it
+            reports = odatse.mpi.agree(odatse.mpi.algcomm(), problem)
+            problems = [p for _, p, _ in reports if p is not None]
+            if problems:
+                err = exception.CheckpointError("; ".join(problems))
+                err.report_rank = reports[0][0]
+                if cause is not None:
+                    raise err from cause
+                raise err
+        elif problem is not None:
+            raise exception.CheckpointError(problem) from cause
+
+    def _snapshot(self) -> dict:
+        """Flush the output files before the snapshot is taken, so that the
+        files on disk and the checkpoint agree on how far the run got
+        (``__getstate__`` records their positions). A failure to flush is
+        shared with the other ranks by ``_save_state`` like a failed write."""
+        for writer in getattr(self, "_writers", []):
+            if writer is not None:
+                writer.flush()
+        return super()._snapshot()
+
+    def __getstate__(self) -> dict:
+        """Extend the base snapshot with the positions of the output files
+        (``output_offsets``: file name to position), taken after the flush
+        in ``_save_state``; see ``_set_writer`` for their use on resume."""
+        state = super().__getstate__()
+        offsets = {}
+        for writer in getattr(self, "_writers", []):
+            if writer is not None and writer.filename is not None:
+                position = writer.tell()
+                if position is not None:
+                    offsets[writer.filename] = position
+        state["output_offsets"] = offsets
+        return state
 
     def _prepare(self) -> None:
         """Algorithm-specific preparation (MC layer).
@@ -355,6 +417,8 @@ class AlgorithmBase(odatse.algorithm.AlgorithmBase):
         super()._apply_state(data, mode=mode, restore_rng=restore_rng)
         for attr in AlgorithmBase._checkpoint_attrs:
             setattr(self, attr, data[attr])
+        # applied when the writers are opened in _run (see _set_writer)
+        self._output_offsets = data.get("output_offsets", {})
 
     def _write_result(self, writer, extras=None):
         for iwalker in range(self.nwalkers):

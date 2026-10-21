@@ -1,0 +1,27 @@
+# Reference: the same run in one shot (no checkpoint, no delay).
+[base]
+dimension = 1
+output_dir = "output2"
+
+[algorithm]
+name = "pamc"
+seed = 12345
+
+[algorithm.param]
+min_list = [-10.0]
+max_list = [10.0]
+step_list = [0.25]
+
+[algorithm.pamc]
+numsteps_annealing = 50
+Tnum = 5
+bmin = 0.0
+bmax = 10.0
+Tlogspace = false
+nreplica_per_proc = 20
+fix_num_walkers = false
+resampling_interval = 3
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
