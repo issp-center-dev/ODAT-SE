@@ -1,0 +1,28 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+checkpoint = true
+checkpoint_interval = 1
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
+
+[algorithm.exchange]
+numsteps = 16000
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+# bounds the run time from below (>= 8 s), so that the 1 s interval
+# produces timer-driven checkpoints on any machine
+delay = 0.0005

@@ -301,8 +301,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
         # the temperatures done so far, the same on every rank (istep stops
         # on a rank that ran out of walkers; the ranks must checkpoint at the
         # same temperatures to be resumable together).
-        next_checkpoint_step = self._steps_done() + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self._steps_done())
 
         if self.verbose:
             print("\u03b2 mean[f] Err[f] nreplica log(Z/Z0) acceptance_ratio")
@@ -364,18 +363,16 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
 
             self.Tindex += 1
 
-            if self.checkpoint:
-                time_now = time.time()
-                if self._steps_done() >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    print(">>> checkpoint")
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self._steps_done() + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # decided on rank 0 for all ranks, in the lockstep step count
+            if self._checkpoint_due(self._steps_done()):
+                print(">>> checkpoint")
+                self._save_state(self.checkpoint_file)
 
-        # store final state for continuation
+        # store final state for continuation (without the agreement of the
+        # lockstep ranks, see exchange)
         if self.checkpoint:
             print(">>> store final state")
-            self._save_state(self.checkpoint_file)
+            self._save_state(self.checkpoint_file, agree=False)
 
         if self.index_from_reset > 0:
             res = self._gather_information(self.index_from_reset)

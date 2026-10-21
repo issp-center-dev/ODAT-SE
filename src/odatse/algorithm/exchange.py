@@ -179,8 +179,7 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.best_iwalker = 0
 
         # Set up checkpointing intervals
-        next_checkpoint_step = self.istep + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(self.istep)
 
         # Main simulation loop
         while self.istep < self.numsteps:
@@ -201,22 +200,26 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self.local_update(beta)
             self.istep += 1
 
-            # Handle checkpointing if enabled
-            if self.checkpoint:
-                time_now = time.time()
-                if self.istep >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = self.istep + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # Checkpointing, decided on rank 0 for all ranks: only just before
+            # a replica exchange, where the ranks synchronise anyway (the
+            # decision is a collective; at every step it would turn a solver
+            # failure on one rank into a hang of the others). A checkpoint
+            # taken here precedes the exchange of this step, which the resumed
+            # run then performs first, as the uninterrupted run did.
+            if (self.istep % self.numsteps_exchange == 0 and self.istep < self.numsteps
+                    and self._checkpoint_due(self.istep)):
+                self._save_state(self.checkpoint_file)
 
         # Clean up file handles
         fp_trial.close()
         fp_result.close()
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
-        # Save final state for possible continuation
+        # Save final state for possible continuation. Without the agreement
+        # of the lockstep ranks: a rank that failed in the loop is waiting in
+        # the phase consensus, and the others must not wait for it here.
         if self.checkpoint:
-            self._save_state(self.checkpoint_file)
+            self._save_state(self.checkpoint_file, agree=False)
 
     def _exchange(self, direction: bool) -> None:
         """

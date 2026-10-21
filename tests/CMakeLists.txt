@@ -71,6 +71,13 @@ add_test(
   )
 
 add_test(
+  NAME exchange_checkpoint_interval
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/exchange_checkpoint_interval
+  )
+set_tests_properties(exchange_checkpoint_interval PROPERTIES TIMEOUT 1200)
+
+add_test(
   NAME exchange_resume_mismatch
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/exchange_resume_mismatch

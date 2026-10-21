@@ -99,8 +99,7 @@ class Algorithm(AlgorithmBase):
         # report progress at most ~100 times per rank
         print_interval = max(1, -(-niter // 100))
 
-        next_checkpoint_step = istart + self.checkpoint_steps
-        next_checkpoint_time = time.time() + self.checkpoint_interval
+        self._start_checkpoint_schedule(istart)
 
         for icount, (idx, coord) in enumerate(self._iter, start=istart):
 
@@ -128,13 +127,10 @@ class Algorithm(AlgorithmBase):
                 self.opt_fx = fx
                 self.opt_mesh = (idx, coord)
 
-            # checkpointing
-            if self.checkpoint:
-                time_now = time.time()
-                if icount+1 >= next_checkpoint_step or time_now >= next_checkpoint_time:
-                    self._save_state(self.checkpoint_file)
-                    next_checkpoint_step = icount + 1 + self.checkpoint_steps
-                    next_checkpoint_time = time_now + self.checkpoint_interval
+            # checkpointing (per rank: the ranks evaluate their own ranges
+            # independently, see _checkpoint_step_key)
+            if self._checkpoint_due(icount + 1):
+                self._save_state(self.checkpoint_file)
 
         # close local colormap file
         fp.close()

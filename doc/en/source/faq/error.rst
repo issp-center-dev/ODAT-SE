@@ -151,11 +151,11 @@ You tried to restart with ``--resume`` but the checkpoint file is not found. Che
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In a parallel run of ``exchange``, ``pamc`` or ``ttopt``, every rank must restart from a checkpoint of the same step, since the ranks communicate with each other during the run (the message names ``f_eval_count`` for ``ttopt`` and the pair ``(Tindex, index_from_reset)`` for ``pamc``, whose ``istep`` stops on a rank that ran out of walkers).
-Each rank writes its own checkpoint, so a run stopped between the writes of two ranks leaves them with checkpoints from different steps.
-Normally the ranks fall back together to the most recent step that every rank has, using the previous generations ``status.pickle.1`` ... ``status.pickle.3`` where needed, and print a warning.
+Rank 0 decides when the ranks write, and the new files are put in place only once every rank has written its own, so the ranks normally hold checkpoints of the same step.
+If they differ nevertheless, the ranks fall back together to the most recent step that every rank has, using the previous generations ``status.pickle.1`` ... ``status.pickle.3`` where needed, and print a warning.
 This error means that no step is common to all ranks: the message lists the steps each rank has.
-This happens when the checkpoints were written at times chosen independently by each rank (``checkpoint_interval`` without ``checkpoint_steps``), or when checkpoint files were removed or copied between ranks.
-Restart the calculation from the beginning, or set ``checkpoint_steps`` so that the ranks write their checkpoints at the same steps.
+This happens when checkpoint files were removed or copied between ranks, or were written by an earlier version of ODAT-SE with ``checkpoint_interval`` and no ``checkpoint_steps`` (each rank then followed its own clock).
+Restart the calculation from the beginning.
 
 ``cannot resume: no readable checkpoint ... on rank N`` is the same check when a rank has no checkpoint file at all, or none that can be read.
 

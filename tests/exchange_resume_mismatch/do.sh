@@ -12,11 +12,11 @@
 # ---------
 #   Part 1 : run input.toml (4 ranks, a checkpoint every 2000 of 10000 steps)
 #            to completion; every rank has status.pickle (step 10000) and
-#            status.pickle.1 (step 8001).
+#            status.pickle.1 (the previous periodic checkpoint).
 #   Case A : rank 1's status.pickle is replaced by its status.pickle.1.
-#            --resume must restart every rank from step 8001, warn about it,
+#            --resume must restart every rank from that step, warn about it,
 #            and reproduce the result of the original run (the restored RNG
-#            replays steps 8001-10000).
+#            replays the steps after that checkpoint).
 #   Case B : rank 1's checkpoints are shifted to steps nobody else has.
 #            --resume must fail on every rank, naming the steps, not hang.
 #   Case C : rank 2 has no checkpoint at all.
@@ -50,13 +50,19 @@ done
 cp -r output output_orig
 
 # Case A: one rank is a generation behind
+previous=$(PYTHONPATH=../../src ${PYTHON:-python3} -c "
+import pickle
+with open('output/1/status.pickle.1', 'rb') as f:
+    print(pickle.load(f)['istep'])
+") || fail "case A: could not read the previous checkpoint of rank 1"
+echo "previous checkpoint of rank 1 at istep = $previous"
 cp output/1/status.pickle.1 output/1/status.pickle
 $TIMEOUT $LIMIT $CMD --resume input.toml > resumeA.log 2>&1
 status=$?
 [ $status -eq 124 ] && fail "case A: the resume hung"
 [ $status -eq 0 ] || { cat resumeA.log; fail "case A: the resume failed (status $status)"; }
-grep -q "resuming every rank from istep = 8001" resumeA.log \
-  || { cat resumeA.log; fail "case A: the ranks did not restart from the common step 8001"; }
+grep -q "resuming every rank from istep = $previous" resumeA.log \
+  || { cat resumeA.log; fail "case A: the ranks did not restart from the common step $previous"; }
 echo "diff output/best_result.txt output_orig/best_result.txt"
 diff output/best_result.txt output_orig/best_result.txt \
   || fail "case A: the resumed run does not reproduce the original result"
