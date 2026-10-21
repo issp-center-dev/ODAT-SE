@@ -26,4 +26,4 @@ Tlogspace = false
 [solver]
 name = "analytical"
 function_name = "rosenbrock"
-delay = 0.02
+delay = 0.01

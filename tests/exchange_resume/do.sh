@@ -11,7 +11,7 @@
 # ---------
 #   Part 1    : run input1.toml on 4 ranks and interrupt it as soon as all
 #               four ranks have written their first checkpoint (every 100
-#               of 500 steps).  The solver delay (0.02 s per evaluation)
+#               of 500 steps).  The solver delay (0.01 s per evaluation)
 #               leaves several seconds between that checkpoint and the end
 #               of the run, so the interruption lands mid-run.
 #   Check     : the checkpoints of the four ranks are from the same step,

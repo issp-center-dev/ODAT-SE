@@ -17,7 +17,7 @@
 # ---------
 #   Part 1    : run input1.toml on 4 ranks and interrupt it as soon as all
 #               ranks have written their first checkpoint (after the first
-#               of the 21 temperatures).  The solver delay (0.1 s per
+#               of the 21 temperatures).  The solver delay (0.03 s per
 #               evaluation) leaves several seconds between that checkpoint
 #               and the end of the run, so the interruption lands mid-run.
 #   Check     : the checkpoints of the four ranks are from the same

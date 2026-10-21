@@ -31,4 +31,4 @@ resampling_interval = 1
 [solver]
 name = "analytical"
 function_name = "quadratics"
-delay = 0.1
+delay = 0.03
