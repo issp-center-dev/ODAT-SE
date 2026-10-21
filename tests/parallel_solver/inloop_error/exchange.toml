@@ -1,0 +1,24 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 50
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
+
+[algorithm.exchange]
+numsteps = 200
+numsteps_exchange = 50
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false

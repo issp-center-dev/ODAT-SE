@@ -1,0 +1,27 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[algorithm]
+name = "pamc"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 10
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+step_list = [1.0, 1.0]
+
+[algorithm.pamc]
+numsteps_annealing = 10
+Tnum = 5
+bmin = 0.0
+bmax = 10.0
+Tlogspace = false
+nreplica_per_proc = 20
+fix_num_replicas = true
+resampling_interval = 2
