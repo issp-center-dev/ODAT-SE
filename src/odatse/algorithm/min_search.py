@@ -365,7 +365,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 # simplex; only usable for a single local optimization
                 options.setdefault("initial_simplex", self.initial_simplex_list)
                 options.setdefault("return_all", True)
-        if use_basinhopping:
+        if self.method.lower() == "l-bfgs-b":
+            # L-BFGS-B no longer accepts disp (removed in scipy 1.18), and
+            # passing it would abort through the unknown-option check below
+            pass
+        elif use_basinhopping:
             # per-hop convergence messages of the local minimizer are noisy;
             # progress is reported per hop by basinhopping itself
             options.setdefault("disp", False)

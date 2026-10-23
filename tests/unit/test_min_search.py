@@ -113,6 +113,31 @@ def test_method_cobyla_without_nit(tmp_path, monkeypatch):
         assert "None" not in f.read_text()
 
 
+@pytest.mark.parametrize("basinhopping", [False, {"niter": 2}])
+def test_method_lbfgsb_gets_no_default_disp(tmp_path, monkeypatch, basinhopping):
+    """L-BFGS-B no longer accepts the disp option (removed in scipy 1.18), so
+    ODAT-SE must not inject its disp default for this method, either in a
+    plain minimize or as the local minimizer of basinhopping."""
+    monkeypatch.chdir(tmp_path)
+    passed_options = []
+    real_minimize = min_search.scipy.optimize.minimize
+
+    def spy_minimize(*args, **kwargs):
+        passed_options.append(dict(kwargs.get("options") or {}))
+        return real_minimize(*args, **kwargs)
+
+    # basinhopping looks up scipy.optimize.minimize at call time
+    monkeypatch.setattr(min_search, "minimize", spy_minimize)
+    monkeypatch.setattr(min_search.scipy.optimize, "minimize", spy_minimize)
+    record = []
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                            minimize={"method": "L-BFGS-B",
+                                      "basinhopping": basinhopping})
+    assert passed_options
+    assert all("disp" not in opts for opts in passed_options)
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+
+
 def test_method_trust_constr_is_not_stopped_by_callback(tmp_path, monkeypatch):
     """trust-constr terminates when the callback returns a truthy value, so
     the per-iteration callback must not return anything: the optimization
