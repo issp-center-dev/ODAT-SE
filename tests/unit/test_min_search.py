@@ -279,3 +279,41 @@ def test_basinhopping_reserved_param_raises(tmp_path, monkeypatch):
         _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
                        minimize={"basinhopping": {"take_step": "foo"}},
                        run=False)
+
+
+def test_failure_on_one_rank_does_not_hang(tmp_path, monkeypatch):
+    """A failure inside _run() on one walker only must reach the phase
+    consensus on every rank: that rank re-raises its own error and the others
+    raise OtherAlgorithmProcessError (this test would time out under mpirun
+    while _run() ended with an algcomm barrier the failing rank never
+    reached)."""
+    if not (odatse.mpi.enabled() and odatse.mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+    monkeypatch.chdir(tmp_path)
+    calls = [0]
+
+    def fails_on_rank0(x):
+        calls[0] += 1
+        if odatse.mpi.algrank() == 0 and calls[0] > 3:
+            raise ValueError("objective failed on rank 0 only")
+        return float(np.sum(x * x))
+
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            fn=fails_on_rank0,
+                            minimize={"maxiter": 100, "maxfev": 500},
+                            run=False)
+    # call the phases directly: main() turns OtherAlgorithmProcessError into
+    # sys.exit(0), which would leave this rank out of the allgather below
+    alg.prepare()
+    try:
+        alg.run()
+        outcome = "returned"
+    except ValueError:
+        outcome = "own"
+    except odatse.mpi.OtherAlgorithmProcessError:
+        outcome = "other"
+
+    # gather before asserting, so that a wrong outcome on one rank cannot
+    # leave the others waiting in this collective
+    outcomes = odatse.mpi.algcomm().allgather(outcome)
+    assert outcomes == ["own"] + ["other"] * (odatse.mpi.algsize() - 1)

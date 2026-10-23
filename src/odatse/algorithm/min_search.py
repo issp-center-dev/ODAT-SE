@@ -523,10 +523,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self._output_results()
 
-        if odatse.mpi.run_on_algorithm():
-            if odatse.mpi.algsize() > 1:
-                odatse.mpi.algcomm().barrier()
-
     def _prepare(self):
         """
         Prepare the initial simplex for the Nelder-Mead algorithm.
