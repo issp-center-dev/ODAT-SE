@@ -1,12 +1,14 @@
 # sys.path and odatse.mpi.setup() are handled by conftest.py
-"""Behavior contract of the optional gradient support, items C1-C14:
+"""Behavior contract of the optional gradient support, items C1-C16:
 gradient failures are handled like objective-function failures (under
 ignore_error a RuntimeError, NotImplementedError included, gives NaN;
 non-finite gradients are returned as they are), the optimizer's result is
 kept as is, x containing NaN gives NaN without a solver call, and a solver
 must override gradient() to declare supports_gradient. Covers Runner.gradient_unavailable_reason(),
-Runner.submit_gradient(), use_gradient of min_search, its callback, and the
-gradients of the analytical solver."""
+Runner.submit_gradient(), use_gradient of min_search, its callback, the
+memory of function values and gradients cut back at each callback (C15),
+and the gradients of the analytical solver, which exist for every built-in
+function (C6, C16)."""
 import numpy as np
 import pytest
 
@@ -860,18 +862,38 @@ def test_c6_gradient_matches_central_difference(tmp_path, name, dim):
         np.testing.assert_allclose(g, num, rtol=1e-5, atol=1e-5 * scale)
 
 
-@pytest.mark.parametrize("name", [
-    "alpine", "exponential", "griewank", "michalewicz",
-    "qing", "rastrigin", "schaffer", "schwefel",
-])
-def test_c6_functions_without_gradient(tmp_path, name):
-    """C6: functions without a gradient report supports_gradient = False
-    and gradient() raises NotImplementedError. Fails if a gradient is
-    claimed or returned."""
-    s = _analytical(tmp_path, name, 2)
-    assert s.supports_gradient is False
+# every built-in function of the analytical solver, with a valid dimension
+_ALL_BUILTIN = [
+    ("quadratics", 2), ("quartics", 2), ("ackley", 2), ("alpine", 2),
+    ("exponential", 2), ("griewank", 2), ("himmelblau", 2),
+    ("michalewicz", 2), ("qing", 2), ("rastrigin", 2), ("rosenbrock", 2),
+    ("schaffer", 2), ("schwefel", 2), ("linear_regression_test", 3),
+]
+
+
+@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
+def test_c6_every_builtin_function_supports_gradient(tmp_path, name, dim):
+    """C6 (revised in contract5): every built-in function of the analytical
+    solver reports a true supports_gradient, and gradient() returns
+    instead of raising NotImplementedError. Fails if any built-in function
+    is left without a gradient."""
+    s = _analytical(tmp_path, name, dim)
+    assert s.supports_gradient
+    g = np.asarray(s.gradient(np.full(dim, 0.3)))
+    assert g.shape == (dim,)
+
+
+@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
+def test_c6_set_function_drops_gradient_of_every_builtin(tmp_path, name, dim):
+    """C6 (unchanged in contract5): for every built-in function, replacing
+    the objective with set_function() makes supports_gradient false and
+    gradient() raise NotImplementedError. Fails if a newly added gradient
+    is attached so that set_function() does not drop it."""
+    s = _analytical(tmp_path, name, dim)
+    s.set_function(lambda x: float(np.sum((x - 1.0) ** 2)))
+    assert not s.supports_gradient
     with pytest.raises(NotImplementedError):
-        s.gradient(np.array([0.3, 0.7]))
+        s.gradient(np.full(dim, 0.3))
 
 
 def test_c6_rosenbrock_dimension_one_gradient_is_zero(tmp_path):
@@ -898,26 +920,42 @@ def test_c6_set_function_drops_builtin_gradient(tmp_path):
 def test_c11_analytical_subclass_can_assign_supports_gradient(tmp_path):
     """C11: a subclass of the analytical solver can declare gradient support
     by assigning self.supports_gradient in __init__, as for any other
-    solver. Fails with AttributeError if supports_gradient is a read-only
-    property."""
+    solver. The subclass replaces the objective with set_function() (which
+    makes supports_gradient false, C6) and overrides gradient() (C14), so
+    only the assignment can make it true; a sibling subclass without the
+    assignment checks that. Fails with AttributeError if supports_gradient
+    is a read-only property, or if the assigned value is not honored by
+    the Runner."""
     info = odatse.Info({
         "base": {"dimension": 2, "output_dir": str(tmp_path / "output")},
         "algorithm": {"name": "minsearch"},
-        "solver": {"name": "analytical", "function_name": "alpine"},
+        "solver": {"name": "analytical", "function_name": "quadratics"},
         "runner": {},
     })
+    fn, grad = _quad_fn([1.0, -0.5])
 
-    class _WithGradient(odatse.solver.analytical.Solver):
+    class _Replaced(odatse.solver.analytical.Solver):
+        def __init__(self, info):
+            super().__init__(info)
+            self.set_function(fn)
+
+        def gradient(self, x, args=()):
+            return grad(x)
+
+    class _WithGradient(_Replaced):
         def __init__(self, info):
             super().__init__(info)
             self.supports_gradient = True
 
-        def gradient(self, x, args=()):
-            return np.zeros_like(x, dtype=float)
+    # without the assignment the subclass has no gradient support
+    s = _Replaced(info)
+    assert not s.supports_gradient
+    assert odatse.Runner(s, info).gradient_unavailable_reason() is not None
 
     s = _WithGradient(info)
     assert s.supports_gradient
     assert odatse.Runner(s, info).gradient_unavailable_reason() is None
+    np.testing.assert_array_equal(s.gradient(np.array([2.0, 0.5])), [2.0, 2.0])
 
 
 # ===========================================================================
@@ -2320,3 +2358,385 @@ def test_c15_failed_gradients_forgotten_at_uncached_iterate(tmp_path, monkeypatc
     assert len(rows) == 1 + 2
     np.testing.assert_allclose(rows[1][4:6], grad(_P_C), rtol=1e-12)
     assert not np.all(np.isfinite(rows[2][4:6])), rows[2]
+
+
+# ===========================================================================
+# Round 5: C16
+#
+# Gradients of the eight analytical functions added in contract5. They are
+# checked against the central difference of evaluate() and by their values
+# at special points, never against a copy of the formula.
+
+import math
+import warnings
+
+
+_C16_NAMES = ["alpine", "exponential", "griewank", "michalewicz",
+              "qing", "rastrigin", "schaffer", "schwefel"]
+_C16_DIMS = [1, 2, 5]
+
+# step h of the central difference and rtol of the comparison per function;
+# atol is always 1e-6 * max(1, max|difference|). schwefel takes a larger h
+# because its points reach |x| ~ 500 and |f| ~ 2000.
+_C16_FD = {
+    "alpine": (1e-6, 1e-5),
+    "exponential": (1e-6, 1e-5),
+    "griewank": (1e-6, 1e-5),
+    "michalewicz": (1e-6, 1e-5),
+    "qing": (1e-6, 1e-5),
+    "rastrigin": (1e-6, 1e-5),
+    "schaffer": (1e-6, 1e-5),
+    "schwefel": (1e-4, 1e-5),
+}
+
+
+def _c16_central_difference(s, x, h, components=None):
+    if components is None:
+        components = range(len(x))
+    e = np.eye(len(x))
+    return np.array([(s.evaluate(x + h * e[i]) - s.evaluate(x - h * e[i])) / (2 * h)
+                     for i in components])
+
+
+def _c16_assert_matches(s, name, x, g, components=None):
+    h, rtol = _C16_FD[name]
+    if components is None:
+        components = list(range(len(x)))
+    num = _c16_central_difference(s, x, h, components)
+    scale = max(1.0, float(np.max(np.abs(num))))
+    np.testing.assert_allclose(np.asarray(g)[components], num, rtol=rtol,
+                               atol=1e-6 * scale, err_msg=f"{name} at {x}")
+    return num
+
+
+def _c16_michalewicz_point(rng, dim, jitter):
+    """A point where every sin(i x_i^2 / pi)^20 is near 1 (a ridge of the
+    function), so that its gradient is far from zero; random ridges for
+    rng, the first ridge otherwise."""
+    i = np.arange(dim) + 1.0
+    if rng is None:
+        k = np.zeros(dim)
+        dx = np.full(dim, jitter)
+    else:
+        k = np.array([rng.integers(0, int(j)) for j in i], dtype=float)
+        dx = rng.uniform(-jitter, jitter, dim)
+    return np.sqrt(np.pi * (np.pi / 2 + k * np.pi) / i) + dx
+
+
+def _c16_random_point(name, rng, dim):
+    """A random point in a meaningful range of ``name``, away from the
+    points where the function is not differentiable."""
+    if name == "alpine":
+        # away from the roots of x (sin x + 0.1): x = 0 and sin x = -0.1
+        while True:
+            x = rng.uniform(-8.0, 8.0, dim)
+            if np.all(np.abs(x) > 0.2) and np.all(np.abs(np.sin(x) + 0.1) > 0.05):
+                return x
+    if name == "exponential":
+        return rng.uniform(-1.5, 1.5, dim)
+    if name == "griewank":
+        return rng.uniform(-10.0, 10.0, dim)
+    if name == "michalewicz":
+        return _c16_michalewicz_point(rng, dim, 0.03)
+    if name == "qing":
+        return rng.uniform(-3.0, 3.0, dim)
+    if name == "rastrigin":
+        return rng.uniform(-5.12, 5.12, dim)
+    if name == "schaffer":
+        return rng.uniform(-5.0, 5.0, dim)
+    if name == "schwefel":
+        # away from x = 0, where sqrt(|x|) is not differentiable
+        return rng.uniform(1.0, 500.0, dim) * rng.choice([-1.0, 1.0], dim)
+    raise AssertionError(name)
+
+
+def _c16_fixed_point(name, dim):
+    """A fixed point where the largest component of the gradient is of
+    order 1e-1 or larger, so that a zero vector cannot pass."""
+    if name == "michalewicz":
+        return _c16_michalewicz_point(None, dim, 0.02)
+    if name == "schwefel":
+        return np.array([100.0, -200.0, 300.0, -400.0, 450.0])[:dim]
+    if name == "exponential":
+        return np.full(dim, 0.5)
+    if name == "rastrigin":
+        return np.full(dim, 0.25)
+    # alpine, griewank, qing, schaffer: sin x > 0 there, so no alpine root
+    return np.linspace(1.0, 2.5, dim)
+
+
+def _c16_cases():
+    # schaffer with d = 1 is the zero function (see the special points)
+    return [(n, d) for n in _C16_NAMES for d in _C16_DIMS
+            if not (n == "schaffer" and d == 1)]
+
+
+# ---------------------------------------------------------------------------
+# C16.1 return type, shape, input untouched
+
+
+@pytest.mark.parametrize("dim", _C16_DIMS)
+@pytest.mark.parametrize("name", _C16_NAMES)
+def test_c16_gradient_type_shape_and_input_untouched(tmp_path, name, dim):
+    """C16.1: gradient(x) returns a float np.ndarray of shape (d,) and does
+    not write to x (x is made read-only and compared afterwards). Fails if
+    gradient() raises NotImplementedError, returns a list/scalar/wrong
+    shape, or updates x in place."""
+    s = _analytical(tmp_path, name, dim)
+    rng = np.random.default_rng(1600 + dim)
+    for x in [_c16_fixed_point(name, dim), _c16_random_point(name, rng, dim)]:
+        x = np.array(x, dtype=float)
+        x0 = x.copy()
+        x.flags.writeable = False
+        g = s.gradient(x)
+        assert isinstance(g, np.ndarray), type(g)
+        assert g.shape == (dim,)
+        assert np.issubdtype(g.dtype, np.floating), g.dtype
+        np.testing.assert_array_equal(x, x0)
+
+
+# ---------------------------------------------------------------------------
+# C16.2 agreement with the central difference
+
+
+@pytest.mark.parametrize("name,dim", _c16_cases())
+def test_c16_gradient_matches_central_difference(tmp_path, name, dim):
+    """C16.2: at a fixed point with a large gradient and at five random
+    points (fixed seed, away from non-differentiable points) gradient(x)
+    matches the central difference of evaluate() (h and rtol from _C16_FD,
+    atol = 1e-6 * max(1, max|difference|)). At least one point has a
+    difference whose largest component is >= 1e-2, so a zero vector
+    cannot pass. Fails on a wrong sign or factor (e.g. michalewicz without
+    the factor i, schaffer without one of the two terms sharing x_i,
+    schwefel without sign(x), alpine without the sign of the inner term),
+    a missing component or a zero gradient."""
+    s = _analytical(tmp_path, name, dim)
+    rng = np.random.default_rng(16000 + 10 * dim + _C16_NAMES.index(name))
+    points = [_c16_fixed_point(name, dim)]
+    points += [_c16_random_point(name, rng, dim) for _ in range(5)]
+    largest = 0.0
+    for x in points:
+        g = s.gradient(x.copy())
+        num = _c16_assert_matches(s, name, x, g)
+        largest = max(largest, float(np.max(np.abs(num))))
+    assert largest >= 1e-2, f"all test points of {name} have a tiny gradient"
+
+
+# ---------------------------------------------------------------------------
+# C16.3 non-differentiable and special points
+
+
+@pytest.mark.parametrize("dim", _C16_DIMS)
+def test_c16_alpine_zero_components(tmp_path, dim):
+    """C16.3 (alpine): a component x_i = 0 has gradient exactly 0, while
+    the other components match the central difference; at x = 0 the
+    gradient is the zero vector. Fails if the sign of the inner term is
+    dropped (that gives 0.1 at x_i = 0) or if a subgradient other than 0
+    is chosen."""
+    s = _analytical(tmp_path, "alpine", dim)
+    np.testing.assert_array_equal(s.gradient(np.zeros(dim)), np.zeros(dim))
+    x = _c16_fixed_point("alpine", dim)
+    zero = [0] if dim < 5 else [0, 3]
+    x[zero] = 0.0
+    g = s.gradient(x.copy())
+    np.testing.assert_array_equal(g[zero], 0.0)
+    others = [i for i in range(dim) if i not in zero]
+    if others:
+        _c16_assert_matches(s, "alpine", x, g, others)
+
+
+# roots of x (sin x + 0.1) other than 0, i.e. sin x = -0.1. (The sign flip
+# of a root is not a root: sin(-x) = 0.1 there.)
+_C16_ALPINE_ROOTS = [
+    math.pi + math.asin(0.1), 2 * math.pi - math.asin(0.1),
+    -math.asin(0.1), -math.pi + math.asin(0.1),
+]
+
+
+@pytest.mark.parametrize("root", _C16_ALPINE_ROOTS)
+@pytest.mark.parametrize("dim", [1, 2, 5])
+def test_c16_alpine_both_sides_of_nonzero_root(tmp_path, dim, root):
+    """C16.3 (alpine): 1e-3 on either side of a nonzero root of
+    x sin x + 0.1 x (sin x = -0.1) the component at the root matches the
+    central difference and its sign is opposite on the two sides (the
+    value on the root is not checked). Fails if the sign of the inner
+    term x sin x + 0.1 x is replaced by the sign of x or dropped."""
+    s = _analytical(tmp_path, "alpine", dim)
+    j = dim // 2
+    base = _c16_fixed_point("alpine", dim)
+    sides = []
+    for off in (-1e-3, 1e-3):
+        x = base.copy()
+        x[j] = root + off
+        g = s.gradient(x.copy())
+        _c16_assert_matches(s, "alpine", x, g)
+        sides.append(g[j])
+    assert sides[0] * sides[1] < 0, sides
+
+
+@pytest.mark.parametrize("dim", _C16_DIMS)
+def test_c16_schwefel_zero_components(tmp_path, dim):
+    """C16.3 (schwefel): a component x_i = 0 has gradient exactly 0, with
+    no NaN and no RuntimeWarning (divide by zero / invalid value); the
+    other components match the central difference. Fails if the
+    derivative is written as x / sqrt(|x|) (0/0 at x_i = 0) without a
+    guard, or if a guard leaves a warning or a nonzero value."""
+    s = _analytical(tmp_path, "schwefel", dim)
+    x = _c16_fixed_point("schwefel", dim)
+    zero = [0] if dim < 5 else [0, 3]
+    x[zero] = 0.0
+    for p in [np.zeros(dim), x]:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            g = s.gradient(p.copy())
+        assert np.all(np.isfinite(g)), g
+        np.testing.assert_array_equal(g[p == 0.0], 0.0)
+    others = [i for i in range(dim) if i not in zero]
+    if others:
+        _c16_assert_matches(s, "schwefel", x, g, others)
+
+
+@pytest.mark.parametrize("dim,n_zero_cos", [(1, 1), (2, 1), (5, 1), (2, 2), (5, 2)])
+def test_c16_griewank_cos_near_zero(tmp_path, dim, n_zero_cos):
+    """C16.3 (griewank): where cos(x_j / sqrt(j)) is near 0 for one
+    component (x_1 = pi/2) or two (also x_4 = pi, i.e. x_4 / 2 = pi/2;
+    for d < 4 x_2 = sqrt(2) pi/2), the gradient is finite and matches the
+    central difference. Fails if the product over the other components
+    is lost or blows up there."""
+    s = _analytical(tmp_path, "griewank", dim)
+    x = _c16_fixed_point("griewank", dim)
+    x[0] = math.pi / 2
+    if n_zero_cos == 2:
+        j = 3 if dim >= 4 else 1
+        x[j] = math.sqrt(j + 1) * math.pi / 2
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        g = s.gradient(x.copy())
+    assert np.all(np.isfinite(g)), g
+    _c16_assert_matches(s, "griewank", x, g)
+
+
+def test_c16_schaffer_dimension_one_gradient_is_zero(tmp_path):
+    """C16.3 (schaffer): with d = 1 (no pair of neighbors, the zero
+    function) the gradient is the zero vector of shape (1,). Fails on an
+    exception (e.g. from indexing an empty pair list) or a nonzero
+    value."""
+    s = _analytical(tmp_path, "schaffer", 1)
+    for v in [0.0, 1.3, -2.7, 500.0]:
+        g = np.asarray(s.gradient(np.array([v])))
+        assert g.shape == (1,)
+        np.testing.assert_array_equal(g, [0.0])
+
+
+# ---------------------------------------------------------------------------
+# C16.4 finite, without warnings, for |x_i| <= 500
+
+
+def _c16_finiteness_points(dim, rng):
+    pts = [np.zeros(dim), np.full(dim, 500.0), np.full(dim, -500.0),
+           np.where(np.arange(dim) % 2 == 0, 500.0, -500.0),
+           np.full(dim, 1e-300), np.full(dim, -5e-324)]
+    # special points of C16.3
+    p = np.linspace(1.0, 2.5, dim)
+    p[0] = 0.0
+    pts.append(p)
+    p = np.linspace(1.0, 2.5, dim)
+    p[0] = math.pi / 2
+    if dim >= 4:
+        p[3] = math.pi
+    pts.append(p)
+    pts.append(np.full(dim, math.pi + math.asin(0.1)))
+    pts.append(np.full(dim, -math.asin(0.1)))
+    pts += [rng.uniform(-500.0, 500.0, dim) for _ in range(5)]
+    return pts
+
+
+@pytest.mark.parametrize("dim", _C16_DIMS)
+@pytest.mark.parametrize("name", _C16_NAMES)
+def test_c16_gradient_finite_without_warnings(tmp_path, name, dim):
+    """C16.4: for x with |x_i| <= 500 -- the origin, |x_i| = 500 (all
+    signs), tiny |x_i| (1e-300, a subnormal), the special points of C16.3
+    and random points -- the gradient is finite and no RuntimeWarning
+    (divide by zero, overflow, invalid value) is emitted. Fails on NaN/inf
+    from 0/0 or 0*inf (e.g. schwefel at 0, griewank dividing the product)
+    or on an unguarded operation that warns."""
+    s = _analytical(tmp_path, name, dim)
+    rng = np.random.default_rng(1640 + dim)
+    for x in _c16_finiteness_points(dim, rng):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            g = s.gradient(x.copy())
+        assert np.all(np.isfinite(g)), f"{name} at {x}: {g}"
+
+
+# ---------------------------------------------------------------------------
+# C16.5 min_search with use_gradient = true
+
+
+def _c16_alg(tmp_path, name, x0, method="L-BFGS-B", w=5.0):
+    dim = len(x0)
+    info = odatse.Info({
+        "base": {"dimension": dim, "output_dir": str(tmp_path / "output")},
+        "algorithm": {
+            "name": "minsearch",
+            "seed": 1,
+            "label_list": [f"x{i}" for i in range(dim)],
+            "param": {
+                "min_list": [-w] * dim,
+                "max_list": [w] * dim,
+                "initial_list": _same_start_for_all_walkers(x0),
+                "unit_list": [1.0] * dim,
+            },
+            "minimize": {"method": method, "use_gradient": True},
+        },
+        "solver": {"name": "analytical", "function_name": name},
+        "runner": {},
+    })
+    solver = _RecordingAnalytical(info)
+    r = odatse.Runner(solver, info)
+    return min_search.Algorithm(info, r), solver
+
+
+@pytest.mark.parametrize("name", _C16_NAMES)
+def test_c16_min_search_accepts_use_gradient(tmp_path, name):
+    """C16.5: min_search with use_gradient = true and L-BFGS-B is built for
+    every added function without an InputValueError. Fails if a function
+    still lacks a gradient (supports_gradient false)."""
+    _c16_alg(tmp_path, name, [1.0, 1.2])
+
+
+# (start, minimum point, minimum value); each start is 0.2-0.3 away from
+# the minimum in every component, inside the same valley
+_C16_MIN_CASES = {
+    "qing-2d": ("qing", [1.25, math.sqrt(2) - 0.3], [1.0, math.sqrt(2)], 0.0),
+    "qing-3d-neg": ("qing", [-0.75, math.sqrt(2) + 0.2, -math.sqrt(3) + 0.25],
+                    [-1.0, math.sqrt(2), -math.sqrt(3)], 0.0),
+    "rastrigin-2d": ("rastrigin", [0.2, -0.25], [0.0, 0.0], 0.0),
+    "rastrigin-3d": ("rastrigin", [-0.25, 0.2, 0.3], [0.0, 0.0, 0.0], 0.0),
+    "exponential-2d": ("exponential", [0.3, -0.2], [0.0, 0.0], -1.0),
+    "exponential-3d": ("exponential", [-0.25, 0.3, 0.2], [0.0, 0.0, 0.0], -1.0),
+    "griewank-2d": ("griewank", [0.3, -0.25], [0.0, 0.0], 0.0),
+    "griewank-3d": ("griewank", [-0.2, 0.3, -0.25], [0.0, 0.0, 0.0], 0.0),
+}
+
+
+@pytest.mark.parametrize("case", list(_C16_MIN_CASES))
+def test_c16_lbfgsb_with_gradient_converges(tmp_path, case):
+    """C16.5: L-BFGS-B with use_gradient = true, started 0.2-0.3 from the
+    minimum in every component (same start on every rank), calls the
+    solver's gradient(), does not fall back to finite differences (no
+    evaluate() probe within 1e-6 of the start along one axis), moves away
+    from the start and ends within 1e-4 of the minimum with fopt within
+    1e-8 of the minimum value. Fails if the function is rejected at
+    construction, if gradient() is never called, or if a wrong gradient
+    stops the optimizer early or sends it elsewhere."""
+    name, x0, xmin, fmin = _C16_MIN_CASES[case]
+    x0 = np.array(x0, dtype=float)
+    alg, solver = _c16_alg(tmp_path, name, x0)
+    alg.main()
+    assert len(solver.grad_calls) >= 2
+    _assert_no_finite_difference_probe(solver, x0)
+    xopt = np.asarray(alg.xopt, dtype=float)
+    assert np.max(np.abs(xopt - x0)) > 0.1, xopt
+    np.testing.assert_allclose(xopt, xmin, rtol=0, atol=1e-4)
+    assert abs(alg.fopt - fmin) < 1e-8, alg.fopt

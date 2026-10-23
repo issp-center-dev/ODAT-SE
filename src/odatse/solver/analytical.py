@@ -124,6 +124,11 @@ def alpine(xs: np.ndarray) -> float:
     """
     return np.sum(np.abs((xs*np.sin(xs))+(0.1*xs)),axis=0)
 
+def alpine_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Alpine, choosing zero where the absolute value has a kink."""
+    h = xs * np.sin(xs) + 0.1 * xs
+    return np.sign(h) * (np.sin(xs) + xs * np.cos(xs) + 0.1)
+
 def exponential(xs: np.ndarray) -> float:
     """
     Exponential function.
@@ -144,6 +149,10 @@ def exponential(xs: np.ndarray) -> float:
     """
     return -np.exp(-0.5*np.sum(xs**2,axis=0))
 
+def exponential_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Exponential function."""
+    return xs * np.exp(-0.5 * np.sum(xs ** 2))
+
 def griewank(xs: np.ndarray) -> float:
     """
     Griewank function.
@@ -163,6 +172,19 @@ def griewank(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
     return 1+(np.sum(xs**2,axis=0)/4000)-np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1))),axis=0)
+
+def griewank_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Griewank function."""
+    roots = np.sqrt(np.arange(xs.size) + 1)
+    angles = xs / roots
+    cosines = np.cos(angles)
+    # products of the other cosines without dividing by cos, which needs no
+    # cos != 0 assumption
+    prefix = np.ones(xs.size + 1, dtype=float)
+    suffix = np.ones(xs.size + 1, dtype=float)
+    prefix[1:] = np.cumprod(cosines)
+    suffix[:-1] = np.cumprod(cosines[::-1])[::-1]
+    return xs / 2000.0 + np.sin(angles) / roots * prefix[:-1] * suffix[1:]
 
 def himmelblau(xs: np.ndarray) -> float:
     """
@@ -221,6 +243,17 @@ def michalewicz(xs: np.ndarray) -> float:
     """
     return -np.sum(np.sin(xs)*(np.sin(((np.arange(xs.shape[0])+1))*(xs**2)/np.pi)**(2*10)),axis=0)
 
+def michalewicz_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Michalewicz function."""
+    indices = np.arange(xs.size) + 1
+    u = indices * xs ** 2 / np.pi
+    sin_u = np.sin(u)
+    return -(
+        np.cos(xs) * sin_u ** 20
+        + np.sin(xs) * 20.0 * sin_u ** 19 * np.cos(u)
+        * 2.0 * indices * xs / np.pi
+    )
+
 def qing(xs: np.ndarray) -> float:
     """
     Qing function.
@@ -241,6 +274,10 @@ def qing(xs: np.ndarray) -> float:
     """
     return np.sum(((xs**2)-((np.arange(xs.shape[0])+1)))**2,axis=0)
 
+def qing_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Qing function."""
+    return 4.0 * xs * (xs ** 2 - (np.arange(xs.size) + 1))
+
 def rastrigin(xs: np.ndarray) -> float:
     """
     Rastrigin function.
@@ -260,6 +297,10 @@ def rastrigin(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
     return (xs.shape[0]*10)+np.sum(xs**2-(10*np.cos(2*np.pi*xs)),axis=0)
+
+def rastrigin_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Rastrigin function."""
+    return 2.0 * xs + 20.0 * np.pi * np.sin(2.0 * np.pi * xs)
 
 def rosenbrock(xs: np.ndarray) -> float:
     """
@@ -318,6 +359,19 @@ def schaffer(xs: np.ndarray) -> float:
     a=(xs[:-1]**2)+(xs[1:]**2)
     return np.sum(0.5+(((np.sin(a)**2)-0.5)/((1+(0.001*a))**2)),axis=0)
 
+def schaffer_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the generalized Schaffer function, zero for dimension 1."""
+    a = xs[:-1] ** 2 + xs[1:] ** 2
+    denominator = 1.0 + 0.001 * a
+    derivative = (
+        np.sin(2.0 * a) / denominator ** 2
+        - 0.002 * (np.sin(a) ** 2 - 0.5) / denominator ** 3
+    )
+    g = np.zeros_like(xs, dtype=float)
+    g[:-1] += 2.0 * xs[:-1] * derivative
+    g[1:] += 2.0 * xs[1:] * derivative
+    return g
+
 def schwefel(xs: np.ndarray) -> float:
     """
     Schwefel function.
@@ -337,6 +391,12 @@ def schwefel(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[420.9687..., ...].
     """
     return (xs.shape[0]*418.9829)-np.sum(xs*np.sin(np.sqrt(np.abs(xs))),axis=0)
+
+def schwefel_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Schwefel function, including zero components."""
+    # x * sign(x) / sqrt(|x|) simplified to sqrt(|x|), avoiding 0/0 at x = 0
+    root = np.sqrt(np.abs(xs))
+    return -(np.sin(root) + 0.5 * root * np.cos(root))
 
 def linear_regression_test(xs: np.ndarray) -> float:
     """
@@ -394,7 +454,7 @@ class Solver(odatse.solver.function.Solver):
 
     x: np.ndarray
     fx: float
-    # None for the functions whose gradient is not implemented
+    # None after replacing the benchmark function via set_function
     _grad_func: Optional[Callable[[np.ndarray], np.ndarray]] = None
 
     def set_function(self, f: Callable[[np.ndarray], float]) -> None:
@@ -406,7 +466,7 @@ class Solver(odatse.solver.function.Solver):
     def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
         if self._grad_func is None:
             raise NotImplementedError(
-                f"gradient of {self._function_name} is not implemented"
+                "gradient is not available for a function set by set_function()"
             )
         return self._grad_func(x)
 
@@ -422,7 +482,6 @@ class Solver(odatse.solver.function.Solver):
         super().__init__(info)
         self._name = "analytical"
         function_name = info.solver.get("function_name", "quadratics")
-        self._function_name = function_name
 
         if function_name == "quadratics":
             self.set_function(quadratics)
@@ -435,10 +494,13 @@ class Solver(odatse.solver.function.Solver):
             self._grad_func = ackley_gradient
         elif function_name == "alpine":
             self.set_function(alpine)
+            self._grad_func = alpine_gradient
         elif function_name == "exponential":
             self.set_function(exponential)
+            self._grad_func = exponential_gradient
         elif function_name == "griewank":
             self.set_function(griewank)
+            self._grad_func = griewank_gradient
         elif function_name == "himmelblau":
             dimension = self.dimension
             if int(dimension) != 2:
@@ -449,17 +511,22 @@ class Solver(odatse.solver.function.Solver):
             self._grad_func = himmelblau_gradient
         elif function_name == "michalewicz":
             self.set_function(michalewicz)
+            self._grad_func = michalewicz_gradient
         elif function_name == "qing":
             self.set_function(qing)
+            self._grad_func = qing_gradient
         elif function_name == "rastrigin":
             self.set_function(rastrigin)
+            self._grad_func = rastrigin_gradient
         elif function_name == "rosenbrock":
             self.set_function(rosenbrock)
             self._grad_func = rosenbrock_gradient
         elif function_name == "schaffer":
             self.set_function(schaffer)
+            self._grad_func = schaffer_gradient
         elif function_name == "schwefel":
             self.set_function(schwefel)
+            self._grad_func = schwefel_gradient
         elif function_name == "linear_regression_test":
             dimension = self.dimension
             if int(dimension) != 3:
