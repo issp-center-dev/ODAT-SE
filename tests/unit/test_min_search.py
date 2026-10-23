@@ -317,3 +317,35 @@ def test_failure_on_one_rank_does_not_hang(tmp_path, monkeypatch):
     # leave the others waiting in this collective
     outcomes = odatse.mpi.algcomm().allgather(outcome)
     assert outcomes == ["own"] + ["other"] * (odatse.mpi.algsize() - 1)
+
+
+def test_post_does_not_select_a_nan_walker(tmp_path, monkeypatch):
+    """With several walkers, _post() must pick the best finite result: a
+    walker that ended at NaN (e.g. a failure ignored by ignore_error) must
+    not be chosen over one that converged (np.argmin picks a NaN)."""
+    if not (odatse.mpi.enabled() and odatse.mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+    monkeypatch.chdir(tmp_path)
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            minimize={"maxiter": 200, "maxfev": 1000},
+                            run=False)
+    alg.prepare()
+    alg.run()
+    if odatse.mpi.algrank() == 0:
+        alg.fopt = float("nan")
+    res = alg._post()
+    assert np.isfinite(res["fx"])
+
+
+def test_post_with_all_walkers_nan_reports_nan(tmp_path, monkeypatch):
+    """If every walker ended at NaN, _post() still returns (a NaN result)
+    instead of raising."""
+    monkeypatch.chdir(tmp_path)
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            minimize={"maxiter": 200, "maxfev": 1000},
+                            run=False)
+    alg.prepare()
+    alg.run()
+    alg.fopt = float("nan")
+    res = alg._post()
+    assert np.isnan(res["fx"])

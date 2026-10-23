@@ -683,7 +683,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fxs = [v["fx"] for v in results]
         x0s = [v["x0"] for v in results]
 
-        idx = np.argmin(fxs)
+        # np.argmin would pick a walker that ended at NaN (e.g. a failure
+        # ignored by ignore_error) over one that converged
+        fxs_array = np.asarray(fxs, dtype=float)
+        idx = 0 if np.all(np.isnan(fxs_array)) else int(np.nanargmin(fxs_array))
 
         if odatse.mpi.algrank() == 0:
             label_list = self.label_list
