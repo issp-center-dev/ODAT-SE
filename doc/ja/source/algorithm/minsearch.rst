@@ -89,6 +89,10 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA) では
   scipy の ``bounds`` 引数として渡されます。
   Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限大とみなす方法で処理されます。
+  最適点が境界上にある可能性がある場合は、bounds に対応した
+  L-BFGS-B, TNC, SLSQP, trust-constr などの手法をおすすめします。
+  BFGS や CG など bounds に対応していない手法では、範囲外の目的関数値を無限大とみなすため、
+  境界に達する手前で探索が止まる場合があります。
 
 - ``initial_scale_list``
 
@@ -103,12 +107,27 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
   形式: 真偽値 (default: false)
 
-  説明: true のとき、ソルバーが勾配を提供していれば、数値差分の代わりにソルバーが計算した勾配を
+  説明: true のとき、数値差分の代わりにソルバーが計算した勾配を
   `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
-  勾配を用いる手法 ("BFGS", "L-BFGS-B", "CG" など) でのみ効果があります。
-  ソルバーが勾配を提供していない場合、このパラメータは無視されます。
-  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` が True を返すようにし、 ``gradient`` メソッドを実装する必要があります (:ref:`Solver の定義 <customize_solver>` を参照)。
-  ``[runner.mapping]`` を指定した場合と、ソルバー並列 (``--nsolve`` が 2 以上) の場合は、勾配の利用に対応していません。
+  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` が True を返すようにし、
+  ``gradient`` メソッドを実装してください (:ref:`Solver の定義 <customize_solver>` を参照)。
+
+  真偽値以外 (文字列の ``"false"`` や整数の ``0`` など) を指定すると、
+  値が真と評価されるか偽と評価されるかにかかわらず、 ``ValueError`` になります。
+  ``use_gradient = true`` の場合は、次の設定でもソルバーを評価する前に ``ValueError`` になります。
+
+  - 勾配を使わない手法: Nelder-Mead, Powell, COBYLA, COBYQA
+    (大文字小文字は区別しません。 ``method`` を省略すると Nelder-Mead になります)。
+  - 勾配に対応していないソルバー (``supports_gradient`` が False)。
+  - ``[runner.mapping]`` の指定。
+  - ``--nsolve`` が 2 以上のソルバー並列。
+
+  false または省略時はソルバーの勾配を使わず、これらの制限は適用されません。
+  ``[runner]`` で ``ignore_error = true`` を指定した場合、 ``gradient()`` が送出した
+  ``RuntimeError`` は無視され、勾配の全要素が NaN として扱われます。
+  ただし、 ``NotImplementedError`` は ``ignore_error = true`` でも無視されず、そのまま送出されます。
+  勾配評価にも、関数評価と共有する step 番号が割り当てられます。
+  詳しくは後述の ``History_FunctionCall.txt`` を参照してください。
 
   設定例:
 
@@ -201,7 +220,17 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 最適化の途中で目的関数が呼び出されるたびに、その情報を記録します。
-各行には、呼び出し番号、変数の値、目的関数の値がこの順に出力されます。
+各行には、step 番号、変数の値、目的関数の値がこの順に出力されます。
+第1列の step 番号は、関数評価と勾配評価で共有します。
+勾配評価でも番号が進むため、勾配を利用する場合は欠番が生じることがあります。
+この番号は各評価を識別するためのもので、連番は保証されません。
+
+
+旧形式の callback (scipy < 1.11 では全手法、scipy 1.18 では TNC) は、評価済みの点の関数値を再利用します。
+このため、各反復での ``iset = 1`` のソルバー呼び出しは行われなくなりました。
+未評価の点では、従来どおり ``iset = 1`` で評価します。
+``(step, iset)`` ごとに作業ディレクトリを分けるソルバーでは、評価済みの点について
+反復ごとの ``iset = 1`` の出力が作られなくなります。
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -91,6 +91,16 @@
 
   - ``gradient(self, x, args=()) -> np.ndarray``
 
-    Returns the gradient of the objective function at ``x`` (same shape as ``x``). Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
+    Returns the gradient of the objective function at ``x`` with the same shape as ``x``.
+    The Runner converts the return value to a float ndarray and raises ``ValueError``
+    if its shape differs from that of ``x``, even with ``ignore_error = true``.
+    Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
+
+    If ``gradient()`` raises ``RuntimeError`` and ``ignore_error = true`` is specified
+    in ``[runner]``, the Runner returns a vector of NaN values with the same shape as ``x``.
+    ``NotImplementedError`` is always propagated, even with ``ignore_error = true``.
+    Other exceptions, such as ``ValueError`` and ``TypeError``, are also propagated.
+
+  ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
 
   Gradients are not supported when ``[runner.mapping]`` is specified or when the solver parallelization is used (``--nsolve`` greater than 1).

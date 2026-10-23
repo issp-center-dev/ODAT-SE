@@ -64,6 +64,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     # returning +inf for out-of-range points unchanged.
     _BOUNDS_METHODS = {"powell", "l-bfgs-b", "tnc", "slsqp", "trust-constr", "cobyla", "cobyqa"}
 
+    # methods that cannot use the solver's gradient
+    _GRADIENT_FREE_METHODS = {"nelder-mead", "powell", "cobyla", "cobyqa"}
+
     # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
     # forwarded to scipy.optimize.minimize as options
     _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping", "use_gradient"}
@@ -145,7 +148,21 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
-        self.use_gradient = bool(info_minimize.get("use_gradient", False))
+        self.use_gradient = info_minimize.get("use_gradient", False)
+        if not isinstance(self.use_gradient, bool):
+            raise ValueError(
+                "algorithm.minimize.use_gradient must be a boolean, "
+                f"not {type(self.use_gradient).__name__}"
+            )
+        if self.use_gradient:
+            if self.method.lower() in self._GRADIENT_FREE_METHODS:
+                message = f"Method '{self.method}' does not use gradients"
+                if "method" not in info_minimize:
+                    message += '; specify a gradient-based method such as "BFGS" or "L-BFGS-B"'
+                raise ValueError(message)
+            reason = self.runner.gradient_unavailable_reason()
+            if reason is not None:
+                raise ValueError(reason)
 
         # basinhopping = true enables scipy.optimize.basinhopping with its
         # default parameters; a [algorithm.minimize.basinhopping] table both
@@ -215,10 +232,37 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         step = [0]
         iter_history = []
         fev_history = []
+        function_values = {}
+        gradients = {}
 
         # evaluate the initial point in solver units, as _f_calc does
         f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
         iter_history.append([*self.initial_list, f0])
+
+        def _key(x):
+            """
+            Return a cache key for exact comparison in algorithm units.
+            """
+            return np.asarray(x, dtype=float).tobytes()
+
+        def _callback_value(x):
+            """
+            Return a previously evaluated value, or evaluate an unseen point.
+
+            Parameters
+            ----------
+            x : np.ndarray
+                Variables in algorithm units.
+
+            Returns
+            -------
+            float
+                Objective value, evaluated with iset=1 only if not cached.
+            """
+            key = _key(x)
+            if key in function_values:
+                return function_values[key]
+            return _f_calc(x, 1)
 
         if parse_version(scipy.__version__) >= (1, 11, 0):
             def _cb(intermediate_result):
@@ -235,7 +279,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     fun = intermediate_result.fun
                 else:
                     x = intermediate_result
-                    fun = _f_calc(x, 1)
+                    fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
         else:
@@ -243,7 +287,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 """
                 Callback function for scipy.optimize.minimize.
                 """
-                fun = _f_calc(x, 1)
+                fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
 
@@ -256,6 +300,29 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # not escalated by the OptimizeWarning filter below, and the range
         # check in _f_calc remains as the inf-penalty safety net.
         use_bounds = self.method.lower() in self._BOUNDS_METHODS
+
+        def _check_point(x_list):
+            """
+            Check the search range and constraints in algorithm units.
+
+            Parameters
+            ----------
+            x_list : np.ndarray
+                List of variables.
+
+            Returns
+            -------
+            tuple of bool
+                (in_range, in_limit). Outside the range, return (False, False)
+                without checking the constraints.
+            """
+            if use_bounds:
+                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
+            else:
+                in_range = np.all((min_list < x_list) & (x_list < max_list))
+            if not in_range:
+                return False, False
+            return True, self.runner.limitation.judge(x_list)
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
@@ -273,18 +340,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             float
                 Objective function value.
             """
-            # check if within region; kept as a safety net even when bounds=
-            # is passed to minimize
-            if use_bounds:
-                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
-            else:
-                in_range = np.all((min_list < x_list) & (x_list < max_list))
+            in_range, in_limit = _check_point(x_list)
             if not in_range:
                 print("Warning: out of range: {}".format(x_list))
                 return float("inf")
 
-            # check if limitation satisfied
-            in_limit = self.runner.limitation.judge(x_list)
             if not in_limit:
                 print("Warning: variables do not satisfy the constraint formula")
                 return float("inf")
@@ -298,35 +358,38 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             step[0] += 1
             args = (step[0], iset)
             y = run.submit(x_scaled, args)
+            # Only callbacks reuse values; scipy evaluations must retain their
+            # calls and History_FunctionCall.txt entries.
+            function_values[_key(x_list)] = y
             if iset == 0:
                 fev_history.append([step[0], *x_scaled, y])
             return y
 
-        use_grad = (
-            self.use_gradient
-            and getattr(self.runner.solver, "supports_gradient", False)
-        )
         grad_history = []
 
-        if use_grad:
+        if self.use_gradient:
             def _jac_calc(x_list: np.ndarray, iset) -> np.ndarray:
                 """
                 Calculate the gradient of the objective function.
                 """
                 x_list = np.asarray(x_list, dtype=float).flatten()
-                if use_bounds:
-                    in_range = np.all((min_list <= x_list) & (x_list <= max_list))
-                else:
-                    in_range = np.all((min_list < x_list) & (x_list < max_list))
-                in_limit = self.runner.limitation.judge(x_list)
+                in_range, in_limit = _check_point(x_list)
                 if not in_range or not in_limit:
-                    return np.zeros_like(x_list, dtype=np.float64)
+                    return np.full_like(x_list, np.nan, dtype=float)
+                key = _key(x_list)
+                if key in gradients:
+                    return gradients[key].copy()
                 x_scaled = x_list / unit_list
-                args = (0, iset)
+                step[0] += 1
+                args = (step[0], iset)
                 grad_scaled = run.submit_gradient(x_scaled, args)
                 # chain rule for f(x / unit_list)
-                g = np.asarray(grad_scaled, dtype=np.float64).flatten() / unit_list
-                return np.atleast_1d(g).astype(np.float64)
+                g = np.asarray(grad_scaled, dtype=float) / unit_list
+                # Caching a transient failure would prevent later local
+                # searches in basinhopping from recovering at this point.
+                if np.all(np.isfinite(g)):
+                    gradients[key] = g.copy()
+                return g
 
             grad_history.append([
                 *self.initial_list,
@@ -379,7 +442,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         minimize_kwargs = {}
         if use_bounds:
             minimize_kwargs["bounds"] = list(zip(min_list, max_list))
-        if use_grad:
+        if self.use_gradient:
             minimize_kwargs["jac"] = _jac_calc
 
         hop_history = []
@@ -456,7 +519,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.iter_history = iter_history
         self.fev_history = fev_history
         self.hop_history = hop_history
-        self.grad_history = grad_history if use_grad else None
+        self.grad_history = grad_history if self.use_gradient else None
 
         self._output_results()
 

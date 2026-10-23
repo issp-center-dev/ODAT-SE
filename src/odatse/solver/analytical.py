@@ -282,19 +282,23 @@ def rosenbrock(xs: np.ndarray) -> float:
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2, axis = 0)
 
 def rosenbrock_gradient(xs: np.ndarray) -> np.ndarray:
-    """Gradient of Rosenbrock's function."""
-    g = np.empty_like(xs, dtype=float)
+    """Gradient of Rosenbrock's function.
+
+    For dimension 1, return a zero vector because the function is identically zero.
+    """
+    g = np.zeros_like(xs, dtype=float)
+    if xs.size == 1:
+        return g
     g[0] = (
         -400.0 * xs[0] * (xs[1] - xs[0] ** 2)
         - 2.0 * (1.0 - xs[0])
     )
     g[-1] = 200.0 * (xs[-1] - xs[-2] ** 2)
-    for i in range(1, xs.size - 1):
-        g[i] = (
-            200.0 * (xs[i] - xs[i - 1] ** 2)
-            - 400.0 * xs[i] * (xs[i + 1] - xs[i] ** 2)
-            - 2.0 * (1.0 - xs[i])
-        )
+    g[1:-1] = (
+        200.0 * (xs[1:-1] - xs[:-2] ** 2)
+        - 400.0 * xs[1:-1] * (xs[2:] - xs[1:-1] ** 2)
+        - 2.0 * (1.0 - xs[1:-1])
+    )
     return g
 
 def schaffer(xs: np.ndarray) -> float:

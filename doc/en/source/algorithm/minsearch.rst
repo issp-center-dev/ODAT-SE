@@ -106,6 +106,10 @@ listed below apply only when ``method`` is "Nelder-Mead".
   for methods that support it (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA).
   For the Nelder-Mead method, out-of-range points are handled as before
   by treating the objective function value as infinity.
+  If the optimum may lie on the boundary, use a bounds-aware method such as
+  L-BFGS-B, TNC, SLSQP, or trust-constr.
+  Methods without bounds, such as BFGS and CG, treat out-of-range objective values
+  as infinity and may stop before reaching the boundary.
 
 - ``initial_scale_list``
 
@@ -122,13 +126,29 @@ listed below apply only when ``method`` is "Nelder-Mead".
   Format: Boolean (default: false)
 
   Description:
-  When true and the solver provides gradients, the gradient computed by the solver is passed to
-  `scipy.optimize.minimize`_ as its ``jac`` argument (also for the local optimizations of ``basinhopping``),
-  instead of the numerical differentiation.
-  It is effective only for methods that use gradients (e.g. "BFGS", "L-BFGS-B", "CG").
-  When the solver does not provide gradients, this parameter is ignored.
-  To use gradients with a custom solver, ``supports_gradient`` must return True and the ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
-  Gradients are not supported with ``[runner.mapping]`` or with the solver parallelization (``--nsolve`` greater than 1).
+  When true, the gradient computed by the solver is passed to
+  `scipy.optimize.minimize`_ as its ``jac`` argument instead of numerical differentiation
+  (also for the local optimizations of ``basinhopping``).
+  To use gradients with a custom solver, ``supports_gradient`` must return True and the
+  ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
+
+  A non-boolean value (including strings such as ``"false"`` and integers such as ``0``)
+  raises ``ValueError`` regardless of whether the value evaluates to true or false.
+  When ``use_gradient = true``, the following settings also raise ``ValueError``
+  before any solver evaluation:
+
+  - A method that does not use gradients: Nelder-Mead, Powell, COBYLA, or COBYQA
+    (case-insensitive; omitting ``method`` selects Nelder-Mead).
+  - A solver that does not support gradients (``supports_gradient`` is False).
+  - A ``[runner.mapping]`` section.
+  - Solver parallelization with ``--nsolve`` of 2 or greater.
+
+  When false or omitted, the solver's gradient is not used and these restrictions do not apply.
+  If ``gradient()`` raises ``RuntimeError`` with ``ignore_error = true`` in ``[runner]``,
+  the gradient is treated as a vector of NaN values.
+  ``NotImplementedError`` is always propagated, even with ``ignore_error = true``.
+  Gradient evaluations receive step numbers shared with objective function evaluations;
+  see ``History_FunctionCall.txt`` below.
 
   Example:
 
@@ -226,7 +246,17 @@ The following is an example of the output.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Records every call of the objective function during the optimization.
-Each line contains the call number, the values of the variables, and the value of the objective function, in that order.
+Each line contains the step number, the values of the variables, and the value of the objective function, in that order.
+The first column is a step number shared by objective function and gradient evaluations.
+Gradient evaluations also advance this number, so gaps may appear when gradients are used.
+The number identifies an evaluation; it is not guaranteed to be consecutive.
+
+
+Legacy callbacks (all methods with scipy < 1.11, and TNC with scipy 1.18) reuse
+objective values at already evaluated points, so they no longer call the solver
+with ``iset = 1`` at every iteration. An unseen point is still evaluated with ``iset = 1``.
+For solvers that separate working directories by ``(step, iset)``, the per-iteration
+``iset = 1`` output is therefore no longer created for already evaluated points.
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

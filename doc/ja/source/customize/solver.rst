@@ -84,6 +84,16 @@
 
   - ``gradient(self, x, args=()) -> np.ndarray``
 
-    入力 ``x`` における目的関数の勾配 ( ``x`` と同じ shape のベクトル) を返します。 ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
+    入力 ``x`` における目的関数の勾配を、 ``x`` と同じ shape で返します。
+    Runner は戻り値を float の ndarray に変換し、shape が ``x`` と異なる場合は
+    ``ignore_error = true`` でも ``ValueError`` を送出します。
+    ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
+
+    ``[runner]`` で ``ignore_error = true`` を指定した場合、 ``gradient()`` が送出した
+    ``RuntimeError`` は無視され、Runner は ``x`` と同じ shape で全要素が NaN の配列を返します。
+    ただし、 ``NotImplementedError`` は ``ignore_error = true`` でも無視されず、そのまま送出されます。
+    ``ValueError`` や ``TypeError`` など、その他の例外もそのまま送出されます。
+
+  ``runner.log`` が数えるのは ``evaluate()`` の呼び出しだけです。勾配の呼び出しは記録されず、回数にも含まれません。
 
   ``[runner.mapping]`` を指定した場合と、ソルバー並列 (``--nsolve`` が 2 以上) の場合は、勾配の利用に対応していません。

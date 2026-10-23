@@ -331,11 +331,35 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             error.__cause__ = own_error
         return result, error
 
+    def gradient_unavailable_reason(self) -> Optional[str]:
+        """
+        Return why gradient evaluation is unavailable.
+
+        Returns
+        -------
+        str or None
+            Reason gradients are unavailable, or None when the solver supports
+            gradients, the mapping is trivial, and the solver group has one process.
+        """
+        if not getattr(self.solver, "supports_gradient", False):
+            return "The solver does not provide gradients (supports_gradient is False)."
+        if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
+            return (
+                "Gradients are not available with [runner.mapping] "
+                "(the chain rule through the mapping is not implemented)."
+            )
+        # The workers wait for MSG_EVALUATE in serve(), so they cannot
+        # participate in gradient() collectives on solcomm; a solver using
+        # solcomm would hang if only the controller called gradient().
+        if odatse.mpi.solsize() > 1:
+            return "Gradients are not available with a parallel solver (--nsolve > 1)."
+        return None
+
     def submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
         """
         Return the gradient of the objective w.r.t. x.
-        Only valid when the solver supports gradient and mapping is Trivial
-        (chain rule not implemented otherwise).
+        Only valid when the solver supports gradients, the mapping is trivial,
+        and the solver group has one process; see gradient_unavailable_reason().
 
         Parameters
         ----------
@@ -347,36 +371,49 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         Returns
         -------
         np.ndarray
-            Gradient vector, same shape as x.
+            Gradient vector, same shape as x. All elements are NaN when x
+            violates the constraints or ignore_error suppresses a failure.
 
         Raises
         ------
         NotImplementedError
             If solver does not support gradient, mapping is not Trivial,
-            or the solver group has more than one process.
+            or the solver group has more than one process. Also propagated
+            when solver.gradient() raises it, regardless of ignore_error.
+        ValueError
+            If the gradient shape differs from the input shape, even when
+            ignore_error is True.
+        RuntimeError
+            Propagated from solver.gradient() when ignore_error is False.
+        Exception
+            Exceptions other than RuntimeError from solver.gradient() are
+            propagated regardless of ignore_error.
         """
-        if not getattr(self.solver, "supports_gradient", False):
-            raise NotImplementedError("Solver does not support gradient.")
-        if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
-            raise NotImplementedError(
-                "submit_gradient is only supported with TrivialMapping."
-            )
-        # the solver workers wait in serve() for MSG_EVALUATE and cannot take
-        # part in gradient(); calling it on the controller alone would hang a
-        # solver that uses solcomm
-        if odatse.mpi.solsize() > 1:
-            raise NotImplementedError(
-                "submit_gradient is not supported with a parallel solver (solver group size > 1)."
-            )
+        reason = self.gradient_unavailable_reason()
+        if reason is not None:
+            raise NotImplementedError(reason)
+        # A zero gradient would be indistinguishable from a stationary point
+        # and could falsely signal convergence after a constraint violation.
         if not self.limitation.judge(x):
-            return np.zeros_like(x, dtype=float)
+            return np.full_like(x, np.nan, dtype=float)
         xp = self.mapping(x)
         try:
-            return self.solver.gradient(xp, args)
-        except RuntimeError:
-            if self.ignore_error:
-                return np.zeros_like(x, dtype=float)
+            g = self.solver.gradient(xp, args)
+        except Exception as e:
+            # NotImplementedError signals missing implementation or a setup
+            # mistake, not a point-specific numerical failure.
+            if self.ignore_error and is_ignorable(e) and not isinstance(e, NotImplementedError):
+                # Zero would falsely signal a stationary point after failure.
+                return np.full_like(x, np.nan, dtype=float)
             raise
+        # runner.log's num_calls counts evaluate() calls in existing outputs;
+        # counting gradients here would change its meaning.
+        g = np.array(g, dtype=float)
+        if g.shape != xp.shape:
+            raise ValueError(
+                f"Solver gradient shape {g.shape} does not match input shape {xp.shape}."
+            )
+        return g
 
     def post(self) -> None:
         """
