@@ -98,14 +98,30 @@
     The Runner converts the return value to a float ndarray and raises ``ValueError``
     if its shape differs from that of ``x``, even with ``ignore_error = true``.
     Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
-    After checking the shape, the Runner treats any non-finite component
-    (NaN or infinity) as a failure: it raises ``odatse.exception.SolverRuntimeError``
-    (a ``RuntimeError``), or returns an all-NaN vector if ``ignore_error = true``.
+    If ``supports_gradient`` is True, subclasses must override this method.
+    Inheriting the default ``SolverBase.gradient`` implementation makes
+    gradients unavailable; the Runner detects this before calling the solver.
+    After checking the shape, the Runner returns non-finite values (NaN or
+    ±inf) as returned by the solver, regardless of ``ignore_error``.
 
-    If ``gradient()`` raises ``RuntimeError`` and ``ignore_error = true`` is specified
-    in ``[runner]``, the Runner returns a vector of NaN values with the same shape as ``x``.
-    ``NotImplementedError`` is always propagated, even with ``ignore_error = true``.
-    Other exceptions, such as ``ValueError`` and ``TypeError``, are also propagated.
+    Gradient failures follow the same rules as objective-function failures.
+    If ``gradient()`` raises ``RuntimeError`` (including ``NotImplementedError``)
+    and ``ignore_error = true`` is specified in ``[runner]``, the Runner returns
+    an all-NaN vector with the same shape as ``x``. Otherwise, the exception
+    propagates. Other exceptions, such as ``ValueError`` and ``TypeError``,
+    always propagate.
+
+    The optimization method determines the outcome after a non-finite gradient;
+    it may report ``success=False`` or return NaN results. If a gradient contains
+    ±inf, L-BFGS-B may report ``success=True`` at the initial point. Raise an
+    exception where the gradient cannot be computed, rather than returning
+    non-finite values.
+
+    When L-BFGS-B terminates abnormally (``ABNORMAL``, ``success=False``), scipy's
+    returned objective value may be from the last evaluated point and may not
+    match the value at the returned parameters. ODAT-SE uses scipy's result as
+    returned. Do not take the result at face value when ``success=False``.
+    See :doc:`../algorithm/minsearch` for result handling.
 
   At a point violating the Runner's constraints, ``submit_gradient()`` returns
   an all-NaN vector without calling the solver. In ``minsearch``, points outside

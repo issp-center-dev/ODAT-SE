@@ -339,10 +339,18 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         -------
         str or None
             Reason gradients are unavailable, or None when the solver supports
-            gradients, the mapping is trivial, and the solver group has one process.
+            and implements gradients, the mapping is trivial, and the solver
+            group has one process.
         """
         if not getattr(self.solver, "supports_gradient", False):
             return "The solver does not provide gradients (supports_gradient is False)."
+        # Unlike abstract evaluate(), the default gradient() does not prevent
+        # construction; ignore_error could silently turn its missing
+        # implementation into all-NaN gradients.
+        if (isinstance(self.solver, odatse.solver.SolverBase)
+                and getattr(type(self.solver), "gradient", None)
+                is odatse.solver.SolverBase.gradient):
+            return "The solver declares supports_gradient but does not implement gradient()."
         if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
             return (
                 "Gradients are not available with [runner.mapping] "
@@ -373,20 +381,19 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         np.ndarray
             Gradient vector, same shape as x. All elements are NaN when x
             violates the constraints or ignore_error suppresses a failure.
+            Non-finite values returned by solver.gradient() are returned as is.
 
         Raises
         ------
         NotImplementedError
             If solver does not support gradient, mapping is not Trivial,
-            or the solver group has more than one process. Also propagated
-            when solver.gradient() raises it, regardless of ignore_error.
+            or the solver group has more than one process, regardless of
+            ignore_error. From solver.gradient(), treated as RuntimeError.
         ValueError
             If the gradient shape differs from the input shape, even when
             ignore_error is True.
         RuntimeError
             Propagated from solver.gradient() when ignore_error is False.
-        SolverRuntimeError
-            If the gradient contains non-finite values and ignore_error is False.
         Exception
             Exceptions other than RuntimeError from solver.gradient() are
             propagated regardless of ignore_error.
@@ -402,9 +409,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         try:
             g = self.solver.gradient(xp, args)
         except Exception as e:
-            # NotImplementedError signals missing implementation or a setup
-            # mistake, not a point-specific numerical failure.
-            if self.ignore_error and is_ignorable(e) and not isinstance(e, NotImplementedError):
+            if self.ignore_error and is_ignorable(e):
                 # Zero would falsely signal a stationary point after failure.
                 return np.full_like(x, np.nan, dtype=float)
             raise
@@ -414,13 +419,6 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         if g.shape != xp.shape:
             raise ValueError(
                 f"Solver gradient shape {g.shape} does not match input shape {xp.shape}."
-            )
-        if not np.all(np.isfinite(g)):
-            if self.ignore_error:
-                return np.full_like(x, np.nan, dtype=float)
-            raise SolverRuntimeError(
-                f"Solver gradient contains non-finite values in components "
-                f"{np.flatnonzero(~np.isfinite(g)).tolist()} at x = {xp}: {g}"
             )
         return g
 

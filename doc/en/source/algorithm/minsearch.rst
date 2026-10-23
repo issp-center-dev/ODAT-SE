@@ -101,8 +101,18 @@ For solvers that separate working directories by ``(step, iset)``, per-iteration
 
 After optimization, scipy's ``success`` and ``message`` are printed on one line,
 with a warning when ``success`` is false. For basin hopping, the available
-status information is printed. This is scipy's original status, before any
-replacement described under ``use_gradient`` below.
+status information is printed.
+
+Each walker's result uses scipy's returned parameters and objective value as they
+are. When multiple walkers finish with a mixture of NaN and finite objective
+values, the final result selects the walker with the smallest finite value.
+
+Parameters containing NaN, which an optimizer may propose after a failure, are
+handled without calling the solver: the objective value is NaN, a warning is
+printed, no step number is consumed, and no row is added to
+``History_FunctionCall.txt``. Parameters containing ±inf but no NaN remain out of
+range, with an objective value of inf. These rules apply with or without
+``use_gradient``.
 
 - ``method``
 
@@ -143,6 +153,9 @@ replacement described under ``use_gradient`` below.
   (also for the local optimizations of ``basinhopping``).
   To use gradients with a custom solver, ``supports_gradient`` must be True and the
   ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
+  A ``SolverBase`` subclass that declares support but inherits the default
+  ``gradient()`` implementation cannot use gradients and is rejected before
+  any solver evaluation.
 
   A non-boolean value (including strings such as ``"false"`` and integers such as ``0``)
   raises ``InputValueError`` regardless of whether the value evaluates to true or false.
@@ -164,23 +177,30 @@ replacement described under ``use_gradient`` below.
 
   At points outside the search region or violating constraints, the solver's
   ``gradient()`` is not called and the gradient is a vector of NaN values.
-  Non-finite values (NaN or infinity) returned by ``gradient()`` are treated as
-  failures: the Runner raises ``SolverRuntimeError`` unless ``ignore_error = true``
-  in ``[runner]``, in which case it returns an all-NaN vector.
-  A ``RuntimeError`` raised by ``gradient()`` is likewise treated as an all-NaN
-  vector with ``ignore_error = true``. ``NotImplementedError`` always propagates.
+  Gradient failures follow the same rules as objective-function failures.
+  With ``ignore_error = true`` in ``[runner]``, a ``RuntimeError`` raised by
+  ``gradient()`` (including ``NotImplementedError``) is treated as an all-NaN
+  gradient. Otherwise, the exception propagates. Exceptions other than
+  ``RuntimeError`` always propagate. Non-finite return values (NaN or ±inf)
+  are used as returned, regardless of ``ignore_error``.
 
-  Only when gradients are used and a non-finite gradient has occurred at a point
-  within the search region and constraints during this run, the final result
-  is compared with the best finite objective value evaluated at feasible points.
-  These candidates include the initial point only if it satisfies the region
-  and constraints. If scipy's final value is non-finite or worse than that best
-  value, the result is replaced with the best evaluated point and a warning is
-  printed. Scipy has not certified convergence at the replacement point.
-  With no gradient failure, or with ``use_gradient = false``, no replacement occurs.
+  The outcome depends on the optimization method: it may report
+  ``success=False`` or return a NaN objective value or non-finite parameters
+  (see the handling of results and NaN parameters above).
 
-  Callbacks reuse finite cached gradients. At a point whose gradient has failed
-  and has not recovered, they record NaN without calling ``gradient()`` again.
+  If the solver returns a gradient containing ±inf, L-BFGS-B may report
+  ``success=True`` while remaining at the initial point. To make failures
+  detectable, raise an exception where the gradient cannot be computed,
+  rather than returning non-finite values.
+
+  When L-BFGS-B terminates abnormally (``ABNORMAL``, ``success=False``), scipy's
+  returned objective value may be from the last evaluated point and may not
+  match the value at the returned parameters. ODAT-SE uses scipy's result as
+  returned. Do not take the result at face value when ``success=False``.
+
+  Callbacks reuse only finite cached gradients. At a point whose gradient
+  contains non-finite values and has not recovered, they record NaN without
+  calling ``gradient()`` again.
   Scipy's gradient requests may retry the point; after recovery, callbacks record
   the finite cached value.
   Gradient evaluations receive step numbers shared with objective evaluations,

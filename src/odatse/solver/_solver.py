@@ -100,9 +100,10 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
 
         Optional. Only called when supports_gradient is True. Same shape as x.
         x is in the same space as passed to evaluate (e.g. after Runner's mapping).
-        The Runner treats non-finite return values as failures: it returns an
-        all-NaN vector when ignore_error is True, otherwise it raises
-        odatse.exception.SolverRuntimeError.
+        Subclasses must override this method when supports_gradient is True.
+        The Runner uses non-finite return values as returned. A RuntimeError
+        (including NotImplementedError) raised by gradient() is treated as an
+        all-NaN gradient when ignore_error is True; otherwise it propagates.
 
         Parameters
         ----------

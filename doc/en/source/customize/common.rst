@@ -80,18 +80,23 @@ an objective gradient with the same shape as ``x``, passing ``args`` to the solv
 It uses the same input convention as ``submit``. If the point violates the
 constraints, the solver is not called and an all-NaN vector is returned.
 A wrong gradient shape raises ``ValueError``, even with ``ignore_error = true``.
-After checking the shape, non-finite values raise ``SolverRuntimeError``;
-with ``ignore_error = true``, an all-NaN vector is returned instead.
-A solver ``RuntimeError`` is also suppressed with ``ignore_error = true``,
-but ``NotImplementedError`` and other exceptions always propagate.
+After checking the shape, non-finite return values (NaN or ±inf) are returned
+as is, regardless of ``ignore_error``. Gradient failures follow the same rules
+as objective-function failures: with ``ignore_error = true``, a ``RuntimeError``
+raised by ``gradient()`` (including ``NotImplementedError``) becomes an all-NaN
+vector; otherwise it propagates. Other exceptions always propagate.
+The outcome depends on the optimization method and may be ``success=False``
+or a NaN result; see :doc:`../algorithm/minsearch` for details and limitations.
 Gradient calls are neither recorded nor counted in ``runner.log``.
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` returns ``None`` when
 gradients are available, or a string explaining why they are unavailable.
-Gradients require a solver with ``supports_gradient`` true, a ``TrivialMapping``,
-and a single-process solver group (``--nsolve = 1``).
+Gradients require a solver with ``supports_gradient`` true that overrides
+``gradient()``, a ``TrivialMapping``, and a single-process solver group
+(``--nsolve = 1``).
 ``submit_gradient`` raises ``NotImplementedError`` if any of these conditions
-is not met. See :doc:`solver` for the solver interface and
+is not met, regardless of ``ignore_error``. See :doc:`solver` for the solver
+interface and
 :doc:`../algorithm/minsearch` for search bounds and parameter units.
 
 See :doc:`../input/index` for details of how and which components of ``info`` the ``Runner`` uses.

@@ -91,14 +91,26 @@
     Runner は戻り値を float の ndarray に変換し、shape が ``x`` と異なる場合は
     ``ignore_error = true`` でも ``ValueError`` を送出します。
     ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
-    Runner は shape を検査した後、非有限値 (NaN または無限大) が含まれていれば失敗として扱い、
-    ``odatse.exception.SolverRuntimeError`` (``RuntimeError`` の派生) を送出します。
-    ただし、 ``ignore_error = true`` の場合は全要素が NaN の配列を返します。
+    ``supports_gradient`` を True にする派生クラスでは、このメソッドを必ず上書きしてください。
+    既定の ``SolverBase.gradient`` のままでは勾配は使えず、Runner がソルバーを呼ぶ前に検出します。
+    Runner は shape を検査した後、非有限値 (NaN、±inf) も ``ignore_error`` に
+    関係なくソルバーから返されたまま返します。
 
-    ``[runner]`` で ``ignore_error = true`` を指定した場合、 ``gradient()`` が送出した
-    ``RuntimeError`` は無視され、Runner は ``x`` と同じ shape で全要素が NaN の配列を返します。
-    ただし、 ``NotImplementedError`` は ``ignore_error = true`` でも無視されず、そのまま送出されます。
-    ``ValueError`` や ``TypeError`` など、その他の例外もそのまま送出されます。
+    勾配の失敗は、目的関数の失敗と同じ規則で扱います。 ``gradient()`` が
+    ``RuntimeError`` (``NotImplementedError`` を含む) を送出し、 ``[runner]`` で
+    ``ignore_error = true`` が指定されていれば、Runner は ``x`` と同じ shape で
+    全要素が NaN の配列を返します。それ以外の場合は例外をそのまま送出します。
+    ``ValueError`` や ``TypeError`` など、その他の例外は常に送出します。
+
+    非有限の勾配を受け取った後の結果は最適化手法によって異なり、 ``success=False`` や
+    NaN の結果になることがあります。±inf を含む勾配では、L-BFGS-B が初期点のまま
+    ``success=True`` を報告することもあります。勾配を計算できない点では、非有限の値を
+    返さず、例外を送出してください。
+
+    L-BFGS-B が異常終了した場合 (``ABNORMAL``、``success=False``)、scipy が返す
+    目的関数値は最後に評価した点のもので、返されたパラメータでの値と一致しないことがあります。
+    ODAT-SE は scipy の結果をそのまま使います。 ``success=False`` のときは、
+    結果をそのまま信用しないでください。結果の扱いは :doc:`../algorithm/minsearch` を参照してください。
 
   Runner の制約を満たさない点では、 ``submit_gradient()`` はソルバーを呼ばずに
   全要素が NaN の配列を返します。 ``minsearch`` では、探索範囲外やアルゴリズム単位で

@@ -1,8 +1,12 @@
 # sys.path and odatse.mpi.setup() are handled by conftest.py
-"""Behavior contract of the optional gradient support (C1-C6 of
-work/gradient-review/contract.md and C7-C12 of contract2.md):
-Runner.gradient_unavailable_reason(), Runner.submit_gradient(), use_gradient
-of min_search, its callback, and the gradients of the analytical solver."""
+"""Behavior contract of the optional gradient support, items C1-C14:
+gradient failures are handled like objective-function failures (under
+ignore_error a RuntimeError, NotImplementedError included, gives NaN;
+non-finite gradients are returned as they are), the optimizer's result is
+kept as is, x containing NaN gives NaN without a solver call, and a solver
+must override gradient() to declare supports_gradient. Covers Runner.gradient_unavailable_reason(),
+Runner.submit_gradient(), use_gradient of min_search, its callback, and the
+gradients of the analytical solver."""
 import numpy as np
 import pytest
 
@@ -314,14 +318,24 @@ def test_c2_runtime_error_with_ignore_error_returns_nan(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("ignore_error", [False, True])
-def test_c2_not_implemented_error_always_propagates(tmp_path, monkeypatch, ignore_error):
-    """C2: NotImplementedError (a RuntimeError subclass) from gradient()
-    propagates regardless of ignore_error. Fails if ignore_error turns it
-    into NaN/zeros."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(NotImplementedError("no grad here")),
-                           runner={"ignore_error": ignore_error})
-    with pytest.raises(NotImplementedError, match="no grad here"):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+def test_c2_not_implemented_error_from_gradient_like_runtime_error(tmp_path, monkeypatch, ignore_error):
+    """C2 (contract3): NotImplementedError raised by gradient() is handled
+    like a RuntimeError: with ignore_error = true an all-NaN array of x's
+    shape is returned, otherwise it propagates. (The NotImplementedError of
+    an unavailable gradient is a separate case and always propagates.)
+    Fails if ignore_error does not cover it, or if it is swallowed without
+    ignore_error."""
+    _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
+                                grad=_raising(NotImplementedError("no grad here")),
+                                runner={"ignore_error": ignore_error})
+    if ignore_error:
+        g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+        _assert_all_nan(g, (2,))
+    else:
+        with pytest.raises(NotImplementedError, match="no grad here"):
+            r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    # gradient() was really reached: this is not the unavailable-gradient path
+    assert len(solver.grad_calls) == 1
 
 
 @pytest.mark.parametrize("ignore_error", [False, True])
@@ -907,7 +921,7 @@ def test_c11_analytical_subclass_can_assign_supports_gradient(tmp_path):
 
 
 # ===========================================================================
-# Round 2: C7-C12 of work/gradient-review/contract2.md
+# Round 2: C7-C12
 
 import os
 import subprocess
@@ -945,31 +959,23 @@ def _grad_rows(tmp_path):
 # C7. non-finite gradients in the Runner
 
 
-@pytest.mark.parametrize("bad", [[np.nan, 1.0], [0.5, np.inf], [-np.inf, 0.0]],
-                         ids=["nan", "inf", "-inf"])
-def test_c7_nonfinite_gradient_raises_solver_runtime_error(tmp_path, monkeypatch, bad):
-    """C7: a gradient() that returns (without raising) an array containing
-    NaN or +-inf makes submit_gradient raise odatse.exception.
-    SolverRuntimeError (a RuntimeError) when ignore_error is off. Fails if
-    the non-finite value is returned as a gradient."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
-                           grad=lambda x: np.array(bad))
-    with pytest.raises(odatse.exception.SolverRuntimeError) as ei:
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    assert isinstance(ei.value, RuntimeError)
-
-
-@pytest.mark.parametrize("bad", [[np.nan, 1.0], [0.5, np.inf], [-np.inf, 0.0]],
-                         ids=["nan", "inf", "-inf"])
-def test_c7_nonfinite_gradient_with_ignore_error_returns_nan(tmp_path, monkeypatch, bad):
-    """C7: with ignore_error = true a non-finite gradient() result becomes an
-    all-NaN array of x's shape (not the partly finite array). Fails if the
-    finite components survive or an error propagates."""
+@pytest.mark.parametrize("ignore_error", [False, True])
+@pytest.mark.parametrize("bad", [[np.nan, 1.0], [0.5, np.inf], [-np.inf, 0.0],
+                                 [np.nan, np.nan]],
+                         ids=["partial-nan", "inf", "-inf", "all-nan"])
+def test_c7_nonfinite_gradient_returned_as_is(tmp_path, monkeypatch, bad, ignore_error):
+    """C7 (contract3): a gradient() that returns, without raising, an array
+    containing NaN or +-inf is returned unchanged by submit_gradient (as a
+    float ndarray of x's shape), with or without ignore_error, and nothing
+    is raised -- the same as a non-finite objective value. Fails if the
+    value raises, or is turned into an all-NaN array (partial cases) or
+    otherwise altered."""
     _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
                            grad=lambda x: np.array(bad),
-                           runner={"ignore_error": True})
+                           runner={"ignore_error": ignore_error})
     g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    _assert_all_nan(g, (2,))
+    assert isinstance(g, np.ndarray) and g.shape == (2,)
+    np.testing.assert_array_equal(g, np.array(bad, dtype=float))
 
 
 @pytest.mark.parametrize("ignore_error", [False, True])
@@ -1014,42 +1020,48 @@ def _best_in_range_evaluation(solver, fn, lo=-5.0, hi=5.0):
 
 
 @pytest.mark.parametrize("bad_fun", ["worse", "inf", "nan"])
-def test_c8_result_replaced_after_gradient_failure(tmp_path, monkeypatch, capsys, bad_fun):
-    """C8 (replace): after an in-range gradient failure (RuntimeError with
-    ignore_error = true at the initial point) and a scipy result whose fun is
-    worse than the best in-range evaluation, or non-finite, xopt/fopt become
-    that best evaluated point and a 'Warning' line is printed. The scipy
-    result is forced to (4, 4) by wrapping min_search.minimize. Fails if the
-    poor scipy result is reported as the optimum."""
+def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
+    """C8 (contract3, result kept): min_search reports the optimizer's
+    result as is, even after a gradient failure that actually happened. A
+    scripted optimizer requests the jac at Q = (1.5, 1.5), where the
+    solver's gradient() is called and raises RuntimeError (ignore_error =
+    true), and then returns (4, 4) with a fun worse than f(x0), or inf, or
+    NaN. xopt/fopt must be exactly that result. Fails if a best evaluated
+    point (or anything else) replaces the optimizer's result."""
     fn, grad = _quad_fn(_C)
     x0 = np.array([2.0, 2.0])
+    Q = np.array([1.5, 1.5])
+    failures = []
 
-    def flaky(x):
-        if np.array_equal(x, x0):
-            raise RuntimeError("gradient failed at x0")
+    def fails_at_q(x):
+        if np.array_equal(x, Q):
+            failures.append(np.array(x, copy=True))
+            raise RuntimeError("gradient fails at Q")
         return grad(x)
 
     fun = {"worse": fn(_BAD), "inf": np.inf, "nan": np.nan}[bad_fun]
-    _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fun))
+    assert not fun <= fn(x0)
+    _patch_minimize(monkeypatch, _scripted_minimize(
+        eval_points=[Q], jac_points=[Q], result_x=_BAD, result_fun=fun))
     alg, solver, _ = _make_alg(
         tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
-        fn=fn, grad=flaky, runner={"ignore_error": True},
+        fn=fn, grad=fails_at_q, runner={"ignore_error": True},
         initial_list=_same_start_for_all_walkers(x0))
     alg.main()
-    out = capsys.readouterr().out
-    assert any(np.array_equal(x, x0) for x, _ in solver.grad_calls)
-    best_x, best_f = _best_in_range_evaluation(solver, fn)
-    assert best_f < fn(_BAD)
-    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), best_x)
-    np.testing.assert_allclose(alg.fopt, best_f, rtol=1e-12)
-    np.testing.assert_allclose(fn(np.asarray(alg.xopt, dtype=float)), alg.fopt, rtol=1e-12)
-    assert any("Warning" in line for line in out.splitlines())
+    # the failure really happened inside the solver's gradient()
+    assert failures
+    assert any(np.array_equal(x, Q) for x, _ in solver.grad_calls)
+    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
+    if bad_fun == "nan":
+        assert np.isnan(alg.fopt)
+    else:
+        assert alg.fopt == fun
 
 
 def test_c8_result_kept_without_gradient_failure(tmp_path, monkeypatch):
-    """C8 (keep 1): without any gradient failure, a scipy result worse than
-    an evaluated point is still reported as is. Fails if the replacement
-    fires without a gradient failure."""
+    """C8: without any gradient failure, a scipy result worse than an
+    evaluated point is reported as is. Fails if min_search substitutes
+    another point for the optimizer's result."""
     fn, grad = _quad_fn(_C)
     _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fn(_BAD)))
     alg, solver, _ = _make_alg(
@@ -1062,39 +1074,6 @@ def test_c8_result_kept_without_gradient_failure(tmp_path, monkeypatch):
     assert best_f < fn(_BAD)
     np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
     np.testing.assert_allclose(alg.fopt, fn(_BAD), rtol=1e-12)
-
-
-def test_c8_out_of_range_initial_point_is_not_a_replacement(tmp_path, monkeypatch):
-    """C8 (keep 2): an out-of-range initial point (6, 0) with the smallest
-    f (0) is never the replacement target; after an in-range gradient
-    failure and a poor scipy result (-4, -4), xopt/fopt become the best
-    *in-range* evaluated point. Fails if xopt is the out-of-range start or
-    the poor scipy result is kept."""
-    c = np.array([6.0, 0.0])
-    fn, grad = _quad_fn(c)
-    calls = [0]
-
-    def first_fails(x):
-        calls[0] += 1
-        if calls[0] == 1:
-            raise RuntimeError("first gradient fails")
-        return grad(x)
-
-    bad = np.array([-4.0, -4.0])
-    _patch_minimize(monkeypatch, _replacing_factory(fn, bad, fn(bad)))
-    alg, solver, _ = _make_alg(
-        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
-        fn=fn, grad=first_fails, runner={"ignore_error": True},
-        initial_list=_same_start_for_all_walkers(c))
-    alg.main()
-    assert solver.grad_calls and _in_box(solver.grad_calls[0][0])
-    best_x, best_f = _best_in_range_evaluation(solver, fn)
-    xopt = np.asarray(alg.xopt, dtype=float)
-    assert _in_box(xopt)
-    assert not np.array_equal(xopt, c)
-    np.testing.assert_array_equal(xopt, best_x)
-    np.testing.assert_allclose(alg.fopt, best_f, rtol=1e-12)
-    assert alg.fopt > 0.0
 
 
 _W = np.array([10.0, 1.0])
@@ -1119,11 +1098,13 @@ def _fails_at(point, grad):
     return g
 
 
-def test_c8_real_lbfgsb_not_worse_than_start(tmp_path):
-    """C8 (real scipy): L-BFGS-B with a gradient that always fails at the
-    initial point (2, 2) (ignore_error = true) ends with fopt <= f(x0)
-    = 28.75 and f(xopt) == fopt. Before the fix it ended in the box corner
-    (-5, -5) with f ~ 322.8. Fails if the false 'success' is reported."""
+def test_c8_real_lbfgsb_stays_at_start_and_reports_failure(tmp_path, capsys):
+    """C8 (contract3, real scipy): L-BFGS-B with a gradient that always
+    fails at the initial point (2, 2) (RuntimeError, ignore_error = true)
+    leaves xopt at x0 (no move to a box corner such as (-5, -5)), and the
+    success/message line shows success=False with 'Warning'. fopt may be NaN
+    and is not checked. Fails if the optimizer walks away from x0 on the
+    failed gradient or the failure is reported as a success."""
     x0 = np.array([2.0, 2.0])
     alg, solver, _ = _make_alg(
         tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
@@ -1131,9 +1112,12 @@ def test_c8_real_lbfgsb_not_worse_than_start(tmp_path):
         runner={"ignore_error": True},
         initial_list=_same_start_for_all_walkers(x0))
     alg.main()
-    assert alg.fopt <= _weighted_fn(x0)
-    np.testing.assert_allclose(_weighted_fn(np.asarray(alg.xopt, dtype=float)),
-                               alg.fopt, rtol=1e-12)
+    out = capsys.readouterr().out
+    assert any(np.array_equal(x, x0) for x, _ in solver.grad_calls)
+    np.testing.assert_allclose(np.asarray(alg.xopt, dtype=float), x0, rtol=0, atol=1e-12)
+    lines = [L for L in out.splitlines() if "success=False" in L]
+    assert lines, "no success/message line showing success=False"
+    assert all("Warning" in L for L in lines), lines
 
 
 _SENTINEL = "odatse-test-sentinel-message-31415"
@@ -1200,35 +1184,67 @@ def _controlled_callback_factory(xf, fn, k, call_jac=False, record=None):
     return factory
 
 
-def test_c9_callback_does_not_retry_failed_gradient(tmp_path, monkeypatch):
-    """C9: the gradient at x0 always fails (ignore_error = true). The
-    callback is then invoked K = 5 times at x0 by a controlled optimizer:
-    it must fire (iter_history grows by K) without calling gradient() again,
-    and every History_Gradient.txt row at x0 has a NaN gradient. Fails if the
-    callback retries the failed gradient on each call."""
+_FAIL_MODES = ["raise", "partial-nan", "inf"]
+
+
+def _failing_value(mode):
+    """What a failing gradient() does: raise RuntimeError (ignored ->
+    NaN), or return a non-finite array directly (contract3 C9)."""
+    if mode == "raise":
+        raise RuntimeError("gradient failed")
+    if mode == "partial-nan":
+        return np.array([np.nan, 1.0])
+    return np.array([np.inf, 1.0])
+
+
+def _fails_at_mode(point, grad, mode):
+    point = np.asarray(point, dtype=float)
+
+    def g(x):
+        if np.array_equal(x, point):
+            return _failing_value(mode)
+        return grad(x)
+    return g
+
+
+@pytest.mark.parametrize("mode", _FAIL_MODES)
+def test_c9_callback_does_not_retry_failed_gradient(tmp_path, monkeypatch, mode):
+    """C9: the gradient at x0 always fails -- by an ignored RuntimeError
+    (NaN), or by gradient() itself returning [nan, 1] or [inf, 1]. The
+    callback is then invoked K = 5 times at x0 by a controlled optimizer: it
+    must fire (iter_history grows by K) without calling gradient() again,
+    and every History_Gradient.txt row at x0 has a non-finite gradient (all
+    NaN for the raised case). Fails if the callback retries the failed
+    gradient on each call."""
     fn, grad = _quad_fn(_C)
     x0 = np.array([2.0, 2.0])
     alg, solver, _ = _make_alg(
         tmp_path, {"method": "BFGS", "use_gradient": True},
-        fn=fn, grad=_fails_at(x0, grad), runner={"ignore_error": True},
+        fn=fn, grad=_fails_at_mode(x0, grad, mode), runner={"ignore_error": True},
         initial_list=_same_start_for_all_walkers(x0))
     record = {"solver": solver}
     _patch_minimize(monkeypatch, _controlled_callback_factory(x0, fn, _K, record=record))
     alg.main()
+    assert record["entry"], "the failing gradient was never requested"
     assert len(alg.iter_history) >= 1 + _K
     assert len(record["after_cb"]) == len(record["entry"])
     assert len(solver.grad_calls) == len(record["entry"])
     rows = [r for r in _grad_rows(tmp_path) if np.array_equal(r[1:3], x0)]
     assert len(rows) >= 1 + _K
     for r in rows:
-        assert np.all(np.isnan(r[4:6])), r
+        if mode == "raise":
+            assert np.all(np.isnan(r[4:6])), r
+        else:
+            assert not np.all(np.isfinite(r[4:6])), r
 
 
-def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatch):
-    """C9: the first gradient() call (initial point) fails; a later jac
-    request by the optimizer at the same point succeeds. Callbacks at that
-    point afterwards must record the finite gradient, not NaN. Fails if the
-    earlier failure sticks to the point."""
+@pytest.mark.parametrize("mode", _FAIL_MODES)
+def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatch, mode):
+    """C9: the first gradient() call (initial point) fails -- raised and
+    ignored, or a returned [nan, 1] / [inf, 1]; a later jac request by the
+    optimizer at the same point succeeds. Callbacks at that point afterwards
+    must record the finite gradient. Fails if the earlier failure sticks to
+    the point."""
     fn, grad = _quad_fn(_C)
     x0 = np.array([2.0, 2.0])
     calls = [0]
@@ -1236,7 +1252,7 @@ def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatc
     def first_fails(x):
         calls[0] += 1
         if calls[0] == 1:
-            raise RuntimeError("transient failure")
+            return _failing_value(mode)
         return grad(x)
 
     alg, solver, _ = _make_alg(
@@ -1257,18 +1273,20 @@ def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatc
         np.testing.assert_allclose(r[4:6], grad(x0), rtol=1e-12)
 
 
-def test_c9_real_tnc_few_gradient_calls(tmp_path):
+@pytest.mark.parametrize("mode", _FAIL_MODES)
+def test_c9_real_tnc_few_gradient_calls(tmp_path, mode):
     """C9 (real scipy): TNC with a gradient that always fails at the
-    initial point (ignore_error = true) calls gradient() fewer than 10 times
-    (about 100 before the fix, when each callback retried it). Fails if
-    failed points are retried from the callback."""
+    initial point (raised and ignored, or a returned [nan, 1] / [inf, 1])
+    calls gradient() fewer than 10 times (about 100 when each callback
+    retried it). Fails if failed points are retried from the callback."""
     x0 = np.array([2.0, 2.0])
     alg, solver, _ = _make_alg(
         tmp_path, {"method": "TNC", "use_gradient": True},
-        fn=_weighted_fn, grad=_fails_at(x0, _weighted_grad),
+        fn=_weighted_fn, grad=_fails_at_mode(x0, _weighted_grad, mode),
         runner={"ignore_error": True},
         initial_list=_same_start_for_all_walkers(x0))
     alg.main()
+    assert solver.grad_calls
     assert len(solver.grad_calls) < 10, len(solver.grad_calls)
 
 
@@ -1610,10 +1628,9 @@ def test_c12_limitation_judged_in_algorithm_units(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# C8 (clarified): controlled replacement cases. A scripted stand-in for
-# scipy.optimize.minimize evaluates chosen points through the objective,
-# optionally requests the jac at chosen points, and returns a chosen result,
-# so stdout and the replacement inputs are fully determined.
+# Scripted optimizer. A stand-in for scipy.optimize.minimize evaluates chosen
+# points through the objective, optionally requests the jac at chosen points,
+# and returns a chosen result, so stdout and the run are fully determined.
 
 
 def _scripted_minimize(eval_points=(), jac_points=(), result_x=None,
@@ -1633,10 +1650,6 @@ def _scripted_minimize(eval_points=(), jac_points=(), result_x=None,
     return factory
 
 
-def _warning_lines(out):
-    return {line for line in out.splitlines() if "Warning" in line}
-
-
 def _run_scripted(base, monkeypatch, capsys, factory, grad, minimize=None,
                   unit_list=(1.0, 1.0), x0=(2.0, 2.0), fn=None):
     """One min_search run with the scripted optimizer, in its own output
@@ -1653,95 +1666,6 @@ def _run_scripted(base, monkeypatch, capsys, factory, grad, minimize=None,
                                initial_list=_same_start_for_all_walkers(x0))
     alg.main()
     return alg, solver, capsys.readouterr().out
-
-
-def test_c8_replacement_warning_only_when_replacing(tmp_path, monkeypatch, capsys):
-    """C8 (warning only on replacement): two runs with the same solver
-    (gradient fails at x0) and settings differ only in the scripted scipy
-    result: worse than the best evaluated point (replaced) versus better
-    (kept). The replacing run must print a Warning line the other does not;
-    other Warning lines (e.g. out of range) are common to both. Fails if the
-    replacement is silent."""
-    fn, grad = _quad_fn(_C)
-    x0 = np.array([2.0, 2.0])
-    g = _fails_at(x0, grad)
-    alg_r, _, out_r = _run_scripted(
-        tmp_path / "replace", monkeypatch, capsys,
-        _scripted_minimize(result_x=_BAD, result_fun=fn(_BAD)), g)
-    alg_k, _, out_k = _run_scripted(
-        tmp_path / "keep", monkeypatch, capsys,
-        _scripted_minimize(result_x=_C, result_fun=fn(_C)), g)
-    # the first run was replaced, the second kept
-    np.testing.assert_array_equal(np.asarray(alg_r.xopt, dtype=float), x0)
-    np.testing.assert_array_equal(np.asarray(alg_k.xopt, dtype=float), _C)
-    extra = _warning_lines(out_r) - _warning_lines(out_k)
-    assert extra, "no Warning line specific to the replacement"
-
-
-@pytest.mark.parametrize("best", ["initial", "evaluated"])
-def test_c8_replacement_in_algorithm_units(tmp_path, monkeypatch, capsys, best):
-    """C8 (units): with unit_list = [2, 0.5] the replacement xopt is in
-    algorithm units: f(xopt / unit_list) == fopt, xopt is the best evaluated
-    point and lies in [min_list, max_list]. Two cases: the best point is the
-    initial point, or a point evaluated by the (scripted) optimizer. Fails if
-    the best point is remembered in solver units."""
-    fn, grad = _quad_fn(_C)
-    unit = np.array([2.0, 0.5])
-    x0 = np.array([3.0, 2.0])                      # f(x0 / unit) = 20.5
-    if best == "evaluated":
-        pts = [[-4.0, 4.0], [2.0, -0.25]]          # the second is f = 0
-        expected = np.array([2.0, -0.25])
-    else:
-        pts = [[-4.0, 4.0], [4.5, -4.5]]           # both worse than x0
-        expected = x0
-    alg, _, _ = _run_scripted(
-        tmp_path / "run", monkeypatch, capsys,
-        _scripted_minimize(eval_points=pts, result_x=_BAD,
-                           result_fun=fn(_BAD / unit)),
-        _fails_at(x0 / unit, grad), unit_list=tuple(unit), x0=x0)
-    xopt = np.asarray(alg.xopt, dtype=float)
-    np.testing.assert_array_equal(xopt, expected)
-    np.testing.assert_allclose(fn(xopt / unit), alg.fopt, rtol=1e-12)
-    assert _in_box(xopt)
-
-
-def test_c8_tie_is_not_replaced(tmp_path, monkeypatch, capsys):
-    """C8 (tie): a gradient failure occurred, and the scripted scipy result
-    (0, -3) has exactly the best evaluated value f(x0) = 7.25 but is a
-    different point. It is kept (xopt == (0, -3)) and no replacement
-    warning appears: the Warning lines equal those of the same run with a
-    strictly better scipy result. Fails if '>=' replaces on ties."""
-    fn, grad = _quad_fn(_C)
-    x0 = np.array([2.0, 2.0])
-    tie = np.array([0.0, -3.0])
-    assert fn(tie) == fn(x0)
-    g = _fails_at(x0, grad)
-    alg_t, _, out_t = _run_scripted(
-        tmp_path / "tie", monkeypatch, capsys,
-        _scripted_minimize(result_x=tie, result_fun=fn(tie)), g)
-    _, _, out_b = _run_scripted(
-        tmp_path / "better", monkeypatch, capsys,
-        _scripted_minimize(result_x=_C, result_fun=fn(_C)), g)
-    np.testing.assert_array_equal(np.asarray(alg_t.xopt, dtype=float), tie)
-    assert alg_t.fopt == fn(x0)
-    assert _warning_lines(out_t) == _warning_lines(out_b)
-
-
-def test_c8_out_of_range_nan_gradient_is_not_a_failure(tmp_path, monkeypatch, capsys):
-    """C8 (out-of-range NaN): the only non-finite gradient comes from a jac
-    request at the out-of-range point (6, 0), where the solver's gradient()
-    is not called; the scripted scipy result is worse than the best
-    evaluated point. No replacement: xopt stays the scipy result. Fails if
-    the out-of-range NaN counts as a gradient failure."""
-    fn, grad = _quad_fn(_C)
-    out_pt = np.array([6.0, 0.0])
-    alg, solver, _ = _run_scripted(
-        tmp_path / "run", monkeypatch, capsys,
-        _scripted_minimize(jac_points=[out_pt], result_x=_BAD,
-                           result_fun=fn(_BAD)), grad)
-    assert not any(np.array_equal(x, out_pt) for x, _ in solver.grad_calls)
-    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
-    assert alg.fopt == fn(_BAD)
 
 
 @pytest.mark.parametrize("use_gradient", [False, True])
@@ -1766,3 +1690,220 @@ def test_c8_success_line_warning_prefix(tmp_path, monkeypatch, capsys, success, 
         assert not any("Warning" in L for L in lines), lines
     else:
         assert all("Warning" in L for L in lines), lines
+
+
+# ---------------------------------------------------------------------------
+# C13. x containing NaN (contract3)
+
+
+def _probe_factory(probe, before, after, record):
+    """Scripted optimizer: evaluate ``before``, then the probe point, then
+    ``after`` through the objective, recording each return value."""
+    def factory(real):
+        def wrapped(fun, x0, *a, **kw):
+            args = kw.get("args", ())
+            record["before"] = fun(np.array(before, dtype=float), *args)
+            record["probe"] = fun(np.array(probe, dtype=float), *args)
+            record["after"] = fun(np.array(after, dtype=float), *args)
+            return OptimizeResult(x=np.array(after, dtype=float), fun=record["after"],
+                                  success=True, status=0, message="scripted",
+                                  nit=1, nfev=3)
+        return wrapped
+    return factory
+
+
+_A = np.array([1.0, 1.0])
+_B = np.array([0.5, -0.5])
+
+
+@pytest.mark.parametrize("use_gradient", [False, True])
+@pytest.mark.parametrize("probe", [[np.nan, 1.0], [1.0, np.nan], [np.nan, np.nan]],
+                         ids=["nan-first", "nan-second", "all-nan"])
+def test_c13_nan_x_gives_nan_without_evaluation(tmp_path, monkeypatch, probe, use_gradient):
+    """C13: when the optimizer requests the objective at an x containing NaN
+    (partly or fully), between two finite in-range requests A and B:
+    (a) the returned value is NaN, not the out-of-range inf;
+    (b) evaluate() is never called with a NaN x;
+    (c) the step numbers of A and B at evaluate() are consecutive (the NaN
+        request consumes none);
+    (d) History_FunctionCall.txt has exactly one row per finite request.
+    Fails if a NaN x is treated as out of range (inf) or reaches the
+    solver."""
+    fn, grad = _quad_fn(_C)
+    record = {}
+    _patch_minimize(monkeypatch, _probe_factory(probe, _A, _B, record))
+    minimize = {"method": "BFGS"}
+    if use_gradient:
+        minimize["use_gradient"] = True
+    alg, solver, _ = _make_alg(tmp_path, minimize, fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    alg.main()
+    # (a)
+    assert np.isnan(record["probe"]), record["probe"]
+    assert record["before"] == fn(_A) and record["after"] == fn(_B)
+    # (b)
+    assert not any(np.any(np.isnan(x)) for x, _ in solver.eval_calls)
+    # (c)
+    steps = {}
+    for x, a in solver.eval_calls:
+        if a[1] == 0 and tuple(a) != (0, 0):
+            steps.setdefault(tuple(x.tolist()), a[0])
+    sa, sb = steps[tuple(_A.tolist())], steps[tuple(_B.tolist())]
+    assert sb == sa + 1, (sa, sb)
+    # (d)
+    _, rows = _read_table(_proc_dir(tmp_path) / "History_FunctionCall.txt")
+    assert len(rows) == 2
+
+
+@pytest.mark.parametrize("probe", [[np.inf, 1.0], [-np.inf, 1.0], [6.0, 0.0]],
+                         ids=["inf", "-inf", "finite-out-of-range"])
+def test_c13_inf_or_out_of_range_x_gives_inf(tmp_path, monkeypatch, probe):
+    """C13: an x with +-inf components only (no NaN), or a finite x outside
+    the range, is out of range as before: the value is inf, evaluate() is not
+    called there, and no step number or History_FunctionCall.txt row is
+    used. Fails if such points are treated like NaN or evaluated."""
+    fn, grad = _quad_fn(_C)
+    record = {}
+    _patch_minimize(monkeypatch, _probe_factory(probe, _A, _B, record))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS"}, fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    alg.main()
+    assert record["probe"] == np.inf
+    probe = np.array(probe)
+    assert not any(np.array_equal(x, probe) for x, _ in solver.eval_calls)
+    assert not any(not np.all(np.isfinite(x)) for x, _ in solver.eval_calls)
+    steps = [a[0] for _, a in solver.eval_calls if a[1] == 0 and tuple(a) != (0, 0)]
+    assert steps == [steps[0], steps[0] + 1]
+    _, rows = _read_table(_proc_dir(tmp_path) / "History_FunctionCall.txt")
+    assert len(rows) == 2
+
+
+# ---------------------------------------------------------------------------
+# C14. supports_gradient declared, gradient() not overridden (contract3)
+
+
+class _NoOverrideBaseSolver(odatse.solver.SolverBase):
+    """Declares gradient support but keeps SolverBase.gradient."""
+
+    supports_gradient = True
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.eval_calls = []
+
+    def evaluate(self, x, args=()):
+        self.eval_calls.append((np.array(x, copy=True), args))
+        return _quad_fn(_C)[0](x)
+
+
+class _NoOverrideFunctionSolver(odatse.solver.function.Solver):
+    """function.Solver subclass declaring support without a gradient()."""
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.set_function(_quad_fn(_C)[0])
+        self.eval_calls = []
+
+    @property
+    def supports_gradient(self):
+        return True
+
+    def evaluate(self, x, args=()):
+        self.eval_calls.append((np.array(x, copy=True), args))
+        return super().evaluate(x, args)
+
+
+class _PartialGradientSolver(_NoOverrideBaseSolver):
+    """Overrides gradient(), but raises NotImplementedError for x[0] > 0."""
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.grad_calls = []
+
+    def gradient(self, x, args=()):
+        self.grad_calls.append(np.array(x, copy=True))
+        if x[0] > 0:
+            raise NotImplementedError("no gradient for x[0] > 0")
+        return _quad_fn(_C)[1](x)
+
+
+_NO_OVERRIDE = {"base": _NoOverrideBaseSolver, "function": _NoOverrideFunctionSolver}
+
+
+@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
+def test_c14_reason_when_gradient_not_overridden(tmp_path, monkeypatch, kind):
+    """C14: a solver with a true supports_gradient that does not override
+    gradient() (SolverBase.gradient is inherited) gets a reason string from
+    Runner.gradient_unavailable_reason(). Fails if the declaration alone is
+    taken as gradient support."""
+    info = _info(tmp_path)
+    solver = _NO_OVERRIDE[kind](info)
+    assert solver.supports_gradient
+    r = odatse.Runner(solver, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    reason = r.gradient_unavailable_reason()
+    assert isinstance(reason, str) and reason
+
+
+def test_c14_no_reason_for_override_raising_at_some_points(tmp_path, monkeypatch):
+    """C14: a solver that overrides gradient() but raises
+    NotImplementedError at some points is available (reason None): only the
+    presence of the override is judged. Fails if such a solver is rejected."""
+    info = _info(tmp_path)
+    r = odatse.Runner(_PartialGradientSolver(info), info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert r.gradient_unavailable_reason() is None
+
+
+@pytest.mark.parametrize("ignore_error", [False, True])
+@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
+def test_c14_submit_gradient_raises_when_not_overridden(tmp_path, monkeypatch, kind, ignore_error):
+    """C14: submit_gradient raises NotImplementedError for a solver that does
+    not override gradient(), with ignore_error true as well as false (it must
+    not silently become an all-NaN gradient), and evaluate() is not called.
+    Fails if ignore_error turns the missing implementation into NaN."""
+    info = _info(tmp_path, runner={"ignore_error": ignore_error})
+    solver = _NO_OVERRIDE[kind](info)
+    r = odatse.Runner(solver, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    with pytest.raises(NotImplementedError):
+        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    assert solver.eval_calls == []
+
+
+@pytest.mark.parametrize("ignore_error", [False, True])
+def test_c14_override_raising_not_implemented_is_like_runtime_error(tmp_path, monkeypatch, ignore_error):
+    """C14 / C2: for a solver that overrides gradient(), a
+    NotImplementedError at some point is handled like a RuntimeError: NaN
+    with ignore_error = true, raised otherwise; elsewhere the gradient is
+    returned. Fails if the override is treated as a missing gradient()."""
+    info = _info(tmp_path, runner={"ignore_error": ignore_error})
+    solver = _PartialGradientSolver(info)
+    r = odatse.Runner(solver, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    good = np.array([-0.5, 0.25])
+    np.testing.assert_allclose(r.submit_gradient(good, (1, 0)), _quad_fn(_C)[1](good))
+    bad = np.array([0.5, 0.25])
+    if ignore_error:
+        _assert_all_nan(r.submit_gradient(bad, (2, 0)), (2,))
+    else:
+        with pytest.raises(NotImplementedError):
+            r.submit_gradient(bad, (2, 0))
+    assert len(solver.grad_calls) == 2
+
+
+@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
+def test_c14_min_search_rejects_not_overridden_gradient(tmp_path, kind):
+    """C14: min_search with use_gradient = true and a solver that does not
+    override gradient() raises InputValueError at construction; it is both
+    a ValueError and an InputError, and the solver is never called. Fails if
+    the run starts and proceeds with all-NaN gradients."""
+    info = _info(tmp_path, minimize={"method": "BFGS", "use_gradient": True},
+                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    solver = _NO_OVERRIDE[kind](info)
+    r = odatse.Runner(solver, info)
+    with pytest.raises(odatse.exception.InputValueError) as ei:
+        min_search.Algorithm(info, r)
+    assert isinstance(ei.value, ValueError)
+    assert isinstance(ei.value, odatse.exception.InputError)
+    assert solver.eval_calls == []

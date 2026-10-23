@@ -115,9 +115,6 @@ class SolverRuntimeError(SolverError, RuntimeError):
     failed on at least one worker rank of the group and every failing rank
     raised a ``RuntimeError``.
 
-    Also raised by ``Runner.submit_gradient()`` when ``solver.gradient()``
-    returns non-finite values and ``ignore_error`` is False.
-
     Being a ``RuntimeError``, it is covered by ``ignore_error`` (see
     ``is_ignorable``) exactly as a ``RuntimeError`` on the controller alone.
     Being a ``SolverError``, it is reported by ``odatse.main()`` on one line
@@ -127,7 +124,7 @@ class SolverRuntimeError(SolverError, RuntimeError):
     Parameters
     ----------
     message : str
-        explanation, including failing ranks or gradient evaluation details
+        explanation, including the global rank(s) that failed
     """
 
 

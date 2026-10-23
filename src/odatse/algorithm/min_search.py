@@ -242,12 +242,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fev_history = []
         function_values = {}
         gradients = {}
-        # Per-run failure and best-point state uses x in algorithm units;
-        # only points satisfying the algorithm's bounds and constraints enter it.
         failed_gradients = set()
-        gradient_failed = False
-        best_x = None
-        best_f = float("inf")
 
         # evaluate the initial point in solver units, as _f_calc does
         f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
@@ -340,25 +335,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 return False, False
             return True, self.runner.limitation.judge(x_list)
 
-        def _remember_best(x, y):
-            """
-            Remember the best finite objective value at a feasible point.
-
-            Parameters
-            ----------
-            x : np.ndarray
-                Feasible variables in algorithm units.
-            y : float
-                Evaluated objective value.
-            """
-            nonlocal best_x, best_f
-            if np.isfinite(y) and y < best_f:
-                best_x = np.array(x, copy=True)
-                best_f = y
-
-        if self.use_gradient and all(_check_point(self.initial_list)):
-            _remember_best(self.initial_list, f0)
-
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
             Calculate the objective function value.
@@ -375,6 +351,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             float
                 Objective function value.
             """
+            # An inf penalty for NaN can falsely look like an improvement
+            # when L-BFGS-B next evaluates a finite point.
+            if np.any(np.isnan(x_list)):
+                print("Warning: NaN in parameters: {}".format(x_list))
+                return float("nan")
             in_range, in_limit = _check_point(x_list)
             if not in_range:
                 print("Warning: out of range: {}".format(x_list))
@@ -393,8 +374,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             step[0] += 1
             args = (step[0], iset)
             y = run.submit(x_scaled, args)
-            if self.use_gradient:
-                _remember_best(x_list, y)
             # Only callbacks reuse values; scipy evaluations must retain their
             # calls and History_FunctionCall.txt entries.
             function_values[_key(x_list)] = y
@@ -409,7 +388,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 """
                 Calculate the gradient of the objective function.
                 """
-                nonlocal gradient_failed
                 x_list = np.asarray(x_list, dtype=float).flatten()
                 in_range, in_limit = _check_point(x_list)
                 if not in_range or not in_limit:
@@ -429,7 +407,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     gradients[key] = g.copy()
                 else:
                     failed_gradients.add(key)
-                    gradient_failed = True
                 return g
 
             grad_history.append([
@@ -583,19 +560,6 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # Existing ctest references compare res.txt; adding status there
         # would change the established output format.
         print(f"{prefix}scipy success={success}, message={message}")
-        # Without a non-finite gradient, preserve scipy's convergence decision:
-        # trust-constr can legitimately finish above the best evaluated value.
-        # Exclude runs without solver gradients to preserve results and references.
-        if (self.use_gradient and gradient_failed and best_x is not None
-                and (not np.isfinite(self.fopt) or self.fopt > best_f)):
-            print(
-                "Warning: a non-finite gradient was obtained at a feasible point; "
-                "replacing the scipy result "
-                "with the best feasible evaluated point, whose convergence "
-                "has not been certified by scipy."
-            )
-            self.xopt = best_x
-            self.fopt = best_f
         self.itera = getattr(optres, "nit", None)
         self.funcalls = getattr(optres, "nfev", None)
         self.allvecs = getattr(optres, "allvecs", None)

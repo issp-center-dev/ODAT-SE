@@ -76,17 +76,20 @@
 入力 ``x`` の扱いは ``submit`` と同じです。制約に違反する点では、ソルバーを呼ばずに
 全要素が NaN の配列を返します。戻り値の shape が異なる場合は、
 ``ignore_error = true`` でも ``ValueError`` を送出します。
-shape の検査後、非有限値があれば ``SolverRuntimeError`` を送出します。
-ただし、 ``ignore_error = true`` なら全要素が NaN の配列を返します。
-ソルバーの ``RuntimeError`` も ``ignore_error = true`` なら無視しますが、
-``NotImplementedError`` とその他の例外は常にそのまま送出します。
+shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` に関係なくそのまま返します。
+勾配の失敗は目的関数と同じ規則で扱います。 ``ignore_error = true`` なら、
+``gradient()`` が送出した ``RuntimeError`` (``NotImplementedError`` を含む) を
+全要素が NaN の配列として扱い、それ以外の場合はそのまま送出します。その他の例外は常に送出します。
+その後の結果は最適化手法によって異なり、 ``success=False`` や NaN の結果になることがあります。
+詳しい挙動と制限は :doc:`../algorithm/minsearch` を参照してください。
 勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は
 ``None``、利用できない場合は理由を示す文字列を返します。
-勾配を利用するには、ソルバーの ``supports_gradient`` が真であり、mapping が
+勾配を利用するには、ソルバーの ``supports_gradient`` が真で ``gradient()`` を実装しており、mapping が
 ``TrivialMapping``、ソルバーグループが1プロセス (``--nsolve = 1``) である必要があります。
-これらの条件を満たさない場合、 ``submit_gradient`` は ``NotImplementedError`` を送出します。
+これらの条件を満たさない場合、 ``submit_gradient`` は ``ignore_error`` に関係なく
+``NotImplementedError`` を送出します。
 ソルバーの実装は :doc:`solver`、探索範囲とパラメータの単位は
 :doc:`../algorithm/minsearch` を参照してください。
 
