@@ -385,6 +385,8 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             ignore_error is True.
         RuntimeError
             Propagated from solver.gradient() when ignore_error is False.
+        SolverRuntimeError
+            If the gradient contains non-finite values and ignore_error is False.
         Exception
             Exceptions other than RuntimeError from solver.gradient() are
             propagated regardless of ignore_error.
@@ -412,6 +414,13 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         if g.shape != xp.shape:
             raise ValueError(
                 f"Solver gradient shape {g.shape} does not match input shape {xp.shape}."
+            )
+        if not np.all(np.isfinite(g)):
+            if self.ignore_error:
+                return np.full_like(x, np.nan, dtype=float)
+            raise SolverRuntimeError(
+                f"Solver gradient contains non-finite values in components "
+                f"{np.flatnonzero(~np.isfinite(g)).tolist()} at x = {xp}: {g}"
             )
         return g
 

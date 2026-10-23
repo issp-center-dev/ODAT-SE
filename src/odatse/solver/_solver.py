@@ -37,6 +37,10 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
     _name: str
     dimension: int
     timer: dict[str, dict]
+    # Subclasses may declare gradient support as a class attribute, an
+    # instance attribute, or a property; a read-only base property would
+    # prevent assignment in subclass constructors.
+    supports_gradient: bool = False
 
     @abstractmethod
     def __init__(self, info: odatse.Info) -> None:
@@ -71,18 +75,6 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
         """
         return self._name
 
-    @property
-    def supports_gradient(self) -> bool:
-        """
-        True if this solver can compute gradients (w.r.t. input x).
-
-        Returns
-        -------
-        bool
-            False by default. Override to True in subclasses that implement gradient.
-        """
-        return False
-
     @abstractmethod
     def evaluate(self, x: np.ndarray, args: tuple = ()) -> float:
         """
@@ -108,6 +100,9 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
 
         Optional. Only called when supports_gradient is True. Same shape as x.
         x is in the same space as passed to evaluate (e.g. after Runner's mapping).
+        The Runner treats non-finite return values as failures: it returns an
+        all-NaN vector when ignore_error is True, otherwise it raises
+        odatse.exception.SolverRuntimeError.
 
         Parameters
         ----------

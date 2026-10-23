@@ -397,9 +397,11 @@ class Solver(odatse.solver.function.Solver):
     # None for the functions whose gradient is not implemented
     _grad_func: Optional[Callable[[np.ndarray], np.ndarray]] = None
 
-    @property
-    def supports_gradient(self) -> bool:
-        return self._grad_func is not None
+    def set_function(self, f: Callable[[np.ndarray], float]) -> None:
+        # the gradient of the previous function would silently be wrong for f
+        super().set_function(f)
+        self._grad_func = None
+        self.supports_gradient = False
 
     def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
         if self._grad_func is None:
@@ -468,3 +470,5 @@ class Solver(odatse.solver.function.Solver):
             self._grad_func = linear_regression_test_gradient
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
+        # a plain attribute, not a property, so that subclasses can assign it
+        self.supports_gradient = self._grad_func is not None

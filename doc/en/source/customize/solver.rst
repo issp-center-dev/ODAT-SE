@@ -85,9 +85,12 @@
 
   If the gradient of the objective function can be computed, the following members can be implemented to allow the ``Algorithm`` to use the gradient (e.g. ``use_gradient = true`` in ``minsearch``).
 
-  - ``supports_gradient`` (property, default: False)
+  - ``supports_gradient`` (class attribute, default: False)
 
-    Override to return True when this solver can compute gradients.
+    Set this to True when the solver can compute gradients. Subclasses may
+    declare support as a class attribute (``supports_gradient = True``), an
+    instance attribute (``self.supports_gradient = True`` in ``__init__``), or
+    a property returning True.
 
   - ``gradient(self, x, args=()) -> np.ndarray``
 
@@ -95,11 +98,19 @@
     The Runner converts the return value to a float ndarray and raises ``ValueError``
     if its shape differs from that of ``x``, even with ``ignore_error = true``.
     Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
+    After checking the shape, the Runner treats any non-finite component
+    (NaN or infinity) as a failure: it raises ``odatse.exception.SolverRuntimeError``
+    (a ``RuntimeError``), or returns an all-NaN vector if ``ignore_error = true``.
 
     If ``gradient()`` raises ``RuntimeError`` and ``ignore_error = true`` is specified
     in ``[runner]``, the Runner returns a vector of NaN values with the same shape as ``x``.
     ``NotImplementedError`` is always propagated, even with ``ignore_error = true``.
     Other exceptions, such as ``ValueError`` and ``TypeError``, are also propagated.
+
+  At a point violating the Runner's constraints, ``submit_gradient()`` returns
+  an all-NaN vector without calling the solver. In ``minsearch``, points outside
+  the search region or violating algorithm-unit constraints also produce NaN
+  gradients without a solver call. The Runner itself does not check search bounds.
 
   ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
 

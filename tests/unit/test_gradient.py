@@ -1,8 +1,8 @@
 # sys.path and odatse.mpi.setup() are handled by conftest.py
 """Behavior contract of the optional gradient support (C1-C6 of
-work/gradient-review/contract.md): Runner.gradient_unavailable_reason(),
-Runner.submit_gradient(), use_gradient of min_search, its callback, and the
-gradients of the analytical solver."""
+work/gradient-review/contract.md and C7-C12 of contract2.md):
+Runner.gradient_unavailable_reason(), Runner.submit_gradient(), use_gradient
+of min_search, its callback, and the gradients of the analytical solver."""
 import numpy as np
 import pytest
 
@@ -107,7 +107,8 @@ def _make_runner(tmp_path, fn=None, grad=None, supports=True, runner=None,
 
 
 def _make_alg(tmp_path, minimize, fn=None, grad=None, supports=True,
-              unit_list=(1.0, 1.0), runner=None, mapping=None, **info_kw):
+              unit_list=(1.0, 1.0), runner=None, mapping=None, limitation=None,
+              **info_kw):
     if fn is None:
         fn, default_grad = _quad_fn([0.0, 0.0])
         if grad is None:
@@ -115,7 +116,7 @@ def _make_alg(tmp_path, minimize, fn=None, grad=None, supports=True,
     info = _info(tmp_path, minimize=minimize, unit_list=unit_list,
                  runner=runner, **info_kw)
     solver = _RecordingSolver(info, fn, grad, supports=supports)
-    r = odatse.Runner(solver, info, mapping=mapping)
+    r = odatse.Runner(solver, info, mapping=mapping, limitation=limitation)
     alg = min_search.Algorithm(info, r)
     return alg, solver, r
 
@@ -867,3 +868,901 @@ def test_c6_rosenbrock_dimension_one_gradient_is_zero(tmp_path):
     g = np.asarray(s.gradient(np.array([0.3])))
     assert g.shape == (1,)
     np.testing.assert_array_equal(g, [0.0])
+
+
+def test_c6_set_function_drops_builtin_gradient(tmp_path):
+    """C6: replacing the objective with set_function() must not keep the
+    gradient of the built-in function. Fails if supports_gradient stays
+    True or gradient() returns the old function's gradient."""
+    s = _analytical(tmp_path, "quadratics", 2)
+    s.set_function(lambda x: float(np.sum((x - 1.0) ** 2)))
+    assert not s.supports_gradient
+    with pytest.raises(NotImplementedError):
+        s.gradient(np.array([1.0, 1.0]))
+
+
+def test_c11_analytical_subclass_can_assign_supports_gradient(tmp_path):
+    """C11: a subclass of the analytical solver can declare gradient support
+    by assigning self.supports_gradient in __init__, as for any other
+    solver. Fails with AttributeError if supports_gradient is a read-only
+    property."""
+    info = odatse.Info({
+        "base": {"dimension": 2, "output_dir": str(tmp_path / "output")},
+        "algorithm": {"name": "minsearch"},
+        "solver": {"name": "analytical", "function_name": "alpine"},
+        "runner": {},
+    })
+
+    class _WithGradient(odatse.solver.analytical.Solver):
+        def __init__(self, info):
+            super().__init__(info)
+            self.supports_gradient = True
+
+        def gradient(self, x, args=()):
+            return np.zeros_like(x, dtype=float)
+
+    s = _WithGradient(info)
+    assert s.supports_gradient
+    assert odatse.Runner(s, info).gradient_unavailable_reason() is None
+
+
+# ===========================================================================
+# Round 2: C7-C12 of work/gradient-review/contract2.md
+
+import os
+import subprocess
+import sys
+
+import scipy.optimize
+from scipy.optimize import OptimizeResult
+
+import odatse.exception
+
+
+def _patch_minimize(monkeypatch, factory):
+    """Replace scipy.optimize.minimize, both the name min_search calls and
+    the one scipy's basinhopping looks up at call time, by factory(real)."""
+    real = scipy.optimize.minimize
+    wrapped = factory(real)
+    monkeypatch.setattr(min_search, "minimize", wrapped)
+    monkeypatch.setattr(min_search.scipy.optimize, "minimize", wrapped)
+    return real
+
+
+def _in_box(x, lo=-5.0, hi=5.0):
+    x = np.asarray(x)
+    return bool(np.all((x >= lo) & (x <= hi)))
+
+
+def _grad_rows(tmp_path):
+    path = _proc_dir(tmp_path) / "History_Gradient.txt"
+    assert path.is_file()
+    _, rows = _read_table(path)
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# C7. non-finite gradients in the Runner
+
+
+@pytest.mark.parametrize("bad", [[np.nan, 1.0], [0.5, np.inf], [-np.inf, 0.0]],
+                         ids=["nan", "inf", "-inf"])
+def test_c7_nonfinite_gradient_raises_solver_runtime_error(tmp_path, monkeypatch, bad):
+    """C7: a gradient() that returns (without raising) an array containing
+    NaN or +-inf makes submit_gradient raise odatse.exception.
+    SolverRuntimeError (a RuntimeError) when ignore_error is off. Fails if
+    the non-finite value is returned as a gradient."""
+    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
+                           grad=lambda x: np.array(bad))
+    with pytest.raises(odatse.exception.SolverRuntimeError) as ei:
+        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    assert isinstance(ei.value, RuntimeError)
+
+
+@pytest.mark.parametrize("bad", [[np.nan, 1.0], [0.5, np.inf], [-np.inf, 0.0]],
+                         ids=["nan", "inf", "-inf"])
+def test_c7_nonfinite_gradient_with_ignore_error_returns_nan(tmp_path, monkeypatch, bad):
+    """C7: with ignore_error = true a non-finite gradient() result becomes an
+    all-NaN array of x's shape (not the partly finite array). Fails if the
+    finite components survive or an error propagates."""
+    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
+                           grad=lambda x: np.array(bad),
+                           runner={"ignore_error": True})
+    g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    _assert_all_nan(g, (2,))
+
+
+@pytest.mark.parametrize("ignore_error", [False, True])
+@pytest.mark.parametrize("bad", [np.array([np.nan]), np.array([np.inf, 0.0, 1.0]), np.nan],
+                         ids=["len1-nan", "len3-inf", "scalar-nan"])
+def test_c7_shape_check_precedes_finiteness(tmp_path, monkeypatch, bad, ignore_error):
+    """C7: a gradient of the wrong shape that is also non-finite raises
+    ValueError (shape is checked before finiteness), with or without
+    ignore_error. Fails if it becomes a SolverRuntimeError or a NaN array."""
+    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=lambda x: bad,
+                           runner={"ignore_error": ignore_error})
+    with pytest.raises(ValueError):
+        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+
+
+# ---------------------------------------------------------------------------
+# C8. no false "success" after gradient failures
+
+
+_BAD = np.array([4.0, 4.0])
+
+
+def _replacing_factory(fn, bad_x, bad_fun):
+    """Run the real optimizer, then overwrite its result with (bad_x,
+    bad_fun) -- a controlled stand-in for scipy reporting a poor point."""
+    def factory(real):
+        def wrapped(*a, **kw):
+            res = real(*a, **kw)
+            res.x = np.array(bad_x, dtype=float)
+            res.fun = bad_fun
+            return res
+        return wrapped
+    return factory
+
+
+def _best_in_range_evaluation(solver, fn, lo=-5.0, hi=5.0):
+    pts = [x for x, _ in solver.eval_calls if _in_box(x, lo, hi)]
+    assert pts
+    fs = [fn(x) for x in pts]
+    i = int(np.argmin(fs))
+    return pts[i], fs[i]
+
+
+@pytest.mark.parametrize("bad_fun", ["worse", "inf", "nan"])
+def test_c8_result_replaced_after_gradient_failure(tmp_path, monkeypatch, capsys, bad_fun):
+    """C8 (replace): after an in-range gradient failure (RuntimeError with
+    ignore_error = true at the initial point) and a scipy result whose fun is
+    worse than the best in-range evaluation, or non-finite, xopt/fopt become
+    that best evaluated point and a 'Warning' line is printed. The scipy
+    result is forced to (4, 4) by wrapping min_search.minimize. Fails if the
+    poor scipy result is reported as the optimum."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+
+    def flaky(x):
+        if np.array_equal(x, x0):
+            raise RuntimeError("gradient failed at x0")
+        return grad(x)
+
+    fun = {"worse": fn(_BAD), "inf": np.inf, "nan": np.nan}[bad_fun]
+    _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fun))
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
+        fn=fn, grad=flaky, runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    alg.main()
+    out = capsys.readouterr().out
+    assert any(np.array_equal(x, x0) for x, _ in solver.grad_calls)
+    best_x, best_f = _best_in_range_evaluation(solver, fn)
+    assert best_f < fn(_BAD)
+    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), best_x)
+    np.testing.assert_allclose(alg.fopt, best_f, rtol=1e-12)
+    np.testing.assert_allclose(fn(np.asarray(alg.xopt, dtype=float)), alg.fopt, rtol=1e-12)
+    assert any("Warning" in line for line in out.splitlines())
+
+
+def test_c8_result_kept_without_gradient_failure(tmp_path, monkeypatch):
+    """C8 (keep 1): without any gradient failure, a scipy result worse than
+    an evaluated point is still reported as is. Fails if the replacement
+    fires without a gradient failure."""
+    fn, grad = _quad_fn(_C)
+    _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fn(_BAD)))
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
+        fn=fn, grad=grad, runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    alg.main()
+    assert solver.grad_calls
+    _, best_f = _best_in_range_evaluation(solver, fn)
+    assert best_f < fn(_BAD)
+    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
+    np.testing.assert_allclose(alg.fopt, fn(_BAD), rtol=1e-12)
+
+
+def test_c8_out_of_range_initial_point_is_not_a_replacement(tmp_path, monkeypatch):
+    """C8 (keep 2): an out-of-range initial point (6, 0) with the smallest
+    f (0) is never the replacement target; after an in-range gradient
+    failure and a poor scipy result (-4, -4), xopt/fopt become the best
+    *in-range* evaluated point. Fails if xopt is the out-of-range start or
+    the poor scipy result is kept."""
+    c = np.array([6.0, 0.0])
+    fn, grad = _quad_fn(c)
+    calls = [0]
+
+    def first_fails(x):
+        calls[0] += 1
+        if calls[0] == 1:
+            raise RuntimeError("first gradient fails")
+        return grad(x)
+
+    bad = np.array([-4.0, -4.0])
+    _patch_minimize(monkeypatch, _replacing_factory(fn, bad, fn(bad)))
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
+        fn=fn, grad=first_fails, runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(c))
+    alg.main()
+    assert solver.grad_calls and _in_box(solver.grad_calls[0][0])
+    best_x, best_f = _best_in_range_evaluation(solver, fn)
+    xopt = np.asarray(alg.xopt, dtype=float)
+    assert _in_box(xopt)
+    assert not np.array_equal(xopt, c)
+    np.testing.assert_array_equal(xopt, best_x)
+    np.testing.assert_allclose(alg.fopt, best_f, rtol=1e-12)
+    assert alg.fopt > 0.0
+
+
+_W = np.array([10.0, 1.0])
+_CW = np.array([0.5, -0.5])
+
+
+def _weighted_fn(y):
+    return float(np.sum(_W * (np.asarray(y) - _CW) ** 2))
+
+
+def _weighted_grad(y):
+    return 2.0 * _W * (np.asarray(y, dtype=float) - _CW)
+
+
+def _fails_at(point, grad):
+    point = np.asarray(point, dtype=float)
+
+    def g(x):
+        if np.array_equal(x, point):
+            raise RuntimeError("gradient fails at this point")
+        return grad(x)
+    return g
+
+
+def test_c8_real_lbfgsb_not_worse_than_start(tmp_path):
+    """C8 (real scipy): L-BFGS-B with a gradient that always fails at the
+    initial point (2, 2) (ignore_error = true) ends with fopt <= f(x0)
+    = 28.75 and f(xopt) == fopt. Before the fix it ended in the box corner
+    (-5, -5) with f ~ 322.8. Fails if the false 'success' is reported."""
+    x0 = np.array([2.0, 2.0])
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
+        fn=_weighted_fn, grad=_fails_at(x0, _weighted_grad),
+        runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    alg.main()
+    assert alg.fopt <= _weighted_fn(x0)
+    np.testing.assert_allclose(_weighted_fn(np.asarray(alg.xopt, dtype=float)),
+                               alg.fopt, rtol=1e-12)
+
+
+_SENTINEL = "odatse-test-sentinel-message-31415"
+
+
+@pytest.mark.parametrize("method,use_gradient", [
+    ("Nelder-Mead", False), ("Powell", False), ("COBYLA", False),
+    ("TNC", False), ("BFGS", True), ("L-BFGS-B", True), ("SLSQP", True),
+    ("trust-constr", True),
+])
+def test_c8_prints_success_and_message(tmp_path, monkeypatch, capsys, method, use_gradient):
+    """C8 (display): after the optimization a stdout line contains the word
+    'success' together with scipy's message. The message is replaced by a
+    unique sentinel through a minimize wrapper, so scipy's own disp output
+    ("Optimization terminated successfully.") cannot satisfy the check.
+    Fails if success/message are not reported for this method."""
+    def factory(real):
+        def wrapped(*a, **kw):
+            res = real(*a, **kw)
+            res.message = _SENTINEL
+            return res
+        return wrapped
+    _patch_minimize(monkeypatch, factory)
+    fn, grad = _quad_fn(_C)
+    minimize = {"method": method}
+    if use_gradient:
+        minimize["use_gradient"] = True
+    alg, _, _ = _make_alg(tmp_path, minimize, fn=fn, grad=grad,
+                          initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    alg.main()
+    out = capsys.readouterr().out
+    lines = [L for L in out.splitlines() if _SENTINEL in L and "success" in L.lower()]
+    assert lines, "no line with 'success' and scipy's message"
+
+
+# ---------------------------------------------------------------------------
+# C9. callback at a failed point
+
+
+_K = 5
+
+
+def _controlled_callback_factory(xf, fn, k, call_jac=False, record=None):
+    """A stand-in optimizer: optionally request the jac at xf (as scipy
+    would), then invoke the callback k times at xf, and return xf as the
+    result without running scipy."""
+    def factory(real):
+        def wrapped(fun, x0, *a, **kw):
+            if record is not None:
+                record["entry"] = record["solver"].grad_calls.copy()
+            if call_jac:
+                g = kw["jac"](np.array(xf, dtype=float), *kw.get("args", ()))
+                if record is not None:
+                    record["jac"] = np.asarray(g, dtype=float)
+            cb = kw["callback"]
+            for _ in range(k):
+                cb(OptimizeResult(x=np.array(xf, dtype=float), fun=fn(np.asarray(xf))))
+            if record is not None:
+                record["after_cb"] = record["solver"].grad_calls.copy()
+            return OptimizeResult(x=np.array(xf, dtype=float), fun=fn(np.asarray(xf)),
+                                  success=True, status=0, message="controlled",
+                                  nit=k, nfev=1)
+        return wrapped
+    return factory
+
+
+def test_c9_callback_does_not_retry_failed_gradient(tmp_path, monkeypatch):
+    """C9: the gradient at x0 always fails (ignore_error = true). The
+    callback is then invoked K = 5 times at x0 by a controlled optimizer:
+    it must fire (iter_history grows by K) without calling gradient() again,
+    and every History_Gradient.txt row at x0 has a NaN gradient. Fails if the
+    callback retries the failed gradient on each call."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "BFGS", "use_gradient": True},
+        fn=fn, grad=_fails_at(x0, grad), runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    record = {"solver": solver}
+    _patch_minimize(monkeypatch, _controlled_callback_factory(x0, fn, _K, record=record))
+    alg.main()
+    assert len(alg.iter_history) >= 1 + _K
+    assert len(record["after_cb"]) == len(record["entry"])
+    assert len(solver.grad_calls) == len(record["entry"])
+    rows = [r for r in _grad_rows(tmp_path) if np.array_equal(r[1:3], x0)]
+    assert len(rows) >= 1 + _K
+    for r in rows:
+        assert np.all(np.isnan(r[4:6])), r
+
+
+def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatch):
+    """C9: the first gradient() call (initial point) fails; a later jac
+    request by the optimizer at the same point succeeds. Callbacks at that
+    point afterwards must record the finite gradient, not NaN. Fails if the
+    earlier failure sticks to the point."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    calls = [0]
+
+    def first_fails(x):
+        calls[0] += 1
+        if calls[0] == 1:
+            raise RuntimeError("transient failure")
+        return grad(x)
+
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "BFGS", "use_gradient": True},
+        fn=fn, grad=first_fails, runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    record = {"solver": solver}
+    _patch_minimize(monkeypatch, _controlled_callback_factory(
+        x0, fn, _K, call_jac=True, record=record))
+    alg.main()
+    np.testing.assert_allclose(record["jac"], grad(x0))
+    assert len(alg.iter_history) >= 1 + _K
+    rows = [r for r in _grad_rows(tmp_path) if np.array_equal(r[1:3], x0)]
+    # the first row is the initial point, recorded while it was failing
+    later = rows[1:]
+    assert len(later) >= _K
+    for r in later:
+        np.testing.assert_allclose(r[4:6], grad(x0), rtol=1e-12)
+
+
+def test_c9_real_tnc_few_gradient_calls(tmp_path):
+    """C9 (real scipy): TNC with a gradient that always fails at the
+    initial point (ignore_error = true) calls gradient() fewer than 10 times
+    (about 100 before the fix, when each callback retried it). Fails if
+    failed points are retried from the callback."""
+    x0 = np.array([2.0, 2.0])
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "TNC", "use_gradient": True},
+        fn=_weighted_fn, grad=_fails_at(x0, _weighted_grad),
+        runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    alg.main()
+    assert len(solver.grad_calls) < 10, len(solver.grad_calls)
+
+
+# ---------------------------------------------------------------------------
+# C10. construction-time validation (additions)
+
+
+@pytest.mark.parametrize("method", ["dogleg", "trust-ncg", "trust-krylov",
+                                    "trust-exact", "Dogleg", "TRUST-NCG"])
+def test_c10_hessian_methods_with_use_gradient_raise(tmp_path, method):
+    """C10: use_gradient = true with a method that needs a Hessian (dogleg,
+    trust-ncg, trust-krylov, trust-exact; case-insensitive) is rejected at
+    construction with an error that is both ValueError and InputError, and
+    the solver is never called. Fails if construction succeeds (scipy would
+    only fail later, after evaluations)."""
+    fn, grad = _quad_fn([0.0, 0.0])
+    info = _info(tmp_path, minimize={"method": method, "use_gradient": True})
+    solver = _RecordingSolver(info, fn, grad)
+    r = odatse.Runner(solver, info)
+    with pytest.raises(ValueError) as ei:
+        min_search.Algorithm(info, r)
+    assert isinstance(ei.value, odatse.exception.InputError)
+    assert solver.eval_calls == [] and solver.grad_calls == []
+
+
+def test_c10_newton_cg_with_use_gradient_converges(tmp_path):
+    """C10: Newton-CG is accepted with use_gradient = true and converges.
+    Fails if it is rejected along with the Hessian methods."""
+    fn, grad = _quad_fn(_C)
+    alg, solver, _ = _make_alg(tmp_path, {"method": "Newton-CG", "use_gradient": True},
+                               fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    alg.main()
+    assert solver.grad_calls
+    np.testing.assert_allclose(alg.xopt, _C, atol=1e-4)
+
+
+_C3_CASES = {
+    "non-bool": ({"method": "BFGS", "use_gradient": "true"}, {}),
+    "gradient-free": ({"method": "Powell", "use_gradient": True}, {}),
+    "omitted-method": ({"use_gradient": True}, {}),
+    "unsupported": ({"method": "BFGS", "use_gradient": True}, {"supports": False}),
+    "affine": ({"method": "BFGS", "use_gradient": True},
+               {"mapping": "affine"}),
+    "reason": ({"method": "BFGS", "use_gradient": True}, {"reason": True}),
+}
+
+
+@pytest.mark.parametrize("case", list(_C3_CASES))
+def test_c10_c3_errors_are_input_errors(tmp_path, monkeypatch, case):
+    """C10: the construction errors of C3 are both ValueError and
+    odatse.exception.InputError. Fails if a plain ValueError is raised."""
+    minimize, kw = _C3_CASES[case]
+    fn, grad = _quad_fn([0.0, 0.0])
+    info = _info(tmp_path, minimize=minimize)
+    solver = _RecordingSolver(info, fn, grad, supports=kw.get("supports", True))
+    mapping = None
+    if kw.get("mapping") == "affine":
+        mapping = odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))
+    r = odatse.Runner(solver, info, mapping=mapping)
+    if kw.get("reason"):
+        monkeypatch.setattr(r, "gradient_unavailable_reason",
+                            lambda: "solver group has 2 processes", raising=False)
+    with pytest.raises(ValueError) as ei:
+        min_search.Algorithm(info, r)
+    assert isinstance(ei.value, odatse.exception.InputError)
+
+
+_CLI_INPUT = """\
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "minsearch"
+seed = 12345
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+initial_list = [2.0, 2.0]
+
+[algorithm.minimize]
+{minimize}
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
+"""
+
+
+@pytest.mark.parametrize("minimize", [
+    'method = "BFGS"\nuse_gradient = "true"',
+    'method = "Nelder-Mead"\nuse_gradient = true',
+], ids=["non-bool", "gradient-free"])
+def test_c10_cli_reports_use_gradient_error(tmp_path, minimize):
+    """C10: through the CLI (odatse_main.py in a subprocess, ODATSE_NOMPI=1)
+    a use_gradient input error exits non-zero with an 'ERROR:' line on
+    stderr and no Traceback. Fails if the error escapes as a raw exception
+    (Traceback) or the run succeeds."""
+    (tmp_path / "input.toml").write_text(_CLI_INPUT.format(minimize=minimize))
+    main_py = os.path.join(os.path.dirname(__file__), "..", "..", "src", "odatse_main.py")
+    env = dict(os.environ)
+    env["ODATSE_NOMPI"] = "1"
+    proc = subprocess.run([sys.executable, os.path.abspath(main_py), "input.toml"],
+                          cwd=tmp_path, env=env, capture_output=True, text=True,
+                          timeout=120)
+    assert proc.returncode != 0
+    assert any("ERROR:" in line for line in proc.stderr.splitlines()), proc.stderr
+    assert "Traceback" not in proc.stderr
+    assert "Traceback" not in proc.stdout
+
+
+# ---------------------------------------------------------------------------
+# C11. declaring supports_gradient
+
+
+class _InstanceAttrSolver(odatse.solver.SolverBase):
+    """Declares gradient support by assigning in __init__."""
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.supports_gradient = True
+        self.grad_calls = []
+
+    def evaluate(self, x, args=()):
+        return _quad_fn(_C)[0](x)
+
+    def gradient(self, x, args=()):
+        self.grad_calls.append(np.array(x, copy=True))
+        return _quad_fn(_C)[1](x)
+
+
+class _ClassAttrSolver(odatse.solver.SolverBase):
+    """Declares gradient support as a class attribute."""
+
+    supports_gradient = True
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.grad_calls = []
+
+    def evaluate(self, x, args=()):
+        return _quad_fn(_C)[0](x)
+
+    def gradient(self, x, args=()):
+        self.grad_calls.append(np.array(x, copy=True))
+        return _quad_fn(_C)[1](x)
+
+
+class _PropertySolver(_ClassAttrSolver):
+    """Declares gradient support as a property."""
+
+    supports_gradient = property(lambda self: True)
+
+
+class _PlainSolver(odatse.solver.SolverBase):
+    """Declares nothing about gradients."""
+
+    def __init__(self, info):
+        super().__init__(info)
+
+    def evaluate(self, x, args=()):
+        return _quad_fn(_C)[0](x)
+
+
+_DECLARING = {"instance": _InstanceAttrSolver, "class": _ClassAttrSolver,
+              "property": _PropertySolver}
+
+
+@pytest.mark.parametrize("how", list(_DECLARING))
+def test_c11_declared_support_is_honored_by_runner(tmp_path, monkeypatch, how):
+    """C11: a SolverBase subclass may declare supports_gradient = True by
+    assignment in __init__, as a class attribute, or as a property; the
+    construction succeeds and Runner.gradient_unavailable_reason() is None.
+    Fails if the assignment raises (read-only property in the base) or the
+    declaration is not seen."""
+    info = _info(tmp_path)
+    solver = _DECLARING[how](info)
+    assert solver.supports_gradient
+    r = odatse.Runner(solver, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert r.gradient_unavailable_reason() is None
+
+
+@pytest.mark.parametrize("how", list(_DECLARING))
+def test_c11_declared_support_is_used_by_min_search(tmp_path, how):
+    """C11: with each declaration style, min_search with use_gradient =
+    true uses the solver's gradient and converges. Fails if the declaration
+    is rejected or ignored."""
+    info = _info(tmp_path, minimize={"method": "BFGS", "use_gradient": True},
+                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    solver = _DECLARING[how](info)
+    r = odatse.Runner(solver, info)
+    alg = min_search.Algorithm(info, r)
+    alg.main()
+    assert solver.grad_calls
+    np.testing.assert_allclose(alg.xopt, _C, atol=1e-4)
+
+
+def test_c11_undeclared_support_is_false(tmp_path):
+    """C11: a SolverBase subclass that declares nothing has a false
+    supports_gradient. Fails if the default claims support."""
+    solver = _PlainSolver(_info(tmp_path))
+    assert not solver.supports_gradient
+
+
+# ---------------------------------------------------------------------------
+# C12. paths not reached otherwise
+
+
+def _legacy_callback_factory(shift=None):
+    """Hand the callback only the raw x array scipy gives (no copy), as
+    scipy < 1.11 does; optionally shifted by ``shift`` (a new array) to
+    present a point that was never evaluated."""
+    fired = {"n": 0}
+
+    def factory(real):
+        def wrapped(*a, **kw):
+            cb = kw.get("callback")
+            if cb is not None:
+                def legacy(xk):
+                    fired["n"] += 1
+                    if shift is None:
+                        return cb(xk)
+                    return cb(xk + shift)
+                kw["callback"] = legacy
+            return real(*a, **kw)
+        return wrapped
+    return factory, fired
+
+
+# minimum of _skew_fn in solver units, (15/11, -8/11); algorithm units x = y * unit
+_SKEW_OPT = np.array([15.0 / 11.0, -8.0 / 11.0]) * _UNIT
+
+
+_OLD_SCIPY_CASES = [
+    ("BFGS", False, False), ("BFGS", True, False),
+    ("L-BFGS-B", False, False), ("L-BFGS-B", True, False),
+    ("TNC", False, False), ("TNC", True, False),
+    ("BFGS", True, True), ("L-BFGS-B", False, True), ("L-BFGS-B", True, True),
+]
+
+
+@pytest.mark.parametrize("method,use_gradient,bh", _OLD_SCIPY_CASES,
+                         ids=[f"{m}-{'grad' if g else 'nograd'}{'-bh' if b else ''}"
+                              for m, g, b in _OLD_SCIPY_CASES])
+def test_c12_simulated_old_scipy_callback(tmp_path, monkeypatch, method, use_gradient, bh):
+    """C12 (scipy < 1.11 simulation): scipy.__version__ is set to 1.10.0
+    and every minimize call (also those made by basinhopping) hands the
+    callback only scipy's raw x array, uncopied. With unit_list = [2, 0.5]
+    the run converges, the callback fires, every iter_history row carries
+    F(x) = f(x / unit_list) at its x, and with use_gradient the
+    History_Gradient.txt gradients are the algorithm-unit gradients. Fails on
+    callback incompatibility (e.g. scaling x twice or aliasing scipy's
+    array)."""
+    monkeypatch.setattr(min_search.scipy, "__version__", "1.10.0")
+    factory, fired = _legacy_callback_factory()
+    _patch_minimize(monkeypatch, factory)
+    minimize = {"method": method}
+    if use_gradient:
+        minimize["use_gradient"] = True
+    if bh:
+        minimize["basinhopping"] = {"niter": 2}
+    alg, _, _ = _make_alg(tmp_path, minimize, fn=_skew_fn, grad=_skew_grad,
+                          unit_list=tuple(_UNIT),
+                          initial_list=_same_start_for_all_walkers((3.0, 2.0)))
+    alg.main()
+    assert fired["n"] > 0
+    assert len(alg.iter_history) > 1
+    for row in alg.iter_history:
+        x = np.array(row[:2], dtype=float)
+        np.testing.assert_allclose(row[2], _skew_fn(x / _UNIT), rtol=1e-10, atol=1e-12)
+    np.testing.assert_allclose(alg.xopt, _SKEW_OPT, atol=1e-3)
+    if use_gradient:
+        rows = _grad_rows(tmp_path)
+        assert len(rows) > 1
+        for r in rows:
+            x = r[1:3]
+            np.testing.assert_allclose(r[4:6], _skew_grad(x / _UNIT) / _UNIT,
+                                       rtol=1e-9, atol=1e-12)
+    else:
+        assert list(tmp_path.glob("**/History_Gradient.txt")) == []
+
+
+def test_c12_legacy_callback_at_unevaluated_point(tmp_path, monkeypatch):
+    """C12: when a legacy callback (TNC) receives a point _f_calc has not
+    evaluated (scipy's x shifted by 1e-6 through a minimize wrapper), that
+    point goes to evaluate() with iset = 1 and its value is recorded in
+    iter_history. Fails if the callback records a stale/cached value or
+    skips the evaluation."""
+    factory, fired = _legacy_callback_factory(shift=np.array([1e-6, -1e-6]))
+    _patch_minimize(monkeypatch, factory)
+    alg, solver, _ = _make_alg(tmp_path, {"method": "TNC"}, fn=_skew_fn,
+                               grad=_skew_grad, unit_list=tuple(_UNIT),
+                               initial_list=_same_start_for_all_walkers((3.0, 2.0)))
+    alg.main()
+    assert fired["n"] > 0
+    rows = alg.iter_history[1:]
+    assert rows
+    iset1 = [x for x, a in solver.eval_calls if a[1] == 1]
+    for row in rows:
+        x = np.array(row[:2], dtype=float)
+        assert any(np.array_equal(y, x / _UNIT) for y in iset1), x
+        np.testing.assert_allclose(row[2], _skew_fn(x / _UNIT), rtol=1e-12)
+
+
+def test_c12_limitation_judged_in_algorithm_units(tmp_path, monkeypatch):
+    """C12: with unit_list = [2, 2] and the limitation x1 + x2 < 3, the
+    point P = (2, 2) violates it in algorithm units, while P / unit_list =
+    (1, 1) satisfies it in solver units (so the Runner's own check would let
+    it through). A jac request at P, injected through a minimize wrapper,
+    must not reach the solver's gradient(). Fails if min_search leaves the
+    limitation check to the Runner."""
+    unit = np.array([2.0, 2.0])
+    P = np.array([2.0, 2.0])
+    lim = odatse.util.limitation.Inequality(
+        np.array([[-1.0, -1.0]]), np.array([3.0]), True)
+    assert not lim.judge(P) and lim.judge(P / unit)
+    requested = {}
+
+    def factory(real):
+        def wrapped(*a, **kw):
+            if "jac" in kw and callable(kw["jac"]) and not requested:
+                requested["g"] = np.asarray(
+                    kw["jac"](P.copy(), *kw.get("args", ())), dtype=float)
+            return real(*a, **kw)
+        return wrapped
+    _patch_minimize(monkeypatch, factory)
+    fn, grad = _quad_fn([0.25, 0.25])
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "BFGS", "use_gradient": True},
+        fn=fn, grad=grad, unit_list=tuple(unit), limitation=lim,
+        initial_list=_same_start_for_all_walkers((0.5, 0.5)))
+    alg.main()
+    assert "g" in requested
+    assert not any(np.array_equal(x, P / unit) for x, _ in solver.grad_calls)
+    assert solver.grad_calls
+
+
+# ---------------------------------------------------------------------------
+# C8 (clarified): controlled replacement cases. A scripted stand-in for
+# scipy.optimize.minimize evaluates chosen points through the objective,
+# optionally requests the jac at chosen points, and returns a chosen result,
+# so stdout and the replacement inputs are fully determined.
+
+
+def _scripted_minimize(eval_points=(), jac_points=(), result_x=None,
+                       result_fun=None, success=True, message="scripted"):
+    def factory(real):
+        def wrapped(fun, x0, *a, **kw):
+            args = kw.get("args", ())
+            for p in eval_points:
+                fun(np.array(p, dtype=float), *args)
+            for p in jac_points:
+                kw["jac"](np.array(p, dtype=float), *args)
+            return OptimizeResult(x=np.array(result_x, dtype=float), fun=result_fun,
+                                  success=success, status=0 if success else 1,
+                                  message=message, nit=1,
+                                  nfev=len(eval_points))
+        return wrapped
+    return factory
+
+
+def _warning_lines(out):
+    return {line for line in out.splitlines() if "Warning" in line}
+
+
+def _run_scripted(base, monkeypatch, capsys, factory, grad, minimize=None,
+                  unit_list=(1.0, 1.0), x0=(2.0, 2.0), fn=None):
+    """One min_search run with the scripted optimizer, in its own output
+    directory under ``base``; returns (alg, solver, stdout)."""
+    if fn is None:
+        fn = _quad_fn(_C)[0]
+    if minimize is None:
+        minimize = {"method": "L-BFGS-B", "use_gradient": True}
+    base.mkdir(parents=True, exist_ok=True)
+    _patch_minimize(monkeypatch, factory)
+    capsys.readouterr()
+    alg, solver, _ = _make_alg(base, minimize, fn=fn, grad=grad,
+                               unit_list=unit_list, runner={"ignore_error": True},
+                               initial_list=_same_start_for_all_walkers(x0))
+    alg.main()
+    return alg, solver, capsys.readouterr().out
+
+
+def test_c8_replacement_warning_only_when_replacing(tmp_path, monkeypatch, capsys):
+    """C8 (warning only on replacement): two runs with the same solver
+    (gradient fails at x0) and settings differ only in the scripted scipy
+    result: worse than the best evaluated point (replaced) versus better
+    (kept). The replacing run must print a Warning line the other does not;
+    other Warning lines (e.g. out of range) are common to both. Fails if the
+    replacement is silent."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    g = _fails_at(x0, grad)
+    alg_r, _, out_r = _run_scripted(
+        tmp_path / "replace", monkeypatch, capsys,
+        _scripted_minimize(result_x=_BAD, result_fun=fn(_BAD)), g)
+    alg_k, _, out_k = _run_scripted(
+        tmp_path / "keep", monkeypatch, capsys,
+        _scripted_minimize(result_x=_C, result_fun=fn(_C)), g)
+    # the first run was replaced, the second kept
+    np.testing.assert_array_equal(np.asarray(alg_r.xopt, dtype=float), x0)
+    np.testing.assert_array_equal(np.asarray(alg_k.xopt, dtype=float), _C)
+    extra = _warning_lines(out_r) - _warning_lines(out_k)
+    assert extra, "no Warning line specific to the replacement"
+
+
+@pytest.mark.parametrize("best", ["initial", "evaluated"])
+def test_c8_replacement_in_algorithm_units(tmp_path, monkeypatch, capsys, best):
+    """C8 (units): with unit_list = [2, 0.5] the replacement xopt is in
+    algorithm units: f(xopt / unit_list) == fopt, xopt is the best evaluated
+    point and lies in [min_list, max_list]. Two cases: the best point is the
+    initial point, or a point evaluated by the (scripted) optimizer. Fails if
+    the best point is remembered in solver units."""
+    fn, grad = _quad_fn(_C)
+    unit = np.array([2.0, 0.5])
+    x0 = np.array([3.0, 2.0])                      # f(x0 / unit) = 20.5
+    if best == "evaluated":
+        pts = [[-4.0, 4.0], [2.0, -0.25]]          # the second is f = 0
+        expected = np.array([2.0, -0.25])
+    else:
+        pts = [[-4.0, 4.0], [4.5, -4.5]]           # both worse than x0
+        expected = x0
+    alg, _, _ = _run_scripted(
+        tmp_path / "run", monkeypatch, capsys,
+        _scripted_minimize(eval_points=pts, result_x=_BAD,
+                           result_fun=fn(_BAD / unit)),
+        _fails_at(x0 / unit, grad), unit_list=tuple(unit), x0=x0)
+    xopt = np.asarray(alg.xopt, dtype=float)
+    np.testing.assert_array_equal(xopt, expected)
+    np.testing.assert_allclose(fn(xopt / unit), alg.fopt, rtol=1e-12)
+    assert _in_box(xopt)
+
+
+def test_c8_tie_is_not_replaced(tmp_path, monkeypatch, capsys):
+    """C8 (tie): a gradient failure occurred, and the scripted scipy result
+    (0, -3) has exactly the best evaluated value f(x0) = 7.25 but is a
+    different point. It is kept (xopt == (0, -3)) and no replacement
+    warning appears: the Warning lines equal those of the same run with a
+    strictly better scipy result. Fails if '>=' replaces on ties."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    tie = np.array([0.0, -3.0])
+    assert fn(tie) == fn(x0)
+    g = _fails_at(x0, grad)
+    alg_t, _, out_t = _run_scripted(
+        tmp_path / "tie", monkeypatch, capsys,
+        _scripted_minimize(result_x=tie, result_fun=fn(tie)), g)
+    _, _, out_b = _run_scripted(
+        tmp_path / "better", monkeypatch, capsys,
+        _scripted_minimize(result_x=_C, result_fun=fn(_C)), g)
+    np.testing.assert_array_equal(np.asarray(alg_t.xopt, dtype=float), tie)
+    assert alg_t.fopt == fn(x0)
+    assert _warning_lines(out_t) == _warning_lines(out_b)
+
+
+def test_c8_out_of_range_nan_gradient_is_not_a_failure(tmp_path, monkeypatch, capsys):
+    """C8 (out-of-range NaN): the only non-finite gradient comes from a jac
+    request at the out-of-range point (6, 0), where the solver's gradient()
+    is not called; the scripted scipy result is worse than the best
+    evaluated point. No replacement: xopt stays the scipy result. Fails if
+    the out-of-range NaN counts as a gradient failure."""
+    fn, grad = _quad_fn(_C)
+    out_pt = np.array([6.0, 0.0])
+    alg, solver, _ = _run_scripted(
+        tmp_path / "run", monkeypatch, capsys,
+        _scripted_minimize(jac_points=[out_pt], result_x=_BAD,
+                           result_fun=fn(_BAD)), grad)
+    assert not any(np.array_equal(x, out_pt) for x, _ in solver.grad_calls)
+    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
+    assert alg.fopt == fn(_BAD)
+
+
+@pytest.mark.parametrize("use_gradient", [False, True])
+@pytest.mark.parametrize("success", [False, True])
+def test_c8_success_line_warning_prefix(tmp_path, monkeypatch, capsys, success, use_gradient):
+    """C8 (display): the line reporting scipy's success and message contains
+    'Warning' when success is False and does not when it is True (scripted
+    result with a unique message). Fails if a failed optimization is
+    reported like a success, or a success is flagged."""
+    fn, grad = _quad_fn(_C)
+    minimize = {"method": "L-BFGS-B"}
+    if use_gradient:
+        minimize["use_gradient"] = True
+    _, _, out = _run_scripted(
+        tmp_path / "run", monkeypatch, capsys,
+        _scripted_minimize(result_x=_C, result_fun=fn(_C), success=success,
+                           message=_SENTINEL),
+        grad, minimize=minimize)
+    lines = [L for L in out.splitlines() if _SENTINEL in L and "success" in L.lower()]
+    assert lines, "no line with 'success' and scipy's message"
+    if success:
+        assert not any("Warning" in L for L in lines), lines
+    else:
+        assert all("Warning" in L for L in lines), lines

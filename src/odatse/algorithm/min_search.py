@@ -17,6 +17,7 @@ from scipy.optimize import minimize, basinhopping, OptimizeResult, OptimizeWarni
 
 import odatse
 import odatse.domain
+from odatse.exception import InputValueError
 from odatse.util.version import parse_version
 
 if TYPE_CHECKING:
@@ -66,6 +67,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
     # methods that cannot use the solver's gradient
     _GRADIENT_FREE_METHODS = {"nelder-mead", "powell", "cobyla", "cobyqa"}
+
+    # methods that require a Hessian, which ODAT-SE does not provide
+    _HESSIAN_METHODS = {"dogleg", "trust-ncg", "trust-krylov", "trust-exact"}
 
     # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
     # forwarded to scipy.optimize.minimize as options
@@ -150,7 +154,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         )
         self.use_gradient = info_minimize.get("use_gradient", False)
         if not isinstance(self.use_gradient, bool):
-            raise ValueError(
+            raise InputValueError(
                 "algorithm.minimize.use_gradient must be a boolean, "
                 f"not {type(self.use_gradient).__name__}"
             )
@@ -159,10 +163,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 message = f"Method '{self.method}' does not use gradients"
                 if "method" not in info_minimize:
                     message += '; specify a gradient-based method such as "BFGS" or "L-BFGS-B"'
-                raise ValueError(message)
+                raise InputValueError(message)
+            if self.method.lower() in self._HESSIAN_METHODS:
+                raise InputValueError(
+                    f"Method '{self.method}' requires a Hessian, which is not provided"
+                )
             reason = self.runner.gradient_unavailable_reason()
             if reason is not None:
-                raise ValueError(reason)
+                raise InputValueError(reason)
 
         # basinhopping = true enables scipy.optimize.basinhopping with its
         # default parameters; a [algorithm.minimize.basinhopping] table both
@@ -234,6 +242,12 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fev_history = []
         function_values = {}
         gradients = {}
+        # Per-run failure and best-point state uses x in algorithm units;
+        # only points satisfying the algorithm's bounds and constraints enter it.
+        failed_gradients = set()
+        gradient_failed = False
+        best_x = None
+        best_f = float("inf")
 
         # evaluate the initial point in solver units, as _f_calc does
         f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
@@ -264,15 +278,17 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 return function_values[key]
             return _f_calc(x, 1)
 
-        if parse_version(scipy.__version__) >= (1, 11, 0):
+        use_new_callback = parse_version(scipy.__version__) >= (1, 11, 0)
+        if use_new_callback:
             def _cb(intermediate_result):
                 """
                 Callback function for scipy.optimize.minimize.
 
                 The parameter must be named intermediate_result so that scipy
                 passes an OptimizeResult where supported. Methods that do not
-                support the new-style callback (e.g. COBYLA, SLSQP, TNC) still
-                pass the raw parameter vector, so handle both.
+                support the new-style callback still pass the raw parameter
+                vector (e.g. TNC in scipy 1.18), so handle both. The supported
+                form depends on the scipy version and method.
                 """
                 if isinstance(intermediate_result, OptimizeResult):
                     x = intermediate_result.x
@@ -324,6 +340,25 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 return False, False
             return True, self.runner.limitation.judge(x_list)
 
+        def _remember_best(x, y):
+            """
+            Remember the best finite objective value at a feasible point.
+
+            Parameters
+            ----------
+            x : np.ndarray
+                Feasible variables in algorithm units.
+            y : float
+                Evaluated objective value.
+            """
+            nonlocal best_x, best_f
+            if np.isfinite(y) and y < best_f:
+                best_x = np.array(x, copy=True)
+                best_f = y
+
+        if self.use_gradient and all(_check_point(self.initial_list)):
+            _remember_best(self.initial_list, f0)
+
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
             Calculate the objective function value.
@@ -358,6 +393,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             step[0] += 1
             args = (step[0], iset)
             y = run.submit(x_scaled, args)
+            if self.use_gradient:
+                _remember_best(x_list, y)
             # Only callbacks reuse values; scipy evaluations must retain their
             # calls and History_FunctionCall.txt entries.
             function_values[_key(x_list)] = y
@@ -372,6 +409,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 """
                 Calculate the gradient of the objective function.
                 """
+                nonlocal gradient_failed
                 x_list = np.asarray(x_list, dtype=float).flatten()
                 in_range, in_limit = _check_point(x_list)
                 if not in_range or not in_limit:
@@ -389,6 +427,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 # searches in basinhopping from recovering at this point.
                 if np.all(np.isfinite(g)):
                     gradients[key] = g.copy()
+                else:
+                    failed_gradients.add(key)
+                    gradient_failed = True
                 return g
 
             grad_history.append([
@@ -397,16 +438,40 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 *_jac_calc(self.initial_list, 0),
             ])
 
-            def _cb_grad(intermediate_result):
+            def _record_gradient():
                 """
-                Callback function that also records the gradient.
+                Record a cached gradient or NaN for an unrecovered failure.
                 """
-                # _cb must not return (x, fun): trust-constr stops on a
-                # truthy callback return value
-                _cb(intermediate_result)
                 *x, fun = iter_history[-1]
-                grad = _jac_calc(np.array(x), 0)
+                key = _key(x)
+                if key in gradients:
+                    grad = gradients[key]
+                elif key in failed_gradients:
+                    # Retrying unrecovered failures here made TNC call the
+                    # gradient about 100 times just to write its history.
+                    grad = np.full_like(x, np.nan, dtype=float)
+                else:
+                    grad = _jac_calc(np.array(x), 0)
                 grad_history.append([*x, fun, *grad])
+
+            # A truthy callback return value would stop trust-constr.
+            if use_new_callback:
+                def _cb_grad(intermediate_result):
+                    """
+                    Record the iteration and gradient using the new callback form.
+
+                    The parameter must be named intermediate_result: scipy
+                    inspects this name to pass an OptimizeResult where supported.
+                    """
+                    _cb(intermediate_result)
+                    _record_gradient()
+            else:
+                def _cb_grad(x):
+                    """
+                    Record the iteration and gradient using the legacy callback form.
+                    """
+                    _cb(x)
+                    _record_gradient()
 
             callback = _cb_grad
         else:
@@ -510,6 +575,27 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self.xopt = optres.x
         self.fopt = optres.fun
+        success = getattr(optres, "success", None)
+        message = getattr(optres, "message", "unavailable")
+        if isinstance(message, list):
+            message = "; ".join(message)
+        prefix = "Warning: " if success is not None and not success else ""
+        # Existing ctest references compare res.txt; adding status there
+        # would change the established output format.
+        print(f"{prefix}scipy success={success}, message={message}")
+        # Without a non-finite gradient, preserve scipy's convergence decision:
+        # trust-constr can legitimately finish above the best evaluated value.
+        # Exclude runs without solver gradients to preserve results and references.
+        if (self.use_gradient and gradient_failed and best_x is not None
+                and (not np.isfinite(self.fopt) or self.fopt > best_f)):
+            print(
+                "Warning: a non-finite gradient was obtained at a feasible point; "
+                "replacing the scipy result "
+                "with the best feasible evaluated point, whose convergence "
+                "has not been certified by scipy."
+            )
+            self.xopt = best_x
+            self.fopt = best_f
         self.itera = getattr(optres, "nit", None)
         self.funcalls = getattr(optres, "nfev", None)
         self.allvecs = getattr(optres, "allvecs", None)

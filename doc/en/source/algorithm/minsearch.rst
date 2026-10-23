@@ -92,6 +92,18 @@ the program stops with an error before the optimization starts.
 The default values of ``xatol``, ``fatol``, ``maxiter``, and ``maxfev``
 listed below apply only when ``method`` is "Nelder-Mead".
 
+Legacy callbacks reuse objective values at already evaluated points; unseen
+points are evaluated with ``iset = 1``. The callback form depends on the scipy
+version and method (all methods use the legacy form with scipy < 1.11;
+with scipy 1.18, TNC is one example).
+For solvers that separate working directories by ``(step, iset)``, per-iteration
+``iset = 1`` output is no longer created for already evaluated points.
+
+After optimization, scipy's ``success`` and ``message`` are printed on one line,
+with a warning when ``success`` is false. For basin hopping, the available
+status information is printed. This is scipy's original status, before any
+replacement described under ``use_gradient`` below.
+
 - ``method``
 
   Format: String (default: "Nelder-Mead")
@@ -129,26 +141,50 @@ listed below apply only when ``method`` is "Nelder-Mead".
   When true, the gradient computed by the solver is passed to
   `scipy.optimize.minimize`_ as its ``jac`` argument instead of numerical differentiation
   (also for the local optimizations of ``basinhopping``).
-  To use gradients with a custom solver, ``supports_gradient`` must return True and the
+  To use gradients with a custom solver, ``supports_gradient`` must be True and the
   ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
 
   A non-boolean value (including strings such as ``"false"`` and integers such as ``0``)
-  raises ``ValueError`` regardless of whether the value evaluates to true or false.
-  When ``use_gradient = true``, the following settings also raise ``ValueError``
+  raises ``InputValueError`` regardless of whether the value evaluates to true or false.
+  When ``use_gradient = true``, the following settings also raise ``InputValueError``
   before any solver evaluation:
 
   - A method that does not use gradients: Nelder-Mead, Powell, COBYLA, or COBYQA
     (case-insensitive; omitting ``method`` selects Nelder-Mead).
+  - A method requiring a Hessian: dogleg, trust-ncg, trust-krylov, or trust-exact
+    (case-insensitive). ODAT-SE does not supply a Hessian; Newton-CG is allowed.
   - A solver that does not support gradients (``supports_gradient`` is False).
   - A ``[runner.mapping]`` section.
   - Solver parallelization with ``--nsolve`` of 2 or greater.
 
+  ``InputValueError`` inherits from both ``InputError`` and ``ValueError``.
+  The ``odatse`` command reports these input errors on an ``ERROR:`` line without
+  a traceback; under ``mpirun``, each rank reports one line.
   When false or omitted, the solver's gradient is not used and these restrictions do not apply.
-  If ``gradient()`` raises ``RuntimeError`` with ``ignore_error = true`` in ``[runner]``,
-  the gradient is treated as a vector of NaN values.
-  ``NotImplementedError`` is always propagated, even with ``ignore_error = true``.
-  Gradient evaluations receive step numbers shared with objective function evaluations;
-  see ``History_FunctionCall.txt`` below.
+
+  At points outside the search region or violating constraints, the solver's
+  ``gradient()`` is not called and the gradient is a vector of NaN values.
+  Non-finite values (NaN or infinity) returned by ``gradient()`` are treated as
+  failures: the Runner raises ``SolverRuntimeError`` unless ``ignore_error = true``
+  in ``[runner]``, in which case it returns an all-NaN vector.
+  A ``RuntimeError`` raised by ``gradient()`` is likewise treated as an all-NaN
+  vector with ``ignore_error = true``. ``NotImplementedError`` always propagates.
+
+  Only when gradients are used and a non-finite gradient has occurred at a point
+  within the search region and constraints during this run, the final result
+  is compared with the best finite objective value evaluated at feasible points.
+  These candidates include the initial point only if it satisfies the region
+  and constraints. If scipy's final value is non-finite or worse than that best
+  value, the result is replaced with the best evaluated point and a warning is
+  printed. Scipy has not certified convergence at the replacement point.
+  With no gradient failure, or with ``use_gradient = false``, no replacement occurs.
+
+  Callbacks reuse finite cached gradients. At a point whose gradient has failed
+  and has not recovered, they record NaN without calling ``gradient()`` again.
+  Scipy's gradient requests may retry the point; after recovery, callbacks record
+  the finite cached value.
+  Gradient evaluations receive step numbers shared with objective evaluations,
+  but their step numbers are not recorded in output files; see the histories below.
 
   Example:
 
@@ -250,13 +286,10 @@ Each line contains the step number, the values of the variables, and the value o
 The first column is a step number shared by objective function and gradient evaluations.
 Gradient evaluations also advance this number, so gaps may appear when gradients are used.
 The number identifies an evaluation; it is not guaranteed to be consecutive.
+The variables here are in solver units (``x / unit_list``), whereas both the
+variables and gradients in ``History_Gradient.txt`` are in algorithm units.
+Gradient evaluation step numbers are not recorded in either file.
 
-
-Legacy callbacks (all methods with scipy < 1.11, and TNC with scipy 1.18) reuse
-objective values at already evaluated points, so they no longer call the solver
-with ``iset = 1`` at every iteration. An unseen point is still evaluated with ``iset = 1``.
-For solvers that separate working directories by ``(step, iset)``, the per-iteration
-``iset = 1`` output is therefore no longer created for already evaluated points.
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -274,6 +307,12 @@ Written only when the gradient is used (``use_gradient = true`` with a solver th
 The first line is a header (``#No``, variable names, ``fx``, and ``grad_`` followed by each variable name).
 Each of the following lines contains the index, the values of the variables, the value of the objective function, and the gradient, in that order:
 the first line is for the initial point, and the others are for each iteration of the local optimization.
+Both variables and gradients are in algorithm units: for the solver objective
+``f``, the recorded gradient is that of ``F(x) = f(x / unit_list)``, namely
+``gradient(x / unit_list) / unit_list``. In contrast, the variables in
+``History_FunctionCall.txt`` are in solver units (``x / unit_list``).
+The index here counts history rows, not evaluation steps; gradient evaluation
+step numbers are not recorded in output files.
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

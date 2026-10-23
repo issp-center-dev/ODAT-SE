@@ -76,6 +76,17 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 以下に挙げる ``xatol``, ``fatol``, ``maxiter``, ``maxfev`` のデフォルト値は
 ``method`` が "Nelder-Mead" の場合にのみ適用されます。
 
+旧形式の callback は、評価済みの点では関数値を再利用し、未評価の点では
+``iset = 1`` で評価します。callback の形式は scipy のバージョンと手法によります
+(scipy < 1.11 では全手法、scipy 1.18 では TNC などが旧形式です)。
+``(step, iset)`` ごとに作業ディレクトリを分けるソルバーでは、評価済みの点について
+反復ごとの ``iset = 1`` の出力は作られなくなります。
+
+最適化の終了後、scipy の ``success`` と ``message`` を1行で表示します。
+``success`` が偽の場合は警告を付けます。ベイスンホッピングでも、取得できる範囲で
+結果の状態を表示します。表示するのは、後述の ``use_gradient`` による置き換え前の
+scipy の判定です。
+
 - ``method``
 
   形式: 文字列 (default: "Nelder-Mead")
@@ -109,25 +120,45 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 
   説明: true のとき、数値差分の代わりにソルバーが計算した勾配を
   `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
-  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` が True を返すようにし、
+  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` を True にし、
   ``gradient`` メソッドを実装してください (:ref:`Solver の定義 <customize_solver>` を参照)。
 
   真偽値以外 (文字列の ``"false"`` や整数の ``0`` など) を指定すると、
-  値が真と評価されるか偽と評価されるかにかかわらず、 ``ValueError`` になります。
-  ``use_gradient = true`` の場合は、次の設定でもソルバーを評価する前に ``ValueError`` になります。
+  値が真と評価されるか偽と評価されるかにかかわらず、 ``InputValueError`` になります。
+  ``use_gradient = true`` の場合は、次の設定でもソルバーを評価する前に ``InputValueError`` になります。
 
   - 勾配を使わない手法: Nelder-Mead, Powell, COBYLA, COBYQA
     (大文字小文字は区別しません。 ``method`` を省略すると Nelder-Mead になります)。
+  - ヘッセ行列を必要とする手法: dogleg, trust-ncg, trust-krylov, trust-exact
+    (大文字小文字は区別しません)。ODAT-SE はヘッセ行列を渡しません。Newton-CG は利用できます。
   - 勾配に対応していないソルバー (``supports_gradient`` が False)。
   - ``[runner.mapping]`` の指定。
   - ``--nsolve`` が 2 以上のソルバー並列。
 
+  ``InputValueError`` は ``InputError`` と ``ValueError`` の両方を継承します。
+  ``odatse`` コマンドでは、これらの入力エラーを traceback なしで ``ERROR:`` の行に表示します。
+  ``mpirun`` で実行した場合は、各ランクが1行ずつ報告します。
   false または省略時はソルバーの勾配を使わず、これらの制限は適用されません。
-  ``[runner]`` で ``ignore_error = true`` を指定した場合、 ``gradient()`` が送出した
-  ``RuntimeError`` は無視され、勾配の全要素が NaN として扱われます。
-  ただし、 ``NotImplementedError`` は ``ignore_error = true`` でも無視されず、そのまま送出されます。
-  勾配評価にも、関数評価と共有する step 番号が割り当てられます。
-  詳しくは後述の ``History_FunctionCall.txt`` を参照してください。
+
+  探索範囲外や制約に違反する点では、ソルバーの ``gradient()`` を呼ばず、全要素が NaN の勾配を返します。
+  ``gradient()`` の戻り値に非有限値 (NaN または無限大) が含まれる場合も失敗として扱い、
+  Runner は ``SolverRuntimeError`` を送出します。ただし、 ``[runner]`` で
+  ``ignore_error = true`` を指定した場合は、全要素が NaN の勾配を返します。
+  ``gradient()`` が ``RuntimeError`` を送出した場合も、 ``ignore_error = true`` なら
+  全要素が NaN の勾配として扱います。 ``NotImplementedError`` は常にそのまま送出されます。
+
+  勾配を利用し、この実行中に探索範囲と制約を満たす点で非有限の勾配が生じた場合に限り、
+  scipy の最終結果と、それまでに範囲・制約内で評価した有限の目的関数値の最小値を比較します。
+  初期点も、範囲と制約を満たす場合だけ候補に含めます。
+  scipy の最終値が非有限、または候補の最小値より大きければ、結果をその最良の評価点に置き換え、
+  警告を表示します。置き換えた点での収束を scipy が認定したわけではありません。
+  勾配の失敗がない場合と ``use_gradient = false`` の場合は置き換えません。
+
+  callback は有限の勾配のキャッシュを再利用します。勾配の評価に失敗し、まだ回復していない点では、
+  ``gradient()`` を再び呼ばずに NaN を記録します。scipy から勾配を要求された場合は再評価し、
+  回復した後の callback ではキャッシュした有限の勾配を記録します。
+  勾配評価にも関数評価と共有する step 番号を割り当てますが、勾配評価の step 番号は
+  出力ファイルには記録しません。詳しくは後述の履歴ファイルの説明を参照してください。
 
   設定例:
 
@@ -224,13 +255,10 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 第1列の step 番号は、関数評価と勾配評価で共有します。
 勾配評価でも番号が進むため、勾配を利用する場合は欠番が生じることがあります。
 この番号は各評価を識別するためのもので、連番は保証されません。
+このファイルの変数の値はソルバー単位 (``x / unit_list``) です。
+一方、 ``History_Gradient.txt`` の変数と勾配はアルゴリズム単位です。
+どちらのファイルにも、勾配評価の step 番号は記録されません。
 
-
-旧形式の callback (scipy < 1.11 では全手法、scipy 1.18 では TNC) は、評価済みの点の関数値を再利用します。
-このため、各反復での ``iset = 1`` のソルバー呼び出しは行われなくなりました。
-未評価の点では、従来どおり ``iset = 1`` で評価します。
-``(step, iset)`` ごとに作業ディレクトリを分けるソルバーでは、評価済みの点について
-反復ごとの ``iset = 1`` の出力が作られなくなります。
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -247,6 +275,12 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 1行目はヘッダー (``#No``、変数名、 ``fx``、各変数に対する勾配 ``grad_変数名``) です。
 2行目以降には、通し番号、変数の値、目的関数の値、勾配の値がこの順に出力されます。
 最初の行は初期点、それ以降は局所最適化の各反復に対応します。
+変数と勾配はいずれもアルゴリズム単位です。ソルバーの目的関数を ``f`` とすると、
+記録するのは ``F(x) = f(x / unit_list)`` の勾配、すなわち
+``gradient(x / unit_list) / unit_list`` です。
+一方、 ``History_FunctionCall.txt`` の変数の値はソルバー単位 (``x / unit_list``) です。
+このファイルの通し番号は履歴の行番号であり、評価の step 番号ではありません。
+勾配評価の step 番号は、出力ファイルには記録されません。
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

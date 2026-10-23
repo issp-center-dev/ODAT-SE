@@ -78,9 +78,12 @@
 
   目的関数の勾配が計算できる場合、次のメンバーを実装すると、 ``Algorithm`` が勾配を利用できるようになります (例: ``minsearch`` での ``use_gradient = true``)。
 
-  - ``supports_gradient`` (プロパティ、デフォルト: False)
+  - ``supports_gradient`` (クラス属性、デフォルト: False)
 
-    このソルバーが勾配を計算できるとき、 True を返すようにオーバーライドします。
+    勾配を計算できるソルバーでは True にします。派生クラスでは、クラス属性
+    (``supports_gradient = True``)、インスタンス属性
+    (``__init__`` 内の ``self.supports_gradient = True``)、True を返すプロパティの
+    いずれでも宣言できます。
 
   - ``gradient(self, x, args=()) -> np.ndarray``
 
@@ -88,11 +91,19 @@
     Runner は戻り値を float の ndarray に変換し、shape が ``x`` と異なる場合は
     ``ignore_error = true`` でも ``ValueError`` を送出します。
     ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
+    Runner は shape を検査した後、非有限値 (NaN または無限大) が含まれていれば失敗として扱い、
+    ``odatse.exception.SolverRuntimeError`` (``RuntimeError`` の派生) を送出します。
+    ただし、 ``ignore_error = true`` の場合は全要素が NaN の配列を返します。
 
     ``[runner]`` で ``ignore_error = true`` を指定した場合、 ``gradient()`` が送出した
     ``RuntimeError`` は無視され、Runner は ``x`` と同じ shape で全要素が NaN の配列を返します。
     ただし、 ``NotImplementedError`` は ``ignore_error = true`` でも無視されず、そのまま送出されます。
     ``ValueError`` や ``TypeError`` など、その他の例外もそのまま送出されます。
+
+  Runner の制約を満たさない点では、 ``submit_gradient()`` はソルバーを呼ばずに
+  全要素が NaN の配列を返します。 ``minsearch`` では、探索範囲外やアルゴリズム単位で
+  制約に違反する点でも、ソルバーを呼ばずに NaN の勾配を返します。
+  Runner 自体は探索範囲の上下限を検査しません。
 
   ``runner.log`` が数えるのは ``evaluate()`` の呼び出しだけです。勾配の呼び出しは記録されず、回数にも含まれません。
 

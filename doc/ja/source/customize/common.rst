@@ -71,6 +71,25 @@
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
 関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
 
+``submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray`` は、
+``x`` と同じ shape の目的関数の勾配を返し、 ``args`` をソルバーに渡します。
+入力 ``x`` の扱いは ``submit`` と同じです。制約に違反する点では、ソルバーを呼ばずに
+全要素が NaN の配列を返します。戻り値の shape が異なる場合は、
+``ignore_error = true`` でも ``ValueError`` を送出します。
+shape の検査後、非有限値があれば ``SolverRuntimeError`` を送出します。
+ただし、 ``ignore_error = true`` なら全要素が NaN の配列を返します。
+ソルバーの ``RuntimeError`` も ``ignore_error = true`` なら無視しますが、
+``NotImplementedError`` とその他の例外は常にそのまま送出します。
+勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
+
+``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は
+``None``、利用できない場合は理由を示す文字列を返します。
+勾配を利用するには、ソルバーの ``supports_gradient`` が真であり、mapping が
+``TrivialMapping``、ソルバーグループが1プロセス (``--nsolve = 1``) である必要があります。
+これらの条件を満たさない場合、 ``submit_gradient`` は ``NotImplementedError`` を送出します。
+ソルバーの実装は :doc:`solver`、探索範囲とパラメータの単位は
+:doc:`../algorithm/minsearch` を参照してください。
+
 その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 
 
