@@ -92,12 +92,16 @@ the program stops with an error before the optimization starts.
 The default values of ``xatol``, ``fatol``, ``maxiter``, and ``maxfev``
 listed below apply only when ``method`` is "Nelder-Mead".
 
-Legacy callbacks reuse objective values at already evaluated points; unseen
-points are evaluated with ``iset = 1``. The callback form depends on the scipy
+Legacy callbacks reuse objective values at points evaluated since the previous
+callback and at the previous callback's iterate; other points are evaluated with
+``iset = 1``. Cached values are discarded at each callback, so memory use does not
+grow with the number of evaluations. The callback form depends on the scipy
 version and method (all methods use the legacy form with scipy < 1.11;
 with scipy 1.18, TNC is one example).
 For solvers that separate working directories by ``(step, iset)``, per-iteration
-``iset = 1`` output is no longer created for already evaluated points.
+``iset = 1`` output is usually not created, because the iterate is normally
+evaluated within the same iteration. It can still appear when a callback reports
+a point from an earlier iteration, e.g. COBYLA in older scipy ending at its best point.
 
 After optimization, scipy's ``success`` and ``message`` are printed on one line,
 with a warning when ``success`` is false. For basin hopping, the available
@@ -198,9 +202,12 @@ range, with an objective value of inf. These rules apply with or without
   match the value at the returned parameters. ODAT-SE uses scipy's result as
   returned. Do not take the result at face value when ``success=False``.
 
-  Callbacks reuse only finite cached gradients. At a point whose gradient
-  contains non-finite values and has not recovered, they record NaN without
-  calling ``gradient()`` again.
+  Gradients and gradient failures are remembered only for points computed since
+  the previous callback and for the previous callback's iterate; points from earlier
+  iterations (e.g. revisited by basinhopping) are computed again.
+  Callbacks reuse only finite remembered gradients. At a remembered point whose
+  gradient contains non-finite values and has not recovered, they record NaN
+  without calling ``gradient()`` again.
   Scipy's gradient requests may retry the point; after recovery, callbacks record
   the finite cached value.
   Gradient evaluations receive step numbers shared with objective evaluations,

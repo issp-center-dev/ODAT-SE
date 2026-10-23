@@ -1907,3 +1907,416 @@ def test_c14_min_search_rejects_not_overridden_gradient(tmp_path, kind):
     assert isinstance(ei.value, ValueError)
     assert isinstance(ei.value, odatse.exception.InputError)
     assert solver.eval_calls == []
+
+
+# ===========================================================================
+# Round 4: C15
+#
+# The memory of function values, finite gradients and failed gradients is
+# cut back at every callback to the callback's iterate; points computed
+# after that callback are kept until the next one.
+
+
+_P_A = np.array([1.0, 1.0])
+_P_B = np.array([0.5, -0.5])
+_P_C = np.array([-1.0, 0.25])
+
+
+def _c15_script_factory(steps, calls, form, fn, log):
+    """Scripted optimizer for C15: run ``steps`` -- (op, point, measured)
+    with op "fun", "jac" or "cb" -- in order instead of scipy. For each
+    measured step, the solver calls made by that step alone (the part of
+    the list ``calls()`` appended during the step) go to ``log``. ``form``
+    is how the callback receives the iterate: "result" (an OptimizeResult,
+    new style) or "raw" (the x array itself)."""
+    def factory(real):
+        def wrapped(fun, x0, *a, **kw):
+            args = kw.get("args", ())
+            cb = kw["callback"]
+            for op, p, measured in steps:
+                x = np.array(p, dtype=float)
+                before = len(calls())
+                if op == "fun":
+                    fun(x, *args)
+                elif op == "jac":
+                    kw["jac"](x, *args)
+                elif form == "result":
+                    cb(OptimizeResult(x=x, fun=fn(x)))
+                else:
+                    cb(x)
+                if measured:
+                    log.append(calls()[before:])
+            x0 = np.array(x0, dtype=float)
+            return OptimizeResult(x=x0, fun=fn(x0), success=True, status=0,
+                                  message="scripted", nit=1, nfev=len(steps))
+        return wrapped
+    return factory
+
+
+# "raw" also under a simulated scipy < 1.11, where the legacy callback of
+# min_search is installed instead of the new-style one fed a bare array
+_C15_FORMS = ["result", "raw", "raw-old-scipy"]
+
+
+def _c15_setup_form(monkeypatch, form):
+    if form == "raw-old-scipy":
+        monkeypatch.setattr(min_search.scipy, "__version__", "1.10.0")
+        return "raw"
+    return form
+
+
+@pytest.mark.parametrize("form", ["raw", "raw-old-scipy"])
+def test_c15_function_values_forgotten_at_callback(tmp_path, monkeypatch, form):
+    """C15 (a), function values (use_gradient = false, callback given x
+    itself): after fun(a), fun(b), the steps callback(a), callback(a),
+    callback(b), then fun(c) unmeasured, callback(c) make 0, 0, 1, 0
+    evaluate() calls, and the one call is at b with iset = 1. Nothing is
+    forgotten before the first callback, the last iterate is kept, b
+    (evaluated before the last callback and not its iterate) is forgotten,
+    c (evaluated after it) is kept. Fails if callbacks never forget (0 at
+    the third step), forget the iterate or forget points computed after
+    the callback."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+    log = []
+    steps = [("fun", _P_A, False), ("fun", _P_B, False),
+             ("cb", _P_A, True), ("cb", _P_A, True), ("cb", _P_B, True),
+             ("fun", _P_C, False), ("cb", _P_C, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].eval_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS"}, fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    assert [len(c) for c in log] == [0, 0, 1, 0], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (x, args), = log[2]
+    np.testing.assert_array_equal(x, _P_B)
+    assert args[1] == 1, args
+    assert len(alg.iter_history) == 1 + 4
+    np.testing.assert_allclose(alg.iter_history[3][2], fn(_P_B), rtol=1e-12)
+
+
+@pytest.mark.parametrize("form", _C15_FORMS)
+def test_c15_gradients_forgotten_at_callback(tmp_path, monkeypatch, form):
+    """C15 (a), finite gradients (use_gradient = true): after jac(a),
+    jac(b), the steps callback(a), callback(a), jac(a), jac(b), callback(b)
+    make 0, 0, 0, 1, 0 gradient() calls, and the one call is at b. The
+    callback reuses a's gradient (nothing forgotten before the first
+    callback) and keeps it as the last iterate; b's gradient was forgotten
+    at the callback, so even scipy's jac request recomputes it; that new
+    gradient, computed after the last callback, is reused by callback(b).
+    Run with a new-style OptimizeResult and with a bare x (also under a
+    simulated scipy < 1.11). Fails if callbacks never forget (0 at the
+    fourth step), forget the iterate, or forget gradients computed after
+    the callback."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+    log = []
+    steps = [("jac", _P_A, False), ("jac", _P_B, False),
+             ("cb", _P_A, True), ("cb", _P_A, True), ("jac", _P_A, True),
+             ("jac", _P_B, True), ("cb", _P_B, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].grad_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS", "use_gradient": True},
+                               fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    assert [len(c) for c in log] == [0, 0, 0, 1, 0], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (x, _), = log[3]
+    np.testing.assert_array_equal(x, _P_B)
+    # every callback recorded the finite gradient of its iterate
+    rows = _grad_rows(tmp_path)
+    assert len(rows) == 1 + 3
+    for r, p in zip(rows[1:], [_P_A, _P_A, _P_B]):
+        np.testing.assert_array_equal(r[1:3], p)
+        np.testing.assert_allclose(r[4:6], grad(p), rtol=1e-12)
+
+
+@pytest.mark.parametrize("mode", _FAIL_MODES)
+@pytest.mark.parametrize("form", _C15_FORMS)
+def test_c15_failed_gradients_forgotten_at_callback(tmp_path, monkeypatch, form, mode):
+    """C15 (a), failed gradients (ignore_error = true; gradient() fails at
+    a and b by an ignored RuntimeError, or returns [nan, 1] / [inf, 1]):
+    after jac(a), jac(b), callback(a) makes no gradient() call (C9: the
+    failure at a is still remembered), and callback(b) makes exactly one, at
+    b (the record of b's failure was forgotten at callback(a)). Fails if
+    the failure records are never forgotten (0 at callback(b)) or are
+    forgotten before the first callback (1 at callback(a))."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+
+    def g(x):
+        if np.array_equal(x, _P_A) or np.array_equal(x, _P_B):
+            return _failing_value(mode)
+        return grad(x)
+
+    log = []
+    steps = [("jac", _P_A, False), ("jac", _P_B, False),
+             ("cb", _P_A, True), ("cb", _P_B, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].grad_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS", "use_gradient": True},
+                               fn=fn, grad=g, runner={"ignore_error": True},
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    # the scripted jac requests did reach the failing gradient()
+    assert sum(1 for x, _ in solver.grad_calls if np.array_equal(x, _P_A)) >= 1
+    assert [len(c) for c in log] == [0, 1], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (x, _), = log[1]
+    np.testing.assert_array_equal(x, _P_B)
+    rows = _grad_rows(tmp_path)
+    assert len(rows) == 1 + 2
+    for r in rows[1:]:
+        assert not np.all(np.isfinite(r[4:6])), r
+
+
+class _RecordingAnalytical(odatse.solver.analytical.Solver):
+    """Analytical solver recording every evaluate()/gradient() call."""
+
+    def __init__(self, info):
+        super().__init__(info)
+        self.eval_calls = []
+        self.grad_calls = []
+
+    def evaluate(self, x, args=()):
+        self.eval_calls.append((np.array(x, dtype=float, copy=True), args))
+        return super().evaluate(x, args)
+
+    def gradient(self, x, args=()):
+        self.grad_calls.append((np.array(x, dtype=float, copy=True), args))
+        return super().gradient(x, args)
+
+
+# (initial point, unit_list) in solver units; the region is [-w, w] per
+# component in solver units
+_C15_ROSEN = {
+    "2d": ([-1.2, 1.0], [1.0, 1.0]),
+    "3d": ([1.5, -0.5, 0.3], [1.0, 1.0, 1.0]),
+    "3d-unit": ([1.5, -0.5, 0.3], [2.0, 0.5, 1.5]),
+}
+
+
+def _c15_rosenbrock_alg(tmp_path, minimize, case, w=2.0):
+    y0, unit = (np.array(v, dtype=float) for v in _C15_ROSEN[case])
+    dim = len(y0)
+    info = odatse.Info({
+        "base": {"dimension": dim, "output_dir": str(tmp_path / "output")},
+        "algorithm": {
+            "name": "minsearch",
+            "seed": 1,
+            "label_list": [f"x{i}" for i in range(dim)],
+            "param": {
+                "min_list": list(-w * unit),
+                "max_list": list(w * unit),
+                "initial_list": _same_start_for_all_walkers(y0 * unit),
+                "unit_list": list(unit),
+            },
+            "minimize": dict(minimize),
+        },
+        "solver": {"name": "analytical", "function_name": "rosenbrock"},
+        "runner": {},
+    })
+    solver = _RecordingAnalytical(info)
+    r = odatse.Runner(solver, info)
+    return min_search.Algorithm(info, r), solver, unit
+
+
+def _c15_observer_factory(seen):
+    """Wrap the jac and the callback scipy receives, recording the points
+    (algorithm units) in ``seen["jac"]`` and ``seen["cb"]``. The callback
+    wrapper keeps the parameter name intermediate_result, so that scipy
+    picks the same callback form as for min_search's own callback."""
+    def factory(real):
+        def wrapped(*a, **kw):
+            jac = kw.get("jac")
+            if callable(jac):
+                def observed_jac(x, *args):
+                    seen["jac"].append(np.array(x, dtype=float, copy=True).flatten())
+                    return jac(x, *args)
+                kw["jac"] = observed_jac
+            cb = kw["callback"]
+
+            def observed_cb(intermediate_result):
+                if isinstance(intermediate_result, OptimizeResult):
+                    x = intermediate_result.x
+                else:
+                    x = intermediate_result
+                seen["cb"].append(np.array(x, dtype=float, copy=True).flatten())
+                return cb(intermediate_result)
+            kw["callback"] = observed_cb
+            return real(*a, **kw)
+        return wrapped
+    return factory
+
+
+def _c15_key(x):
+    return np.asarray(x, dtype=float).flatten().tobytes()
+
+
+@pytest.mark.parametrize("case", list(_C15_ROSEN))
+def test_c15_real_tnc_without_gradient_no_callback_evaluation(tmp_path, monkeypatch, case):
+    """C15 (b): a single TNC run without gradients (rosenbrock, the callback
+    gets x only) makes no evaluate() call with iset = 1: every iterate the
+    callback sees was evaluated in the same iteration, after the previous
+    callback. The callback fires several times at two or more distinct
+    iterates. Fails if forgetting at the callback drops the value of the
+    iterate it is called with, or of points evaluated since the previous
+    callback."""
+    seen = {"jac": [], "cb": []}
+    _patch_minimize(monkeypatch, _c15_observer_factory(seen))
+    alg, solver, _ = _c15_rosenbrock_alg(tmp_path, {"method": "TNC"}, case)
+    alg.main()
+    assert len(seen["cb"]) > 1
+    assert len({_c15_key(x) for x in seen["cb"]}) >= 2
+    iset1 = [(x.tolist(), a) for x, a in solver.eval_calls if a[1] == 1]
+    assert iset1 == []
+    assert solver.grad_calls == []
+
+
+@pytest.mark.parametrize("case", list(_C15_ROSEN))
+@pytest.mark.parametrize("method", ["TNC", "L-BFGS-B", "BFGS", "trust-constr"])
+def test_c15_real_run_gradient_calls_equal_distinct_points(tmp_path, monkeypatch, method, case):
+    """C15 (b): in a single real scipy run with use_gradient = true
+    (rosenbrock, all gradients finite, one case with unit_list != 1), the
+    number of gradient() calls equals the number of distinct points
+    (algorithm-unit x compared as bytes) in the union of the initial point,
+    the points of scipy's jac requests and the callback iterates -- i.e. no
+    point has its gradient computed twice. The callback fires several times
+    at two or more distinct iterates, and every point stays inside the
+    region (so each distinct point needs exactly one call). Fails if the
+    memory is cut back so that the iterate, or a point computed after the
+    previous callback, is recomputed."""
+    seen = {"jac": [], "cb": []}
+    _patch_minimize(monkeypatch, _c15_observer_factory(seen))
+    # BFGS has no bounds: its line search reaches |y| ~ 15 on the 3-D start,
+    # where an out-of-range jac request would not call gradient() at all
+    w = 20.0 if method == "BFGS" else 2.0
+    alg, solver, unit = _c15_rosenbrock_alg(
+        tmp_path, {"method": method, "use_gradient": True}, case, w=w)
+    alg.main()
+    assert seen["jac"], "scipy never requested the jac"
+    assert len(seen["cb"]) > 1
+    assert len({_c15_key(x) for x in seen["cb"]}) >= 2
+    points = [np.asarray(alg.initial_list, dtype=float).flatten()] + seen["jac"] + seen["cb"]
+    for x in points:
+        assert np.all((-w * unit <= x) & (x <= w * unit)), x
+    distinct = {_c15_key(x) for x in points}
+    assert len(solver.grad_calls) == len(distinct), (
+        f"{len(solver.grad_calls)} gradient() calls for {len(distinct)} distinct points")
+
+
+# An iterate whose entry is in no cache: out of range, so its value is inf
+# without a solver call and is not remembered.
+_P_Z_OUT = np.array([6.0, 0.0])
+
+
+@pytest.mark.parametrize("form", ["raw", "raw-old-scipy"])
+def test_c15_function_values_forgotten_at_uncached_iterate(tmp_path, monkeypatch, form):
+    """C15 (a), function values, iterate without a cached value
+    (use_gradient = false, callback given x itself): after fun(a), the steps
+    callback(a), callback(z), callback(a) make 0, 0, 1 evaluate() calls, with
+    z out of range (inf, never evaluated nor remembered) and the one call at
+    a with iset = 1. Since z has no entry, nothing is left after
+    callback(z), so a must be evaluated again. Fails if a callback whose
+    iterate is not cached keeps the whole memory instead of emptying it."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+    log = []
+    steps = [("fun", _P_A, False),
+             ("cb", _P_A, True), ("cb", _P_Z_OUT, True), ("cb", _P_A, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].eval_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS"}, fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    assert [len(c) for c in log] == [0, 0, 1], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (x, args), = log[2]
+    np.testing.assert_array_equal(x, _P_A)
+    assert args[1] == 1, args
+    assert len(alg.iter_history) == 1 + 3
+    assert alg.iter_history[2][2] == np.inf
+
+
+@pytest.mark.parametrize("form", _C15_FORMS)
+def test_c15_gradients_forgotten_at_uncached_iterate(tmp_path, monkeypatch, form):
+    """C15 (a), finite gradients, iterate without a cached gradient
+    (use_gradient = true): after jac(a), jac(b) and callback(c) at a point c
+    whose gradient was never requested (its gradient may be computed inside
+    that callback; not measured), the steps jac(a), callback(b) make 1, 1
+    gradient() calls, at a and at b. The gradients of a and b were computed
+    before callback(c) and c is not either of them, so both were forgotten.
+    Fails if a callback whose iterate is not in the gradient memory keeps
+    the whole memory instead of emptying it."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+    log = []
+    steps = [("jac", _P_A, False), ("jac", _P_B, False), ("cb", _P_C, False),
+             ("jac", _P_A, True), ("cb", _P_B, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].grad_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS", "use_gradient": True},
+                               fn=fn, grad=grad,
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    assert [len(c) for c in log] == [1, 1], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (xa, _), = log[0]
+    (xb, _), = log[1]
+    np.testing.assert_array_equal(xa, _P_A)
+    np.testing.assert_array_equal(xb, _P_B)
+
+
+@pytest.mark.parametrize("mode", _FAIL_MODES)
+@pytest.mark.parametrize("form", _C15_FORMS)
+def test_c15_failed_gradients_forgotten_at_uncached_iterate(tmp_path, monkeypatch, form, mode):
+    """C15 (a), failed gradients, iterate without a failure record
+    (ignore_error = true; gradient() fails at a and b by an ignored
+    RuntimeError, or returns [nan, 1] / [inf, 1]; finite elsewhere): after
+    jac(a), jac(b) and callback(c) at a point c with a finite gradient that
+    was never requested (computed inside that callback; not measured),
+    callback(b) makes exactly one gradient() call, at b. c has no failure
+    record, so after callback(c) none is left and b's failure is retried.
+    Fails if a callback whose iterate is not among the failed points keeps
+    all failure records instead of emptying them."""
+    form = _c15_setup_form(monkeypatch, form)
+    fn, grad = _quad_fn(_C)
+
+    def g(x):
+        if np.array_equal(x, _P_A) or np.array_equal(x, _P_B):
+            return _failing_value(mode)
+        return grad(x)
+
+    log = []
+    steps = [("jac", _P_A, False), ("jac", _P_B, False), ("cb", _P_C, False),
+             ("cb", _P_B, True)]
+    holder = {}
+    _patch_minimize(monkeypatch, _c15_script_factory(
+        steps, lambda: holder["solver"].grad_calls, form, fn, log))
+    alg, solver, _ = _make_alg(tmp_path, {"method": "BFGS", "use_gradient": True},
+                               fn=fn, grad=g, runner={"ignore_error": True},
+                               initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    holder["solver"] = solver
+    alg.main()
+    # the scripted jac requests did reach the failing gradient()
+    assert sum(1 for x, _ in solver.grad_calls if np.array_equal(x, _P_B)) >= 1
+    assert [len(c) for c in log] == [1], [
+        [(x.tolist(), a) for x, a in c] for c in log]
+    (x, _), = log[0]
+    np.testing.assert_array_equal(x, _P_B)
+    rows = _grad_rows(tmp_path)
+    assert len(rows) == 1 + 2
+    np.testing.assert_allclose(rows[1][4:6], grad(_P_C), rtol=1e-12)
+    assert not np.all(np.isfinite(rows[2][4:6])), rows[2]

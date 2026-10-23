@@ -254,6 +254,20 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             """
             return np.asarray(x, dtype=float).tobytes()
 
+        def _prune_caches():
+            """
+            Retain only the current callback iterate in each cache.
+            """
+            key = _key(iter_history[-1][:-1])
+            # Keep the iterate: trust-constr calls back at the same iterate
+            # after rejecting a step, which would otherwise recompute its
+            # gradient (or retry its failed one).
+            for cache in (function_values, gradients):
+                retained = {key: cache[key]} if key in cache else {}
+                cache.clear()
+                cache.update(retained)
+            failed_gradients.intersection_update((key,))
+
         def _callback_value(x):
             """
             Return a previously evaluated value, or evaluate an unseen point.
@@ -293,6 +307,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+                _prune_caches()
         else:
             def _cb(x):
                 """
@@ -301,6 +316,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+                _prune_caches()
 
         # for methods that support it, let scipy keep the search within the
         # region via bounds=. the range check in _f_calc then allows points
