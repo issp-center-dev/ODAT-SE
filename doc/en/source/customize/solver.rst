@@ -98,7 +98,8 @@
     The Runner converts the return value to a float ndarray and raises ``ValueError``
     if its shape differs from that of ``x``, even with ``ignore_error = true``.
     Called only when ``supports_gradient`` is True. The base class raises ``NotImplementedError``.
-    If ``supports_gradient`` is True, subclasses must override this method.
+    If ``supports_gradient`` is True, subclasses must override this method,
+    except when using ``function.Solver.set_gradient()``.
     Inheriting the default ``SolverBase.gradient`` implementation makes
     gradients unavailable; the Runner detects this before calling the solver.
     After checking the shape, the Runner returns non-finite values (NaN or
@@ -131,3 +132,11 @@
   ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
 
   Gradients are not supported when ``[runner.mapping]`` is specified or when the solver parallelization is used (``--nsolve`` greater than 1).
+
+  With ``odatse.solver.function.Solver``, you can pass ``g(x) -> np.ndarray``
+  to ``set_gradient(g)`` instead of implementing ``gradient()``.
+  ``supports_gradient`` then becomes True without setting it yourself.
+  A value assigned to ``self.supports_gradient`` in a subclass takes precedence
+  and is kept across later calls to ``set_function()`` and ``set_gradient()``.
+  Call it after ``set_function(f)``, which clears any previously set gradient.
+  The gradient runs in the caller's current directory without applying ``delay``.

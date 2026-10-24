@@ -134,8 +134,11 @@ walker が複数あり、目的関数値が NaN のものと有限のものが�
   `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
   カスタムソルバーで勾配を利用するには、 ``supports_gradient`` を True にし、
   ``gradient`` メソッドを実装してください (:ref:`Solver の定義 <customize_solver>` を参照)。
+  ``function.Solver`` では、代わりに ``set_gradient()`` を使えます。
   ``SolverBase`` の派生クラスで対応を宣言しても、既定の ``gradient()`` を
   上書きしていなければ勾配は使えず、ソルバーを評価する前にエラーになります。
+  ``function.Solver`` (``analytical`` などの派生クラスを含む) で ``gradient()`` を上書きせず、
+  勾配も設定していない場合も同じです。
 
   真偽値以外 (文字列の ``"false"`` や整数の ``0`` など) を指定すると、
   値が真と評価されるか偽と評価されるかにかかわらず、 ``InputValueError`` になります。

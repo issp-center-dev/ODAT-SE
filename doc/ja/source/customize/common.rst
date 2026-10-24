@@ -86,7 +86,8 @@ shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` �
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は
 ``None``、利用できない場合は理由を示す文字列を返します。
-勾配を利用するには、ソルバーの ``supports_gradient`` が真で ``gradient()`` を実装しており、mapping が
+勾配を利用するには、ソルバーの ``supports_gradient`` が真で ``gradient()`` を実装しており
+(``function.Solver`` では ``set_gradient()`` で勾配を設定していれば足ります)、mapping が
 ``TrivialMapping``、ソルバーグループが1プロセス (``--nsolve = 1``) である必要があります。
 これらの条件を満たさない場合、 ``submit_gradient`` は ``ignore_error`` に関係なく
 ``NotImplementedError`` を送出します。

@@ -11,9 +11,6 @@ import numpy as np
 import odatse
 import odatse.solver.function
 
-# type hints
-from typing import Callable, Optional
-
 def quadratics(xs: np.ndarray) -> float:
     """
     Quadratic (sphere) function.
@@ -454,21 +451,6 @@ class Solver(odatse.solver.function.Solver):
 
     x: np.ndarray
     fx: float
-    # None after replacing the benchmark function via set_function
-    _grad_func: Optional[Callable[[np.ndarray], np.ndarray]] = None
-
-    def set_function(self, f: Callable[[np.ndarray], float]) -> None:
-        # the gradient of the previous function would silently be wrong for f
-        super().set_function(f)
-        self._grad_func = None
-        self.supports_gradient = False
-
-    def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
-        if self._grad_func is None:
-            raise NotImplementedError(
-                "gradient is not available for a function set by set_function()"
-            )
-        return self._grad_func(x)
 
     def __init__(self, info: odatse.Info) -> None:
         """
@@ -485,22 +467,22 @@ class Solver(odatse.solver.function.Solver):
 
         if function_name == "quadratics":
             self.set_function(quadratics)
-            self._grad_func = quadratics_gradient
+            self.set_gradient(quadratics_gradient)
         elif function_name == "quartics":
             self.set_function(quartics)
-            self._grad_func = quartics_gradient
+            self.set_gradient(quartics_gradient)
         elif function_name == "ackley":
             self.set_function(ackley)
-            self._grad_func = ackley_gradient
+            self.set_gradient(ackley_gradient)
         elif function_name == "alpine":
             self.set_function(alpine)
-            self._grad_func = alpine_gradient
+            self.set_gradient(alpine_gradient)
         elif function_name == "exponential":
             self.set_function(exponential)
-            self._grad_func = exponential_gradient
+            self.set_gradient(exponential_gradient)
         elif function_name == "griewank":
             self.set_function(griewank)
-            self._grad_func = griewank_gradient
+            self.set_gradient(griewank_gradient)
         elif function_name == "himmelblau":
             dimension = self.dimension
             if int(dimension) != 2:
@@ -508,25 +490,25 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
                 )
             self.set_function(himmelblau)
-            self._grad_func = himmelblau_gradient
+            self.set_gradient(himmelblau_gradient)
         elif function_name == "michalewicz":
             self.set_function(michalewicz)
-            self._grad_func = michalewicz_gradient
+            self.set_gradient(michalewicz_gradient)
         elif function_name == "qing":
             self.set_function(qing)
-            self._grad_func = qing_gradient
+            self.set_gradient(qing_gradient)
         elif function_name == "rastrigin":
             self.set_function(rastrigin)
-            self._grad_func = rastrigin_gradient
+            self.set_gradient(rastrigin_gradient)
         elif function_name == "rosenbrock":
             self.set_function(rosenbrock)
-            self._grad_func = rosenbrock_gradient
+            self.set_gradient(rosenbrock_gradient)
         elif function_name == "schaffer":
             self.set_function(schaffer)
-            self._grad_func = schaffer_gradient
+            self.set_gradient(schaffer_gradient)
         elif function_name == "schwefel":
             self.set_function(schwefel)
-            self._grad_func = schwefel_gradient
+            self.set_gradient(schwefel_gradient)
         elif function_name == "linear_regression_test":
             dimension = self.dimension
             if int(dimension) != 3:
@@ -534,8 +516,6 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: regression works only with dimension=3 but input is dimension={dimension}"
                 )
             self.set_function(linear_regression_test)
-            self._grad_func = linear_regression_test_gradient
+            self.set_gradient(linear_regression_test_gradient)
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")
-        # a plain attribute, not a property, so that subclasses can assign it
-        self.supports_gradient = self._grad_func is not None

@@ -91,7 +91,8 @@
     Runner は戻り値を float の ndarray に変換し、shape が ``x`` と異なる場合は
     ``ignore_error = true`` でも ``ValueError`` を送出します。
     ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
-    ``supports_gradient`` を True にする派生クラスでは、このメソッドを必ず上書きしてください。
+    ``supports_gradient`` を True にする派生クラスでは、このメソッドを上書きしてください。
+    ただし、 ``function.Solver.set_gradient()`` を使う場合は不要です。
     既定の ``SolverBase.gradient`` のままでは勾配は使えず、Runner がソルバーを呼ぶ前に検出します。
     Runner は shape を検査した後、非有限値 (NaN、±inf) も ``ignore_error`` に
     関係なくソルバーから返されたまま返します。
@@ -120,3 +121,11 @@
   ``runner.log`` が数えるのは ``evaluate()`` の呼び出しだけです。勾配の呼び出しは記録されず、回数にも含まれません。
 
   ``[runner.mapping]`` を指定した場合と、ソルバー並列 (``--nsolve`` が 2 以上) の場合は、勾配の利用に対応していません。
+
+  ``odatse.solver.function.Solver`` では、 ``gradient()`` を実装する代わりに、
+  ``g(x) -> np.ndarray`` を ``set_gradient(g)`` で渡せます。
+  このとき ``supports_gradient`` は自動的に True になります。
+  派生クラスで ``self.supports_gradient`` に値を代入した場合はその値が優先され、
+  後で ``set_function()`` や ``set_gradient()`` を呼んでも変わりません。
+  ``set_function(f)`` は設定済みの勾配を解除するため、その後に呼んでください。
+  勾配は呼び出し元のカレントディレクトリで実行され、 ``delay`` は適用されません。

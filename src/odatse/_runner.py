@@ -13,6 +13,7 @@ import traceback
 import numpy as np
 
 import odatse
+import odatse.solver.function
 import odatse.util.read_matrix
 import odatse.util.mapping
 import odatse.util.limitation
@@ -351,6 +352,13 @@ class Runner(metaclass=mpi.FailTogetherMeta):
                 and getattr(type(self.solver), "gradient", None)
                 is odatse.solver.SolverBase.gradient):
             return "The solver declares supports_gradient but does not implement gradient()."
+        # function.Solver.gradient() overrides the default but raises until
+        # set_gradient() is called, so the check above does not catch it.
+        if (isinstance(self.solver, odatse.solver.function.Solver)
+                and getattr(type(self.solver), "gradient", None)
+                is odatse.solver.function.Solver.gradient
+                and self.solver._grad_func is None):
+            return "The solver declares supports_gradient but no gradient is set (call set_gradient())."
         if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
             return (
                 "Gradients are not available with [runner.mapping] "

@@ -23,6 +23,8 @@ class Solver(odatse.solver.SolverBase):
     x: np.ndarray
     fx: float
     _func: Optional[Callable[[np.ndarray], float]]
+    _grad_func: Optional[Callable[[np.ndarray], np.ndarray]] = None
+    _supports_gradient: Optional[bool] = None
 
     def __init__(self, info: odatse.Info) -> None:
         """
@@ -36,6 +38,7 @@ class Solver(odatse.solver.SolverBase):
         super().__init__(info)
         self._name = "function"
         self._func = None
+        self._grad_func = None
 
         # for debug purpose
         self.delay = info.solver.get("delay", 0.0)
@@ -116,3 +119,57 @@ class Solver(odatse.solver.SolverBase):
             Function to be evaluated.
         """
         self._func = f
+        # Keeping the previous gradient could silently differentiate another function.
+        self._grad_func = None
+
+    def set_gradient(self, g: Callable[[np.ndarray], np.ndarray]) -> None:
+        """
+        Set the gradient of the function to be evaluated.
+
+        Parameters
+        ----------
+        g : Callable[[np.ndarray], np.ndarray]
+            Function returning the gradient for the input array.
+        """
+        self._grad_func = g
+
+    def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
+        """
+        Evaluate the gradient in the caller's current directory without delay.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input array for the gradient function.
+        args : tuple, optional
+            Additional arguments, not passed to the gradient function.
+
+        Returns
+        -------
+        np.ndarray
+            Gradient of the function.
+
+        Raises
+        ------
+        NotImplementedError
+            If the gradient is not set.
+        """
+        if self._grad_func is None:
+            raise NotImplementedError(
+                "gradient is not set. Make sure that `set_gradient` is called."
+            )
+        return self._grad_func(x)
+
+    # Not a plain attribute assigned by set_function()/set_gradient(): that
+    # assignment would fail for subclasses declaring a read-only property.
+    # The setter keeps `self.supports_gradient = ...` in subclasses working.
+    @property
+    def supports_gradient(self) -> bool:
+        """Whether a gradient is provided, unless explicitly overridden."""
+        if self._supports_gradient is not None:
+            return self._supports_gradient
+        return self._grad_func is not None
+
+    @supports_gradient.setter
+    def supports_gradient(self, value: bool) -> None:
+        self._supports_gradient = value

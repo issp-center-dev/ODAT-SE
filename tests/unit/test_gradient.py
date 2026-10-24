@@ -1,14 +1,15 @@
 # sys.path and odatse.mpi.setup() are handled by conftest.py
-"""Behavior contract of the optional gradient support, items C1-C16:
+"""Behavior contract of the optional gradient support, items C1-C17:
 gradient failures are handled like objective-function failures (under
 ignore_error a RuntimeError, NotImplementedError included, gives NaN;
 non-finite gradients are returned as they are), the optimizer's result is
 kept as is, x containing NaN gives NaN without a solver call, and a solver
-must override gradient() to declare supports_gradient. Covers Runner.gradient_unavailable_reason(),
+must override gradient() or, for a function solver, set one with
+set_gradient() to declare supports_gradient (C14, C17). Covers Runner.gradient_unavailable_reason(),
 Runner.submit_gradient(), use_gradient of min_search, its callback, the
 memory of function values and gradients cut back at each callback (C15),
-and the gradients of the analytical solver, which exist for every built-in
-function (C6, C16)."""
+the gradients of the analytical solver, which exist for every built-in
+function (C6, C16), and set_gradient() of the function solver (C17)."""
 import numpy as np
 import pytest
 
@@ -2740,3 +2741,716 @@ def test_c16_lbfgsb_with_gradient_converges(tmp_path, case):
     assert np.max(np.abs(xopt - x0)) > 0.1, xopt
     np.testing.assert_allclose(xopt, xmin, rtol=0, atol=1e-4)
     assert abs(alg.fopt - fmin) < 1e-8, alg.fopt
+
+
+# ===========================================================================
+# Round 6: C17 / C6 / C14 revisions
+#
+# function.Solver.set_gradient(g) (C17); the analytical solver regains a
+# gradient by set_gradient() after set_function() (C6 revised); a function
+# solver subclass that declares supports_gradient without overriding
+# gradient() and without a gradient set is rejected (C14 revised).
+
+import pickle
+import types
+
+
+class _C17Recorder:
+    """Callable that records each call: the original argument objects (for
+    identity checks) and a copy of the first argument (for values)."""
+
+    def __init__(self, fn):
+        self.fn = fn
+        self.calls = []
+        self.xs = []
+
+    def __call__(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        if args:
+            self.xs.append(np.array(args[0], dtype=float, copy=True))
+        return self.fn(*args, **kwargs)
+
+
+def _c17_f(x):
+    return float(np.sum(np.asarray(x) ** 2))
+
+
+def _c17_f2(x):
+    return float(np.sum((np.asarray(x) - 3.0) ** 2))
+
+
+# gradients unrelated to the objectives above, so a value can only come
+# from the g that was set
+def _c17_g1(x):
+    return np.array([10.0 * x[0] + 1.0, 7.0 - x[1]])
+
+
+def _c17_g2(x):
+    return np.array([3.0 * x[1], -2.0 * x[0]])
+
+
+# module-level, so that a solver holding them can be pickled (C17-9)
+def _c17_pickle_f(x):
+    return float(np.sum((np.asarray(x) - 1.0) ** 2))
+
+
+def _c17_pickle_g(x):
+    return np.array([5.0 * x[0], x[0] - x[1]])
+
+
+_C17_X = np.array([0.3, -1.2])
+
+
+def _c17_plain(tmp_path, f=None, g=None, **info_kw):
+    """A plain odatse.solver.function.Solver (no subclass), with set_function
+    and set_gradient called when f / g are given."""
+    info = _info(tmp_path, **info_kw)
+    s = odatse.solver.function.Solver(info)
+    if f is not None:
+        s.set_function(f)
+    if g is not None:
+        s.set_gradient(g)
+    return info, s
+
+
+class _C17Assigned(odatse.solver.function.Solver):
+    """function.Solver subclass assigning supports_gradient in __init__,
+    after calling set_function / set_gradient when f / g are given."""
+
+    def __init__(self, info, value, f=None, g=None):
+        super().__init__(info)
+        if f is not None:
+            self.set_function(f)
+        if g is not None:
+            self.set_gradient(g)
+        self.supports_gradient = value
+
+
+class _C17ReadOnlyTrue(odatse.solver.function.Solver):
+    """function.Solver subclass with a read-only supports_gradient property."""
+
+    @property
+    def supports_gradient(self):
+        return True
+
+
+class _C17ReadOnlyFalse(odatse.solver.function.Solver):
+    """function.Solver subclass with a read-only supports_gradient property."""
+
+    @property
+    def supports_gradient(self):
+        return False
+
+
+_C17_READ_ONLY = {True: _C17ReadOnlyTrue, False: _C17ReadOnlyFalse}
+
+
+# ---------------------------------------------------------------------------
+# C17-1 no gradient before set_gradient
+
+
+@pytest.mark.parametrize("state", ["fresh", "function-only"])
+def test_c17_no_gradient_before_set_gradient(tmp_path, state):
+    """C17-1: a function solver just constructed, or with only set_function()
+    called, has a false supports_gradient and gradient(x) raises
+    NotImplementedError without calling the objective. Fails if the solver
+    claims gradient support before set_gradient(), or if gradient() falls
+    back to something computed from the objective."""
+    f = _C17Recorder(_c17_f)
+    _, s = _c17_plain(tmp_path, f=None if state == "fresh" else f)
+    assert not s.supports_gradient
+    with pytest.raises(NotImplementedError):
+        s.gradient(_C17_X.copy())
+    with pytest.raises(NotImplementedError):
+        s.gradient(_C17_X.copy(), (1, 0))
+    assert f.calls == []
+
+
+# ---------------------------------------------------------------------------
+# C17-2 set_gradient after set_function
+
+
+def test_c17_set_gradient_enables_gradient(tmp_path):
+    """C17-2: after set_function(f) and set_gradient(g), supports_gradient is
+    true and gradient(x, args) returns the value of g(x); g receives the very
+    x object given to gradient() as its only argument (no args, with or
+    without args given to gradient()). Fails if set_gradient does not turn
+    supports_gradient on, if the value does not come from g, if x is copied
+    or transformed, or if args are forwarded to g."""
+    g = _C17Recorder(_c17_g1)
+    _, s = _c17_plain(tmp_path, f=_c17_f, g=g)
+    assert s.supports_gradient
+
+    x = _C17_X.copy()
+    np.testing.assert_array_equal(np.asarray(s.gradient(x, (3, 0))), _c17_g1(_C17_X))
+    y = np.array([-2.0, 0.5])
+    np.testing.assert_array_equal(np.asarray(s.gradient(y)), _c17_g1(y))
+
+    assert len(g.calls) == 2
+    for (args, kwargs), arr in zip(g.calls, (x, y)):
+        assert kwargs == {}
+        assert len(args) == 1
+        assert args[0] is arr
+
+
+# ---------------------------------------------------------------------------
+# C17-3 set_function after set_gradient drops the gradient
+
+
+@pytest.mark.parametrize("same_function", [True, False],
+                         ids=["same-function", "other-function"])
+def test_c17_set_function_after_set_gradient_drops_it(tmp_path, same_function):
+    """C17-3: set_function() after set_gradient() drops the gradient (back to
+    the C17-1 state: supports_gradient false, gradient() raises
+    NotImplementedError, neither g nor the objective is called), also when
+    the same objective is set again; a later set_gradient(g2) makes the
+    gradient available again with g2. Fails if set_function keeps the old
+    gradient (which would be wrong for a new objective), or only drops it
+    when the objective changes, or if the gradient cannot be set again."""
+    f = _C17Recorder(_c17_f)
+    f_new = f if same_function else _C17Recorder(_c17_f2)
+    g1 = _C17Recorder(_c17_g1)
+    g2 = _C17Recorder(_c17_g2)
+    _, s = _c17_plain(tmp_path, f=f, g=g1)
+    assert s.supports_gradient
+
+    s.set_function(f_new)
+    assert not s.supports_gradient
+    with pytest.raises(NotImplementedError):
+        s.gradient(_C17_X.copy())
+    assert g1.calls == []
+    assert f.calls == [] and f_new.calls == []
+
+    s.set_gradient(g2)
+    assert s.supports_gradient
+    np.testing.assert_array_equal(np.asarray(s.gradient(_C17_X.copy())), _c17_g2(_C17_X))
+    assert len(g2.calls) == 1
+    assert g1.calls == []
+
+
+# ---------------------------------------------------------------------------
+# C17-4 the last set_gradient wins
+
+
+def test_c17_second_set_gradient_wins(tmp_path):
+    """C17-4: calling set_gradient twice makes gradient() use the later
+    function only. Fails if the first g is kept or both are called."""
+    g1 = _C17Recorder(_c17_g1)
+    g2 = _C17Recorder(_c17_g2)
+    _, s = _c17_plain(tmp_path, f=_c17_f, g=g1)
+    s.set_gradient(g2)
+    assert s.supports_gradient
+    np.testing.assert_array_equal(np.asarray(s.gradient(_C17_X.copy())), _c17_g2(_C17_X))
+    assert g1.calls == []
+    assert len(g2.calls) == 1
+
+
+# ---------------------------------------------------------------------------
+# C17-5 exceptions and the current directory
+
+
+class _C17Error(Exception):
+    pass
+
+
+@pytest.mark.parametrize("make_error", [
+    lambda: RuntimeError("g failed"),
+    lambda: NotImplementedError("g has no value here"),
+    lambda: ValueError("bad x"),
+    lambda: _C17Error("custom"),
+], ids=["RuntimeError", "NotImplementedError", "ValueError", "custom"])
+def test_c17_gradient_exception_propagates_unchanged(tmp_path, monkeypatch, make_error):
+    """C17-5: an exception raised by g leaves gradient() as the same object
+    (not wrapped or replaced, whatever its type), and the current directory
+    is the same afterwards. The solver's work_dir does not exist, so an
+    implementation that changes into it fails with FileNotFoundError instead.
+    Fails if the exception is wrapped, converted (e.g. to NaN or another
+    type), or if the directory is left changed."""
+    monkeypatch.chdir(tmp_path)
+    err = make_error()
+
+    def g(x):
+        raise err
+
+    _, s = _c17_plain(tmp_path, f=_c17_f, g=g)
+    assert not s.work_dir.exists()
+    before = os.getcwd()
+    with pytest.raises(type(err)) as ei:
+        s.gradient(_C17_X.copy())
+    assert ei.value is err
+    assert os.getcwd() == before
+
+
+def test_c17_gradient_keeps_cwd_and_needs_no_work_dir(tmp_path, monkeypatch):
+    """C17-5: gradient() works while the solver's work_dir does not exist,
+    calls g in the caller's current directory, and leaves the current
+    directory unchanged. Fails if gradient() changes into work_dir as
+    evaluate() does (FileNotFoundError here, or g seeing work_dir), or does
+    not change back."""
+    monkeypatch.chdir(tmp_path)
+    seen = []
+
+    def g(x):
+        seen.append(os.getcwd())
+        return _c17_g1(x)
+
+    _, s = _c17_plain(tmp_path, f=_c17_f, g=g)
+    assert not s.work_dir.exists()
+    before = os.getcwd()
+    np.testing.assert_array_equal(np.asarray(s.gradient(_C17_X.copy())), _c17_g1(_C17_X))
+    assert seen == [before]
+    assert os.getcwd() == before
+
+
+# ---------------------------------------------------------------------------
+# C17-6 Runner and min_search with a plain function solver
+
+
+def test_c17_runner_uses_set_gradient(tmp_path, monkeypatch):
+    """C17-6: for a plain function.Solver with set_function and set_gradient,
+    Runner.gradient_unavailable_reason() is None (trivial mapping, solver
+    group of 1) and submit_gradient returns the value of g at x without
+    evaluating the objective. Fails if the Runner does not see the gradient
+    set by set_gradient (e.g. still judges only by the class)."""
+    f = _C17Recorder(_c17_f)
+    g = _C17Recorder(_c17_g1)
+    info, s = _c17_plain(tmp_path, f=f, g=g)
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert r.gradient_unavailable_reason() is None
+    x = np.array([0.5, -0.75])
+    np.testing.assert_array_equal(r.submit_gradient(x, (1, 0)), _c17_g1(x))
+    assert len(g.calls) == 1
+    np.testing.assert_array_equal(g.xs[0], x)
+    assert f.calls == []
+
+
+def _c17_plain_without_gradient(tmp_path, state, f, g, **info_kw):
+    """A plain function solver with set_function only ("function-only") or
+    with the gradient dropped by a later set_function ("dropped")."""
+    info, s = _c17_plain(tmp_path, f=f, **info_kw)
+    if state == "dropped":
+        s.set_gradient(g)
+        s.set_function(f)
+    return info, s
+
+
+@pytest.mark.parametrize("ignore_error", [False, True])
+@pytest.mark.parametrize("state", ["function-only", "dropped"])
+def test_c17_runner_reason_without_set_gradient(tmp_path, monkeypatch, state, ignore_error):
+    """C17-6: a plain function solver with set_function only (or whose
+    gradient a later set_function dropped) gets a reason string, and
+    submit_gradient raises NotImplementedError with ignore_error true as
+    well as false, calling neither the objective nor g. Fails if the Runner
+    takes the solver as gradient-capable or turns the missing gradient into
+    NaN under ignore_error."""
+    f = _C17Recorder(_c17_f)
+    g = _C17Recorder(_c17_g1)
+    info, s = _c17_plain_without_gradient(tmp_path, state, f, g,
+                                          runner={"ignore_error": ignore_error})
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    reason = r.gradient_unavailable_reason()
+    assert isinstance(reason, str) and reason
+    with pytest.raises(NotImplementedError):
+        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    assert f.calls == []
+    assert g.calls == []
+
+
+@pytest.mark.parametrize("state", ["function-only", "dropped"])
+def test_c17_min_search_rejects_use_gradient_without_set_gradient(tmp_path, state):
+    """C17-6: min_search with use_gradient = true and a plain function solver
+    without a gradient (set_function only, or dropped by a later
+    set_function) raises InputValueError at construction, and neither the
+    objective nor g is called. Fails if the run starts (with finite
+    differences or all-NaN gradients)."""
+    f = _C17Recorder(_c17_f)
+    g = _C17Recorder(_c17_g1)
+    info, s = _c17_plain_without_gradient(
+        tmp_path, state, f, g,
+        minimize={"method": "L-BFGS-B", "use_gradient": True},
+        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    r = odatse.Runner(s, info)
+    with pytest.raises(odatse.exception.InputValueError):
+        min_search.Algorithm(info, r)
+    assert f.calls == []
+    assert g.calls == []
+
+
+def test_c17_min_search_lbfgsb_uses_set_gradient(tmp_path):
+    """C17-6: min_search with use_gradient = true and L-BFGS-B on a plain
+    function solver with set_function / set_gradient (a 2-D quadratic with
+    minimum _C, started at (2, 2) on every rank) calls g, does not probe
+    the objective by finite differences around the start, and converges to
+    the minimum. Fails if the run is rejected, if g is never called or not
+    handed to scipy as jac, or if the optimum is missed."""
+    fn, grad = _quad_fn(_C)
+    f = _C17Recorder(fn)
+    g = _C17Recorder(grad)
+    x0 = np.array([2.0, 2.0])
+    info, s = _c17_plain(
+        tmp_path, f=f, g=g,
+        minimize={"method": "L-BFGS-B", "use_gradient": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    r = odatse.Runner(s, info)
+    alg = min_search.Algorithm(info, r)
+    alg.main()
+    assert len(g.calls) >= 2
+    _assert_no_finite_difference_probe(
+        types.SimpleNamespace(eval_calls=[(x, ()) for x in f.xs]), x0)
+    xopt = np.asarray(alg.xopt, dtype=float)
+    assert np.max(np.abs(xopt - x0)) > 0.1, xopt
+    np.testing.assert_allclose(xopt, _C, atol=1e-4)
+
+
+# ---------------------------------------------------------------------------
+# C17-7 an assigned supports_gradient
+
+
+@pytest.mark.parametrize("in_init", ["assign-only", "after-set-function",
+                                     "after-set-gradient"])
+@pytest.mark.parametrize("value", [True, False])
+def test_c17_assigned_supports_gradient_is_kept(tmp_path, monkeypatch, value, in_init):
+    """C17-7: a function solver subclass that assigns self.supports_gradient
+    in __init__ (alone, or after set_function / set_gradient there) has
+    that value, and later set_function / set_gradient calls in any order do
+    not change it; the Runner follows the assigned value (False gives a
+    reason even with a gradient set; True with a gradient set gives None).
+    Fails if set_function forces it to False, if set_gradient forces it to
+    True, if the assignment raises, or if the Runner judges by the gradient
+    alone."""
+    info = _info(tmp_path)
+    if in_init == "assign-only":
+        s = _C17Assigned(info, value)
+    elif in_init == "after-set-function":
+        s = _C17Assigned(info, value, f=_c17_f)
+    else:
+        s = _C17Assigned(info, value, f=_c17_f, g=_c17_g1)
+    assert bool(s.supports_gradient) is value
+
+    s.set_function(_c17_f)
+    assert bool(s.supports_gradient) is value
+    s.set_gradient(_c17_g1)
+    assert bool(s.supports_gradient) is value
+    s.set_function(_c17_f2)
+    assert bool(s.supports_gradient) is value
+    s.set_gradient(_c17_g2)
+    assert bool(s.supports_gradient) is value
+    s.set_gradient(_c17_g1)
+    assert bool(s.supports_gradient) is value
+
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    reason = r.gradient_unavailable_reason()
+    if value:
+        assert reason is None
+        np.testing.assert_array_equal(
+            r.submit_gradient(_C17_X.copy(), (1, 0)), _c17_g1(_C17_X))
+    else:
+        assert isinstance(reason, str) and reason
+
+
+# ---------------------------------------------------------------------------
+# C17-8 a read-only supports_gradient property
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_c17_read_only_property_is_left_alone(tmp_path, value):
+    """C17-8: when a function solver subclass declares supports_gradient as
+    a read-only property, set_function and set_gradient (in any order,
+    repeatedly) raise nothing and the property's value stays the value of
+    supports_gradient. Fails with AttributeError if either method assigns
+    self.supports_gradient."""
+    s = _C17_READ_ONLY[value](_info(tmp_path))
+    assert bool(s.supports_gradient) is value
+    s.set_function(_c17_f)
+    assert bool(s.supports_gradient) is value
+    s.set_gradient(_c17_g1)
+    assert bool(s.supports_gradient) is value
+    s.set_function(_c17_f2)
+    assert bool(s.supports_gradient) is value
+    s.set_gradient(_c17_g2)
+    s.set_gradient(_c17_g1)
+    assert bool(s.supports_gradient) is value
+
+
+# ---------------------------------------------------------------------------
+# C17-9 pickling
+
+
+def _c17_pickle_case(info, case):
+    if case == "gradient":
+        s = odatse.solver.function.Solver(info)
+        s.set_function(_c17_pickle_f)
+        s.set_gradient(_c17_pickle_g)
+    elif case == "function-only":
+        s = odatse.solver.function.Solver(info)
+        s.set_function(_c17_pickle_f)
+    elif case == "dropped":
+        s = odatse.solver.function.Solver(info)
+        s.set_function(_c17_pickle_f)
+        s.set_gradient(_c17_pickle_g)
+        s.set_function(_c17_pickle_f)
+    elif case == "assigned-true":
+        s = _C17Assigned(info, True, f=_c17_pickle_f, g=_c17_pickle_g)
+    elif case == "assigned-true-without-gradient":
+        s = _C17Assigned(info, True, f=_c17_pickle_f)
+    else:  # assigned-false, with a gradient set
+        s = _C17Assigned(info, False, f=_c17_pickle_f, g=_c17_pickle_g)
+    return s
+
+
+# whether gradient() is specified in each case: a value of g, a
+# NotImplementedError, or not specified by the contract (None)
+_C17_PICKLE_CASES = {
+    "gradient": "value",
+    "function-only": "raises",
+    "dropped": "raises",
+    "assigned-true": "value",
+    "assigned-true-without-gradient": None,
+    "assigned-false": None,
+}
+
+
+@pytest.mark.parametrize("case", list(_C17_PICKLE_CASES))
+def test_c17_pickle_round_trip(tmp_path, case):
+    """C17-9: a function solver whose objective and g are module-level
+    functions survives pickle.dumps / pickle.loads: the restored
+    supports_gradient equals the original (including a value assigned by a
+    subclass, C17-7), and gradient() gives the same value (or raises
+    NotImplementedError when there is no gradient). Fails if pickling
+    raises (e.g. a lambda or bound helper stored for g), if the gradient or
+    its removal is lost, or if an assigned value is replaced on restore."""
+    s = _c17_pickle_case(_info(tmp_path), case)
+    t = pickle.loads(pickle.dumps(s))
+    assert type(t) is type(s)
+    assert bool(t.supports_gradient) is bool(s.supports_gradient)
+    expected = case in ("gradient", "assigned-true", "assigned-true-without-gradient")
+    assert bool(t.supports_gradient) is expected
+
+    kind = _C17_PICKLE_CASES[case]
+    if kind == "value":
+        np.testing.assert_array_equal(np.asarray(t.gradient(_C17_X.copy())),
+                                      np.asarray(s.gradient(_C17_X.copy())))
+        np.testing.assert_array_equal(np.asarray(t.gradient(_C17_X.copy())),
+                                      _c17_pickle_g(_C17_X))
+    elif kind == "raises":
+        with pytest.raises(NotImplementedError):
+            t.gradient(_C17_X.copy())
+
+
+# ---------------------------------------------------------------------------
+# C6 revised: the analytical solver after set_function + set_gradient
+
+
+@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
+def test_c6r6_set_gradient_after_set_function(tmp_path, monkeypatch, name, dim):
+    """C6 (revised in contract6): for every built-in function, after
+    set_function() drops the built-in gradient, set_gradient(g) makes
+    supports_gradient true again and gradient() returns g(x) (with x passed
+    to g), not the built-in gradient; the Runner then reports no reason.
+    Fails if analytical's gradient() keeps answering from its own (dropped)
+    gradient, or if set_gradient is not honored for analytical."""
+    s = _analytical(tmp_path, name, dim)
+    s.set_function(lambda x: float(np.sum((x - 1.0) ** 2)))
+    assert not s.supports_gradient
+
+    g = _C17Recorder(lambda x: np.arange(1.0, x.size + 1.0) * x + 0.5)
+    s.set_gradient(g)
+    assert s.supports_gradient
+    x = np.linspace(0.2, 0.9, dim)
+    np.testing.assert_array_equal(np.asarray(s.gradient(x.copy())), g.fn(x))
+    assert len(g.calls) == 1
+    np.testing.assert_array_equal(g.xs[0], x)
+
+    info = odatse.Info({
+        "base": {"dimension": dim, "output_dir": str(tmp_path / "output")},
+        "algorithm": {"name": "minsearch"},
+        "solver": {"name": "analytical", "function_name": name},
+        "runner": {},
+    })
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert r.gradient_unavailable_reason() is None
+
+
+def test_c6r6_set_function_again_drops_set_gradient(tmp_path):
+    """C6 (revised) / C17-3 for analytical: set_function, set_gradient(g1),
+    then set_function again drops g1 (supports_gradient false, gradient()
+    raises NotImplementedError, g1 not called); set_gradient(g2) then gives
+    g2. Fails if analytical's set_function only drops its built-in
+    gradient but keeps one set by set_gradient."""
+    s = _analytical(tmp_path, "quadratics", 2)
+    g1 = _C17Recorder(_c17_g1)
+    g2 = _C17Recorder(_c17_g2)
+    s.set_function(_c17_f)
+    s.set_gradient(g1)
+    assert s.supports_gradient
+    s.set_function(_c17_f2)
+    assert not s.supports_gradient
+    with pytest.raises(NotImplementedError):
+        s.gradient(_C17_X.copy())
+    assert g1.calls == []
+    s.set_gradient(g2)
+    assert s.supports_gradient
+    np.testing.assert_array_equal(np.asarray(s.gradient(_C17_X.copy())), _c17_g2(_C17_X))
+    assert g1.calls == []
+
+
+def test_c6r6_builtin_gradient_unchanged(tmp_path):
+    """C6 (unchanged in contract6): a built-in function keeps its gradient
+    without set_gradient: quadratics reports supports_gradient true and its
+    gradient 2x. Fails if the built-in gradients now need set_gradient or
+    are replaced by something else."""
+    s = _analytical(tmp_path, "quadratics", 2)
+    assert s.supports_gradient
+    np.testing.assert_allclose(np.asarray(s.gradient(_C17_X.copy())), 2.0 * _C17_X)
+
+
+def test_c6r6_min_search_with_replaced_function_and_set_gradient(tmp_path):
+    """C6 (revised): min_search with use_gradient = true accepts an
+    analytical solver whose objective was replaced by set_function and whose
+    gradient was given by set_gradient, calls that g and converges to the
+    replaced function's minimum _C (not the built-in quadratics' origin).
+    Fails if the replaced solver is rejected or the built-in gradient is
+    used."""
+    fn, grad = _quad_fn(_C)
+    g = _C17Recorder(grad)
+    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
+                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    s = odatse.solver.analytical.Solver(info)
+    s.set_function(fn)
+    s.set_gradient(g)
+    alg = min_search.Algorithm(info, odatse.Runner(s, info))
+    alg.main()
+    assert len(g.calls) >= 2
+    np.testing.assert_allclose(np.asarray(alg.xopt, dtype=float), _C, atol=1e-4)
+
+
+# ---------------------------------------------------------------------------
+# C14 revised: declared support without gradient() and without a gradient
+
+
+class _C14r6Property(odatse.solver.function.Solver):
+    """Declares supports_gradient as a true property; no gradient()."""
+
+    @property
+    def supports_gradient(self):
+        return True
+
+
+class _C14r6ClassAttr(odatse.solver.function.Solver):
+    """Declares supports_gradient as a true class attribute; no gradient()."""
+
+    supports_gradient = True
+
+
+class _C14r6Analytical(odatse.solver.analytical.Solver):
+    """analytical subclass replacing the objective, then assigning
+    supports_gradient = True; no gradient()."""
+
+    def __init__(self, info, f):
+        super().__init__(info)
+        self.set_function(f)
+        self.supports_gradient = True
+
+
+_C14R6_KINDS = ["property", "class-attr", "property-dropped",
+                "class-attr-dropped", "analytical", "analytical-dropped"]
+
+
+def _c14r6_solver(kind, info, f, g):
+    """A function solver subclass with a true supports_gradient, without a
+    gradient() override and without a gradient: set_gradient never called,
+    or ("-dropped") called and then dropped by set_function."""
+    if kind.startswith("property"):
+        s = _C14r6Property(info)
+        s.set_function(f)
+    elif kind.startswith("class-attr"):
+        s = _C14r6ClassAttr(info)
+        s.set_function(f)
+    else:
+        s = _C14r6Analytical(info, f)
+    if kind.endswith("-dropped"):
+        s.set_gradient(g)
+        s.set_function(f)
+    return s
+
+
+@pytest.mark.parametrize("kind", _C14R6_KINDS)
+def test_c14r6_reason_without_gradient(tmp_path, monkeypatch, kind):
+    """C14 (revised): a function solver subclass (analytical subclasses
+    included) with a true supports_gradient, no gradient() override and no
+    gradient (never set, or dropped by set_function) gets a reason string
+    from Runner.gradient_unavailable_reason(). Fails if the Runner only
+    checks whether the class differs from SolverBase.gradient (function or
+    analytical then count as an override) and ignores the missing g."""
+    f = _C17Recorder(_c17_f)
+    info = _info(tmp_path)
+    s = _c14r6_solver(kind, info, f, _c17_g1)
+    assert s.supports_gradient
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    reason = r.gradient_unavailable_reason()
+    assert isinstance(reason, str) and reason
+    assert f.calls == []
+
+
+@pytest.mark.parametrize("ignore_error", [False, True])
+@pytest.mark.parametrize("kind", _C14R6_KINDS)
+def test_c14r6_submit_gradient_raises_without_gradient(tmp_path, monkeypatch, kind, ignore_error):
+    """C14 (revised): for those solvers submit_gradient raises
+    NotImplementedError regardless of ignore_error (not an all-NaN
+    gradient) because a reason is reported, and neither the objective nor
+    a dropped g is called. Fails if ignore_error turns the missing gradient
+    into NaN, or if the check happens only inside solver.gradient()."""
+    f = _C17Recorder(_c17_f)
+    g = _C17Recorder(_c17_g1)
+    info = _info(tmp_path, runner={"ignore_error": ignore_error})
+    s = _c14r6_solver(kind, info, f, g)
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert isinstance(r.gradient_unavailable_reason(), str)
+    with pytest.raises(NotImplementedError):
+        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
+    assert f.calls == []
+    assert g.calls == []
+
+
+@pytest.mark.parametrize("kind", _C14R6_KINDS)
+def test_c14r6_min_search_rejects_without_gradient(tmp_path, kind):
+    """C14 (revised): min_search with use_gradient = true raises
+    InputValueError (a ValueError and an InputError) at construction for
+    those solvers, without calling the objective or g. Fails if the run
+    starts and proceeds with all-NaN gradients."""
+    f = _C17Recorder(_c17_f)
+    g = _C17Recorder(_c17_g1)
+    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
+                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+    s = _c14r6_solver(kind, info, f, g)
+    r = odatse.Runner(s, info)
+    with pytest.raises(odatse.exception.InputValueError) as ei:
+        min_search.Algorithm(info, r)
+    assert isinstance(ei.value, ValueError)
+    assert isinstance(ei.value, odatse.exception.InputError)
+    assert f.calls == []
+    assert g.calls == []
+
+
+@pytest.mark.parametrize("kind", ["property", "class-attr", "analytical"])
+def test_c14r6_no_reason_once_gradient_is_set(tmp_path, monkeypatch, kind):
+    """C14 (revised) / C17: the same subclasses, without a gradient()
+    override, become available once set_gradient(g) is called: the reason is
+    None and submit_gradient returns g(x). Fails if every subclass without
+    an override is rejected regardless of the gradient set on it."""
+    g = _C17Recorder(_c17_g1)
+    info = _info(tmp_path)
+    s = _c14r6_solver(kind, info, _c17_f, None)
+    s.set_gradient(g)
+    assert s.supports_gradient
+    r = odatse.Runner(s, info)
+    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+    assert r.gradient_unavailable_reason() is None
+    np.testing.assert_array_equal(r.submit_gradient(_C17_X.copy(), (1, 0)), _c17_g1(_C17_X))
+    assert len(g.calls) == 1

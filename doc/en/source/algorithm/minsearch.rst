@@ -157,9 +157,12 @@ range, with an objective value of inf. These rules apply with or without
   (also for the local optimizations of ``basinhopping``).
   To use gradients with a custom solver, ``supports_gradient`` must be True and the
   ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
+  With ``function.Solver``, ``set_gradient()`` can be used instead.
   A ``SolverBase`` subclass that declares support but inherits the default
-  ``gradient()`` implementation cannot use gradients and is rejected before
-  any solver evaluation.
+  ``gradient()`` implementation, or a ``function.Solver`` (including its
+  subclasses such as ``analytical``) that neither overrides ``gradient()``
+  nor has a gradient set, cannot use
+  gradients and is rejected before any solver evaluation.
 
   A non-boolean value (including strings such as ``"false"`` and integers such as ``0``)
   raises ``InputValueError`` regardless of whether the value evaluates to true or false.

@@ -5,7 +5,8 @@
 It also provides the gradient for all built-in functions.
 For ``alpine``, which is not differentiable where :math:`x_i \sin(x_i) + 0.1 x_i = 0`,
 a gradient component is set to zero where this value evaluates to exactly zero (e.g. :math:`x_i = 0`).
-Replacing the function with ``set_function()`` disables gradient support.
+Replacing the function with ``set_function()`` clears its gradient.
+Set the gradient of the new function with ``set_gradient()`` to use gradients again.
 
 Input parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~

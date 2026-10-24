@@ -92,8 +92,8 @@ Gradient calls are neither recorded nor counted in ``runner.log``.
 ``gradient_unavailable_reason(self) -> Optional[str]`` returns ``None`` when
 gradients are available, or a string explaining why they are unavailable.
 Gradients require a solver with ``supports_gradient`` true that overrides
-``gradient()``, a ``TrivialMapping``, and a single-process solver group
-(``--nsolve = 1``).
+``gradient()`` (or a ``function.Solver`` given a gradient by ``set_gradient()``),
+a ``TrivialMapping``, and a single-process solver group (``--nsolve = 1``).
 ``submit_gradient`` raises ``NotImplementedError`` if any of these conditions
 is not met, regardless of ``ignore_error``. See :doc:`solver` for the solver
 interface and

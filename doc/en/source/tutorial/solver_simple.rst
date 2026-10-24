@@ -92,3 +92,29 @@ to the ``odatse`` command as follows:
     Solution:
     x1 = 1.0000128043523089
     x2 = 2.9999832920260863
+
+
+Optionally, define the gradient to use gradient-based optimization:
+
+.. code-block:: python
+
+    def booth_gradient(xs: np.ndarray) -> np.ndarray:
+        a = xs[0] + 2 * xs[1] - 7.0
+        b = 2 * xs[0] + xs[1] - 5.0
+        return np.array([2 * a + 4 * b, 4 * a + 2 * b])
+
+Register it after ``self.set_function(booth)`` in the constructor:
+
+.. code-block:: python
+
+    elif function_name == "booth":
+        self.set_function(booth)
+        self.set_gradient(booth_gradient)
+
+Then add the following section to the input file to use it with L-BFGS-B:
+
+.. code-block:: toml
+
+    [algorithm.minimize]
+    method = "L-BFGS-B"
+    use_gradient = true
