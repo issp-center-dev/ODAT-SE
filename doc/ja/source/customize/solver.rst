@@ -1,3 +1,5 @@
+.. _customize_solver:
+
 ``Solver`` の定義
 ================================
 
@@ -33,6 +35,11 @@
     ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
     MPIを使用しない場合もランク番号を0として扱います。
 
+    .. note::
+      ``--nsolve`` が 2 以上の場合、 ``evaluate`` や ``gradient`` を呼ぶときのカレントディレクトリは、
+      コントローラでは ``proc_dir`` ですが、ワーカーでは ``odatse`` を起動したディレクトリです。
+      ファイルを読み書きする場合は、 ``self.work_dir`` を明示的に使ってください。
+
   - ``self.work_dir`` は ``self.proc_dir`` の別名です。
 
   - ``self.dimension`` は入力変数の次元数です。 ``info.solver`` に ``dimension`` が指定されていればその値、なければ ``info.base["dimension"]`` が設定されます。
@@ -64,10 +71,41 @@
   ``evaluate`` メソッドは、Float 型の目的関数の値を返します。
 
   .. note::
-     ``evaluate`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して目的関数値を ``np.nan`` として扱います。
-     また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、目的関数値は ``np.inf`` になります。
+    ``Runner`` から呼ばれる場合のエラーの扱い:
+
+    ``evaluate`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して目的関数値を ``np.nan`` として扱います。
+    また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、目的関数値は ``np.inf`` になります。
 
   .. note::
-     ソルバー並列を使用する場合 (``--nsolve`` が 2 以上)、 ``evaluate`` はソルバーグループ内の全 MPI ランクで同一の ``x``, ``args`` を引数として呼び出されます。
-     ランク間の役割分担はソルバー内で実装してください。詳細は :doc:`../tutorial/parallel_solver` を参照してください。
-     ソルバーグループ内のどのランクで ``evaluate`` が例外を送出しても、コントローラランク (``solrank() == 0``) に報告されてそこで処理されます。失敗した全ランクの例外が ``RuntimeError`` であれば ``ignore_error`` が適用され、それ以外の場合はジョブはエラー終了します。ランクが失敗した場合でも、 ``evaluate`` 内の集団通信はグループ全体で揃っている必要があります。
+    ソルバー並列を使用する場合 (``--nsolve`` が 2 以上)、 ``evaluate`` はソルバーグループ内の全 MPI ランクで同一の ``x``, ``args`` を引数として呼び出されます。
+    ランク間の役割分担はソルバー内で実装してください。詳細は :doc:`../tutorial/parallel_solver` を参照してください。
+    ソルバーグループ内のどのランクで ``evaluate`` が例外を送出しても、コントローラランク (``solrank() == 0``) に報告されてそこで処理されます。失敗した全ランクの例外が ``RuntimeError`` であれば ``ignore_error`` が適用され、それ以外の場合はジョブはエラー終了します。ランクが失敗した場合でも、 ``evaluate`` 内の集団通信はグループ全体で揃っている必要があります。
+
+- 勾配への対応 (任意)
+
+  目的関数の勾配が計算できる場合、次のメンバーを実装すると、 ``Algorithm`` が勾配を利用できるようになります (例: ``minsearch`` での ``use_gradient = true``)。
+
+  - ``supports_gradient`` (クラス属性、デフォルト: False)
+
+    勾配を計算できるソルバーでは True にします。派生クラスでは、クラス属性
+    (``supports_gradient = True``)、インスタンス属性
+    (``__init__`` 内の ``self.supports_gradient = True``)、True を返すプロパティの
+    いずれでも宣言できます。
+
+  - ``gradient(self, x, args=()) -> np.ndarray``
+
+    入力 ``x`` における目的関数の勾配を、 ``x`` と同じ shape で返します。
+
+    ``evaluate`` メソッドと同様の引数をとります。
+    ``function.Solver`` では、このメソッドを実装する代わりに ``set_gradient()`` を使えます (:doc:`function_solver` を参照)。
+
+    .. note::
+      ``Runner`` から呼ばれる場合のエラーの扱い:
+
+      ``gradient`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して勾配を ``np.nan`` の配列として扱います。
+      また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、勾配の値は ``np.nan`` の配列になります。
+
+
+  ``runner.log`` が数えるのは ``evaluate()`` の呼び出しだけです。勾配の呼び出しは記録されず、回数にも含まれません。
+
+  ``[runner.mapping]`` を指定した場合は、勾配の利用に対応していません。

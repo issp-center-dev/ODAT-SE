@@ -41,6 +41,12 @@ add_test(
   )
 
 add_test(
+  NAME minsearch_gradient
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/minsearch_gradient
+  )
+
+add_test(
   NAME pamc
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/pamc

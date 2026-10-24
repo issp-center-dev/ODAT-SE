@@ -69,7 +69,27 @@
 ``Limitation`` のインスタンスを省略した場合は、制約を課さない ``Unlimited`` が仮定されます。
 
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
-関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
+関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。
+次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得て、ソルバーを呼び出します。
+制約を満たしていなかった場合にはソルバーを呼び出さずに ``np.inf`` を返します。
+ソルバーが失敗して例外を送出した場合にはそのまま例外を再送出しますが、 ``RuntimeError`` でかつ ``ignore_error == True`` の場合には ``np.nan`` を返します。
+
+``submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray`` は、
+探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーの勾配を計算し、
+その結果を ``x`` と同じ shape の配列として返します。
+入力 ``x`` の扱いは ``submit`` と同じです。
+``Limitation`` 制約に違反する点では、ソルバーを呼ばずに全要素が NaN の配列を返します。
+戻り値の要素数が ``x`` と異なる場合は ``ValueError`` を送出します。
+勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
+
+``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は
+``None``、利用できない場合は理由を示す文字列を返します。
+勾配を利用するには、ソルバーの ``supports_gradient`` が真で ``gradient()`` を実装しており
+(``function.Solver`` では ``set_gradient()`` で勾配を設定していれば足ります)、mapping が
+``TrivialMapping`` である必要があります。
+これらの条件を満たさない場合、 ``submit_gradient`` は ``ignore_error`` に関係なく
+``NotImplementedError`` を送出します。
+勾配を返すソルバーの実装は :doc:`solver` を参照してください。
 
 その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 

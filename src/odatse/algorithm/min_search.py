@@ -17,6 +17,7 @@ from scipy.optimize import minimize, basinhopping, OptimizeResult, OptimizeWarni
 
 import odatse
 import odatse.domain
+from odatse.exception import InputValueError
 from odatse.util.version import parse_version
 
 if TYPE_CHECKING:
@@ -64,9 +65,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     # returning +inf for out-of-range points unchanged.
     _BOUNDS_METHODS = {"powell", "l-bfgs-b", "tnc", "slsqp", "trust-constr", "cobyla", "cobyqa"}
 
+    # methods that cannot use the solver's gradient
+    _GRADIENT_FREE_METHODS = {"nelder-mead", "powell", "cobyla", "cobyqa"}
+
+    # methods that require a Hessian, which ODAT-SE does not provide
+    _HESSIAN_METHODS = {"dogleg", "trust-ncg", "trust-krylov", "trust-exact"}
+
     # keys of [algorithm.minimize] consumed by ODAT-SE itself, i.e. not
     # forwarded to scipy.optimize.minimize as options
-    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping"}
+    _ODATSE_KEYS = {"method", "initial_scale_list", "basinhopping", "use_gradient"}
 
     # basinhopping arguments managed by ODAT-SE itself; rejected if the user
     # sets them in [algorithm.minimize.basinhopping]
@@ -84,6 +91,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     minimize_options: dict
     # None: plain minimize; dict (possibly empty): basinhopping parameters
     basinhopping_params: Optional[dict]
+    # pass the solver's gradient to scipy as jac
+    use_gradient: bool
 
     # hyperparameters of Nelder-Mead
     initial_simplex_list: list[list[float]]
@@ -98,6 +107,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
     iter_history: list[list[Union[int, float]]]
     fev_history: list[list[Union[int, float]]]
     hop_history: list[list[Union[int, float]]]
+    grad_history: Optional[list[list[Union[int, float]]]]
 
     def __init__(
         self,
@@ -142,6 +152,25 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.initial_scale_list = info_minimize.get(
             "initial_scale_list", [0.25] * self.dimension
         )
+        self.use_gradient = info_minimize.get("use_gradient", False)
+        if not isinstance(self.use_gradient, bool):
+            raise InputValueError(
+                "algorithm.minimize.use_gradient must be a boolean, "
+                f"not {type(self.use_gradient).__name__}"
+            )
+        if self.use_gradient:
+            if self.method.lower() in self._GRADIENT_FREE_METHODS:
+                message = f"Method '{self.method}' does not use gradients"
+                if "method" not in info_minimize:
+                    message += '; specify a gradient-based method such as "BFGS" or "L-BFGS-B"'
+                raise InputValueError(message)
+            if self.method.lower() in self._HESSIAN_METHODS:
+                raise InputValueError(
+                    f"Method '{self.method}' requires a Hessian, which is not provided"
+                )
+            reason = self.runner.gradient_unavailable_reason()
+            if reason is not None:
+                raise InputValueError(reason)
 
         # basinhopping = true enables scipy.optimize.basinhopping with its
         # default parameters; a [algorithm.minimize.basinhopping] table both
@@ -211,37 +240,83 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         step = [0]
         iter_history = []
         fev_history = []
+        function_values = {}
+        gradients = {}
+        failed_gradients = set()
 
         # evaluate the initial point in solver units, as _f_calc does
         f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
         iter_history.append([*self.initial_list, f0])
 
-        if parse_version(scipy.__version__) >= (1, 11, 0):
+        def _key(x):
+            """
+            Return a cache key for exact comparison in algorithm units.
+            """
+            return np.asarray(x, dtype=float).tobytes()
+
+        def _prune_caches():
+            """
+            Retain only the current callback iterate in each cache.
+            """
+            key = _key(iter_history[-1][:-1])
+            # Keep the iterate: trust-constr calls back at the same iterate
+            # after rejecting a step, which would otherwise recompute its
+            # gradient (or retry its failed one).
+            for cache in (function_values, gradients):
+                retained = {key: cache[key]} if key in cache else {}
+                cache.clear()
+                cache.update(retained)
+            failed_gradients.intersection_update((key,))
+
+        def _callback_value(x):
+            """
+            Return a previously evaluated value, or evaluate an unseen point.
+
+            Parameters
+            ----------
+            x : np.ndarray
+                Variables in algorithm units.
+
+            Returns
+            -------
+            float
+                Objective value, evaluated with iset=1 only if not cached.
+            """
+            key = _key(x)
+            if key in function_values:
+                return function_values[key]
+            return _f_calc(x, 1)
+
+        use_new_callback = parse_version(scipy.__version__) >= (1, 11, 0)
+        if use_new_callback:
             def _cb(intermediate_result):
                 """
                 Callback function for scipy.optimize.minimize.
 
                 The parameter must be named intermediate_result so that scipy
                 passes an OptimizeResult where supported. Methods that do not
-                support the new-style callback (e.g. COBYLA, SLSQP, TNC) still
-                pass the raw parameter vector, so handle both.
+                support the new-style callback still pass the raw parameter
+                vector (e.g. TNC in scipy 1.18), so handle both. The supported
+                form depends on the scipy version and method.
                 """
                 if isinstance(intermediate_result, OptimizeResult):
                     x = intermediate_result.x
                     fun = intermediate_result.fun
                 else:
                     x = intermediate_result
-                    fun = _f_calc(x, 1)
+                    fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+                _prune_caches()
         else:
             def _cb(x):
                 """
                 Callback function for scipy.optimize.minimize.
                 """
-                fun = _f_calc(x, 1)
+                fun = _callback_value(x)
                 print("eval: x={}, fun={}".format(x, fun))
                 iter_history.append([*x, fun])
+                _prune_caches()
 
         # for methods that support it, let scipy keep the search within the
         # region via bounds=. the range check in _f_calc then allows points
@@ -252,6 +327,29 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         # not escalated by the OptimizeWarning filter below, and the range
         # check in _f_calc remains as the inf-penalty safety net.
         use_bounds = self.method.lower() in self._BOUNDS_METHODS
+
+        def _check_point(x_list):
+            """
+            Check the search range and constraints in algorithm units.
+
+            Parameters
+            ----------
+            x_list : np.ndarray
+                List of variables.
+
+            Returns
+            -------
+            tuple of bool
+                (in_range, in_limit). Outside the range, return (False, False)
+                without checking the constraints.
+            """
+            if use_bounds:
+                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
+            else:
+                in_range = np.all((min_list < x_list) & (x_list < max_list))
+            if not in_range:
+                return False, False
+            return True, self.runner.limitation.judge(x_list)
 
         def _f_calc(x_list: np.ndarray, iset) -> float:
             """
@@ -269,18 +367,16 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             float
                 Objective function value.
             """
-            # check if within region; kept as a safety net even when bounds=
-            # is passed to minimize
-            if use_bounds:
-                in_range = np.all((min_list <= x_list) & (x_list <= max_list))
-            else:
-                in_range = np.all((min_list < x_list) & (x_list < max_list))
+            # An inf penalty for NaN can falsely look like an improvement
+            # when L-BFGS-B next evaluates a finite point.
+            if np.any(np.isnan(x_list)):
+                print("Warning: NaN in parameters: {}".format(x_list))
+                return float("nan")
+            in_range, in_limit = _check_point(x_list)
             if not in_range:
                 print("Warning: out of range: {}".format(x_list))
                 return float("inf")
 
-            # check if limitation satisfied
-            in_limit = self.runner.limitation.judge(x_list)
             if not in_limit:
                 print("Warning: variables do not satisfy the constraint formula")
                 return float("inf")
@@ -294,9 +390,85 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             step[0] += 1
             args = (step[0], iset)
             y = run.submit(x_scaled, args)
+            # Only callbacks reuse values; scipy evaluations must retain their
+            # calls and History_FunctionCall.txt entries.
+            function_values[_key(x_list)] = y
             if iset == 0:
                 fev_history.append([step[0], *x_scaled, y])
             return y
+
+        grad_history = []
+
+        if self.use_gradient:
+            def _jac_calc(x_list: np.ndarray, iset) -> np.ndarray:
+                """
+                Calculate the gradient of the objective function.
+                """
+                x_list = np.asarray(x_list, dtype=float).flatten()
+                in_range, in_limit = _check_point(x_list)
+                if not in_range or not in_limit:
+                    return np.full_like(x_list, np.nan, dtype=float)
+                key = _key(x_list)
+                if key in gradients:
+                    return gradients[key].copy()
+                x_scaled = x_list / unit_list
+                step[0] += 1
+                args = (step[0], iset)
+                grad_scaled = run.submit_gradient(x_scaled, args)
+                # chain rule for f(x / unit_list)
+                g = np.asarray(grad_scaled, dtype=float) / unit_list
+                # Caching a transient failure would prevent later local
+                # searches in basinhopping from recovering at this point.
+                if np.all(np.isfinite(g)):
+                    gradients[key] = g.copy()
+                else:
+                    failed_gradients.add(key)
+                return g
+
+            grad_history.append([
+                *self.initial_list,
+                f0,
+                *_jac_calc(self.initial_list, 0),
+            ])
+
+            def _record_gradient():
+                """
+                Record a cached gradient or NaN for an unrecovered failure.
+                """
+                *x, fun = iter_history[-1]
+                key = _key(x)
+                if key in gradients:
+                    grad = gradients[key]
+                elif key in failed_gradients:
+                    # Retrying unrecovered failures here made TNC call the
+                    # gradient about 100 times just to write its history.
+                    grad = np.full_like(x, np.nan, dtype=float)
+                else:
+                    grad = _jac_calc(np.array(x), 0)
+                grad_history.append([*x, fun, *grad])
+
+            # A truthy callback return value would stop trust-constr.
+            if use_new_callback:
+                def _cb_grad(intermediate_result):
+                    """
+                    Record the iteration and gradient using the new callback form.
+
+                    The parameter must be named intermediate_result: scipy
+                    inspects this name to pass an OptimizeResult where supported.
+                    """
+                    _cb(intermediate_result)
+                    _record_gradient()
+            else:
+                def _cb_grad(x):
+                    """
+                    Record the iteration and gradient using the legacy callback form.
+                    """
+                    _cb(x)
+                    _record_gradient()
+
+            callback = _cb_grad
+        else:
+            callback = _cb
 
         use_basinhopping = self.basinhopping_params is not None
 
@@ -314,7 +486,11 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 # simplex; only usable for a single local optimization
                 options.setdefault("initial_simplex", self.initial_simplex_list)
                 options.setdefault("return_all", True)
-        if use_basinhopping:
+        if self.method.lower() == "l-bfgs-b":
+            # L-BFGS-B no longer accepts disp (removed in scipy 1.18), and
+            # passing it would abort through the unknown-option check below
+            pass
+        elif use_basinhopping:
             # per-hop convergence messages of the local minimizer are noisy;
             # progress is reported per hop by basinhopping itself
             options.setdefault("disp", False)
@@ -324,6 +500,8 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         minimize_kwargs = {}
         if use_bounds:
             minimize_kwargs["bounds"] = list(zip(min_list, max_list))
+        if self.use_gradient:
+            minimize_kwargs["jac"] = _jac_calc
 
         hop_history = []
 
@@ -360,7 +538,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                             "method": self.method,
                             "args": (0,),
                             "options": options,
-                            "callback": _cb,
+                            "callback": callback,
                             **minimize_kwargs,
                         },
                         take_step=take_step,
@@ -378,7 +556,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                         method=self.method,
                         args=(0,),
                         options=options,
-                        callback=_cb,
+                        callback=callback,
                         **minimize_kwargs,
                     )
         except OptimizeWarning as w:
@@ -390,6 +568,14 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
         self.xopt = optres.x
         self.fopt = optres.fun
+        success = getattr(optres, "success", None)
+        message = getattr(optres, "message", "unavailable")
+        if isinstance(message, list):
+            message = "; ".join(message)
+        prefix = "Warning: " if success is not None and not success else ""
+        # Existing ctest references compare res.txt; adding status there
+        # would change the established output format.
+        print(f"{prefix}scipy success={success}, message={message}")
         self.itera = getattr(optres, "nit", None)
         self.funcalls = getattr(optres, "nfev", None)
         self.allvecs = getattr(optres, "allvecs", None)
@@ -399,12 +585,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         self.iter_history = iter_history
         self.fev_history = fev_history
         self.hop_history = hop_history
+        self.grad_history = grad_history if self.use_gradient else None
 
         self._output_results()
-
-        if odatse.mpi.run_on_algorithm():
-            if odatse.mpi.algsize() > 1:
-                odatse.mpi.algcomm().barrier()
 
     def _prepare(self):
         """
@@ -442,6 +625,15 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 for v in self.hop_history:
                     fp.write(" ".join(map(str, v)) + "\n")
 
+        if self.grad_history is not None:
+            with open("History_Gradient.txt", "w") as fp:
+                fp.write(
+                    "#No " + " ".join(label_list) + " fx "
+                    + " ".join("grad_" + L for L in label_list) + "\n"
+                )
+                for i, v in enumerate(self.grad_history):
+                    fp.write(str(i) + " " + " ".join(map(str, v)) + "\n")
+
         with open("res.txt", "w") as fp:
             fp.write(f"fx = {self.fopt}\n")
             for x, y in zip(label_list, self.xopt):
@@ -471,7 +663,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fxs = [v["fx"] for v in results]
         x0s = [v["x0"] for v in results]
 
-        idx = np.argmin(fxs)
+        # np.argmin would pick a walker that ended at NaN (e.g. a failure
+        # ignored by ignore_error) over one that converged
+        fxs_array = np.asarray(fxs, dtype=float)
+        idx = 0 if np.all(np.isnan(fxs_array)) else int(np.nanargmin(fxs_array))
 
         if odatse.mpi.algrank() == 0:
             label_list = self.label_list

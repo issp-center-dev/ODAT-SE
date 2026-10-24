@@ -1,3 +1,5 @@
+.. _customize_solver:
+
 ``Solver``
 ================================
 
@@ -36,6 +38,11 @@
 
     The ``evaluate`` method of Solver is called from Runner with the ``proc_dir`` directory set as the current directory, in which the intermediate results produced by each rank are stored. When the MPI parallelization is not used, the rank number is treated as 0.
 
+    .. note::
+      With ``--nsolve`` greater than 1, the current directory when ``evaluate`` or ``gradient`` is called
+      is ``proc_dir`` on the controller but the directory where ``odatse`` was launched on the workers.
+      A solver that reads or writes files should use ``self.work_dir`` explicitly.
+
   - ``self.work_dir: pathlib.Path`` : An alias of ``self.proc_dir``.
 
   - ``self.dimension: int`` : The dimension of the input parameter. It is taken from ``info.solver["dimension"]`` if specified, or from ``info.base["dimension"]`` otherwise.
@@ -71,10 +78,41 @@
   The ``evaluate`` method returns the value of the objective function as a float.
 
   .. note::
-     If ``evaluate`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the objective function value as ``np.nan``.
-     If the search point does not satisfy the constraints (``[runner.limitation]``), the solver is not called and the objective function value becomes ``np.inf``.
+    Error handling when called from ``Runner``:
+
+    If ``evaluate`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the objective function value as ``np.nan``.
+    If the search point does not satisfy the constraints (``[runner.limitation]``), the solver is not called and the objective function value becomes ``np.inf``.
 
   .. note::
-     When the solver parallelization is used (``--nsolve`` greater than 1), ``evaluate`` is called on all MPI ranks in the solver group with the same ``x`` and ``args``.
-     The division of roles among the ranks should be implemented within the solver. See :doc:`../tutorial/parallel_solver` for details.
-     An exception raised by ``evaluate`` on any rank of the solver group is reported to the controller rank (``solrank() == 0``) and handled there: ``ignore_error`` applies when every failing rank raised a ``RuntimeError``; otherwise the job terminates with an error. Collectives inside ``evaluate`` must stay matched across the group even when a rank fails.
+    When the solver parallelization is used (``--nsolve`` greater than 1), ``evaluate`` is called on all MPI ranks in the solver group with the same ``x`` and ``args``.
+    The division of roles among the ranks should be implemented within the solver. See :doc:`../tutorial/parallel_solver` for details.
+    An exception raised by ``evaluate`` on any rank of the solver group is reported to the controller rank (``solrank() == 0``) and handled there: ``ignore_error`` applies when every failing rank raised a ``RuntimeError``; otherwise the job terminates with an error. Collectives inside ``evaluate`` must stay matched across the group even when a rank fails.
+
+- Optional gradient support
+
+  If the gradient of the objective function can be computed, the following members can be implemented to allow the ``Algorithm`` to use the gradient (e.g. ``use_gradient = true`` in ``minsearch``).
+
+  - ``supports_gradient`` (class attribute, default: False)
+
+    Set this to True when the solver can compute gradients. Subclasses may
+    declare support as a class attribute (``supports_gradient = True``), an
+    instance attribute (``self.supports_gradient = True`` in ``__init__``), or
+    a property returning True.
+
+  - ``gradient(self, x, args=()) -> np.ndarray``
+
+    Returns the gradient of the objective function at ``x`` with the same shape as ``x``.
+
+    It takes the same arguments as the ``evaluate`` method.
+    With ``function.Solver``, ``set_gradient()`` can be used instead of implementing this method (see :doc:`function_solver`).
+
+    .. note::
+      Error handling when called from ``Runner``:
+
+      If ``gradient`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the gradient as an array of ``np.nan``.
+      If the search point does not satisfy the constraints (``[runner.limitation]``), the solver is not called and the gradient becomes an array of ``np.nan``.
+
+
+  ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
+
+  Gradients are not supported when ``[runner.mapping]`` is specified.

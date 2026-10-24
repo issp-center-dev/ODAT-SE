@@ -124,6 +124,15 @@ add_test(
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/worker_error
   )
 
+add_test(
+  NAME parallel_minsearch_gradient
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/minsearch_gradient
+  )
+# upper bound independent of the timeout inside do.sh (a hang is the
+# failure mode these tests look for)
+set_tests_properties(parallel_minsearch_gradient PROPERTIES TIMEOUT 300)
+
 # The bayes tests exit with status 77 when the optional dependency physbo is
 # not installed; report them as skipped rather than failed.
 set_tests_properties(parallel_bayes_grid parallel_bayes_meshfile PROPERTIES SKIP_RETURN_CODE 77)

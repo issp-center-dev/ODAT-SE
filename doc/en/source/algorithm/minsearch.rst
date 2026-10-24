@@ -85,12 +85,38 @@ Set the optimization method and its hyperparameters.
 See the documentation of `scipy.optimize.minimize`_ for details.
 
 All parameters other than the ODAT-SE-specific keys ``method``,
-``initial_scale_list``, and ``basinhopping`` (described below) are passed
+``initial_scale_list``, ``use_gradient``, and ``basinhopping`` (described below) are passed
 verbatim to the ``options`` argument of `scipy.optimize.minimize`_.
 If a parameter name not accepted by the selected method is given,
 the program stops with an error before the optimization starts.
 The default values of ``xatol``, ``fatol``, ``maxiter``, and ``maxfev``
 listed below apply only when ``method`` is "Nelder-Mead".
+
+Legacy callbacks reuse objective values at points evaluated since the previous
+callback and at the previous callback's iterate; other points are evaluated with
+``iset = 1``. Cached values are discarded at each callback, so memory use does not
+grow with the number of evaluations. The callback form depends on the scipy
+version and method (all methods use the legacy form with scipy < 1.11;
+with scipy 1.18, TNC is one example).
+For solvers that separate working directories by ``(step, iset)``, per-iteration
+``iset = 1`` output is usually not created, because the iterate is normally
+evaluated within the same iteration. It can still appear when a callback reports
+a point from an earlier iteration, e.g. COBYLA in older scipy ending at its best point.
+
+After optimization, scipy's ``success`` and ``message`` are printed on one line,
+with a warning when ``success`` is false. For basin hopping, the available
+status information is printed.
+
+Each walker's result uses scipy's returned parameters and objective value as they
+are. When multiple walkers finish with a mixture of NaN and finite objective
+values, the final result selects the walker with the smallest finite value.
+
+Parameters containing NaN, which an optimizer may propose after a failure, are
+handled without calling the solver: the objective value is NaN, a warning is
+printed, no step number is consumed, and no row is added to
+``History_FunctionCall.txt``. Parameters containing ±inf but no NaN remain out of
+range, with an objective value of inf. These rules apply with or without
+``use_gradient``.
 
 - ``method``
 
@@ -100,11 +126,16 @@ listed below apply only when ``method`` is "Nelder-Mead".
   Name of the optimization method, passed as-is to the ``method`` argument of `scipy.optimize.minimize`_.
   Examples: "Nelder-Mead", "Powell", "COBYLA".
   Note that for gradient-based methods (BFGS, CG, ...) the gradient is evaluated by numerical differentiation,
-  which costs dimension+1 solver evaluations per gradient evaluation.
+  which costs dimension+1 solver evaluations per gradient evaluation,
+  unless the gradient provided by the solver is used (see ``use_gradient``).
   The search region (``min_list`` / ``max_list``) is passed as the ``bounds`` argument of scipy
   for methods that support it (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA).
   For the Nelder-Mead method, out-of-range points are handled as before
   by treating the objective function value as infinity.
+  If the optimum may lie on the boundary, use a bounds-aware method such as
+  L-BFGS-B, TNC, SLSQP, or trust-constr.
+  Methods without bounds, such as BFGS and CG, treat out-of-range objective values
+  as infinity and may stop before reaching the boundary.
 
 - ``initial_scale_list``
 
@@ -115,6 +146,45 @@ listed below apply only when ``method`` is "Nelder-Mead".
   The ``initial_simplex`` consists of ``initial_list`` together with the ``dimension`` points obtained by adding each single component of ``initial_scale_list`` to ``initial_list``.
   If not defined, scales at each dimension are set to 0.25.
   Used only when ``method`` is "Nelder-Mead".
+
+- ``use_gradient``
+
+  Format: Boolean (default: false)
+
+  Description:
+  When true, the gradient is computed by the solver's ``gradient()`` method and passed to
+  `scipy.optimize.minimize`_ as its ``jac`` argument
+  (also for the local optimizations of ``basinhopping``).
+  The solver must set ``supports_gradient`` to True and implement the
+  ``gradient()`` method (see :ref:`Solver <customize_solver>`).
+  With ``function.Solver``, ``set_gradient()`` can be used instead (see :doc:`../customize/function_solver`).
+
+  With ``use_gradient = true``, ``InputValueError`` is raised in the following cases:
+
+  - A method that does not use gradients: Nelder-Mead, Powell, COBYLA, or COBYQA
+    (case-insensitive; omitting ``method`` selects Nelder-Mead).
+  - A method requiring a Hessian: dogleg, trust-ncg, trust-krylov, or trust-exact
+    (case-insensitive). ODAT-SE does not supply a Hessian; Newton-CG is allowed.
+  - A solver that does not support gradients (``supports_gradient`` is False, or the ``gradient()`` method is not implemented).
+  - A ``[runner.mapping]`` section.
+
+  ``InputValueError`` inherits from both ``InputError`` and ``ValueError``.
+  The ``odatse`` command reports these input errors on an ``ERROR:`` line without
+  a traceback; under ``mpirun``, each rank reports one line.
+  When false or omitted, the solver's gradient is not used and these restrictions do not apply.
+
+  When L-BFGS-B terminates abnormally (``ABNORMAL``, ``success=False``), scipy's
+  returned objective value may be from the last evaluated point and may not
+  match the value at the returned parameters. ODAT-SE uses scipy's result as
+  returned. Do not take the result at face value when ``success=False``.
+
+  Example:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "L-BFGS-B"
+      use_gradient = true
 
 - ``xatol``
 
@@ -204,7 +274,14 @@ The following is an example of the output.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Records every call of the objective function during the optimization.
-Each line contains the call number, the values of the variables, and the value of the objective function, in that order.
+Each line contains the step number, the values of the variables, and the value of the objective function, in that order.
+The first column is a step number shared by objective function and gradient evaluations.
+Gradient evaluations also advance this number, so gaps may appear when gradients are used.
+The number identifies an evaluation; it is not guaranteed to be consecutive.
+The variables here are in solver units (``x / unit_list``), whereas both the
+variables and gradients in ``History_Gradient.txt`` are in algorithm units.
+Gradient evaluation step numbers are not recorded in either file.
+
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -214,6 +291,20 @@ For each local optimization (one from the initial point plus ``niter`` hops),
 it outputs the hop number, the values of the variables at the local minimum,
 the value of the objective function, and whether the hop was accepted (1/0),
 in that order.
+
+``History_Gradient.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Written only when the gradient is used (``use_gradient = true`` with a solver that provides gradients).
+The first line is a header (``#No``, variable names, ``fx``, and ``grad_`` followed by each variable name).
+Each of the following lines contains the index, the values of the variables, the value of the objective function, and the gradient, in that order:
+the first line is for the initial point, and the others are for each iteration of the local optimization.
+Both variables and gradients are in algorithm units: for the solver objective
+``f``, the recorded gradient is that of ``F(x) = f(x / unit_list)``, namely
+``gradient(x / unit_list) / unit_list``. In contrast, the variables in
+``History_FunctionCall.txt`` are in solver units (``x / unit_list``).
+The index here counts history rows, not evaluation steps; gradient evaluation
+step numbers are not recorded in output files.
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,8 @@
+# Analytic minimum of Himmelblau's function reached by L-BFGS-B from
+# initial_list = [2.5, 1.5]: f(3, 2) = 0. Compared with tolerances, not
+# as text: |fx - fx_ref| <= tol_fx and |x_i - x_i_ref| <= tol_x.
+fx = 0.0
+x1 = 3.0
+x2 = 2.0
+tol_fx = 1.0e-8
+tol_x = 1.0e-4

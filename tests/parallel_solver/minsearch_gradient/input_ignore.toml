@@ -1,0 +1,25 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[runner]
+ignore_error = true
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "minsearch"
+seed = 12345
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [ 5.0,  5.0]
+# one row per walker (--nalg 2)
+initial_list = [ [ 3.0, 1.5 ], [ -2.0, -3.0 ] ]
+
+[algorithm.minimize]
+method = "L-BFGS-B"
+use_gradient = true

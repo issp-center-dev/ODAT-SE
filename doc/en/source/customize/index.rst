@@ -35,6 +35,9 @@ then provides API details.
 :doc:`solver`
     API reference for the ``Solver`` class. Details on inheriting ``SolverBase`` and implementing the ``evaluate`` method.
 
+:doc:`function_solver`
+    How to create a solver whose objective is a Python function with ``odatse.solver.function.Solver``, and its API.
+
 :doc:`algorithm`
     API reference for the ``Algorithm`` class. How to define custom search algorithms.
 
@@ -54,6 +57,7 @@ then provides API details.
 
    tutorial_solver
    solver
+   function_solver
    algorithm
    common
    usage

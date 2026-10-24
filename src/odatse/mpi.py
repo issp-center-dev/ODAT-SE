@@ -469,6 +469,7 @@ class OtherAlgorithmProcessError(Exception):
 MSG_ABORT    = -1
 MSG_FINISHED =  0
 MSG_EVALUATE =  1
+MSG_GRADIENT =  2
 
 
 # ------------------------------------------------------------------ #
@@ -484,7 +485,7 @@ __all__ = [
     "enabled",
     "fail_together", "FailTogetherMeta",
     "OtherAlgorithmProcessError",
-    "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE",
+    "MSG_ABORT", "MSG_FINISHED", "MSG_EVALUATE", "MSG_GRADIENT",
 ]
 
 def setup(*, nalg=None, nsolve=None, comm=None):
