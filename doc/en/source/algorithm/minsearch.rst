@@ -175,7 +175,6 @@ range, with an objective value of inf. These rules apply with or without
     (case-insensitive). ODAT-SE does not supply a Hessian; Newton-CG is allowed.
   - A solver that does not support gradients (``supports_gradient`` is False).
   - A ``[runner.mapping]`` section.
-  - Solver parallelization with ``--nsolve`` of 2 or greater.
 
   ``InputValueError`` inherits from both ``InputError`` and ``ValueError``.
   The ``odatse`` command reports these input errors on an ``ERROR:`` line without

@@ -131,7 +131,9 @@
 
   ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
 
-  Gradients are not supported when ``[runner.mapping]`` is specified or when the solver parallelization is used (``--nsolve`` greater than 1).
+  Gradients are not supported when ``[runner.mapping]`` is specified.
+
+  With solver parallelization, ``gradient()`` is called on all ranks of the solver group with the same ``x`` and ``args``, just like ``evaluate()``. The controller's (``solrank() == 0``) return value is used and checked for shape; worker return values are discarded. The solver implements any division of work among ranks.
 
   With ``odatse.solver.function.Solver``, you can pass ``g(x) -> np.ndarray``
   to ``set_gradient(g)`` instead of implementing ``gradient()``.
@@ -140,3 +142,6 @@
   and is kept across later calls to ``set_function()`` and ``set_gradient()``.
   Call it after ``set_function(f)``, which clears any previously set gradient.
   The gradient runs in the caller's current directory without applying ``delay``.
+  With ``--nsolve`` greater than 1, that directory is ``proc_dir`` on the
+  controller during the run but the launch directory on the workers, so a
+  gradient that reads or writes files should use ``self.work_dir`` explicitly.

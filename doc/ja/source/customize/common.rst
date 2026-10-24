@@ -80,6 +80,9 @@ shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` �
 勾配の失敗は目的関数と同じ規則で扱います。 ``ignore_error = true`` なら、
 ``gradient()`` が送出した ``RuntimeError`` (``NotImplementedError`` を含む) を
 全要素が NaN の配列として扱い、それ以外の場合はそのまま送出します。その他の例外は常に送出します。
+``--nsolve`` が 2 以上でワーカーランクが失敗した場合、コントローラには ``odatse.exception.SolverRuntimeError``
+(失敗したすべてのランクが ``RuntimeError`` を送出した場合) または ``SolverError`` として伝わります
+(:doc:`../tutorial/parallel_solver` を参照)。
 その後の結果は最適化手法によって異なり、 ``success=False`` や NaN の結果になることがあります。
 詳しい挙動と制限は :doc:`../algorithm/minsearch` を参照してください。
 勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
@@ -88,7 +91,7 @@ shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` �
 ``None``、利用できない場合は理由を示す文字列を返します。
 勾配を利用するには、ソルバーの ``supports_gradient`` が真で ``gradient()`` を実装しており
 (``function.Solver`` では ``set_gradient()`` で勾配を設定していれば足ります)、mapping が
-``TrivialMapping``、ソルバーグループが1プロセス (``--nsolve = 1``) である必要があります。
+``TrivialMapping`` である必要があります。
 これらの条件を満たさない場合、 ``submit_gradient`` は ``ignore_error`` に関係なく
 ``NotImplementedError`` を送出します。
 ソルバーの実装は :doc:`solver`、探索範囲とパラメータの単位は

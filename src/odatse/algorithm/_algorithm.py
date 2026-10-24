@@ -575,7 +575,7 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
 
             except BaseException:
                 # Also SystemExit / KeyboardInterrupt (e.g. raised by
-                # solver.evaluate() on this controller and re-raised after the
+                # solver.evaluate()/gradient() on this controller and re-raised after the
                 # solver-group status exchange): the workers are back in the
                 # control-signal Bcast and must be released.
                 self.__signal_workers(odatse.mpi.MSG_ABORT)
@@ -599,19 +599,24 @@ class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
                     elif signal[0] == odatse.mpi.MSG_EVALUATE:
                         odatse.mpi.solcomm().Bcast(xp, root=0)
                         args = odatse.mpi.solcomm().bcast(None, root=0)
-                        # An exception raised by solver.evaluate() is caught
-                        # inside serve() and reported to the controller through
-                        # the solver-group status exchange (Runner._evaluate_group),
-                        # where it becomes an ordinary evaluate failure subject
-                        # to ignore_error. Nothing propagates out of serve().
+                        # An exception raised by solver.evaluate() (or by
+                        # gradient() below) is caught inside serve() and
+                        # reported to the controller through the solver-group
+                        # status exchange (Runner._call_group), where it becomes
+                        # an ordinary failure subject to ignore_error. Nothing
+                        # propagates out of serve() / serve_gradient().
                         self.runner.serve(xp, args)
+                    elif signal[0] == odatse.mpi.MSG_GRADIENT:
+                        odatse.mpi.solcomm().Bcast(xp, root=0)
+                        args = odatse.mpi.solcomm().bcast(None, root=0)
+                        self.runner.serve_gradient(xp, args)
                     else:
                         raise ValueError(f"Unknown signal: {signal[0]}")
             except BaseException as e:
-                # Last resort for failures outside solver.evaluate() (a corrupt
+                # Last resort for failures outside solver.evaluate()/gradient() (a corrupt
                 # control message, an unpicklable args, Ctrl-C while waiting
-                # for the control signal, ...); a failure inside evaluate() is
-                # reported through the status exchange in Runner.serve() and
+                # for the control signal, ...); a failure inside evaluate()/gradient() is
+                # reported through the status exchange in Runner._call_group() and
                 # never gets here. A solver worker is outside the
                 # algorithm-layer consensus in _reach_consensus() (it is not a
                 # member of algcomm) and the controller is, or will be, blocked

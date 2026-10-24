@@ -22,7 +22,7 @@ from odatse.exception import InputError, SolverError, SolverRuntimeError, is_ign
 
 # type hints
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 from . import mpi
 
 
@@ -53,7 +53,7 @@ class Run(metaclass=ABCMeta):
 
 # Entries of the solver-group status exchange are tagged, so that data of a
 # solver collective that was mistakenly paired with the exchange (see
-# Runner._evaluate_group) is not taken for a status: a solver's own
+# Runner._call_group) is not taken for a status: a solver's own
 # allgather(None) would otherwise look like "every rank succeeded".
 _STATUS_TAG = "odatse.runner.status"
 
@@ -207,20 +207,31 @@ class Runner(metaclass=mpi.FailTogetherMeta):
 
     def _evaluate_group(
             self, xp: np.ndarray, args: tuple) -> Tuple[float, Optional[BaseException]]:
+        """Call evaluate and exchange the solver group's status."""
+        return self._call_group("evaluate", xp, args)
+
+    def serve_gradient(self, xp: np.ndarray, args: tuple = ()) -> None:
+        """Call gradient and exchange status on a solver-worker rank."""
+        self._call_group("gradient", xp, args)
+
+    def _call_group(
+            self, method_name: str, xp: np.ndarray, args: tuple
+    ) -> Tuple[Any, Optional[BaseException]]:
         """
-        Call ``solver.evaluate()`` on this rank and agree on the outcome
+        Call the selected solver method on this rank and agree on the outcome
         across the solver group.
 
         Every rank of the solver group (controller and workers) calls this
-        for the same ``xp`` / ``args``. After the local ``evaluate()`` the
+        for the same ``xp`` / ``args``. After the local method call the
         ranks exchange their success status in one ``allgather`` on
         ``solcomm``, so that a failure on any rank is seen by all of them and
         no rank is left blocked in the next control-signal broadcast.
 
         Returns
         -------
-        result : float
-            The local return value of ``evaluate()`` (``NaN`` if it raised).
+        result : object
+            The local return value (NaN for evaluate or None for gradient
+            if it raised).
         error : BaseException or None
             ``None`` when every rank succeeded. Otherwise the exception to be
             raised on the controller:
@@ -236,19 +247,19 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         Notes
         -----
         The status exchange is a collective on ``solcomm`` and is placed
-        *after* ``evaluate()``. It therefore cannot rescue a solver that
-        raises on some ranks *before* a collective inside ``evaluate()`` that
+        *after* the solver method. It therefore cannot rescue a solver that
+        raises on some ranks *before* a collective inside the solver method that
         the other ranks still enter; such a mismatch of collectives is the
         solver's responsibility (see the parallel-solver tutorial). When the
         exchange receives entries that are not status tuples, which is how
         that mismatch shows up here, the job is aborted instead of hanging.
         """
         own_error: Optional[BaseException] = None
-        result = np.nan
+        result = np.nan if method_name == "evaluate" else None
         try:
-            result = self.solver.evaluate(xp, args)
+            result = getattr(self.solver, method_name)(xp, args)
         except BaseException as e:
-            # Also SystemExit (sys.exit() inside evaluate) and
+            # Also SystemExit (sys.exit() inside the solver method) and
             # KeyboardInterrupt: they must take part in the status exchange
             # below, or the other ranks of the group wait in it forever. They
             # are never ignorable (not RuntimeError), so they terminate the job.
@@ -276,16 +287,16 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         statuses = odatse.mpi.solcomm().allgather(own_status)
 
         # Entries without the tag mean the allgather was paired with a
-        # collective of the solver itself, i.e. evaluate() raised on some
+        # collective of the solver itself, i.e. the solver method raised on some
         # ranks before a solcomm collective the others still entered. The
         # group is desynchronised beyond repair; abort rather than hang.
         if not all(_is_status_entry(s) for s in statuses):
             print(f"[rank {odatse.mpi.rank()}] ERROR: mismatched collectives inside "
-                  "solver.evaluate(): some ranks raised before a solcomm collective "
+                  f"solver.{method_name}(): some ranks raised before a solcomm collective "
                   "that the others entered; aborting the job",
                   file=sys.stderr, flush=True)
             odatse.mpi.comm().Abort(1)
-            raise RuntimeError("mismatched collectives inside solver.evaluate()")
+            raise RuntimeError(f"mismatched collectives inside solver.{method_name}()")
 
         failures = [s[1] for s in statuses if s[1] is not None]
 
@@ -302,7 +313,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             # ("solver worker failed") so that a log tells the two apart.
             if own_error is not None and not (ignorable and self.ignore_error):
                 traceback.print_exception(type(own_error), own_error, own_error.__traceback__)
-                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker raised in evaluate(), "
+                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker raised in {method_name}(), "
                       f"reported to the controller: {describe_error(own_error)}",
                       file=sys.stderr, flush=True)
             return result, own_error
@@ -314,7 +325,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             # only, so hand it over as a SolverError (never ignorable) to
             # terminate the job cleanly on every algorithm rank
             wrapped = SolverError(
-                f"solver.evaluate() raised {describe_error(own_error)} on the "
+                f"solver.{method_name}() raised {describe_error(own_error)} on the "
                 f"controller (global rank {odatse.mpi.rank()})"
             )
             wrapped.__cause__ = own_error
@@ -324,7 +335,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             return result, own_error
 
         summary = (
-            f"solver.evaluate() failed on {len(failures)} rank(s) of the solver group:\n"
+            f"solver.{method_name}() failed on {len(failures)} rank(s) of the solver group:\n"
             + "\n".join(f"  {msg}" for _, msg in failures)
         )
         error: BaseException = SolverRuntimeError(summary) if ignorable else SolverError(summary)
@@ -340,8 +351,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         -------
         str or None
             Reason gradients are unavailable, or None when the solver supports
-            and implements gradients, the mapping is trivial, and the solver
-            group has one process.
+            and implements gradients and the mapping is trivial.
         """
         if not getattr(self.solver, "supports_gradient", False):
             return "The solver does not provide gradients (supports_gradient is False)."
@@ -364,18 +374,13 @@ class Runner(metaclass=mpi.FailTogetherMeta):
                 "Gradients are not available with [runner.mapping] "
                 "(the chain rule through the mapping is not implemented)."
             )
-        # The workers wait for MSG_EVALUATE in serve(), so they cannot
-        # participate in gradient() collectives on solcomm; a solver using
-        # solcomm would hang if only the controller called gradient().
-        if odatse.mpi.solsize() > 1:
-            return "Gradients are not available with a parallel solver (--nsolve > 1)."
         return None
 
     def submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
         """
         Return the gradient of the objective w.r.t. x.
-        Only valid when the solver supports gradients, the mapping is trivial,
-        and the solver group has one process; see gradient_unavailable_reason().
+        Only valid when the solver supports gradients and the mapping is trivial;
+        see gradient_unavailable_reason().
 
         Parameters
         ----------
@@ -394,9 +399,8 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         Raises
         ------
         NotImplementedError
-            If solver does not support gradient, mapping is not Trivial,
-            or the solver group has more than one process, regardless of
-            ignore_error. From solver.gradient(), treated as RuntimeError.
+            If solver does not support gradient or mapping is not Trivial,
+            regardless of ignore_error. From solver.gradient(), treated as RuntimeError.
         ValueError
             If the gradient shape differs from the input shape, even when
             ignore_error is True.
@@ -404,7 +408,9 @@ class Runner(metaclass=mpi.FailTogetherMeta):
             Propagated from solver.gradient() when ignore_error is False.
         Exception
             Exceptions other than RuntimeError from solver.gradient() are
-            propagated regardless of ignore_error.
+            propagated regardless of ignore_error. A failure on a worker rank
+            of the solver group is raised as SolverRuntimeError (when every
+            failing rank raised a RuntimeError) or SolverError.
         """
         reason = self.gradient_unavailable_reason()
         if reason is not None:
@@ -414,13 +420,21 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         if not self.limitation.judge(x):
             return np.full_like(x, np.nan, dtype=float)
         xp = self.mapping(x)
-        try:
-            g = self.solver.gradient(xp, args)
-        except Exception as e:
-            if self.ignore_error and is_ignorable(e):
+        assert xp.ndim == 1
+        assert xp.shape[0] == self.solver.dimension
+
+        if odatse.mpi.solsize() > 1:
+            msg = np.array([odatse.mpi.MSG_GRADIENT])
+            odatse.mpi.solcomm().Bcast(msg, root=0)
+            odatse.mpi.solcomm().Bcast(xp, root=0)
+            odatse.mpi.solcomm().bcast(args, root=0)
+
+        g, error = self._call_group("gradient", xp, args)
+        if error is not None:
+            if self.ignore_error and is_ignorable(error):
                 # Zero would falsely signal a stationary point after failure.
                 return np.full_like(x, np.nan, dtype=float)
-            raise
+            raise error
         # runner.log's num_calls counts evaluate() calls in existing outputs;
         # counting gradients here would change its meaning.
         g = np.array(g, dtype=float)

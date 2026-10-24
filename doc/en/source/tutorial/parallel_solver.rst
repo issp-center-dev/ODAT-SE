@@ -106,6 +106,8 @@ to distribute the work of that single evaluation across the group using
 ``solcomm`` collectives. When the algorithm finishes, the framework signals the
 workers to leave their loop.
 
+``Runner.submit_gradient()`` calls ``gradient(x, args)`` on all solver-group ranks with the same inputs, using the controller's return value. The status exchange and failure handling below also apply to gradients; ignored failures return an all-NaN gradient. Collectives inside ``gradient()`` must stay matched across ranks: the framework cannot rescue a failure on some ranks before a collective that others enter.
+
 Errors inside ``evaluate``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -182,6 +184,9 @@ controller is not left hanging. The two paths are told apart in the log: a
 failure reported to the controller is printed as ``ERROR: solver worker raised
 in evaluate(), reported to the controller: ...`` (only when it is not ignored),
 the abort path as ``ERROR: solver worker failed: ...``.
+For a failure in ``gradient()``, the messages that name ``evaluate`` name
+``gradient`` instead (``mismatched collectives inside solver.gradient()``,
+``raised in gradient()``).
 
 Constructing the algorithm (``Algorithm(info, runner)``) may fail on some
 processes only; an invalid ``mesh_path``, for example, is detected on the

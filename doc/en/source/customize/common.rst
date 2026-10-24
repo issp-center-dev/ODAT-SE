@@ -85,6 +85,9 @@ as is, regardless of ``ignore_error``. Gradient failures follow the same rules
 as objective-function failures: with ``ignore_error = true``, a ``RuntimeError``
 raised by ``gradient()`` (including ``NotImplementedError``) becomes an all-NaN
 vector; otherwise it propagates. Other exceptions always propagate.
+With ``--nsolve`` greater than 1, a failure on a worker rank reaches the
+controller as ``odatse.exception.SolverRuntimeError`` (when every failing rank
+raised a ``RuntimeError``) or ``SolverError``; see :doc:`../tutorial/parallel_solver`.
 The outcome depends on the optimization method and may be ``success=False``
 or a NaN result; see :doc:`../algorithm/minsearch` for details and limitations.
 Gradient calls are neither recorded nor counted in ``runner.log``.
@@ -93,7 +96,7 @@ Gradient calls are neither recorded nor counted in ``runner.log``.
 gradients are available, or a string explaining why they are unavailable.
 Gradients require a solver with ``supports_gradient`` true that overrides
 ``gradient()`` (or a ``function.Solver`` given a gradient by ``set_gradient()``),
-a ``TrivialMapping``, and a single-process solver group (``--nsolve = 1``).
+and a ``TrivialMapping``.
 ``submit_gradient`` raises ``NotImplementedError`` if any of these conditions
 is not met, regardless of ``ignore_error``. See :doc:`solver` for the solver
 interface and

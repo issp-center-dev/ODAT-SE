@@ -150,7 +150,6 @@ walker が複数あり、目的関数値が NaN のものと有限のものが�
     (大文字小文字は区別しません)。ODAT-SE はヘッセ行列を渡しません。Newton-CG は利用できます。
   - 勾配に対応していないソルバー (``supports_gradient`` が False)。
   - ``[runner.mapping]`` の指定。
-  - ``--nsolve`` が 2 以上のソルバー並列。
 
   ``InputValueError`` は ``InputError`` と ``ValueError`` の両方を継承します。
   ``odatse`` コマンドでは、これらの入力エラーを traceback なしで ``ERROR:`` の行に表示します。
