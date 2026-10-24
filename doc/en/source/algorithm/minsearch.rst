@@ -152,28 +152,20 @@ range, with an objective value of inf. These rules apply with or without
   Format: Boolean (default: false)
 
   Description:
-  When true, the gradient computed by the solver is passed to
-  `scipy.optimize.minimize`_ as its ``jac`` argument instead of numerical differentiation
+  When true, the gradient is computed by the solver's ``gradient()`` method and passed to
+  `scipy.optimize.minimize`_ as its ``jac`` argument
   (also for the local optimizations of ``basinhopping``).
-  To use gradients with a custom solver, ``supports_gradient`` must be True and the
-  ``gradient`` method must be implemented (see :ref:`Solver <customize_solver>`).
-  With ``function.Solver``, ``set_gradient()`` can be used instead.
-  A ``SolverBase`` subclass that declares support but inherits the default
-  ``gradient()`` implementation, or a ``function.Solver`` (including its
-  subclasses such as ``analytical``) that neither overrides ``gradient()``
-  nor has a gradient set, cannot use
-  gradients and is rejected before any solver evaluation.
+  The solver must set ``supports_gradient`` to True and implement the
+  ``gradient()`` method (see :ref:`Solver <customize_solver>`).
+  With ``function.Solver``, ``set_gradient()`` can be used instead (see :doc:`../customize/function_solver`).
 
-  A non-boolean value (including strings such as ``"false"`` and integers such as ``0``)
-  raises ``InputValueError`` regardless of whether the value evaluates to true or false.
-  When ``use_gradient = true``, the following settings also raise ``InputValueError``
-  before any solver evaluation:
+  With ``use_gradient = true``, ``InputValueError`` is raised in the following cases:
 
   - A method that does not use gradients: Nelder-Mead, Powell, COBYLA, or COBYQA
     (case-insensitive; omitting ``method`` selects Nelder-Mead).
   - A method requiring a Hessian: dogleg, trust-ncg, trust-krylov, or trust-exact
     (case-insensitive). ODAT-SE does not supply a Hessian; Newton-CG is allowed.
-  - A solver that does not support gradients (``supports_gradient`` is False).
+  - A solver that does not support gradients (``supports_gradient`` is False, or the ``gradient()`` method is not implemented).
   - A ``[runner.mapping]`` section.
 
   ``InputValueError`` inherits from both ``InputError`` and ``ValueError``.
@@ -181,39 +173,10 @@ range, with an objective value of inf. These rules apply with or without
   a traceback; under ``mpirun``, each rank reports one line.
   When false or omitted, the solver's gradient is not used and these restrictions do not apply.
 
-  At points outside the search region or violating constraints, the solver's
-  ``gradient()`` is not called and the gradient is a vector of NaN values.
-  Gradient failures follow the same rules as objective-function failures.
-  With ``ignore_error = true`` in ``[runner]``, a ``RuntimeError`` raised by
-  ``gradient()`` (including ``NotImplementedError``) is treated as an all-NaN
-  gradient. Otherwise, the exception propagates. Exceptions other than
-  ``RuntimeError`` always propagate. Non-finite return values (NaN or ±inf)
-  are used as returned, regardless of ``ignore_error``.
-
-  The outcome depends on the optimization method: it may report
-  ``success=False`` or return a NaN objective value or non-finite parameters
-  (see the handling of results and NaN parameters above).
-
-  If the solver returns a gradient containing ±inf, L-BFGS-B may report
-  ``success=True`` while remaining at the initial point. To make failures
-  detectable, raise an exception where the gradient cannot be computed,
-  rather than returning non-finite values.
-
   When L-BFGS-B terminates abnormally (``ABNORMAL``, ``success=False``), scipy's
   returned objective value may be from the last evaluated point and may not
   match the value at the returned parameters. ODAT-SE uses scipy's result as
   returned. Do not take the result at face value when ``success=False``.
-
-  Gradients and gradient failures are remembered only for points computed since
-  the previous callback and for the previous callback's iterate; points from earlier
-  iterations (e.g. revisited by basinhopping) are computed again.
-  Callbacks reuse only finite remembered gradients. At a remembered point whose
-  gradient contains non-finite values and has not recovered, they record NaN
-  without calling ``gradient()`` again.
-  Scipy's gradient requests may retry the point; after recovery, callbacks record
-  the finite cached value.
-  Gradient evaluations receive step numbers shared with objective evaluations,
-  but their step numbers are not recorded in output files; see the histories below.
 
   Example:
 

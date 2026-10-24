@@ -69,22 +69,17 @@
 ``Limitation`` のインスタンスを省略した場合は、制約を課さない ``Unlimited`` が仮定されます。
 
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` メソッドは、探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーを実行し、結果として目的関数の値 ``f(x)`` を返します。
-関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得ます。
+関数を評価する際に ``Limitation`` のインスタンスを用いて探索パラメータ ``x`` が制約を満たしているかを確認します。
+次に ``Mapping`` のインスタンスを用いて ``x`` から実際にソルバーが使う入力 ``y = mapping(x)`` を得て、ソルバーを呼び出します。
+制約を満たしていなかった場合にはソルバーを呼び出さずに ``np.inf`` を返します。
+ソルバーが失敗して例外を送出した場合にはそのまま例外を再送出しますが、 ``RuntimeError`` でかつ ``ignore_error == True`` の場合には ``np.nan`` を返します。
 
 ``submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray`` は、
-``x`` と同じ shape の目的関数の勾配を返し、 ``args`` をソルバーに渡します。
-入力 ``x`` の扱いは ``submit`` と同じです。制約に違反する点では、ソルバーを呼ばずに
-全要素が NaN の配列を返します。戻り値の shape が異なる場合は、
-``ignore_error = true`` でも ``ValueError`` を送出します。
-shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` に関係なくそのまま返します。
-勾配の失敗は目的関数と同じ規則で扱います。 ``ignore_error = true`` なら、
-``gradient()`` が送出した ``RuntimeError`` (``NotImplementedError`` を含む) を
-全要素が NaN の配列として扱い、それ以外の場合はそのまま送出します。その他の例外は常に送出します。
-``--nsolve`` が 2 以上でワーカーランクが失敗した場合、コントローラには ``odatse.exception.SolverRuntimeError``
-(失敗したすべてのランクが ``RuntimeError`` を送出した場合) または ``SolverError`` として伝わります
-(:doc:`../tutorial/parallel_solver` を参照)。
-その後の結果は最適化手法によって異なり、 ``success=False`` や NaN の結果になることがあります。
-詳しい挙動と制限は :doc:`../algorithm/minsearch` を参照してください。
+探索パラメータ ``x`` とオプションパラメータ ``args`` に対してソルバーの勾配を計算し、
+その結果を ``x`` と同じ shape の配列として返します。
+入力 ``x`` の扱いは ``submit`` と同じです。
+``Limitation`` 制約に違反する点では、ソルバーを呼ばずに全要素が NaN の配列を返します。
+戻り値の要素数が ``x`` と異なる場合は ``ValueError`` を送出します。
 勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は
@@ -94,8 +89,7 @@ shape の検査後、非有限の戻り値 (NaN、±inf) も ``ignore_error`` �
 ``TrivialMapping`` である必要があります。
 これらの条件を満たさない場合、 ``submit_gradient`` は ``ignore_error`` に関係なく
 ``NotImplementedError`` を送出します。
-ソルバーの実装は :doc:`solver`、探索範囲とパラメータの単位は
-:doc:`../algorithm/minsearch` を参照してください。
+勾配を返すソルバーの実装は :doc:`solver` を参照してください。
 
 その他、 ``Runner`` で使われる ``info`` の詳細は :doc:`../input/index` を参照してください。
 

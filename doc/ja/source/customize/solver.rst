@@ -35,6 +35,11 @@
     ソルバーの ``evaluate`` メソッドは ``proc_dir`` をカレントディレクトリとして Runner から呼び出され、MPIプロセスごとの中間結果などを出力します。
     MPIを使用しない場合もランク番号を0として扱います。
 
+    .. note::
+      ``--nsolve`` が 2 以上の場合、 ``evaluate`` や ``gradient`` を呼ぶときのカレントディレクトリは、
+      コントローラでは ``proc_dir`` ですが、ワーカーでは ``odatse`` を起動したディレクトリです。
+      ファイルを読み書きする場合は、 ``self.work_dir`` を明示的に使ってください。
+
   - ``self.work_dir`` は ``self.proc_dir`` の別名です。
 
   - ``self.dimension`` は入力変数の次元数です。 ``info.solver`` に ``dimension`` が指定されていればその値、なければ ``info.base["dimension"]`` が設定されます。
@@ -66,13 +71,15 @@
   ``evaluate`` メソッドは、Float 型の目的関数の値を返します。
 
   .. note::
-     ``evaluate`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して目的関数値を ``np.nan`` として扱います。
-     また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、目的関数値は ``np.inf`` になります。
+    ``Runner`` から呼ばれる場合のエラーの扱い:
+
+    ``evaluate`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して目的関数値を ``np.nan`` として扱います。
+    また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、目的関数値は ``np.inf`` になります。
 
   .. note::
-     ソルバー並列を使用する場合 (``--nsolve`` が 2 以上)、 ``evaluate`` はソルバーグループ内の全 MPI ランクで同一の ``x``, ``args`` を引数として呼び出されます。
-     ランク間の役割分担はソルバー内で実装してください。詳細は :doc:`../tutorial/parallel_solver` を参照してください。
-     ソルバーグループ内のどのランクで ``evaluate`` が例外を送出しても、コントローラランク (``solrank() == 0``) に報告されてそこで処理されます。失敗した全ランクの例外が ``RuntimeError`` であれば ``ignore_error`` が適用され、それ以外の場合はジョブはエラー終了します。ランクが失敗した場合でも、 ``evaluate`` 内の集団通信はグループ全体で揃っている必要があります。
+    ソルバー並列を使用する場合 (``--nsolve`` が 2 以上)、 ``evaluate`` はソルバーグループ内の全 MPI ランクで同一の ``x``, ``args`` を引数として呼び出されます。
+    ランク間の役割分担はソルバー内で実装してください。詳細は :doc:`../tutorial/parallel_solver` を参照してください。
+    ソルバーグループ内のどのランクで ``evaluate`` が例外を送出しても、コントローラランク (``solrank() == 0``) に報告されてそこで処理されます。失敗した全ランクの例外が ``RuntimeError`` であれば ``ignore_error`` が適用され、それ以外の場合はジョブはエラー終了します。ランクが失敗した場合でも、 ``evaluate`` 内の集団通信はグループ全体で揃っている必要があります。
 
 - 勾配への対応 (任意)
 
@@ -88,48 +95,17 @@
   - ``gradient(self, x, args=()) -> np.ndarray``
 
     入力 ``x`` における目的関数の勾配を、 ``x`` と同じ shape で返します。
-    Runner は戻り値を float の ndarray に変換し、shape が ``x`` と異なる場合は
-    ``ignore_error = true`` でも ``ValueError`` を送出します。
-    ``supports_gradient`` が True のときのみ呼ばれます。基底クラスでは ``NotImplementedError`` を送出します。
-    ``supports_gradient`` を True にする派生クラスでは、このメソッドを上書きしてください。
-    ただし、 ``function.Solver.set_gradient()`` を使う場合は不要です。
-    既定の ``SolverBase.gradient`` のままでは勾配は使えず、Runner がソルバーを呼ぶ前に検出します。
-    Runner は shape を検査した後、非有限値 (NaN、±inf) も ``ignore_error`` に
-    関係なくソルバーから返されたまま返します。
 
-    勾配の失敗は、目的関数の失敗と同じ規則で扱います。 ``gradient()`` が
-    ``RuntimeError`` (``NotImplementedError`` を含む) を送出し、 ``[runner]`` で
-    ``ignore_error = true`` が指定されていれば、Runner は ``x`` と同じ shape で
-    全要素が NaN の配列を返します。それ以外の場合は例外をそのまま送出します。
-    ``ValueError`` や ``TypeError`` など、その他の例外は常に送出します。
+    ``evaluate`` メソッドと同様の引数をとります。
+    ``function.Solver`` では、このメソッドを実装する代わりに ``set_gradient()`` を使えます (:doc:`function_solver` を参照)。
 
-    非有限の勾配を受け取った後の結果は最適化手法によって異なり、 ``success=False`` や
-    NaN の結果になることがあります。±inf を含む勾配では、L-BFGS-B が初期点のまま
-    ``success=True`` を報告することもあります。勾配を計算できない点では、非有限の値を
-    返さず、例外を送出してください。
+    .. note::
+      ``Runner`` から呼ばれる場合のエラーの扱い:
 
-    L-BFGS-B が異常終了した場合 (``ABNORMAL``、``success=False``)、scipy が返す
-    目的関数値は最後に評価した点のもので、返されたパラメータでの値と一致しないことがあります。
-    ODAT-SE は scipy の結果をそのまま使います。 ``success=False`` のときは、
-    結果をそのまま信用しないでください。結果の扱いは :doc:`../algorithm/minsearch` を参照してください。
+      ``gradient`` が ``RuntimeError`` を送出した場合、 ``[runner]`` セクションで ``ignore_error = true`` が指定されていると、Runner は例外を無視して勾配を ``np.nan`` の配列として扱います。
+      また、探索点が制約条件 (``[runner.limitation]``) を満たさない場合はソルバーは呼び出されず、勾配の値は ``np.nan`` の配列になります。
 
-  Runner の制約を満たさない点では、 ``submit_gradient()`` はソルバーを呼ばずに
-  全要素が NaN の配列を返します。 ``minsearch`` では、探索範囲外やアルゴリズム単位で
-  制約に違反する点でも、ソルバーを呼ばずに NaN の勾配を返します。
-  Runner 自体は探索範囲の上下限を検査しません。
 
   ``runner.log`` が数えるのは ``evaluate()`` の呼び出しだけです。勾配の呼び出しは記録されず、回数にも含まれません。
 
   ``[runner.mapping]`` を指定した場合は、勾配の利用に対応していません。
-
-  ソルバー並列では、 ``gradient()`` もグループの全ランクで同じ ``x`` と ``args`` を引数として呼び出されます。コントローラ (``solrank() == 0``) の返り値を使用し、その shape を検査します。ワーカーの返り値は破棄します。ランク間の分担はソルバー内で実装してください。
-
-  ``odatse.solver.function.Solver`` では、 ``gradient()`` を実装する代わりに、
-  ``g(x) -> np.ndarray`` を ``set_gradient(g)`` で渡せます。
-  このとき ``supports_gradient`` は自動的に True になります。
-  派生クラスで ``self.supports_gradient`` に値を代入した場合はその値が優先され、
-  後で ``set_function()`` や ``set_gradient()`` を呼んでも変わりません。
-  ``set_function(f)`` は設定済みの勾配を解除するため、その後に呼んでください。
-  勾配は呼び出し元のカレントディレクトリで実行され、 ``delay`` は適用されません。
-  ``--nsolve`` が 2 以上の場合、このディレクトリは実行中のコントローラでは ``proc_dir`` ですが、
-  ワーカーでは起動したディレクトリです。ファイルを読み書きする勾配では ``self.work_dir`` を明示的に使ってください。

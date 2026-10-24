@@ -69,7 +69,7 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 詳細は `scipy.optimize.minimize`_ のドキュメントを参照してください。
 
 ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
-``use_gradient``, ``basinhopping``(後述)以外のパラメータは、そのまま
+``use_gradient``, ``basinhopping`` (後述)以外のパラメータは、そのまま
 `scipy.optimize.minimize`_ の ``options`` 引数に渡されます。
 選択した手法が受け付けないパラメータ名が指定された場合は、
 最適化を開始する前にエラーで終了します。
@@ -130,25 +130,18 @@ walker が複数あり、目的関数値が NaN のものと有限のものが�
 
   形式: 真偽値 (default: false)
 
-  説明: true のとき、数値差分の代わりにソルバーが計算した勾配を
+  説明: true のとき、勾配をソルバーの ``gradient()`` 関数を使って計算し、
   `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
-  カスタムソルバーで勾配を利用するには、 ``supports_gradient`` を True にし、
-  ``gradient`` メソッドを実装してください (:ref:`Solver の定義 <customize_solver>` を参照)。
-  ``function.Solver`` では、代わりに ``set_gradient()`` を使えます。
-  ``SolverBase`` の派生クラスで対応を宣言しても、既定の ``gradient()`` を
-  上書きしていなければ勾配は使えず、ソルバーを評価する前にエラーになります。
-  ``function.Solver`` (``analytical`` などの派生クラスを含む) で ``gradient()`` を上書きせず、
-  勾配も設定していない場合も同じです。
+  ソルバーは、 ``supports_gradient`` を True にし、 ``gradient()`` メソッドを実装している必要があります(:ref:`Solver の定義 <customize_solver>` を参照)。
+  ``function.Solver`` では、代わりに ``set_gradient()`` を使えます (:doc:`../customize/function_solver` を参照)。
 
-  真偽値以外 (文字列の ``"false"`` や整数の ``0`` など) を指定すると、
-  値が真と評価されるか偽と評価されるかにかかわらず、 ``InputValueError`` になります。
-  ``use_gradient = true`` の場合は、次の設定でもソルバーを評価する前に ``InputValueError`` になります。
+  ``use_gradient = true`` とした場合、次の状況では ``InputValueError`` が発生します。
 
   - 勾配を使わない手法: Nelder-Mead, Powell, COBYLA, COBYQA
     (大文字小文字は区別しません。 ``method`` を省略すると Nelder-Mead になります)。
   - ヘッセ行列を必要とする手法: dogleg, trust-ncg, trust-krylov, trust-exact
     (大文字小文字は区別しません)。ODAT-SE はヘッセ行列を渡しません。Newton-CG は利用できます。
-  - 勾配に対応していないソルバー (``supports_gradient`` が False)。
+  - 勾配に対応していないソルバー (``supports_gradient`` が False, または ``gradient()`` メソッドが実装されていない)。
   - ``[runner.mapping]`` の指定。
 
   ``InputValueError`` は ``InputError`` と ``ValueError`` の両方を継承します。
@@ -156,33 +149,10 @@ walker が複数あり、目的関数値が NaN のものと有限のものが�
   ``mpirun`` で実行した場合は、各ランクが1行ずつ報告します。
   false または省略時はソルバーの勾配を使わず、これらの制限は適用されません。
 
-  探索範囲外や制約に違反する点では、ソルバーの ``gradient()`` を呼ばず、全要素が NaN の勾配を返します。
-  勾配の失敗は、目的関数の失敗と同じ規則で扱います。 ``[runner]`` で
-  ``ignore_error = true`` を指定すると、 ``gradient()`` が送出した ``RuntimeError``
-  (``NotImplementedError`` を含む) を全要素が NaN の勾配として扱います。
-  それ以外の場合は例外をそのまま送出します。 ``RuntimeError`` 以外の例外は常に送出します。
-  戻り値に非有限値 (NaN、±inf) が含まれていても、 ``ignore_error`` に関係なくそのまま使います。
-
-  その後の結果は最適化手法によって異なり、 ``success=False`` になったり、目的関数値が NaN、
-  パラメータが非有限値になったりすることがあります(結果と NaN を含むパラメータの扱いは前述)。
-
-  ソルバーが ±inf を含む勾配を返すと、L-BFGS-B が初期点のまま ``success=True`` を
-  報告することがあります。失敗を検出できるように、勾配を計算できない点では
-  非有限の値を返さず、例外を送出してください。
-
   L-BFGS-B が異常終了した場合 (``ABNORMAL``、``success=False``)、scipy が返す
   目的関数値は最後に評価した点のもので、返されたパラメータでの値と一致しないことがあります。
   ODAT-SE は scipy の結果をそのまま使います。 ``success=False`` のときは、
   結果をそのまま信用しないでください。
-
-  勾配とその失敗を覚えておくのは、直前の callback 以降に計算した点と、直前の callback の
-  反復点だけです。それより前の反復の点(ベイスンホッピングで再訪した点など)では計算し直します。
-  キャッシュするのは有限の勾配だけです。callback はそのキャッシュを再利用します。
-  覚えている点で勾配に非有限値が含まれ、まだ回復していない場合は、
-  ``gradient()`` を再び呼ばずに NaN を記録します。scipy から勾配を要求された場合は再評価し、
-  回復した後の callback ではキャッシュした有限の勾配を記録します。
-  勾配評価にも関数評価と共有する step 番号を割り当てますが、勾配評価の step 番号は
-  出力ファイルには記録しません。詳しくは後述の履歴ファイルの説明を参照してください。
 
   設定例:
 

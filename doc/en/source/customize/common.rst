@@ -73,23 +73,17 @@ If the instance of ``Mapping`` is omitted, ``TrivialMapping``, which performs no
 If the instance of ``Limitation`` is omitted, ``Unlimited`` is assumed, which imposes no constraints.
 
 ``submit(self, x: np.ndarray, args: Tuple[int,int]) -> float`` method invokes the solver and returns the value of objective function ``f(x)``.
-``submit`` internally uses the instance of ``Limitation`` to check whether the search parameter ``x`` satisfies the constraints. Then, it applies the instance of ``Mapping`` to obtain from ``x`` the input ``y = mapping(x)`` that is actually used by the solver.
+``submit`` internally uses the instance of ``Limitation`` to check whether the search parameter ``x`` satisfies the constraints.
+Then, it applies the instance of ``Mapping`` to obtain from ``x`` the input ``y = mapping(x)`` that is actually used by the solver, and calls the solver.
+If the constraints are not satisfied, the solver is not called and ``np.inf`` is returned.
+If the solver fails and raises an exception, the exception is re-raised as is, except that ``np.nan`` is returned when it is a ``RuntimeError`` and ``ignore_error == True``.
 
-``submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray`` returns
-an objective gradient with the same shape as ``x``, passing ``args`` to the solver.
-It uses the same input convention as ``submit``. If the point violates the
-constraints, the solver is not called and an all-NaN vector is returned.
-A wrong gradient shape raises ``ValueError``, even with ``ignore_error = true``.
-After checking the shape, non-finite return values (NaN or ±inf) are returned
-as is, regardless of ``ignore_error``. Gradient failures follow the same rules
-as objective-function failures: with ``ignore_error = true``, a ``RuntimeError``
-raised by ``gradient()`` (including ``NotImplementedError``) becomes an all-NaN
-vector; otherwise it propagates. Other exceptions always propagate.
-With ``--nsolve`` greater than 1, a failure on a worker rank reaches the
-controller as ``odatse.exception.SolverRuntimeError`` (when every failing rank
-raised a ``RuntimeError``) or ``SolverError``; see :doc:`../tutorial/parallel_solver`.
-The outcome depends on the optimization method and may be ``success=False``
-or a NaN result; see :doc:`../algorithm/minsearch` for details and limitations.
+``submit_gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray``
+computes the solver's gradient for the search parameter ``x`` and the optional parameter ``args``,
+and returns it as an array with the same shape as ``x``.
+It uses the same input convention as ``submit``.
+At a point violating the ``Limitation`` constraints, the solver is not called and an all-NaN array is returned.
+If the number of elements of the return value differs from that of ``x``, ``ValueError`` is raised.
 Gradient calls are neither recorded nor counted in ``runner.log``.
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` returns ``None`` when
@@ -98,9 +92,8 @@ Gradients require a solver with ``supports_gradient`` true that overrides
 ``gradient()`` (or a ``function.Solver`` given a gradient by ``set_gradient()``),
 and a ``TrivialMapping``.
 ``submit_gradient`` raises ``NotImplementedError`` if any of these conditions
-is not met, regardless of ``ignore_error``. See :doc:`solver` for the solver
-interface and
-:doc:`../algorithm/minsearch` for search bounds and parameter units.
+is not met, regardless of ``ignore_error``.
+See :doc:`solver` for implementing a solver that returns gradients.
 
 See :doc:`../input/index` for details of how and which components of ``info`` the ``Runner`` uses.
 
