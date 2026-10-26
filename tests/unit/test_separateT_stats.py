@@ -7,7 +7,10 @@ sys.path.insert(0, SOURCE_PATH)
 import numpy as np
 import pytest
 
-from odatse.util.separateT import _compute_temperature_statistics
+from odatse.util.separateT import (
+    _compute_temperature_statistics,
+    calculate_statistics_from_separated_files,
+)
 
 
 def test_constant_samples_give_finite_zero_error():
@@ -35,3 +38,41 @@ def test_varying_samples_have_positive_error():
         samples, thermalization_steps=0, dbeta=0.0)
     assert mean == pytest.approx(2.0)
     assert np.isfinite(err) and err > 0.0
+
+
+def _write_result_T(dirpath, index, fxs):
+    """Write ``result_T<index>.txt`` with one walker whose f(x) is *fxs*."""
+    with open(dirpath / f"result_T{index}.txt", "w") as f:
+        f.write("# T = ?\n")
+        for step, fx in enumerate(fxs):
+            f.write(f"{step} 0 {fx} {fx}\n")
+
+
+@pytest.mark.parametrize("ascending", [True, False])
+def test_fx_txt_lists_beta_and_integrates_towards_higher_beta(tmp_path, ascending):
+    """``calculate_statistics_from_separated_files`` takes temperatures.  Whatever
+    their order, fx.txt must list 1/T in ascending order of beta, and
+    log(Z/Z0) at beta_i must come from the samples at beta_{i-1} weighted
+    with exp(-(beta_i - beta_{i-1}) f).  With constant f per temperature the
+    integral is exact: log(Z(1)/Z(0.5)) = -0.5 * f(T=2) = -0.5.
+
+    Exchange used to pass betas as temperatures when the input was given as
+    bmin/bmax (issue #133); the descending case is exactly what it passes
+    now, since betas ascend."""
+    # T = 2 (beta 0.5) has f == 1, T = 1 (beta 1) has f == 2
+    if ascending:
+        Ts = np.array([1.0, 2.0])
+        _write_result_T(tmp_path, 0, [2.0] * 4)
+        _write_result_T(tmp_path, 1, [1.0] * 4)
+    else:
+        Ts = np.array([2.0, 1.0])
+        _write_result_T(tmp_path, 0, [1.0] * 4)
+        _write_result_T(tmp_path, 1, [2.0] * 4)
+
+    calculate_statistics_from_separated_files(
+        Ts, output_dir=str(tmp_path), thermalization_steps=0, comm=None)
+
+    rows = np.loadtxt(tmp_path / "fx.txt", ndmin=2)
+    np.testing.assert_allclose(rows[:, 0], [0.5, 1.0])   # beta, ascending
+    np.testing.assert_allclose(rows[:, 1], [1.0, 2.0])   # mean f at that beta
+    np.testing.assert_allclose(rows[:, 4], [0.0, -0.5])  # log(Z/Z0)
