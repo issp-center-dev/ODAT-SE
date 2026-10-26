@@ -206,7 +206,7 @@ def _compute_temperature_statistics(
 # ---------------------------------------------------------------------------
 
 def separateT(
-    Ts: np.ndarray,
+    tvals: np.ndarray,
     nwalkers: int,
     output_dir: PathLike,
     comm: Optional[MPI.Comm],
@@ -223,16 +223,19 @@ def separateT(
 
     Parameters
     ----------
-    Ts : np.ndarray
-        Array of temperature (or beta) values, shared across all ranks.
+    tvals : np.ndarray
+        The values recorded in the third column of ``result.txt``, one per
+        replica, shared across all ranks: beta when *use_beta* is ``True``,
+        temperature otherwise.  Lines are matched to replicas by this value.
     nwalkers : int
-        Number of walkers per MPI rank.  Must satisfy ``len(Ts) == nwalkers * mpisize``.
+        Number of walkers per MPI rank.  Must satisfy ``len(tvals) == nwalkers * mpisize``.
     output_dir : PathLike
         Root output directory.  Rank *r* reads from ``output_dir/<r>/result.txt``.
     comm : MPI.Comm, optional
         MPI communicator.  Pass ``None`` for serial execution.
     use_beta : bool
-        Write ``# beta = …`` headers instead of ``# T = …`` when ``True``.
+        Whether *tvals* are betas.  Write ``# beta = …`` headers instead of
+        ``# T = …`` when ``True``.
     buffer_size : int, optional
         Maximum number of lines read per chunk (rounded up to a multiple of
         *nwalkers*).  Default is 10000.
@@ -244,16 +247,17 @@ def separateT(
         mpisize = comm.size
         mpirank = comm.rank
 
-    # Temperatures are used as routing/index keys (both as ``str(T)`` for the
-    # per-rank buckets and as the raw value for T2idx). Duplicate values -- or
-    # values whose string representation collides -- would make distinct
-    # replicas share one output file and silently lose data. Separation by
-    # temperature is only well-defined for distinct temperatures, so reject the
-    # ambiguous case explicitly instead of producing wrong output.
-    if len(set(map(str, Ts))) != len(Ts):
+    # The recorded values are used as routing/index keys (both as ``str(tval)``
+    # for the per-rank buckets and as the raw value for T2idx). Duplicate
+    # values -- or values whose string representation collides -- would make
+    # distinct replicas share one output file and silently lose data.
+    # Separation by temperature is only well-defined for distinct
+    # temperatures, so reject the ambiguous case explicitly instead of
+    # producing wrong output.
+    if len(set(map(str, tvals))) != len(tvals):
         raise ValueError(
             "separateT requires distinct temperature/beta values, "
-            f"but got duplicates in {list(Ts)}"
+            f"but got duplicates in {list(tvals)}"
         )
 
     # Round up so that each buffer covers whole walker-groups.
@@ -261,25 +265,25 @@ def separateT(
     output_dir = pathlib.Path(output_dir)
     proc_dir = output_dir / str(mpirank)
 
-    T2idx = {T: i for i, T in enumerate(Ts)}
+    T2idx = {tval: i for i, tval in enumerate(tvals)}
 
     # Build per-rank routing table and empty bucket structure.
     T2rank: dict[str, int] = {}
     results: list[dict[str, list[Entry]]] = []
-    for rank, Ts_local in enumerate(np.array_split(Ts, mpisize)):
+    for rank, tvals_local in enumerate(np.array_split(tvals, mpisize)):
         d: dict[str, list[Entry]] = {}
-        for T in Ts_local:
-            T2rank[str(T)] = rank
-            d[str(T)] = []
+        for tval in tvals_local:
+            T2rank[str(tval)] = rank
+            d[str(tval)] = []
         results.append(d)
 
-    local_Ts = Ts[mpirank * nwalkers : (mpirank + 1) * nwalkers]
+    local_tvals = tvals[mpirank * nwalkers : (mpirank + 1) * nwalkers]
 
     # Write per-temperature output file headers.
     label = "beta" if use_beta else "T"
-    for T in local_Ts:
-        with open(output_dir / f"result_T{T2idx[T]}.txt", "w") as f_out:
-            f_out.write(f"# {label} = {T}\n")
+    for tval in local_tvals:
+        with open(output_dir / f"result_T{T2idx[tval]}.txt", "w") as f_out:
+            f_out.write(f"# {label} = {tval}\n")
 
     # Read result.txt in chunks, redistribute each chunk, and write to output.
     with open(proc_dir / "result.txt") as f_in:
@@ -301,9 +305,9 @@ def separateT(
             results2 = comm.alltoall(results) if mpisize > 1 else results
             merged = _merge_results(results2)
 
-            for T in local_Ts:
+            for tval in local_tvals:
                 _write_entries_to_file(
-                    merged[str(T)], output_dir / f"result_T{T2idx[T]}.txt"
+                    merged[str(tval)], output_dir / f"result_T{T2idx[tval]}.txt"
                 )
 
             if reached_eof:

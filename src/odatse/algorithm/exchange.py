@@ -391,20 +391,26 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
                 print(f"start separateT {odatse.mpi.algrank()}")
                 sys.stdout.flush()
 
-            # Convert beta to temperature if needed
-            Ts = self.betas if self.input_as_beta else 1.0 / self.betas
-
-            # Organize results by temperature
+            # Organize results by temperature.  separateT matches the lines
+            # of result.txt by the value recorded in their third column,
+            # which _write_result wrote as beta or 1/beta according to the
+            # input.
+            tvals = self.betas if self.input_as_beta else 1.0 / self.betas
             separateT(
-                Ts=Ts,
+                tvals=tvals,
                 nwalkers=self.nwalkers,
                 output_dir=self.output_dir,
                 comm=odatse.mpi.algcomm(),
                 use_beta=self.input_as_beta,
                 buffer_size=10000,
             )
+            # The statistics are computed from temperatures whatever the
+            # input: fx.txt lists 1/T, and dbeta = 1/T_lower - 1/T picks the
+            # neighbour on the low-temperature side.  Passing betas here
+            # (issue #133) wrote 1/beta in the first column and flipped
+            # log(Z/Z0).
             calculate_statistics_from_separated_files(
-                Ts=Ts,
+                Ts=1.0 / self.betas,
                 output_dir=self.output_dir,
                 thermalization_steps=self.numsteps_thermalization,
                 comm=odatse.mpi.algcomm(),
