@@ -366,9 +366,6 @@ class Algorithm(odatse.algorithm.montecarlo.AlgorithmBase):
             self._split_result_file("trial")
             self._split_result_file("result")
 
-        if odatse.mpi.algsize() > 1:
-            odatse.mpi.algcomm().barrier()
-
         print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
     def _setup_writer(self):
