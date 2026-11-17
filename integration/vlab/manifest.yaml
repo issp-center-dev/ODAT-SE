@@ -1,0 +1,32 @@
+# Catalog entry for V-Lab Platform (module-pack template v1).
+# V-Lab calls ODAT-SE through its own allowlisted adapter in a separate process; MCP and Skills are for
+# people and AI agents.
+- id: O01
+  name: "ODAT-SE"
+  kind: optimizer
+  version: "3.2.1"
+  availability: optional
+  enabled: true
+  capabilities: [inverse, continuous, external]
+  cost_class: medium
+  adapter_status: verified          # set by V-Lab after its adapter tests pass (minsearch)
+  summary_ja: "逆問題・パラメータ探索フレームワーク (Nelder-Mead, grid, random, replica exchange, PAMC, Bayes)"
+  upstream: "https://github.com/issp-center-dev/ODAT-SE"
+  repository: { url: "https://github.com/issp-center-dev/ODAT-SE", ref: "v3.2.1" }
+  license: { spdx: "MPL-2.0", verified: true, source: "pyproject.toml" }
+  python_import: odatse
+  install_hint: "pip install \"ODAT-SE[min_search]\"   (MCP server: pip install \"ODAT-SE[mcp]\")"
+  docs:
+    readme: "README.md"
+    manual: "https://issp-center-dev.github.io/ODAT-SE/"
+  skills:
+    - { name: odatse-practice, path: "skills/odatse-practice/SKILL.md" }
+    - { name: odatse-input-pitfalls, path: "skills/odatse-input-pitfalls/SKILL.md" }
+  mcp: { status: available, server: "odatse-mcp", notes: "run_calculation is opt-in (ODATSE_MCP_ALLOW_RUN=1) and analytical-solver only" }
+  optimizer:
+    supported_spaces: [continuous]
+    directions: [minimize]
+    requires_grad: false
+    requires_bounds: true
+    methods: [minsearch]
+    requires_process_isolation: true   # algorithms os.chdir() while running

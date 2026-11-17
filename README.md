@@ -51,6 +51,18 @@ It also offers a driver script to solve the problem with predefined optimization
 - `python3 src/odatse_main.py input.toml` (use the raw script)
 - For details of the input file, see the document.
 
+### JSON API, MCP server and Skills (for tools and AI agents)
+
+- `odatse.api`: a JSON-in/JSON-out interface. The input is the `input.toml` structure as a dict.
+  - Functions: `schema()`, `validate(input)`, `prepare(input, workdir)`, `run(input, workdir, timeout_s=...)`, `parse(workdir)` and `versions()`.
+  - `run` executes `python -m odatse input.toml` in a subprocess with a timeout, and accepts only the built-in `analytical` solver.
+  - Bad input returns structured issues (`code`, `message`, `field`, `hint`).
+- `odatse-mcp`: an MCP server over the same functions (`pip install "ODAT-SE[mcp]"`).
+  - Tools: `get_schema`, `versions`, `validate_input`, `render_input_toml`, `run_calculation` and `get_result`.
+  - `run_calculation` is disabled unless the server is started with `ODATSE_MCP_ALLOW_RUN=1`.
+- `skills/`: task-oriented guidance for AI coding agents (`odatse-practice`, `odatse-input-pitfalls`).
+- `integration/vlab/manifest.yaml`: the catalog entry for workflow tools such as V-Lab Platform.
+
 ## Files and directories of ODAT-SE
 
 - `src/`
@@ -61,6 +73,10 @@ It also offers a driver script to solve the problem with predefined optimization
   - sample usages
 - `doc/`
   - source codes of documents (manuals)
+- `skills/`
+  - guidance for AI coding agents (SKILL.md)
+- `integration/`
+  - catalog entries for external workflow tools
 - `tests/`
   - for automatic test
 - `README.md`

@@ -22,6 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 min_search = ["scipy>=1,<2"]
+mcp = ["mcp>=1.2"]
 bayes = ["physbo>= 2.0.0"]
 exchange = ["mpi4py>= 3.1.0"]
 all = [
@@ -36,6 +37,7 @@ Repository = "https://github.com/issp-center-dev/ODAT-SE"
 [project.scripts]
 odatse = "odatse:main"
 odatse_neighborlist = "odatse.util.neighborlist:main"
+odatse-mcp = "odatse.mcp_server:main"
 
 [tool.hatch.build.targets.sdist]
 include = ["src/odatse"]
