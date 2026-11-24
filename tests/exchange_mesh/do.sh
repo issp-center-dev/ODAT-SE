@@ -7,17 +7,17 @@ rm -rf output
 
 # Generate MeshData.txt using makemesh.py
 echo generate MeshData.txt
-time python3 ./makemesh.py > MeshData.txt
+time ${PYTHON:-python3} ./makemesh.py > MeshData.txt
 
 echo
 # Generate neighborlist.txt using odatse_neighborlist.py with a radius of 0.11
 echo generate neighborlist.txt
-time python3 ../../src/odatse_neighborlist.py -r 0.11 MeshData.txt
+time ${PYTHON:-python3} ../../src/odatse_neighborlist.py -r 0.11 MeshData.txt
 
 echo
 # Perform exchange Monte Carlo simulation using odatse_main.py with input.toml
 echo perform exchange mc
-time python3 ../../src/odatse_main.py input.toml
+time ${PYTHON:-python3} ../../src/odatse_main.py input.toml
 
 # Define the result file path
 resfile=output/best_result.txt

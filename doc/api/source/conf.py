@@ -10,7 +10,7 @@ import sys
 
 project = 'ODAT-SE API'
 copyright = '2020-, ISSP, UTokyo'
-author = '2DMAT Developers'
+author = 'ODAT-SE Developers'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -22,7 +22,12 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
 ]
+
+# Remove shell prompts when copying command examples.
+copybutton_prompt_text = r"\$ "
+copybutton_prompt_is_regexp = True
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -32,7 +37,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+html_theme = 'pydata_sphinx_theme'
 # html_static_path = ['_static']
 
 # -- Options for todo extension ----------------------------------------------
@@ -44,3 +49,5 @@ autoclass_content = 'both'
 
 napoleon_include_init_with_doc = True
 
+# Avoid importing optional runtime dependencies during API doc generation.
+autodoc_mock_imports = ["mpi4py", "physbo", "scipy"]

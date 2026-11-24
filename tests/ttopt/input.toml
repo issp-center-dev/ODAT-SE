@@ -1,0 +1,21 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "ttopt"
+seed = 12345
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+
+[algorithm.ttopt]
+p_points = [2, 2]
+q_points = [20, 20]
+r_max = 4
+max_f_eval = 1000
+
+[solver]
+name = "analytical"
+function_name = "quadratics"

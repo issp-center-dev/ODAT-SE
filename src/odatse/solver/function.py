@@ -40,7 +40,7 @@ class Solver(odatse.solver.SolverBase):
         # for debug purpose
         self.delay = info.solver.get("delay", 0.0)
 
-    def evaluate(self, x: np.ndarray, args: tuple = (), nprocs: int = 1, nthreads: int = 1) -> float:
+    def evaluate(self, x: np.ndarray, args: tuple = ()) -> float:
         """
         Evaluate the function with given parameters.
 
@@ -50,10 +50,6 @@ class Solver(odatse.solver.SolverBase):
             Input array for the function.
         args : tuple, optional
             Additional arguments for the function.
-        nprocs : int, optional
-            Number of processes to use.
-        nthreads : int, optional
-            Number of threads to use.
 
         Returns
         -------
@@ -63,9 +59,9 @@ class Solver(odatse.solver.SolverBase):
         self.prepare(x, args)
         cwd = os.getcwd()
         os.chdir(self.work_dir)
-        self.run(nprocs, nthreads)
-        os.chdir(cwd)
+        self.run()
         result = self.get_results()
+        os.chdir(cwd)
         return result
 
     def prepare(self, x: np.ndarray, args = ()) -> None:
@@ -81,16 +77,9 @@ class Solver(odatse.solver.SolverBase):
         """
         self.x = x
 
-    def run(self, nprocs: int = 1, nthreads: int = 1) -> None:
+    def run(self) -> None:
         """
         Run the function evaluation.
-
-        Parameters
-        ----------
-        nprocs : int, optional
-            Number of processes to use.
-        nthreads : int, optional
-            Number of threads to use.
 
         Raises
         ------

@@ -1,0 +1,32 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+#delay = 0.01
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "pamc"
+seed = 12345
+
+[algorithm.param]
+use_grid = true
+min_list = [-6.0, -6.0]
+max_list = [ 6.0,  6.0]
+num_list = [31, 31]
+radius = 0.5
+
+[algorithm.pamc]
+numsteps_annealing = 100
+Tnum = 11
+bmin = 0.0
+bmax = 10.0
+Tlogspace = false
+nreplica_per_proc = 10
+fix_num_walkers = true
+resampling_interval = 3

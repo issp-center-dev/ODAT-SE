@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if [ "_$1" = "_--latex" ]; then
   BUILD_LATEX=ON
   latexmk --version > /dev/null 2>&1 || { echo "Latexmk is not installed"; exit 1; }

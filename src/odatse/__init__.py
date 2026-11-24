@@ -9,11 +9,10 @@
 # Pay attention to the dependencies and the order of imports!
 # For example, Runner depends on solver.
 
+from ._version import __version__
 from ._info import Info
 from . import solver
 from ._runner import Runner
 from . import algorithm
-from ._main import main
+from ._main import main, cli
 from ._initialize import initialize
-
-__version__ = "3.2.1"

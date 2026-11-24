@@ -17,7 +17,7 @@ Input parameters
 
 This has two subsections ``algorithm.param`` and ``algorithm.pamc`` .
 
-[``algorithm.param``]
+``[algorithm.param]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines a space to be explored.
@@ -32,32 +32,40 @@ Otherwise, continuous space is used.
 
     Description:
     Initial value of parameters.
-    If not defined, these will be initialize randomly.
+    If not defined, these will be initialized randomly.
 
   - ``min_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Minimum value of each parameter.
-    When a parameter falls below this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
+    Description: The minimum value that each parameter can take.
 
   - ``max_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    Maximum value of each parameter.
-    When a parameter exceeds this value during the Monte Carlo search,
-    the solver is not evaluated and the value is considered infinite.
+    Description: The maximum value that each parameter can take.
 
   - ``step_list``
 
     Format: List of float. Length should be equal to ``dimension``.
 
-    Description:
-    The step length in one Monte Carlo update (deviation of Gaussian distribution).
+    Description: Step width (standard deviation of the Gaussian distribution) used for Monte Carlo updates.
+
+  - ``pbc_list``
+
+    Format: List of boolean (default: false for each parameter).
+
+    Description: Whether to use periodic boundary conditions (PBC) for generating local candidate points for each parameter. The length should be equal to ``dimension``.
+
+  - About state proposals
+
+    - In Monte Carlo updates, candidate points are proposed according to a Gaussian distribution centered at the current state.
+      If a candidate parameter ``d`` falls outside the range [min_list[d], max_list[d]):
+
+      - If ``pbc_list[d] = true``, it will be wrapped into the range [min_list[d], max_list[d]) using periodic boundary conditions.
+      - If ``pbc_list[d] = false``, the proposal will be rejected.
+
 
 - Discrete space
 
@@ -66,6 +74,24 @@ Otherwise, continuous space is used.
     Format: string
 
     Description: Path to the mesh definition file. See *Reference file* below for the format.
+
+  - ``comments``
+
+    Format: String (default: "#")
+
+    Description: Character(s) that indicate the beginning of a comment line when reading the mesh definition file.
+
+  - ``delimiter``
+
+    Format: String (default: whitespace)
+
+    Description: Column delimiter of the mesh definition file. Specify ``","`` to read a CSV file.
+
+  - ``skiprows``
+
+    Format: Integer (default: 0)
+
+    Description: Number of lines to skip at the beginning of the mesh definition file. Use it to skip header lines.
 
   - ``neighborlist_path``
 
@@ -107,7 +133,7 @@ Otherwise, continuous space is used.
     The number of mesh points along each parameter of the mesh to be generated.
 
 
-[``algorithm.pamc``]
+``[algorithm.pamc]``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``
@@ -120,7 +146,7 @@ Otherwise, continuous space is used.
 
   Format: Integer
 
-  Description: The number of interval Monte Carlo steps between lowering "temperature".
+  Description: The number of Monte Carlo steps between successive temperature reductions.
 
 - ``Tnum``
 
@@ -145,14 +171,14 @@ Otherwise, continuous space is used.
   Format: Float
 
   Description: The minimum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``bmax``
 
   Format: Float
 
   Description: The maximum value of the "inverse temperature" (:math:`\beta = 1/T`).
-  One of the "temperature" and "inverse temperature" should be defined.
+  Specify either the temperature range (``Tmin``, ``Tmax``) or the inverse-temperature range (``bmin``, ``bmax``), but not both pairs.
 
 - ``Tlogspace``
 
@@ -164,13 +190,14 @@ Otherwise, continuous space is used.
 
   Format: Integer (default: 1)
 
-  Description: The number of replicas in a MPI process.
+  Description: The number of replicas in an MPI process.
+  The total number of replicas (population size) is given by "number of MPI processes × ``nreplica_per_proc``".
 
 - ``resampling_interval``
 
   Format: Integer (default: 1)
 
-  Description: The number of annealing processes between resampling of the replicas.
+  Description: The number of annealing steps between resamplings of the replicas.
 
 - ``fix_num_replicas``
 
@@ -183,13 +210,32 @@ Otherwise, continuous space is used.
   Format: Boolean (default: true)
 
   Description: Whether to write log files of Monte Carlo steps separately for each temperature.
+  This option is ignored when ``export_combined_files`` is true.
 
+- ``export_combined_files``
+
+  Format: Boolean (default: false)
+
+  Description: Whether to write the contents of ``trial.txt``, ``result.txt``, and ``weight.txt`` into a single combined file ``combined.txt`` instead of separate per-process files.
+  Use the ``odatse_extract_combined`` tool to extract the individual files from the combined file (see :doc:`../post/tools/extract_combined`).
+
+- ``anneal_from_beta0``
+
+  Format: Boolean (default: false)
+
+  Description: When set to ``true`` and ``bmin>0``, the algorithm first performs annealing and resampling from an initial random sample at :math:`\beta=0` (infinite temperature) up to the smallest specified inverse temperature (``bmin`` or :math:`1/T_{\max}`), before starting the main calculation.
+  This ensures that, even if the computation does not start from :math:`\beta=0`, the reference value of :math:`\log Z/Z_0` can still be considered as being taken at :math:`\beta=0`.
 
 About the number of steps
-********************************
+"""""""""""""""""""""""""""""
 
-Specify just two of ``numstep``, ``numsteps_annealing``, and ``numT``.
-The value of the remaining one will be determined automatically.
+Specify just two of ``numsteps``, ``numsteps_annealing``, and ``Tnum``.
+The value of the remaining one will be determined automatically. They are approximately related by ``numsteps = numsteps_annealing × Tnum``
+(when the division leaves a remainder, the extra steps are assigned to the higher-temperature points).
+
+.. note::
+   **For developers**: Setting the environment variable ``ODATSE_USE_MPI_BUFFERED=1`` switches the MPI communication used for collecting replica data from object-based (``gather``) to buffer-based (``Gather``).
+   It is normally not needed, but is provided as a performance-tuning option for large-scale parallel runs.
 
 Reference file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -220,9 +266,9 @@ Below, a sample file is shown.
 Neighborhood-list file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before searching in the discrete space by Markov Chain Monte Carlo method,
-we should define "neighborhoods" for each point :math:`i`, which are points that a walker can move from :math:`i`
-A neighborhood-list file defines the list of neighborhoods.
+Before searching a discrete space by the Markov chain Monte Carlo method,
+the "neighborhood" of each point :math:`i` must be defined, i.e. the points to which a walker can move from :math:`i`.
+A neighborhood-list file defines these neighborhoods.
 In this file, the index of an initial point :math:`i` is specified by the first column,
 and the indices of final points :math:`j` are specified by the second and successive columns.
 
@@ -246,10 +292,10 @@ Output files
 This file stores the suggested parameters and the corresponding value returned from the solver for each temperature point (specified by ``#``).
 The first column (``step``) is the index of the MC step.
 The second column (``walker``) is the index of the walker in the process.
-The third column (``beta``) is the inverse temperature of the replica.
+The third column (``beta``) is the inverse temperature of the replica (when the temperature range is given via ``Tmin``/``Tmax``, the temperature ``T`` is written instead).
 The fourth column (``fx``) is the value of the solver.
-The fifth - (4+dimension)-th columns are the coordinates.
-The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynsky weight and the grand-ancestor of the replica.
+The fifth through (4+dimension)-th columns are the coordinates.
+The last two columns (``weight`` and ``ancestor``) are the Neal-Jarzynski weight and the grand-ancestor of the replica.
 
 Example::
 
@@ -266,12 +312,12 @@ Example::
 ``RANK/trial.txt``
 ^^^^^^^^^^^^^^^^^^^^^
 
-This is a combination of all the ``trial_T#.txt`` in one.
+This file combines all the ``trial_T#.txt`` files into one.
 
 ``RANK/result_T#.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 This file stores the sampled parameters and the corresponding value returned from the solver for each replica and each temperature.
-This has the same format as ``trial.txt``.
+This has the same format as ``trial_T#.txt``.
 
 .. code-block::
 
@@ -287,17 +333,18 @@ This has the same format as ``trial.txt``.
 ``RANK/result.txt``
 ^^^^^^^^^^^^^^^^^^^^^
 
-This is a combination of all the ``result_T#.txt`` in one.
+This file combines all the ``result_T#.txt`` files into one.
 
 ``best_result.txt``
 ^^^^^^^^^^^^^^^^^^^^
-The optimal value of the solver and the corresponding parameter among the all samples.
+The optimal value of the solver and the corresponding parameter among all the samples.
 
 .. code-block::
 
     nprocs = 4
     rank = 2
     step = 65
+    walker = 0
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661
@@ -306,17 +353,17 @@ The optimal value of the solver and the corresponding parameter among the all sa
 ``fx.txt``
 ^^^^^^^^^^^^^^
 
-This file stores statistical metrics over the all replicas for each temperature.
-The first column is inverse temperature.
-The second and third column are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
+This file stores statistical metrics over all the replicas for each temperature.
+The first column is the inverse temperature.
+The second and third columns are the expectation value and the standard error of the solver's output (:math:`f(x)`), respectively.
 The fourth column is the number of replicas.
-The fifth column is the logarithmic of the ratio between the normalization factors (partition functions)
+The fifth column is the logarithm of the ratio between the normalization factors (partition functions)
 
 .. math::
 
    \log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)},
 
-where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation.
+where :math:`\beta_0` is the minimum value of :math:`\beta` used in the calculation (when ``anneal_from_beta0 = true``, the reference is :math:`\beta_0 = 0`).
 The sixth column is the acceptance ratio of MC updates.
 
 .. code-block::
@@ -332,6 +379,36 @@ The sixth column is the acceptance ratio of MC updates.
     0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
     ...
 
+``RANK/weight.txt``
+^^^^^^^^^^^^^^^^^^^
+This file stores the Neal-Jarzynski weight of each replica at each temperature.
+The columns are, in order, the temperature index (``Tindex``), the inverse temperature (``beta``),
+the walker index (``walker``), the grand-ancestor id (``idnum``), the value of the objective function (``fx``),
+the logarithm of the weight (``log_weight``), and the coordinates.
+
+Example::
+
+    # Tindex beta walker idnum fx log_weight x1
+    0 0.0 0 0 73.82799488298886 0.0 8.592321856342956
+    0 0.0 1 1 13.487174782058675 0.0 -3.672488908364282
+    ...
+
+``pr.txt``
+^^^^^^^^^^
+This file stores the participation ratio of the weights for each temperature,
+which measures the effective number of replicas.
+The first column is the temperature index (``Tindex``), the second column is the
+inverse temperature (:math:`1/T`), and the third column is the participation ratio.
+
+.. code-block::
+
+    # $1: Tindex
+    # $2: 1/T
+    # $3: participation ratio
+    0 0.0 100.0
+    1 0.1 87.23456789012345
+    ...
+
 Restart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The execution mode is specified by the ``run_mode`` parameter to the constructor.
@@ -341,9 +418,9 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
 - ``"initial"`` (default)
 
   The program is started from the initialized state.
-  If the checkpointing is enabled, the intermediate states will be stored at the folloing occasions:
+  If the checkpointing is enabled, the intermediate states will be stored on the following occasions:
 
-  #. at the end of calculation at each temperature point, the specified number of steps has been done, or the specified period of time has passed.
+  #. when the calculation at a temperature point finishes and the specified number of steps has been performed or the specified period of time has passed.
   #. at the end of the execution.
 
 - ``"resume"``
@@ -356,7 +433,7 @@ The parameter values correspond to ``--init``, ``--resume``, and ``--cont`` opti
   The program execution is continued from the previous run.
   The sequence of the temperature points should be specified so that it is continuous from that of the previous run.
 
-  Assume that the temperature has been lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
+  If the temperature was lowered from ``Tmax=`` :math:`T^{(1)}` to ``Tmin=`` :math:`T^{(2)}` in the previous run, the next values should be taken as ``Tmax=`` :math:`T^{(2)}` and ``Tmin=`` :math:`T^{(3)}`.
   In the new calculation, the temperature points are taken from :math:`T^{(2)}` to :math:`T^{(3)}` divided by ``Tnum``, namely, :math:`T_0 = T^{(2)}`, :math:`T_1`,..., :math:`T_{\text{Tnum}-1}=T^{(3)}`. (``Tnum`` can be different from the previous run.)
 
 
@@ -366,21 +443,21 @@ Algorithm
 Goal
 ^^^^^
 
-When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`f_i(x)`
-(e.g., the Bolzmann factor :math:`f_i(x) = \exp[-\beta_i E(x)]` ),
+When the weight of the configuration :math:`x` under some parameter :math:`\beta_i` is given as :math:`W_i(x)`
+(e.g., the Boltzmann factor :math:`W_i(x) = \exp[-\beta_i f(x)]` ),
 the expectation value of :math:`A` is defined as
 
 .. math::
 
    \langle A\rangle_i
-   = \frac{\int \mathrm{d}xA(x)f_i(x)}{\int \mathrm{d}x f_i(x)}
-   = \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
-   = \int \mathrm{d}xA(x)\tilde{f}_i(x),
+   = \frac{\int \mathrm{d}xA(x)W_i(x)}{\int \mathrm{d}x W_i(x)}
+   = \frac{1}{Z_i}\int \mathrm{d}xA(x)W_i(x)
+   = \int \mathrm{d}xA(x)\tilde{W}_i(x),
 
-where :math:`Z = \int \mathrm{d} x f_i(x)` is the normalization factor (partition function)
-and :math:`\tilde{f}(x) = f(x)/Z` is the probability of :math:`x`.
+where :math:`Z_i = \int \mathrm{d} x W_i(x)` is the normalization factor (partition function)
+and :math:`\tilde{W}_i(x) = W_i(x)/Z_i` is the probability of :math:`x`.
 
-Our goal is to numerically calculate the expectation value for each :math:`\beta_i` and the (ratio of) the normalization factor.
+Our goal is to numerically calculate the expectation value for each :math:`\beta_i` and the (ratios of the) normalization factors.
 
 Annealed Importance Sampling (AIS) [1]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -389,35 +466,35 @@ First, we introduce a series of configurations :math:`\{x_i\}` obeying the follo
 
 .. math::
 
-   \tilde{f}(x_0, x_1, \dots, x_n) = \tilde{f}_n(x_n) \tilde{T}_n(x_n, x_{n-1}) \tilde{T}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{T}_1(x_1, x_0),
+   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0),
 
 with
 
 .. math::
 
-   \tilde{T}_i(x_i, x_{i-1}) = T_i(x_{i-1}, x_i) \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)},
+   \tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)},
 
-where :math:`T_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
+where :math:`p_i(x, x')` is a transition probability from :math:`x` to :math:`x'` under :math:`\beta_i`
 holding the balance condition,
 
 .. math::
 
 
-   \int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x').
+   \int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x').
 
-It turns out that :math:`\tilde{f}_n(x_n)` is the marginal distribution of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, that is,
-
-.. math::
-
-
-   \tilde{f}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{f}(x_0, x_1, \dots, x_n),
-
-from 
+It turns out that :math:`\tilde{W}_n(x_n)` is the marginal distribution of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, that is,
 
 .. math::
 
-   \int \mathrm{d} x_{i-1} \tilde{T}_i(x_i, x_{i-1})
-   = \int \mathrm{d} x_{i-1} \tilde{f}_i(x_{i-1}) T_i(x_{i-1}, x_i) / \tilde{f}_i(x_i)
+
+   \tilde{W}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{W}(x_0, x_1, \dots, x_n),
+
+from
+
+.. math::
+
+   \int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
    = 1.
 
 Consequently,
@@ -429,28 +506,28 @@ Consequently,
    \begin{split}
    \langle A \rangle_n
    &\equiv
-   \int \mathrm{d} x_n A(x_n) \tilde{f}_n(x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n).
+   \int \mathrm{d} x_n A(x_n) \tilde{W}_n(x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n).
    \end{split}
 
 
 Unfortunately, it is difficult to generate directly a series of configurations :math:`\{x_i\}`
-following the distribution :math:`\tilde{f}(x_0, x_1, \dots, x_n)`.
-Then, instead of :math:`\tilde{f}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x_i\}` obeying the joint distribution
+following the distribution :math:`\tilde{W}(x_0, x_1, \dots, x_n)`.
+Then, instead of :math:`\tilde{W}(x_0, x_1, \dots, x_n)`, we consider :math:`\{x_i\}` obeying the joint distribution
 
 .. math::
 
-   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n),
+   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n),
 
 
-by using the following the following scheme:
+by using the following scheme:
 
-1. Generete :math:`x_0` from the initial distribution :math:`\tilde{f}_0(x)`
+1. Generate :math:`x_0` from the initial distribution :math:`\tilde{W}_0(x)`
 
-2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`T_{i+1}(x_i, x_{i+1})`
+2. Generate :math:`x_{i+1}` from :math:`x_i` through :math:`p_{i+1}(x_i, x_{i+1})`
 
 
-By using the reweighting method (or importance sampling method), 
+By using the reweighting method (or importance sampling method),
 :math:`\langle A \rangle_n` is rewritten as
 
 .. math::
@@ -458,31 +535,31 @@ By using the reweighting method (or importance sampling method),
 
    \begin{split}
    \langle A \rangle_n
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{f}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
-   &= \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{W}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
+   &= \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    \end{split}.
 
-Because the ratio between :math:`\tilde{f}` and :math:`\tilde{g}` is 
+Because the ratio between :math:`\tilde{W}` and :math:`\tilde{g}` is
 
 .. math::
 
 
    \begin{split}
-   \frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
-   &= 
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
+   \frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
    &=
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
    &=
-   \frac{Z_0}{Z_n}
-   \frac{f_n(x_n)}{f_0(x_0)}
-   \prod_{i=1}^n \frac{f_i(x_{i-1})}{f_i(x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\
    &=
    \frac{Z_0}{Z_n}
-   \prod_{i=0}^{n-1} \frac{f_{i+1}(x_{i})}{f_i(x_i)} \\
+   \frac{W_n(x_n)}{W_0(x_0)}
+   \prod_{i=1}^n \frac{W_i(x_{i-1})}{W_i(x_i)} \\
+   &=
+   \frac{Z_0}{Z_n}
+   \prod_{i=0}^{n-1} \frac{W_{i+1}(x_{i})}{W_i(x_i)} \\
    &\equiv
    \frac{Z_0}{Z_n} w_n(x_0, x_1, \dots, x_n),
    \end{split}
@@ -491,7 +568,7 @@ the form of the expectation value will be
 
 .. math::
 
-   \langle A \rangle_n = \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   \langle A \rangle_n = \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    = \frac{Z_0}{Z_n} \langle Aw_n \rangle_{g,n}.
 
 
@@ -507,15 +584,15 @@ and therefore the expectation value of :math:`A` can be evaluated as a weighted 
 
    \langle A \rangle_n = \frac{\langle Aw_n \rangle_{g,n}}{\langle w_n \rangle_{g,n}}.
 
-This weight :math:`w_n` is called as the Neal-Jarzynski weight.
+This weight :math:`w_n` is called the Neal-Jarzynski weight.
 
-population annealing (PA) [2]
+Population annealing (PA) [2]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Although the AIS method can estimate the expectation values of :math:`A` for each parameter :math:`\beta` as the form of weighted arithmetic mean,
-the variance of weights :math:`w` is generally large and then the accuracy of the result gets worse.
-In order to overcome this problem, the population annealing Monte Carlo (PAMC) method resamples all the replicas according to the probability
-:math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` at some periods and resets all the weights to unity.
+Although the AIS method can estimate the expectation values of :math:`A` for each parameter :math:`\beta` in the form of a weighted arithmetic mean,
+the variance of the weights :math:`w` is generally large, so the accuracy of the result deteriorates.
+In order to overcome this problem, the population annealing Monte Carlo (PAMC) method periodically resamples all the replicas according to the probability
+:math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` and resets all the weights to unity.
 
 The following pseudo code describes the scheme of PAMC:
 
@@ -526,15 +603,16 @@ The following pseudo code describes the scheme of PAMC:
         x[0, k] = draw_from(β[0])
     for i in range(1, N):
         for k in range(K):
-            w[i, k] = w[i-1, k] * ( f(x[i-1,k], β[i]) / f(x[i-1,k], β[i-1]) )
+            w[i, k] = w[i-1, k] * ( W(x[i-1,k], β[i]) / W(x[i-1,k], β[i-1]) )
+        x_prev = x[i-1, :]
         if i % interval == 0:
-            x[i, :] = resample(x[i, :], w[i, :])
+            x_prev = resample(x_prev, w[i, :])
             w[i, :] = 1.0
         for k in range(K):
-            x[i, k] = transfer(x[i-1, k], β[i])
+            x[i, k] = transfer(x_prev[k], β[i])
         a[i] = sum(A(x[i,:]) * w[i,:]) / sum(w[i,:])
 
-There are two resampling methods: one with a fixed number of replicas[2] and one without[3].
+There are two resampling methods: one with a fixed number of replicas [2] and one without [3].
 
 References
 ^^^^^^^^^^^^^

@@ -1,20 +1,16 @@
 #!/bin/sh
 
-if [ "$(uname)" = "Darwin" ]; then
-  which gtimeout > /dev/null 2>&1 || { echo "gtimeout is not installed"; echo "Please install gtimeout using 'brew install coreutils'"; exit 1; }
-  TIMEOUT="gtimeout"
-else
-  which timeout > /dev/null 2>&1 || { echo "timeout is not installed"; exit 1; }
-  TIMEOUT="timeout"
-fi
+# Use a Python replacement for timeout(1), which is not available on macOS
+# without GNU coreutils
+TIMEOUT="${PYTHON:-python3} ../test_utilities/timeout.py"
 
 
 export PYTHONUNBUFFERED=1
 
 # Command to run the main Python script
-CMD="python3 ../../src/odatse_main.py"
+CMD="${PYTHON:-python3} ../../src/odatse_main.py"
 # Uncomment the following line to run with MPI
-# CMD="mpiexec -np 2 python3 ../../src/odatse_main.py"
+# CMD="mpiexec -np 2 ${PYTHON:-python3} ../../src/odatse_main.py"
 
 # Remove the output1 directory if it exists
 rm -rf output1

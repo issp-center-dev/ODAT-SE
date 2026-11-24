@@ -6,30 +6,42 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Union, Optional
+from typing import Optional
 
 from pathlib import Path
-from io import open
 import numpy as np
 import os
 import time
 
 import odatse
-import odatse.domain
 from ._algorithm import AlgorithmBase
+
+
 
 class Algorithm(AlgorithmBase):
     """
-    Algorithm class for data analysis of quantum beam diffraction experiments.
+    Base class of mapper-type algorithms that evaluate the objective
+    function over a sequence of points supplied by an iterator.
     Inherits from odatse.algorithm.AlgorithmBase.
-    """
-    mesh_list: list[Union[int, float]]
 
-    def __init__(self, info: odatse.Info,
+    The set of points to evaluate is provided by an iterator object
+    (a subclass of odatse.algorithm._iterator.IteratorBase). Subclasses
+    such as mapper_mpi and random_search construct a suitable iterator
+    from the input parameters and assign it to self._iter. Alternatively,
+    a custom point sequence can be supplied programmatically through the
+    iterator parameter of this class.
+    """
+
+    # Whether --cont is supported. Subclasses whose iterator can be extended
+    # with additional points (see random_search) set this to True; for the
+    # fixed-mesh mapper there is no meaningful way to extend a run.
+    _continuable: bool = False
+
+    def __init__(self,
+                 info: odatse.Info,
                  runner: Optional[odatse.Runner] = None,
-                 domain = None,
                  run_mode: str = "initial",
-                 meshgrid: bool = True,
+                 iterator = None,
     ) -> None:
         """
         Initialize the Algorithm instance.
@@ -40,22 +52,17 @@ class Algorithm(AlgorithmBase):
             Information object containing algorithm parameters.
         runner : Runner
             Optional runner object for submitting tasks.
-        domain :
-            Optional domain object, defaults to MeshGrid.
         run_mode : str
             Mode to run the algorithm, defaults to "initial".
-        meshgrid : bool
-            Whether to use mesh grid or points.
+        iterator : IteratorBase
+            Iterator that yields (index, coordinates) pairs of the points
+            to evaluate. Subclasses usually build one from the input
+            parameters and set self._iter themselves; pass an iterator
+            here to evaluate a custom point sequence directly.
         """
         super().__init__(info=info, runner=runner, run_mode=run_mode)
 
-        if domain and isinstance(domain, odatse.domain.MeshGrid):
-            self.domain = domain
-        else:
-            self.domain = odatse.domain.MeshGrid(info, rng=self.rng, mesh=meshgrid)
-
-        self.domain.do_split()
-        self.mesh_list = self.domain.grid_local
+        self._iter = iterator
 
         self.colormap_file = info.algorithm.get("colormap", "ColorMap.txt")
         self.local_colormap_file = Path(self.colormap_file).name + ".tmp"
@@ -64,57 +71,64 @@ class Algorithm(AlgorithmBase):
         """
         Initialize the algorithm parameters and timer.
         """
-        self.fx_list = []
+        self.results = []
+
+        self.opt_fx = np.inf
+        self.opt_mesh = None
+
         self.timer["run"]["submit"] = 0.0
         self._show_parameters()
+
+    def _prepare(self) -> None:
+        pass
 
     def _run(self) -> None:
         """
         Execute the main algorithm process.
         """
-        # Make ColorMap
-
-        if self.mode is None:
-            raise RuntimeError("mode unset")
-
-        if self.mode.startswith("init"):
-            self._initialize()
-        elif self.mode.startswith("resume"):
-            self._load_state(self.checkpoint_file)
-        else:
-            raise RuntimeError("unknown mode {}".format(self.mode))
+        # dispatch は prepare() が処理済み
 
         # local colormap file
         fp = open(self.local_colormap_file, "a")
         if self.mode.startswith("init"):
             fp.write("#" + " ".join(self.label_list) + " fval\n")
 
-        iterations = len(self.mesh_list)
-        istart = len(self.fx_list)
+        niter = self._iter.size()
+        # nonzero on checkpoint resume: points already evaluated on this rank
+        istart = self._iter.position()
+        # report progress at most ~100 times per rank
+        print_interval = max(1, -(-niter // 100))
 
         next_checkpoint_step = istart + self.checkpoint_steps
         next_checkpoint_time = time.time() + self.checkpoint_interval
 
-        for icount in range(istart, iterations):
-            print("Iteration : {}/{}".format(icount+1, iterations))
-            mesh = self.mesh_list[icount]
+        for icount, (idx, coord) in enumerate(self._iter, start=istart):
 
-            # update information
-            args = (int(mesh[0]), 0)
-            x = np.array(mesh[1:])
+            if (icount+1) % print_interval == 0 or icount+1 == niter:
+                print("Iteration : {}/{}".format(icount+1, niter))
+            args = (idx, 0)
+            x = np.array(coord)
 
             time_sta = time.perf_counter()
             fx = self.runner.submit(x, args)
+            if isinstance(fx, np.ndarray) and fx.size == 1:
+                fx = fx[0]
             time_end = time.perf_counter()
             self.timer["run"]["submit"] += time_end - time_sta
 
-            self.fx_list.append([mesh[0], fx])
+            self.results.append([idx, coord, fx])
 
             # write to local colormap file
             fp.write(" ".join(
                 map(lambda v: "{:8f}".format(v), (*x, fx))
             ) + "\n")
 
+            # update optimal value
+            if fx < self.opt_fx:
+                self.opt_fx = fx
+                self.opt_mesh = (idx, coord)
+
+            # checkpointing
             if self.checkpoint:
                 time_now = time.time()
                 if icount+1 >= next_checkpoint_step or time_now >= next_checkpoint_time:
@@ -122,55 +136,48 @@ class Algorithm(AlgorithmBase):
                     next_checkpoint_step = icount + 1 + self.checkpoint_steps
                     next_checkpoint_time = time_now + self.checkpoint_interval
 
-        if iterations > 0:
-            opt_index = np.argsort(self.fx_list, axis=0)[0][1]
-            opt_id, opt_fx = self.fx_list[opt_index]
-            opt_mesh = self.mesh_list[opt_index]
+        # close local colormap file
+        fp.close()
 
-            self.opt_fx = opt_fx
-            self.opt_mesh = opt_mesh
+        # final checkpoint: record the completed state so that the run can be
+        # extended afterwards with --cont (for algorithms that support it)
+        if self.checkpoint:
+            self._save_state(self.checkpoint_file)
 
-            print(f"[{self.mpirank}] minimum_value: {opt_fx:12.8e} at {opt_mesh[1:]} (mesh {opt_mesh[0]})")
+        if not np.isinf(self.opt_fx):
+            print(f"[{odatse.mpi.algrank()}] minimum_value: {self.opt_fx:12.8e} at {self.opt_mesh[0]} (mesh {self.opt_mesh[1]})")
 
-        self._output_results()
+        # if Path(self.local_colormap_file).exists():
+        #     os.remove(Path(self.local_colormap_file))
 
-        if Path(self.local_colormap_file).exists():
-            os.remove(Path(self.local_colormap_file))
+        print("complete main process : rank {:08d}/{:08d}".format(odatse.mpi.algrank(), odatse.mpi.algsize()))
 
-        print("complete main process : rank {:08d}/{:08d}".format(self.mpirank, self.mpisize))
-
-    def _output_results(self):
+    def _output_results(self, results, opt_fx, opt_mesh):
         """
         Output the results to the colormap file.
         """
+
         print("Make ColorMap")
         time_sta = time.perf_counter()
 
         with open(self.colormap_file, "w") as fp:
             fp.write("#" + " ".join(self.label_list) + " fval\n")
-
-            for x, (idx, fx) in zip(self.mesh_list, self.fx_list):
+            for idx, coord, fx in results:
                 fp.write(" ".join(
-                    map(lambda v: "{:8f}".format(v), (*x[1:], fx))
-                    ) + "\n")
-
-            if len(self.mesh_list) > 0:
-                fp.write("#Minimum point : " + " ".join(
-                    map(lambda v: "{:8f}".format(v), self.opt_mesh[1:])
+                    map(lambda v: "{:8f}".format(v), (*coord, fx))
                 ) + "\n")
-                fp.write("#R-factor : {:8f}\n".format(self.opt_fx))
-                fp.write("#see Log{:d}\n".format(round(self.opt_mesh[0])))
+
+            if not np.isinf(opt_fx):
+                fp.write("#Index of the minimum point : {:d}\n".format(opt_mesh[0]))
+                fp.write("#Coordinates of the minimum point : " + " ".join(
+                    map(lambda v: "{:8f}".format(v), opt_mesh[1])
+                ) + "\n")
+                fp.write("#f(x) at the minimum point : {:8f}\n".format(opt_fx))
             else:
                 fp.write("# No mesh point\n")
 
         time_end = time.perf_counter()
         self.timer["run"]["file_CM"] = time_end - time_sta
-
-    def _prepare(self) -> None:
-        """
-        Prepare the algorithm (no operation).
-        """
-        pass
 
     def _post(self) -> dict:
         """
@@ -179,67 +186,71 @@ class Algorithm(AlgorithmBase):
         Returns
         -------
         dict
-            Dictionary of results.
+            Dictionary with the optimal point: ``x`` (coordinates of the
+            minimum), ``fx`` (function value at the minimum), and ``index``
+            (mesh index of the minimum). ``x`` and ``index`` are ``None`` if
+            no point was evaluated.
         """
-        if self.mpisize > 1:
-            fx_lists = self.mpicomm.allgather(self.fx_list)
-            results = [v for vs in fx_lists for v in vs]
+        if odatse.mpi.algsize() > 1:
+            # gather results
+            results_lists = odatse.mpi.algcomm().allgather(self.results)
+            results = [v for vs in results_lists for v in vs]
+
+            # gather local optimal values and find minimum among them
+            opt_fx_all = odatse.mpi.algcomm().allgather(self.opt_fx)
+            opt_mesh_all = odatse.mpi.algcomm().allgather(self.opt_mesh)
+
+            idx = np.argmin(np.array(opt_fx_all))
+            opt_fx = opt_fx_all[idx]
+            opt_mesh = opt_mesh_all[idx]
         else:
-            results = self.fx_list
+            results = self.results
+            opt_fx = self.opt_fx
+            opt_mesh = self.opt_mesh
 
-        if self.mpirank == 0:
-            with open(self.colormap_file, "w") as fp:
-                for x, (idx, fx) in zip(self.domain.grid, results):
-                    assert x[0] == idx
-                    fp.write(" ".join(
-                        map(lambda v: "{:8f}".format(v), (*x[1:], fx))
-                    ) + "\n")
+        if odatse.mpi.algrank() == 0:
+            self._output_results(results, opt_fx, opt_mesh)
 
-        return {}
+        if opt_mesh is None:
+            return {"x": None, "fx": opt_fx, "index": None}
+        return {"x": opt_mesh[1], "fx": opt_fx, "index": opt_mesh[0]}
 
-    def _save_state(self, filename) -> None:
+    # Mapper-specific fields (simple getattr/setattr).
+    _checkpoint_attrs: list[str] = ["results", "opt_fx", "opt_mesh"]
+
+    def __getstate__(self) -> dict:
+        """Return a checkpoint snapshot including iterator state.
+
+        Extends the base ``__getstate__()`` with the iterator's own state
+        so that a single pickle file captures everything needed to resume.
         """
-        Save the current state of the algorithm to a file.
+        state = super().__getstate__()
+        state.update(self._iter._save_state())
+        return state
+
+    def _apply_state(self, data: dict, mode: str = "resume", restore_rng: bool = True) -> None:
+        """Restore algorithm state from a checkpoint snapshot.
+
+        Delegates MPI validation, timer restore, and parameter check to the
+        base class, applies the mapper-specific fields, then restores the
+        iterator position.
 
         Parameters
         ----------
-        filename
-            The name of the file to save the state to.
-        """
-        data = {
-            "mpisize": self.mpisize,
-            "mpirank": self.mpirank,
-            "timer": self.timer,
-            "info": self.info,
-            "fx_list": self.fx_list,
-            "mesh_size": len(self.mesh_list),
-        }
-        self._save_data(data, filename)
-
-    def _load_state(self, filename, restore_rng=True):
-        """
-        Load the state of the algorithm from a file.
-
-        Parameters
-        ----------
-        filename
-            The name of the file to load the state from.
+        data : dict
+            Snapshot previously produced by ``__getstate__``.
+        mode : str
+            ``"resume"``, or ``"continue"`` when the subclass declares
+            ``_continuable = True`` (the subclass is then responsible for
+            extending the iterator after this method returns); otherwise
+            ``"continue"`` raises ``RuntimeError``.
         restore_rng : bool
-            Whether to restore the random number generator state.
+            Forwarded to the base class and to the iterator's state restore
+            (e.g. RandomIterator restores its RNG state when this is True).
         """
-        data = self._load_data(filename)
-        if not data:
-            print("ERROR: Load status file failed")
-            sys.exit(1)
-
-        assert self.mpisize == data["mpisize"]
-        assert self.mpirank == data["mpirank"]
-
-        self.timer = data["timer"]
-
-        info = data["info"]
-        self._check_parameters(info)
-
-        self.fx_list = data["fx_list"]
-
-        assert len(self.mesh_list) == data["mesh_size"]
+        if mode == "continue" and not self._continuable:
+            raise RuntimeError("continue mode is not supported for mapper")
+        super()._apply_state(data, mode=mode, restore_rng=restore_rng)
+        for attr in Algorithm._checkpoint_attrs:
+            setattr(self, attr, data[attr])
+        self._iter._restore_state(data, mode=mode)

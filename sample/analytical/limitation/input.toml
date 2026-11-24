@@ -9,7 +9,7 @@ seed = 12345
 [algorithm.param]
 max_list = [6.0, 6.0]
 min_list = [-6.0, -6.0]
-unit_list = [0.3, 0.3]
+step_list = [0.3, 0.3]
 
 [algorithm.exchange]
 Tmin = 1.0

@@ -58,20 +58,20 @@ class StateSpace(abc.ABC):
             return self._gather_data_object(data)
 
     def _gather_data_object(self, data):
-        mpicomm = mpi.comm()
-        return np.concatenate(mpicomm.allgather(data), axis=0)
+        algcomm = mpi.algcomm()
+        return np.concatenate(algcomm.allgather(data), axis=0)
 
     def _gather_data_buffer(self, data):
         from mpi4py.util.dtlib import from_numpy_dtype
 
-        mpisize = mpi.size()
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
+        algsize = mpi.algsize()
+        algrank = mpi.algrank()
+        algcomm = mpi.algcomm()
 
         sh = data.shape
         nrep = np.array([sh[0]], dtype=np.int64)
-        nreps = np.zeros(mpisize, dtype=np.int64)
-        mpicomm.Allgather(nrep, nreps)
+        nreps = np.zeros(algsize, dtype=np.int64)
+        algcomm.Allgather(nrep, nreps)
 
         displ = np.cumsum(nreps) - nreps
         nrep_total = np.sum(nreps)
@@ -79,7 +79,7 @@ class StateSpace(abc.ABC):
 
         buf = np.zeros((nrep_total, *sh[1:]), dtype=data.dtype)
         dtype = from_numpy_dtype(data.dtype)
-        mpicomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
+        algcomm.Allgatherv([data, dtype], [buf, nreps*ndim, displ*ndim, dtype])
 
         return buf
 
@@ -101,19 +101,39 @@ class ContinuousStateSpace(StateSpace):
         else:
             raise ValueError("ERROR: algorighm.param.step_list not specified")
 
+        ndim = len(self.xmin)
+        if "pbc_list" in info_param:
+            pbc_list = np.asarray(info_param["pbc_list"], dtype=bool)
+            if pbc_list.shape != (ndim,):
+                raise ValueError(
+                    "ERROR: algorithm.param.pbc_list length must match dimension (min_list/max_list). "
+                    f"Expected {ndim}, got {len(pbc_list)}."
+                )
+            self.pbc = pbc_list
+        else:
+            self.pbc = np.zeros(ndim, dtype=bool)
+
     def initialize(self, nwalkers):
         self.domain.initialize(rng=self.rng, limitation=self.limitation, num_walkers=nwalkers)
         return ContinuousState(self.domain.initial_list)
 
+    def _wrap_pbc(self, x: np.ndarray) -> np.ndarray:
+        """Wrap coordinates into [xmin, xmax) for dimensions with PBC."""
+        period = self.xmax - self.xmin
+        safe_period = np.where(period > 0, period, 1)
+        wrapped = self.xmin + np.mod(x - self.xmin, safe_period)
+        return np.where(self.pbc & (period > 0), wrapped, x).astype(np.float64)
+
     def propose(self, state):
         nwalkers = state.x.shape[0]
         dx = self.rng.normal(size=state.x.shape) * self.xstep
-        new_state = ContinuousState(state.x + dx)
+        new_x = self._wrap_pbc(state.x + dx)
+        new_state = ContinuousState(new_x)
         return new_state, self._check_in_range(new_state.x), None
 
     def _check_in_range(self, x):
         nwalkers = x.shape[0]
-        in_range = ((x >= self.xmin) & (x <= self.xmax)).all(axis=1)
+        in_range = ((x >= self.xmin) & (x < self.xmax)).all(axis=1)
         in_limit = [self.limitation.judge(x[idx,:]) for idx in range(nwalkers)]
         return in_range & in_limit
 
@@ -123,8 +143,8 @@ class ContinuousStateSpace(StateSpace):
         return ContinuousState(x_new)
 
     def gather(self, state):
-        mpisize = mpi.size()
-        if mpisize > 1:
+        mpisize = mpi.algsize()
+        if mpisize is not None and mpisize > 1:
             buf = self._gather_data(state.x)
             return ContinuousState(buf)
         else:
@@ -175,27 +195,38 @@ class DiscreteStateSpace(StateSpace):
 
         Raises
         ------
-        ValueError
-            If the neighbor list path is not specified in the parameters.
+        KeyError
+            If neither a neighbor-list/mesh path nor ``radius`` is specified in
+            the parameters.
         RuntimeError
             If the transition graph made from the neighbor list is not connected or not bidirectional.
         """
-        mpirank = mpi.rank()
-        mpicomm = mpi.comm()
+        algrank = mpi.algrank()
+        algcomm = mpi.algcomm()
+        algsize = mpi.algsize()
+        
+        if algrank is None:
+            self.neighbor_list = []
+            self.ncandidates = np.array([], dtype=np.int64)
+            return
 
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = Path(info_param["neighborlist_path"]).expanduser()
-            if mpirank == 0:
+            if algrank == 0:
                 nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
             else:
                 nnlist = None
-            self.neighbor_list = mpicomm.bcast(nnlist, root=0)
+                
+            if algsize is not None and algsize > 1:
+                self.neighbor_list = algcomm.bcast(nnlist, root=0)
+            else:
+                self.neighbor_list = nnlist
         else:
             if "radius" not in info_param:
                 raise KeyError("parameter \"algorithm.param.radius\" not specified")
             radius = info_param["radius"]
             print(f"DEBUG: create neighbor list, radius={radius}")
-            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius, comm=mpicomm)
+            self.neighbor_list = make_neighbor_list(self.node_coordinates, radius=radius)
 
         # checks
         if not odatse.util.graph.is_connected(self.neighbor_list):
@@ -211,8 +242,8 @@ class DiscreteStateSpace(StateSpace):
         self.ncandidates = np.array([len(ns) - 1 for ns in self.neighbor_list], dtype=np.int64)
 
     def gather(self, state):
-        mpisize = mpi.size()
-        if mpisize > 1:
+        algsize = mpi.algsize()
+        if algsize is not None and algsize > 1:
             inodes = self._gather_data(state.inode)
             return DiscreteState(inodes, self.node_coordinates[inodes, :])
         else:

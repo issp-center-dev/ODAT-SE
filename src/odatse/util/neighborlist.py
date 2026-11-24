@@ -6,7 +6,9 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from __future__ import annotations
 import typing
+from typing import TYPE_CHECKING
 from os import PathLike
 
 import sys
@@ -16,11 +18,14 @@ import numpy as np
 
 from odatse import mpi
 
+if TYPE_CHECKING:
+    from mpi4py import MPI
+
 try:
     from tqdm import tqdm
 
     has_tqdm = True
-except:
+except ImportError:
     has_tqdm = False
 
 
@@ -95,7 +100,8 @@ class Cells:
         self.dimension = len(mins)
         self.mins = mins
         Ls = (maxs - mins) * 1.001
-        self.Ns = np.ceil(Ls / cellsize).astype(np.int64)
+        # at least one cell per dimension, even when all points share a coordinate
+        self.Ns = np.maximum(np.ceil(Ls / cellsize).astype(np.int64), 1)
         self.maxs = self.mins + cellsize * self.Ns
         self.cellsize = cellsize
         self.ncell = typing.cast(int, np.prod(self.Ns))
@@ -123,7 +129,7 @@ class Cells:
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
         >>> cells.coord2cellindex(np.array([3.5, 4.2]))
-        12
+        8
         """
         return self.cellcoord2cellindex(self.coord2cellcoord(x))
 
@@ -173,14 +179,16 @@ class Cells:
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
         >>> cells.cellcoord2cellindex(np.array([1, 2]))
-        12
+        8
         """
+        # Row-major (C-order) flattening: the stride of dimension d is the
+        # product of the cell counts of the dimensions after it.  At each step
+        # multiply the running index by the *current* dimension's size before
+        # adding its coordinate, so that this is the exact inverse of
+        # cellindex2cellcoord().
         index = 0
-        oldN = 1
         for n, N in zip(ns, self.Ns):
-            index *= oldN
-            index += n
-            oldN = N
+            index = index * N + n
         return index
 
     def cellindex2cellcoord(self, index: int) -> np.ndarray:
@@ -203,7 +211,7 @@ class Cells:
         Examples
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
-        >>> cells.cellindex2cellcoord(12)
+        >>> cells.cellindex2cellcoord(8)
         array([1, 2])
         """
         ns = np.zeros(self.dimension, dtype=np.int64)
@@ -265,7 +273,7 @@ class Cells:
         Examples
         --------
         >>> cells = Cells(np.array([0, 0]), np.array([10, 10]), 2.0)
-        >>> neighbors = cells.neighborcells(12)
+        >>> neighbors = cells.neighborcells(7)  # interior cell [1, 1]
         >>> len(neighbors)  # 3x3 neighborhood in 2D
         9
         """
@@ -284,7 +292,7 @@ def make_neighbor_list_cell(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using cell-based spatial partitioning.
@@ -303,7 +311,7 @@ def make_neighbor_list_cell(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -342,7 +350,7 @@ def make_neighbor_list_cell(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -358,7 +366,7 @@ def make_neighbor_list_cell(
                 r = np.linalg.norm(xs - ys)
                 if r <= radius:
                     nnlist[n - points[0]].append(other)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -370,7 +378,7 @@ def make_neighbor_list_naive(
     radius: float,
     allow_selfloop: bool,
     show_progress: bool,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list using a naive all-pairs approach.
@@ -390,7 +398,7 @@ def make_neighbor_list_naive(
         Whether to allow a point to be its own neighbor.
     show_progress : bool
         Whether to show a progress bar during computation.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -421,7 +429,7 @@ def make_neighbor_list_naive(
     nnlist: list[list[int]] = [[] for _ in range(npoints_local)]
 
     if mpirank == 0 and show_progress and has_tqdm:
-        desc = "rank 0" if mpisize > 1 else None
+        desc = "rank 0" if mpisize is not None and mpisize > 1 else None
         ns = tqdm(points, desc=desc)
     else:
         ns = points
@@ -435,7 +443,7 @@ def make_neighbor_list_naive(
             r = np.linalg.norm(xs - ys)
             if r <= radius:
                 nnlist[n - points[0]].append(m)
-    if mpisize > 1:
+    if mpisize is not None and mpisize > 1:
         nnlist = list(itertools.chain.from_iterable(comm.allgather(nnlist)))
 
     nnlist = [sorted(nn) for nn in nnlist]
@@ -448,7 +456,7 @@ def make_neighbor_list(
     allow_selfloop: bool = False,
     check_allpairs: bool = False,
     show_progress: bool = False,
-    comm: mpi.Comm = None,
+    comm: MPI.Comm = None,
 ) -> list[list[int]]:
     """
     Create a neighbor list for given points.
@@ -470,7 +478,7 @@ def make_neighbor_list(
         by default False.
     show_progress : bool, optional
         Whether to show a progress bar during computation, by default False.
-    comm : mpi.Comm, optional
+    comm : MPI.Comm, optional
         The MPI communicator for parallel processing, by default None.
         
     Returns
@@ -663,6 +671,8 @@ Note:
 
     args = parser.parse_args()
 
+    mpi.setup()
+
     inputfile = args.input
     outputfile = args.output
     radius = args.radius
@@ -673,13 +683,31 @@ Note:
     X = np.zeros((0, 0))
 
     if mpi.rank() == 0:
-        X = np.loadtxt(inputfile)
+        import warnings
+        with warnings.catch_warnings():
+            # an empty file is reported below, not by numpy
+            warnings.simplefilter("ignore", UserWarning)
+            X = np.loadtxt(inputfile, ndmin=2)
 
-    if mpi.size() > 1:
-        sh = mpi.comm().bcast(X.shape, root=0)
+    sh = X.shape
+    if mpi.algsize() > 1:
+        sh = mpi.algcomm().bcast(sh, root=0)
+
+    # Every rank checks the shape so that all of them leave together: a file
+    # with only an index column (shape (N, 1)) would otherwise give D = 0 and
+    # an all-pairs neighbor list instead of an error, and an empty file would
+    # fail later with an obscure numpy message.
+    if sh[0] < 1 or sh[1] < 2:
+        if mpi.rank() == 0:
+            print(f"ERROR: {inputfile} must have at least one row and two columns "
+                  f"(index and at least one coordinate), got {sh[0]} row(s) and "
+                  f"{sh[1]} column(s)", file=sys.stderr)
+        sys.exit(1)
+
+    if mpi.algsize() > 1:
         if mpi.rank() != 0:
             X = np.zeros(sh)
-        mpi.comm().Bcast(X, root=0)
+        mpi.algcomm().Bcast(X, root=0)
 
     D = X.shape[1] - 1
 
@@ -698,7 +726,7 @@ Note:
         allow_selfloop=args.allow_selfloop,
         check_allpairs=args.check_allpairs,
         show_progress=(args.progress or not args.quiet),
-        comm=mpi.comm(),
+        comm=mpi.algcomm(),
     )
 
     write_neighbor_list(outputfile, nnlist, radius=radius, unit=unit)

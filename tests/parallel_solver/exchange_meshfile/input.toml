@@ -1,0 +1,27 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+#delay = 0.01
+
+[runner]
+[runner.log]
+interval = 20
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[algorithm.param]
+mesh_path = "MeshData.txt"
+neighborlist_path = "NeighborList.txt"
+
+[algorithm.exchange]
+numsteps = 1000
+numsteps_exchange = 20
+Tmin = 0.1
+Tmax = 1.0
+Tlogspace = false
+nreplica_per_proc = 10

@@ -18,10 +18,10 @@ ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソ�
 とします。
 利用可能な関数の詳細は :doc:`analytical ソルバーのリファレンス <../solver/analytical>` を参照してください。
 
-順問題ソルバーの追加
+Booth 関数の実装例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ユーザ定義の順問題ソルバーを定義・解析する一番簡単な方法は、 ``analytical`` ソルバーに追加することです。
+ユーザー定義の順問題ソルバーを定義・解析する一番簡単な方法は、 ``analytical`` ソルバーに追加することです。
 ここでは例として、 `Booth関数 <https://en.wikipedia.org/wiki/Test_functions_for_optimization>`_
 
 .. math::
@@ -56,9 +56,9 @@ ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソ�
 .. code-block:: python
 
     elif function_name == "booth":
-            self.set_function(booth)
+        self.set_function(booth)
 
-この改造した ``analytical`` ソルバーでは、 Booth 関数の最適化が行なえます。
+この改造した ``analytical`` ソルバーでは、 Booth 関数の最適化が行えます。
 たとえばNelder-Mead 法による最適化は、以下の入力ファイル (``input.toml``) を
 
 .. code-block::
@@ -80,11 +80,11 @@ ODAT-SEでは探索アルゴリズムのテストに利用できる順問題ソ�
     name = "analytical"
     function_name = "booth"
 
-``src/odatse_main.py`` に渡せば実行可能です。
+``odatse`` コマンドに渡せば実行可能です。
 
 .. code-block::
 
-    $ python3 src/odatse_main.py input.toml
+    $ odatse input.toml
 
     ... skipped ...
 

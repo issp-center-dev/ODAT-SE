@@ -1,32 +1,32 @@
-Optimization by population annealing
-================================================
+Search by population annealing
+================================
 
-This tutorial describes how to estimate the optimization problem of Himmelblau function by using the population annealing Monte Carlo method (PAMC).
+This tutorial describes how to solve the optimization problem of the Himmelblau function by using the population annealing Monte Carlo method (PAMC).
 
 Sample files
 ~~~~~~~~~~~~~~~~~~
 
-Sample files are available from ``sample/analytical/pamc`` .
+Sample files are available from ``sample/analytical/pamc``.
 This directory includes the following files:
 
 - ``input.toml``
 
   The input file of odatse
 
-- ``plot_result_2d.py``
+- ``plot_result_2d.py``, ``plot_result_2dmap.py``
 
-  Program to visualize the results
-  
+  Programs to visualize the results
+
 - ``do.sh``
 
-  Script files for running this tutorial
+  Script for running this tutorial
 
 
 Input files
 ~~~~~~~~~~~~~
 
 This subsection describes the input file.
-For details, see the input file section of the manual.
+For details, see the "Input file" chapter and :doc:`../algorithm/pamc`.
 
 .. code-block::
 
@@ -66,7 +66,7 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 ``[algorithm]`` section specifies the algorithm to use and its settings.
 
-- ``name`` is the name of the algorithm you want to use In this tutorial we will use the population annealing Monte Carlo (PAMC) algorithm, so specify ``pamc``.
+- ``name`` is the name of the algorithm you want to use. In this tutorial we will use the population annealing Monte Carlo (PAMC) algorithm, so specify ``pamc``.
 
 - ``seed`` is the seed that a pseudo-random number generator uses.
 
@@ -74,15 +74,15 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 
 - ``min_list`` is a lower bound and ``max_list`` is an upper bound.
 
-- ``unit_list`` is step length in one Monte Carlo update (deviation of Gaussian distribution).
+- ``step_list`` is the step length of one Monte Carlo update (standard deviation of the Gaussian distribution).
 
 ``[algorithm.pamc]`` section sets the parameters for PAMC.
 
-- ``numsteps_annealing`` is the number of interval steps between temperature decreasing.
+- ``numsteps_annealing`` is the number of Monte Carlo steps between temperature decrements.
 
-- ``bmin``, ``bmax`` are the minimum and the maximum of inversed temperature, respectively.
+- ``Tmin``, ``Tmax`` are the minimum and the maximum of temperature, respectively. (Inverse temperature can be set instead with ``bmin``/``bmax``.)
 
-- ``Tnum`` is the number of (inversed) temperature points.
+- ``Tnum`` is the number of temperature points.
 
 - When ``Tlogspace`` is ``true``, the temperature points are distributed uniformly in the logarithmic space.
 
@@ -92,26 +92,26 @@ The contents of ``[base]``, ``[solver]``, and ``[runner]`` sections are the same
 Calculation
 ~~~~~~~~~~~~
 
-First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are the root directory of ODAT-SE.)
+First, move to the folder where the sample file is located. (Hereinafter, it is assumed that you are in the root directory of ODAT-SE.)
 
 .. code-block::
 
    $ cd sample/analytical/pamc
 
-Then, run the main program. It will take a few secondes on a normal PC.
+Then, run the main program. It will take a few seconds on a normal PC.
 
 .. code-block::
 
-   $ mpiexec -np 4 python3 ../../../src/odatse_main.py input.toml | tee log.txt
+   $ mpiexec -np 4 odatse input.toml | tee log.txt
 
 Here, the calculation is performed using MPI parallel with 4 processes.
 If you are using Open MPI and you request more processes than the number of cores, add the ``--oversubscribe`` option to the ``mpiexec`` command.
 
-When executed, a folder for each MPI rank will be created under the directory ``output``, and ``trial_TXXX.txt`` files containing the parameters evaluated in each Monte Carlo step and the value of the objective function at each temperature (``XXX`` is the index of points), and ``result_TXXX.txt`` files containing the parameters actually adopted will be created.
-These files are concatnated into ``result.txt`` and ``trial.txt``.
+When executed, a folder for each MPI rank will be created under the directory ``output``, and ``trial_TXXX.txt`` files containing the parameters evaluated in each Monte Carlo step and the value of the objective function at each temperature (``XXX`` is the index of the temperature points), and ``result_TXXX.txt`` files containing the parameters actually adopted will be created.
+These files are concatenated into ``result.txt`` and ``trial.txt``.
 
-These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the (inversed) temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
-The final two columns are the weight of walker (Neal-Jarzynski weight) and the index of the grand ancestor (the replica index at the beginning of the calculation).
+These files have the same format: the first two columns are time (step) and the index of walker in the process, the third is the (inverse) temperature, the fourth column is the value of the objective function, and the fifth and subsequent columns are the parameters.
+The final two columns are the weight of the walker (Neal-Jarzynski weight) and the index of the grand ancestor (the replica index at the beginning of the calculation).
 
 .. code-block::
 
@@ -159,7 +159,7 @@ Finally, ``output/fx.txt`` stores the statistics at each temperature point:
     0.025118864315095794 41.118822390166315 1.8214854089575818 400 -0.9862114670289625 0.9153
     ...
 
-The first column is (inversed) temperature, and
+The first column is the inverse temperature, and
 the second/third ones are the mean and standard error of :math:`f(x)`, respectively.
 The fourth column is the number of replicas and the fifth one is the logarithm of the ratio of the partition functions, :math:`\log(Z_n/Z_0)`, where :math:`Z_0` is the partition function at the first temperature.
 The sixth column is the acceptance ratio of MC updates.
@@ -168,18 +168,27 @@ The sixth column is the acceptance ratio of MC updates.
 Visualization
 ~~~~~~~~~~~~~~~~~~~
 
-By illustrating ``result_T.txt``, you can estimate regions where the function values become small.
-In this case, the figure ``result_fx.pdf`` and ``result_T.pdf`` of the 2D parameter space is created by using the following command.
-The color of symbols of ``result_fx.pdf`` and ``result_T.pdf`` mean ``R-factor`` and :math:`\beta`, respectively.
-
-By executing the following command, the figures of two-dimensional parameter space ``res_T%.png`` will be generated where ``%`` stands for the indices of temperature. The symbol color corresponds to the function value.
+By visualizing ``result_T%.txt``, you can estimate regions where the function values become small.
+Running ``plot_result_2dmap.py`` reads samples from all temperature points and
+generates ``result_T.png`` (colored by temperature ``T``), ``result_fx.png``
+(colored by the objective function value ``f(x)``), and ``result.png`` (which
+places both plots side by side).
 
 .. code-block::
 
     $ python3 plot_result_2dmap.py
+
+``plot_result_2d.py`` instead creates one plot for the ``result_T%.txt`` file
+given as an argument, with samples colored by ``f(x)``. Its default output file
+is ``res.png``.
 
 It is seen from the figures that the samples are concentrated near the minima of ``f(x)`` where the objective function has a small value.
 
 .. figure:: ../../../common/img/res_pamc.*
 
    Plot of sampled parameters. The horizontal axis denotes ``x1``, the vertical axis denotes ``x2``, and the color represents the value of ``T`` (left) and ``f(x)`` (right), respectively.
+
+.. seealso::
+   The PAMC outputs can be further analyzed, e.g., computing the model evidence and
+   making histograms of the posterior probability distributions.
+   See :doc:`../post/index` for the analysis workflow using the post-processing tools.

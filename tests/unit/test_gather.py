@@ -20,47 +20,48 @@ import pytest
 
 import odatse
 from odatse.algorithm.gather import gather_replica, gather_data
+from odatse import mpi
 
 def run_gather_data(shape, dtype, axis):
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    algsize = mpi.algsize()
+    algrank = mpi.algrank()
+    algcomm = mpi.algcomm()
 
     assert axis < len(shape)
 
     ndata = np.prod(shape)
-    data = np.arange(ndata, dtype=dtype).reshape(shape) + 100 * mpirank
+    data = np.arange(ndata, dtype=dtype).reshape(shape) + 100 * algrank
     gdata = gather_data(data, axis=axis)
 
-    assert gdata.shape[axis] == mpisize * shape[axis]
+    assert gdata.shape[axis] == algsize * shape[axis]
 
-    gtmp = [(np.arange(ndata, dtype=dtype).reshape(shape) + 100 * i) for i in range(mpisize)]
+    gtmp = [(np.arange(ndata, dtype=dtype).reshape(shape) + 100 * i) for i in range(algsize)]
     gdata_ref = np.concatenate(gtmp, axis=axis)
 
     assert np.all(gdata == gdata_ref)
 
 
 def run_gather_replica(_shape, dtype, axis):
-    mpisize = odatse.mpi.size()
-    mpirank = odatse.mpi.rank()
-    mpicomm = odatse.mpi.comm()
+    algsize = mpi.algsize()
+    algrank = mpi.algrank()
+    algcomm = mpi.algcomm()
 
     assert axis < len(_shape)
 
-    nreps = [i+3 for i in range(mpisize)]
+    nreps = [i+3 for i in range(algsize)]
 
     shape = list(_shape)
-    shape[axis] = nreps[mpirank]
+    shape[axis] = nreps[algrank]
     shape = tuple(shape)
 
     ndata = np.prod(shape)
-    data = np.arange(ndata, dtype=dtype).reshape(shape) + 100 * mpirank
+    data = np.arange(ndata, dtype=dtype).reshape(shape) + 100 * algrank
     gdata = gather_replica(data, axis=axis)
 
     assert gdata.shape[axis] == np.sum(nreps)
 
     gtmp = []
-    for i in range(mpisize):
+    for i in range(algsize):
         sh = list(_shape)
         sh[axis] = nreps[i]
         nd = np.prod(sh)

@@ -17,8 +17,8 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
 サブセクション ``param`` と ``pamc`` を持ちます。
 
-[``param``] セクション
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.param]`` セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 探索空間を定義します。
 ``mesh_path`` キーが存在する場合、または ``use_grid`` が true の場合は離散空間を、そうでない場合は連続空間を探索します。
@@ -27,31 +27,41 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
   - ``initial_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
     説明: パラメータの初期値。 定義しなかった場合は一様ランダムに初期化されます。
 
   - ``min_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
     説明: パラメータが取りうる最小値。
-          モンテカルロ探索中にこの値を下回るパラメータが出現した場合、
-          ソルバーは評価されずに、値が無限大だとみなされます。
 
   - ``max_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
-    説明: パラメータが取りうる最大値。  
-          モンテカルロ探索中にこの値を上回るパラメータが出現した場合、
-          ソルバーは評価されずに、値が無限大だとみなされます。
+    説明: パラメータが取りうる最大値。
 
   - ``step_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
-    説明: モンテカルロ更新の際の変化幅(ガウス分布の偏差)です。
+    説明: モンテカルロ更新の際の変化幅(ガウス分布の標準偏差)です。
+
+  - ``pbc_list``
+
+    形式: 真偽値のリスト (default: 各パラメータで false)。
+
+    説明: 各パラメータでローカル更新の候補点を生成する際に周期的境界条件(PBC)を使うかどうか。長さは dimension と一致させます。
+
+  - 状態提案について
+
+    - モンテカルロ更新では現在の状態を中心としたガウス分布に従って候補点を提案します。
+      候補点のパラメータ ``d`` が [min_list[d], max_list[d]) の範囲をはみ出した場合:
+
+      - ``pbc_list[d] = true`` の場合、周期 [min_list[d], max_list[d]) にラップして範囲内に収めます。
+      - ``pbc_list[d] = false`` の場合、提案は棄却されます。
 
 - 離散空間
 
@@ -59,13 +69,31 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
     形式: ファイルパス
 
-    説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。
+    説明: メッシュ定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。
+
+  - ``comments``
+
+    形式: 文字列。 (default: "#")
+
+    説明: メッシュ定義ファイルの読み込み時にコメント行とみなす行頭文字。
+
+  - ``delimiter``
+
+    形式: 文字列。 (default: 空白文字)
+
+    説明: メッシュ定義ファイルの列の区切り文字。CSV ファイルを読み込む場合は ``","`` を指定します。
+
+  - ``skiprows``
+
+    形式: 整数。 (default: 0)
+
+    説明: メッシュ定義ファイルの先頭から読み飛ばす行数。ヘッダ行をスキップする場合に指定します。
 
   - ``neighborlist_path``
 
     形式: ファイルパス
 
-    説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照のこと。省略した場合は ``radius`` で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。
+    説明: 近傍リスト定義ファイル。書式は「アルゴリズム補助ファイル」を参照してください。省略した場合は ``radius`` で指定する距離内の点を隣接点とみなして近傍リストを自動で生成します。
 
   - ``radius``
 
@@ -75,89 +103,89 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
   - ``use_grid``
 
-    形式: boolean
+    形式: 真偽値
 
     説明: true の場合、均質なメッシュを ``min_list``, ``max_list``, ``num_list`` パラメータから生成します。
 
   - ``min_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
     説明: メッシュの下端を指定します。
 
   - ``max_list``
 
-    形式: 実数型のリスト。長さはdimensionの値と一致させます。
+    形式: 実数のリスト。長さはdimensionの値と一致させます。
 
     説明: メッシュの上端を指定します。
 
   - ``num_list``
 
-    形式: 整数型のリスト。長さはdimensionの値と一致させます。
+    形式: 整数のリスト。長さはdimensionの値と一致させます。
 
     説明: メッシュの各パラメータに沿った格子点数を指定します。
 
 
 
-[``pamc``] セクション
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[algorithm.pamc]`` セクション
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``numsteps``
 
-  形式: 整数値。
+  形式: 整数。
 
   説明: モンテカルロ更新を行う総回数。
 
 - ``numsteps_annealing``
 
-  形式: 整数値。
+  形式: 整数。
 
-  説明: 「温度」を下げる頻度。この回数モンテカルロ更新を行った後に温度が下がります。
+  説明: 「温度」を下げる頻度。この回数だけモンテカルロ更新を行った後に温度が下がります。
 
 - ``Tnum``
 
-  形式: 整数値。
+  形式: 整数。
 
   説明: 「温度」点の数。
 
 - ``Tmin``
 
-  形式: 実数値。
+  形式: 実数。
 
   説明: 「温度」(:math:`T`)の最小値。
 
 - ``Tmax``
 
-  形式: 実数値。
+  形式: 実数。
 
   説明: 「温度」(:math:`T`)の最大値。
 
 - ``bmin``
 
-  形式: 実数値。
+  形式: 実数。
 
   説明: 「逆温度」(:math:`\beta = 1/T`)の最小値。
-  温度と逆温度はどちらか片方だけを指定する必要があります。
+  温度の範囲 (``Tmin``, ``Tmax``) または逆温度の範囲 (``bmin``, ``bmax``) の、いずれか一方の組だけを指定してください。
 
 - ``bmax``
 
-  形式: 実数値。
+  形式: 実数。
 
   説明: 「逆温度」(:math:`\beta = 1/T`)の最大値。
-  温度と逆温度はどちらか片方だけを指定する必要があります。
+  温度の範囲 (``Tmin``, ``Tmax``) または逆温度の範囲 (``bmin``, ``bmax``) の、いずれか一方の組だけを指定してください。
 
 - ``Tlogspace``
 
   形式: 真偽値。 (default: true)
 
-  説明: 「温度」を各レプリカに割り当てる際に、対数空間で等分割するか否かを指定します。
-        true のときは対数空間で等分割します。
+  説明: 「温度」を各レプリカに割り当てる際に、対数空間で等分割するか否かを指定します。true のときは対数空間で等分割します。
 
 - ``nreplica_per_proc``
 
   形式: 整数。 (default: 1)
 
   説明: ひとつのMPI プロセスが担当するレプリカの数。
+  総レプリカ数（ポピュレーションサイズ）は「MPI プロセス数 × ``nreplica_per_proc``」で与えられます。
 
 - ``resampling_interval``
 
@@ -175,14 +203,34 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
   形式: 真偽値。 (default: true)
 
-  説明: Monte Carlo ステップのログを温度ごとに分割して出力するかどうか。
+  説明: モンテカルロステップのログを温度ごとに分割して出力するかどうか。
+  ``export_combined_files`` が true の場合は無効になります。
+
+- ``export_combined_files``
+
+  形式: 真偽値。 (default: false)
+
+  説明: ``trial.txt``, ``result.txt``, ``weight.txt`` の内容を、プロセスごとの個別ファイルの代わりに単一の結合ファイル ``combined.txt`` にまとめて出力するかどうか。
+  結合ファイルからの個別ファイルの抽出には ``odatse_extract_combined`` ツールを使用します (:doc:`../post/tools/extract_combined` 参照)。
+
+- ``anneal_from_beta0``
+
+  形式: 真偽値。 (default: false)
+
+  説明: ``true`` かつ ``bmin > 0`` の場合、はじめに :math:`\beta=0`（無限温度）のランダムサンプルから、設定した最小の逆温度（``bmin`` または :math:`1/T_{\max}`）までアニール、リサンプリングを行ってから計算を始めます。
+  これにより、 :math:`\beta=0` から計算を始めない場合でも、 :math:`\log Z/Z_0` の基準値が :math:`\beta=0` であるとみなせます。
 
 
 ステップ数について
-********************
+""""""""""""""""""""""
 
-``numsteps``, ``numsteps_annealing``, ``numT`` の3つのうち、どれか2つを同時に指定してください。
-残りの1つは自動的に決定されます。
+``numsteps``, ``numsteps_annealing``, ``Tnum`` の3つのうち、どれか2つを同時に指定してください。
+残りの1つは自動的に決定されます。これらはおおよそ ``numsteps = numsteps_annealing × Tnum`` の関係にあります
+（割り切れない場合、余りのステップは高温側の温度点に振り分けられます）。
+
+.. note::
+   **開発者向け**: レプリカデータの収集に用いる MPI 通信は、環境変数 ``ODATSE_USE_MPI_BUFFERED=1`` を設定すると、オブジェクトベースの通信 (``gather``) からバッファベースの通信 (``Gather``) に切り替わります。
+   通常は設定不要ですが、大規模並列実行時の性能チューニングの選択肢として用意されています。
 
 アルゴリズム補助ファイル
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,8 +286,8 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ``RANK/trial_T#.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-各温度点(``#``) ごと、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
-1列目にステップ数、2列目にプロセス内のwalker 番号、3列目にレプリカの逆温度、4列目に目的関数の値、5列目からパラメータが記載されます。
+各温度点(``#``)ごとに、モンテカルロサンプリングで提案されたパラメータと、対応する目的関数の値です。
+1列目にステップ数、2列目にプロセス内の walker 番号、3列目にレプリカの逆温度（温度 ``Tmin``/``Tmax`` で指定した場合は温度）、4列目に目的関数の値、5列目からパラメータが記載されます。
 最後の2列はそれぞれレプリカの重み (Neal-Jarzynski weight) と祖先(計算開始時のレプリカ番号)です。
 
 .. code-block::
@@ -261,8 +309,8 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 
 ``RANK/result_T#.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-各温度点、モンテカルロサンプリングで生成されたパラメータと、対応する目的関数の値です。
-``trial.txt`` と同一の書式です。
+各温度点ごとに、モンテカルロサンプリングで生成されたパラメータと、対応する目的関数の値です。
+``trial_T#.txt`` と同一の書式です。
 
 .. code-block::
 
@@ -291,6 +339,7 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
     nprocs = 4
     rank = 2
     step = 65
+    walker = 0
     fx = 0.008233957976993406
     z1 = 4.221129370933539
     z2 = 5.139591716517661
@@ -300,14 +349,14 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ^^^^^^^^^^^^^^
 
 各温度ごとに、全レプリカの情報をまとめたものです。
-1列目は逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数
+1列目には逆温度が、2列目と3列目には目的関数の期待値およびその標準誤差が、4列目にはレプリカの総数が、5列目には規格化因子(分配関数)の比の対数
 
 .. math::
 
    \log\frac{Z}{Z_0} = \log\int \mathrm{d}x e^{-\beta f(x)} - \log\int \mathrm{d}x e^{-\beta_0 f(x)}
 
 が、6列目にはモンテカルロ更新の採択率が出力されます。
-ここで :math:`\beta_0` は計算している :math:`\beta` の最小値です。
+ここで :math:`\beta_0` は計算している :math:`\beta` の最小値です（``anneal_from_beta0 = true`` の場合は :math:`\beta_0 = 0` が基準になります）。
 
 .. code-block::
 
@@ -320,6 +369,36 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
     0.0 33.36426034198166 3.0193077565358273 100 0.0 0.9804
     0.1 4.518006242920819 0.9535301415484388 100 -1.2134775491597027 0.9058
     0.2 1.5919146358616842 0.2770369776964151 100 -1.538611313376179 0.9004
+    ...
+
+
+``RANK/weight.txt``
+^^^^^^^^^^^^^^^^^^^
+各温度における各レプリカの Neal-Jarzynski 重みを記録したファイルです。
+各列は順に、温度インデックス (``Tindex``)、逆温度 (``beta``)、
+walker のインデックス (``walker``)、祖先の id (``idnum``)、目的関数の値 (``fx``)、
+重みの対数 (``log_weight``)、および座標です。
+
+例::
+
+    # Tindex beta walker idnum fx log_weight x1
+    0 0.0 0 0 73.82799488298886 0.0 8.592321856342956
+    0 0.0 1 1 13.487174782058675 0.0 -3.672488908364282
+    ...
+
+``pr.txt``
+^^^^^^^^^^
+各温度における重みの参加率(participation ratio)を記録したファイルです。
+参加率は実効的なレプリカ数を表します。
+1列目は温度インデックス (``Tindex``)、2列目は逆温度 (:math:`1/T`)、3列目は参加率です。
+
+.. code-block::
+
+    # $1: Tindex
+    # $2: 1/T
+    # $3: participation ratio
+    0 0.0 100.0
+    1 0.1 87.23456789012345
     ...
 
 
@@ -362,18 +441,18 @@ MPI 並列をする場合にはあらかじめ `mpi4py <https://mpi4py.readthedo
 ^^^^^^^^^^^^
 
 分布パラメータ :math:`\beta_i` のもとでの配位 :math:`x` の重みを
-:math:`f_i(x)` と書くと(例えばボルツマン因子 :math:`f_i(x) = \exp\left[-\beta_i E(x)\right]`\ )、
+:math:`W_i(x)` と書くと(例えばボルツマン因子 :math:`W_i(x) = \exp\left[-\beta_i f(x)\right]`\ )、
 :math:`A` の期待値は
 
 .. math::
 
    \langle A\rangle_i
-   = \frac{\int \mathrm{d}xA(x)f_i(x)}{\int \mathrm{d}x f_i(x)}
-   = \frac{1}{Z}\int \mathrm{d}xA(x)f_i(x)
-   = \int \mathrm{d}xA(x)\tilde{f}_i(x)
+   = \frac{\int \mathrm{d}xA(x)W_i(x)}{\int \mathrm{d}x W_i(x)}
+   = \frac{1}{Z_i}\int \mathrm{d}xA(x)W_i(x)
+   = \int \mathrm{d}xA(x)\tilde{W}_i(x)
 
-とかけます。
-ここで :math:`Z = \int \mathrm{d} x f_i(x)` は規格化因子(分配関数)で、 :math:`\tilde{f}(x) = f(x)/Z` は配位 :math:`x` の確率密度です。
+と書けます。
+ここで :math:`Z_i = \int \mathrm{d} x W_i(x)` は規格化因子(分配関数)で、 :math:`\tilde{W}_i(x) = W_i(x)/Z_i` は配位 :math:`x` の確率密度です。
 
 目的は複数の分布パラメータについてこの期待値および規格化因子(の比)を数値的に求めることです。
 
@@ -384,41 +463,41 @@ Annealed Importance Sampling (AIS) [1]
 
 .. math::
 
-   \tilde{f}(x_0, x_1, \dots, x_n) = \tilde{f}_n(x_n) \tilde{T}_n(x_n, x_{n-1}) \tilde{T}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{T}_1(x_1, x_0)
+   \tilde{W}(x_0, x_1, \dots, x_n) = \tilde{W}_n(x_n) \tilde{p}_n(x_n, x_{n-1}) \tilde{p}_{n-1}(x_{n-1}, x_{n-2}) \cdots \tilde{p}_1(x_1, x_0)
 
 を満たす点列 :math:`\{x_i\}` を考えます。ここで
 
 .. math::
 
-   \tilde{T}_i(x_i, x_{i-1}) = T_i(x_{i-1}, x_i) \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)}
+   \tilde{p}_i(x_i, x_{i-1}) = p_i(x_{i-1}, x_i) \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)}
 
-であり、 :math:`T_i(x, x')` は :math:`\beta_i` のもとでの配位 :math:`x`
+であり、 :math:`p_i(x, x')` は :math:`\beta_i` のもとでの配位 :math:`x`
 から :math:`x'` への遷移確率で、釣り合い条件
 
 .. math::
 
 
-   \int \mathrm{d}x \tilde{f}_i(x) T_i(x, x') = \tilde{f}_i(x')
+   \int \mathrm{d}x \tilde{W}_i(x) p_i(x, x') = \tilde{W}_i(x')
 
-を満たすようにとります(つまりは普通のMCMCにおける遷移確率行列)。
+を満たすようにとります(通常の MCMC における遷移確率行列に相当します)。
 
 .. math::
 
 
-   \int \mathrm{d} x_{i-1} \tilde{T}_i(x_i, x_{i-1})
-   = \int \mathrm{d} x_{i-1} \tilde{f}_i(x_{i-1}) T_i(x_{i-1}, x_i) / \tilde{f}_i(x_i)
+   \int \mathrm{d} x_{i-1} \tilde{p}_i(x_i, x_{i-1})
+   = \int \mathrm{d} x_{i-1} \tilde{W}_i(x_{i-1}) p_i(x_{i-1}, x_i) / \tilde{W}_i(x_i)
    = 1
 
-となるので、 :math:`\tilde{f}_n(x_n)` は
-:math:`\tilde{f}(x_0, x_1, \dots, x_n)` の周辺分布
+となるので、 :math:`\tilde{W}_n(x_n)` は
+:math:`\tilde{W}(x_0, x_1, \dots, x_n)` の周辺分布
 
 .. math::
 
 
-   \tilde{f}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{f}(x_0, x_1, \dots, x_n)
+   \tilde{W}_n(x_n) = \int \prod_{i=0}^{n-1} \mathrm{d} x_i \tilde{W}(x_0, x_1, \dots, x_n)
 
 です。
-これを利用すると、 :math:`\tilde{f}_n` における平均値 :math:`\langle A \rangle_n` は拡張した配位の重み付き平均として
+これを利用すると、 :math:`\tilde{W}_n` における平均値 :math:`\langle A \rangle_n` は拡張した配位の重み付き平均として
 
 .. math::
 
@@ -426,28 +505,28 @@ Annealed Importance Sampling (AIS) [1]
    \begin{split}
    \langle A \rangle_n
    &\equiv
-   \int \mathrm{d} x_n A(x_n) \tilde{f}_n(x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n)
+   \int \mathrm{d} x_n A(x_n) \tilde{W}_n(x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n)
    \end{split}
 
 と表せます。
 
-さて、残念ながら :math:`\tilde{f}(x_0, x_1, \dots, x_n)`
+さて、残念ながら :math:`\tilde{W}(x_0, x_1, \dots, x_n)`
 に従うような点列を直接生成することは困難です。そこでもっと簡単に、
 
-1. 確率 :math:`\tilde{f}_0(x)` に従う :math:`x_0` を生成する
+1. 確率 :math:`\tilde{W}_0(x)` に従う :math:`x_0` を生成する
 
    -  例えば MCMC を利用する
 
-2. :math:`x_i` から :math:`T_{i+1}(x_i, x_{i+1})` によって :math:`x_{i+1}` を生成する
+2. :math:`x_i` から :math:`p_{i+1}(x_i, x_{i+1})` によって :math:`x_{i+1}` を生成する
 
-   - :math:`T_{i+1}` は釣り合い条件を満たすような遷移確率行列なので、普通にMCMCを行えば良い
+   - :math:`p_{i+1}` は釣り合い条件を満たす遷移確率行列であるため、通常の MCMC 更新を適用します
 
 という流れに従って点列 :math:`\{x_i\}` を生成すると、これは同時確率分布
 
 .. math::
 
-   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{f}_0(x_0) T_1(x_0, x_1) T_2(x_1, x_2) \dots T_n(x_{n-1}, x_n)
+   \tilde{g}(x_0, x_1, \dots, x_n) = \tilde{W}_0(x_0) p_1(x_0, x_1) p_2(x_1, x_2) \dots p_n(x_{n-1}, x_n)
 
 に従います。これを利用すると期待値 :math:`\langle A \rangle_n` は
 
@@ -456,41 +535,41 @@ Annealed Importance Sampling (AIS) [1]
 
    \begin{split}
    \langle A \rangle_n
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{f}(x_0, x_1, \dots, x_n) \\
-   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{f}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
-   &= \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \tilde{W}(x_0, x_1, \dots, x_n) \\
+   &= \int \prod_i \mathrm{d} x_i A(x_n) \frac{\tilde{W}(x_0, x_1, \dots, x_n)}{\tilde{g}(x_0, x_1, \dots, x_n)} \tilde{g}(x_0, x_1, \dots, x_n) \\
+   &= \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    \end{split}
 
 と評価できます (reweighting method)。
-:math:`\tilde{f}` と :math:`\tilde{g}` との比は、
+:math:`\tilde{W}` と :math:`\tilde{g}` との比は、
 
 .. math::
 
 
    \begin{split}
-   \frac{\tilde{f}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
-   &= 
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{T}_i(x_i, x_{i-1})}{T(x_{i-1}, x_i)} \\
+   \frac{\tilde{W}(x_0, \dots, x_n)}{\tilde{g}(x_0, \dots, x_n)}
    &=
-   \frac{\tilde{f}_n(x_n)}{\tilde{f}_0(x_0)}
-   \prod_{i=1}^n \frac{\tilde{f}_i(x_{i-1})}{\tilde{f}_i(x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{p}_i(x_i, x_{i-1})}{p_i(x_{i-1}, x_i)} \\
    &=
-   \frac{Z_0}{Z_n}
-   \frac{f_n(x_n)}{f_0(x_0)}
-   \prod_{i=1}^n \frac{f_i(x_{i-1})}{f_i(x_i)} \\
+   \frac{\tilde{W}_n(x_n)}{\tilde{W}_0(x_0)}
+   \prod_{i=1}^n \frac{\tilde{W}_i(x_{i-1})}{\tilde{W}_i(x_i)} \\
    &=
    \frac{Z_0}{Z_n}
-   \prod_{i=0}^{n-1} \frac{f_{i+1}(x_{i})}{f_i(x_i)} \\
+   \frac{W_n(x_n)}{W_0(x_0)}
+   \prod_{i=1}^n \frac{W_i(x_{i-1})}{W_i(x_i)} \\
+   &=
+   \frac{Z_0}{Z_n}
+   \prod_{i=0}^{n-1} \frac{W_{i+1}(x_{i})}{W_i(x_i)} \\
    &\equiv
    \frac{Z_0}{Z_n} w_n(x_0, x_1, \dots, x_n)
    \end{split}
 
-とかけるので、期待値は
+と書けるので、期待値は
 
 .. math::
 
-   \langle A \rangle_n = \left\langle A\tilde{f}\big/\tilde{g} \right\rangle_{g, n}
+   \langle A \rangle_n = \left\langle A\tilde{W}\big/\tilde{g} \right\rangle_{g, n}
    = \frac{Z_0}{Z_n} \langle Aw_n \rangle_{g,n}
 
 となります。
@@ -515,7 +594,7 @@ population annealing (PA) [2]
 AIS を使うと各 :math:`\beta` に対する期待値を重み付き平均という形で計算できますが、
 :math:`\beta` の幅が大きくなると重み :math:`w` の分散が大きくなってしまいます。
 そのため、適当な周期で確率 :math:`p^{(k)} = w^{(k)} / \sum_k w^{(k)}` に従いレプリカをリサンプリングし、
-レプリカに割当られた重みをリセット :math:`(w=1)` します。
+レプリカに割り当てられた重みをリセット :math:`(w=1)` します。
 
 PAMC のアルゴリズムは次の擬似コードで示されます:
 
@@ -526,12 +605,13 @@ PAMC のアルゴリズムは次の擬似コードで示されます:
         x[0, k] = draw_from(β[0])
     for i in range(1, N):
         for k in range(K):
-            w[i, k] = w[i-1, k] * ( f(x[i-1,k], β[i]) / f(x[i-1,k], β[i-1]) )
+            w[i, k] = w[i-1, k] * ( W(x[i-1,k], β[i]) / W(x[i-1,k], β[i-1]) )
+        x_prev = x[i-1, :]
         if i % interval == 0:
-            x[i, :] = resample(x[i, :], w[i, :])
+            x_prev = resample(x_prev, w[i, :])
             w[i, :] = 1.0
         for k in range(K):
-            x[i, k] = transfer(x[i-1, k], β[i])
+            x[i, k] = transfer(x_prev[k], β[i])
         a[i] = sum(A(x[i,:]) * w[i,:]) / sum(w[i,:])
 
 リサンプリング手法として、レプリカ数を固定する方法[2]と固定しない方法[3]の2通りがあります。

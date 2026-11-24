@@ -64,7 +64,7 @@ def read_Ts(info: dict, numT: int = None) -> tuple[bool, np.ndarray]:
         if not np.isreal(bmin) or bmin < 0.0:
             raise ValueError("bmin must be zero or a positive real number")
         if not np.isreal(bmax) or bmax < 0.0:
-            raise ValueError("bmin must be zero or a positive real number")
+            raise ValueError("bmax must be zero or a positive real number")
         if bmin > bmax:
             raise ValueError("bmin must be smaller than or equal to bmax")
 

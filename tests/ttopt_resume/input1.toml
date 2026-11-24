@@ -1,0 +1,29 @@
+# Part 1: initial run, interrupted by timeout before reaching max_f_eval.
+# solver.delay slows each evaluation so that the timeout in do.sh fires
+# while the run is still in progress.  checkpoint_steps = 1 guarantees
+# that a checkpoint is written after every complete double sweep, so at
+# least one checkpoint exists when the process is killed.
+[base]
+dimension = 2
+output_dir = "output1"
+
+[algorithm]
+name = "ttopt"
+seed = 12345
+checkpoint = true
+checkpoint_steps = 1
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+
+[algorithm.ttopt]
+p_points = [2, 2]
+q_points = [20, 20]
+r_max = 2
+max_f_eval = 1000
+
+[solver]
+name = "analytical"
+function_name = "quadratics"
+delay = 0.02

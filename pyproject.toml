@@ -1,8 +1,8 @@
 [project]
 name = "ODAT-SE"
-version = "3.2.1"
+dynamic = ["version"]
 description = "Open Data Analysis Tool for Science and Engineering"
-authors = [{ name = "2DMAT developers", email = "2dmat-dev@issp.u-tokyo.ac.jp" }]
+authors = [{ name = "ODAT-SE developers", email = "odatse-dev@issp.u-tokyo.ac.jp" }]
 requires-python = ">=3.9"
 readme = "README.md"
 license = "MPL-2.0"
@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "numpy>=1.14",
     "tomli>=1.2 ; python_full_version < '3.11'",
+    "matplotlib>= 3",
 ]
 
 [project.optional-dependencies]
@@ -25,19 +26,30 @@ min_search = ["scipy>=1,<2"]
 mcp = ["mcp>=1.2"]
 bayes = ["physbo>= 2.0.0"]
 exchange = ["mpi4py>= 3.1.0"]
+progress = ["tqdm>= 4"]
 all = [
     "scipy>=1,<2",
     "mpi4py>= 3.1.0",
     "physbo>= 2.0.0",
+    "tqdm>= 4",
 ]
 
 [project.urls]
 Repository = "https://github.com/issp-center-dev/ODAT-SE"
 
 [project.scripts]
-odatse = "odatse:main"
+odatse = "odatse:cli"
 odatse_neighborlist = "odatse.util.neighborlist:main"
 odatse-mcp = "odatse.mcp_server:main"
+odatse_extract_combined = "odatse.scripts.extract_combined:main"
+odatse_plt_1D_histogram = "odatse.scripts.plt_1D_histogram:main"
+odatse_plt_2D_histogram = "odatse.scripts.plt_2D_histogram:main"
+odatse_plt_model_evidence = "odatse.scripts.plt_model_evidence:main"
+odatse_separateT = "odatse.scripts.separateT:main"
+odatse_summarize_each_T = "odatse.scripts.summarize_each_T:main"
+
+[tool.hatch.version]
+path = "src/odatse/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["src/odatse"]
@@ -55,5 +67,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "sphinx>=7.4.7",
-    "sphinx-rtd-theme>=3.1.0",
+    "sphinx-copybutton>=0.5.2",
+    "pydata-sphinx-theme>=0.16.1",
+    "sphinxcontrib-mermaid>=1.2.3",
 ]
