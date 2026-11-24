@@ -75,13 +75,10 @@ def build_server() -> Any:
     @server.tool()
     def render_input_toml(input: dict[str, Any]) -> dict[str, Any]:
         """Validate and return the input.toml text (no file is written)."""
-        issues = api.validate(input)
-        if issues:
-            return {"status": "failed", "issues": issues}
-        return {"status": "ok", "input_toml": api.to_toml(input)}
+        return api.render(input)
 
     @server.tool()
-    def run_calculation(input: dict[str, Any], timeout_s: float = 300.0) -> dict[str, Any]:
+    def run_calculation(input: dict[str, Any], timeout_s: int | float = 300.0) -> dict[str, Any]:
         """Run the built-in analytical solver (disabled unless ODATSE_MCP_ALLOW_RUN=1).
 
         Returns {status, run_id, best, files, elapsed_s, provenance} or {status: failed, issues}.
@@ -91,7 +88,15 @@ def build_server() -> Any:
                 "code": "RUN_DISABLED", "field": None,
                 "message": "run_calculation is disabled on this server",
                 "hint": "the server operator can enable it with ODATSE_MCP_ALLOW_RUN=1"}]}
-        timeout_s = float(min(max(timeout_s, 1.0), 3600.0))
+        try:
+            seconds = float(timeout_s) if api._is_num(timeout_s) else None
+        except OverflowError:
+            seconds = None
+        if seconds is None:
+            return {"status": "failed", "issues": [{
+                "code": "TIMEOUT_INVALID", "field": "timeout_s", "hint": None,
+                "message": "timeout_s must be a finite number of seconds"}]}
+        timeout_s = min(max(seconds, 1.0), 3600.0)
         run_id = uuid.uuid4().hex
         result = api.run(input, _base_dir() / run_id, timeout_s=timeout_s)
         return {"run_id": run_id, **result}

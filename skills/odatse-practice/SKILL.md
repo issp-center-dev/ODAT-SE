@@ -30,7 +30,7 @@ output_dir = "output"
 
 [solver]
 name = "analytical"
-function_name = "himmelblau"     # quadratics, quartics, ackley, rosenbrock, himmelblau (dim 2), linear_regression_test (dim 3)
+function_name = "himmelblau"     # see odatse.api.schema(); himmelblau needs dim 2, linear_regression_test dim 3
 
 [algorithm]
 name = "minsearch"
@@ -64,7 +64,7 @@ result = alg.main()
 
 ## 4. JSON API and MCP server (tools, agents)
 
-- `odatse.api`: `schema()`, `validate(input)`, `prepare(input, workdir)` (writes `input.toml`), `run(input, workdir, timeout_s=...)` (built-in analytical solver only, in a subprocess), `parse(workdir)` and `versions()`. The input is the `input.toml` structure as a dict.
+- `odatse.api`: `schema()`, `validate(input)`, `render(input)` (returns the `input.toml` text), `prepare(input, workdir)` (writes `input.toml`), `run(input, workdir, timeout_s=...)` (built-in analytical solver only, in a subprocess), `parse(workdir)` and `versions()`. The input is the `input.toml` structure as a dict.
 - `odatse-mcp` (`pip install "ODAT-SE[mcp]"`) provides the tools `get_schema`, `versions`, `validate_input`, `render_input_toml`, `run_calculation` and `get_result`.
   - `run_calculation` is off unless the server is started with `ODATSE_MCP_ALLOW_RUN=1`.
   - Runs are written under `ODATSE_MCP_WORKDIR` and addressed by `run_id`.

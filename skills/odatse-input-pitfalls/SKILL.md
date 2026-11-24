@@ -38,4 +38,5 @@ Each entry gives the message or symptom, the cause, and the fix. Source location
 ## Process and files
 
 - Algorithms change into `output/<rank>` (`AlgorithmBase.run`) and `function.Solver` into its work directory. Run each analysis in its own process and its own directory.
-- `odatse.api.validate` checks all of the above before running. It also rejects absolute paths or paths with `..` in `root_dir`, `output_dir`, `mesh_path` and similar keys (`UNSAFE_PATH`).
+- `odatse.api.validate` checks the structure, dimensions and list lengths, bounds, `num_list` / `num_points` / step counts, the temperature rules of `util/read_ts.py`, the `pamc` schedule and the analytical function names before running. It does not run the algorithm, so problems that appear only at run time (for example a solver error) are not caught.
+- It also rejects keys that are not TOML bare keys, `null` values, and absolute paths or paths with `..` in `root_dir`, `output_dir`, `mesh_path`, `neighborlist_path`, `checkpoint_file`, `colormap` and `runner.log.filename` (`UNSAFE_PATH`). `prepare` and `parse` also refuse paths that a symbolic link would take outside the working directory.

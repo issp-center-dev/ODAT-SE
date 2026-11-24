@@ -58,7 +58,7 @@ It also offers a driver script to solve the problem with predefined optimization
 ### JSON API, MCP server and Skills (for tools and AI agents)
 
 - `odatse.api`: a JSON-in/JSON-out interface. The input is the `input.toml` structure as a dict.
-  - Functions: `schema()`, `validate(input)`, `prepare(input, workdir)`, `run(input, workdir, timeout_s=...)`, `parse(workdir)` and `versions()`.
+  - Functions: `schema()`, `validate(input)`, `render(input)`, `prepare(input, workdir)`, `run(input, workdir, timeout_s=...)`, `parse(workdir)` and `versions()`.
   - `run` executes `python -m odatse input.toml` in a subprocess with a timeout, and accepts only the built-in `analytical` solver.
   - Bad input returns structured issues (`code`, `message`, `field`, `hint`).
 - `odatse-mcp`: an MCP server over the same functions (`pip install "ODAT-SE[mcp]"`).
