@@ -272,56 +272,6 @@ def _raising(exc):
     return grad
 
 
-def test_c2_runtime_error_propagates_without_ignore_error(tmp_path, monkeypatch):
-    """C2: RuntimeError from gradient() propagates when ignore_error is off
-    (the default). Fails if it is swallowed."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(RuntimeError("grad boom")))
-    with pytest.raises(RuntimeError, match="grad boom"):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-
-
-def test_c2_runtime_error_with_ignore_error_returns_nan(tmp_path, monkeypatch):
-    """C2: RuntimeError from gradient() with ignore_error = true gives an
-    all-NaN array of x's shape (not zeros). Fails if zeros are returned or
-    the error propagates."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(RuntimeError("grad boom")),
-                           runner={"ignore_error": True})
-    g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    _assert_all_nan(g, (2,))
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c2_not_implemented_error_from_gradient_like_runtime_error(tmp_path, monkeypatch, ignore_error):
-    """C2 (contract3): NotImplementedError raised by gradient() is handled
-    like a RuntimeError: with ignore_error = true an all-NaN array of x's
-    shape is returned, otherwise it propagates. (The NotImplementedError of
-    an unavailable gradient is a separate case and always propagates.)
-    Fails if ignore_error does not cover it, or if it is swallowed without
-    ignore_error."""
-    _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
-                                grad=_raising(NotImplementedError("no grad here")),
-                                runner={"ignore_error": ignore_error})
-    if ignore_error:
-        g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-        _assert_all_nan(g, (2,))
-    else:
-        with pytest.raises(NotImplementedError, match="no grad here"):
-            r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    # gradient() was really reached: this is not the unavailable-gradient path
-    assert len(solver.grad_calls) == 1
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("exc_type", [ValueError, TypeError])
-def test_c2_non_runtime_error_always_propagates(tmp_path, monkeypatch, exc_type, ignore_error):
-    """C2: non-RuntimeError exceptions from gradient() propagate regardless
-    of ignore_error. Fails if ignore_error swallows them."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(exc_type("bad grad")),
-                           runner={"ignore_error": ignore_error})
-    with pytest.raises(exc_type, match="bad grad"):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-
-
 # ---------------------------------------------------------------------------
 # C3. min_search input validation at construction
 
@@ -3666,137 +3616,112 @@ def test_c18_wrong_shape_raises_after_exchange(tmp_path, monkeypatch, bad, ignor
 # C18(b) failures in the group, decided on the controller
 
 
-@pytest.mark.parametrize("worker", [_C18_WORKER_RTE, _C18_WORKER_NIE], ids=["runtime", "not-implemented"])
-def test_c18_worker_runtime_error_is_nan_with_ignore_error(tmp_path, monkeypatch, worker):
-    """C18(b)1: a worker's RuntimeError (NotImplementedError included) in
-    gradient() gives an all-NaN gradient with ignore_error = true, after
-    one exchange. Fails if the controller returns its own (finite) gradient
-    as if the group had succeeded, or raises."""
-    solver, r, comm, _ = _c18_controller(tmp_path, monkeypatch, others=[worker],
-                                         runner={"ignore_error": True})
-    _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
-    assert comm.kinds().count("allgather") == 1
-    assert len(solver.grad_calls) == 1
+def _failure(id, solsize, own, worker, ignore_error, outcome, summary=None):
+    return pytest.param(solsize, own, worker, ignore_error, outcome, summary, id=id)
 
 
-@pytest.mark.parametrize("worker", [_C18_WORKER_RTE, _C18_WORKER_NIE], ids=["runtime", "not-implemented"])
-def test_c18_worker_runtime_error_raises_solver_runtime_error(tmp_path, monkeypatch, worker):
-    """C18(b)1, (b)4: without ignore_error a worker's RuntimeError raises
-    SolverRuntimeError (a RuntimeError and a SolverError) whose message
-    names solver.gradient(), the number of failing ranks and the worker's
-    "[rank N] Type: message". Fails if the failure is swallowed, if the
-    worker's exception type is lost, or if the message says
-    solver.evaluate() (the evaluate wording copied unchanged)."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[worker])
-    with pytest.raises(SolverRuntimeError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert isinstance(ei.value, RuntimeError) and isinstance(ei.value, SolverError)
-    _c18_assert_gradient_summary(str(ei.value), 1, [worker[1]])
+_BOOM = "controller boom"
+_OWN_LINE = f"[rank 2] RuntimeError: {_BOOM}"
+
+# What submit_gradient does when gradient() fails, by who failed and how.
+#   own:     the exception raised by this process's gradient(), or None
+#   worker:  the status the other rank of a group of 2 reports
+#   outcome: "nan"  -- an all-NaN gradient is returned
+#            "same" -- the very exception object of ``own`` is raised
+#            a class -- that exception is raised; ``summary`` gives the
+#                       number of failing ranks and their lines in its message
+_FAILURE_CASES = [
+    # --- alone: a RuntimeError is ignorable, anything else is not
+    _failure("alone-runtime", 1, RuntimeError(_BOOM), None, False, "same"),
+    _failure("alone-runtime-ignored", 1, RuntimeError(_BOOM), None, True, "nan"),
+    # NotImplementedError is a RuntimeError, and must be treated as one here:
+    # this is a gradient() that was reached, not an unavailable gradient
+    _failure("alone-notimpl", 1, NotImplementedError(_BOOM), None, False, "same"),
+    _failure("alone-notimpl-ignored", 1, NotImplementedError(_BOOM), None, True, "nan"),
+    _failure("alone-value", 1, ValueError(_BOOM), None, False, "same"),
+    _failure("alone-value-ignored", 1, ValueError(_BOOM), None, True, "same"),
+    _failure("alone-type", 1, TypeError(_BOOM), None, False, "same"),
+    _failure("alone-type-ignored", 1, TypeError(_BOOM), None, True, "same"),
+    # --- C18(b)1: only the controller fails -> as when alone, but after the
+    # exchange, which releases the workers
+    _failure("own-runtime", 2, RuntimeError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-runtime-ignored", 2, RuntimeError(_BOOM), _C18_OK, True, "nan"),
+    _failure("own-notimpl", 2, NotImplementedError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-notimpl-ignored", 2, NotImplementedError(_BOOM), _C18_OK, True, "nan"),
+    # --- C18(b)1, (b)4: a worker's RuntimeError -> NaN if ignored, else a
+    # SolverRuntimeError carrying the worker's line (its type would be lost)
+    _failure("worker-runtime", 2, None, _C18_WORKER_RTE, False,
+             SolverRuntimeError, (1, [_C18_WORKER_RTE[1]])),
+    _failure("worker-runtime-ignored", 2, None, _C18_WORKER_RTE, True, "nan"),
+    _failure("worker-notimpl", 2, None, _C18_WORKER_NIE, False,
+             SolverRuntimeError, (1, [_C18_WORKER_NIE[1]])),
+    _failure("worker-notimpl-ignored", 2, None, _C18_WORKER_NIE, True, "nan"),
+    # both fail: the worker's failure must not hide behind the controller's
+    _failure("both-runtime", 2, RuntimeError(_BOOM), _C18_WORKER_RTE, False,
+             SolverRuntimeError, (2, [_OWN_LINE, _C18_WORKER_RTE[1]])),
+    _failure("both-runtime-ignored", 2, RuntimeError(_BOOM), _C18_WORKER_RTE, True, "nan"),
+    # --- C18(b)2: a non-RuntimeError is never ignored. From a worker it is
+    # a SolverError that is not a RuntimeError; from the controller alone it
+    # stays the same object
+    _failure("worker-value", 2, None, _C18_WORKER_VAL, False,
+             SolverError, (1, [_C18_WORKER_VAL[1]])),
+    _failure("worker-value-ignored", 2, None, _C18_WORKER_VAL, True,
+             SolverError, (1, [_C18_WORKER_VAL[1]])),
+    _failure("own-value", 2, ValueError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-value-ignored", 2, ValueError(_BOOM), _C18_OK, True, "same"),
+    # one rank's RuntimeError does not make the other's ValueError ignorable
+    _failure("own-value-worker-runtime-ignored", 2, ValueError(_BOOM), _C18_WORKER_RTE,
+             True, SolverError),
+    _failure("own-runtime-worker-value-ignored", 2, RuntimeError(_BOOM), _C18_WORKER_VAL,
+             True, SolverError),
+    # --- C18(b)3: SystemExit / KeyboardInterrupt still take part in the
+    # exchange (the workers wait in it) and become a SolverError
+    _failure("own-exit-ignored", 2, SystemExit(3), _C18_OK, True, SolverError),
+    _failure("own-interrupt-ignored", 2, KeyboardInterrupt(), _C18_OK, True, SolverError),
+]
 
 
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("exc_type", [RuntimeError, NotImplementedError])
-def test_c18_controller_only_runtime_error(tmp_path, monkeypatch, exc_type, ignore_error):
-    """C18(b)1: when only the controller's gradient() raises a
-    RuntimeError (or NotImplementedError), ignore_error = true gives an
-    all-NaN gradient and otherwise that very exception is raised, after
-    one exchange (the workers must be released). Fails if the exception is
-    wrapped or replaced, if ignore_error does not apply, or if the
-    controller raises before the exchange."""
-    own = exc_type("controller boom")
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(own),
-                                    runner={"ignore_error": ignore_error})
-    if ignore_error:
-        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
+@pytest.mark.parametrize("solsize,own,worker,ignore_error,outcome,summary", _FAILURE_CASES)
+def test_gradient_failure_outcome(tmp_path, monkeypatch, solsize, own, worker,
+                                  ignore_error, outcome, summary):
+    """C2 / C18(b): the outcome of submit_gradient for every row of
+    _FAILURE_CASES. In each row gradient() is called exactly once here (the
+    failure is a real one, not the unavailable-gradient path), and in a
+    group of 2 the request is followed by exactly one status exchange,
+    whatever happens, so that the workers are released. An exception built
+    from the group's statuses is a SolverError (and a RuntimeError exactly
+    when it is a SolverRuntimeError) whose message names solver.gradient(),
+    not solver.evaluate().
+    Fails if ignore_error covers more or less than RuntimeError, if an
+    exception of the controller is wrapped, replaced or raised before the
+    exchange, if a worker's failure is swallowed or hidden behind the
+    controller's, or if the evaluate wording is reused for gradients."""
+    kw = {"grad": None if own is None else _raising(own),
+          "runner": {"ignore_error": ignore_error}}
+    if solsize == 1:
+        _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch, **kw)
+        comm = None
     else:
-        with pytest.raises(exc_type) as ei:
+        solver, r, comm, _ = _c18_controller(tmp_path, monkeypatch, others=[worker],
+                                             global_rank=2, **kw)
+    if outcome == "nan":
+        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
+    elif outcome == "same":
+        with pytest.raises(type(own)) as ei:
             r.submit_gradient(_C18_X.copy(), (1, 0))
         assert ei.value is own
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_controller_and_worker_runtime_error(tmp_path, monkeypatch, ignore_error):
-    """C18(b)1: when the controller and a worker both raise RuntimeError,
-    ignore_error = true gives NaN, and otherwise a SolverRuntimeError lists
-    both ranks. Fails if only the controller's own exception is raised
-    (the worker's failure would be hidden) or if ignore_error is refused."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[_C18_WORKER_RTE],
-                                 grad=_raising(RuntimeError("controller boom")),
-                                 global_rank=2, runner={"ignore_error": ignore_error})
-    if ignore_error:
-        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
-        return
-    with pytest.raises(SolverRuntimeError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    _c18_assert_gradient_summary(
-        str(ei.value), 2, ["[rank 2] RuntimeError: controller boom", _C18_WORKER_RTE[1]])
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_worker_non_runtime_error_is_solver_error(tmp_path, monkeypatch, ignore_error):
-    """C18(b)2, (b)4: a worker's non-RuntimeError (ValueError) in gradient()
-    raises a SolverError that is not a RuntimeError, regardless of
-    ignore_error, naming solver.gradient() and the worker's line. Fails if
-    ignore_error turns it into NaN or the controller's finite gradient is
-    returned."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[_C18_WORKER_VAL],
-                                 runner={"ignore_error": ignore_error})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert not isinstance(ei.value, RuntimeError)
-    _c18_assert_gradient_summary(str(ei.value), 1, [_C18_WORKER_VAL[1]])
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_controller_only_non_runtime_error_is_unchanged(tmp_path, monkeypatch, ignore_error):
-    """C18(b)2: a non-RuntimeError raised by the controller's gradient()
-    alone is raised as it is (the same object), regardless of
-    ignore_error, after the exchange. Fails if it is wrapped, ignored, or
-    raised before the workers are released."""
-    own = ValueError("controller boom")
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(own),
-                                    runner={"ignore_error": ignore_error})
-    with pytest.raises(ValueError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert ei.value is own
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-
-
-@pytest.mark.parametrize("case", ["controller-value", "worker-value"])
-def test_c18_mixed_failures_with_a_worker_are_solver_error(tmp_path, monkeypatch, case):
-    """C18(b)2: a non-RuntimeError anywhere in the group, together with a
-    worker failure, raises SolverError even with ignore_error = true.
-    Fails if the RuntimeError of one rank makes the whole failure
-    ignorable."""
-    if case == "controller-value":
-        own, worker = ValueError("controller boom"), _C18_WORKER_RTE
     else:
-        own, worker = RuntimeError("controller boom"), _C18_WORKER_VAL
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[worker], grad=_raising(own),
-                                 global_rank=2, runner={"ignore_error": True})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert not isinstance(ei.value, RuntimeError)
-    assert "solver.gradient()" in str(ei.value)
-    assert "solver.evaluate()" not in str(ei.value)
-
-
-@pytest.mark.parametrize("exc", [SystemExit(3), KeyboardInterrupt()], ids=["exit", "interrupt"])
-def test_c18_controller_base_exception_is_solver_error(tmp_path, monkeypatch, exc):
-    """C18(b)3, (b)4: SystemExit / KeyboardInterrupt from the controller's
-    gradient() takes part in the exchange (the workers wait in it) and is
-    then raised as a SolverError, also with ignore_error = true, whose
-    message names solver.gradient(). Fails if it propagates as is before the
-    exchange (the workers would hang), if ignore_error turns it into NaN, or
-    if the message says solver.evaluate()."""
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(exc),
-                                    runner={"ignore_error": True})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-    assert "solver.gradient()" in str(ei.value)
-    assert "solver.evaluate()" not in str(ei.value)
+        with pytest.raises(outcome) as ei:
+            r.submit_gradient(_C18_X.copy(), (1, 0))
+        assert isinstance(ei.value, SolverError)
+        assert isinstance(ei.value, RuntimeError) == (outcome is SolverRuntimeError)
+        assert "solver.gradient()" in str(ei.value)
+        assert "solver.evaluate()" not in str(ei.value)
+        if summary is not None:
+            _c18_assert_gradient_summary(str(ei.value), *summary)
+    assert len(solver.grad_calls) == 1
+    if comm is not None:
+        assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
 
 
 @pytest.mark.parametrize("foreign", [1.5, None, (True, "looks like a status")])
