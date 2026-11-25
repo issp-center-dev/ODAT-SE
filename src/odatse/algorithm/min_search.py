@@ -242,7 +242,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
         fev_history = []
         function_values = {}
         gradients = {}
-        failed_gradients = set()
+        failed_gradients = {}
 
         # evaluate the initial point in solver units, as _f_calc does
         f0 = run.submit(np.asarray(self.initial_list) / unit_list, (0, 0))
@@ -262,11 +262,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             # Keep the iterate: trust-constr calls back at the same iterate
             # after rejecting a step, which would otherwise recompute its
             # gradient (or retry its failed one).
-            for cache in (function_values, gradients):
+            for cache in (function_values, gradients, failed_gradients):
                 retained = {key: cache[key]} if key in cache else {}
                 cache.clear()
                 cache.update(retained)
-            failed_gradients.intersection_update((key,))
 
         def _callback_value(x):
             """
@@ -422,7 +421,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 if np.all(np.isfinite(g)):
                     gradients[key] = g.copy()
                 else:
-                    failed_gradients.add(key)
+                    failed_gradients[key] = g.copy()
                 return g
 
             grad_history.append([
@@ -433,7 +432,7 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
 
             def _record_gradient():
                 """
-                Record a cached gradient or NaN for an unrecovered failure.
+                Record the gradient scipy received at the current iterate.
                 """
                 *x, fun = iter_history[-1]
                 key = _key(x)
@@ -442,7 +441,9 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                 elif key in failed_gradients:
                     # Retrying unrecovered failures here made TNC call the
                     # gradient about 100 times just to write its history.
-                    grad = np.full_like(x, np.nan, dtype=float)
+                    # Writing all-NaN instead would hide the finite
+                    # components that scipy did receive.
+                    grad = failed_gradients[key]
                 else:
                     grad = _jac_calc(np.array(x), 0)
                 grad_history.append([*x, fun, *grad])

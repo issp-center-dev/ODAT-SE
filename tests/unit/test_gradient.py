@@ -1280,6 +1280,29 @@ def test_c9_callback_does_not_retry_failed_gradient(tmp_path, monkeypatch, mode)
             assert not np.all(np.isfinite(r[4:6])), r
 
 
+@pytest.mark.parametrize("mode", ["partial-nan", "inf"])
+def test_c9_callback_records_the_non_finite_gradient_as_returned(
+        tmp_path, monkeypatch, mode):
+    """C9: gradient() at x0 always returns a partially non-finite vector
+    ([nan, 1] or [inf, 1]). Every History_Gradient.txt row at x0 -- the
+    initial one and the K rows written from the callback -- holds exactly
+    that vector, which is what the optimizer received. Fails if callback
+    rows replace it by all-NaN and drop the finite component."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    alg, _, _ = _make_alg(
+        tmp_path, {"method": "BFGS", "use_gradient": True},
+        fn=fn, grad=_fails_at_mode(x0, grad, mode), runner={"ignore_error": True},
+        initial_list=_same_start_for_all_walkers(x0))
+    _patch_minimize(monkeypatch, _controlled_callback_factory(x0, fn, _K))
+    alg.main()
+    expected = _failing_value(mode)
+    rows = [r for r in _grad_rows(tmp_path) if np.array_equal(r[1:3], x0)]
+    assert len(rows) >= 1 + _K
+    for r in rows:
+        np.testing.assert_array_equal(r[4:6], expected)
+
+
 @pytest.mark.parametrize("mode", _FAIL_MODES)
 def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatch, mode):
     """C9: the first gradient() call (initial point) fails -- raised and
