@@ -22,7 +22,8 @@
   skills:
     - { name: odatse-practice, path: "skills/odatse-practice/SKILL.md" }
     - { name: odatse-input-pitfalls, path: "skills/odatse-input-pitfalls/SKILL.md" }
-  mcp: { status: available, server: "odatse-mcp", notes: "run_calculation is opt-in (ODATSE_MCP_ALLOW_RUN=1) and analytical-solver only" }
+    - { name: odatse-custom-solver, path: "skills/odatse-custom-solver/SKILL.md" }
+  mcp: { status: available, server: "odatse-mcp", notes: "run_calculation is opt-in (ODATSE_MCP_ALLOW_RUN=1); runs the analytical solver or operator-registered solvers (entry points odatse.solvers, ODATSE_MCP_SOLVERS)" }
   optimizer:
     supported_spaces: [continuous]
     directions: [minimize]

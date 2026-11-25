@@ -1,6 +1,6 @@
 ---
 name: odatse-practice
-description: Use when setting up an ODAT-SE (odatse) analysis — choosing an algorithm (minsearch, mapper, random_search, exchange, pamc, bayes), writing input.toml, connecting your own forward solver as a Python function, running `odatse input.toml`, reading res.txt / ColorMap.txt / best_result.txt / BayesData.txt, or using the odatse.api functions and the odatse-mcp server from a tool or an AI agent.
+description: Use when setting up an ODAT-SE (odatse) analysis — choosing an algorithm (minsearch, mapper, random_search, exchange, pamc, bayes), writing input.toml, connecting your own forward solver as a Python function (script or registered solver), running `odatse input.toml`, reading res.txt / ColorMap.txt / best_result.txt / BayesData.txt, or using the odatse.api functions and the odatse-mcp server from a tool or an AI agent.
 ---
 
 # ODAT-SE in practice
@@ -62,13 +62,16 @@ result = alg.main()
 
 `function.Solver` changes into its work directory for every evaluation, and every algorithm changes into `output/` while running. Run ODAT-SE in its own process; do not run it inside a long-lived server process that other code shares.
 
+To run your function through `odatse.api.run` or the MCP tool `run_calculation`, register it as `f(x, **params)` and select it with `solver.name` (skill `odatse-custom-solver`).
+
 ## 4. JSON API and MCP server (tools, agents)
 
-- `odatse.api`: `schema()`, `validate(input)`, `render(input)` (returns the `input.toml` text), `prepare(input, workdir)` (writes `input.toml`), `run(input, workdir, timeout_s=...)` (built-in analytical solver only, in a subprocess), `parse(workdir)` and `versions()`. The input is the `input.toml` structure as a dict.
+- `odatse.api`: `schema()`, `validate(input)`, `render(input)` (returns the `input.toml` text), `prepare(input, workdir)` (writes `input.toml`), `run(input, workdir, timeout_s=...)` (built-in analytical solver or a registered solver, in a subprocess), `parse(workdir)` and `versions()`. The input is the `input.toml` structure as a dict. All but `parse` and `versions` take `solvers={name: "package.module:attribute"}`; entry points in the group `odatse.solvers` are always included.
 - `odatse-mcp` (`pip install "ODAT-SE[mcp]"`) provides the tools `get_schema`, `versions`, `validate_input`, `render_input_toml`, `run_calculation` and `get_result`.
   - `run_calculation` is off unless the server is started with `ODATSE_MCP_ALLOW_RUN=1`.
   - Runs are written under `ODATSE_MCP_WORKDIR` and addressed by `run_id`.
-- For a user-written solver, use `validate_input` and `render_input_toml`, then run your own script (section 3).
+  - Registered solvers: the `odatse.solvers` entry points plus `ODATSE_MCP_SOLVERS="name=package.module:attribute,..."`. `get_schema` lists them under `registered_solvers` with their parameters.
+- For a solver that is not registered, use `validate_input` and `render_input_toml`, then run your own script (section 3).
 
 ## 5. Record for reproducibility
 

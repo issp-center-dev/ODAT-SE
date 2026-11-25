@@ -460,7 +460,8 @@ def test_trailing_newline_in_labels_and_keys_is_rejected():
 
 
 @pytest.mark.parametrize("rows,ok", [
-    ("0.0 0.0 nan\n0.5 0.5 2.0\n", False),       # NaN objective
+    ("0.0 0.0 nan\n0.5 0.5 2.0\n", True),        # failed evaluation (runner.ignore_error), then a valid row
+    ("0.0 0.0 nan\n", False),                     # only failed evaluations
     ("nan 0.0 0.0\n0.0 0.0 1.0\n", False),       # NaN coordinate in the first row
     ("0.0 0.0 -inf\n0.5 0.5 2.0\n", True),       # rejected evaluation (-inf), then a valid row
     ("0.0 nan 1.0\n", False),                     # NaN coordinate
