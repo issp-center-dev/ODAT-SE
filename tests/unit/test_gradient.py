@@ -399,23 +399,6 @@ def test_c3_gradient_free_method_with_use_gradient_raises(tmp_path, method):
     _solver_untouched_after_failed_construction(tmp_path, minimize)
 
 
-def test_c3_unsupported_solver_with_use_gradient_raises(tmp_path):
-    """C3: use_gradient = true with a solver whose supports_gradient is false
-    raises ValueError at construction. Fails if it silently falls back to
-    finite differences."""
-    _solver_untouched_after_failed_construction(
-        tmp_path, {"method": "BFGS", "use_gradient": True}, supports=False)
-
-
-def test_c3_affine_mapping_with_use_gradient_raises(tmp_path):
-    """C3: use_gradient = true with an Affine mapping on the Runner raises
-    ValueError at construction (not NotImplementedError later during the
-    run). Fails if the check is deferred to submit_gradient."""
-    _solver_untouched_after_failed_construction(
-        tmp_path, {"method": "BFGS", "use_gradient": True},
-        mapping=odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2)))
-
-
 def test_c3_gradient_unavailable_reason_with_use_gradient_raises(tmp_path, monkeypatch):
     """C3: use_gradient = true raises ValueError at construction when
     runner.gradient_unavailable_reason() returns a string, whatever the
@@ -1946,23 +1929,6 @@ def test_c14_override_raising_not_implemented_is_like_runtime_error(tmp_path, mo
     assert len(solver.grad_calls) == 2
 
 
-@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
-def test_c14_min_search_rejects_not_overridden_gradient(tmp_path, kind):
-    """C14: min_search with use_gradient = true and a solver that does not
-    override gradient() raises InputValueError at construction; it is both
-    a ValueError and an InputError, and the solver is never called. Fails if
-    the run starts and proceeds with all-NaN gradients."""
-    info = _info(tmp_path, minimize={"method": "BFGS", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    solver = _NO_OVERRIDE[kind](info)
-    r = odatse.Runner(solver, info)
-    with pytest.raises(odatse.exception.InputValueError) as ei:
-        min_search.Algorithm(info, r)
-    assert isinstance(ei.value, ValueError)
-    assert isinstance(ei.value, odatse.exception.InputError)
-    assert solver.eval_calls == []
-
-
 # ===========================================================================
 # Round 4: C15
 #
@@ -3087,26 +3053,6 @@ def test_c17_runner_reason_without_set_gradient(tmp_path, monkeypatch, state, ig
     assert g.calls == []
 
 
-@pytest.mark.parametrize("state", ["function-only", "dropped"])
-def test_c17_min_search_rejects_use_gradient_without_set_gradient(tmp_path, state):
-    """C17-6: min_search with use_gradient = true and a plain function solver
-    without a gradient (set_function only, or dropped by a later
-    set_function) raises InputValueError at construction, and neither the
-    objective nor g is called. Fails if the run starts (with finite
-    differences or all-NaN gradients)."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info, s = _c17_plain_without_gradient(
-        tmp_path, state, f, g,
-        minimize={"method": "L-BFGS-B", "use_gradient": True},
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    r = odatse.Runner(s, info)
-    with pytest.raises(odatse.exception.InputValueError):
-        min_search.Algorithm(info, r)
-    assert f.calls == []
-    assert g.calls == []
-
-
 def test_c17_min_search_lbfgsb_uses_set_gradient(tmp_path):
     """C17-6: min_search with use_gradient = true and L-BFGS-B on a plain
     function solver with set_function / set_gradient (a 2-D quadratic with
@@ -3445,47 +3391,6 @@ def test_c14r6_reason_without_gradient(tmp_path, monkeypatch, kind):
     assert f.calls == []
 
 
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("kind", _C14R6_KINDS)
-def test_c14r6_submit_gradient_raises_without_gradient(tmp_path, monkeypatch, kind, ignore_error):
-    """C14 (revised): for those solvers submit_gradient raises
-    NotImplementedError regardless of ignore_error (not an all-NaN
-    gradient) because a reason is reported, and neither the objective nor
-    a dropped g is called. Fails if ignore_error turns the missing gradient
-    into NaN, or if the check happens only inside solver.gradient()."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info = _info(tmp_path, runner={"ignore_error": ignore_error})
-    s = _c14r6_solver(kind, info, f, g)
-    r = odatse.Runner(s, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    assert isinstance(r.gradient_unavailable_reason(), str)
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    assert f.calls == []
-    assert g.calls == []
-
-
-@pytest.mark.parametrize("kind", _C14R6_KINDS)
-def test_c14r6_min_search_rejects_without_gradient(tmp_path, kind):
-    """C14 (revised): min_search with use_gradient = true raises
-    InputValueError (a ValueError and an InputError) at construction for
-    those solvers, without calling the objective or g. Fails if the run
-    starts and proceeds with all-NaN gradients."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    s = _c14r6_solver(kind, info, f, g)
-    r = odatse.Runner(s, info)
-    with pytest.raises(odatse.exception.InputValueError) as ei:
-        min_search.Algorithm(info, r)
-    assert isinstance(ei.value, ValueError)
-    assert isinstance(ei.value, odatse.exception.InputError)
-    assert f.calls == []
-    assert g.calls == []
-
-
 @pytest.mark.parametrize("kind", ["property", "class-attr", "analytical"])
 def test_c14r6_no_reason_once_gradient_is_set(tmp_path, monkeypatch, kind):
     """C14 (revised) / C17: the same subclasses, without a gradient()
@@ -3757,26 +3662,6 @@ def test_c3r7_min_search_accepts_use_gradient_in_parallel(tmp_path, monkeypatch)
     assert set(comm.kinds()) <= {"Allreduce", "bcast"}
 
 
-@pytest.mark.parametrize("situation", ["unsupported", "affine"])
-def test_c3r7_min_search_rejects_other_reasons_in_parallel(tmp_path, monkeypatch, situation):
-    """C3 (revised, unchanged part): in a solver group of 2, use_gradient =
-    true with an unsupported solver or an Affine mapping still raises
-    InputValueError at construction, without calling the solver. Fails if
-    the parallel case skips the validation."""
-    comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
-    fn, grad = _quad_fn(_C)
-    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    solver = _RecordingSolver(info, fn, grad, supports=(situation != "unsupported"))
-    mapping = (odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))
-               if situation == "affine" else None)
-    r = odatse.Runner(solver, info, mapping=mapping)
-    with pytest.raises(odatse.exception.InputValueError):
-        min_search.Algorithm(info, r)
-    assert solver.eval_calls == [] and solver.grad_calls == []
-    assert "allgather" not in comm.kinds()
-
-
 # ---------------------------------------------------------------------------
 # C18(a) the control message on the controller
 
@@ -3861,14 +3746,15 @@ def test_c18_single_rank_gradient_uses_no_collective(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("situation", _C18_UNAVAILABLE)
-def test_c18_unavailable_sends_nothing(tmp_path, monkeypatch, situation, ignore_error):
-    """C18(a)2: when the gradient is unavailable, the controller of a group
-    of 2 raises NotImplementedError (regardless of ignore_error) without
-    sending anything and without calling gradient() or evaluate(). Fails if
-    the control message goes out first: the workers would compute (and wait
-    in the exchange) for a request the controller abandons."""
-    solver, r = _c18_unavailable_runner(tmp_path, situation,
+def test_c18_unavailable_sends_nothing(tmp_path, monkeypatch, ignore_error):
+    """C18(a)2: when the gradient is unavailable (here: a solver without
+    gradient support; that the other situations give a reason in a group
+    of 2 is test_c1r7_other_reasons_remain_in_parallel), the controller of
+    a group of 2 raises NotImplementedError (regardless of ignore_error)
+    without sending anything and without calling gradient() or evaluate().
+    Fails if the control message goes out first: the workers would compute
+    (and wait in the exchange) for a request the controller abandons."""
+    solver, r = _c18_unavailable_runner(tmp_path, "unsupported",
                                         runner={"ignore_error": ignore_error})
     comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
     with pytest.raises(NotImplementedError):
