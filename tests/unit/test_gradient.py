@@ -2666,6 +2666,20 @@ def test_c16_griewank_cos_near_zero(tmp_path, dim, n_zero_cos):
     _c16_assert_matches(s, "griewank", x, g)
 
 
+@pytest.mark.parametrize("dim", [1, 2, 5])
+def test_c16_ackley_gradient_at_origin_is_zero(tmp_path, dim):
+    """C16.3 (ackley): at the origin, where the function has a cusp and
+    the formula divides zero by zero, the gradient is exactly the zero
+    vector of shape (dim,), without a warning. Fails on NaN from the 0/0
+    or on any nonzero value there."""
+    s = _analytical(tmp_path, "ackley", dim)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        g = np.asarray(s.gradient(np.zeros(dim)))
+    assert g.shape == (dim,)
+    np.testing.assert_array_equal(g, np.zeros(dim))
+
+
 def test_c16_schaffer_dimension_one_gradient_is_zero(tmp_path):
     """C16.3 (schaffer): with d = 1 (no pair of neighbors, the zero
     function) the gradient is the zero vector of shape (1,). Fails on an
