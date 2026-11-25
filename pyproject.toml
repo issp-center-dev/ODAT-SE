@@ -23,6 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 min_search = ["scipy>=1,<2"]
+mcp = ["mcp>=1.2"]
 bayes = ["physbo>= 2.0.0"]
 exchange = ["mpi4py>= 3.1.0"]
 progress = ["tqdm>= 4"]
@@ -39,6 +40,7 @@ Repository = "https://github.com/issp-center-dev/ODAT-SE"
 [project.scripts]
 odatse = "odatse:cli"
 odatse_neighborlist = "odatse.util.neighborlist:main"
+odatse-mcp = "odatse.mcp_server:main"
 odatse_extract_combined = "odatse.scripts.extract_combined:main"
 odatse_plt_1D_histogram = "odatse.scripts.plt_1D_histogram:main"
 odatse_plt_2D_histogram = "odatse.scripts.plt_2D_histogram:main"
