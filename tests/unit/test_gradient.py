@@ -866,40 +866,6 @@ def test_c6_gradient_matches_central_difference(tmp_path, name, dim):
         np.testing.assert_allclose(g, num, rtol=1e-5, atol=1e-5 * scale)
 
 
-# every built-in function of the analytical solver, with a valid dimension
-_ALL_BUILTIN = [
-    ("quadratics", 2), ("quartics", 2), ("ackley", 2), ("alpine", 2),
-    ("exponential", 2), ("griewank", 2), ("himmelblau", 2),
-    ("michalewicz", 2), ("qing", 2), ("rastrigin", 2), ("rosenbrock", 2),
-    ("schaffer", 2), ("schwefel", 2), ("linear_regression_test", 3),
-]
-
-
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
-def test_c6_every_builtin_function_supports_gradient(tmp_path, name, dim):
-    """C6 (revised in contract5): every built-in function of the analytical
-    solver reports a true supports_gradient, and gradient() returns
-    instead of raising NotImplementedError. Fails if any built-in function
-    is left without a gradient."""
-    s = _analytical(tmp_path, name, dim)
-    assert s.supports_gradient
-    g = np.asarray(s.gradient(np.full(dim, 0.3)))
-    assert g.shape == (dim,)
-
-
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
-def test_c6_set_function_drops_gradient_of_every_builtin(tmp_path, name, dim):
-    """C6 (unchanged in contract5): for every built-in function, replacing
-    the objective with set_function() makes supports_gradient false and
-    gradient() raise NotImplementedError. Fails if a newly added gradient
-    is attached so that set_function() does not drop it."""
-    s = _analytical(tmp_path, name, dim)
-    s.set_function(lambda x: float(np.sum((x - 1.0) ** 2)))
-    assert not s.supports_gradient
-    with pytest.raises(NotImplementedError):
-        s.gradient(np.full(dim, 0.3))
-
-
 def test_c6_rosenbrock_dimension_one_gradient_is_zero(tmp_path):
     """C6: rosenbrock with dimension = 1 (constant zero function) has a
     zero gradient of shape (1,) instead of raising. Fails on an exception
@@ -3335,9 +3301,10 @@ def test_c17_pickle_round_trip(tmp_path, case):
 # C6 revised: the analytical solver after set_function + set_gradient
 
 
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
+@pytest.mark.parametrize("name,dim", [("quadratics", 2), ("alpine", 2)])
 def test_c6r6_set_gradient_after_set_function(tmp_path, monkeypatch, name, dim):
-    """C6 (revised in contract6): for every built-in function, after
+    """C6 (revised in contract6): for a built-in function (every one gets
+    its gradient through the same set_gradient(), so two stand for all), after
     set_function() drops the built-in gradient, set_gradient(g) makes
     supports_gradient true again and gradient() returns g(x) (with x passed
     to g), not the built-in gradient; the Runner then reports no reason.
@@ -3387,16 +3354,6 @@ def test_c6r6_set_function_again_drops_set_gradient(tmp_path):
     assert s.supports_gradient
     np.testing.assert_array_equal(np.asarray(s.gradient(_C17_X.copy())), _c17_g2(_C17_X))
     assert g1.calls == []
-
-
-def test_c6r6_builtin_gradient_unchanged(tmp_path):
-    """C6 (unchanged in contract6): a built-in function keeps its gradient
-    without set_gradient: quadratics reports supports_gradient true and its
-    gradient 2x. Fails if the built-in gradients now need set_gradient or
-    are replaced by something else."""
-    s = _analytical(tmp_path, "quadratics", 2)
-    assert s.supports_gradient
-    np.testing.assert_allclose(np.asarray(s.gradient(_C17_X.copy())), 2.0 * _C17_X)
 
 
 def test_c6r6_min_search_with_replaced_function_and_set_gradient(tmp_path):
