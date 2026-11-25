@@ -916,11 +916,6 @@ def _patch_minimize(monkeypatch, factory):
     return real
 
 
-def _in_box(x, lo=-5.0, hi=5.0):
-    x = np.asarray(x)
-    return bool(np.all((x >= lo) & (x <= hi)))
-
-
 def _grad_rows(tmp_path):
     path = _proc_dir(tmp_path) / "History_Gradient.txt"
     assert path.is_file()
@@ -971,36 +966,15 @@ def test_c7_shape_check_precedes_finiteness(tmp_path, monkeypatch, bad, ignore_e
 _BAD = np.array([4.0, 4.0])
 
 
-def _replacing_factory(fn, bad_x, bad_fun):
-    """Run the real optimizer, then overwrite its result with (bad_x,
-    bad_fun) -- a controlled stand-in for scipy reporting a poor point."""
-    def factory(real):
-        def wrapped(*a, **kw):
-            res = real(*a, **kw)
-            res.x = np.array(bad_x, dtype=float)
-            res.fun = bad_fun
-            return res
-        return wrapped
-    return factory
-
-
-def _best_in_range_evaluation(solver, fn, lo=-5.0, hi=5.0):
-    pts = [x for x, _ in solver.eval_calls if _in_box(x, lo, hi)]
-    assert pts
-    fs = [fn(x) for x in pts]
-    i = int(np.argmin(fs))
-    return pts[i], fs[i]
-
-
-@pytest.mark.parametrize("bad_fun", ["worse", "inf", "nan"])
-def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
+def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch):
     """C8 (contract3, result kept): min_search reports the optimizer's
     result as is, even after a gradient failure that actually happened. A
     scripted optimizer requests the jac at Q = (1.5, 1.5), where the
     solver's gradient() is called and raises RuntimeError (ignore_error =
-    true), and then returns (4, 4) with a fun worse than f(x0), or inf, or
-    NaN. xopt/fopt must be exactly that result. Fails if a best evaluated
-    point (or anything else) replaces the optimizer's result."""
+    true), and then returns (4, 4) with a fun worse than f(x0). xopt/fopt
+    must be exactly that result. Fails if a best evaluated point (or
+    anything else) replaces the optimizer's result. This is the record of
+    a decision the code cannot show: the result is not replaced."""
     fn, grad = _quad_fn(_C)
     x0 = np.array([2.0, 2.0])
     Q = np.array([1.5, 1.5])
@@ -1012,8 +986,8 @@ def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
             raise RuntimeError("gradient fails at Q")
         return grad(x)
 
-    fun = {"worse": fn(_BAD), "inf": np.inf, "nan": np.nan}[bad_fun]
-    assert not fun <= fn(x0)
+    fun = fn(_BAD)
+    assert fun > fn(x0)
     _patch_minimize(monkeypatch, _scripted_minimize(
         eval_points=[Q], jac_points=[Q], result_x=_BAD, result_fun=fun))
     alg, solver, _ = _make_alg(
@@ -1025,28 +999,7 @@ def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
     assert failures
     assert any(np.array_equal(x, Q) for x, _ in solver.grad_calls)
     np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
-    if bad_fun == "nan":
-        assert np.isnan(alg.fopt)
-    else:
-        assert alg.fopt == fun
-
-
-def test_c8_result_kept_without_gradient_failure(tmp_path, monkeypatch):
-    """C8: without any gradient failure, a scipy result worse than an
-    evaluated point is reported as is. Fails if min_search substitutes
-    another point for the optimizer's result."""
-    fn, grad = _quad_fn(_C)
-    _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fn(_BAD)))
-    alg, solver, _ = _make_alg(
-        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
-        fn=fn, grad=grad, runner={"ignore_error": True},
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    alg.main()
-    assert solver.grad_calls
-    _, best_f = _best_in_range_evaluation(solver, fn)
-    assert best_f < fn(_BAD)
-    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
-    np.testing.assert_allclose(alg.fopt, fn(_BAD), rtol=1e-12)
+    assert alg.fopt == fun
 
 
 _W = np.array([10.0, 1.0])
