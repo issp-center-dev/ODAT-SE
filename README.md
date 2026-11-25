@@ -59,12 +59,15 @@ It also offers a driver script to solve the problem with predefined optimization
 
 - `odatse.api`: a JSON-in/JSON-out interface. The input is the `input.toml` structure as a dict.
   - Functions: `schema()`, `validate(input)`, `render(input)`, `prepare(input, workdir)`, `run(input, workdir, timeout_s=...)`, `parse(workdir)` and `versions()`.
-  - `run` executes `python -m odatse input.toml` in a subprocess with a timeout, and accepts only the built-in `analytical` solver.
+  - `run` executes ODAT-SE in a subprocess with a timeout, with the built-in `analytical` solver or a solver registered by the operator.
+  - Registered solvers are Python functions `f(x, **params)` named in the entry-point group `odatse.solvers` or in the `solvers={name: "package.module:attribute"}` argument; inputs select one with `solver.name` and pass `solver.params`.
   - Bad input returns structured issues (`code`, `message`, `field`, `hint`).
 - `odatse-mcp`: an MCP server over the same functions (`pip install "ODAT-SE[mcp]"`).
   - Tools: `get_schema`, `versions`, `validate_input`, `render_input_toml`, `run_calculation` and `get_result`.
   - `run_calculation` is disabled unless the server is started with `ODATSE_MCP_ALLOW_RUN=1`.
-- `skills/`: task-oriented guidance for AI coding agents (`odatse-practice`, `odatse-input-pitfalls`).
+  - Registered solvers: the `odatse.solvers` entry points plus `ODATSE_MCP_SOLVERS="name=package.module:attribute,..."`.
+  - A registered solver's subprocess gets only `PATH`, `PYTHONPATH`, `HOME`, locale and thread-count variables; name others it needs in `ODATSE_SOLVER_ENV="NAME,NAME,..."` (or `api.run(..., solver_env=[...])`).
+- `skills/`: task-oriented guidance for AI coding agents (`odatse-practice`, `odatse-input-pitfalls`, `odatse-custom-solver`).
 - `integration/vlab/manifest.yaml`: the catalog entry for workflow tools such as V-Lab Platform.
 
 ## Files and directories of ODAT-SE

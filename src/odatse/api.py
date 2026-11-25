@@ -14,16 +14,21 @@ schema()                       supported algorithms, required keys, built-in ana
 validate(input)                check an input dictionary (same structure as input.toml) without running
 render(input)                  validate and return the ``input.toml`` text (nothing is written)
 prepare(input, workdir)        write ``input.toml`` into ``workdir`` (nothing is executed)
-run(input, workdir, timeout_s) run the **built-in analytical solver only** in a subprocess
+run(input, workdir, timeout_s) run the built-in analytical solver or a registered solver in a subprocess
 parse(workdir)                 read the best result and list output files of a finished run
 versions()                     ODAT-SE / NumPy / SciPy versions
 
 Safety
 ------
-* ``run`` executes ``python -m odatse input.toml`` with a fixed argument list, ``cwd=workdir`` and a
-  timeout, in a separate process (ODAT-SE changes the working directory while running). Only
-  ``solver.name = "analytical"`` is accepted; problems that need user-written solvers (Python
-  functions, external programs) must be run by the user directly.
+* ``run`` executes ``python -m odatse input.toml`` (analytical solver) or
+  ``python -m odatse._api_runner input.toml --solver <target>`` (registered solver) with a fixed argument
+  list, ``cwd=workdir`` and a timeout, in a separate process (ODAT-SE changes the working directory while
+  running).
+* Registered solvers (:mod:`odatse.solver.registry`) are Python functions the **operator** installed and
+  registered (entry points ``odatse.solvers`` or the ``solvers`` argument). Callers choose one by
+  ``solver.name`` and pass ``solver.params``; no code is ever accepted from the input. The functions
+  ``validate``, ``render``, ``prepare``, ``run`` and ``schema`` take ``solvers={name: "module:attr"}``.
+  Importing a registered module runs its code in the calling process (to read its signature).
 * Every path-bearing value (``root_dir``, ``output_dir``, ``mesh_path``, ``neighborlist_path``,
   ``checkpoint_file``, ``colormap``, ``runner.log.filename``) must be a relative path without ``..``.
   :func:`prepare` and :func:`parse` also resolve them (following existing symbolic links) against the
@@ -42,7 +47,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Mapping, Sequence
+
+from .solver import registry as _registry
 
 SCHEMA_VERSION = "1.0"
 
@@ -152,25 +159,45 @@ def _issue(code: str, message: str, field: str | None = None, hint: str | None =
     return {"code": code, "message": message, "field": field, "hint": hint}
 
 
-def schema() -> dict[str, Any]:
-    """Supported algorithms with their required/optional keys and result files, plus analytical functions."""
+def _registered(solvers: Mapping[str, str] | None) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    return _registry.registry(solvers)
+
+
+def registered_solvers(solvers: Mapping[str, str] | None = None) -> dict[str, Any]:
+    """Registered solvers with their description, dimension and parameters, plus registry problems."""
+    reg, problems = _registered(solvers)
+    out: dict[str, Any] = {}
+    for name, entry in sorted(reg.items()):
+        out[name] = {"target": entry["target"], "source": entry["source"], **_registry.describe(entry["target"])}
+    return {"solvers": out, "problems": problems}
+
+
+def schema(solvers: Mapping[str, str] | None = None) -> dict[str, Any]:
+    """Supported algorithms with their required/optional keys and result files, analytical functions and
+    registered solvers."""
+    reg = registered_solvers(solvers)
     return {
         "schema_version": SCHEMA_VERSION,
         "input_sections": {
             "base": {"required": ["dimension"], "optional": ["output_dir", "root_dir"]},
             "algorithm": {"required": ["name"], "optional": ["dimension", "seed", "label_list", "param",
                                                              "checkpoint", "checkpoint_file", "<algorithm section>"]},
-            "solver": {"required": ["name"], "optional": ["function_name", "dimension"]},
+            "solver": {"required": ["name"], "optional": ["function_name (analytical)", "dimension",
+                                                          "params (registered solvers)"]},
             "runner": {"optional": ["mapping", "limitation", "log", "ignore_error"]},
         },
         "algorithms": ALGORITHMS,
         "runnable_solvers": {"analytical": {"function_name": list(ANALYTICAL_FUNCTIONS)}},
+        "registered_solvers": reg["solvers"],
+        "registry_problems": reg["problems"],
         "path_keys": sorted(_PATH_KEYS),
         "notes": [
             "The input dictionary has the same structure as input.toml.",
             "Keys must be TOML bare keys (letters, digits, '_' and '-'); null values are not allowed.",
             "Path-bearing keys must be relative paths without '..' and must stay inside the working directory.",
-            "Only solver.name='analytical' can be run through this API; user solvers must be run directly.",
+            "solver.name='analytical' (with function_name) or the name of a registered solver (with params) can "
+            "be run; other solvers must be run with your own script.",
+            "A registered solver is called as f(x, **solver.params); params must match its parameters.",
         ],
     }
 
@@ -398,10 +425,12 @@ def _mapping_issues(runner: Any, alg_dim: int, solver_dim: int, issues: list[dic
         issues.append(_issue("MAPPING_INVALID", f"runner.mapping.b must have {a[0]} rows", "runner.mapping.b"))
 
 
-def validate(inp: dict[str, Any], *, for_run: bool = False) -> list[dict[str, Any]]:
+def validate(inp: dict[str, Any], *, for_run: bool = False,
+             solvers: Mapping[str, str] | None = None) -> list[dict[str, Any]]:
     """Check an input dictionary (structure of input.toml) without running anything.
 
-    ``for_run=True`` additionally requires the built-in analytical solver.
+    ``for_run=True`` additionally requires the built-in analytical solver or a registered solver
+    (entry points ``odatse.solvers`` and ``solvers``).
     """
     issues: list[dict[str, Any]] = []
     if not isinstance(inp, dict):
@@ -535,16 +564,62 @@ def validate(inp: dict[str, Any], *, for_run: bool = False) -> list[dict[str, An
             issues.append(_issue("DIMENSION_INVALID", f"{fn} requires a solver dimension of "
                                  f"{ANALYTICAL_FUNCTIONS[fn]} (got {solver_dim})",
                                  "solver.dimension" if "dimension" in solver else "base.dimension"))
-    if not isinstance(sname, str) or sname != "analytical":
-        if for_run:
-            issues.append(_issue("SOLVER_NOT_RUNNABLE", f"solver {sname!r} cannot be run through this API",
-                                 "solver.name", "only the built-in 'analytical' solver can be run here; run user "
-                                 "solvers with your own script"))
+    registered = False
+    if isinstance(sname, str) and sname and sname != "analytical":
+        reg, problems = _registered(solvers)
+        if sname in reg:
+            registered = True
+            _registered_solver_issues(solver, reg[sname]["target"], solver_dim, base, issues)
+        elif problems and for_run:
+            issues.append(_issue("REGISTRY_INVALID", "; ".join(problems), "solver.name"))
+    if (not isinstance(sname, str) or sname != "analytical") and not registered and for_run:
+        issues.append(_issue("SOLVER_NOT_RUNNABLE", f"solver {sname!r} cannot be run through this API",
+                             "solver.name", "run the built-in 'analytical' solver or a registered solver "
+                             "(see registered_solvers in get_schema); run other solvers with your own script"))
     if dim is not None and solver_dim is not None:
         _mapping_issues(inp.get("runner"), dim, solver_dim, issues)
 
     issues.extend(_path_issues(inp))
     return issues
+
+
+def _registered_solver_issues(solver: dict[str, Any], target: str, solver_dim: int | None,
+                              base: dict[str, Any], issues: list[dict[str, Any]]) -> None:
+    """[solver] of a registered solver: only name/dimension/params, params matching the signature."""
+    for k in sorted(set(solver) - {"name", "dimension", "params"}):
+        issues.append(_issue("SOLVER_KEY_UNKNOWN", f"solver.{k} is not used by registered solvers "
+                             "(give function arguments in solver.params)", f"solver.{k}"))
+    info = _registry.describe(target)
+    if "error" in info:
+        issues.append(_issue("SOLVER_UNAVAILABLE", info["error"], "solver.name"))
+        return
+    if solver_dim is None and "dimension" not in solver and "dimension" not in base:
+        issues.append(_issue("DIMENSION_INVALID", "the solver reads solver.dimension or base.dimension; give one "
+                             "of them", "solver.dimension"))
+    elif info["dimension"] is not None and solver_dim is not None and solver_dim != info["dimension"]:
+        issues.append(_issue("DIMENSION_INVALID", f"solver {solver['name']!r} requires a solver dimension of "
+                             f"{info['dimension']} (got {solver_dim})",
+                             "solver.dimension" if "dimension" in solver else "base.dimension"))
+    params = solver.get("params", {})
+    if not isinstance(params, dict):
+        issues.append(_issue("PARAMS_INVALID", "solver.params must be a table", "solver.params"))
+        return
+    for k, v in params.items():
+        if isinstance(v, dict):
+            issues.append(_issue("PARAMS_INVALID", f"solver.params.{k}: nested tables are not supported",
+                                 f"solver.params.{k}"))
+    known = info["params"]
+    if info["vector_name"] in params:
+        issues.append(_issue("PARAM_UNKNOWN", f"solver.params.{info['vector_name']} would collide with the "
+                             "parameter vector x, which ODAT-SE passes as the first argument",
+                             f"solver.params.{info['vector_name']}"))
+    elif not info["accepts_any_params"]:
+        for k in sorted(set(params) - set(known)):
+            issues.append(_issue("PARAM_UNKNOWN", f"solver {solver['name']!r} has no parameter {k!r} "
+                                 f"(parameters: {sorted(known)})", f"solver.params.{k}"))
+    for k in sorted(n for n, p in known.items() if p["required"] and n not in params):
+        issues.append(_issue("PARAM_MISSING", f"solver {solver['name']!r} needs solver.params.{k}",
+                             f"solver.params.{k}"))
 
 
 def _path_values(d: Any, prefix: str = "") -> list[tuple[str, str, Any]]:
@@ -553,6 +628,8 @@ def _path_values(d: Any, prefix: str = "") -> list[tuple[str, str, Any]]:
     if isinstance(d, dict):
         for k, v in d.items():
             f = f"{prefix}.{k}" if prefix else str(k)
+            if f == "solver.params":
+                continue  # arguments of a registered solver function, not ODAT-SE settings
             if k in _PATH_KEYS:
                 out.append((f, k, v))
             out.extend(_path_values(v, f))
@@ -668,9 +745,9 @@ def to_toml(inp: dict[str, Any]) -> str:
     return text
 
 
-def render(inp: dict[str, Any]) -> dict[str, Any]:
+def render(inp: dict[str, Any], *, solvers: Mapping[str, str] | None = None) -> dict[str, Any]:
     """Validate and return the ``input.toml`` text. Nothing is written."""
-    issues = validate(inp)
+    issues = validate(inp, solvers=solvers)
     if issues:
         return {"status": "failed", "issues": issues}
     try:
@@ -687,9 +764,10 @@ def _open_new(path: Path) -> Any:
     return os.fdopen(fd, "w", encoding="utf-8")
 
 
-def prepare(inp: dict[str, Any], workdir: str | os.PathLike[str]) -> dict[str, Any]:
+def prepare(inp: dict[str, Any], workdir: str | os.PathLike[str], *,
+            solvers: Mapping[str, str] | None = None) -> dict[str, Any]:
     """Validate and write ``workdir/input.toml``. Nothing is executed."""
-    rendered = render(inp)
+    rendered = render(inp, solvers=solvers)
     if rendered["status"] != "ok":
         return rendered
     wd = Path(workdir)
@@ -706,24 +784,81 @@ def prepare(inp: dict[str, Any], workdir: str | os.PathLike[str]) -> dict[str, A
     return {"status": "ok", "files": [str(path)], "input_toml": rendered["input_toml"]}
 
 
-def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: float = 600.0) -> dict[str, Any]:
-    """Run ODAT-SE with the built-in analytical solver in a subprocess and return :func:`parse` output."""
+_ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+# variables that would change which code the run imports or how the interpreter starts
+_ENV_DENIED_PREFIXES = ("PYTHON", "LD_", "DYLD_")
+_ENV_BASE = ("PATH", "PYTHONPATH", "HOME", "LANG", "LC_ALL", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+             "MKL_NUM_THREADS")
+
+
+def check_solver_env(names: Sequence[str]) -> list[str]:
+    """The environment variable names in ``names``, each one complete name (``ValueError`` when one is malformed
+    or would change how the run's interpreter starts: ``PYTHON*``, ``LD_*``, ``DYLD_*``)."""
+    if isinstance(names, (str, bytes)) or not isinstance(names, Sequence):
+        raise ValueError("solver_env must be a list of variable names, not a single string")
+    for n in names:
+        if not isinstance(n, str) or not _ENV_NAME.match(n):
+            raise ValueError(f"{n!r} is not an environment variable name")
+        if n.upper().startswith(_ENV_DENIED_PREFIXES):
+            raise ValueError(f"{n!r} cannot be passed to a solver (PYTHON*, LD_* and DYLD_* are refused)")
+    return list(dict.fromkeys(names))
+
+
+def parse_solver_env(text: str) -> list[str]:
+    """Names in ``ODATSE_SOLVER_ENV="NAME,NAME,..."`` (``ValueError`` as in :func:`check_solver_env`)."""
+    return check_solver_env([n.strip() for n in text.split(",") if n.strip()])
+
+
+def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: float = 600.0,
+        solvers: Mapping[str, str] | None = None, solver_env: Sequence[str] | None = None) -> dict[str, Any]:
+    """Run ODAT-SE with the analytical or a registered solver in a subprocess and return :func:`parse` output.
+
+    The subprocess gets only ``PATH``, ``PYTHONPATH``, ``HOME``, locale and thread-count variables. A registered
+    solver that needs more (the path of an external program, a data directory) gets the variables named in
+    ``solver_env`` (default: ``ODATSE_SOLVER_ENV="NAME,NAME,..."``) that are set in the caller's environment.
+    Their names, not their values, are recorded in ``provenance.solver.env``.
+
+    Exit statuses of a registered-solver run: 3 = the solver raised or returned NaN / -inf / a non-number
+    (``SOLVER_FAILED``; set ``runner.ignore_error = true`` to record NaN and continue instead), 4 = the
+    solver could not be imported in the subprocess.
+    """
     if _seconds(timeout_s) is None:
         return {"status": "failed", "issues": [_issue("TIMEOUT_INVALID", "timeout_s must be a finite positive "
                                                       "number of seconds", "timeout_s")]}
-    issues = validate(inp, for_run=True)
+    try:
+        extra_env = parse_solver_env(os.environ.get("ODATSE_SOLVER_ENV", "")) if solver_env is None \
+            else check_solver_env(solver_env)
+    except ValueError as exc:
+        return {"status": "failed", "issues": [_issue("SOLVER_ENV_INVALID", str(exc), None,
+                                                      "name each variable separately; PYTHON*, LD_* and "
+                                                      "DYLD_* cannot be added")]}
+    issues = validate(inp, for_run=True, solvers=solvers)
     if issues:
         return {"status": "failed", "issues": issues}
-    prep = prepare(inp, workdir)
+    sname = inp["solver"]["name"]
+    entry = None if sname == "analytical" else _registered(solvers)[0].get(sname)
+    if sname != "analytical" and entry is None:  # the registry changed since validate()
+        return {"status": "failed", "issues": [_issue("SOLVER_NOT_RUNNABLE", f"solver {sname!r} is not registered",
+                                                      "solver.name")]}
+    target = None if entry is None else entry["target"]
+    prep = prepare(inp, workdir, solvers=solvers)
     if prep["status"] != "ok":
         return prep
     wd = Path(workdir)
-    env = {k: v for k, v in os.environ.items() if k in ("PATH", "PYTHONPATH", "HOME", "LANG", "LC_ALL",
-                                                         "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
-                                                         "MKL_NUM_THREADS")}
+    env = {k: v for k, v in os.environ.items() if k in _ENV_BASE}
+    passed = [n for n in extra_env if n in os.environ and n not in _ENV_BASE] if target else []
+    env.update({n: os.environ[n] for n in passed})
     # the subprocess must import the very same odatse package as the caller
     pkg_root = str(Path(__file__).resolve().parent.parent)
-    env["PYTHONPATH"] = os.pathsep.join([pkg_root, *[p for p in env.get("PYTHONPATH", "").split(os.pathsep) if p]])
+    # relative entries would be read against workdir in the subprocess; anchor them here
+    env["PYTHONPATH"] = os.pathsep.join([pkg_root, *[os.path.abspath(p) for p in
+                                                     env.get("PYTHONPATH", "").split(os.pathsep) if p]])
+    env["PYTHONSAFEPATH"] = "1"  # Python >= 3.11: do not put the working directory on sys.path
+    module, args = ("odatse", ["input.toml"]) if target is None else \
+        ("odatse._api_runner", ["input.toml", "--solver", target])
+    # Python 3.9/3.10 ignore PYTHONSAFEPATH: drop the working directory ('' for -c) from sys.path before
+    # anything is imported from it, so a file in workdir cannot shadow odatse or the registered module
+    command = [sys.executable, "-c", _BOOTSTRAP, module, *args]
     t0 = time.monotonic()
     log_path = wd / "odatse.log"
     try:
@@ -732,7 +867,7 @@ def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: floa
         return {"status": "failed", "issues": [_issue("WRITE_FAILED", f"could not open odatse.log: {exc}")]}
     with log:
         try:
-            proc = subprocess.run([sys.executable, "-m", "odatse", "input.toml"], cwd=wd, env=env,
+            proc = subprocess.run(command, cwd=wd, env=env,
                                   stdout=log, stderr=subprocess.STDOUT, timeout=float(timeout_s), check=False)
         except subprocess.TimeoutExpired:
             return {"status": "failed", "issues": [_issue("TIMEOUT", f"run exceeded {timeout_s} s", None,
@@ -742,13 +877,28 @@ def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: floa
             return {"status": "failed", "issues": [_issue("RUN_FAILED", f"could not start odatse: {exc}")]}
     elapsed = time.monotonic() - t0
     if proc.returncode != 0:
-        return {"status": "failed", "issues": [_issue("RUN_FAILED", f"odatse exited with {proc.returncode}")],
+        code, msg = {3: ("SOLVER_FAILED", f"solver {sname!r} failed"),
+                     4: ("SOLVER_UNAVAILABLE", f"solver {sname!r} could not be imported in the run")}.get(
+            proc.returncode, ("RUN_FAILED", f"odatse exited with {proc.returncode}")) if target else \
+            ("RUN_FAILED", f"odatse exited with {proc.returncode}")
+        return {"status": "failed", "issues": [_issue(code, msg, "solver.name" if code != "RUN_FAILED" else None,
+                                                      "see log_tail")],
                 "log_tail": _tail(log_path)}
     out = parse(wd)
     out["elapsed_s"] = round(elapsed, 3)
     out["provenance"] = {"api_schema_version": SCHEMA_VERSION, "versions": versions(),
-                         "seed": inp["algorithm"].get("seed"), "command": "python -m odatse input.toml"}
+                         "seed": inp["algorithm"].get("seed"), "command": " ".join(["python -m", module, *args])}
+    if entry is not None:
+        dist = {"distribution": entry["distribution"], "version": entry["version"]} \
+            if entry.get("version") else _registry.module_version(target)
+        out["provenance"]["solver"] = {"name": sname, "target": target, "source": entry["source"],
+                                       "params": inp["solver"].get("params", {}), "env": passed, **dist}
     return out
+
+
+_BOOTSTRAP = ("import sys; sys.path[:] = [p for p in sys.path if p != '']; "
+              "import runpy; m = sys.argv.pop(1); sys.argv[0] = m; runpy.run_module(m, run_name='__main__', "
+              "alter_sys=True)")
 
 
 def _tail(p: Path, n: int = 20) -> list[str]:
@@ -778,10 +928,12 @@ def _best_from_table(p: Path, fx_col: int, x_cols: slice, labels: list[str]) -> 
         cols = [float(c) for c in line.split()]
         if len(cols) <= max(fx_col, x_cols.stop - 1):
             raise ValueError(f"{p.name}: incomplete row {line.strip()!r}")
-        if not all(math.isfinite(c) for c in cols[x_cols]) or math.isnan(cols[fx_col]):
+        if not all(math.isfinite(c) for c in cols[x_cols]):
             raise ValueError(f"{p.name}: non-finite value in row {line.strip()!r}")
-        if math.isinf(cols[fx_col]):
-            continue  # a rejected evaluation (for example outside the limitation); not a candidate
+        if not math.isfinite(cols[fx_col]):
+            # inf: a rejected point (for example outside the limitation); NaN: a failed evaluation recorded
+            # with runner.ignore_error = true. Neither is a candidate.
+            continue
         if best is None or cols[fx_col] < best[fx_col]:
             best = cols
     if best is None:
