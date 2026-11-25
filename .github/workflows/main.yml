@@ -21,7 +21,9 @@ jobs:
     name: Run tests with Python ${{ matrix.python-version }} and NumPy ${{ matrix.numpy-version }}
     runs-on: 'ubuntu-22.04'
     # runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    # the ctest suite takes 8-10 minutes on the hosted runners (the MPI
+    # resume tests and the unit suite under mpirun); 10 was being hit
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -49,6 +51,8 @@ jobs:
           python -m pip install scipy tomli mpi4py pytest
           python -m pip install .
           python -m pip install physbo
+          # the bayes tests skip themselves without physbo; make sure CI runs them
+          python -c "import physbo"
 
       - name: run
         run: |

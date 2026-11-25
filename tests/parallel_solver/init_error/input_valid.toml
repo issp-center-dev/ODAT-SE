@@ -1,0 +1,13 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+mesh_path = "mesh_one_point.txt"

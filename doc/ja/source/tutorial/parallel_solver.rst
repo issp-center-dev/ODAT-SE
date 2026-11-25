@@ -35,13 +35,17 @@ MPI プロセスの総数は ``nalg × nsolve`` です。
 
 ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...)`` がグローバルコミュニケータ(``MPI_COMM_WORLD``)を ``nalg`` 個のソルバーサブコミュニケータ(``solcomm``)に分割します。各 ``solcomm`` はそれぞれ ``nsolve`` プロセスを持ちます。各 ``solcomm`` でランク 0 のプロセスがグループの *コントローラ* となり探索アルゴリズムに参加します。コントローラ全体がアルゴリズムサブコミュニケータ(``algcomm``)を構成します。コントローラは各グループの最小ランクなので、グローバルランク 0 は常にコントローラです。
 
-``odatse.mpi`` モジュールは以下のアクセサを提供します。グローバル層のものと ``enabled()`` はすぐに利用でき、ソルバー層・アルゴリズム層のものは ``setup()`` の呼び出し後に利用可能です。
+``odatse.mpi`` モジュールは以下のアクセサを提供します。グローバル層のものと ``enabled()`` 、 ``ready()`` はすぐに利用できます。ソルバー層・アルゴリズム層のもの（ ``run_on_algorithm()`` を含む）は ``setup()`` の呼び出し後に利用可能で、それより前に呼ぶと ``RuntimeError`` を送出します。
 
 - ``odatse.mpi.comm()`` / ``size()`` / ``rank()``: グローバルコミュニケータ、そのサイズ、およびこのプロセスのランク。
 - ``odatse.mpi.solcomm()`` / ``solsize()`` / ``solrank()``: ソルバーサブコミュニケータ、そのサイズ(``nsolve``)、およびこのプロセスのランク。
 - ``odatse.mpi.algcomm()`` / ``algsize()`` / ``algrank()``: アルゴリズムサブコミュニケータ、そのサイズ(``nalg``)、およびこのプロセスのランク。``algcomm()`` はソルバーワーカープロセスでは ``None`` を返します。``algsize()`` と ``algrank()`` はグループのコントローラの値(ワーカーへブロードキャストされる)を返すので、どのプロセスでもグループの識別に使えます。
 - ``odatse.mpi.run_on_algorithm()``: グループのコントローラ(``solrank() == 0``)では ``True``、ソルバーワーカーでは ``False``。
 - ``odatse.mpi.enabled()``: MPI が利用可能かどうか(環境変数 ``ODATSE_NOMPI=1`` が設定されている場合は ``False``)。
+- ``odatse.mpi.ready()``: ``setup()`` が呼び出し済みかどうか。
+- ``odatse.mpi.reset()``: ``setup()`` を取り消し、別の構成で再度呼べるようにします。
+
+``setup()`` は既定では ``MPI_COMM_WORLD`` を分割します。より大きな MPI プログラムの一部のランクで ODAT-SE を実行する場合は、そのイントラコミュニケータを ``setup(comm=...)`` として渡します。詳細は :doc:`../customize/common` を参照してください。
 
 マスター・ワーカー実行
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,7 +57,62 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 言い換えると、 ``evaluate(x, args)`` は、ソルバーグループの **すべて** のプロセスで **同じ** ``x`` と ``args`` を用いて呼び出されます。ソルバー本体は、その1回の評価の計算を ``solcomm`` の集団通信を使ってグループ内で分散できます。アルゴリズムが終了すると、フレームワークがワーカーにループを抜けるよう通知します。
 
-ワーカー上で ``evaluate`` が例外を送出した場合、ワーカーはエラーを(グローバルランク付きで)標準エラー出力に報告し、 ``MPI_Abort`` により MPI ジョブ全体を中断します。ワーカーはアルゴリズムコミュニケータに属しておらず、コントローラ(``solcomm`` の集団通信で待機中の可能性があります)へ失敗を伝える手段がないため、ジョブをハングさせずに中断する仕様になっています。なお、 ``[runner]`` セクションの ``ignore_error`` はコントローラ上で送出された例外にのみ適用されます。
+``evaluate`` 内のエラー
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+フレームワークは ``evaluate`` の呼び出しのたびに、ソルバーグループ内の全ランクの成否を ``solcomm`` 上の集団通信 1 回で交換します。そのため、ワーカー・コントローラを問わずグループ内の **いずれかの** ランクで送出された例外はコントローラに伝わり、その評価の失敗として処理されます。
+
+- ``[runner]`` セクションで ``ignore_error = true`` が指定されており、失敗した全ランクの例外が ``RuntimeError`` であれば、コントローラのみが失敗した場合と同様にその評価は無視され、値は ``NaN`` になります。
+- それ以外の場合はコントローラが例外を送出します。コントローラのみが失敗した場合は、その例外がそのまま再送出されます。ワーカーが失敗した場合、失敗した全ランクの例外が ``RuntimeError`` であれば、失敗したランク(グローバルランク)とメッセージを列挙した ``odatse.exception.SolverRuntimeError`` ( ``RuntimeError`` の一種なので ``ignore_error`` が適用されます)が送出されます。失敗したランク(ワーカー・コントローラを問わず)のいずれかが ``RuntimeError`` 以外の例外を送出していれば ``odatse.exception.SolverError`` が送出されます(後者は ``NaN`` に置き換えられることはありません)。例外は通常のアルゴリズム層の合意プロトコルを通じて伝播し、ワーカーはループを抜けるよう通知され、ジョブは非ゼロの終了ステータスで終了します。無視されなかったエラーを送出したワーカーは、そのトレースバックを(グローバルランク付きで)標準エラー出力に出力します。
+
+成否の交換は各ランクで ``evaluate`` が値を返すか例外を送出した **後** に行われます。したがって、一部のランクだけが ``solcomm`` の集団通信の **手前** で例外を送出し、他のランクがその集団通信に入ってしまう状況は救えません。ランクごとに異なる集団通信を呼ぶことになり、MPI では未定義動作(通常はハング)です。 ``evaluate`` 内の集団通信一般と同じく、これを揃えるのはソルバーの責任です。局所的な失敗を次の集団通信の前に共有し、全ランクで例外を送出するのが堅牢なパターンです。
+
+.. code-block:: python
+
+    def evaluate(self, x, args):
+        comm = odatse.mpi.solcomm()
+        try:
+            part = self._compute_my_part(x)
+            failed = None
+        except Exception as e:          # any failure, so that no rank skips the allgather
+            part, failed = None, f"{type(e).__name__}: {e}"
+        failures = [f for f in comm.allgather(failed) if f is not None]
+        if failures:
+            raise RuntimeError("; ".join(failures))
+        return self._combine(comm.allgather(part))
+
+失敗は ``Exception`` から派生した例外の送出によって報告してください。 ``evaluate`` 内で送出された ``SystemExit`` ( ``sys.exit()`` によるもの)や ``KeyboardInterrupt`` も捕捉されて成否の交換に参加するため、待ち続けるランクは生じませんが、これらは決して無視されません。ワーカー上で送出された場合もコントローラ上で送出された場合も、コントローラが ``odatse.exception.SolverError`` を送出し、通常のアルゴリズム層の合意によってジョブが終了します。 ``nsolve = 1`` の場合はソルバーグループがないためそのまま伝播しますが、その場合もアルゴリズム層の合意を経由するので、他のアルゴリズムランクは待ち続けることなく解放されます。ただしこれは全アルゴリズムランクがその合意に到達することが前提です。アルゴリズム内部の集団操作（例えば ``global_search`` のチャンク評価）は、他の例外の場合と同様に、あるランクが失敗してもランク間で整合している必要があります。
+
+``evaluate`` が一部のランクで ``solcomm`` の集団操作の **前** に例外を送出し、他のランクがその集団操作に入ってしまった場合(前述の不整合)、MPI としての動作は未定義です。ソルバー側の集団操作がたまたま pickle ベースの ``allgather`` であれば、成否の交換は成否情報ではないデータを受け取り、フレームワークは ``mismatched collectives inside solver.evaluate()`` というメッセージとともに ``MPI_Abort`` でジョブ全体を中断します。それ以外の集団操作( ``Bcast`` 、 ``Allreduce`` など)では通常ハングします。集団操作の整合を保つのは引き続きソルバーの責任です。
+
+ワーカー上で ``evaluate`` の **外側** (例えばブロードキャストされた ``args`` の受信中)で送出された例外もこの方法では報告できません。この場合ワーカーはエラーを出力し、コントローラをハングさせないよう ``MPI_Abort`` により MPI ジョブ全体を中断します。ログでは 2 つの経路を区別できます。コントローラに報告された失敗は(無視されない場合にのみ) ``ERROR: solver worker raised in evaluate(), reported to the controller: ...`` と出力され、中断経路は ``ERROR: solver worker failed: ...`` と出力されます。
+
+アルゴリズムの構築(``Algorithm(info, runner)``)は、一部のプロセスでのみ失敗することがあります。たとえば不正な ``mesh_path`` は、メッシュを読み込むコントローラでは検出されますが、ワーカーでは検出されません。そのためフレームワークは、例外が伝播する前に、構築の成否についてジョブ全体で合意をとります。すべてのプロセスがコンストラクタを抜け、失敗したプロセスは自身の例外を、それ以外のプロセスは ``odatse.mpi.OtherAlgorithmProcessError`` を送出します(``odatse`` コマンドは後者を終了ステータス 0 の静かな終了として扱うため、ジョブは失敗したプロセスのステータスで終了します)。この合意がないと、ワーカーはループに入り、すでに終了したコントローラを待ち続けることになります。
+
+この合意のため、独自のスクリプトから ODAT-SE を利用する場合には、ワーカーを含むジョブのすべてのプロセスで、同じアルゴリズムを同じ順序で構築する必要があります。一部のプロセスだけでアルゴリズムを構築すると、ハングします。また、独自アルゴリズムの ``__init__`` で集団通信を行う場合は、全プロセスで呼び出しがそろうようにしてください。その呼び出しより前に例外を送出したプロセスがあると、ほかのプロセスはその集団通信で待ち続けます。
+
+同じことはアルゴリズムの構築より前にも起こります。ソルバーやランナーの生成が一部のプロセスでのみ失敗すると、ほかのプロセスは ``Algorithm(...)`` に進み、失敗したプロセスをそこで待ち続けることになります。そのため ``Solver`` (``SolverBase`` のすべてのサブクラス)と ``Runner`` のコンストラクタも、 ``Algorithm`` と同じ合意を行います。 ``Solver(info)`` と ``Runner(solver, info)`` は、 ``odatse`` コマンド、独自のスクリプト、ODAT-SE を組み込んだプログラムのいずれから呼ばれても、すべてのプロセスで終了します。アルゴリズムと同様に、これらもすべてのプロセスで構築する必要があります。一部のプロセスだけでソルバーを構築すると(たとえば ``alg.main()`` の後に最良点を評価するためにランク 0 だけで構築すると)待ち続けます。構築はすべてのプロセスで行い、評価だけを必要なプロセスに限ってください。独自のメタクラスを宣言するソルバークラスは、そのメタクラスを ``odatse.mpi.FailTogetherMeta`` から派生させる必要があります。
+
+これらの構築の合間にある独自のコードで、一部のプロセスだけが失敗しうるもの(ディレクトリの作成、データファイルの読み込みなど)には、 ``odatse.mpi.fail_together()`` で同じ合意を適用できます。 ``odatse`` コマンドや下の例はそのようにしています。
+
+.. code-block:: python
+
+    with odatse.mpi.fail_together():
+        os.makedirs(output_dir, exist_ok=True)
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+
+ブロック内でいずれかのプロセスが例外を送出すると、ブロックを抜ける際にすべてのプロセスが例外を送出します。失敗したプロセスは自身の例外を、それ以外のプロセスは ``odatse.mpi.OtherAlgorithmProcessError`` を送出します。ブロックは入れ子にでき、合意を行うのは最も外側のブロックだけです。その中のコンストラクタや内側の ``fail_together()`` ブロックは合意を外側のブロックに任せるので、構築や内側のブロックの前後どこでプロセスが失敗しても構いません。コンストラクタと同じく、すべてのプロセスがこのブロックを実行する必要があり、ブロック内の集団通信は全プロセスで呼び出しがそろうようにしてください。
+
+スクリプトの最上位では ``odatse`` コマンドと同じように ``odatse.mpi.OtherAlgorithmProcessError`` を捕捉し、終了ステータス 0 で終了してください。捕捉しないと、すべてのプロセスがトレースバックを出力し、失敗したプロセスがエラーを報告する前に ``mpirun`` がジョブを終了させることがあります。
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except odatse.mpi.OtherAlgorithmProcessError:
+            sys.exit(0)  # 失敗したほかのプロセスがエラーを報告する
 
 カスタムソルバーの例
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +121,7 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 .. code-block:: python
 
-    import os, time, argparse
+    import os, sys, time, argparse
     import numpy as np
     from mpi4py import MPI
     import odatse
@@ -82,7 +141,6 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
             if odatse.mpi.rank() == 0:
                 print(f"nalg: {odatse.mpi.algsize()}")
                 print(f"nsolve: {odatse.mpi.solsize()}")
-            odatse.mpi.comm().barrier()
 
         def _testfunc(self, mats):
             return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
@@ -117,6 +175,30 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
 
 目的関数の値は ``evaluate`` で計算されます。``evaluate`` はソルバーグループのすべてのランクで実行される点に注意してください。コントローラ(``solrank() == 0``)が各シードについて ``nmats`` 個のランダム行列を生成して ``solcomm`` 上でブロードキャストし、各ランクが ``_testfunc`` で自分の担当分の最大特異値を計算し、部分和がグループ内で集約されてから平均されます。ソルバーは目的関数を評価するだけで、最良解の記録はアルゴリズムの責務です(後述)。
 
+ソルバーでのファイルの読み込み
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ソルバーはファイルを読むことがよくあります。コンストラクタで参照データや入力テンプレートを読む、 ``evaluate`` の中で外部プログラムが書いたファイルを読む、などです。これらは ``odatse.util.io`` を通して読んでください。逐次実行ではそのまま読むだけですが、並列実行では1つのプロセスが読んで他のプロセスがデータを受け取り、読み込みに失敗した場合はすべてのプロセスが同じ ``odatse.exception.LoadError`` を送出します(あるノードだけでファイルが欠けている・読めない場合に、他のプロセスがブロードキャストで待ち続けてジョブがハングすることを防ぎます)。
+
+.. code-block:: python
+
+    import odatse.util.io as oio
+
+    class MySolver(odatse.solver.SolverBase):
+        def __init__(self, info):
+            super().__init__(info)
+            # 1つのプロセスが1回読み、ジョブのすべてのプロセスが受け取る
+            self.reference = oio.loadtxt(info.solver["reference_path"])
+            self.template = oio.read_text(info.solver["template_path"])
+
+        def evaluate(self, xs, args):
+            ...
+            # グループのコントローラが読み、そのワーカーが受け取る
+            result = oio.loadtxt("result.dat", scope="solver")
+            ...
+
+``scope`` は、誰がデータを受け取るか、したがってどのプロセスがこの呼び出しを行う必要があるかを選びます(読み込みと配布は集団通信なので、スコープ内のすべてのプロセスが同じ順序で呼ぶ必要があります)。 ``"job"`` (既定)はジョブのすべてのプロセスで、コンストラクタで1回読むデータ向け。 ``"solver"`` は1つのグループのコントローラとワーカーで、 ``evaluate`` の中で読むファイル向け。 ``"algorithm"`` はアルゴリズムランクのみで、フレームワークがメッシュと近傍リストに使っています。 ``oio.load(loader, scope=...)`` は任意の ``loader()`` に同じことを行い、 ``read_text`` 、 ``read_bytes`` 、 ``load_toml`` 、 ``loadtxt`` 、 ``load_json`` はよくある場合の近道です。すべてのプロセスがそれぞれ自分のファイルを読む場合には配布するものがなく、上で述べた合意だけで十分です。
+
 ドライバーと入力ファイル
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -138,12 +220,12 @@ ODAT-SE を MPI 下で実行すると、 ``odatse.mpi.setup(nalg=..., nsolve=...
         nmats = info.solver["param"].get("nmats", 50)
         matsize = info.solver["param"].get("matsize", 1000)
 
-        output_dir = info.base.get("output_dir", "./output")
-        os.makedirs(output_dir, exist_ok=True)
-
-        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
+        with odatse.mpi.fail_together():
+            output_dir = info.base.get("output_dir", "./output")
+            os.makedirs(output_dir, exist_ok=True)
+            solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 

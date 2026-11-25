@@ -29,7 +29,7 @@ It contains the following four instance variables.
 
 An instance of ``Info`` is initialized by passing a ``dict`` which has the following four sub dictionaries, ``base``, ``solver``, ``algorithm``, and ``runner``. (Some of them can be omitted.)
 Each sub dictionary is set to the corresponding field of ``Info``.
-Alternatively, it can be created by passing to the class method ``from_file`` a path to an input file in TOML format.
+Alternatively, it can be created by passing to the class method ``from_file`` a path to an input file in TOML format. A file that cannot be read or parsed raises ``odatse.exception.LoadError`` (an ``InputError``), in a serial run as well; the original ``FileNotFoundError`` or TOML decoding error is attached to it as ``__cause__``.
 
 
 ``base`` items
@@ -127,7 +127,7 @@ When they are specified in the ODAT-SE input file, see the input file section of
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``initialize(argv=None) -> (Info, str)`` is an initialization function that parses command-line style arguments and loads the input file in one step.
-It interprets the same arguments as the ``odatse`` command (the path to the input file and ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve``; see :doc:`../manual/command` for details), and returns a pair of an ``Info`` instance and a run-mode string ``run_mode``. It also calls ``odatse.mpi.setup()`` internally.
+It interprets the same arguments as the ``odatse`` command (the path to the input file and ``--init`` / ``--resume`` / ``--cont`` / ``--reset_rand`` / ``--nalg`` / ``--nsolve``; see :doc:`../manual/command` for details), and returns a pair of an ``Info`` instance and a run-mode string ``run_mode``. It also calls ``odatse.mpi.setup()`` internally, unless ``setup()`` has already been called (``odatse.mpi.ready()`` is ``True``): then the existing partition is kept, and ``--nalg`` / ``--nsolve``, if given, must agree with it.
 
 - When ``argv`` is omitted (``None``), ``sys.argv[1:]`` is interpreted.
   When embedding odatse in a script that has its own argument handling, pass an explicit list as ``argv`` to initialize without depending on ``sys.argv``.
@@ -147,9 +147,44 @@ A module that provides access to the MPI communicators.
 It works as a non-MPI stub when mpi4py is not installed or when the environment variable ``ODATSE_NOMPI`` is set.
 See :doc:`../tutorial/parallel_solver` for the details of the two-level parallelization (algorithm layer × solver groups).
 
-- ``setup(nalg=None, nsolve=None)`` : Splits the communicators. It must be called exactly once before constructing ``Solver`` / ``Algorithm`` (called internally when ``odatse.initialize()`` is used).
-- ``comm()`` / ``size()`` / ``rank()`` : The global communicator and its size and rank.
+- ``setup(nalg=None, nsolve=None, comm=None)`` : Splits the communicators. It must be called before constructing ``Solver`` / ``Algorithm`` (called internally when ``odatse.initialize()`` is used). ``comm`` is the intracommunicator to split; ``None`` means the current global communicator, i.e. ``MPI.COMM_WORLD`` unless an earlier ``setup()`` was given another one. Calling ``setup()`` again with both ``nalg`` and ``nsolve`` omitted keeps the current layout; with a layout given, the same effective configuration (the same communicator and the same ``nalg`` / ``nsolve`` after the missing value is derived) does nothing and a different one raises ``RuntimeError`` (``odatse.mpi.SetupConflictError``). Communicators are compared as MPI handles (mpi4py's ``==``): two Python objects wrapping the same handle are the same communicator, a duplicate (``Dup()``) is not.
+- ``ready()`` : Whether ``setup()`` has been called (always ``True`` in the non-MPI stub).
+- ``reset()`` : Undoes ``setup()``: frees the solver and algorithm communicators and returns to the state before ``setup()`` (``ready()`` is ``False``, ``comm()`` is ``MPI.COMM_WORLD``). Collective over the communicator given to ``setup()``; a no-op when ``setup()`` has not been called, and in the non-MPI stub. Afterwards ``setup()`` may be called again with any communicator and layout. Objects built on the old partition (``Runner``, ``Algorithm``, restored checkpoints) must not be used after ``reset()``.
+
+In the non-MPI stub (mpi4py missing or ``ODATSE_NOMPI`` set) ``setup()`` validates ``nalg`` / ``nsolve`` like the MPI build but cannot honour a layout or a communicator: it ignores them and emits a ``RuntimeWarning`` when a layout other than 1×1 or a communicator of more than one rank is requested. The conflict checks described above exist only in the MPI build, so the stub gives no protection against using the wrong ranks.
+- ``comm()`` / ``size()`` / ``rank()`` : The global communicator and its size and rank. They refer to ``MPI.COMM_WORLD`` before ``setup()``, and to the communicator given to ``setup()`` afterwards.
 - ``algcomm()`` / ``algsize()`` / ``algrank()`` : The communicator of the algorithm layer and its size and rank.
 - ``solcomm()`` / ``solsize()`` / ``solrank()`` : The communicator of the solver group and its size and rank.
 - ``run_on_algorithm()`` : Whether the calling process belongs to the algorithm layer.
 - ``enabled()`` : Whether MPI is available (``False`` when ``ODATSE_NOMPI`` is set).
+- ``fail_together()`` : A context manager. If the block raises on any process of the job, every process raises when it leaves the block (the failing ones their own exception, the others ``odatse.mpi.OtherAlgorithmProcessError``). The constructors of ``Solver``, ``Runner`` and ``Algorithm`` carry this agreement automatically; use it for set-up code of your own that may fail on some processes only (see :doc:`../tutorial/parallel_solver`).
+
+``algcomm()`` , ``solcomm()`` , their size and rank accessors, and ``run_on_algorithm()`` raise ``RuntimeError`` before ``setup()`` . This includes everything built on them: besides ``Solver`` / ``Algorithm``, a ``MeshGrid`` that reads or distributes a mesh file (``MeshGrid(info)``, ``MeshGrid.from_file()``, ``store_file()``, ``do_split()``) also needs ``setup()`` first.
+
+When ODAT-SE is used as a library inside another MPI program, that program may or may not have called ``setup()`` already. Because ``setup()`` is idempotent, call it unconditionally with the communicator you need:
+
+.. code-block:: python
+
+    import odatse.mpi
+
+    odatse.mpi.setup(comm=my_comm)   # my_comm: the ranks ODAT-SE may use
+
+This is a no-op when the same configuration is already in place and raises ``RuntimeError`` when a different one is, which is what you want: guarding the call with ``if not odatse.mpi.ready():`` instead would silently accept whatever partition the host happened to set up (for example all of ``MPI.COMM_WORLD``), and the collectives inside ODAT-SE would then involve ranks that never enter it. ``ready()`` is for querying the state, not for deciding whether to call ``setup()``.
+
+Notes on passing a communicator:
+
+- ``setup()`` is collective over ``comm`` : every rank of ``comm`` must call it with the same arguments, and ``ready()`` must be the same on all of them (a rank on which ``setup()`` was already called returns at once while the others wait in the collective). ``nalg * nsolve`` must equal the size of ``comm`` .
+- Call ``setup(comm=...)`` *before* loading the input: ``Info.from_file()`` broadcasts the input over ``comm()``, which is ``MPI.COMM_WORLD`` until ``setup()`` has been called, so loading the input first on a subset of the ranks deadlocks. ``odatse.initialize()`` called afterwards keeps the partition made by ``setup(comm=...)`` (see above).
+- A later ``setup()`` with another communicator or layout raises ``RuntimeError``; call ``reset()`` first to undo the current partition (for example to run ODAT-SE on one communicator and then on another in the same process).
+- The caller keeps ownership of ``comm`` . ODAT-SE does not free it, and it must stay valid while ODAT-SE is in use.
+- A duplicate (``comm.Dup()``) is a different communicator: passing it after ``setup()`` has been called with the original raises ``RuntimeError`` .
+- ODAT-SE calls ``MPI_Abort`` on ``comm`` when a solver worker fails outside ``evaluate`` . Depending on the MPI implementation this terminates the whole job, not only the ranks of ``comm`` .
+
+
+``odatse.util.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Reading files in a parallel run: one process reads, the others receive the data, and a failed read raises the same ``odatse.exception.LoadError`` (an ``InputError``) on every process of the scope instead of leaving the others waiting in the broadcast; the ``odatse`` command reports it once, from the process that read. In a serial run the functions are plain reads. See :doc:`../tutorial/parallel_solver` for the scopes and an example.
+
+- ``load(loader, scope="job", root=0, what=None, distribute=True)`` : Calls ``loader()`` on the root process of the scope (``"job"``: every process; ``"algorithm"``: the algorithm ranks; ``"solver"``: one solver group) and hands its result to the other processes of the scope.
+- ``read_text(path)`` / ``read_bytes(path)`` / ``load_toml(path)`` / ``loadtxt(path, **kwargs)`` / ``load_json(path)`` : Shortcuts for the common cases; all take the same ``scope`` and ``root`` keywords.

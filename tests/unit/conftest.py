@@ -14,7 +14,7 @@ def mpi_setup():
     """Partition the MPI communicator once for the whole unit-test session.
 
     odatse.mpi accessors for the algorithm/solver layers (algcomm, solsize,
-    ...) require setup() to have been called exactly once. Doing it here in a
+    ...) require setup() to have been called. Doing it here, once, in a
     session-scoped, autouse fixture lets every unit test run both serially and
     under ``mpirun -n N`` without each test having to call setup() itself.
 
