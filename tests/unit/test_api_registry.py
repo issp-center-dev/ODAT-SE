@@ -339,3 +339,71 @@ def test_duplicate_entry_point_names_are_ambiguous(monkeypatch):
     assert r["loss"]["target"] == f"{MOD}:plane2" and r["loss"]["source"] == "explicit"
     inp = inp_for({"name": "loss"})
     assert codes(api.validate(inp, for_run=True)) == {"REGISTRY_INVALID", "SOLVER_NOT_RUNNABLE"}
+
+
+# --- environment passed to registered solvers -------------------------------------------------------
+
+def test_solver_env_passes_only_named_variables(tmp_path, monkeypatch):
+    monkeypatch.setenv("ODATSE_TEST_OFFSET", "0.75")
+    monkeypatch.delenv("ODATSE_SOLVER_ENV", raising=False)
+    monkeypatch.delenv("ODATSE_TEST_UNSET", raising=False)
+    inp = inp_for({"name": "off"}, algorithm="mapper", dim=1)
+    r = api.run(inp, tmp_path / "a", timeout_s=120, solvers=reg(off="env_offset"))
+    assert codes(r["issues"]) == {"SOLVER_FAILED"}  # not passed by default
+    inp = inp_for({"name": "off"}, dim=1)
+    r = api.run(inp, tmp_path / "b", timeout_s=120, solvers=reg(off="env_offset"),
+                solver_env=["ODATSE_TEST_OFFSET", "ODATSE_TEST_UNSET"])
+    assert r["status"] == "ok", r
+    assert r["best"]["x"]["x1"] == pytest.approx(0.75, abs=1e-3)
+    assert r["provenance"]["solver"]["env"] == ["ODATSE_TEST_OFFSET"]  # names only; unset ones are skipped
+    monkeypatch.setenv("ODATSE_SOLVER_ENV", " ODATSE_TEST_OFFSET , ")
+    r = api.run(inp, tmp_path / "c", timeout_s=120, solvers=reg(off="env_offset"))
+    assert r["status"] == "ok", r
+    assert "0.75" not in json.dumps(r["provenance"])
+
+
+@pytest.mark.parametrize("names", [["PYTHONSTARTUP"], ["LD_PRELOAD"], ["dyld_insert_libraries"], ["A-B"],
+                                   ["1X"], ["A,B"], "HOME", b"HOME", 3, [""], ["A B"], ["A\n"], ["Ld_Preload"]])
+def test_solver_env_refuses_bad_names_without_writing(tmp_path, names):
+    r = api.run(inp_for({"name": "sphere"}), tmp_path, timeout_s=120, solvers=reg(sphere="shifted_sphere"),
+                solver_env=names)
+    assert codes(r["issues"]) == {"SOLVER_ENV_INVALID"}
+    assert not (tmp_path / "input.toml").exists()
+
+
+def test_mcp_server_passes_solver_env_and_refuses_bad_config(tmp_path, monkeypatch):
+    pytest.importorskip("mcp")
+    from odatse import mcp_server
+
+    monkeypatch.setenv("ODATSE_MCP_WORKDIR", str(tmp_path))
+    monkeypatch.setenv("ODATSE_MCP_SOLVERS", f"off={MOD}:env_offset")
+    monkeypatch.setenv("ODATSE_MCP_ALLOW_RUN", "1")
+    monkeypatch.setenv("ODATSE_TEST_OFFSET", "-0.5")
+    monkeypatch.setenv("ODATSE_SOLVER_ENV", "ODATSE_TEST_OFFSET")
+    server = mcp_server.build_server()
+    monkeypatch.delenv("ODATSE_SOLVER_ENV")  # read when the server starts
+    r = _call(server, "run_calculation", {"input": inp_for({"name": "off"}, dim=1), "timeout_s": 120})
+    assert r["status"] == "ok", r
+    assert r["best"]["x"]["x1"] == pytest.approx(-0.5, abs=1e-3)
+    monkeypatch.setenv("ODATSE_SOLVER_ENV", "PYTHONHOME")
+    with pytest.raises(SystemExit, match="ODATSE_SOLVER_ENV"):
+        mcp_server.build_server()
+
+
+def test_solver_env_does_not_leak_other_variables(tmp_path, monkeypatch):
+    monkeypatch.setenv("ODATSE_TEST_SECRET", "s3cret")
+    monkeypatch.setenv("ODATSE_SOLVER_ENV", "ODATSE_TEST_SECRET")
+    inp = inp_for({"name": "has", "params": {"var": "ODATSE_TEST_SECRET"}}, algorithm="mapper", dim=1)
+    r = api.run(inp, tmp_path / "a", timeout_s=120, solvers=reg(has="env_has"))
+    assert r["status"] == "ok" and r["best"]["fx"] == 1.0, r  # named in ODATSE_SOLVER_ENV
+    r = api.run(inp, tmp_path / "b", timeout_s=120, solvers=reg(has="env_has"), solver_env=[])
+    assert r["status"] == "ok" and r["best"]["fx"] == 0.0, r  # an explicit [] overrides the variable
+    monkeypatch.setenv("LD_PRELOAD", "")
+    inp["solver"]["params"]["var"] = "LD_PRELOAD"
+    r = api.run(inp, tmp_path / "c", timeout_s=120, solvers=reg(has="env_has"))
+    assert r["status"] == "ok" and r["best"]["fx"] == 0.0, r  # inherited, but never passed
+
+
+def test_check_solver_env_keeps_order_and_drops_duplicates():
+    assert api.check_solver_env(["B", "A", "B"]) == ["B", "A"]
+    assert api.parse_solver_env(" B,A ,,B") == ["B", "A"]

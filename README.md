@@ -66,6 +66,7 @@ It also offers a driver script to solve the problem with predefined optimization
   - Tools: `get_schema`, `versions`, `validate_input`, `render_input_toml`, `run_calculation` and `get_result`.
   - `run_calculation` is disabled unless the server is started with `ODATSE_MCP_ALLOW_RUN=1`.
   - Registered solvers: the `odatse.solvers` entry points plus `ODATSE_MCP_SOLVERS="name=package.module:attribute,..."`.
+  - A registered solver's subprocess gets only `PATH`, `PYTHONPATH`, `HOME`, locale and thread-count variables; name others it needs in `ODATSE_SOLVER_ENV="NAME,NAME,..."` (or `api.run(..., solver_env=[...])`).
 - `skills/`: task-oriented guidance for AI coding agents (`odatse-practice`, `odatse-input-pitfalls`, `odatse-custom-solver`).
 - `integration/vlab/manifest.yaml`: the catalog entry for workflow tools such as V-Lab Platform.
 

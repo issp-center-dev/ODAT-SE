@@ -47,7 +47,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from .solver import registry as _registry
 
@@ -784,9 +784,39 @@ def prepare(inp: dict[str, Any], workdir: str | os.PathLike[str], *,
     return {"status": "ok", "files": [str(path)], "input_toml": rendered["input_toml"]}
 
 
+_ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+# variables that would change which code the run imports or how the interpreter starts
+_ENV_DENIED_PREFIXES = ("PYTHON", "LD_", "DYLD_")
+_ENV_BASE = ("PATH", "PYTHONPATH", "HOME", "LANG", "LC_ALL", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+             "MKL_NUM_THREADS")
+
+
+def check_solver_env(names: Sequence[str]) -> list[str]:
+    """The environment variable names in ``names``, each one complete name (``ValueError`` when one is malformed
+    or would change how the run's interpreter starts: ``PYTHON*``, ``LD_*``, ``DYLD_*``)."""
+    if isinstance(names, (str, bytes)) or not isinstance(names, Sequence):
+        raise ValueError("solver_env must be a list of variable names, not a single string")
+    for n in names:
+        if not isinstance(n, str) or not _ENV_NAME.match(n):
+            raise ValueError(f"{n!r} is not an environment variable name")
+        if n.upper().startswith(_ENV_DENIED_PREFIXES):
+            raise ValueError(f"{n!r} cannot be passed to a solver (PYTHON*, LD_* and DYLD_* are refused)")
+    return list(dict.fromkeys(names))
+
+
+def parse_solver_env(text: str) -> list[str]:
+    """Names in ``ODATSE_SOLVER_ENV="NAME,NAME,..."`` (``ValueError`` as in :func:`check_solver_env`)."""
+    return check_solver_env([n.strip() for n in text.split(",") if n.strip()])
+
+
 def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: float = 600.0,
-        solvers: Mapping[str, str] | None = None) -> dict[str, Any]:
+        solvers: Mapping[str, str] | None = None, solver_env: Sequence[str] | None = None) -> dict[str, Any]:
     """Run ODAT-SE with the analytical or a registered solver in a subprocess and return :func:`parse` output.
+
+    The subprocess gets only ``PATH``, ``PYTHONPATH``, ``HOME``, locale and thread-count variables. A registered
+    solver that needs more (the path of an external program, a data directory) gets the variables named in
+    ``solver_env`` (default: ``ODATSE_SOLVER_ENV="NAME,NAME,..."``) that are set in the caller's environment.
+    Their names, not their values, are recorded in ``provenance.solver.env``.
 
     Exit statuses of a registered-solver run: 3 = the solver raised or returned NaN / -inf / a non-number
     (``SOLVER_FAILED``; set ``runner.ignore_error = true`` to record NaN and continue instead), 4 = the
@@ -795,6 +825,13 @@ def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: floa
     if _seconds(timeout_s) is None:
         return {"status": "failed", "issues": [_issue("TIMEOUT_INVALID", "timeout_s must be a finite positive "
                                                       "number of seconds", "timeout_s")]}
+    try:
+        extra_env = parse_solver_env(os.environ.get("ODATSE_SOLVER_ENV", "")) if solver_env is None \
+            else check_solver_env(solver_env)
+    except ValueError as exc:
+        return {"status": "failed", "issues": [_issue("SOLVER_ENV_INVALID", str(exc), None,
+                                                      "name each variable separately; PYTHON*, LD_* and "
+                                                      "DYLD_* cannot be added")]}
     issues = validate(inp, for_run=True, solvers=solvers)
     if issues:
         return {"status": "failed", "issues": issues}
@@ -808,9 +845,9 @@ def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: floa
     if prep["status"] != "ok":
         return prep
     wd = Path(workdir)
-    env = {k: v for k, v in os.environ.items() if k in ("PATH", "PYTHONPATH", "HOME", "LANG", "LC_ALL",
-                                                         "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
-                                                         "MKL_NUM_THREADS")}
+    env = {k: v for k, v in os.environ.items() if k in _ENV_BASE}
+    passed = [n for n in extra_env if n in os.environ and n not in _ENV_BASE] if target else []
+    env.update({n: os.environ[n] for n in passed})
     # the subprocess must import the very same odatse package as the caller
     pkg_root = str(Path(__file__).resolve().parent.parent)
     # relative entries would be read against workdir in the subprocess; anchor them here
@@ -855,7 +892,7 @@ def run(inp: dict[str, Any], workdir: str | os.PathLike[str], *, timeout_s: floa
         dist = {"distribution": entry["distribution"], "version": entry["version"]} \
             if entry.get("version") else _registry.module_version(target)
         out["provenance"]["solver"] = {"name": sname, "target": target, "source": entry["source"],
-                                       "params": inp["solver"].get("params", {}), **dist}
+                                       "params": inp["solver"].get("params", {}), "env": passed, **dist}
     return out
 
 

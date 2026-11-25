@@ -50,6 +50,7 @@ ODATSE_MCP_SOLVERS="hubbard_fit=mypkg.solvers:hubbard_fit" ODATSE_MCP_ALLOW_RUN=
 - Names are identifiers; `analytical` and `function` are reserved. Targets have the form `package.module:attribute`.
 - An explicit entry replaces an entry point of the same name. If two installed distributions register the same name with different targets, the name is left out (listed in `registry_problems`) until an explicit entry chooses one. A malformed `ODATSE_MCP_SOLVERS` stops the server at start-up.
 - The module must be importable by the same Python in the run's subprocess (installed, or on `PYTHONPATH`; relative entries are made absolute). The run's working directory is removed from the import path, so files there cannot replace your module or ODAT-SE.
+- The subprocess environment holds only `PATH`, `PYTHONPATH`, `HOME`, locale and thread-count variables. If the function reads others (the path of an external program, a data directory), name them: `ODATSE_SOLVER_ENV="HWAVE_EXE,MY_DATA_DIR"` for the server, or `api.run(..., solver_env=["HWAVE_EXE"])`. Only variables set in the caller's environment are passed; `PYTHON*`, `LD_*` and `DYLD_*` names cannot be added this way (`PYTHONPATH` stays part of the base set) (`SOLVER_ENV_INVALID`, or the server stops at start-up). `provenance.solver.env` lists the names passed, not their values.
 
 ## 3. Use it
 
@@ -63,7 +64,7 @@ ODATSE_MCP_SOLVERS="hubbard_fit=mypkg.solvers:hubbard_fit" ODATSE_MCP_ALLOW_RUN=
 1. `get_schema()` → `registered_solvers` lists each name with its target, description, dimension and parameters (`required`, `default`). An entry with `error` cannot be used (for example the module does not import); `registry_problems` lists malformed registrations.
 2. `validate_input(input, for_run=True)` checks the params against the signature and the dimension.
 3. `run_calculation(input)` (MCP, opt-in) or `odatse.api.run(...)` runs `python -m odatse._api_runner input.toml --solver <target>` in a subprocess.
-4. `provenance.solver` records the name, target, source (`entry_point` or `explicit`), params and the distribution and version that provide the module (`null` when unknown, for example a module on `PYTHONPATH`).
+4. `provenance.solver` records the name, target, source (`entry_point` or `explicit`), params, the names of passed environment variables (`env`) and the distribution and version that provide the module (`null` when unknown, for example a module on `PYTHONPATH`).
 
 ## Security
 
@@ -76,6 +77,7 @@ Registering a function is a decision by the operator: anything that can call the
 | `SOLVER_NOT_RUNNABLE` | `solver.name` is neither `analytical` nor registered. |
 | `REGISTRY_INVALID` | A registration is malformed (also listed in `registry_problems`). |
 | `SOLVER_UNAVAILABLE` | The target does not import, is not callable, has a bad `odatse_dimension`, or does not take `x` first; or it imports here but not in the run's subprocess. |
+| `SOLVER_ENV_INVALID` | `ODATSE_SOLVER_ENV` / `solver_env` holds a malformed or refused variable name. |
 | `SOLVER_KEY_UNKNOWN` | `[solver]` of a registered solver has keys other than `name`, `dimension`, `params`. |
 | `PARAM_UNKNOWN` / `PARAM_MISSING` / `PARAMS_INVALID` | `solver.params` does not match the function. |
 | `DIMENSION_INVALID` | The solver dimension differs from `odatse_dimension`, or none is given. |

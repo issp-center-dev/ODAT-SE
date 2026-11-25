@@ -119,3 +119,17 @@ class _UnprintableError(Exception):
 
 def raises_unprintable(x):
     raise _UnprintableError()
+
+
+def env_offset(x, var="ODATSE_TEST_OFFSET"):
+    """(x1 - $var)^2; fails when the variable did not reach the run."""
+    import os
+
+    return float((x[0] - float(os.environ[var])) ** 2)
+
+
+def env_has(x, var):
+    """1.0 when the environment variable is set in the run, else 0.0."""
+    import os
+
+    return 1.0 if var in os.environ else 0.0

@@ -18,6 +18,8 @@ Start with ``odatse-mcp`` (stdio) after ``pip install "ODAT-SE[mcp]"``.
 * Registered solvers (:mod:`odatse.solver.registry`): the ``odatse.solvers`` entry points of installed
   packages plus ``ODATSE_MCP_SOLVERS="name=package.module:attribute,..."``, read when the server starts.
   A client selects one with ``solver.name`` and passes its arguments in ``solver.params``.
+* A registered solver's subprocess sees only ``PATH``, ``PYTHONPATH``, ``HOME``, locale and thread-count
+  variables, plus those named in ``ODATSE_SOLVER_ENV="NAME,NAME,..."`` (read when the server starts).
 """
 
 from __future__ import annotations
@@ -63,8 +65,17 @@ def _solvers() -> dict[str, str]:
         raise SystemExit(f"ODATSE_MCP_SOLVERS: {exc}") from exc
 
 
+def _solver_env() -> list[str]:
+    """Names from ``ODATSE_SOLVER_ENV`` (``SystemExit`` with the reason when malformed)."""
+    try:
+        return api.parse_solver_env(os.environ.get("ODATSE_SOLVER_ENV", ""))
+    except ValueError as exc:
+        raise SystemExit(f"ODATSE_SOLVER_ENV: {exc}") from exc
+
+
 def build_server() -> Any:
     solvers = _solvers()
+    solver_env = _solver_env()
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError as exc:  # pragma: no cover - optional extra
@@ -114,7 +125,8 @@ def build_server() -> Any:
                 "message": "timeout_s must be a finite number of seconds"}]}
         timeout_s = min(max(seconds, 1.0), 3600.0)
         run_id = uuid.uuid4().hex
-        result = api.run(input, _base_dir() / run_id, timeout_s=timeout_s, solvers=solvers)
+        result = api.run(input, _base_dir() / run_id, timeout_s=timeout_s, solvers=solvers,
+                         solver_env=solver_env)
         return {"run_id": run_id, **result}
 
     @server.tool()
