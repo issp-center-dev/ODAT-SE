@@ -64,6 +64,11 @@
   ``evaluate`` と異なり、カレントディレクトリは変更せず、 ``delay`` も適用しません。
   勾配が設定されていない場合は ``NotImplementedError`` を送出します。
 
+- ``has_gradient(self) -> bool``
+
+  ``set_gradient()`` で勾配関数が設定されていれば True を返します。
+  ``supports_gradient`` と異なり、 ``self.supports_gradient`` に代入した値の影響を受けません。
+
 - ``supports_gradient``
 
   勾配が設定されているときに True になります。

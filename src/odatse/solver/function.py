@@ -133,6 +133,19 @@ class Solver(odatse.solver.SolverBase):
         """
         self._grad_func = g
 
+    def has_gradient(self) -> bool:
+        """
+        Return whether a gradient function is currently set.
+
+        Returns
+        -------
+        bool
+            True after ``set_gradient()``, until ``set_function()`` clears it.
+        """
+        # supports_gradient cannot answer this: a subclass may assign True
+        # to it without ever setting a gradient function.
+        return self._grad_func is not None
+
     def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
         """
         Evaluate the gradient in the caller's current directory without delay.

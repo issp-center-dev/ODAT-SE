@@ -367,7 +367,7 @@ class Runner(metaclass=mpi.FailTogetherMeta):
         if (isinstance(self.solver, odatse.solver.function.Solver)
                 and getattr(type(self.solver), "gradient", None)
                 is odatse.solver.function.Solver.gradient
-                and self.solver._grad_func is None):
+                and not self.solver.has_gradient()):
             return "The solver declares supports_gradient but no gradient is set (call set_gradient())."
         if not isinstance(self.mapping, odatse.util.mapping.TrivialMapping):
             return (

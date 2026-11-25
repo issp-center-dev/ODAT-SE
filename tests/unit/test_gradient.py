@@ -3130,6 +3130,34 @@ def test_c17_min_search_lbfgsb_uses_set_gradient(tmp_path):
     np.testing.assert_allclose(xopt, _C, atol=1e-4)
 
 
+def test_c17_has_gradient_follows_the_gradient_function(tmp_path):
+    """C17: has_gradient() is false on a fresh function solver and after
+    set_function() alone, true after set_gradient(), and false again once a
+    later set_function() drops the gradient. Fails if it does not track the
+    gradient function set by set_gradient()."""
+    _, s = _c17_plain(tmp_path)
+    assert s.has_gradient() is False
+    s.set_function(_c17_f)
+    assert s.has_gradient() is False
+    s.set_gradient(_c17_g1)
+    assert s.has_gradient() is True
+    s.set_function(_c17_f)
+    assert s.has_gradient() is False
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_c17_has_gradient_ignores_assigned_supports_gradient(tmp_path, value):
+    """C17: in a subclass that assigns self.supports_gradient, has_gradient()
+    still reports only whether set_gradient() was called: false with no
+    gradient function even when True was assigned, true with one even when
+    False was assigned. Fails if it echoes the assigned supports_gradient,
+    which would let a solver declaring support without a gradient function
+    pass the Runner's check."""
+    info = _info(tmp_path)
+    assert _C17Assigned(info, value, f=_c17_f).has_gradient() is False
+    assert _C17Assigned(info, value, f=_c17_f, g=_c17_g1).has_gradient() is True
+
+
 # ---------------------------------------------------------------------------
 # C17-7 an assigned supports_gradient
 

@@ -64,6 +64,11 @@ Methods and attributes
   Unlike ``evaluate``, it does not change the current directory and does not apply ``delay``.
   Raises ``NotImplementedError`` if no gradient is set.
 
+- ``has_gradient(self) -> bool``
+
+  Returns True when a gradient function is set by ``set_gradient()``.
+  Unlike ``supports_gradient``, a value assigned to ``self.supports_gradient`` does not affect it.
+
 - ``supports_gradient``
 
   True when a gradient is set.
