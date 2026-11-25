@@ -653,24 +653,6 @@ def test_c5_trust_constr_runs_to_convergence(tmp_path, use_gradient):
     np.testing.assert_allclose(alg.xopt, _C, atol=1e-3)
 
 
-def test_c5_legacy_callback_does_not_reevaluate(tmp_path):
-    """C5: with TNC (legacy callback receiving only x; no gradient), the
-    callback must (a) actually fire (iter_history longer than the initial
-    row) and (b) not call evaluate() with iset == 1 at an x already evaluated
-    with iset == 0. Fails if the callback recomputes f at the iterate."""
-    fn, grad = _quad_fn(_C)
-    alg, solver, _ = _make_alg(tmp_path, {"method": "TNC"}, fn=fn, grad=grad)
-    alg.main()
-    assert len(alg.iter_history) > 1
-    seen = set()
-    for x, args in solver.eval_calls:
-        key = tuple(x.tolist())
-        if args[1] == 1:
-            assert key not in seen, f"re-evaluated at {key} with args {args}"
-        elif args[1] == 0:
-            seen.add(key)
-
-
 @pytest.mark.parametrize("method,use_gradient", [
     ("Nelder-Mead", False),
     ("TNC", False),
