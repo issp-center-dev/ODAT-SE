@@ -6,7 +6,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
 import numpy as np
 
@@ -17,9 +17,17 @@ import odatse.mpi
 from pathlib import Path
 
 
-class SolverBase(object, metaclass=ABCMeta):
+class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
     """
     Abstract base class for solvers in ODAT-SE.
+
+    Construction takes part in the agreement of ``odatse.mpi.fail_together()``
+    (``FailTogetherMeta``): a constructor that fails on some processes only
+    makes every process leave ``Solver(info)``, the failing ones with their
+    own exception and the others with ``OtherAlgorithmProcessError``, instead
+    of leaving them waiting in a later collective (issue #112). Every process
+    of the job must therefore construct the solver, and collectives inside a
+    subclass constructor must stay balanced across the processes.
     """
 
     root_dir: Path

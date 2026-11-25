@@ -7,7 +7,7 @@
 # If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import sys
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from enum import IntEnum
 import time
 import os
@@ -36,8 +36,21 @@ class AlgorithmStatus(IntEnum):
     PREPARE = 2
     RUN = 3
 
-class AlgorithmBase(metaclass=ABCMeta):
+class AlgorithmBase(metaclass=odatse.mpi.FailTogetherMeta):
     """Base class for algorithms, providing common functionality and structure.
+
+    Construction takes part in the agreement of ``odatse.mpi.fail_together()``
+    (``FailTogetherMeta``): ``Algorithm(info, runner)`` is called on every
+    process of the job, the solver workers included, and may fail on some of
+    them only (an invalid ``mesh_path``, for example, is detected on the
+    algorithm ranks, which read the mesh, and not on the workers). The phase
+    wrappers below agree on failures through ``_reach_consensus()`` and
+    ``main()`` releases the workers when a phase fails, but neither is reached
+    when the constructor raises; the metaclass closes that gap (issue #101).
+    Collectives inside a subclass constructor must stay balanced across the
+    processes: a process that raises before such a collective leaves the
+    others waiting in it. The one collective of ``AlgorithmBase.__init__`` is
+    failure-safe in this sense.
 
     Lifecycle
     ---------
@@ -193,15 +206,28 @@ class AlgorithmBase(metaclass=ABCMeta):
         self.root_dir = info.base["root_dir"]
         self.output_dir = info.base["output_dir"]
         self.proc_dir = self.output_dir / str(odatse.mpi.algrank())
-        # create directory for each rank in case every rank has some output
-        self.proc_dir.mkdir(parents=True, exist_ok=True)
-        # Some cache of the filesystem may delay making a dictionary
-        # especially when mkdir just after removing the old one
-        while not self.proc_dir.is_dir():
-            time.sleep(0.1)
+        mkdir_error: Optional[Exception] = None
+        try:
+            # create directory for each rank in case every rank has some output
+            self.proc_dir.mkdir(parents=True, exist_ok=True)
+            # Some cache of the filesystem may delay making a dictionary
+            # especially when mkdir just after removing the old one
+            while not self.proc_dir.is_dir():
+                time.sleep(0.1)
+        except Exception as e:
+            mkdir_error = e
 
-        if odatse.mpi.algcomm() is not None and odatse.mpi.algsize() > 1:
-            odatse.mpi.algcomm().Barrier()
+        # Synchronise the algorithm ranks. An Allreduce of the success flags
+        # rather than a Barrier: a rank that failed to create its directory
+        # (e.g. a PermissionError on one node only) must not leave the others
+        # here while it goes on to the construction consensus. Every rank
+        # raises instead, and all of them reach that consensus.
+        if odatse.mpi.algcomm() is not None:
+            self._reach_consensus(
+                mkdir_error, np.array([0 if mkdir_error is not None else 1])
+            )
+        elif mkdir_error is not None:
+            raise mkdir_error
 
         # checkpointing
         self.checkpoint = info.algorithm.get("checkpoint", False)
@@ -258,13 +284,15 @@ class AlgorithmBase(metaclass=ABCMeta):
     # Framework wrappers – called by main().  Do NOT override in subclasses.
     # ------------------------------------------------------------------
 
-    def _reach_consensus(self, error: Optional[Exception], ok: "np.ndarray") -> None:
+    def _reach_consensus(self, error: Optional[BaseException], ok: "np.ndarray") -> None:
         """Collectively agree on whether *every* algorithm rank succeeded.
 
         Every algorithm rank must call this exactly once per phase, regardless
         of whether its phase body succeeded or raised. ``ok`` is ``[1]`` when
         this rank's phase succeeded and ``[0]`` otherwise; ``error`` is the
-        exception this rank caught (or ``None``).
+        exception this rank caught (or ``None``). ``SystemExit`` and
+        ``KeyboardInterrupt`` take part like any other failure, so that the
+        other ranks are released, and are then re-raised as they are.
 
         A single ``Allreduce`` shares the success flags, then:
 
@@ -335,7 +363,9 @@ class AlgorithmBase(metaclass=ABCMeta):
             # algorithm-specific preparation
             self._prepare()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt: they must reach the
+            # consensus below, or the other algorithm ranks wait in it forever
             error = e
 
         self._reach_consensus(error, ok)
@@ -369,7 +399,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             os.chdir(self.proc_dir)
             self._run()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt (see prepare())
             error = e
         finally:
             os.chdir(original_dir)
@@ -401,7 +432,8 @@ class AlgorithmBase(metaclass=ABCMeta):
             os.chdir(self.output_dir)
             result = self._post()
             ok = np.array([1])
-        except Exception as e:
+        except BaseException as e:
+            # also SystemExit / KeyboardInterrupt (see prepare())
             error = e
         finally:
             os.chdir(original_dir)
@@ -541,7 +573,11 @@ class AlgorithmBase(metaclass=ABCMeta):
                 self.__signal_workers(odatse.mpi.MSG_ABORT)
                 sys.exit(0)
 
-            except Exception:
+            except BaseException:
+                # Also SystemExit / KeyboardInterrupt (e.g. raised by
+                # solver.evaluate() on this controller and re-raised after the
+                # solver-group status exchange): the workers are back in the
+                # control-signal Bcast and must be released.
                 self.__signal_workers(odatse.mpi.MSG_ABORT)
                 raise
 
@@ -551,31 +587,48 @@ class AlgorithmBase(metaclass=ABCMeta):
             assert odatse.mpi.solrank() > 0
             signal = np.array([0])
             xp = np.zeros(self.runner.solver.dimension)
+            aborted = False
             try:
                 while True:
                     odatse.mpi.solcomm().Bcast(signal, root=0)
                     if signal[0] == odatse.mpi.MSG_FINISHED:
                         break
                     elif signal[0] == odatse.mpi.MSG_ABORT:
-                        sys.exit(0)
+                        aborted = True
+                        break
                     elif signal[0] == odatse.mpi.MSG_EVALUATE:
                         odatse.mpi.solcomm().Bcast(xp, root=0)
                         args = odatse.mpi.solcomm().bcast(None, root=0)
-                        self.runner.solver.evaluate(xp, args)
+                        # An exception raised by solver.evaluate() is caught
+                        # inside serve() and reported to the controller through
+                        # the solver-group status exchange (Runner._evaluate_group),
+                        # where it becomes an ordinary evaluate failure subject
+                        # to ignore_error. Nothing propagates out of serve().
+                        self.runner.serve(xp, args)
                     else:
                         raise ValueError(f"Unknown signal: {signal[0]}")
-            except Exception as e:
-                # A solver worker is outside the algorithm-layer consensus in
-                # _reach_consensus() (it is not a member of algcomm), so it has
-                # no way to report a failure to its solrank-0 controller. The
-                # controller may already be blocked in a solcomm collective
-                # inside solver.evaluate(), or will block in the next Bcast of
-                # the control signal, so letting the exception propagate would
-                # hang the whole job. Report the error and abort the job.
-                traceback.print_exc()
-                print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: {e}",
-                      file=sys.stderr, flush=True)
+            except BaseException as e:
+                # Last resort for failures outside solver.evaluate() (a corrupt
+                # control message, an unpicklable args, Ctrl-C while waiting
+                # for the control signal, ...); a failure inside evaluate() is
+                # reported through the status exchange in Runner.serve() and
+                # never gets here. A solver worker is outside the
+                # algorithm-layer consensus in _reach_consensus() (it is not a
+                # member of algcomm) and the controller is, or will be, blocked
+                # in a solcomm collective, so letting the exception propagate
+                # (or the process exit) would hang the whole job. Report and
+                # abort instead.
+                if isinstance(e, KeyboardInterrupt):
+                    print(f"[rank {odatse.mpi.rank()}] solver worker interrupted, aborting the job",
+                          file=sys.stderr, flush=True)
+                else:
+                    traceback.print_exc()
+                    print(f"[rank {odatse.mpi.rank()}] ERROR: solver worker failed: "
+                          f"{exception.describe_error(e)}",
+                          file=sys.stderr, flush=True)
                 odatse.mpi.comm().Abort(1)
+            if aborted:
+                sys.exit(0)
             return None
 
     def write_timer(self, filename: Path):

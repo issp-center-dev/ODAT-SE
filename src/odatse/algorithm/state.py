@@ -16,6 +16,7 @@ import numpy as np
 import odatse
 from odatse.util.neighborlist import load_neighbor_list, make_neighbor_list
 import odatse.util.graph
+import odatse.util.io
 import odatse.domain
 from odatse import mpi
 
@@ -212,15 +213,12 @@ class DiscreteStateSpace(StateSpace):
 
         if "mesh_path" in info_param and "neighborlist_path" in info_param:
             nn_path = Path(info_param["neighborlist_path"]).expanduser()
-            if algrank == 0:
-                nnlist = load_neighbor_list(nn_path, nnodes=self.nnodes)
-            else:
-                nnlist = None
-                
-            if algsize is not None and algsize > 1:
-                self.neighbor_list = algcomm.bcast(nnlist, root=0)
-            else:
-                self.neighbor_list = nnlist
+            # read on algorithm rank 0 and distributed to the other algorithm
+            # ranks; a missing or invalid file raises on every rank instead of
+            # leaving the others waiting in the broadcast (issue #113)
+            self.neighbor_list = odatse.util.io.load(
+                lambda: load_neighbor_list(nn_path, nnodes=self.nnodes),
+                scope="algorithm", what=f"neighbor list {nn_path}")
         else:
             if "radius" not in info_param:
                 raise KeyError("parameter \"algorithm.param.radius\" not specified")

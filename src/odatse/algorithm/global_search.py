@@ -342,7 +342,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
             for i in idx:
                 try:
                     v = _f_calc(np.asarray(xs[i], dtype=float))
-                except Exception as e:
+                except BaseException as e:
+                    # also SystemExit / KeyboardInterrupt: a rank that let
+                    # them escape here would skip the gather below and leave
+                    # rank 0 waiting in it
                     if error is None:
                         error = e
                     v = float("inf")

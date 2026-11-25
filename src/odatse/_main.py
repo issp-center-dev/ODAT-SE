@@ -60,22 +60,39 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
     try:
         info, run_mode = odatse.initialize(argv)
 
-        alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
+        # the set-up may fail on some processes only (a file that is missing
+        # on one node, for example); the others must not go on and wait in
+        # the construction of the algorithm for the process that failed
+        with odatse.mpi.fail_together():
+            alg_module = odatse.algorithm.choose_algorithm(info.algorithm["name"])
 
-        Solver = choose_solver(info)
-        solver = Solver(info)
-        runner = odatse.Runner(solver, info)
+            Solver = choose_solver(info)
+            solver = Solver(info)
+            runner = odatse.Runner(solver, info)
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
 
         return alg.main()
+    except odatse.mpi.OtherAlgorithmProcessError:
+        # another process failed during the set-up or while the algorithm
+        # was being constructed (odatse.mpi.fail_together); that process
+        # reports its error and exits with status 1, this one leaves
+        # quietly, as AlgorithmBase.main() does for a failure in a phase
+        sys.exit(0)
     except exception.Error as e:
         # rank-local errors (see exception.Error.rank_local) exist only on the
-        # rank that failed, so gating on rank 0 would silence them entirely
-        if e.rank_local:
-            prefix = f"[rank {odatse.mpi.rank()}] " if odatse.mpi.size() > 1 else ""
+        # rank that failed, so gating on rank 0 would silence them entirely;
+        # an error raised on several ranks at once (a LoadError on every
+        # process of the scope of a read, each marked rank_local by the
+        # agreement) names the rank that reports it, or every process would
+        # print the same line (see exception.Error.report_rank)
+        if e.report_rank is not None:
+            report = odatse.mpi.rank() == e.report_rank
+        else:
+            report = e.rank_local or odatse.mpi.rank() == 0
+        if report:
+            per_rank = e.rank_local or e.report_rank is not None
+            prefix = f"[rank {odatse.mpi.rank()}] " if per_rank and odatse.mpi.size() > 1 else ""
             print(f"{prefix}ERROR: {e}", file=sys.stderr)
-        elif odatse.mpi.rank() == 0:
-            print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
 

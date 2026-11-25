@@ -1,4 +1,34 @@
 add_test(
+  NAME parallel_init_error
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/init_error
+  )
+# upper bound independent of the timeout inside do.sh (a hang is the
+# failure mode these tests look for)
+set_tests_properties(parallel_init_error PROPERTIES TIMEOUT 300)
+
+add_test(
+  NAME parallel_construction_consensus
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/construction_consensus
+  )
+set_tests_properties(parallel_construction_consensus PROPERTIES TIMEOUT 300)
+
+add_test(
+  NAME parallel_setup_error
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/setup_error
+  )
+set_tests_properties(parallel_setup_error PROPERTIES TIMEOUT 300)
+
+add_test(
+  NAME parallel_shared_load
+  COMMAND sh do.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/shared_load
+  )
+set_tests_properties(parallel_shared_load PROPERTIES TIMEOUT 300)
+
+add_test(
   NAME parallel_bayes_grid
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/bayes_grid
@@ -93,6 +123,10 @@ add_test(
   COMMAND sh do.sh
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/parallel_solver/worker_error
   )
+
+# The bayes tests exit with status 77 when the optional dependency physbo is
+# not installed; report them as skipped rather than failed.
+set_tests_properties(parallel_bayes_grid parallel_bayes_meshfile PROPERTIES SKIP_RETURN_CODE 77)
 
 # The do.sh scripts run "mpirun ... ${PYTHON:-python3}". Point PYTHON at the
 # interpreter CMake resolved (see top-level CMakeLists.txt) so mpirun does not

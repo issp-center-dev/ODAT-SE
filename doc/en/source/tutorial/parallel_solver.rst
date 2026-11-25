@@ -61,8 +61,9 @@ subcommunicator (``algcomm``). Because the controller is the lowest rank of each
 group, global rank 0 is always a controller.
 
 The ``odatse.mpi`` module provides the following accessors. The global-layer
-ones and ``enabled()`` are available immediately; the solver- and
-algorithm-layer ones require ``setup()`` to have been called.
+ones, ``enabled()`` and ``ready()`` are available immediately; the solver- and
+algorithm-layer ones, including ``run_on_algorithm()``, require ``setup()`` to
+have been called and raise ``RuntimeError`` otherwise.
 
 - ``odatse.mpi.comm()`` / ``size()`` / ``rank()``: the global communicator, its
   size, and this process's rank in it.
@@ -77,6 +78,12 @@ algorithm-layer ones require ``setup()`` to have been called.
   (``solrank() == 0``), ``False`` on the solver workers.
 - ``odatse.mpi.enabled()``: whether MPI is available (``False`` when the
   environment variable ``ODATSE_NOMPI=1`` is set).
+- ``odatse.mpi.ready()``: whether ``setup()`` has been called.
+- ``odatse.mpi.reset()``: undoes ``setup()`` so that it can be called again with another configuration.
+
+``setup()`` splits ``MPI_COMM_WORLD`` by default. To run ODAT-SE on a subset of
+the ranks of a larger MPI program, pass that intracommunicator as
+``setup(comm=...)``; see :doc:`../customize/common` for the details.
 
 Master-worker execution
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,13 +106,147 @@ to distribute the work of that single evaluation across the group using
 ``solcomm`` collectives. When the algorithm finishes, the framework signals the
 workers to leave their loop.
 
-If ``evaluate`` raises an exception on a worker, the worker reports the error
-(with its global rank) to the standard error and aborts the whole MPI job via
-``MPI_Abort``. A worker is not a member of the algorithm communicator and cannot
-report its failure to the controller, which may already be waiting in a
-``solcomm`` collective, so the job is aborted rather than left hanging.
-Note that ``ignore_error`` in the ``[runner]`` section only applies to an
-exception raised on the controller.
+Errors inside ``evaluate``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+After every call of ``evaluate`` the framework exchanges the success status
+of all ranks of the solver group in one collective on ``solcomm``. An
+exception raised on **any** rank of the group, worker or controller, is
+therefore seen by the controller and handled there as a failure of that
+evaluation:
+
+- If ``ignore_error = true`` is set in the ``[runner]`` section and every
+  failing rank raised a ``RuntimeError``, the evaluation is ignored and its
+  value becomes ``NaN``, exactly as for a controller-only failure.
+- Otherwise the controller raises. If only the controller failed, its own
+  exception is re-raised unchanged. If a worker failed, the controller raises
+  ``odatse.exception.SolverRuntimeError`` (a ``RuntimeError``, so
+  ``ignore_error`` applies to it) listing the global rank(s) that failed and
+  their messages when every failing rank raised a ``RuntimeError``, and
+  ``odatse.exception.SolverError`` when any failing rank (worker or
+  controller) raised something else (such a failure is never turned into
+  ``NaN``). The error propagates through the usual
+  algorithm-layer consensus, the workers are told to leave their loop, and the
+  job terminates with a non-zero status. A worker whose error is not ignored
+  prints its traceback (tagged with its global rank) to the standard error.
+
+The status exchange takes place *after* ``evaluate`` returns or raises on each
+rank. It cannot rescue a solver that raises on some ranks *before* a
+``solcomm`` collective that the other ranks still enter: the ranks would then
+be in different collectives, which is undefined behaviour in MPI (typically a
+hang). As with any collective inside ``evaluate``, keeping them matched is the
+solver's responsibility. A robust pattern is to agree on a local failure before
+the next collective and raise on every rank:
+
+.. code-block:: python
+
+    def evaluate(self, x, args):
+        comm = odatse.mpi.solcomm()
+        try:
+            part = self._compute_my_part(x)
+            failed = None
+        except Exception as e:          # any failure, so that no rank skips the allgather
+            part, failed = None, f"{type(e).__name__}: {e}"
+        failures = [f for f in comm.allgather(failed) if f is not None]
+        if failures:
+            raise RuntimeError("; ".join(failures))
+        return self._combine(comm.allgather(part))
+
+A failure should be reported by raising an exception derived from
+``Exception``. ``SystemExit`` (from ``sys.exit()``) and ``KeyboardInterrupt``
+raised inside ``evaluate`` are caught as well and take part in the status
+exchange, so that no rank is left waiting, but they are never ignored: whether
+raised on a worker or on the controller, the controller raises
+``odatse.exception.SolverError`` and the job terminates through the usual
+algorithm-layer consensus. With ``nsolve = 1`` there is no solver group and
+they propagate as they are, but still through the algorithm-layer consensus,
+so the other algorithm ranks are released rather than left waiting, provided
+that every algorithm rank reaches that consensus: collectives inside an
+algorithm (such as the chunk evaluation of ``global_search``) must stay
+balanced across ranks even when one of them fails, as they must for any other
+exception.
+
+If ``evaluate`` raises on some ranks *before* a ``solcomm`` collective that
+the other ranks still enter (the mismatch described above), the behaviour is
+undefined in MPI. When the solver's collective happens to be a pickle-based
+``allgather``, the status exchange receives data that is not a status and
+the framework aborts the whole job via ``MPI_Abort`` with the message
+``mismatched collectives inside solver.evaluate()``; with other collectives
+(``Bcast``, ``Allreduce``, ...) the job typically hangs. Keeping the
+collectives matched remains the solver's responsibility.
+
+An exception raised on a worker *outside* ``evaluate`` (for example while
+receiving the broadcast ``args``) cannot be reported this way either; the
+worker prints the error and aborts the whole job via ``MPI_Abort`` so that the
+controller is not left hanging. The two paths are told apart in the log: a
+failure reported to the controller is printed as ``ERROR: solver worker raised
+in evaluate(), reported to the controller: ...`` (only when it is not ignored),
+the abort path as ``ERROR: solver worker failed: ...``.
+
+Constructing the algorithm (``Algorithm(info, runner)``) may fail on some
+processes only; an invalid ``mesh_path``, for example, is detected on the
+controllers, which read the mesh, and not on the workers. The framework
+therefore agrees on the outcome of the construction across the whole job
+before the exception propagates: every process leaves the constructor, the
+failing ones with their own exception and the others with
+``odatse.mpi.OtherAlgorithmProcessError`` (which the ``odatse`` command turns
+into a silent exit with status 0, so that the job ends with the status of the
+failing process). Without this agreement the workers would enter their loop
+and wait forever for a controller that has already exited.
+
+Because of this agreement, every process of the job, the workers included,
+must construct the same algorithms in the same order when you drive ODAT-SE
+from your own script; constructing an algorithm on some processes only hangs.
+In a custom algorithm, keep any collective communication in ``__init__``
+balanced across the processes: a process that raises before such a call
+leaves the others waiting in it.
+
+The same can happen before the algorithm is constructed: if creating the
+solver or the runner fails on some processes only, the others would go on
+into ``Algorithm(...)`` and wait there for the processes that failed. The
+constructors of ``Solver`` (any subclass of ``SolverBase``) and ``Runner``
+therefore carry the same agreement as ``Algorithm``, so that ``Solver(info)``
+and ``Runner(solver, info)`` end on every process whatever code calls them:
+the ``odatse`` command, your own script, or a program that embeds ODAT-SE.
+As for the algorithm, every process must therefore construct them:
+constructing a solver on some processes only (for example on rank 0, to
+evaluate the best point after ``alg.main()``) waits forever. Construct it on
+every process and restrict only the evaluation to the processes that need it.
+A solver class that declares a metaclass of its own must derive it from
+``odatse.mpi.FailTogetherMeta``.
+
+Code of your own that runs between these constructions and may fail on some
+processes only (creating a directory, reading a data file) can be given the
+same agreement with ``odatse.mpi.fail_together()``, as the ``odatse`` command
+and the example below do:
+
+.. code-block:: python
+
+    with odatse.mpi.fail_together():
+        os.makedirs(output_dir, exist_ok=True)
+        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+        runner = odatse.Runner(solver, info)
+
+If the block raises on any process, every process raises when it leaves the
+block: the failing ones their own exception, the others
+``odatse.mpi.OtherAlgorithmProcessError``. Blocks nest: only the outermost
+block agrees, and the constructors and any inner ``fail_together()`` block
+inside it leave the agreement to it, so a process may fail anywhere in it,
+before or after a construction or an inner block. The same rules apply as for
+the constructors: every process must run the block, and any collective
+communication inside it must stay balanced. Catch
+``odatse.mpi.OtherAlgorithmProcessError`` at the top of the script and exit
+with status 0, as the ``odatse`` command does. Otherwise every process prints
+a traceback, and ``mpirun`` may end the job before the failing process has
+reported its error:
+
+.. code-block:: python
+
+    if __name__ == "__main__":
+        try:
+            main()
+        except odatse.mpi.OtherAlgorithmProcessError:
+            sys.exit(0)  # another process failed and reports its error
 
 Custom solver example
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,7 +258,7 @@ the average largest singular value of ``nmats`` random matrices of size
 
 .. code-block:: python
 
-    import os, time, argparse
+    import os, sys, time, argparse
     import numpy as np
     from mpi4py import MPI
     import odatse
@@ -137,7 +278,6 @@ the average largest singular value of ``nmats`` random matrices of size
             if odatse.mpi.rank() == 0:
                 print(f"nalg: {odatse.mpi.algsize()}")
                 print(f"nsolve: {odatse.mpi.solsize()}")
-            odatse.mpi.comm().barrier()
 
         def _testfunc(self, mats):
             return np.sum([np.max(np.linalg.svd(mat, compute_uv=False)) for mat in mats])
@@ -178,6 +318,46 @@ each rank computes the largest singular value of its own slice with
 averaged. The solver only evaluates the objective function; tracking the best
 solution is the algorithm's responsibility (see below).
 
+Reading files in a solver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A solver often reads a file: reference data or an input template in its
+constructor, or a file written by an external program during ``evaluate``.
+Read it through ``odatse.util.io``. In a serial run this is a plain read; in a
+parallel run one process reads and the others receive the data, and if the
+read fails every process raises the same ``odatse.exception.LoadError``
+instead of waiting in the broadcast for the process that failed (a file
+missing or unreadable on one node would otherwise hang the job).
+
+.. code-block:: python
+
+    import odatse.util.io as oio
+
+    class MySolver(odatse.solver.SolverBase):
+        def __init__(self, info):
+            super().__init__(info)
+            # read once by one process, received by every process of the job
+            self.reference = oio.loadtxt(info.solver["reference_path"])
+            self.template = oio.read_text(info.solver["template_path"])
+
+        def evaluate(self, xs, args):
+            ...
+            # read by the controller of the group, received by its workers
+            result = oio.loadtxt("result.dat", scope="solver")
+            ...
+
+``scope`` selects who receives the data, and therefore which processes must
+make the call (the read and the distribution are a collective; every process
+of the scope must call it, in the same order): ``"job"`` (the default) every
+process of the job, for data read once in a constructor; ``"solver"`` the
+controller and the workers of one group, for a file read inside ``evaluate``;
+``"algorithm"`` the algorithm ranks only (the framework uses it for the mesh
+and the neighbor list). ``oio.load(loader, scope=...)`` does the same for any
+``loader()`` of your own; ``read_text``, ``read_bytes``, ``load_toml``,
+``loadtxt`` and ``load_json`` are shortcuts for the common cases. When every
+process reads its own copy of a file there is nothing to distribute, and the
+agreements described above are all that is needed.
+
 Driver and input file
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -207,12 +387,12 @@ driver just reads it from the return value:
         nmats = info.solver["param"].get("nmats", 50)
         matsize = info.solver["param"].get("matsize", 1000)
 
-        output_dir = info.base.get("output_dir", "./output")
-        os.makedirs(output_dir, exist_ok=True)
-
-        solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
-        runner = odatse.Runner(solver, info)
-        alg_module = choose_algorithm(info.algorithm["name"])
+        with odatse.mpi.fail_together():
+            output_dir = info.base.get("output_dir", "./output")
+            os.makedirs(output_dir, exist_ok=True)
+            solver = ParallelSolver(info, nmats=nmats, matsize=matsize)
+            runner = odatse.Runner(solver, info)
+            alg_module = choose_algorithm(info.algorithm["name"])
         alg = alg_module.Algorithm(info, runner, run_mode=run_mode)
         result = alg.main()
 

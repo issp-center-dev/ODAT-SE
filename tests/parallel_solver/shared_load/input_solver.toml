@@ -1,0 +1,14 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "custom"
+
+[algorithm]
+name = "mapper"
+
+[algorithm.param]
+min_list = [-1.0, -1.0]
+max_list = [ 1.0,  1.0]
+num_list = [3, 3]

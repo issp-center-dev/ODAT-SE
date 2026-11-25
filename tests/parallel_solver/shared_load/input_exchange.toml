@@ -1,0 +1,22 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[solver]
+name = "analytical"
+function_name = "rosenbrock"
+
+[algorithm]
+name = "exchange"
+seed = 12345
+
+[algorithm.param]
+mesh_path = "MeshData.txt"
+neighborlist_path = "missing_neighborlist.txt"
+
+[algorithm.exchange]
+numsteps = 10
+numsteps_exchange = 2
+Tmin = 0.1
+Tmax = 1.0
+nreplica_per_proc = 1
