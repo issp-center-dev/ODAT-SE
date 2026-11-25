@@ -34,6 +34,9 @@ APIの詳細を説明します。
 :doc:`solver`
     ``Solver`` クラスの API リファレンスです。``SolverBase`` を継承して ``evaluate`` メソッドを実装する方法を詳しく解説します。
 
+:doc:`function_solver`
+    Python の関数を目的関数とするソルバーを ``odatse.solver.function.Solver`` で作る方法と、その API を説明します。
+
 :doc:`algorithm`
     ``Algorithm`` クラスの API リファレンスです。独自の探索アルゴリズムを定義する方法を解説します。
 
@@ -53,6 +56,7 @@ APIの詳細を説明します。
 
    tutorial_solver
    solver
+   function_solver
    algorithm
    common
    usage

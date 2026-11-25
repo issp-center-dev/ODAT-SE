@@ -1,0 +1,20 @@
+[base]
+dimension = 2
+output_dir = "output"
+
+[algorithm]
+name = "minsearch"
+seed = 12345
+
+[algorithm.param]
+min_list = [-5.0, -5.0]
+max_list = [5.0, 5.0]
+initial_list = [2.5, 1.5]
+
+[algorithm.minimize]
+method = "L-BFGS-B"
+use_gradient = true
+
+[solver]
+name = "analytical"
+function_name = "himmelblau"

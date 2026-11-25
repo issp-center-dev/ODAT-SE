@@ -69,12 +69,35 @@ Nelder-Mead 法では、 パラメータ空間の次元を :math:`D` として�
 詳細は `scipy.optimize.minimize`_ のドキュメントを参照してください。
 
 ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
-``basinhopping``(後述)以外のパラメータは、そのまま
+``use_gradient``, ``basinhopping`` (後述)以外のパラメータは、そのまま
 `scipy.optimize.minimize`_ の ``options`` 引数に渡されます。
 選択した手法が受け付けないパラメータ名が指定された場合は、
 最適化を開始する前にエラーで終了します。
 以下に挙げる ``xatol``, ``fatol``, ``maxiter``, ``maxfev`` のデフォルト値は
 ``method`` が "Nelder-Mead" の場合にのみ適用されます。
+
+旧形式の callback は、直前の callback 以降に評価した点と直前の callback の反復点では
+関数値を再利用し、それ以外の点では ``iset = 1`` で評価します。覚えた関数値は callback の
+たびに捨てるので、評価回数が増えてもメモリは増えません。callback の形式は scipy の
+バージョンと手法によります(scipy < 1.11 では全手法、scipy 1.18 では TNC などが旧形式です)。
+``(step, iset)`` ごとに作業ディレクトリを分けるソルバーでは、反復点はふつう同じ反復の中で
+評価されるので、反復ごとの ``iset = 1`` の出力はたいてい作られません。ただし、古い scipy の
+COBYLA が最後に以前の反復の最良点を報告する場合など、callback が以前の反復の点を
+渡したときには作られます。
+
+最適化の終了後、scipy の ``success`` と ``message`` を1行で表示します。
+``success`` が偽の場合は警告を付けます。ベイスンホッピングでも、取得できる範囲で
+結果の状態を表示します。
+
+各 walker の結果には、scipy が返したパラメータと目的関数値をそのまま使います。
+walker が複数あり、目的関数値が NaN のものと有限のものが混在する場合、
+最終結果には有限の目的関数値が最小の walker を選びます。
+
+失敗の後に最適化手法が NaN を含むパラメータを提案した場合は、ソルバーを呼ばず、
+目的関数値を NaN として警告を表示します。step 番号は消費せず、
+``History_FunctionCall.txt`` にも行を追加しません。NaN を含まず ±inf を含むパラメータは、
+従来どおり範囲外として目的関数値を inf とします。これらは ``use_gradient`` の有無に
+かかわらず適用されます。
 
 - ``method``
 
@@ -83,11 +106,16 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   説明: 最適化手法の名前。 `scipy.optimize.minimize`_ の ``method`` 引数にそのまま渡されます。
   例: "Nelder-Mead", "Powell", "COBYLA" など。
   勾配を必要とする手法 (BFGS, CG など) では、勾配が数値差分で評価されるため
-  1回の勾配評価あたり次元数+1回のソルバー実行が発生することに注意してください。
+  1回の勾配評価あたり次元数+1回のソルバー実行が発生することに注意してください
+  (ソルバーが提供する勾配を使う場合を除きます。 ``use_gradient`` を参照)。
   また、探索範囲 (``min_list`` / ``max_list``) は、bounds に対応した手法
   (Powell, L-BFGS-B, TNC, SLSQP, trust-constr, COBYLA, COBYQA) では
   scipy の ``bounds`` 引数として渡されます。
   Nelder-Mead 法では従来通り、範囲外の点で目的関数値を無限大とみなす方法で処理されます。
+  最適点が境界上にある可能性がある場合は、bounds に対応した
+  L-BFGS-B, TNC, SLSQP, trust-constr などの手法をおすすめします。
+  BFGS や CG など bounds に対応していない手法では、範囲外の目的関数値を無限大とみなすため、
+  境界に達する手前で探索が止まる場合があります。
 
 - ``initial_scale_list``
 
@@ -97,6 +125,42 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
   ``initial_list`` と、 ``initial_list`` に ``initial_scale_list`` の成分ひとつを足してできる dimension 個の点を合わせたものが ``initial_simplex`` として使われます。
   定義しなかった場合、各次元に 0.25 が設定されます。
   ``method`` が "Nelder-Mead" の場合のみ使用されます。
+
+- ``use_gradient``
+
+  形式: 真偽値 (default: false)
+
+  説明: true のとき、勾配をソルバーの ``gradient()`` 関数を使って計算し、
+  `scipy.optimize.minimize`_ の ``jac`` 引数として渡します (``basinhopping`` の局所最適化でも同様です)。
+  ソルバーは、 ``supports_gradient`` を True にし、 ``gradient()`` メソッドを実装している必要があります(:ref:`Solver の定義 <customize_solver>` を参照)。
+  ``function.Solver`` では、代わりに ``set_gradient()`` を使えます (:doc:`../customize/function_solver` を参照)。
+
+  ``use_gradient = true`` とした場合、次の状況では ``InputValueError`` が発生します。
+
+  - 勾配を使わない手法: Nelder-Mead, Powell, COBYLA, COBYQA
+    (大文字小文字は区別しません。 ``method`` を省略すると Nelder-Mead になります)。
+  - ヘッセ行列を必要とする手法: dogleg, trust-ncg, trust-krylov, trust-exact
+    (大文字小文字は区別しません)。ODAT-SE はヘッセ行列を渡しません。Newton-CG は利用できます。
+  - 勾配に対応していないソルバー (``supports_gradient`` が False, または ``gradient()`` メソッドが実装されていない)。
+  - ``[runner.mapping]`` の指定。
+
+  ``InputValueError`` は ``InputError`` と ``ValueError`` の両方を継承します。
+  ``odatse`` コマンドでは、これらの入力エラーを traceback なしで ``ERROR:`` の行に表示します。
+  ``mpirun`` で実行した場合は、各ランクが1行ずつ報告します。
+  false または省略時はソルバーの勾配を使わず、これらの制限は適用されません。
+
+  L-BFGS-B が異常終了した場合 (``ABNORMAL``、``success=False``)、scipy が返す
+  目的関数値は最後に評価した点のもので、返されたパラメータでの値と一致しないことがあります。
+  ODAT-SE は scipy の結果をそのまま使います。 ``success=False`` のときは、
+  結果をそのまま信用しないでください。
+
+  設定例:
+
+  .. code-block:: toml
+
+      [algorithm.minimize]
+      method = "L-BFGS-B"
+      use_gradient = true
 
 - ``xatol``
 
@@ -181,7 +245,14 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 最適化の途中で目的関数が呼び出されるたびに、その情報を記録します。
-各行には、呼び出し番号、変数の値、目的関数の値がこの順に出力されます。
+各行には、step 番号、変数の値、目的関数の値がこの順に出力されます。
+第1列の step 番号は、関数評価と勾配評価で共有します。
+勾配評価でも番号が進むため、勾配を利用する場合は欠番が生じることがあります。
+この番号は各評価を識別するためのもので、連番は保証されません。
+このファイルの変数の値はソルバー単位 (``x / unit_list``) です。
+一方、 ``History_Gradient.txt`` の変数と勾配はアルゴリズム単位です。
+どちらのファイルにも、勾配評価の step 番号は記録されません。
+
 
 ``BasinHoppingData.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -190,6 +261,20 @@ ODAT-SE 固有のキーである ``method``, ``initial_scale_list``,
 局所最適化 1 回ごと(初期点からの 1 回 + ``niter`` 回のホップ)に、
 ホップ番号、局所最適化で得られた変数の値、目的関数の値、
 そのホップが受理されたかどうか (1/0) をこの順に出力します。
+
+``History_Gradient.txt``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+勾配を利用した場合 (``use_gradient = true`` かつソルバーが勾配を提供する場合) のみ出力されます。
+1行目はヘッダー (``#No``、変数名、 ``fx``、各変数に対する勾配 ``grad_変数名``) です。
+2行目以降には、通し番号、変数の値、目的関数の値、勾配の値がこの順に出力されます。
+最初の行は初期点、それ以降は局所最適化の各反復に対応します。
+変数と勾配はいずれもアルゴリズム単位です。ソルバーの目的関数を ``f`` とすると、
+記録するのは ``F(x) = f(x / unit_list)`` の勾配、すなわち
+``gradient(x / unit_list) / unit_list`` です。
+一方、 ``History_FunctionCall.txt`` の変数の値はソルバー単位 (``x / unit_list``) です。
+このファイルの通し番号は履歴の行番号であり、評価の step 番号ではありません。
+勾配評価の step 番号は、出力ファイルには記録されません。
 
 ``res.txt``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

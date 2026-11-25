@@ -62,6 +62,17 @@ class InputError(Error):
     """
 
 
+class InputValueError(InputError, ValueError):
+    """
+    Exception raised for invalid input values, compatible with ``except ValueError``.
+
+    Parameters
+    ----------
+    message : str
+        explanation
+    """
+
+
 class CheckpointError(Error):
     """
     Exception raised for checkpoint save/restore failures

@@ -113,6 +113,44 @@ def test_method_cobyla_without_nit(tmp_path, monkeypatch):
         assert "None" not in f.read_text()
 
 
+@pytest.mark.parametrize("basinhopping", [False, {"niter": 2}])
+def test_method_lbfgsb_gets_no_default_disp(tmp_path, monkeypatch, basinhopping):
+    """L-BFGS-B no longer accepts the disp option (removed in scipy 1.18), so
+    ODAT-SE must not inject its disp default for this method, either in a
+    plain minimize or as the local minimizer of basinhopping."""
+    monkeypatch.chdir(tmp_path)
+    passed_options = []
+    real_minimize = min_search.scipy.optimize.minimize
+
+    def spy_minimize(*args, **kwargs):
+        passed_options.append(dict(kwargs.get("options") or {}))
+        return real_minimize(*args, **kwargs)
+
+    # basinhopping looks up scipy.optimize.minimize at call time
+    monkeypatch.setattr(min_search, "minimize", spy_minimize)
+    monkeypatch.setattr(min_search.scipy.optimize, "minimize", spy_minimize)
+    record = []
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                            minimize={"method": "L-BFGS-B",
+                                      "basinhopping": basinhopping})
+    assert passed_options
+    assert all("disp" not in opts for opts in passed_options)
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+
+
+def test_method_trust_constr_is_not_stopped_by_callback(tmp_path, monkeypatch):
+    """trust-constr terminates when the callback returns a truthy value, so
+    the per-iteration callback must not return anything: the optimization
+    has to run to convergence instead of stopping after the first
+    iteration at the initial point."""
+    monkeypatch.chdir(tmp_path)
+    record = []
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
+                            minimize={"method": "trust-constr"})
+    assert alg.itera > 1
+    np.testing.assert_allclose(alg.xopt, [0.0, 0.0], atol=1e-3)
+
+
 def test_unknown_option_raises(tmp_path, monkeypatch):
     """An option name the selected method does not accept must abort before
     the optimization instead of being silently ignored by scipy."""
@@ -241,3 +279,73 @@ def test_basinhopping_reserved_param_raises(tmp_path, monkeypatch):
         _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=record,
                        minimize={"basinhopping": {"take_step": "foo"}},
                        run=False)
+
+
+def test_failure_on_one_rank_does_not_hang(tmp_path, monkeypatch):
+    """A failure inside _run() on one walker only must reach the phase
+    consensus on every rank: that rank re-raises its own error and the others
+    raise OtherAlgorithmProcessError (this test would time out under mpirun
+    while _run() ended with an algcomm barrier the failing rank never
+    reached)."""
+    if not (odatse.mpi.enabled() and odatse.mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+    monkeypatch.chdir(tmp_path)
+    calls = [0]
+
+    def fails_on_rank0(x):
+        calls[0] += 1
+        if odatse.mpi.algrank() == 0 and calls[0] > 3:
+            raise ValueError("objective failed on rank 0 only")
+        return float(np.sum(x * x))
+
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            fn=fails_on_rank0,
+                            minimize={"maxiter": 100, "maxfev": 500},
+                            run=False)
+    # call the phases directly: main() turns OtherAlgorithmProcessError into
+    # sys.exit(0), which would leave this rank out of the allgather below
+    alg.prepare()
+    try:
+        alg.run()
+        outcome = "returned"
+    except ValueError:
+        outcome = "own"
+    except odatse.mpi.OtherAlgorithmProcessError:
+        outcome = "other"
+
+    # gather before asserting, so that a wrong outcome on one rank cannot
+    # leave the others waiting in this collective
+    outcomes = odatse.mpi.algcomm().allgather(outcome)
+    assert outcomes == ["own"] + ["other"] * (odatse.mpi.algsize() - 1)
+
+
+def test_post_does_not_select_a_nan_walker(tmp_path, monkeypatch):
+    """With several walkers, _post() must pick the best finite result: a
+    walker that ended at NaN (e.g. a failure ignored by ignore_error) must
+    not be chosen over one that converged (np.argmin picks a NaN)."""
+    if not (odatse.mpi.enabled() and odatse.mpi.algsize() > 1):
+        pytest.skip("needs more than one algorithm rank (run under mpirun)")
+    monkeypatch.chdir(tmp_path)
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            minimize={"maxiter": 200, "maxfev": 1000},
+                            run=False)
+    alg.prepare()
+    alg.run()
+    if odatse.mpi.algrank() == 0:
+        alg.fopt = float("nan")
+    res = alg._post()
+    assert np.isfinite(res["fx"])
+
+
+def test_post_with_all_walkers_nan_reports_nan(tmp_path, monkeypatch):
+    """If every walker ended at NaN, _post() still returns (a NaN result)
+    instead of raising."""
+    monkeypatch.chdir(tmp_path)
+    _, alg = _run_minsearch(tmp_path, unit_list=[1.0, 1.0], record=[],
+                            minimize={"maxiter": 200, "maxfev": 1000},
+                            run=False)
+    alg.prepare()
+    alg.run()
+    alg.fopt = float("nan")
+    res = alg._post()
+    assert np.isnan(res["fx"])

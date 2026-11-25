@@ -1,0 +1,6 @@
+# minimum of f(x) = sum_i W_i (x_i - C_i)^2 + (x_i - C_i)^4 (gradient_solver.py)
+fx = 0.0
+x1 = 1.5
+x2 = -0.5
+tol_fx = 1e-8
+tol_x = 1e-4

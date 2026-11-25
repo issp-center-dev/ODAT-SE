@@ -37,6 +37,10 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
     _name: str
     dimension: int
     timer: dict[str, dict]
+    # Subclasses may declare gradient support as a class attribute, an
+    # instance attribute, or a property; a read-only base property would
+    # prevent assignment in subclass constructors.
+    supports_gradient: bool = False
 
     @abstractmethod
     def __init__(self, info: odatse.Info) -> None:
@@ -89,3 +93,34 @@ class SolverBase(object, metaclass=odatse.mpi.FailTogetherMeta):
             This method should be implemented by subclasses.
         """
         raise NotImplementedError()
+
+    def gradient(self, x: np.ndarray, args: tuple = ()) -> np.ndarray:
+        """
+        Return the gradient of the objective w.r.t. x at the given point.
+
+        Optional. Only called when supports_gradient is True. Same shape as x.
+        x is in the same space as passed to evaluate (e.g. after Runner's mapping).
+        Subclasses must override this method when supports_gradient is True
+        (function.Solver subclasses may call set_gradient() instead).
+        The Runner uses non-finite return values as returned. A RuntimeError
+        (including NotImplementedError) raised by gradient() is treated as an
+        all-NaN gradient when ignore_error is True; otherwise it propagates.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Input data array (same as for evaluate).
+        args : tuple, optional
+            Additional arguments. Defaults to ().
+
+        Returns
+        -------
+        np.ndarray
+            Gradient vector, same shape as x.
+
+        Raises
+        ------
+        NotImplementedError
+            This solver does not support gradient.
+        """
+        raise NotImplementedError("This solver does not support gradient.")

@@ -31,6 +31,10 @@ def quadratics(xs: np.ndarray) -> float:
     """
     return np.sum(xs * xs)
 
+def quadratics_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of quadratics (sphere): 2*x."""
+    return 2.0 * xs.copy()
+
 def quartics(xs: np.ndarray) -> float:
     """
     Quartic function with two global minima.
@@ -51,6 +55,13 @@ def quartics(xs: np.ndarray) -> float:
     It has one saddle point f(0,0,...,0) = 1.0.
     """
     return np.mean((xs - 1.0) ** 2) * np.mean((xs + 1.0) ** 2)
+
+def quartics_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of quartics."""
+    n = xs.size
+    m1 = np.mean((xs - 1.0) ** 2)
+    m2 = np.mean((xs + 1.0) ** 2)
+    return (2.0 / n) * (m2 * (xs - 1.0) + m1 * (xs + 1.0))
 
 def ackley(xs: np.ndarray) -> float:
     """
@@ -77,6 +88,19 @@ def ackley(xs: np.ndarray) -> float:
     b = np.exp(np.mean(b, axis = 0))
     return 20.0 + np.exp(1.0) - a - b
 
+def ackley_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Ackley's function."""
+    n = xs.size
+    sqrt_mean = np.sqrt(np.mean(xs ** 2))
+    a = 20 * np.exp(-0.2 * sqrt_mean)
+    b = np.exp(np.mean(np.cos(2.0 * np.pi * xs)))
+    if sqrt_mean == 0:
+        da_dx = np.zeros_like(xs, dtype=float)
+    else:
+        da_dx = a * (-0.2 / sqrt_mean) * (xs / n)
+    db_dx = b * (-2.0 * np.pi / n) * np.sin(2.0 * np.pi * xs)
+    return -da_dx - db_dx
+
 def alpine(xs: np.ndarray) -> float:
     """
     Alpine function.
@@ -96,6 +120,11 @@ def alpine(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
     return np.sum(np.abs((xs*np.sin(xs))+(0.1*xs)),axis=0)
+
+def alpine_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Alpine, choosing zero where the absolute value has a kink."""
+    h = xs * np.sin(xs) + 0.1 * xs
+    return np.sign(h) * (np.sin(xs) + xs * np.cos(xs) + 0.1)
 
 def exponential(xs: np.ndarray) -> float:
     """
@@ -117,6 +146,10 @@ def exponential(xs: np.ndarray) -> float:
     """
     return -np.exp(-0.5*np.sum(xs**2,axis=0))
 
+def exponential_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Exponential function."""
+    return xs * np.exp(-0.5 * np.sum(xs ** 2))
+
 def griewank(xs: np.ndarray) -> float:
     """
     Griewank function.
@@ -136,6 +169,19 @@ def griewank(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[0,0,...,0].
     """
     return 1+(np.sum(xs**2,axis=0)/4000)-np.prod(np.cos(xs/np.sqrt((np.arange(xs.shape[0])+1))),axis=0)
+
+def griewank_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Griewank function."""
+    roots = np.sqrt(np.arange(xs.size) + 1)
+    angles = xs / roots
+    cosines = np.cos(angles)
+    # products of the other cosines without dividing by cos, which needs no
+    # cos != 0 assumption
+    prefix = np.ones(xs.size + 1, dtype=float)
+    suffix = np.ones(xs.size + 1, dtype=float)
+    prefix[1:] = np.cumprod(cosines)
+    suffix[:-1] = np.cumprod(cosines[::-1])[::-1]
+    return xs / 2000.0 + np.sin(angles) / roots * prefix[:-1] * suffix[1:]
 
 def himmelblau(xs: np.ndarray) -> float:
     """
@@ -162,6 +208,15 @@ def himmelblau(xs: np.ndarray) -> float:
         )
     return (xs[0] ** 2 + xs[1] - 11.0) ** 2 + (xs[0] + xs[1] ** 2 - 7.0) ** 2
 
+def himmelblau_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Himmelblau's function (d=2)."""
+    a = xs[0] ** 2 + xs[1] - 11.0
+    b = xs[0] + xs[1] ** 2 - 7.0
+    return np.array([
+        2.0 * a * 2.0 * xs[0] + 2.0 * b * 1.0,
+        2.0 * a * 1.0 + 2.0 * b * 2.0 * xs[1],
+    ])
+
 def michalewicz(xs: np.ndarray) -> float:
     """
     Michalewicz function.
@@ -185,6 +240,17 @@ def michalewicz(xs: np.ndarray) -> float:
     """
     return -np.sum(np.sin(xs)*(np.sin(((np.arange(xs.shape[0])+1))*(xs**2)/np.pi)**(2*10)),axis=0)
 
+def michalewicz_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Michalewicz function."""
+    indices = np.arange(xs.size) + 1
+    u = indices * xs ** 2 / np.pi
+    sin_u = np.sin(u)
+    return -(
+        np.cos(xs) * sin_u ** 20
+        + np.sin(xs) * 20.0 * sin_u ** 19 * np.cos(u)
+        * 2.0 * indices * xs / np.pi
+    )
+
 def qing(xs: np.ndarray) -> float:
     """
     Qing function.
@@ -204,6 +270,10 @@ def qing(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[+/-sqrt(n), ...], where n runs from 1 to d.
     """
     return np.sum(((xs**2)-((np.arange(xs.shape[0])+1)))**2,axis=0)
+
+def qing_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Qing function."""
+    return 4.0 * xs * (xs ** 2 - (np.arange(xs.size) + 1))
 
 def rastrigin(xs: np.ndarray) -> float:
     """
@@ -225,6 +295,10 @@ def rastrigin(xs: np.ndarray) -> float:
     """
     return (xs.shape[0]*10)+np.sum(xs**2-(10*np.cos(2*np.pi*xs)),axis=0)
 
+def rastrigin_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Rastrigin function."""
+    return 2.0 * xs + 20.0 * np.pi * np.sin(2.0 * np.pi * xs)
+
 def rosenbrock(xs: np.ndarray) -> float:
     """
     Rosenbrock's function.
@@ -245,6 +319,26 @@ def rosenbrock(xs: np.ndarray) -> float:
     """
     return np.sum(100.0 * (xs[1:] - xs[:-1] ** 2) ** 2 + (1.0 - xs[:-1]) ** 2, axis = 0)
 
+def rosenbrock_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of Rosenbrock's function.
+
+    For dimension 1, return a zero vector because the function is identically zero.
+    """
+    g = np.zeros_like(xs, dtype=float)
+    if xs.size == 1:
+        return g
+    g[0] = (
+        -400.0 * xs[0] * (xs[1] - xs[0] ** 2)
+        - 2.0 * (1.0 - xs[0])
+    )
+    g[-1] = 200.0 * (xs[-1] - xs[-2] ** 2)
+    g[1:-1] = (
+        200.0 * (xs[1:-1] - xs[:-2] ** 2)
+        - 400.0 * xs[1:-1] * (xs[2:] - xs[1:-1] ** 2)
+        - 2.0 * (1.0 - xs[1:-1])
+    )
+    return g
+
 def schaffer(xs: np.ndarray) -> float:
     """
     Schaffer function (generalized).
@@ -261,6 +355,19 @@ def schaffer(xs: np.ndarray) -> float:
     """
     a=(xs[:-1]**2)+(xs[1:]**2)
     return np.sum(0.5+(((np.sin(a)**2)-0.5)/((1+(0.001*a))**2)),axis=0)
+
+def schaffer_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the generalized Schaffer function, zero for dimension 1."""
+    a = xs[:-1] ** 2 + xs[1:] ** 2
+    denominator = 1.0 + 0.001 * a
+    derivative = (
+        np.sin(2.0 * a) / denominator ** 2
+        - 0.002 * (np.sin(a) ** 2 - 0.5) / denominator ** 3
+    )
+    g = np.zeros_like(xs, dtype=float)
+    g[:-1] += 2.0 * xs[:-1] * derivative
+    g[1:] += 2.0 * xs[1:] * derivative
+    return g
 
 def schwefel(xs: np.ndarray) -> float:
     """
@@ -281,6 +388,12 @@ def schwefel(xs: np.ndarray) -> float:
     It has a global minimum f(x)=0 at x=[420.9687..., ...].
     """
     return (xs.shape[0]*418.9829)-np.sum(xs*np.sin(np.sqrt(np.abs(xs))),axis=0)
+
+def schwefel_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of the Schwefel function, including zero components."""
+    # x * sign(x) / sqrt(|x|) simplified to sqrt(|x|), avoiding 0/0 at x = 0
+    root = np.sqrt(np.abs(xs))
+    return -(np.sin(root) + 0.5 * root * np.cos(root))
 
 def linear_regression_test(xs: np.ndarray) -> float:
     """
@@ -319,8 +432,22 @@ def linear_regression_test(xs: np.ndarray) -> float:
         n * xs[2] + np.sum((xs[0] * xdata + xs[1] - ydata) ** 2) / np.exp(xs[2])
     )
 
+def linear_regression_test_gradient(xs: np.ndarray) -> np.ndarray:
+    """Gradient of linear_regression_test (negative log likelihood, d=3)."""
+    xdata = np.array([1, 2, 3, 4, 5, 6])
+    ydata = np.array([1, 3, 2, 4, 3, 5])
+    n = len(ydata)
+    resid = xs[0] * xdata + xs[1] - ydata
+    s = np.sum(resid ** 2)
+    exp_s2 = np.exp(xs[2])
+    return np.array([
+        np.sum(resid * xdata) / exp_s2,
+        np.sum(resid) / exp_s2,
+        0.5 * (n - s / exp_s2),
+    ])
+
 class Solver(odatse.solver.function.Solver):
-    """Function Solver with pre-defined benchmark functions"""
+    """Function Solver with pre-defined benchmark functions and gradients."""
 
     x: np.ndarray
     fx: float
@@ -340,16 +467,22 @@ class Solver(odatse.solver.function.Solver):
 
         if function_name == "quadratics":
             self.set_function(quadratics)
+            self.set_gradient(quadratics_gradient)
         elif function_name == "quartics":
             self.set_function(quartics)
+            self.set_gradient(quartics_gradient)
         elif function_name == "ackley":
             self.set_function(ackley)
+            self.set_gradient(ackley_gradient)
         elif function_name == "alpine":
             self.set_function(alpine)
+            self.set_gradient(alpine_gradient)
         elif function_name == "exponential":
             self.set_function(exponential)
+            self.set_gradient(exponential_gradient)
         elif function_name == "griewank":
             self.set_function(griewank)
+            self.set_gradient(griewank_gradient)
         elif function_name == "himmelblau":
             dimension = self.dimension
             if int(dimension) != 2:
@@ -357,18 +490,25 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: himmelblau works only with dimension=2 but input is dimension={dimension}"
                 )
             self.set_function(himmelblau)
+            self.set_gradient(himmelblau_gradient)
         elif function_name == "michalewicz":
             self.set_function(michalewicz)
+            self.set_gradient(michalewicz_gradient)
         elif function_name == "qing":
             self.set_function(qing)
+            self.set_gradient(qing_gradient)
         elif function_name == "rastrigin":
             self.set_function(rastrigin)
+            self.set_gradient(rastrigin_gradient)
         elif function_name == "rosenbrock":
             self.set_function(rosenbrock)
+            self.set_gradient(rosenbrock_gradient)
         elif function_name == "schaffer":
             self.set_function(schaffer)
+            self.set_gradient(schaffer_gradient)
         elif function_name == "schwefel":
             self.set_function(schwefel)
+            self.set_gradient(schwefel_gradient)
         elif function_name == "linear_regression_test":
             dimension = self.dimension
             if int(dimension) != 3:
@@ -376,5 +516,6 @@ class Solver(odatse.solver.function.Solver):
                     f"ERROR: regression works only with dimension=3 but input is dimension={dimension}"
                 )
             self.set_function(linear_regression_test)
+            self.set_gradient(linear_regression_test_gradient)
         else:
             raise RuntimeError(f"ERROR: Unknown function, {function_name}")

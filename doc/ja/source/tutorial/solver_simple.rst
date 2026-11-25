@@ -93,3 +93,29 @@ Booth 関数の実装例
     Solution:
     x1 = 1.0000128043523089
     x2 = 2.9999832920260863
+
+
+勾配を使って最適化する場合は、任意の手順として次の勾配を定義します。
+
+.. code-block:: python
+
+    def booth_gradient(xs: np.ndarray) -> np.ndarray:
+        a = xs[0] + 2 * xs[1] - 7.0
+        b = 2 * xs[0] + xs[1] - 5.0
+        return np.array([2 * a + 4 * b, 4 * a + 2 * b])
+
+コンストラクタ内の ``self.set_function(booth)`` の後に、勾配を登録します。
+
+.. code-block:: python
+
+    elif function_name == "booth":
+        self.set_function(booth)
+        self.set_gradient(booth_gradient)
+
+入力ファイルに次の設定を加えると、L-BFGS-B 法で勾配を使えます。
+
+.. code-block:: toml
+
+    [algorithm.minimize]
+    method = "L-BFGS-B"
+    use_gradient = true
