@@ -445,7 +445,10 @@ class Algorithm(odatse.algorithm.AlgorithmBase):
                     # components that scipy did receive.
                     grad = failed_gradients[key]
                 else:
-                    grad = _jac_calc(np.array(x), 0)
+                    # iset=0 is reserved for evaluations requested by scipy;
+                    # this one is made only to write the history, like
+                    # _callback_value's.
+                    grad = _jac_calc(np.array(x), 1)
                 grad_history.append([*x, fun, *grad])
 
             # A truthy callback return value would stop trust-constr.

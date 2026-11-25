@@ -1303,6 +1303,29 @@ def test_c9_callback_records_the_non_finite_gradient_as_returned(
         np.testing.assert_array_equal(r[4:6], expected)
 
 
+def test_c9_callback_gradient_at_an_unseen_point_uses_iset_1(tmp_path, monkeypatch):
+    """C9: a controlled optimizer calls back at a point whose gradient it
+    never requested. The gradient needed for History_Gradient.txt is then
+    obtained by one gradient() call whose args carry iset = 1, as the
+    objective evaluated from a callback does, while the gradient at the
+    initial point is requested with iset = 0. Fails if the evaluation made
+    only to write the history is marked as one made by the optimizer."""
+    fn, grad = _quad_fn(_C)
+    x0 = np.array([2.0, 2.0])
+    xf = np.array([1.5, -0.5])
+    alg, solver, _ = _make_alg(
+        tmp_path, {"method": "BFGS", "use_gradient": True}, fn=fn, grad=grad,
+        initial_list=_same_start_for_all_walkers(x0))
+    _patch_minimize(monkeypatch, _controlled_callback_factory(xf, fn, 1))
+    alg.main()
+    isets = {tuple(x): [a[1] for y, a in solver.grad_calls if np.array_equal(y, x)]
+             for x in (x0, xf)}
+    assert isets == {tuple(x0): [0], tuple(xf): [1]}
+    rows = [r for r in _grad_rows(tmp_path) if np.array_equal(r[1:3], xf)]
+    assert len(rows) == 1
+    np.testing.assert_allclose(rows[0][4:6], grad(xf), rtol=1e-12)
+
+
 @pytest.mark.parametrize("mode", _FAIL_MODES)
 def test_c9_callback_records_finite_gradient_after_recovery(tmp_path, monkeypatch, mode):
     """C9: the first gradient() call (initial point) fails -- raised and
