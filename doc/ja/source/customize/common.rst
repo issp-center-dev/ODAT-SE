@@ -79,7 +79,7 @@
 その結果を ``x`` と同じ shape の配列として返します。
 入力 ``x`` の扱いは ``submit`` と同じです。
 ``Limitation`` 制約に違反する点では、ソルバーを呼ばずに全要素が NaN の配列を返します。
-戻り値の要素数が ``x`` と異なる場合は ``ValueError`` を送出します。
+戻り値の shape が ``x`` と異なる場合 (例: shape ``(n,)`` の ``x`` に対する ``(n, 1)``) は ``ValueError`` を送出します。
 勾配の呼び出しは ``runner.log`` の記録や呼び出し回数には含めません。
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` は、勾配を利用できる場合は

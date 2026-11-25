@@ -83,7 +83,7 @@ computes the solver's gradient for the search parameter ``x`` and the optional p
 and returns it as an array with the same shape as ``x``.
 It uses the same input convention as ``submit``.
 At a point violating the ``Limitation`` constraints, the solver is not called and an all-NaN array is returned.
-If the number of elements of the return value differs from that of ``x``, ``ValueError`` is raised.
+If the shape of the return value differs from that of ``x`` (e.g., ``(n, 1)`` for an ``x`` of shape ``(n,)``), ``ValueError`` is raised.
 Gradient calls are neither recorded nor counted in ``runner.log``.
 
 ``gradient_unavailable_reason(self) -> Optional[str]`` returns ``None`` when
