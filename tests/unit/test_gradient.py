@@ -681,19 +681,21 @@ def test_c5_bounds_method_evaluates_boundary(tmp_path, use_gradient):
     np.testing.assert_allclose(alg.fopt, 25.0, rtol=1e-8)
 
 
-def test_c5_non_bounds_method_skips_boundary(tmp_path):
+@pytest.mark.parametrize("side", [1.0, -1.0], ids=["max_list", "min_list"])
+def test_c5_non_bounds_method_skips_boundary(tmp_path, side):
     """C5 (boundary handling, method without bounds): for Nelder-Mead a
     point on min_list/max_list is out of range, so it never reaches
-    evaluate(). initial_scale_list = [3, 0.25] from (2, 2) puts the initial
-    simplex vertex (5, 2) exactly on max_list, and the unconstrained minimum
-    (10, 0) pulls the simplex toward that edge. Fails if the boundary is
-    treated as inside for methods without bounds."""
-    fn, grad = _quad_fn(_FAR)
+    evaluate(). For max_list, initial_scale_list = [3, 0.25] from (2, 2)
+    puts the initial simplex vertex (5, 2) exactly on max_list, and the
+    unconstrained minimum (10, 0) pulls the simplex toward that edge; the
+    min_list case is its mirror image in the first coordinate. Fails if
+    either boundary is treated as inside for methods without bounds."""
+    fn, grad = _quad_fn(side * _FAR)
     alg, solver, _ = _make_alg(
-        tmp_path, {"method": "Nelder-Mead", "initial_scale_list": [3.0, 0.25],
-                   "maxiter": 200},
+        tmp_path, {"method": "Nelder-Mead",
+                   "initial_scale_list": [side * 3.0, 0.25], "maxiter": 200},
         fn=fn, grad=grad,
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+        initial_list=_same_start_for_all_walkers((side * 2.0, 2.0)))
     alg.main()
     assert solver.eval_calls
     for x, args in solver.eval_calls:
