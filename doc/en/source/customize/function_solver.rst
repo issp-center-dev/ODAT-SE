@@ -51,6 +51,7 @@ Methods and attributes
   ``g`` must return an array with the same shape as ``x``.
   Once a gradient is set, ``supports_gradient`` becomes True automatically,
   and the gradient can be used, e.g., with ``use_gradient = true`` in ``minsearch``.
+  Whether the gradient is the derivative of the objective function can be checked against finite differences with ``check_gradient()`` (see :doc:`solver`).
 
 - ``evaluate(self, x, args=()) -> float``
 
