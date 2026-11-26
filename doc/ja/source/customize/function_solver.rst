@@ -51,6 +51,7 @@
   ``g`` は ``x`` と同じ shape の配列を返す必要があります。
   勾配を設定すると、 ``supports_gradient`` は自動的に True になり、
   ``minsearch`` の ``use_gradient = true`` などで勾配を使えます。
+  設定した勾配が目的関数の微分になっているかは、 ``check_gradient()`` で差分と見比べて確かめられます (:doc:`solver` を参照)。
 
 - ``evaluate(self, x, args=()) -> float``
 

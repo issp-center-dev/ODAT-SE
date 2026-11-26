@@ -112,6 +112,53 @@
       If ``gradient`` raises a ``RuntimeError`` and ``ignore_error = true`` is specified in the ``[runner]`` section, the Runner ignores the exception and treats the gradient as an array of ``np.nan``.
       If the search point does not satisfy the constraints (``[runner.limitation]``), the solver is not called and the gradient becomes an array of ``np.nan``.
 
+    ``gradient`` must return the derivative of the value returned by ``evaluate`` with respect to the same ``x`` that ``evaluate`` receives.
+    Its correctness is the responsibility of the solver's author. ODAT-SE checks only the shape of the returned array and whether the call failed,
+    so a gradient with a wrong sign or scale shows up as a premature termination or as convergence to a wrong point, which cannot be told from the output.
+    Use ``check_gradient`` below to compare it with finite differences beforehand.
+
+  - ``check_gradient(self, x, args=(0, 0), step=None) -> tuple[np.ndarray, np.ndarray]``
+
+    A method provided by ``SolverBase`` for checking (subclasses do not need to implement it).
+    It returns the pair ``(g, d)``: ``g`` is the value of ``gradient`` at ``x``, and ``d`` is the gradient estimated by central differences of ``evaluate``.
+    It does not judge whether they agree and prints nothing; the tolerance is up to the caller.
+
+    - ``x``: one-dimensional sequence of finite real numbers, in the same space as the argument of ``evaluate``.
+    - ``args``: passed unchanged to every call to ``evaluate`` and ``gradient``.
+    - ``step``: step of the differences; positive and finite, added to and subtracted from the coordinates as it is (not relative to ``x``). A scalar or a sequence as long as ``x``.
+      When omitted, ``eps**(1/3) * max(1, |x_i|)`` is used for each component (``eps`` is the double-precision machine epsilon).
+      This is a guide for smooth functions; specify ``step`` when the evaluation is noisy or the scale of a variable is far from 1.
+    - An invalid ``x`` or ``step`` raises ``ValueError`` before the solver is called.
+      Exceptions raised by ``evaluate`` or ``gradient`` propagate unchanged.
+
+    The calls are made in this order: ``evaluate(x)``, ``gradient(x)``, and then ``evaluate(x + h e_i)`` and ``evaluate(x - h e_i)`` for each component.
+    ``evaluate`` is called 2 × dimension + 1 times and ``gradient`` once.
+    ``g`` keeps the shape returned by ``gradient``, which is not checked; ``d`` has the shape of ``x``.
+    A component for which the step is too small to make ``x + h`` and ``x - h`` differ is not evaluated, and its value in ``d`` is ``np.nan``.
+
+    In a test of a solver it can be used as follows.
+
+    .. code-block:: python
+
+      import numpy as np
+
+      def test_gradient(solver):
+          solver.work_dir.mkdir(parents=True, exist_ok=True)
+          x = np.array([0.3, -1.2])
+          g, d = solver.check_gradient(x)
+          assert g.shape == d.shape
+          np.testing.assert_allclose(g, d, rtol=1e-6, atol=1e-8)
+
+    .. note::
+      - ``Runner`` is not involved, so the caller must prepare whatever ``evaluate`` needs, such as creating the working directory.
+        The search region and the constraints are not taken into account either; choose a point and a step that stay inside them.
+      - After the call, the internal state of the solver and the files in the working directory are those of the last evaluation for the differences.
+      - ``np.testing.assert_allclose`` accepts a comparison between a scalar and an array, so check the shape separately.
+      - Agreement with the differences is meaningful only where the objective function is differentiable and its evaluation is reproducible
+        (the Ackley function, for example, is not differentiable at the origin). When in doubt about the step, compare several values of ``step``.
+      - Only the value at the given point is checked. Checking at several points is recommended.
+      - With the solver parallelization, all ranks of the group must make the call with the same arguments. Exceptions are not aggregated across the ranks.
+
 
   ``runner.log`` counts calls to ``evaluate()`` only; gradient calls are not recorded or counted.
 
