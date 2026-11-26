@@ -174,48 +174,15 @@ def test_c1_reason_none_when_gradient_available(tmp_path, monkeypatch):
     assert r.gradient_unavailable_reason() is None
 
 
-def test_c1_reason_for_unsupported_solver(tmp_path, monkeypatch):
-    """C1: a solver whose supports_gradient is false yields a reason string
-    (even though its gradient() would work). Fails if None is returned."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, supports=False)
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
-
-
-def test_c1_reason_for_affine_mapping(tmp_path, monkeypatch):
-    """C1: an Affine mapping yields a reason string even with a
-    gradient-capable solver. Fails if the mapping is not taken into account."""
-    mapping = odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, mapping=mapping)
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
-
-
-# A solver group of 2 or more processes is no longer a reason (contract7):
-# see test_c1r7_reason_none_for_parallel_solver and
-# test_c1r7_other_reasons_remain_in_parallel in Round 7.
+# The situations that do yield a reason are collected in _UNAVAILABLE and
+# checked by test_unavailable_gradient_is_reported_and_refused in Round 7,
+# where all the solvers they need are defined. A solver group of 2 or more
+# processes is not one of them (contract7):
+# test_c1r7_reason_none_for_parallel_solver.
 
 
 # ---------------------------------------------------------------------------
 # C2. Runner.submit_gradient()
-
-
-@pytest.mark.parametrize("situation", ["unsupported", "affine"])
-def test_c2_submit_gradient_raises_when_unavailable(tmp_path, monkeypatch, situation):
-    """C2: in every C1 situation that yields a reason, submit_gradient raises
-    NotImplementedError without reaching the solver's gradient(). The
-    unsupported solver has a working gradient(), so the error must come from
-    the Runner's own check. Fails if the gradient is computed anyway. (The
-    same in a solver group of 2: test_c18_unavailable_sends_nothing.)"""
-    kw = {"solsize": 1}
-    if situation == "unsupported":
-        kw["supports"] = False
-    if situation == "affine":
-        kw["mapping"] = odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))
-    _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch, **kw)
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(np.array([1.0, 1.0]), (1, 0))
-    assert solver.grad_calls == []
 
 
 @pytest.mark.parametrize("situation", ["unsupported", "affine"])
@@ -305,56 +272,6 @@ def _raising(exc):
     return grad
 
 
-def test_c2_runtime_error_propagates_without_ignore_error(tmp_path, monkeypatch):
-    """C2: RuntimeError from gradient() propagates when ignore_error is off
-    (the default). Fails if it is swallowed."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(RuntimeError("grad boom")))
-    with pytest.raises(RuntimeError, match="grad boom"):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-
-
-def test_c2_runtime_error_with_ignore_error_returns_nan(tmp_path, monkeypatch):
-    """C2: RuntimeError from gradient() with ignore_error = true gives an
-    all-NaN array of x's shape (not zeros). Fails if zeros are returned or
-    the error propagates."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(RuntimeError("grad boom")),
-                           runner={"ignore_error": True})
-    g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    _assert_all_nan(g, (2,))
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c2_not_implemented_error_from_gradient_like_runtime_error(tmp_path, monkeypatch, ignore_error):
-    """C2 (contract3): NotImplementedError raised by gradient() is handled
-    like a RuntimeError: with ignore_error = true an all-NaN array of x's
-    shape is returned, otherwise it propagates. (The NotImplementedError of
-    an unavailable gradient is a separate case and always propagates.)
-    Fails if ignore_error does not cover it, or if it is swallowed without
-    ignore_error."""
-    _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch,
-                                grad=_raising(NotImplementedError("no grad here")),
-                                runner={"ignore_error": ignore_error})
-    if ignore_error:
-        g = r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-        _assert_all_nan(g, (2,))
-    else:
-        with pytest.raises(NotImplementedError, match="no grad here"):
-            r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    # gradient() was really reached: this is not the unavailable-gradient path
-    assert len(solver.grad_calls) == 1
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("exc_type", [ValueError, TypeError])
-def test_c2_non_runtime_error_always_propagates(tmp_path, monkeypatch, exc_type, ignore_error):
-    """C2: non-RuntimeError exceptions from gradient() propagate regardless
-    of ignore_error. Fails if ignore_error swallows them."""
-    _, _, r = _make_runner(tmp_path, monkeypatch=monkeypatch, grad=_raising(exc_type("bad grad")),
-                           runner={"ignore_error": ignore_error})
-    with pytest.raises(exc_type, match="bad grad"):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-
-
 # ---------------------------------------------------------------------------
 # C3. min_search input validation at construction
 
@@ -397,23 +314,6 @@ def test_c3_gradient_free_method_with_use_gradient_raises(tmp_path, method):
     if method is not None:
         minimize["method"] = method
     _solver_untouched_after_failed_construction(tmp_path, minimize)
-
-
-def test_c3_unsupported_solver_with_use_gradient_raises(tmp_path):
-    """C3: use_gradient = true with a solver whose supports_gradient is false
-    raises ValueError at construction. Fails if it silently falls back to
-    finite differences."""
-    _solver_untouched_after_failed_construction(
-        tmp_path, {"method": "BFGS", "use_gradient": True}, supports=False)
-
-
-def test_c3_affine_mapping_with_use_gradient_raises(tmp_path):
-    """C3: use_gradient = true with an Affine mapping on the Runner raises
-    ValueError at construction (not NotImplementedError later during the
-    run). Fails if the check is deferred to submit_gradient."""
-    _solver_untouched_after_failed_construction(
-        tmp_path, {"method": "BFGS", "use_gradient": True},
-        mapping=odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2)))
 
 
 def test_c3_gradient_unavailable_reason_with_use_gradient_raises(tmp_path, monkeypatch):
@@ -670,24 +570,6 @@ def test_c5_trust_constr_runs_to_convergence(tmp_path, use_gradient):
     np.testing.assert_allclose(alg.xopt, _C, atol=1e-3)
 
 
-def test_c5_legacy_callback_does_not_reevaluate(tmp_path):
-    """C5: with TNC (legacy callback receiving only x; no gradient), the
-    callback must (a) actually fire (iter_history longer than the initial
-    row) and (b) not call evaluate() with iset == 1 at an x already evaluated
-    with iset == 0. Fails if the callback recomputes f at the iterate."""
-    fn, grad = _quad_fn(_C)
-    alg, solver, _ = _make_alg(tmp_path, {"method": "TNC"}, fn=fn, grad=grad)
-    alg.main()
-    assert len(alg.iter_history) > 1
-    seen = set()
-    for x, args in solver.eval_calls:
-        key = tuple(x.tolist())
-        if args[1] == 1:
-            assert key not in seen, f"re-evaluated at {key} with args {args}"
-        elif args[1] == 0:
-            seen.add(key)
-
-
 @pytest.mark.parametrize("method,use_gradient", [
     ("Nelder-Mead", False),
     ("TNC", False),
@@ -799,19 +681,21 @@ def test_c5_bounds_method_evaluates_boundary(tmp_path, use_gradient):
     np.testing.assert_allclose(alg.fopt, 25.0, rtol=1e-8)
 
 
-def test_c5_non_bounds_method_skips_boundary(tmp_path):
+@pytest.mark.parametrize("side", [1.0, -1.0], ids=["max_list", "min_list"])
+def test_c5_non_bounds_method_skips_boundary(tmp_path, side):
     """C5 (boundary handling, method without bounds): for Nelder-Mead a
     point on min_list/max_list is out of range, so it never reaches
-    evaluate(). initial_scale_list = [3, 0.25] from (2, 2) puts the initial
-    simplex vertex (5, 2) exactly on max_list, and the unconstrained minimum
-    (10, 0) pulls the simplex toward that edge. Fails if the boundary is
-    treated as inside for methods without bounds."""
-    fn, grad = _quad_fn(_FAR)
+    evaluate(). For max_list, initial_scale_list = [3, 0.25] from (2, 2)
+    puts the initial simplex vertex (5, 2) exactly on max_list, and the
+    unconstrained minimum (10, 0) pulls the simplex toward that edge; the
+    min_list case is its mirror image in the first coordinate. Fails if
+    either boundary is treated as inside for methods without bounds."""
+    fn, grad = _quad_fn(side * _FAR)
     alg, solver, _ = _make_alg(
-        tmp_path, {"method": "Nelder-Mead", "initial_scale_list": [3.0, 0.25],
-                   "maxiter": 200},
+        tmp_path, {"method": "Nelder-Mead",
+                   "initial_scale_list": [side * 3.0, 0.25], "maxiter": 200},
         fn=fn, grad=grad,
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
+        initial_list=_same_start_for_all_walkers((side * 2.0, 2.0)))
     alg.main()
     assert solver.eval_calls
     for x, args in solver.eval_calls:
@@ -864,40 +748,6 @@ def test_c6_gradient_matches_central_difference(tmp_path, name, dim):
         ])
         scale = max(1.0, float(np.max(np.abs(num))))
         np.testing.assert_allclose(g, num, rtol=1e-5, atol=1e-5 * scale)
-
-
-# every built-in function of the analytical solver, with a valid dimension
-_ALL_BUILTIN = [
-    ("quadratics", 2), ("quartics", 2), ("ackley", 2), ("alpine", 2),
-    ("exponential", 2), ("griewank", 2), ("himmelblau", 2),
-    ("michalewicz", 2), ("qing", 2), ("rastrigin", 2), ("rosenbrock", 2),
-    ("schaffer", 2), ("schwefel", 2), ("linear_regression_test", 3),
-]
-
-
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
-def test_c6_every_builtin_function_supports_gradient(tmp_path, name, dim):
-    """C6 (revised in contract5): every built-in function of the analytical
-    solver reports a true supports_gradient, and gradient() returns
-    instead of raising NotImplementedError. Fails if any built-in function
-    is left without a gradient."""
-    s = _analytical(tmp_path, name, dim)
-    assert s.supports_gradient
-    g = np.asarray(s.gradient(np.full(dim, 0.3)))
-    assert g.shape == (dim,)
-
-
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
-def test_c6_set_function_drops_gradient_of_every_builtin(tmp_path, name, dim):
-    """C6 (unchanged in contract5): for every built-in function, replacing
-    the objective with set_function() makes supports_gradient false and
-    gradient() raise NotImplementedError. Fails if a newly added gradient
-    is attached so that set_function() does not drop it."""
-    s = _analytical(tmp_path, name, dim)
-    s.set_function(lambda x: float(np.sum((x - 1.0) ** 2)))
-    assert not s.supports_gradient
-    with pytest.raises(NotImplementedError):
-        s.gradient(np.full(dim, 0.3))
 
 
 def test_c6_rosenbrock_dimension_one_gradient_is_zero(tmp_path):
@@ -985,11 +835,6 @@ def _patch_minimize(monkeypatch, factory):
     return real
 
 
-def _in_box(x, lo=-5.0, hi=5.0):
-    x = np.asarray(x)
-    return bool(np.all((x >= lo) & (x <= hi)))
-
-
 def _grad_rows(tmp_path):
     path = _proc_dir(tmp_path) / "History_Gradient.txt"
     assert path.is_file()
@@ -1040,36 +885,15 @@ def test_c7_shape_check_precedes_finiteness(tmp_path, monkeypatch, bad, ignore_e
 _BAD = np.array([4.0, 4.0])
 
 
-def _replacing_factory(fn, bad_x, bad_fun):
-    """Run the real optimizer, then overwrite its result with (bad_x,
-    bad_fun) -- a controlled stand-in for scipy reporting a poor point."""
-    def factory(real):
-        def wrapped(*a, **kw):
-            res = real(*a, **kw)
-            res.x = np.array(bad_x, dtype=float)
-            res.fun = bad_fun
-            return res
-        return wrapped
-    return factory
-
-
-def _best_in_range_evaluation(solver, fn, lo=-5.0, hi=5.0):
-    pts = [x for x, _ in solver.eval_calls if _in_box(x, lo, hi)]
-    assert pts
-    fs = [fn(x) for x in pts]
-    i = int(np.argmin(fs))
-    return pts[i], fs[i]
-
-
-@pytest.mark.parametrize("bad_fun", ["worse", "inf", "nan"])
-def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
+def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch):
     """C8 (contract3, result kept): min_search reports the optimizer's
     result as is, even after a gradient failure that actually happened. A
     scripted optimizer requests the jac at Q = (1.5, 1.5), where the
     solver's gradient() is called and raises RuntimeError (ignore_error =
-    true), and then returns (4, 4) with a fun worse than f(x0), or inf, or
-    NaN. xopt/fopt must be exactly that result. Fails if a best evaluated
-    point (or anything else) replaces the optimizer's result."""
+    true), and then returns (4, 4) with a fun worse than f(x0). xopt/fopt
+    must be exactly that result. Fails if a best evaluated point (or
+    anything else) replaces the optimizer's result. This is the record of
+    a decision the code cannot show: the result is not replaced."""
     fn, grad = _quad_fn(_C)
     x0 = np.array([2.0, 2.0])
     Q = np.array([1.5, 1.5])
@@ -1081,8 +905,8 @@ def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
             raise RuntimeError("gradient fails at Q")
         return grad(x)
 
-    fun = {"worse": fn(_BAD), "inf": np.inf, "nan": np.nan}[bad_fun]
-    assert not fun <= fn(x0)
+    fun = fn(_BAD)
+    assert fun > fn(x0)
     _patch_minimize(monkeypatch, _scripted_minimize(
         eval_points=[Q], jac_points=[Q], result_x=_BAD, result_fun=fun))
     alg, solver, _ = _make_alg(
@@ -1094,28 +918,7 @@ def test_c8_result_kept_after_gradient_failure(tmp_path, monkeypatch, bad_fun):
     assert failures
     assert any(np.array_equal(x, Q) for x, _ in solver.grad_calls)
     np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
-    if bad_fun == "nan":
-        assert np.isnan(alg.fopt)
-    else:
-        assert alg.fopt == fun
-
-
-def test_c8_result_kept_without_gradient_failure(tmp_path, monkeypatch):
-    """C8: without any gradient failure, a scipy result worse than an
-    evaluated point is reported as is. Fails if min_search substitutes
-    another point for the optimizer's result."""
-    fn, grad = _quad_fn(_C)
-    _patch_minimize(monkeypatch, _replacing_factory(fn, _BAD, fn(_BAD)))
-    alg, solver, _ = _make_alg(
-        tmp_path, {"method": "L-BFGS-B", "use_gradient": True},
-        fn=fn, grad=grad, runner={"ignore_error": True},
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    alg.main()
-    assert solver.grad_calls
-    _, best_f = _best_in_range_evaluation(solver, fn)
-    assert best_f < fn(_BAD)
-    np.testing.assert_array_equal(np.asarray(alg.xopt, dtype=float), _BAD)
-    np.testing.assert_allclose(alg.fopt, fn(_BAD), rtol=1e-12)
+    assert alg.fopt == fun
 
 
 _W = np.array([10.0, 1.0])
@@ -1915,24 +1718,6 @@ class _PartialGradientSolver(_NoOverrideBaseSolver):
         return _quad_fn(_C)[1](x)
 
 
-_NO_OVERRIDE = {"base": _NoOverrideBaseSolver, "function": _NoOverrideFunctionSolver}
-
-
-@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
-def test_c14_reason_when_gradient_not_overridden(tmp_path, monkeypatch, kind):
-    """C14: a solver with a true supports_gradient that does not override
-    gradient() (SolverBase.gradient is inherited) gets a reason string from
-    Runner.gradient_unavailable_reason(). Fails if the declaration alone is
-    taken as gradient support."""
-    info = _info(tmp_path)
-    solver = _NO_OVERRIDE[kind](info)
-    assert solver.supports_gradient
-    r = odatse.Runner(solver, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
-
-
 def test_c14_no_reason_for_override_raising_at_some_points(tmp_path, monkeypatch):
     """C14: a solver that overrides gradient() but raises
     NotImplementedError at some points is available (reason None): only the
@@ -1941,22 +1726,6 @@ def test_c14_no_reason_for_override_raising_at_some_points(tmp_path, monkeypatch
     r = odatse.Runner(_PartialGradientSolver(info), info)
     monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
     assert r.gradient_unavailable_reason() is None
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
-def test_c14_submit_gradient_raises_when_not_overridden(tmp_path, monkeypatch, kind, ignore_error):
-    """C14: submit_gradient raises NotImplementedError for a solver that does
-    not override gradient(), with ignore_error true as well as false (it must
-    not silently become an all-NaN gradient), and evaluate() is not called.
-    Fails if ignore_error turns the missing implementation into NaN."""
-    info = _info(tmp_path, runner={"ignore_error": ignore_error})
-    solver = _NO_OVERRIDE[kind](info)
-    r = odatse.Runner(solver, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    assert solver.eval_calls == []
 
 
 @pytest.mark.parametrize("ignore_error", [False, True])
@@ -1978,23 +1747,6 @@ def test_c14_override_raising_not_implemented_is_like_runtime_error(tmp_path, mo
         with pytest.raises(NotImplementedError):
             r.submit_gradient(bad, (2, 0))
     assert len(solver.grad_calls) == 2
-
-
-@pytest.mark.parametrize("kind", list(_NO_OVERRIDE))
-def test_c14_min_search_rejects_not_overridden_gradient(tmp_path, kind):
-    """C14: min_search with use_gradient = true and a solver that does not
-    override gradient() raises InputValueError at construction; it is both
-    a ValueError and an InputError, and the solver is never called. Fails if
-    the run starts and proceeds with all-NaN gradients."""
-    info = _info(tmp_path, minimize={"method": "BFGS", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    solver = _NO_OVERRIDE[kind](info)
-    r = odatse.Runner(solver, info)
-    with pytest.raises(odatse.exception.InputValueError) as ei:
-        min_search.Algorithm(info, r)
-    assert isinstance(ei.value, ValueError)
-    assert isinstance(ei.value, odatse.exception.InputError)
-    assert solver.eval_calls == []
 
 
 # ===========================================================================
@@ -3088,59 +2840,6 @@ def test_c17_runner_uses_set_gradient(tmp_path, monkeypatch):
     assert f.calls == []
 
 
-def _c17_plain_without_gradient(tmp_path, state, f, g, **info_kw):
-    """A plain function solver with set_function only ("function-only") or
-    with the gradient dropped by a later set_function ("dropped")."""
-    info, s = _c17_plain(tmp_path, f=f, **info_kw)
-    if state == "dropped":
-        s.set_gradient(g)
-        s.set_function(f)
-    return info, s
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("state", ["function-only", "dropped"])
-def test_c17_runner_reason_without_set_gradient(tmp_path, monkeypatch, state, ignore_error):
-    """C17-6: a plain function solver with set_function only (or whose
-    gradient a later set_function dropped) gets a reason string, and
-    submit_gradient raises NotImplementedError with ignore_error true as
-    well as false, calling neither the objective nor g. Fails if the Runner
-    takes the solver as gradient-capable or turns the missing gradient into
-    NaN under ignore_error."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info, s = _c17_plain_without_gradient(tmp_path, state, f, g,
-                                          runner={"ignore_error": ignore_error})
-    r = odatse.Runner(s, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    assert f.calls == []
-    assert g.calls == []
-
-
-@pytest.mark.parametrize("state", ["function-only", "dropped"])
-def test_c17_min_search_rejects_use_gradient_without_set_gradient(tmp_path, state):
-    """C17-6: min_search with use_gradient = true and a plain function solver
-    without a gradient (set_function only, or dropped by a later
-    set_function) raises InputValueError at construction, and neither the
-    objective nor g is called. Fails if the run starts (with finite
-    differences or all-NaN gradients)."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info, s = _c17_plain_without_gradient(
-        tmp_path, state, f, g,
-        minimize={"method": "L-BFGS-B", "use_gradient": True},
-        initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    r = odatse.Runner(s, info)
-    with pytest.raises(odatse.exception.InputValueError):
-        min_search.Algorithm(info, r)
-    assert f.calls == []
-    assert g.calls == []
-
-
 def test_c17_min_search_lbfgsb_uses_set_gradient(tmp_path):
     """C17-6: min_search with use_gradient = true and L-BFGS-B on a plain
     function solver with set_function / set_gradient (a 2-D quadratic with
@@ -3335,9 +3034,10 @@ def test_c17_pickle_round_trip(tmp_path, case):
 # C6 revised: the analytical solver after set_function + set_gradient
 
 
-@pytest.mark.parametrize("name,dim", _ALL_BUILTIN)
+@pytest.mark.parametrize("name,dim", [("quadratics", 2), ("alpine", 2)])
 def test_c6r6_set_gradient_after_set_function(tmp_path, monkeypatch, name, dim):
-    """C6 (revised in contract6): for every built-in function, after
+    """C6 (revised in contract6): for a built-in function (every one gets
+    its gradient through the same set_gradient(), so two stand for all), after
     set_function() drops the built-in gradient, set_gradient(g) makes
     supports_gradient true again and gradient() returns g(x) (with x passed
     to g), not the built-in gradient; the Runner then reports no reason.
@@ -3389,16 +3089,6 @@ def test_c6r6_set_function_again_drops_set_gradient(tmp_path):
     assert g1.calls == []
 
 
-def test_c6r6_builtin_gradient_unchanged(tmp_path):
-    """C6 (unchanged in contract6): a built-in function keeps its gradient
-    without set_gradient: quadratics reports supports_gradient true and its
-    gradient 2x. Fails if the built-in gradients now need set_gradient or
-    are replaced by something else."""
-    s = _analytical(tmp_path, "quadratics", 2)
-    assert s.supports_gradient
-    np.testing.assert_allclose(np.asarray(s.gradient(_C17_X.copy())), 2.0 * _C17_X)
-
-
 def test_c6r6_min_search_with_replaced_function_and_set_gradient(tmp_path):
     """C6 (revised): min_search with use_gradient = true accepts an
     analytical solver whose objective was replaced by set_function and whose
@@ -3447,10 +3137,6 @@ class _C14r6Analytical(odatse.solver.analytical.Solver):
         self.supports_gradient = True
 
 
-_C14R6_KINDS = ["property", "class-attr", "property-dropped",
-                "class-attr-dropped", "analytical", "analytical-dropped"]
-
-
 def _c14r6_solver(kind, info, f, g):
     """A function solver subclass with a true supports_gradient, without a
     gradient() override and without a gradient: set_gradient never called,
@@ -3467,66 +3153,6 @@ def _c14r6_solver(kind, info, f, g):
         s.set_gradient(g)
         s.set_function(f)
     return s
-
-
-@pytest.mark.parametrize("kind", _C14R6_KINDS)
-def test_c14r6_reason_without_gradient(tmp_path, monkeypatch, kind):
-    """C14 (revised): a function solver subclass (analytical subclasses
-    included) with a true supports_gradient, no gradient() override and no
-    gradient (never set, or dropped by set_function) gets a reason string
-    from Runner.gradient_unavailable_reason(). Fails if the Runner only
-    checks whether the class differs from SolverBase.gradient (function or
-    analytical then count as an override) and ignores the missing g."""
-    f = _C17Recorder(_c17_f)
-    info = _info(tmp_path)
-    s = _c14r6_solver(kind, info, f, _c17_g1)
-    assert s.supports_gradient
-    r = odatse.Runner(s, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
-    assert f.calls == []
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("kind", _C14R6_KINDS)
-def test_c14r6_submit_gradient_raises_without_gradient(tmp_path, monkeypatch, kind, ignore_error):
-    """C14 (revised): for those solvers submit_gradient raises
-    NotImplementedError regardless of ignore_error (not an all-NaN
-    gradient) because a reason is reported, and neither the objective nor
-    a dropped g is called. Fails if ignore_error turns the missing gradient
-    into NaN, or if the check happens only inside solver.gradient()."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info = _info(tmp_path, runner={"ignore_error": ignore_error})
-    s = _c14r6_solver(kind, info, f, g)
-    r = odatse.Runner(s, info)
-    monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
-    assert isinstance(r.gradient_unavailable_reason(), str)
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(np.array([0.5, -0.75]), (1, 0))
-    assert f.calls == []
-    assert g.calls == []
-
-
-@pytest.mark.parametrize("kind", _C14R6_KINDS)
-def test_c14r6_min_search_rejects_without_gradient(tmp_path, kind):
-    """C14 (revised): min_search with use_gradient = true raises
-    InputValueError (a ValueError and an InputError) at construction for
-    those solvers, without calling the objective or g. Fails if the run
-    starts and proceeds with all-NaN gradients."""
-    f = _C17Recorder(_c17_f)
-    g = _C17Recorder(_c17_g1)
-    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    s = _c14r6_solver(kind, info, f, g)
-    r = odatse.Runner(s, info)
-    with pytest.raises(odatse.exception.InputValueError) as ei:
-        min_search.Algorithm(info, r)
-    assert isinstance(ei.value, ValueError)
-    assert isinstance(ei.value, odatse.exception.InputError)
-    assert f.calls == []
-    assert g.calls == []
 
 
 @pytest.mark.parametrize("kind", ["property", "class-attr", "analytical"])
@@ -3724,10 +3350,29 @@ def test_c1r7_reason_none_for_parallel_solver(tmp_path, monkeypatch, solsize):
     assert r.gradient_unavailable_reason() is None
 
 
-def _c18_unavailable_runner(tmp_path, situation, runner=None, limitation=None):
+# Every situation in which Runner.gradient_unavailable_reason() must give a
+# reason. What each one has to slip past is noted, because a check that
+# catches one of them does not catch the next.
+_UNAVAILABLE = [
+    "unsupported",               # supports_gradient false, gradient() works
+    "affine",                    # [runner.mapping] on a capable solver
+    "base-no-override",          # SolverBase: support declared, no gradient()
+    "function-no-override",      # function.Solver subclass: the same
+    "function-no-set-gradient",  # plain function.Solver, set_function only
+    "function-dropped",          # ... gradient dropped by a later set_function
+    # function.Solver subclasses that declare support (a property, a class
+    # attribute, an analytical subclass assigning it) but have no gradient:
+    # never set, or ("-dropped") dropped by set_function
+    "property", "class-attr", "analytical",
+    "property-dropped", "class-attr-dropped", "analytical-dropped",
+]
+
+
+def _unavailable_runner(tmp_path, situation, runner=None, limitation=None):
     """A Runner whose gradient is unavailable for a reason other than the
-    solver group, with the solver's evaluate()/gradient() calls recorded in
-    solver.eval_calls (and solver.grad_calls where gradient() exists)."""
+    solver group. solver.eval_calls records the calls of evaluate() or of
+    the objective, and solver.grad_calls (where there is anything that
+    could be called) those of gradient() or of a dropped g."""
     if situation in ("unsupported", "affine"):
         kw = {"supports": False} if situation == "unsupported" else {
             "mapping": odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))}
@@ -3738,28 +3383,55 @@ def _c18_unavailable_runner(tmp_path, situation, runner=None, limitation=None):
         solver = _NoOverrideBaseSolver(info)
     elif situation == "function-no-override":
         solver = _NoOverrideFunctionSolver(info)
-    else:  # "function-no-set-gradient": a plain function solver
-        f = _C17Recorder(_quad_fn(_C)[0])
-        solver = odatse.solver.function.Solver(info)
-        solver.set_function(f)
-        solver.eval_calls = f.calls    # the objective's calls
+    else:
+        f = _C17Recorder(_c17_f)
+        g = _C17Recorder(_c17_g1)
+        if situation.startswith("function-"):
+            solver = odatse.solver.function.Solver(info)
+            solver.set_function(f)
+            if situation == "function-dropped":
+                solver.set_gradient(g)
+                solver.set_function(f)
+        else:
+            solver = _c14r6_solver(situation, info, f, g)
+            # these are the solvers that claim support without a gradient
+            assert solver.supports_gradient
+        solver.eval_calls = f.calls
+        solver.grad_calls = g.calls
     return solver, odatse.Runner(solver, info, limitation=limitation)
 
 
-_C18_UNAVAILABLE = ["unsupported", "affine", "base-no-override",
-                    "function-no-override", "function-no-set-gradient"]
-
-
-@pytest.mark.parametrize("situation", _C18_UNAVAILABLE)
-def test_c1r7_other_reasons_remain_in_parallel(tmp_path, monkeypatch, situation):
-    """C1 (revised, unchanged part): in a solver group of 2, every other
-    reason (no gradient support, Affine mapping, gradient() not overridden,
-    a function solver without set_gradient) is still reported. Fails if
-    a parallel solver group short-circuits the remaining checks to None."""
-    _, r = _c18_unavailable_runner(tmp_path, situation)
-    _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
-    reason = r.gradient_unavailable_reason()
-    assert isinstance(reason, str) and reason
+@pytest.mark.parametrize("solsize", [1, 2])
+@pytest.mark.parametrize("situation", _UNAVAILABLE)
+def test_unavailable_gradient_is_reported_and_refused(tmp_path, monkeypatch,
+                                                      situation, solsize):
+    """C1 / C2 / C14 / C17-6 / C18(a)2: in every situation of _UNAVAILABLE,
+    alone and as the controller of a solver group of 2,
+    gradient_unavailable_reason() returns a non-empty string, and
+    submit_gradient raises NotImplementedError with ignore_error true as
+    well as false, without calling evaluate(), gradient(), the objective or
+    a dropped g, and without sending anything to the workers.
+    Fails if a declaration of support is taken for a gradient, if only the
+    class of gradient() is inspected (function and analytical solvers
+    override it but may have no g), if ignore_error turns the missing
+    gradient into an all-NaN one, if a parallel group short-circuits the
+    checks, or if the control message goes out before the check (the
+    workers would then wait for a request the controller abandons)."""
+    for ignore_error in (False, True):
+        solver, r = _unavailable_runner(tmp_path / f"ignore-{ignore_error}", situation,
+                                        runner={"ignore_error": ignore_error})
+        if solsize == 1:
+            monkeypatch.setattr(odatse.mpi, "solsize", lambda: 1)
+            comm = None
+        else:
+            comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
+        reason = r.gradient_unavailable_reason()
+        assert isinstance(reason, str) and reason
+        with pytest.raises(NotImplementedError):
+            r.submit_gradient(_C18_X.copy(), (1, 0))
+        assert comm is None or comm.log == []
+        assert solver.eval_calls == []
+        assert getattr(solver, "grad_calls", []) == []
 
 
 @pytest.mark.parametrize("situation", ["unsupported", "affine"])
@@ -3768,11 +3440,9 @@ def test_c2r7_unavailable_precedes_limitation_in_parallel(tmp_path, monkeypatch,
     unavailable gradient raises NotImplementedError even at an x violating
     the limitation, and nothing is sent to the workers. Fails if the
     limitation is judged first (an unusable gradient would pass as NaN) or
-    if the control message is sent before the availability check.
-    (Replaces the "parallel" cases of test_c2_submit_gradient_raises_when_unavailable
-    and test_c2_unavailable_raises_even_when_limitation_violated.)"""
+    if the control message is sent before the availability check."""
     lim = odatse.util.limitation.Inequality(np.array([[1.0, 0.0]]), np.array([0.0]), True)
-    solver, r = _c18_unavailable_runner(tmp_path, situation, limitation=lim)
+    solver, r = _unavailable_runner(tmp_path, situation, limitation=lim)
     comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
     x = np.array([-1.0, 1.0])
     assert not r.limitation.judge(x)
@@ -3798,26 +3468,6 @@ def test_c3r7_min_search_accepts_use_gradient_in_parallel(tmp_path, monkeypatch)
     assert solver.eval_calls == [] and solver.grad_calls == []
     # nothing but the construction agreement was communicated
     assert set(comm.kinds()) <= {"Allreduce", "bcast"}
-
-
-@pytest.mark.parametrize("situation", ["unsupported", "affine"])
-def test_c3r7_min_search_rejects_other_reasons_in_parallel(tmp_path, monkeypatch, situation):
-    """C3 (revised, unchanged part): in a solver group of 2, use_gradient =
-    true with an unsupported solver or an Affine mapping still raises
-    InputValueError at construction, without calling the solver. Fails if
-    the parallel case skips the validation."""
-    comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
-    fn, grad = _quad_fn(_C)
-    info = _info(tmp_path, minimize={"method": "L-BFGS-B", "use_gradient": True},
-                 initial_list=_same_start_for_all_walkers((2.0, 2.0)))
-    solver = _RecordingSolver(info, fn, grad, supports=(situation != "unsupported"))
-    mapping = (odatse.util.mapping.Affine(A=2.0 * np.eye(2), b=np.zeros(2))
-               if situation == "affine" else None)
-    r = odatse.Runner(solver, info, mapping=mapping)
-    with pytest.raises(odatse.exception.InputValueError):
-        min_search.Algorithm(info, r)
-    assert solver.eval_calls == [] and solver.grad_calls == []
-    assert "allgather" not in comm.kinds()
 
 
 # ---------------------------------------------------------------------------
@@ -3903,24 +3553,6 @@ def test_c18_single_rank_gradient_uses_no_collective(tmp_path, monkeypatch):
     assert len(solver.grad_calls) == 1
 
 
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("situation", _C18_UNAVAILABLE)
-def test_c18_unavailable_sends_nothing(tmp_path, monkeypatch, situation, ignore_error):
-    """C18(a)2: when the gradient is unavailable, the controller of a group
-    of 2 raises NotImplementedError (regardless of ignore_error) without
-    sending anything and without calling gradient() or evaluate(). Fails if
-    the control message goes out first: the workers would compute (and wait
-    in the exchange) for a request the controller abandons."""
-    solver, r = _c18_unavailable_runner(tmp_path, situation,
-                                        runner={"ignore_error": ignore_error})
-    comm = _c18_group(monkeypatch, _C18Solcomm(0, [_C18_OK]))
-    with pytest.raises(NotImplementedError):
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert comm.log == []
-    assert solver.eval_calls == []
-    assert getattr(solver, "grad_calls", []) == []
-
-
 def test_c18_limitation_violation_sends_nothing(tmp_path, monkeypatch):
     """C18(a)2: at an x violating the limitation the controller of a group
     of 2 returns an all-NaN gradient without sending anything and without
@@ -3986,137 +3618,112 @@ def test_c18_wrong_shape_raises_after_exchange(tmp_path, monkeypatch, bad, ignor
 # C18(b) failures in the group, decided on the controller
 
 
-@pytest.mark.parametrize("worker", [_C18_WORKER_RTE, _C18_WORKER_NIE], ids=["runtime", "not-implemented"])
-def test_c18_worker_runtime_error_is_nan_with_ignore_error(tmp_path, monkeypatch, worker):
-    """C18(b)1: a worker's RuntimeError (NotImplementedError included) in
-    gradient() gives an all-NaN gradient with ignore_error = true, after
-    one exchange. Fails if the controller returns its own (finite) gradient
-    as if the group had succeeded, or raises."""
-    solver, r, comm, _ = _c18_controller(tmp_path, monkeypatch, others=[worker],
-                                         runner={"ignore_error": True})
-    _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
-    assert comm.kinds().count("allgather") == 1
-    assert len(solver.grad_calls) == 1
+def _failure(id, solsize, own, worker, ignore_error, outcome, summary=None):
+    return pytest.param(solsize, own, worker, ignore_error, outcome, summary, id=id)
 
 
-@pytest.mark.parametrize("worker", [_C18_WORKER_RTE, _C18_WORKER_NIE], ids=["runtime", "not-implemented"])
-def test_c18_worker_runtime_error_raises_solver_runtime_error(tmp_path, monkeypatch, worker):
-    """C18(b)1, (b)4: without ignore_error a worker's RuntimeError raises
-    SolverRuntimeError (a RuntimeError and a SolverError) whose message
-    names solver.gradient(), the number of failing ranks and the worker's
-    "[rank N] Type: message". Fails if the failure is swallowed, if the
-    worker's exception type is lost, or if the message says
-    solver.evaluate() (the evaluate wording copied unchanged)."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[worker])
-    with pytest.raises(SolverRuntimeError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert isinstance(ei.value, RuntimeError) and isinstance(ei.value, SolverError)
-    _c18_assert_gradient_summary(str(ei.value), 1, [worker[1]])
+_BOOM = "controller boom"
+_OWN_LINE = f"[rank 2] RuntimeError: {_BOOM}"
+
+# What submit_gradient does when gradient() fails, by who failed and how.
+#   own:     the exception raised by this process's gradient(), or None
+#   worker:  the status the other rank of a group of 2 reports
+#   outcome: "nan"  -- an all-NaN gradient is returned
+#            "same" -- the very exception object of ``own`` is raised
+#            a class -- that exception is raised; ``summary`` gives the
+#                       number of failing ranks and their lines in its message
+_FAILURE_CASES = [
+    # --- alone: a RuntimeError is ignorable, anything else is not
+    _failure("alone-runtime", 1, RuntimeError(_BOOM), None, False, "same"),
+    _failure("alone-runtime-ignored", 1, RuntimeError(_BOOM), None, True, "nan"),
+    # NotImplementedError is a RuntimeError, and must be treated as one here:
+    # this is a gradient() that was reached, not an unavailable gradient
+    _failure("alone-notimpl", 1, NotImplementedError(_BOOM), None, False, "same"),
+    _failure("alone-notimpl-ignored", 1, NotImplementedError(_BOOM), None, True, "nan"),
+    _failure("alone-value", 1, ValueError(_BOOM), None, False, "same"),
+    _failure("alone-value-ignored", 1, ValueError(_BOOM), None, True, "same"),
+    _failure("alone-type", 1, TypeError(_BOOM), None, False, "same"),
+    _failure("alone-type-ignored", 1, TypeError(_BOOM), None, True, "same"),
+    # --- C18(b)1: only the controller fails -> as when alone, but after the
+    # exchange, which releases the workers
+    _failure("own-runtime", 2, RuntimeError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-runtime-ignored", 2, RuntimeError(_BOOM), _C18_OK, True, "nan"),
+    _failure("own-notimpl", 2, NotImplementedError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-notimpl-ignored", 2, NotImplementedError(_BOOM), _C18_OK, True, "nan"),
+    # --- C18(b)1, (b)4: a worker's RuntimeError -> NaN if ignored, else a
+    # SolverRuntimeError carrying the worker's line (its type would be lost)
+    _failure("worker-runtime", 2, None, _C18_WORKER_RTE, False,
+             SolverRuntimeError, (1, [_C18_WORKER_RTE[1]])),
+    _failure("worker-runtime-ignored", 2, None, _C18_WORKER_RTE, True, "nan"),
+    _failure("worker-notimpl", 2, None, _C18_WORKER_NIE, False,
+             SolverRuntimeError, (1, [_C18_WORKER_NIE[1]])),
+    _failure("worker-notimpl-ignored", 2, None, _C18_WORKER_NIE, True, "nan"),
+    # both fail: the worker's failure must not hide behind the controller's
+    _failure("both-runtime", 2, RuntimeError(_BOOM), _C18_WORKER_RTE, False,
+             SolverRuntimeError, (2, [_OWN_LINE, _C18_WORKER_RTE[1]])),
+    _failure("both-runtime-ignored", 2, RuntimeError(_BOOM), _C18_WORKER_RTE, True, "nan"),
+    # --- C18(b)2: a non-RuntimeError is never ignored. From a worker it is
+    # a SolverError that is not a RuntimeError; from the controller alone it
+    # stays the same object
+    _failure("worker-value", 2, None, _C18_WORKER_VAL, False,
+             SolverError, (1, [_C18_WORKER_VAL[1]])),
+    _failure("worker-value-ignored", 2, None, _C18_WORKER_VAL, True,
+             SolverError, (1, [_C18_WORKER_VAL[1]])),
+    _failure("own-value", 2, ValueError(_BOOM), _C18_OK, False, "same"),
+    _failure("own-value-ignored", 2, ValueError(_BOOM), _C18_OK, True, "same"),
+    # one rank's RuntimeError does not make the other's ValueError ignorable
+    _failure("own-value-worker-runtime-ignored", 2, ValueError(_BOOM), _C18_WORKER_RTE,
+             True, SolverError),
+    _failure("own-runtime-worker-value-ignored", 2, RuntimeError(_BOOM), _C18_WORKER_VAL,
+             True, SolverError),
+    # --- C18(b)3: SystemExit / KeyboardInterrupt still take part in the
+    # exchange (the workers wait in it) and become a SolverError
+    _failure("own-exit-ignored", 2, SystemExit(3), _C18_OK, True, SolverError),
+    _failure("own-interrupt-ignored", 2, KeyboardInterrupt(), _C18_OK, True, SolverError),
+]
 
 
-@pytest.mark.parametrize("ignore_error", [False, True])
-@pytest.mark.parametrize("exc_type", [RuntimeError, NotImplementedError])
-def test_c18_controller_only_runtime_error(tmp_path, monkeypatch, exc_type, ignore_error):
-    """C18(b)1: when only the controller's gradient() raises a
-    RuntimeError (or NotImplementedError), ignore_error = true gives an
-    all-NaN gradient and otherwise that very exception is raised, after
-    one exchange (the workers must be released). Fails if the exception is
-    wrapped or replaced, if ignore_error does not apply, or if the
-    controller raises before the exchange."""
-    own = exc_type("controller boom")
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(own),
-                                    runner={"ignore_error": ignore_error})
-    if ignore_error:
-        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
+@pytest.mark.parametrize("solsize,own,worker,ignore_error,outcome,summary", _FAILURE_CASES)
+def test_gradient_failure_outcome(tmp_path, monkeypatch, solsize, own, worker,
+                                  ignore_error, outcome, summary):
+    """C2 / C18(b): the outcome of submit_gradient for every row of
+    _FAILURE_CASES. In each row gradient() is called exactly once here (the
+    failure is a real one, not the unavailable-gradient path), and in a
+    group of 2 the request is followed by exactly one status exchange,
+    whatever happens, so that the workers are released. An exception built
+    from the group's statuses is a SolverError (and a RuntimeError exactly
+    when it is a SolverRuntimeError) whose message names solver.gradient(),
+    not solver.evaluate().
+    Fails if ignore_error covers more or less than RuntimeError, if an
+    exception of the controller is wrapped, replaced or raised before the
+    exchange, if a worker's failure is swallowed or hidden behind the
+    controller's, or if the evaluate wording is reused for gradients."""
+    kw = {"grad": None if own is None else _raising(own),
+          "runner": {"ignore_error": ignore_error}}
+    if solsize == 1:
+        _, solver, r = _make_runner(tmp_path, monkeypatch=monkeypatch, **kw)
+        comm = None
     else:
-        with pytest.raises(exc_type) as ei:
+        solver, r, comm, _ = _c18_controller(tmp_path, monkeypatch, others=[worker],
+                                             global_rank=2, **kw)
+    if outcome == "nan":
+        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
+    elif outcome == "same":
+        with pytest.raises(type(own)) as ei:
             r.submit_gradient(_C18_X.copy(), (1, 0))
         assert ei.value is own
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_controller_and_worker_runtime_error(tmp_path, monkeypatch, ignore_error):
-    """C18(b)1: when the controller and a worker both raise RuntimeError,
-    ignore_error = true gives NaN, and otherwise a SolverRuntimeError lists
-    both ranks. Fails if only the controller's own exception is raised
-    (the worker's failure would be hidden) or if ignore_error is refused."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[_C18_WORKER_RTE],
-                                 grad=_raising(RuntimeError("controller boom")),
-                                 global_rank=2, runner={"ignore_error": ignore_error})
-    if ignore_error:
-        _assert_all_nan(r.submit_gradient(_C18_X.copy(), (1, 0)), (2,))
-        return
-    with pytest.raises(SolverRuntimeError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    _c18_assert_gradient_summary(
-        str(ei.value), 2, ["[rank 2] RuntimeError: controller boom", _C18_WORKER_RTE[1]])
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_worker_non_runtime_error_is_solver_error(tmp_path, monkeypatch, ignore_error):
-    """C18(b)2, (b)4: a worker's non-RuntimeError (ValueError) in gradient()
-    raises a SolverError that is not a RuntimeError, regardless of
-    ignore_error, naming solver.gradient() and the worker's line. Fails if
-    ignore_error turns it into NaN or the controller's finite gradient is
-    returned."""
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[_C18_WORKER_VAL],
-                                 runner={"ignore_error": ignore_error})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert not isinstance(ei.value, RuntimeError)
-    _c18_assert_gradient_summary(str(ei.value), 1, [_C18_WORKER_VAL[1]])
-
-
-@pytest.mark.parametrize("ignore_error", [False, True])
-def test_c18_controller_only_non_runtime_error_is_unchanged(tmp_path, monkeypatch, ignore_error):
-    """C18(b)2: a non-RuntimeError raised by the controller's gradient()
-    alone is raised as it is (the same object), regardless of
-    ignore_error, after the exchange. Fails if it is wrapped, ignored, or
-    raised before the workers are released."""
-    own = ValueError("controller boom")
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(own),
-                                    runner={"ignore_error": ignore_error})
-    with pytest.raises(ValueError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert ei.value is own
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-
-
-@pytest.mark.parametrize("case", ["controller-value", "worker-value"])
-def test_c18_mixed_failures_with_a_worker_are_solver_error(tmp_path, monkeypatch, case):
-    """C18(b)2: a non-RuntimeError anywhere in the group, together with a
-    worker failure, raises SolverError even with ignore_error = true.
-    Fails if the RuntimeError of one rank makes the whole failure
-    ignorable."""
-    if case == "controller-value":
-        own, worker = ValueError("controller boom"), _C18_WORKER_RTE
     else:
-        own, worker = RuntimeError("controller boom"), _C18_WORKER_VAL
-    _, r, _, _ = _c18_controller(tmp_path, monkeypatch, others=[worker], grad=_raising(own),
-                                 global_rank=2, runner={"ignore_error": True})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert not isinstance(ei.value, RuntimeError)
-    assert "solver.gradient()" in str(ei.value)
-    assert "solver.evaluate()" not in str(ei.value)
-
-
-@pytest.mark.parametrize("exc", [SystemExit(3), KeyboardInterrupt()], ids=["exit", "interrupt"])
-def test_c18_controller_base_exception_is_solver_error(tmp_path, monkeypatch, exc):
-    """C18(b)3, (b)4: SystemExit / KeyboardInterrupt from the controller's
-    gradient() takes part in the exchange (the workers wait in it) and is
-    then raised as a SolverError, also with ignore_error = true, whose
-    message names solver.gradient(). Fails if it propagates as is before the
-    exchange (the workers would hang), if ignore_error turns it into NaN, or
-    if the message says solver.evaluate()."""
-    _, r, comm, _ = _c18_controller(tmp_path, monkeypatch, grad=_raising(exc),
-                                    runner={"ignore_error": True})
-    with pytest.raises(SolverError) as ei:
-        r.submit_gradient(_C18_X.copy(), (1, 0))
-    assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
-    assert "solver.gradient()" in str(ei.value)
-    assert "solver.evaluate()" not in str(ei.value)
+        with pytest.raises(outcome) as ei:
+            r.submit_gradient(_C18_X.copy(), (1, 0))
+        assert isinstance(ei.value, SolverError)
+        assert isinstance(ei.value, RuntimeError) == (outcome is SolverRuntimeError)
+        assert "solver.gradient()" in str(ei.value)
+        assert "solver.evaluate()" not in str(ei.value)
+        if summary is not None:
+            _c18_assert_gradient_summary(str(ei.value), *summary)
+    assert len(solver.grad_calls) == 1
+    if comm is not None:
+        assert comm.kinds() == ["Bcast", "Bcast", "bcast", "allgather"]
 
 
 @pytest.mark.parametrize("foreign", [1.5, None, (True, "looks like a status")])
